@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.280 2009/06/10 04:04:39 akarelia Exp $
+* $Id: listing_engine.inc,v 1.281 2009/07/07 16:27:17 jhurst Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.280 $
+* @version $Revision: 1.281 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2274,13 +2274,29 @@ class Listing_Engine extends Page
 		// by the time we reach this point we already have a bodycopy for this asset
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
+
+		// For each keyword starting with 'asset_contents', ensure there is an entry 
+		// in $bc_keywords for both the plain keyword and any equivalents with modifiers. 
+		//
+		// This way plain replacement works as expected, and the modifiers can be run
+		// later in this method..
+		foreach ($bc_keywords as $kw) {
+			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
+				$kw = parse_keyword($kw);
+
+				if (in_array($kw, $bc_keywords)) {
+					array_push($bc_keywords, $kw);
+				}
+			}
+		}
+
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 
 			// Body with paint layout applied, if any (inherited from the
 			// listing engine asset, usually)
-			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+			if (array_key_exists("asset_contents", $bc_keywords)) {
 				ob_start();
 					if ($assetid != $this->id) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -2293,7 +2309,7 @@ class Listing_Engine extends Page
 
 			// %asset_contents_raw% will print the asset's body WITHOUT a
 			// paint layout
-			if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+			if (array_key_exists("asset_contents_raw", $bc_keywords)) {
 				ob_start();
 					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2321,14 +2337,13 @@ class Listing_Engine extends Page
 
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
-				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+				if (array_key_exists("asset_contents", $keywords)) {
 					ob_start();
 						if ($asset->id != $this->id) {
 							$asset->printBodyWithPaintLayout();
 						}
 						$keywords['asset_contents'] = ob_get_contents();
 					ob_end_clean();
-
 				}
 
 				// Body with paint layout(%asset_contents_paint_ASSETID%) or user-defined paint layout(%asset_contents_paint_NAME%) applied
@@ -2350,7 +2365,7 @@ class Listing_Engine extends Page
 
 				// %asset_contents_raw% will print the asset's body WITHOUT a
 				// paint layout
-				if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+				if (array_key_exists("asset_contents_raw", $keywords)) {
 					ob_start();
 						if ($asset->id != $this->id) $asset->printBody();
 						$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2568,6 +2583,22 @@ class Listing_Engine extends Page
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes(FALSE));
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
+
+		// For every keyword with modifiers starting with 'asset_contents', apply the modifiers..
+		foreach ($keywords as $kw => $val) {
+			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
+
+				$plain_keyword = parse_keyword($kw, $modifiers);
+				if (!empty($modifiers)) {
+					// Start the modified keyword off with the plain replaced value
+					$keywords[$kw] = $keywords[$plain_keyword];
+
+					// Apply modifiers
+					apply_keyword_modifiers($keywords[$kw], $modifiers);
+				}
+
+			}
+		}
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();

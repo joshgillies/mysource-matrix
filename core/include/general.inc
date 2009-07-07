@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.223 2009/07/07 00:35:39 akarelia Exp $
+* $Id: general.inc,v 1.224 2009/07/07 16:26:17 jhurst Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix
 */
 
@@ -1688,36 +1688,39 @@ function replace_global_keywords(&$text)
 	if (!empty($keywords)) {
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
+			$full_keyword = $keyword;
+			$keyword = parse_keyword($keyword, $modifiers);
+
 			if (0 === strpos($keyword, 'globals_')) {
 				// Default replacement for global keywords is blank string
-				$replacements[$keyword] = '';
+				$replacements[$full_keyword] = '';
 				if (0 === strpos($keyword, 'globals_user_')) {
 					$user_keyword = 'asset_'.substr($keyword, 13);
 					$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
 					if ($user_replacement != "%$user_keyword%") {
-						$replacements[$keyword] =  $user_replacement;
+						$replacements[$full_keyword] = $user_replacement;
 					}
 				}
 				if (0 === strpos($keyword, 'globals_get_')) {
 					$sub_keyword = substr($keyword, 12);
-					$replacements[$keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''));
+					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''), $modifiers);
 				}
 				if (0 === strpos($keyword, 'globals_post_')) {
 					$sub_keyword = substr($keyword, 13);
-					$replacements[$keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''));
+					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''), $modifiers);
 				}
 				if (0 === strpos($keyword, 'globals_session_')) {
 					$sub_keyword = substr($keyword, 16);
-					$replacements[$keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
+					$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', $modifiers);
 				}
 				if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
 					$sub_keyword = substr($keyword, 15);
-					$replacements[$keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
+					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), $modifiers);
 				}
 				if (0 === strpos($keyword, 'globals_server_')) {
-					$replacements[$keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
-					if (!is_scalar($replacements[$keyword])) {
-						$replacements[$keyword] = '';
+					$replacements[$full_keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
+					if (!is_scalar($replacements[$full_keyword])) {
+						$replacements[$full_keyword] = '';
 					}
 				}
 				if (0 === strpos($keyword, 'globals_date')) {
@@ -1732,7 +1735,7 @@ function replace_global_keywords(&$text)
 							$date_keyword = date($format);
 						}//end if
 					}//end if
-					$replacements[$keyword] = $date_keyword;
+					$replacements[$full_keyword] = $date_keyword;
 				}
 				if (0 === strpos($keyword, 'globals_icon')) {
 					$type = substr($keyword, 12);
@@ -1764,7 +1767,7 @@ function replace_global_keywords(&$text)
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						$site_replacement = $site->getKeywordReplacement($site_keyword);
 						if ($site_replacement != "%$site_keyword%") {
-							$replacements[$keyword] = $site_replacement;
+							$replacements[$full_keyword] = $site_replacement;
 						}
 					}
 				}
@@ -1792,7 +1795,7 @@ function replace_global_keywords(&$text)
 						}
 
 						if ($asset_replacement != "%$asset_keyword%") {
-							$replacements[$keyword] = $asset_replacement;
+							$replacements[$full_keyword] = $asset_replacement;
 						}
 					} else {
 						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
@@ -1800,13 +1803,13 @@ function replace_global_keywords(&$text)
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
 							if ($asset_replacement != "%$matches[1]%") {
-								$replacements[$keyword] = $asset_replacement;
+								$replacements[$full_keyword] = $asset_replacement;
 							}
 						}
 					}
 				}//end if
 				if (0 === strpos($keyword, 'globals_snippet_')) {
-					$replacements[$keyword] = '';
+					$replacements[$full_keyword] = '';
 					if ($GLOBALS['SQ_SYSTEM']->am->installed('content_type_snippet')) {
 						$snippet_info = explode('_', $keyword);
 						if (is_numeric($snippet_info[2])) {
@@ -1821,7 +1824,7 @@ function replace_global_keywords(&$text)
 										$replacement = ob_get_contents();
 									ob_end_clean();
 									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($snippet_asset);
-									$replacements[$keyword] = $replacement;
+									$replacements[$full_keyword] = $replacement;
 								}
 							}
 						}
@@ -1829,15 +1832,19 @@ function replace_global_keywords(&$text)
 				}//end if
 				if (0 === strpos($keyword, 'globals_random')) {
 					if ($keyword == 'globals_random') {
-						$replacements[$keyword] = rand();
+						$replacements[$full_keyword] = rand();
 					} else {
 						$sub_keyword = substr($keyword, 14);
 						if (preg_match('/^_(\d+)_(\d+)$/', $sub_keyword, $matches)) {
-							$replacements[$keyword] = rand((int)$matches[1], (int)$matches[2]);
+							$replacements[$full_keyword] = rand((int)$matches[1], (int)$matches[2]);
 						}
 					}
 				}//end if
+				
+				apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
+
 			}//end if is global keyword
+
 		}//end foreach keyword
 		replace_keywords($text, $replacements);
 	}//end if
@@ -1855,10 +1862,13 @@ function replace_global_keywords(&$text)
 * @return string
 * @access public
 */
-function clean_keyword_value($keyword_value)
+function clean_keyword_value($keyword_value, $modifiers)
 {
-	// Only scalars are accepted
-	if (!is_scalar($keyword_value)) {
+	// If modifiers are being used we assume they're doing their own escaping.
+	if (!empty($modifiers)) {
+		return $keyword_value;
+	} elseif (!is_scalar($keyword_value)) {
+		// Only scalars are accepted.
 		$keyword_value = '';
 	} else {
 		// whitelist of characters that will not be stripped out,

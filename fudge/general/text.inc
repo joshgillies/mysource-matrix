@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.40 2008/11/26 22:18:50 lwright Exp $
+* $Id: text.inc,v 1.41 2009/07/07 16:26:59 jhurst Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package Fudge
 * @subpackage Text
 */
@@ -88,6 +88,224 @@ function _replace_keywords_recursive(&$text, &$replacements)
 }//end _replace_keywords_recursive()
 
 
+
+/**
+ * Parses a keyword which may contain modifier syntax. 
+ *
+ * e.g. asset_contents~maxwords:10
+ *
+ * ..would return the plain keyword asset_contents, and modifiers
+ * would contain one entry for maxwords.
+ *
+ * @return string
+ * @access public
+ */
+function parse_keyword($keyword, &$modifiers = NULL)
+{
+	$modifiers = Array();
+	$parts = split('~', $keyword);
+	$keyword = array_shift($parts);
+
+	foreach ($parts as &$p) {
+		$args = preg_split('/:{1}/', $p, -1);
+		$modifier = array_shift($args);
+		if (!empty($modifier)) {
+			array_push($modifiers, Array('modifier' => $modifier, 'args' => $args));
+		}
+	}
+
+	return $keyword;
+
+}//end parse_keyword()
+
+
+/**
+ * Applies a set of modifiers against given text. $text is updated in place.
+ *
+ * @return void
+ * @access public
+ */
+function apply_keyword_modifiers(&$text, $modifiers)
+{
+	foreach ($modifiers as $m) {
+		$text = apply_keyword_modifier($text, $m);
+	}
+
+}//end apply_keyword_modifiers()
+
+
+/**
+ * Returns a version of $text piped through a predefined modifier.
+ *
+ * Mofifiers should be self explanatory.
+ *
+ * @return string
+ * @access public
+ */
+function apply_keyword_modifier($text, $modifier)
+{
+	switch ($modifier['modifier']) {
+
+	case "urlencode":
+		return urlencode($text);
+
+	case "urldecode":
+		return urldecode($text);
+
+	case "base64encode":
+		return base64_encode($text);
+
+	case "base64decode":
+		return base64_decode($text);
+
+	case "lowercase":
+		return strtolower($text);
+
+	case "uppercase":
+		return strtoupper($text);
+
+	case "nl2br":
+		return nl2br($text);
+
+	case "escapequotes":
+		return addslashes($text);
+
+	case "escapehtml":
+		return htmlspecialchars($text, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+	case "striphtml":
+		return strip_tags($text);
+
+	case "maxchars":
+		// One argument; the max characters as an integer.
+		$max = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		if (is_numeric($max)) {
+			return substr($text, 0, $max);
+		} else {
+			return $text;
+		}
+
+	case "maxwords":
+		// One argument; the max words as an integer.
+		$max = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		if (is_numeric($max)) {
+			$words = str_word_count($text, 2);
+			$keys = array_keys($words);
+
+			if ($max >= count($keys)) {
+				return $text;
+			} else {
+				return substr($text, 0, $keys[$max]);
+			}
+		} else {
+			return $text;
+		}
+
+	case "wordcount":
+		return str_word_count($text);
+
+	case "charcount":
+		return strlen($text);
+
+	case "capitalize":
+		return ucfirst($text);
+
+	case "titleize":
+		return ucwords($text);
+
+	case "trim":
+		return trim($text);
+
+	case "underscore":
+		return preg_replace('/\s+/', '_', $text);
+
+	case "xpath":
+		// Args are delimeter, xpath
+		//
+		// Example (ordered list of RSS item titles, using tagif modifier to ol list): 
+		//
+		//    %asset_contents~xpath:</li><li>://item/title~tagif:li~tagif:ol%
+		//
+		// The path lists all titles in the feed, delimited by </li><li>, and then conditionally wrapped in <li>, 
+		// which in turn is conditionally wrapped in <ol>.
+		//
+		$delim  = isset($modifier['args'][0]) ? $modifier['args'][0] : '';
+		$path   = isset($modifier['args'][1]) ? $modifier['args'][1] : NULL;
+
+		// If there are more args, this means there were colons in the path. Fixup.
+		for ($i = 2; $i < count($modifier['args']); $i++) {
+			$path .= ':' . $modifier['args'][$i];
+		}
+
+		if ($path) {
+			try {
+				$xml = new SimpleXMLElement($text);
+
+				// if namespaces are used, register them before using them in the xpath query
+				$namespaces = explode('xmlns:', $path);
+				$path = array_shift($namespaces);
+				foreach ($namespaces as $namespace) {
+					$ns = explode('=', $namespace);
+					if (count($ns) == 2) {
+						$xml->registerXPathNamespace($ns[0], trim($ns[1]));
+					}
+				}
+
+				$res = $xml->xpath($path);
+				if ($res) {
+					return implode($delim, $xml->xpath($path));
+				}
+			} catch (Exception $e) {
+				// Badly formed xml, most likely.
+				trigger_error($e->getMessage());
+			}
+		}
+		return $text;
+
+	case "empty":
+		// One argument; text to display if the keyword result is empty.
+		if (empty($text)) {
+			$text = isset($modifier['args'][0]) ? $modifier['args'][0] : '';
+		}
+		return $text;
+
+	case "tag":
+		// One argument; the tag name to wrap around the text.
+		$tag = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		if ($tag) {
+			if (empty($text)) {
+				return "<$tag />";
+			} else {
+				return "<$tag>$text</$tag>";
+			}
+		}
+		return $text;
+
+	case "tagif":
+		// Same as above, except do nothing if the text is empty.
+		$tag = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		if ($tag) {
+			if (empty($text)) {
+				return "";
+			} else {
+				return "<$tag>$text</$tag>";
+			}
+		}
+		return $text;
+
+	case "cdata":
+		// Escape CDATA closing markup.
+		$text = str_replace(']]>', ']]]]><![CDATA[>', $text);
+		return "<![CDATA[$text]]>";
+
+	default:
+		return $text;
+
+	}
+
+}//end _run_keyword_modifier()
+
+
 /**
 * An alias for extract keywords
 *
@@ -120,8 +338,9 @@ function extract_keywords($text, $additional='')
 {
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
-	preg_match_all ('/%([a-zA-Z_\-0-9\.:'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
-	return (count($matches)) ? $matches[1] : Array();
+	// Match any keyword including the filter portion.
+	preg_match_all ('/%([a-zA-Z]{3,}[a-zA-Z_\-0-9\.:'.$additional.']+(~{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	return array_unique($matches[1]);
 
 }//end extract_keywords()
 
