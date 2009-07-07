@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.296 2009/07/07 06:29:51 lwright Exp $
+* $Id: mysource.inc,v 1.297 2009/07/07 06:44:51 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.296 $
+* @version $Revision: 1.297 $
 * @package MySource_Matrix
 */
 class MySource
@@ -339,9 +339,16 @@ class MySource
 				// If the context no longer exists (eg. the current
 				// one was deleted through the backend interface),
 				// get Matrix to select a new one.
-				$context_exists = MatrixDAL::executeAll('core', 'getContexts', Array('contextids' => Array($alternate_context_id)));
-				if (empty($context_exists) === TRUE) {
-					$alternate_context_id = NULL;
+				try {
+					$context_exists = MatrixDAL::executeAll('core', 'getContexts', Array('contextids' => Array($alternate_context_id)));
+					if (empty($context_exists) === TRUE) {
+						$alternate_context_id = NULL;
+					}
+				} catch (DALException $e) {
+					// Eep. This query hasn't even been baked yet.
+					// Set it to the default context since there's
+					// not much else that can be done here.
+					$alternate_context_id = 0;
 				}
 			}
 		}
