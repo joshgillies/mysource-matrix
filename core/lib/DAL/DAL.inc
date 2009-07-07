@@ -167,7 +167,7 @@ class DAL
 	 * @var   boolean $_oci_commit_on_success
 	 * @since 4.0.0
 	*/
-	private static $_oci_commit_on_success = FALSE;
+	private static $_ociCommitOnSuccess = FALSE;
 
 	/**
 	 * DAL constructor.
@@ -610,7 +610,7 @@ class DAL
 
 		if (self::getDbType() === 'oci') {
 			// OCI:
-			if(self::$_oci_commit_on_success){
+			if(self::$_ociCommitOnSuccess){
 				$result = oci_execute($query, OCI_COMMIT_ON_SUCCESS);
 			}
 			else {
@@ -1821,8 +1821,8 @@ class DAL
 	 * @since  4.0.0
 	 * @return void
 	 */
-	public static function set_oci_commit_on_success ($switch) {
-		self::$_oci_commit_on_success = $switch;
+	public static function setOciCommitOnSuccess ($switch) {
+		self::$_ociCommitOnSuccess = $switch;
 	}
 
 }//end class
