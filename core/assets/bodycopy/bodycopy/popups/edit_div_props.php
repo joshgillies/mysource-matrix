@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.24 2009/05/15 04:10:00 wszymanski Exp $
+* $Id: edit_div_props.php,v 1.25 2009/07/07 23:04:39 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,6 +158,12 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<legend><b><?php echo translate('content_type'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
+				<?php
+				if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+					echo translate('changing_div_not_allowed_in_safe_edit');
+				}
+				else {
+				?>
 					<td class="label"><?php echo translate('content_type'); ?>:</td>
 					<td>
 					<select name="content_type">
@@ -167,6 +173,9 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					</select>
 					</td>
 				</tr>
+				<?php
+				}
+				?>
 				<tr>
 					<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
 					<td><input type="checkbox" name="disable_keywords" value="1"></td>
