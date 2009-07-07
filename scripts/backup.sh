@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.17.2.1 2009/05/19 23:01:20 csmith Exp $
+#* $Id: backup.sh,v 1.17.2.2 2009/07/07 22:55:19 csmith Exp $
 #*
 #*/
 #
@@ -93,7 +93,7 @@ file_exists()
 			return $RET
 		;;
 		*)
-			found=`which $1`
+			found=`which $1 2>/dev/null 1>/dev/null`
 			return $?
 		;;
 	esac
