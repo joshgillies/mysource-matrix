@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.294 2009/06/30 06:23:07 ewang Exp $
+* $Id: mysource.inc,v 1.295 2009/07/07 06:23:49 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.294 $
+* @version $Revision: 1.295 $
 * @package MySource_Matrix
 */
 class MySource
@@ -67,6 +67,15 @@ class MySource
 	* @see setRunLevel(), restoreRunLevel()
 	*/
 	protected $_run_level_stack = Array();
+
+
+	/**
+	* The stack for contexts
+	*
+	* @var array
+	* @see changeContext(), restoreContext()
+	*/
+	protected $_context_stack = Array();
 
 	/**
 	* The current Backend object
@@ -209,6 +218,7 @@ class MySource
 	public function init()
 	{
 		$this->changeDatabaseConnection('db');
+		$this->changeContext(0);
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
@@ -320,6 +330,28 @@ class MySource
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
+
+		// If this session is new, select an appropriate context
+		// and store it in the session so it sticks between pages
+		if (isset($_SESSION)) {
+			$alternate_context_id = array_get_index($_SESSION, 'SQ_ALTERNATE_CONTEXT_ID');
+			if ($alternate_context_id !== NULL) {
+				// If the context no longer exists (eg. the current
+				// one was deleted through the backend interface),
+				// get Matrix to select a new one.
+				$context_exists = MatrixDAL::executeAll('core', 'getContexts', Array('contextids' => Array($alternate_context_id)));
+				if (empty($context_exists) === TRUE) {
+					$alternate_context_id = NULL;
+				}
+			}
+		}
+
+		if ($alternate_context_id === NULL) {
+			$alternate_context_id = $this->getAlternateContext();
+			$_SESSION['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
+		}
+		
+		$this->changeContext($alternate_context_id);
 
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
@@ -2289,6 +2321,341 @@ class MySource
 	}//end getUserPrefs()
 
 
+//--        CONTEXT SET/GET        --//
+
+
+	/**
+	* Get the current context ID in force
+	*
+	* @todo
+	* @return int
+	*/
+	public function getContextId()
+	{
+		$current_contextid = NULL;
+		$stack_height = count($this->_context_stack);
+		if ($stack_height > 0) {
+			$current_contextid = $this->_context_stack[$stack_height - 1];	
+		}
+		return $current_contextid;
+
+	}//end getContextId()
+
+
+	/**
+	* Change the current context, and place it on the stack
+	*
+	* @param int	$contextid	The ID of the context to change to
+	*
+	* @return void
+	*/
+	public function changeContext($contextid)
+	{
+		array_push($this->_context_stack, $contextid);
+
+	}//end changeContextId()
+
+
+	/**
+	* Restore the previous context from the stack
+	*
+	* @return void
+	*/
+	public function restoreContext()
+	{
+		if (count($this->_context_stack) <= 0) {
+			// Cannot restore the context as the context stack is empty
+			trigger_localised_error('SYS0332', E_USER_ERROR);
+		} else {
+			array_pop($this->_context_stack);
+		}
+
+	}//end restoreContext()
+
+
+	/**
+	* Gets information about the current context, based on the
+	* context ID passed to it.
+	*
+	* If the context ID was omitted from the function call,
+	* the current context ID is used instead.
+	*
+	* @param int	$contextid	The ID of the context to get info for
+	*
+	* @return void
+	*/
+	public function getContextInfo($contextid=NULL)
+	{
+		$context_info = Array();
+		if (func_num_args() === 0) {
+			$contextid = $this->getContextId();
+		}
+
+		if ($contextid !== NULL) {
+			// Query the list/table of contexts to work out what to do
+
+		}
+
+		return $context_info;
+
+	}//end getContextInfo()
+
+
+	/**
+	* Deletes the information associated with a deleted context
+	*
+	* Returns TRUE on success, FALSE on failure
+	*
+	* @param int	$contextid	The ID of the context to get info for
+	*
+	* @return boolean
+	*/
+	public function deleteContextData($contextid)
+	{
+		
+
+		return TRUE;
+
+	}//end deleteContextData()
+
+
+	/**
+	* Returns the context we should be using based on the
+	* settings on the Context Configuration screen
+	*
+	* Returns the ID of the context that we should be using,
+	* or '0' (representing the default context) if none are
+	* appropriate.
+	*
+	* @return int
+	*/
+	public function getAlternateContext()
+	{
+		// Get all contexts, except the default
+		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		unset($contexts[0]);
+		
+		// Remove the intervening '0' since the context ID is unique;
+		// also unserialise conditions where needed
+		// use PHP 5 assign-value-by-ref trick
+		foreach ($contexts as $key => &$value) {
+			$value = $value[0];
+			if (empty($value["conditions"]) === FALSE) {
+				$value["conditions"] = unserialize($value["conditions"]);
+			}
+		}
+		unset($value);
+		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
+
+		$use_contextid = 0;
+
+		foreach ($contexts as $contextid => $context) {
+			// If set to "all", change to the number of conditions we have
+			// Then calculate the maximum number of fails we are allowed
+			if ($context['at_least'] === NULL) {
+				$context['at_least'] = count($context['conditions']);
+			}
+			$maximum_failures = count($context['conditions']) - $context['at_least'];
+
+			if ($maximum_failures < 0) {
+				continue;
+			}
+
+			$total_failures = 0;
+
+			foreach ($context['conditions'] as $condition) {
+				$condition_type    = $condition['type'];
+				$condition_options = $condition['options'];
+
+				$pass = FALSE;
+
+				switch ($condition_type) {
+					case 'accept-language':
+						$language = $condition_options['language'];
+						$language = str_replace('_', '-', strtolower($language));
+						$min_q    = $condition_options['min_q'];
+						$header   = array_get_index($_SERVER, 'HTTP_ACCEPT_LANGUAGE');
+
+						if ($header !== NULL) {
+							$header_items = explode(',', $header);
+							foreach ($header_items as $header_item) {
+								$item_bits = explode(';', trim($header_item));
+								if (count($item_bits) === 1) {
+									$item_bits[1] = 'q=1.0';
+								}
+								list($header_language, $header_q_value) = $item_bits;
+								$header_language = trim($header_language);
+								$header_q_value = (float)str_replace('q=', '', trim($header_q_value));
+
+								// ??? List of Matrix's languages only handle language and not locale
+								// (eg. en vs. en-au). Currently handled by taking start of locale
+								if (strpos($header_language, $language) === 0) {
+									if ($header_q_value >= $min_q) {
+										$pass = TRUE;
+										break;
+									}
+								}
+							}
+						}
+					break;
+
+					case 'header':
+						$server_index = 'HTTP_'.str_replace('-', '_', strtoupper($condition_options['header_name']));
+						$header_value = array_get_index($_SERVER, $server_index);
+
+						$matched = FALSE;
+						$match_type  = $condition_options['match_type'];
+						$match_value = $condition_options['match_value'];
+						$case_sensitive = array_get_index($condition_options, 'case_sensitive', 1);
+
+						if ($match_type === 'exists') {
+							$matched = ($header_value === NULL) ? FALSE : TRUE;
+						} else {
+							if ($header_value !== NULL) {
+								bam($header_value);
+								bam($match_type);
+								if ($case_sensitive === 0) {
+									$header_value = strtolower($header_value);
+									$match_value = strtolower($match_value);
+								}
+
+								switch ($match_type) {
+									case 'exact':
+										if ($header_value === $match_value) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'begins':
+										if (strpos($header_value, $match_value) === 0) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'ends':
+										if (strpos($header_value, $match_value) === strlen($header_value) - strlen($match_value)) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'contains':
+										if (strpos($header_value, $match_value) !== FALSE) {
+											$matched = TRUE;
+										}
+									break;
+								}//end switch on match type
+
+							}//end if header is not null
+
+						}//end if match type is "header exists"
+
+						if ($condition_options['match_logic'] === 0) {
+							$pass = !$matched;
+						} else {
+							$pass = $matched;
+						}
+
+					break;
+
+					case 'url':
+						$current_url = current_url(FALSE, TRUE);
+						
+						$matched = FALSE;
+						$match_type  = $condition_options['match_type'];
+						$match_value = $condition_options['match_value'];
+						
+						switch ($match_type) {
+							case 'exact':
+								if ($current_url === $match_value) {
+									$matched = TRUE;
+								}
+							break;
+
+							case 'begins':
+								if (strpos($current_url, $match_value) === 0) {
+									$matched = TRUE;
+								}
+							break;
+
+							case 'ends':
+								if (strpos($current_url, $match_value) === strlen($current_url) - strlen($match_value)) {
+									$matched = TRUE;
+								}
+							break;
+
+							case 'contains':
+								if (strpos($current_url, $match_value) !== FALSE) {
+									$matched = TRUE;
+								}
+							break;
+						}//end switch on match type
+
+						if ($condition_options['match_logic'] === 0) {
+							$pass = !$matched;
+						} else {
+							$pass = $matched;
+						}
+
+					break;
+
+					case 'port':
+						// If we do not have a server port, assume port 80 
+						$current_port = (int)array_get_index($_SERVER, 'SERVER_PORT', 80);
+						$match_type = $condition_options['match_type'];
+						$match_value = (int)$condition_options['match_value'];
+
+						if ($match_type === 'is') {
+							// Secure
+							$pass = ($current_port === $match_value) ? TRUE : FALSE;
+						} else {
+							// Not secure
+							$pass = ($current_port !== $match_value) ? TRUE : FALSE;
+						}
+
+					break;
+
+					case 'secure':
+						$current_protocol = current_protocol();
+						$match_value = (int)$condition_options['match_value'];
+
+						if ($match_value === 1) {
+							// Secure
+							$pass = ($current_protocol === 'https') ? TRUE : FALSE;
+						} else {
+							// Not secure
+							$pass = ($current_protocol === 'http') ? TRUE : FALSE;
+						}
+
+					break;
+
+				}//end switch on condition type
+
+				if ($pass === FALSE) {
+					$total_failures++;
+
+					// Exceeded maximum number of failures,
+					// so stop processing this context
+					if ($total_failures > $maximum_failures) {
+						break;
+					}
+				}
+
+			}//end foreach condition
+
+			// We survived! This is the alternate context
+			// we want.
+			if ($total_failures <= $maximum_failures) {
+				$use_contextid = $contextid;
+				break;
+			}
+
+		}//end foreach context
+
+		return $use_contextid;
+
+	}//end getAlternateContext()
+
+
 //--        GET MANAGERS        --//
 
 
@@ -2686,8 +3053,8 @@ class MySource
 		// cat trans.log | awk '{ print $6 }' | sort | uniq -c # total number of each type of call
 		// $bt = debug_backtrace();
 		// if (isset($bt[1])) {
-		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
-		// } else {
+		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].':'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		// }  else {
 		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		// }
 
