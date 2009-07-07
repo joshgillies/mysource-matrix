@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.140.2.8 2009/06/25 01:13:16 cupreti Exp $
+* $Id: html_form.inc,v 1.140.2.9 2009/07/07 01:29:58 wszymanski Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.8 $
+* @version $Revision: 1.140.2.9 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1419,7 +1419,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		$asset_info_ids[] = $data['assetid'];
 
 		if (!in_array($data['type_code'], $type_codes) && !empty($type_codes)) {
-			$invalid_type[] = $child_links[$treeid]['assetid']; //we need this
+			$invalid_type[] = $child_links[$treeid]['assetid']; // we need this
 			unset($child_links[$treeid]);
 			// need to take this bit off as it is storing the treeid of the asset which has invalid type_code match
 			// by doing so we are not looking under this tree id. But what if i have a Folder under a Standard Page
@@ -1430,7 +1430,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 
 		if ($child_links[$treeid]['is_dependant']) {
-			$invalid_type[] = $child_links[$treeid]['assetid']; //we need this
+			$invalid_type[] = $child_links[$treeid]['assetid']; // we need this
 			unset($child_links[$treeid]);
 			$invalid[] = $treeid;
 			continue;
@@ -1453,7 +1453,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			unset($child_links[$treeid]);
 			$invalid[] = $treeid;
 		}
-	}
+	}//end foreach
 
 	// check if we have statuses we want to filter out, and also check user has atleast read permission
 	if (!empty($statuses) && count($statuses) < 9) {
@@ -1489,11 +1489,12 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	// Insert each node into the tree
 	$search_tree = Array();
 	foreach ($child_links as $treeid => $child) {
-		id_list_to_tree($treeid, $search_tree);
+		id_list_to_tree($treeid, $search_tree, '', $child['sort_order']);
 	}
+	sort_tree($search_tree);
 	draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth, $structured);
 
-	// some how while in draw_tree function, matrix is putting back the assets that were removed in the 
+	// some how while in draw_tree function, matrix is putting back the assets that were removed in the
 	// very first foreach() method call in the function. so we have to get rid of them
 	foreach ($options as $key_id => $name_value) {
 		if (in_array($key_id,$invalid_type)) {
@@ -1524,9 +1525,14 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 * $tree is in the following format:
 * <pre>
 * Array(
-*	'0001'	=> 0,
+*	'0001'	=> Array(
+* 				'sort_order' => 0,
+* 			   ),
 *	'0002'	=> Array(
-*				'00020001'	=> 0,
+* 				'sort_order' => 1,
+*				'00020001'	=> Array(
+* 								'sort_order' => 0,
+* 							   ),
 *			   ),
 * )
 * </pre>
@@ -1534,11 +1540,12 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 * @param string	$treeid			the ID of the tree to format
 * @param array	&$tree			the tree to insert the formatted ID into
 * @param string	$chunk_prefix	optional, used internally
+* @param int 	$sort_order		sort order for current branch of tree
 *
 * @return void
 * @access private
 */
-function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
+function id_list_to_tree($treeid, &$tree, $chunk_prefix='', $sort_order)
 {
 	$branch_str_len = 4;
 
@@ -1551,9 +1558,9 @@ function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
 		if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
 			$tree[$chunk_prefix.$first_chunk] = Array();
 		}
-		id_list_to_tree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
+		id_list_to_tree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk, $sort_order);
 	} else {
-		$tree[$chunk_prefix.$first_chunk] = 0;
+		$tree[$chunk_prefix.$first_chunk]['sort_order'] = $sort_order;
 	}
 
 }//end id_list_to_tree()
@@ -1580,6 +1587,8 @@ function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0
 {
 	if (empty($tree)) return FALSE;
 	foreach ($tree as $branch => $branch_data) {
+		// skip if current node is not treeid element
+		if ($branch == 'sort_order') continue;
 		$prefix = '';
 
 		$lvl = $all_child_links[$branch]['lvl'] - $level;
@@ -1639,6 +1648,50 @@ function keyword_selector($keywords, $target_id, $self_id=NULL, $prompt=NULL)
 	<?php
 
 }//end keyword_selector()
+
+
+/**
+* Sorts tree array including nested arrays as well
+*
+* @param array	&$tree	Reference to array that needs to be sorted
+*
+* @return void
+* @access public
+*/
+function sort_tree(&$tree)
+{
+	foreach ($tree as &$treeid) {
+		// checks if nested array has more entries than just sort_order key
+		if (count($treeid) > 1) {
+			sort_tree($treeid);
+		}
+	}
+	uasort($tree, 'sort_compare');
+
+}//end sort_tree()
+
+
+/**
+* Comparison function for use in uasort()
+* 
+* @param array	$left
+* @param array 	$right
+*
+* @return int
+* @access public
+*/
+function sort_compare($left, $right)
+{
+	if (!is_array($left) || !is_array($right)) {
+		return 0;
+	}
+	if ($left['sort_order'] > $right['sort_order']) {
+		return 1;
+	} else {
+		return -1;
+	}
+
+}//end sort_compare()
 
 
 ?>
