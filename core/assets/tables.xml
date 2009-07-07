@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.58 2009/05/27 06:17:46 ewang Exp $
+* $Id: tables.xml,v 1.59 2009/07/07 06:16:12 lwright Exp $
 *
 */
 -->
@@ -532,6 +532,12 @@
 					<default>1</default>
 					<description />
 				</column>
+				<column name="is_contextable" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -565,6 +571,12 @@
 					<default />
 					<description />
 				</column>
+				<column name="contextid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
 				<column name="custom_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
@@ -578,6 +590,7 @@
 				<primary_key>
 					<column name="assetid" />
 					<column name="attrid" />
+					<column name="contextid" />
 				</primary_key>
 			</keys>
 			<indexes>
@@ -586,6 +599,9 @@
 				</index>
 				<index>
 					<column name="assetid" />
+				</index>
+				<index>
+					<column name="contextid" />
 				</index>
 				<!--
 				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
@@ -604,6 +620,12 @@
 					<default />
 					<description />
 				</column>
+				<column name="contextid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
 				<column name="custom_val" allow_null="0">
 					<type>VARCHAR(2000)</type>
 					<type_variations />
@@ -620,6 +642,7 @@
 			<keys>
 				<primary_key>
 					<column name="owning_attrid" />
+					<column name="contextid" />
 					<column name="custom_val" />
 				</primary_key>
 			</keys>
@@ -1913,8 +1936,54 @@
 			</keys>
 			<indexes />
 		</table>
+		<table name="ctx_def" require_rollback="1">
+			<columns>
+				<column name="contextid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="conditions" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="at_least" allow_null="1">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sort_order" allow_null="1">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="contextid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="sort_order" />
+				</index>
+			</indexes>
+		</table>
 	</tables>
-	
+
 	<sequences>
 		<sequence name="ast" />
 		<sequence name="ast_lnk" />
@@ -1926,6 +1995,7 @@
 		<sequence name="thes_term" />
 		<sequence name="thes_lnk" />
 		<sequence name="thes_rel" />
+		<sequence name="ctx_id" />
 	</sequences>
 </schema>
 

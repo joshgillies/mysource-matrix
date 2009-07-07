@@ -499,6 +499,7 @@
 					<field>default_val</field>
 					<field>parameters_val</field>
 					<field>is_admin</field>
+					<field>is_contextable</field>
 					<field>description</field>
 				</fields>
 				<values>
@@ -517,6 +518,7 @@
 					<value column="default_val">:default_val</value>
 					<value column="parameters_val">:parameters_val</value>
 					<value column="is_admin">:is_admin</value>
+					<value column="is_contextable">:is_contextable</value>
 					<value column="description">:description</value>
 				</values>
 			</insert>
@@ -1603,6 +1605,121 @@
 					<equal table="sq_file_vers_history" column="version">:version</equal>
 				</where>
 			</update>
+		</primary>
+	</query>
+
+
+	<!-- //        CONTEXT MANAGEMENT        // -->
+
+	
+	<query id="getAllContextIds">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ctx_def" column="contextid" />
+				</fields>
+				<from>
+					<table>sq_ctx_def</table>
+				</from>
+				<order-by>
+					<field table="sq_ctx_def" column="contextid" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+
+	<query id="getContexts">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ctx_def" column="contextid" />
+					<field table="sq_ctx_def" column="name" />
+					<field table="sq_ctx_def" column="conditions" />
+					<field table="sq_ctx_def" column="at_least" />
+					<field table="sq_ctx_def" column="sort_order" />
+				</fields>
+				<from>
+					<table>sq_ctx_def</table>
+				</from>
+				<where>
+					<in table="sq_ctx_def" column="contextid">:contextids</in>
+				</where>
+				<order-by>
+					<field table="sq_ctx_def" column="contextid" />
+				</order-by>
+			</select>
+		</primary>
+		<alternate>
+			<assert-null data="contextids">
+				<select>
+					<fields>
+						<field table="sq_ctx_def" column="contextid" />
+						<field table="sq_ctx_def" column="name" />
+						<field table="sq_ctx_def" column="conditions" />
+						<field table="sq_ctx_def" column="at_least" />
+						<field table="sq_ctx_def" column="sort_order" />
+					</fields>
+					<from>
+						<table>sq_ctx_def</table>
+					</from>
+					<order-by>
+						<field table="sq_ctx_def" column="contextid" />
+					</order-by>
+				</select>
+			</assert-null>
+		</alternate>
+	</query>
+
+	<query id="createContext">
+		<primary>
+			<insert>
+				<fields table="sq_ctx_def">
+					<field>contextid</field>
+					<field>name</field>
+					<field>conditions</field>
+					<field>at_least</field>
+					<field>sort_order</field>
+				</fields>
+				<values>
+					<value column="contextid">:contextid</value>
+					<value column="name">:name</value>
+					<value column="conditions">:conditions</value>
+					<value column="at_least">:at_least</value>
+					<value column="sort_order">:sort_order</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+
+	<query id="updateContext">
+		<primary>
+			<update>
+				<fields table="sq_ctx_def">
+					<field>name</field>
+					<field>conditions</field>
+					<field>at_least</field>
+					<field>sort_order</field>
+				</fields>
+				<values>
+					<value column="name">:name</value>
+					<value column="conditions">:conditions</value>
+					<value column="at_least">:at_least</value>
+					<value column="sort_order">:sort_order</value>
+				</values>
+				<where>
+					<equal table="sq_ctx_def" column="contextid">:contextid</equal>	
+				</where>
+			</update>
+		</primary>
+	</query>
+
+	<query id="deleteContexts">
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ctx_def" column="contextid">:contextids</in>
+				</where>
+			</delete>
 		</primary>
 	</query>
 
