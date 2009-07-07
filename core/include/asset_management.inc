@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.86 2008/10/26 21:55:15 hnguyen Exp $
+* $Id: asset_management.inc,v 1.87 2009/07/07 06:53:48 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -532,6 +532,7 @@ class Asset_Management extends MySource_Object
 			$attr_info['default_val']            = $this->vars[$name]['default'];
 			$attr_info['uniq']                   = empty($this->vars[$name]['uniq']) ? 0 : 1;
 			$attr_info['is_admin']               = isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1;
+			$attr_info['is_contextable']         = isset($this->vars[$name]['is_contextable']) ? (int) $this->vars[$name]['is_contextable'] : 0;
 			$attr_info['parameters_type_code']   = $type_code;
 
 			if (isset($this->vars[$name]['parameters'])) {
@@ -556,7 +557,7 @@ class Asset_Management extends MySource_Object
 
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
-							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin
+							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin, atr.is_contextable
 					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 					WHERE i.type_code = :type_code
 					  AND i.inhd_type_code <> :inhd_type_code
@@ -584,6 +585,7 @@ class Asset_Management extends MySource_Object
 			$attr_info['type']              = $attr_owner['type'];
 			$attr_info['uniq']              = $attr_owner['uniq'];
 			$attr_info['is_admin']          = (int) $attr_owner['is_admin'];
+			$attr_info['is_contextable']    = (int) $attr_owner['is_contextable'];
 			$attr_info['description']       = $attr_owner['description'];
 
 			// if we have set our own default value, then we are overriding the default
@@ -660,10 +662,10 @@ class Asset_Management extends MySource_Object
 								'default_val'			=> $attr_info['default_val'],
 								'parameters_val'		=> serialize($attr_info['parameters']),
 								'is_admin'				=> $attr_info['is_admin'] ? 1 : 0,
+								'is_contextable'		=> $attr_info['is_contextable'] ? 1 : 0,
 								'description'			=> $attr_info['description'],
 							 );
 				MatrixDAL::executeQuery('core', 'insertAssetAttribute', $bind_vars);
-
 		} catch (DALException $e) {
 			throw new Exception('Unable to add attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
@@ -953,6 +955,7 @@ class Asset_Management extends MySource_Object
 				SET type        = :type,
 					uniq        = :uniq,
 					is_admin    = :is_admin,
+					is_contextable = :is_contextable,
 					description = :description
 				WHERE owning_type_code = :owning_type_code
 				  AND name = :name';
@@ -963,6 +966,7 @@ class Asset_Management extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'type',             $this->vars[$name]['type'], PDO::PARAM_STR);
 			MatrixDAL::bindValueToPdo($query, 'uniq',             empty($this->vars[$name]['uniq']) ? 0 : 1, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'is_admin',         isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdo($query, 'is_contextable',   isset($this->vars[$name]['is_contextable']) ? (int) $this->vars[$name]['is_contextable'] : 0, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'description',      $description, PDO::PARAM_STR);
 			MatrixDAL::bindValueToPdo($query, 'owning_type_code', $type_code,   PDO::PARAM_STR);
 			MatrixDAL::bindValueToPdo($query, 'name',             $name,        PDO::PARAM_STR);
