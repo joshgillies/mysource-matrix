@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.89 2009/06/30 06:28:06 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.90 2009/07/07 04:50:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -57,7 +57,7 @@ class Bulk_Mailer
 		//We will intensively use fork from now on
 		//therefore set oci_commit_on_success mode on to avoid end-of-communication issue for oracle + fork
 		if (MatrixDAL::getDbType() === 'oci') {
-			MatrixDAL::set_oci_commit_on_success (TRUE);
+			MatrixDAL::setOciCommitOnSuccess(TRUE);
 		}
 		// setup signal handlers
 		pcntl_signal(SIGTERM, Array(&$this,'_sigHandler'));
@@ -119,7 +119,7 @@ class Bulk_Mailer
 			}
 		}	
 		if (MatrixDAL::getDbType() === 'oci') {
-			MatrixDAL::set_oci_commit_on_success (FALSE);
+			MatrixDAL::setOciCommitOnSuccess (FALSE);
 		}
 	}//end start()
 
