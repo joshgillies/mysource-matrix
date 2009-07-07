@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.295 2009/07/07 06:23:49 lwright Exp $
+* $Id: mysource.inc,v 1.296 2009/07/07 06:29:51 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.295 $
+* @version $Revision: 1.296 $
 * @package MySource_Matrix
 */
 class MySource
@@ -346,7 +346,7 @@ class MySource
 			}
 		}
 
-		if ($alternate_context_id === NULL) {
+		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
 			$_SESSION['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
 		}
