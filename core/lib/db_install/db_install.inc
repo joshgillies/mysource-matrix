@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.63 2008/11/14 04:36:13 bpearson Exp $
+* $Id: db_install.inc,v 1.63.2.1 2009/07/07 01:12:39 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -835,29 +835,6 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 	}//end if
 
 }//end install_stored_relations()
-
-
-/**
-* Replaces elements that are considered XML elements, but not html elements.
-*
-* @param string	$string	the string that needs cleaning
-*
-* @return string
-* @access private
-*/
-function xml_entity_decode($string)
-{
-	$string = html_entity_decode($string);
-	$string = str_replace('&#124;', '|', $string);
-	$string = str_replace('&apos;', "'", $string);
-	$string = str_replace('&#42;', '*', $string);
-	$string = str_replace('&#92;', '\\', $string);
-	$string = str_replace('&#126;', '~', $string);
-	$string = str_replace('&#96;', '`', $string);
-	$string = str_replace('&#94;', '^', $string);
-	return $string;
-
-}//end xml_entity_decode()
 
 
 /**
