@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: web_folder_web_services.inc,v 1.3 2009/07/06 23:00:59 mbrydon Exp $
+* $Id: web_folder_web_services.inc,v 1.4 2009/07/07 23:35:30 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/web_folders/web_folder/web_folder.inc
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -54,8 +54,14 @@ class Web_Folder_Web_Services extends Web_Folder
     public function _getAllowedLinks()
     {
         return Array(
-				SQ_LINK_TYPE_2 => Array('soap_server' => Array('card' => 'M', 'exclusive' => FALSE)),
-				SQ_LINK_TYPE_1 => Array('soap_server' => Array('card' => 'M', 'exclusive' => FALSE)),
+				SQ_LINK_TYPE_1 => Array(
+									'soap_server'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'js_api'		=> Array('card' => 'M', 'exclusive' => FALSE),
+								  ),
+				SQ_LINK_TYPE_2 => Array(
+									'soap_server'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'js_api'		=> Array('card' => 'M', 'exclusive' => FALSE),
+								  ),
 				SQ_LINK_NOTICE => Array('design' => Array('card' => 'M', 'exclusive' => FALSE)),
 			   );
 
