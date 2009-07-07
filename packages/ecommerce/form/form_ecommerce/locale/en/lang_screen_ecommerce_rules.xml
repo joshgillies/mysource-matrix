@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_ecommerce_rules.xml,v 1.5 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_screen_ecommerce_rules.xml,v 1.6 2009/07/07 05:28:48 lwright Exp $
 *
 */
 -->
@@ -21,6 +21,13 @@
 			<paint_function   name="paintEcommerceQuestionLinks"   />
 			<process_function name="processEcommerceQuestionLinks" />
 		</function_call>
-		<note>E-commerce rule is a rule that assigns a dollar value to each question option. Left pane shows all the ELIGIBLE question types linked to this form. When you copy the question to the right pane, you are specifying that it should be included in e-commerce rule set. Question added to the set still needs some parameter to be set.  Select the question you want to edit in the right pane and hit the commit button. For a question with multiple options you will see an input box next to each option. Putting a numeric value in each of these boxes will assign dollar values to the options. If the question that you have chosen is of a numeric type, there are n o options you can set. The value submitted by the user will be used as a dollar value.</note>
+		<note><![CDATA[<p>Each Numeric, Selection-type or Tickbox Table question can have an ecommerce rule set, to relate a question with a monetary value which is then added to the order total (along with any products added to a cart). To enable a question, check the <strong>Ecom Enabled?</strong> box and commit the screen. Once enabled, ecommerce rules apply in this way:</p>
+		
+		<ul>
+		<li>For Numeric questions, there are no options you can set. The value entered by the user becomes the amount added to the order total.</li>
+		<li>For other questions, you can enter a value for each possible option from this screen. If an option is selected, the entered value will be added to the order total.</li>
+		</ul>
+		
+		<p>If the <strong>Is Taxable?</strong> option is set, the value of the question <strong>includes</strong> any tax rate set on the Details screen.</p>]]></note>
 	</section>
 </contents>
