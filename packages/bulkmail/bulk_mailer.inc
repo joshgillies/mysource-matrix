@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.86.2.4 2009/07/01 04:40:12 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.86.2.5 2009/07/07 03:59:27 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.86.2.4 $
+* @version $Revision: 1.86.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -54,7 +54,11 @@ class Bulk_Mailer
 	function start()
 	{
 		declare(ticks=1);
-
+		//We will intensively use fork from now on
+		//therefore set oci_commit_on_success mode on to avoid end-of-communication issue for oracle + fork
+		if (MatrixDAL::getDbType() === 'oci') {
+			MatrixDAL::setOciCommitOnSuccess(TRUE);
+		}
 		// setup signal handlers
 		pcntl_signal(SIGTERM, Array(&$this,'_sigHandler'));
 		pcntl_signal(SIGHUP, Array(&$this,'_sigHandler'));
@@ -114,7 +118,9 @@ class Bulk_Mailer
 				}
 			}
 		}
-
+		if (MatrixDAL::getDbType() === 'oci') {
+			MatrixDAL::setOciCommitOnSuccess(FALSE);
+		}
 	}//end start()
 
 
@@ -479,7 +485,8 @@ class Bulk_Mailer
 	function _reconnectDB()
 	{
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+		//force a new oci connection to avoid end-of-communication issue of oracle + fork
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2', TRUE);
 
 	}//end _reconnectDB()
 
