@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.281 2009/07/07 16:27:17 jhurst Exp $
+* $Id: listing_engine.inc,v 1.282 2009/07/08 01:05:18 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.281 $
+* @version $Revision: 1.282 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2580,7 +2580,7 @@ class Listing_Engine extends Page
 
 		// kept for backwards compatibility
 		$keywords['result_no']  =& $keywords['asset_position'];
-		$keywords['root_nodes'] = implode(',', $this->getRootNodes(FALSE));
+		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
 
@@ -4090,7 +4090,11 @@ class Listing_Engine extends Page
 	*/
 	function getRootNodesKeywordReplacement()
 	{
-		$root_nodes = $this->getRootNodes(FALSE);
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			$root_nodes = $this->getRootNodes(TRUE);
+		} else {
+			$root_nodes = $this->getRootNodes(FALSE);
+		}//end if
 		return implode(',', $root_nodes);
 
 	}//end getRootNodesKeywordReplacement()
