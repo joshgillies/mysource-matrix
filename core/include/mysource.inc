@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.298 2009/07/07 06:46:36 lwright Exp $
+* $Id: mysource.inc,v 1.299 2009/07/08 01:55:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.298 $
+* @version $Revision: 1.299 $
 * @package MySource_Matrix
 */
 class MySource
@@ -333,8 +333,8 @@ class MySource
 
 		// If this session is new, select an appropriate context
 		// and store it in the session so it sticks between pages
-		if (isset($_SESSION)) {
-			$alternate_context_id = array_get_index($_SESSION, 'SQ_ALTERNATE_CONTEXT_ID');
+		if ((isset($_SESSION) === TRUE) && (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]) === TRUE)) {
+			$alternate_context_id = array_get_index($_SESSION[SQ_SESSION_SANDBOX_INDEX], 'SQ_ALTERNATE_CONTEXT_ID');
 			if ($alternate_context_id !== NULL) {
 				// If the context no longer exists (eg. the current
 				// one was deleted through the backend interface),
@@ -357,7 +357,7 @@ class MySource
 
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
-			$_SESSION['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
 		}
 		
 		$this->changeContext($alternate_context_id);
