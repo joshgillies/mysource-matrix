@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.300 2009/07/08 02:01:33 lwright Exp $
+* $Id: mysource.inc,v 1.301 2009/07/08 23:56:27 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.300 $
+* @version $Revision: 1.301 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2509,6 +2509,66 @@ class MySource
 						}
 					break;
 
+					case 'get':
+					case 'post':
+						if ($condition_type == 'get') {
+							$var_value = array_get_index($_GET, $condition_options['var_name']);
+						} else {
+							$var_value = array_get_index($_POST, $condition_options['var_name']);
+						}
+
+						$matched = FALSE;
+						$match_type  = $condition_options['match_type'];
+						$match_value = $condition_options['match_value'];
+						$case_sensitive = array_get_index($condition_options, 'case_sensitive', 1);
+
+						if ($match_type === 'exists') {
+							$matched = ($var_value === NULL) ? FALSE : TRUE;
+						} else {
+							if ($var_value !== NULL) {
+								if ($case_sensitive === 0) {
+									$var_value = strtolower($var_value);
+									$match_value = strtolower($match_value);
+								}
+
+								switch ($match_type) {
+									case 'exact':
+										if ($var_value === $match_value) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'begins':
+										if (strpos($var_value, $match_value) === 0) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'ends':
+										if (strpos($var_value, $match_value) === strlen($var_value) - strlen($match_value)) {
+											$matched = TRUE;
+										}
+									break;
+
+									case 'contains':
+										if (strpos($var_value, $match_value) !== FALSE) {
+											$matched = TRUE;
+										}
+									break;
+								}//end switch on match type
+
+							}//end if header is not null
+
+						}//end if match type is "variable exists"
+
+						if ($condition_options['match_logic'] === 0) {
+							$pass = !$matched;
+						} else {
+							$pass = $matched;
+						}
+
+					break;
+
 					case 'header':
 						$server_index = 'HTTP_'.str_replace('-', '_', strtoupper($condition_options['header_name']));
 						$header_value = array_get_index($_SERVER, $server_index);
@@ -2522,8 +2582,6 @@ class MySource
 							$matched = ($header_value === NULL) ? FALSE : TRUE;
 						} else {
 							if ($header_value !== NULL) {
-								bam($header_value);
-								bam($match_type);
 								if ($case_sensitive === 0) {
 									$header_value = strtolower($header_value);
 									$match_value = strtolower($match_value);

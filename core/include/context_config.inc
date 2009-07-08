@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.1 2009/07/07 06:21:52 lwright Exp $
+* $Id: context_config.inc,v 1.2 2009/07/08 23:56:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -541,6 +541,13 @@ class Context_Config extends Config
 					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_header_'.$translate_suffix, $options['header_name'], $options['match_value'], translate($case_sensitive_text));
 				break;
 
+				case 'get':
+				case 'post':
+					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
+					$case_sensitive_text = ((int)($options['case_sensitive']) === 1 ? '' : 'not_').'case_sensitive';
+					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_'.$condition_details['type'].'_'.$translate_suffix, $options['var_name'], $options['match_value'], translate($case_sensitive_text));
+				break;
+
 				case 'url':
 					$translate_suffix = ((int)$options['match_logic'] === 1 ? '' : '!').$options['match_type'];
 					$condition_text[$condition_id] = translate($this->prefix.'summary_cond_url_'.$translate_suffix, $options['match_value']);
@@ -617,6 +624,16 @@ class Context_Config extends Config
 						}
 						if ($condition_options['match_value'] === '') {
 							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_header_no_match_value');
+						}
+					break;
+					
+					case 'get':
+					case 'post':
+						if ($condition_options['var_name'] === '') {
+							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_no_request_var_name');
+						}
+						if ($condition_options['match_value'] === '') {
+							$context_errors[$condition_id][] = translate($this->prefix.'error_cond_request_var_no_match_value');
 						}
 					break;
 				}
@@ -698,6 +715,8 @@ class Context_Config extends Config
 								'url'				=> translate($this->prefix.'type_url'),
 								'port'				=> translate($this->prefix.'type_port'),
 								'secure'			=> translate($this->prefix.'type_secure'),
+								'get'				=> translate($this->prefix.'type_get'),
+								'post'				=> translate($this->prefix.'type_post'),
 							);
 
 			$o->openField(translate('new_condition_question'));
@@ -851,6 +870,54 @@ class Context_Config extends Config
 					check_box($this->prefix.$condition_id.'_case_sensitive', '1', $case_sensitive);
 				$case_ch = ob_get_clean();
 				echo translate($this->prefix.'type_header_param', $header_tb, $logic_cb, $type_cb, $value_tb, $case_ch);
+				?>
+				</li>
+				</ul>
+				<p><?php
+					echo translate($this->prefix.'type_header_param_explanation');
+				?></p><?php
+			break;
+
+			case 'get':
+			case 'post':
+				?>
+				<ul>
+				<li><?php
+				$var_name    = $condition_details['var_name'];
+				$match_logic    = $condition_details['match_logic'];
+				$match_type     = $condition_details['match_type'];
+				$match_value    = $condition_details['match_value'];
+				$case_sensitive = $condition_details['case_sensitive'];
+		
+				$logic_options = Array(
+									1	=> translate($this->prefix.'type_header_option_1'),
+									0	=> translate($this->prefix.'type_header_option_0'),
+							     );
+		
+				$type_options = Array(
+									'exists'	=> translate($this->prefix.'type_header_option_exists'),
+									'exact'		=> translate($this->prefix.'type_header_option_exact'),
+									'begins'	=> translate($this->prefix.'type_header_option_begins'),
+									'ends'		=> translate($this->prefix.'type_header_option_ends'),
+									'contains'	=> translate($this->prefix.'type_header_option_contains'),
+							     );
+
+				ob_start();
+					text_box($this->prefix.$condition_id.'_var_name', $var_name, 30);
+				$var_tb = ob_get_clean();
+				ob_start();
+					combo_box($this->prefix.$condition_id.'_match_logic', $logic_options, FALSE, Array($match_logic));
+				$logic_cb = ob_get_clean();
+				ob_start();
+					combo_box($this->prefix.$condition_id.'_match_type', $type_options, FALSE, Array($match_type));
+				$type_cb = ob_get_clean();
+				ob_start();
+					text_box($this->prefix.$condition_id.'_match_value', $match_value, 30);
+				$value_tb = ob_get_clean();
+				ob_start();
+					check_box($this->prefix.$condition_id.'_case_sensitive', '1', $case_sensitive);
+				$case_ch = ob_get_clean();
+				echo translate($this->prefix.'type_'.$condition_type.'_param', $var_tb, $logic_cb, $type_cb, $value_tb, $case_ch);
 				?>
 				</li>
 				</ul>
@@ -1164,6 +1231,20 @@ class Context_Config extends Config
 																);
 								break;
 
+								case 'get':
+								case 'post':
+									// Defaults for 'other' header:
+									// - Header name not specified (REQUIRED to be valid)
+									// - Exact match to an empty string
+									$new_condition['options'] = Array(
+																	'var_name'	=> '',
+																	'match_logic'	=> '1',
+																	'match_type'	=> 'exact',
+																	'match_value'	=> '',
+																	'case_sensitive'	=> '1',
+																);
+								break;
+
 								case 'url':
 									// Defaults for match by URL:
 									// - Match value not specified (REQUIRED to be valid)
@@ -1287,6 +1368,15 @@ class Context_Config extends Config
 
 			case 'header':
 				$condition_options['header_name'] = array_get_index($_POST, $this->prefix.$condition_id.'_header_name', '');
+				$condition_options['case_sensitive'] = array_get_index($_POST, $this->prefix.$condition_id.'_case_sensitive', 0);
+				$condition_options['match_logic'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_logic', 1);
+				$condition_options['match_type']  = array_get_index($_POST, $this->prefix.$condition_id.'_match_type',  'exact');
+				$condition_options['match_value'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_value', ''); 
+			break;
+
+			case 'get':
+			case 'post':
+				$condition_options['var_name'] = array_get_index($_POST, $this->prefix.$condition_id.'_var_name', '');
 				$condition_options['case_sensitive'] = array_get_index($_POST, $this->prefix.$condition_id.'_case_sensitive', 0);
 				$condition_options['match_logic'] = array_get_index($_POST, $this->prefix.$condition_id.'_match_logic', 1);
 				$condition_options['match_type']  = array_get_index($_POST, $this->prefix.$condition_id.'_match_type',  'exact');

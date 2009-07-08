@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.328 2009/07/08 00:40:43 lwright Exp $
+* $Id: lang_strings.xml,v 1.329 2009/07/08 23:56:27 lwright Exp $
 *
 */
 
@@ -2550,6 +2550,12 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_type_header_option_ends">end with:</string>
 	<string source="config_context_type_header_option_contains">contain:</string>
 	<string source="config_context_type_header_param_explanation"><![CDATA[This condition will match if the header matches the condition specified. You can specify whether a header existed in the request or not, or matches a certain string.<br/>If the match type is "does/does not exist", no value needs to be entered into the text box.]]></string>
+	<string source="config_context_type_get">GET variable</string>
+	<string source="config_context_type_get_param">Match if the GET variable named %1$s %2$s %3$s %4$s %5$s Case sensitive?</string>
+	<string source="config_context_type_get_param_explanation"><![CDATA[This condition will match if the value of the entered GET variable matches the condition specified. You can specify whether a GET variable existed in the query string or not, or matches a certain string.<br/>If the match type is "does/does not exist", no value needs to be entered into the text box.]]></string>
+	<string source="config_context_type_post">POST variable</string>
+	<string source="config_context_type_post_param">Match if the POST variable named %1$s %2$s %3$s %4$s %5$s Case sensitive?</string>
+	<string source="config_context_type_post_param_explanation"><![CDATA[This condition will match if the value of the entered POST variable matches the condition specified. You can specify whether a POST variable existed in posted data or not, or matches a certain string.<br/>If the match type is "does/does not exist", no value needs to be entered into the text box.]]></string>
 	<string source="config_context_type_url">URL of request</string>
 	<string source="config_context_type_url_param">Match if the request URL %1$s %2$s %3$s</string>
 	<string source="config_context_type_url_option_0">does not</string>
@@ -2584,6 +2590,26 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_summary_cond_header_!begins"><![CDATA[The header <strong>%1$s does not begin with &quot;%2$s&quot; (%3$s)</strong>]]></string>
 	<string source="config_context_summary_cond_header_!ends"><![CDATA[The header <strong>%1$s does not end with &quot;%2$s&quot;</strong> (%3$s)]]></string>
 	<string source="config_context_summary_cond_header_!contains"><![CDATA[The header <strong>%1$s does not contain &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_exists"><![CDATA[The GET variable <strong>%1$s exists</strong> in the request&apos;s query string]]></string>
+	<string source="config_context_summary_cond_get_exact"><![CDATA[The GET variable <strong>%1$s is &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_begins"><![CDATA[The GET variable <strong>%1$s begins with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_ends"><![CDATA[The GET variable <strong>%1$s ends with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_contains"><![CDATA[The GET variable <strong>%1$s contains &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_!exists"><![CDATA[The GET variable <strong>%1$s does not exist</strong> in the request&apos;s query string>]]></string>
+	<string source="config_context_summary_cond_get_!exact"><![CDATA[The GET variable <strong>%1$s is not &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_!begins"><![CDATA[The GET variable <strong>%1$s does not begin with &quot;%2$s&quot; (%3$s)</strong>]]></string>
+	<string source="config_context_summary_cond_get_!ends"><![CDATA[The GET variable <strong>%1$s does not end with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_get_!contains"><![CDATA[The GET variable <strong>%1$s does not contain &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_exists"><![CDATA[The POST variable <strong>%1$s exists</strong> in the posted data of the request]]></string>
+	<string source="config_context_summary_cond_post_exact"><![CDATA[The POST variable <strong>%1$s is &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_begins"><![CDATA[The POST variable <strong>%1$s begins with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_ends"><![CDATA[The POST variable <strong>%1$s ends with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_contains"><![CDATA[The POST variable <strong>%1$s contains &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_!exists"><![CDATA[The POST variable <strong>%1$s does not exist</strong> in the posted data of the request]]></string>
+	<string source="config_context_summary_cond_post_!exact"><![CDATA[The POST variable <strong>%1$s is not &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_!begins"><![CDATA[The POST variable <strong>%1$s does not begin with &quot;%2$s&quot; (%3$s)</strong>]]></string>
+	<string source="config_context_summary_cond_post_!ends"><![CDATA[The POST variable <strong>%1$s does not end with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_post_!contains"><![CDATA[The POST variable <strong>%1$s does not contain &quot;%2$s&quot;</strong> (%3$s)]]></string>
 	<string source="config_context_summary_cond_url_exact"><![CDATA[The requested URL <strong>is &quot;%s&quot;</strong>]]></string>
 	<string source="config_context_summary_cond_url_begins"><![CDATA[The requested URL <strong>begins with &quot;%s&quot;</strong>]]></string>
 	<string source="config_context_summary_cond_url_ends"><![CDATA[The requested URL <strong>ends with &quot;%s&quot;</strong>]]></string>
@@ -2599,6 +2625,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_error_cond_url_no_match_value">This condition has no URL fragment to match with.</string>
 	<string source="config_context_error_cond_header_no_header_name">This condition has no header name set.</string>
 	<string source="config_context_error_cond_header_no_match_value">This condition has no comparison value with which to match the header contents.</string>
+	<string source="config_context_error_cond_no_request_var_name">This condition has variable name set.</string>
+	<string source="config_context_error_cond_request_var_no_match_value">This condition has no comparison value with which to match the variable contents.</string>
 	<string source="config_context_context_at_least_too_many"><![CDATA[This context requires &quot;at least %1$s&quot; conditions to match, however it only contains %2$s conditions, making this context impossible to select.<br/>Either reduce the minimum number of matches (or set to &quot;all&quot;), or add more conditions, to make this context valid.]]></string>
 	<string source="config_context_not_enough_valid_cond_to_be_valid"><![CDATA[There are not enough valid conditions to satisfy the minimum number required for this context to be selected.<br/>Fixing the invalid condition(s) may make this context eligible for selection.]]></string>
 	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
