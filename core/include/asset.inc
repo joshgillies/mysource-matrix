@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669.2.4 2009/07/02 06:13:57 cupreti Exp $
+* $Id: asset.inc,v 1.669.2.5 2009/07/08 05:47:33 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669.2.4 $
+* @version $Revision: 1.669.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5177,27 +5177,33 @@ class Asset extends MySource_Object
 
 		if (!empty($current_urls)) {
 			// delete rows which have normal values applied
-			try {
-				$bind_vars = Array(
-								'urls'	=> $current_urls,
-							 );
-				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception('Unable to delete URLs from lookup value table due to database error: '.$e->getMessage());
-			}
+			$url_chunks = array_chunk($current_urls, 1000, TRUE);
+			foreach ($url_chunks as $url_chunk) {
+				try {
+					$bind_vars = Array(
+									'urls'	=> $url_chunk,
+								 );
+					MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to delete URLs from lookup value table due to database error: '.$e->getMessage());
+				}
+			}//end foreach
 
 			// delete rows which have override values applied
 			for ($i=0; $i<count($current_urls); $i++) {
 				$current_urls[$i] .= '/';
 			}
-			try {
-				$bind_vars = Array(
-								'urls'	=> $current_urls,
-							 );
-				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception('Unable to delete URLs with override values from lookup value table due to database error: '.$e->getMessage());
-			}
+			$url_chunks = array_chunk($current_urls, 1000, TRUE);
+			foreach ($url_chunks as $url_chunk) {
+				try {
+					$bind_vars = Array(
+									'urls'	=> $url_chunk,
+								 );
+					MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to delete URLs with override values from lookup value table due to database error: '.$e->getMessage());
+				}
+			}//end foreach
 
 			try {
 				$bind_vars = Array('assetid' => $this->id);
