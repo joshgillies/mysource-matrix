@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.327 2009/07/07 23:27:42 cupreti Exp $
+* $Id: lang_strings.xml,v 1.328 2009/07/08 00:40:43 lwright Exp $
 *
 */
 
@@ -79,6 +79,7 @@
 	<string source="asset_type">Asset Type</string>
 	<string source="inherit_types">Inherit Types</string>
 	<string source="at" js="1">At</string>
+	<string source="at_least">At least</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
 	<string source="calculate">Calculate Size</string>
 	<string source="cascade_options">Cascade Options</string>
@@ -86,7 +87,7 @@
 	<string source="cascade">Cascade</string>
 	<string source="cascade_question">Cascade ?</string>
 	<string source="update_all_question">Update all ?</string>
-	<string source="case_sensitive">Case Sensitive ?</string>
+	<string source="case_sensitive_question">Case Sensitive ?</string>
 	<string source="category_specific_search_settings">Category Specific Search Settings</string>
 	<string source="change_log_of_original_patch">Change Log of Original Patch</string>
 	<string source="change_log">Change Log</string>
@@ -291,6 +292,7 @@
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove ?</string>
+	<string source="reorder_question">Reorder ?</string>
 	<string source="rollback_enabled">Rollback Enabled</string>
 	<string source="rollback_settings">Rollback Settings</string>
 	<string source="must_enable_rollback">Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the MySource "scripts" directory</string>
@@ -511,6 +513,7 @@
 	<string source="global_preferences">Global Preferences</string>
 	<string source="apache_configuration">Apache Configuration</string>
 	<string source="proxy_configuration">Proxy Configuration</string>
+	<string source="context_configuration">Context Configuration</string>
 
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
@@ -1667,6 +1670,7 @@
 	<string source="display_name">Display Name</string>
 	<string source="display_question">Display ?</string>
 	<string source="edit">Edit</string>
+	<string source="edit_question">Edit ?</string>
 	<string source="created">Created</string>
 	<string source="date_type">Date Type</string>
 	<string source="ends_with">Ends With</string>
@@ -2500,4 +2504,103 @@ Are you sure you want to proceed?</string>
 	<string source="ssl_accelerator_header_value_note"><![CDATA[ ]]></string>
 	<string source="ssl_accelerator_force_secure">Force Secure ?</string>
 	<string source="ssl_accelerator_force_secure_note">When this is set to "Yes", and MySource Matrix detects that it is running behind an SSL accelerator, it will always produce secure (https://) URLs, except where an asset has been set to force standard http:// URLs.</string>
+
+	<!-- Context configuration -->
+	<string source="config_context_context_has_no_conditions">This context has no conditions defined.</string>
+	<string source="config_context_list_of_contexts">List of Current Contexts</string>
+	<string source="config_context_edit_selected_context">Edit Selected Context</string>
+	<string source="config_context_match_order">Condition Matching Order</string>
+	<string source="config_context_default_name">Default Context</string>
+	<string source="config_context_alternate_contexts">Alternate Contexts</string>
+	<string source="config_context_alternate_name">Alternate Context %s</string>
+	<string source="config_context_no_alternate_contexts"><![CDATA[<strong>There are no alternate contexts defined.</strong> The default context will always be used, and context switching of content will not be available.]]></string>
+	<string source="config_context_lock_to_add_alternate">To create an alternate context, you must lock the screen first.</string>
+	<string source="config_context_new_alternate_context">Create a new alternate context...</string>
+	<string source="config_context_default_explanation"><![CDATA[The <em>default context</em> will be used when none of the alternate contexts' conditions can be matched, or when User Group Preferences specify that the default context be explicitly used for a user. You may change the name of the default context as it is displayed in the Administration and Simple Edit interfaces, but there are no conditions to configure, and its order cannot be edited.]]></string>
+	<string source="config_context_default_name_explanation"><![CDATA[Where context names appear <em>italicised</em>, no custom name has been set for that context, and the default name shown will be used. Edit the context to set a different name.]]></string>
+	<string source="config_context_minimum_matches">Minimum Matches</string>
+	<string source="config_context_minimum_matches_interface">%1$s %2$s condition(s) must match before this alternate context can be considered for selection.</string><!-- %1$s = 'at least/all' combo box; %2$s = 'at least number' text box -->
+	<string source="config_context_context_name">Context Name</string>
+	<string source="config_context_context_details">Context Details</string>
+	<string source="config_context_condition_type">Condition Type</string>
+	<string source="config_context_condition_details">Condition Details</string>
+	<string source="config_context_edit_alt_text"><![CDATA[Edit context &quot;%s&quot;]]></string>
+	<string source="config_context_reorder_up_alt_text"><![CDATA[Move context &quot;%s&quot; up]]></string>
+	<string source="config_context_reorder_down_alt_text"><![CDATA[Move context &quot;%s&quot; down]]></string>
+	<string source="config_context_delete_alt_text"><![CDATA[Delete context &quot;%s&quot;]]></string>
+	<string source="config_context_valid_alt_text"><![CDATA[Context &quot;%s&quot;'s conditions are valid]]></string>
+	<string source="config_context_not_valid_alt_text"><![CDATA[Context &quot;%s&quot; conditions are NOT valid]]></string>
+	<string source="config_context_delete_warning"><![CDATA[Are you sure you want to delete alternate context &quot;%s&quot;?
+
+If you click &quot;OK&quot;, this context - and the attribute and metadata values associated with this context - will be deleted. This cannot be undone.]]></string>
+	<string source="config_context_new_alternate_context_line">%1$s Create a new alternate context called: %2$s</string>
+	<string source="config_context_new_alternate_context_title_text">Create a new alternate context, which can then be edited below</string>
+	<string source="config_context_new_condition_line">%1$s Add a new condition of type: %2$s</string>
+	<string source="config_context_type_accept-language">Accept-Language request header</string>
+	<string source="config_context_type_accept-language_param_language">Match the following language: %s</string>
+	<string source="config_context_type_accept-language_param_min_q">Only match the language if quality &gt;= %s (must be between 0.0 and 1.0)</string>
+	<string source="config_context_type_accept-language_param_explanation"><![CDATA[This condition will match if the language specified is found at any point in the &quot;Accept-language&quot; header in the request. If no Accept-language header is provided, the condition will fail.<br/>If a quality value is set, the condition will only match if the request specifies a quality value of at least the set amount, or omits it entirely (which implies a quality of 1.0).<br/>If a language is specified without a locale (eg. "English" instead of "English (Australia)"), the rule will match any entry in the header that includes that language, whether or not it is further qualified with a locale.]]></string>
+	<string source="config_context_type_header">Other request header</string>
+	<string source="config_context_type_header_param">Match if the header named %1$s %2$s %3$s %4$s   %5$s Case sensitive?</string>
+	<string source="config_context_type_header_option_0">does not</string>
+	<string source="config_context_type_header_option_1">does</string>
+	<string source="config_context_type_header_option_exists">exist</string>
+	<string source="config_context_type_header_option_exact">exactly match:</string>
+	<string source="config_context_type_header_option_begins">begin with:</string>
+	<string source="config_context_type_header_option_ends">end with:</string>
+	<string source="config_context_type_header_option_contains">contain:</string>
+	<string source="config_context_type_header_param_explanation"><![CDATA[This condition will match if the header matches the condition specified. You can specify whether a header existed in the request or not, or matches a certain string.<br/>If the match type is "does/does not exist", no value needs to be entered into the text box.]]></string>
+	<string source="config_context_type_url">URL of request</string>
+	<string source="config_context_type_url_param">Match if the request URL %1$s %2$s %3$s</string>
+	<string source="config_context_type_url_option_0">does not</string>
+	<string source="config_context_type_url_option_1">does</string>
+	<string source="config_context_type_url_option_exact">exactly match:</string>
+	<string source="config_context_type_url_option_begins">begin with:</string>
+	<string source="config_context_type_url_option_ends">end with:</string>
+	<string source="config_context_type_url_option_contains">contain:</string>
+	<string source="config_context_type_url_param_explanation"><![CDATA[This condition will match if the URL used to access an asset matches (or does not match) the condition specified. Note that this is the URL used by MySource Matrix and will not include protocol, query strings or port numbers.]]></string>
+	<string source="config_context_type_port">Destination port</string>
+	<string source="config_context_type_port_param">Match if the connection %1$s made on port: %2$s</string>
+	<string source="config_context_type_port_option_0">is not</string>
+	<string source="config_context_type_port_option_1">is</string>
+	<string source="config_context_type_port_param_explanation"><![CDATA[This condition will match if the port used to access MySource Matrix matches (or does not match) the port specified. This is generally specified in the entered URL; where not specified, the default port for HTTP requests is 80; for HTTPS (secure) requests it is port 443.]]></string>
+	<string source="config_context_type_secure">Secure/insecure connection</string>
+	<string source="config_context_type_secure_param">Match if the connection is: %s</string>
+	<string source="config_context_type_secure_option_0">Not secure (HTTP)</string>
+	<string source="config_context_type_secure_option_1">Secure (HTTPS)</string>
+	<string source="case_sensitive">Case sensitive</string>
+	<string source="not_case_sensitive">Not case sensitive</string>
+	<string source="config_context_type_secure_param_explanation"><![CDATA[This condition will match if a secure connection is (or is not) being used to access MySource Matrix.<br/>Please note that this may be affected by proxies such as SSL accelerators, unless configured properly on the Proxy Configuration page. The system can only use what protocol is presented to it.]]></string>
+	<string source="config_context_table_all_description">All of the following %s condition(s) must be met:</string>
+	<string source="config_context_table_at_least_description">At least %1$s of the following %2$s condition(s) must be met:</string>
+	<string source="config_context_summary_cond_accept-language"><![CDATA[An "Accept-language" header exists with the language <strong>%1$s</strong>, and a minimum quality value of <strong>%2$s</strong>]]></string>
+	<string source="config_context_summary_cond_header_exists"><![CDATA[The header <strong>%1$s exists</strong> in the request]]></string>
+	<string source="config_context_summary_cond_header_exact"><![CDATA[The header <strong>%1$s is &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_begins"><![CDATA[The header <strong>%1$s begins with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_ends"><![CDATA[The header <strong>%1$s ends with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_contains"><![CDATA[The header <strong>%1$s contains &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_!exists"><![CDATA[The header <strong>%1$s does not exist</strong> in the request]]></string>
+	<string source="config_context_summary_cond_header_!exact"><![CDATA[The header <strong>%1$s is not &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_!begins"><![CDATA[The header <strong>%1$s does not begin with &quot;%2$s&quot; (%3$s)</strong>]]></string>
+	<string source="config_context_summary_cond_header_!ends"><![CDATA[The header <strong>%1$s does not end with &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_header_!contains"><![CDATA[The header <strong>%1$s does not contain &quot;%2$s&quot;</strong> (%3$s)]]></string>
+	<string source="config_context_summary_cond_url_exact"><![CDATA[The requested URL <strong>is &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_begins"><![CDATA[The requested URL <strong>begins with &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_ends"><![CDATA[The requested URL <strong>ends with &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_contains"><![CDATA[The requested URL <strong>contains &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_!exact"><![CDATA[The requested URL <strong>is not &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_!begins"><![CDATA[The requested URL <strong>does not begin with &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_!ends"><![CDATA[The requested URL <strong>does not end with &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_url_!contains"><![CDATA[The requested URL <strong>does not contain &quot;%s&quot;</strong>]]></string>
+	<string source="config_context_summary_cond_port_!"><![CDATA[The request is <strong>not</strong> being made to <strong>port %s</strong>]]></string>
+	<string source="config_context_summary_cond_port"><![CDATA[The request is being made to <strong>port %s</strong>]]></string>
+	<string source="config_context_summary_cond_secure_!"><![CDATA[The connection to MySource Matrix is <strong>not secure (using HTTP protocol)</strong>]]></string>
+	<string source="config_context_summary_cond_secure"><![CDATA[The connection to MySource Matrix is <strong>secure (using HTTPS protocol</strong>)]]></string>
+	<string source="config_context_error_cond_url_no_match_value">This condition has no URL fragment to match with.</string>
+	<string source="config_context_error_cond_header_no_header_name">This condition has no header name set.</string>
+	<string source="config_context_error_cond_header_no_match_value">This condition has no comparison value with which to match the header contents.</string>
+	<string source="config_context_context_at_least_too_many"><![CDATA[This context requires &quot;at least %1$s&quot; conditions to match, however it only contains %2$s conditions, making this context impossible to select.<br/>Either reduce the minimum number of matches (or set to &quot;all&quot;), or add more conditions, to make this context valid.]]></string>
+	<string source="config_context_not_enough_valid_cond_to_be_valid"><![CDATA[There are not enough valid conditions to satisfy the minimum number required for this context to be selected.<br/>Fixing the invalid condition(s) may make this context eligible for selection.]]></string>
+	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
+	<string source="config_context_note"><![CDATA[<p>Alternate contexts are evaluated in the order they appear on screen, top to bottom, stopping when one is matched. Keep this in mind if conditions overlap between contexts. If no alternate contexts can be selected, the default context is used.</p><p>Each alternate contexts is marked as &quot;valid&quot; if it is possible for them to match a request&apos;s details, and thus be able to be selected. Contexts may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough conditions to meet the requirement.</li><li>A context has enough invalid conditions to make it impossible to be selected. Note that with contexts set to require &quot;at least&quot; a certain number of conditions, the context may still be valid if there are enough valid conditions </li></ul><p>A context being &quot;invalid&quot; only affects its ability to be selected as an initial contextbased on request settings. It can still be switched to at any time using the Context Switcher, or used as an override via a User Group preference.</p>]]></string>
 </strings>
