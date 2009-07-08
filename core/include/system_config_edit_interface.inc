@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.38 2008/02/18 04:10:09 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.39 2009/07/08 00:26:29 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -95,6 +95,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'password_rules_config'			=> translate('password_rules_configuration'),
 							'messaging_service_config'		=> translate('messaging_service_configuration'),
 							'proxy_authentication_config'	=> translate('proxy_configuration'),
+							'context_config'				=> translate('context_configuration'),
 							'locks'							=> translate('active_locks'),
 						  );
 
@@ -114,6 +115,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'session_rules_config' :
 			case 'messaging_service_config' :
 			case 'proxy_authentication_config' :
+			case 'context_config':
 
 				$config = null;
 
@@ -154,6 +156,10 @@ class System_Config_Edit_Interface extends MySource_Object
 						require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
 						$config = new Proxy_Authentication_Config();
 					break;
+					case 'context_config' :
+						require_once SQ_INCLUDE_PATH.'/context_config.inc';
+						$config = new Context_Config();
+					break;					
 
 				}// end switch
 				if (!empty($_POST['config_posted'])) {
