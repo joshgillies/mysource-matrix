@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.228 2009/06/24 23:58:31 ewang Exp $
+* $Id: form.inc,v 1.229 2009/07/08 03:18:35 wszymanski Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.228 $
+* @version $Revision: 1.229 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1868,7 +1868,7 @@ class Form extends Asset implements Bridge
 				}
 			}
 
-			$form_action .= '?'.htmlentities(make_raw_post_data($matches));
+			$form_action .= '?'.htmlspecialchars(make_raw_post_data($matches), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 
 		return $form_action;
@@ -2728,7 +2728,7 @@ class Form extends Asset implements Bridge
 				echo $question->attr('name');
 				echo ($html) ? ': </li></ul></td><td>' : ' : ';
 				if ($html) {
-					echo htmlentities($question->getSummary(), ENT_NOQUOTES);
+					echo htmlspecialchars($question->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				} else {
 					echo $question->getSummary();
 				}
@@ -2758,7 +2758,7 @@ class Form extends Asset implements Bridge
 					echo $question->attr('name');
 					echo ($html) ? ': </li></ul></td><td>' : ' : ';
 					if ($html) {
-						echo htmlentities($question->getSummary(), ENT_NOQUOTES);
+						echo htmlspecialchars($question->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else {
 						echo $question->getSummary();
 					}
@@ -2783,7 +2783,7 @@ class Form extends Asset implements Bridge
 
 		if ($this->getQuestionCount() > 0) {
 			echo '<li>'."\n";
-			echo '<strong>'.htmlentities($this->attr('unattached_page_name'), ENT_NOQUOTES).'</strong>'."\n";
+			echo '<strong>'.htmlspecialchars($this->attr('unattached_page_name'), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'</strong>'."\n";
 			echo '<dl>'."\n";
 			foreach ($this->attr('sort_order') as $sort_order => $question_assetid) {
 
@@ -2791,7 +2791,7 @@ class Form extends Asset implements Bridge
 				if ($this->id == strtok($question_assetid, ':')) {
 					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_assetid);
 					echo '<dt>'.$question->attr('name').'</dt>'."\n";
-					echo '<dd>'.htmlentities($question->getSummary(), ENT_NOQUOTES).'</dd>'."\n";
+					echo '<dd>'.htmlspecialchars($question->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'</dd>'."\n";
 				}
 
 			}
@@ -2804,7 +2804,7 @@ class Form extends Asset implements Bridge
 		foreach ($section_links as $section_link) {
 			echo '<li>'."\n";
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
-				echo '<strong>'.htmlentities($section->attr('name'), ENT_NOQUOTES).'</strong>'."\n";
+				echo '<strong>'.htmlspecialchars($section->attr('name'), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'</strong>'."\n";
 				$section->printSemanticSummary();
 			echo '</li>'."\n";
 		}
@@ -3408,7 +3408,7 @@ class Form extends Asset implements Bridge
 				// only re-set the answer if it has changed
 				$value = $question->getValue();
 				if (is_string($value)) {
-					$value = htmlentities($value, ENT_NOQUOTES);
+					$value = htmlspecialchars($value, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 				if ($value !== $submission_asset->getAnswer($assetid)) {
 					$submission_asset->setAnswer($assetid, $value);
@@ -3419,7 +3419,7 @@ class Form extends Asset implements Bridge
 					$submission_asset->setExtraData($assetid, $question->getExtraData());
 				}
 
-				$submission_asset->setSummary($assetid, $question->attr('name'), htmlentities($question->getSummary(), ENT_NOQUOTES));
+				$submission_asset->setSummary($assetid, $question->attr('name'), htmlspecialchars($question->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
 			}
 		}
 
@@ -4008,9 +4008,9 @@ class Form extends Asset implements Bridge
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (!empty($question_asset)) {
 				if ($raw_response) {
-					$replacement = htmlentities($question_asset->getValue(), ENT_NOQUOTES);
+					$replacement = htmlspecialchars($question_asset->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				} else {
-					$replacement = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+					$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 			}
 
@@ -4451,9 +4451,9 @@ class Form extends Asset implements Bridge
 				$page_entry = $page_list_format;
 				$replacements = Array();
 
-				$replacements['page_number'] = htmlentities($page_number);
-				$replacements['total_pages'] = htmlentities($total_pages);
-				$replacements['page_name'] = htmlentities($this->getCurrentPageNameKeywordReplacement($page_number));
+				$replacements['page_number'] = htmlspecialchars($page_number, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+				$replacements['total_pages'] = htmlspecialchars($total_pages, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+				$replacements['page_name'] = htmlspecialchars($this->getCurrentPageNameKeywordReplacement($page_number), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 				replace_keywords($page_entry, $replacements);
 
@@ -4677,12 +4677,12 @@ class Form extends Asset implements Bridge
 					if ($raw) {
 						$value = $question_asset->getValue();
 						if (is_string($question_asset->getValue())) {
-							$replacement = htmlentities($question_asset->getValue(), ENT_NOQUOTES);
+							$replacement = htmlspecialchars($question_asset->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 						} else {
 							$replacement = '';
 						}
 					} else {
-						$replacement = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+						$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
 				}
 
