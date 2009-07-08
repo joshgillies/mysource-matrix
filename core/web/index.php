@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.32 2007/12/13 00:23:25 hnguyen Exp $
+* $Id: index.php,v 1.32.6.1 2009/07/08 00:51:30 cupreti Exp $
 *
 */
 
@@ -20,12 +20,12 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.6.1 $
 * @package MySource_Matrix
 */
-define('SQ_SYSTEM_ROOT', dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
+define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(__FILE__))));
 
-require_once dirname(dirname(__FILE__)).'/include/init.inc';
+require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 
 $GLOBALS['SQ_SYSTEM']->start();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
