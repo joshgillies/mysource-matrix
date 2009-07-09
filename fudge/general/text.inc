@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.42 2009/07/09 14:10:11 ata Exp $
+* $Id: text.inc,v 1.43 2009/07/09 23:29:50 wszymanski Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage Text
 */
@@ -339,7 +339,7 @@ function extract_keywords($text, $additional='')
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
 	// Match any keyword including the filter portion.
-	preg_match_all ('/%([a-zA-Z]{2,}[a-zA-Z_\-0-9\.:'.$additional.']+(~{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	preg_match_all ('/%([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:'.$additional.']+(~{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return array_unique($matches[1]);
 
 }//end extract_keywords()
