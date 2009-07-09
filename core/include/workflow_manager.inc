@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.138 2009/04/29 07:00:13 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.139 2009/07/09 01:22:01 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -60,7 +60,24 @@ class Workflow_Manager extends MySource_Object
 
 	}//end constructor
 
+	/**
+	* Check if workflow can be set on an asset
+	*
+	* @param string	$assetid	the ID of the asset to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function allowsWorkflow($assetid)
+	{
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return FALSE;
+		$edit_fns = $asset->getEditFns();
+		return isset($edit_fns->static_screens['workflow']);
 
+	}//end allowsWorkflow()
+	
+	
 	/**
 	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	* Can also optionally get running workflows only.
