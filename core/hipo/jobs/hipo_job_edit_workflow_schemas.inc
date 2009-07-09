@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.46 2008/07/10 04:42:55 lwright Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.46.4.1 2009/07/09 01:18:46 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -223,9 +223,12 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 														'type_code'    => $asset->type(),
 													   ),
 											  );
-
+					$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					// Now assign schema changes to each asset
 					foreach ($child_assets as $child_assetid => $child_asset) {
+						if (!$wfm->allowsWorkflow($child_assetid)) {
+							continue;
+						}//end if
 						$type_code = $child_asset[0]['type_code'];
 
 						$this_todo =& $this->_running_vars['todo_assetids'][$child_assetid];
