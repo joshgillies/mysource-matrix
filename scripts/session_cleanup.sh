@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.5.4.2 2009/05/21 03:32:53 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.5.4.3 2009/07/09 04:59:34 csmith Exp $
 #*
 #*/
 
@@ -60,7 +60,7 @@ file_exists()
 			return $RET
 		;;
 		*)
-			found=`which $1`
+			found=`which $1 2>/dev/null 1>/dev/null`
 			return $?
 		;;
 	esac
@@ -154,13 +154,25 @@ SESSION_MATRIXLIFE=`$GREP -E "SQ_CONF_SESSION_GC_MAXLIFETIME',[ ]?[0-9]+" ${SYST
 #
 php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
+
+if (!defined('SQ_CONF_CUSTOM_SESSION_SAVE_PATH')) {
+	define('SQ_CONF_CUSTOM_SESSION_SAVE_PATH', false);
+}
+
+if (!defined('SQ_CONF_SESSION_HANDLER')) {
+	define('SQ_CONF_SESSION_HANDLER', 'default');
+}
+
+if (!defined('SQ_CONF_CUSTOM_SESSION_SAVE_PATH')) {
+	define('SQ_CONF_CUSTOM_SESSION_SAVE_PATH', '');
+}
+
 \$var = 'SESSION_USING_DEFAULT_LOCATION';
 echo \$var . '=\"' . (int)SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH . '\";';
 echo 'export ' . \$var . ';';
 
-\$session_path = session_save_path();
-
 \$var = 'SESSION_TYPE';
+
 \$handler = strtolower(SQ_CONF_SESSION_HANDLER);
 if (\$handler != '' && \$handler != 'default') {
 	echo \$var . '=\"' . \$handler . '\";';
@@ -171,11 +183,8 @@ echo 'export ' . \$var . ';';
 
 \$var = 'SESSION_LOCATION';
 
-if (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH == true || SQ_CONF_CUSTOM_SESSION_SAVE_PATH === '') {
-	# if no save path is set, use the cache dir.
-	if (\$session_path === '') {
-		\$session_path = '${SYSTEM_ROOT}/cache';
-	}
+if (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH == false || SQ_CONF_CUSTOM_SESSION_SAVE_PATH === '') {
+	\$session_path = '${SYSTEM_ROOT}/cache';
 } else {
 	\$session_path = SQ_CONF_CUSTOM_SESSION_SAVE_PATH;
 }
