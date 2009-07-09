@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.8 2009/07/09 03:56:07 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.9 2009/07/09 04:06:21 csmith Exp $
 #*
 #*/
 
@@ -60,7 +60,7 @@ file_exists()
 			return $RET
 		;;
 		*)
-			found=`which $1`
+			found=`which $1 2>/dev/null 1>/dev/null`
 			return $?
 		;;
 	esac
@@ -154,11 +154,25 @@ SESSION_MATRIXLIFE=`$GREP -E "SQ_CONF_SESSION_GC_MAXLIFETIME',[ ]?[0-9]+" ${SYST
 #
 php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
+
+if (!defined('SQ_CONF_CUSTOM_SESSION_SAVE_PATH')) {
+	define('SQ_CONF_CUSTOM_SESSION_SAVE_PATH', false);
+}
+
+if (!defined('SQ_CONF_SESSION_HANDLER')) {
+	define('SQ_CONF_SESSION_HANDLER', 'default');
+}
+
+if (!defined('SQ_CONF_CUSTOM_SESSION_SAVE_PATH')) {
+	define('SQ_CONF_CUSTOM_SESSION_SAVE_PATH', '');
+}
+
 \$var = 'SESSION_USING_DEFAULT_LOCATION';
 echo \$var . '=\"' . (int)SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH . '\";';
 echo 'export ' . \$var . ';';
 
 \$var = 'SESSION_TYPE';
+
 \$handler = strtolower(SQ_CONF_SESSION_HANDLER);
 if (\$handler != '' && \$handler != 'default') {
 	echo \$var . '=\"' . \$handler . '\";';
