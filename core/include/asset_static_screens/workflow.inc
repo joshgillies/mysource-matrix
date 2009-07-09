@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.57 2009/02/02 04:10:05 mbrydon Exp $
+* $Id: workflow.inc,v 1.58 2009/07/09 00:33:45 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 
@@ -1011,6 +1011,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 									'assetids'			=> Array($owner->id),
 									'granted'			=> $current_access,
 									'schemaid'			=> $schemaid,
+									'cascades'			=> $cascades,
 									'previous_access'	=> NULL,
 									'dependants_only'	=> 1,
 								 );
