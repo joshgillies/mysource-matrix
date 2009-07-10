@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.301 2009/07/08 23:56:27 lwright Exp $
+* $Id: mysource.inc,v 1.302 2009/07/10 03:32:48 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.301 $
+* @version $Revision: 1.302 $
 * @package MySource_Matrix
 */
 class MySource
@@ -331,6 +331,11 @@ class MySource
 
 		}//end if
 
+		// process any global actions we have
+		if (!empty($_REQUEST['SQ_ACTION'])) {
+			$this->_processGlobalActions();
+		}
+
 		// If this session is new, select an appropriate context
 		// and store it in the session so it sticks between pages
 		if (isset($_SESSION) === TRUE) {
@@ -362,11 +367,6 @@ class MySource
 		}
 		
 		$this->changeContext($alternate_context_id);
-
-		// process any global actions we have
-		if (!empty($_REQUEST['SQ_ACTION'])) {
-			$this->_processGlobalActions();
-		}
 
 	}//end init()
 
@@ -1428,6 +1428,24 @@ class MySource
 				}
 			break;
 
+			case 'set_context' :
+				// if this is a valid context name, then use it, otherwise ignore
+				// eg. SQ_CONTEXT_NAME=Default%20Context
+				$context_name = (isset($_GET['SQ_CONTEXT_NAME'])) ? $_GET['SQ_CONTEXT_NAME'] : '';
+				unset($_GET['SQ_CONTEXT_NAME']);
+				$context_data = MatrixDAL::executeAll('core', 'getContextByName', Array('name' => Array($context_name)));
+				if (empty($context_data) === FALSE) {
+					$contextid = $context_data[0]['contextid'];
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $contextid;
+				}
+			break;
+
+			case 'clear_context' :
+				if ((isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]) === TRUE) && (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) === TRUE)) {
+					unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']);
+				}
+			break;
+
 			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
@@ -2463,7 +2481,7 @@ class MySource
 			// If set to "all", change to the number of conditions we have
 			// Then calculate the maximum number of fails we are allowed
 			if ($context['at_least'] === NULL) {
-				$context['at_least'] = count($context['conditions']);
+				$context['at_least'] = max(1, count($context['conditions']));
 			}
 			$maximum_failures = count($context['conditions']) - $context['at_least'];
 
