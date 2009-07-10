@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.52 2009/04/20 07:23:44 akarelia Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.53 2009/07/10 01:21:42 wszymanski Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,6 +66,15 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
 
+			// Section description
+			$o->openField(translate('section_description'));
+				$description = $asset->attr('description');
+				if ($write_access) {
+					text_area($prefix.'_description', $description, 30, 5);
+				} else {
+					echo $description;
+				}
+			$o->closeField();
 			// Current Restrictions
 			// Show the dialog for restricting a section by asset type
 			$o->openField(translate('current_restrict'));
@@ -202,6 +211,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// handle description
+		if (isset($_POST[$prefix.'_description'])) {
+			$section_description = trim($_POST[$prefix.'_description']);
+			$asset->setAttrValue('description', $section_description);
+			$asset->saveAttributes();
+		}
+
 		// handle restrictions
 		// delete
 		$current_restrictions = $asset->attr('restrict');
@@ -324,6 +340,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					// make sure we dont try and paint the same interface twice
 					$GLOBALS['painted_inline_value_interface'][$asset->id] = TRUE;
 				}
+			}
+
+			$section_description = $asset->attr('description');
+			if (!empty($section_description)) {
+				$o->openField('<i>'.translate('section_description').'</i>');
+					echo '<i>'.$section_description.'</i>';
+				$o->closeField();
 			}
 
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -456,6 +479,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			ob_start();
 
 			echo '<!-- '.$mm->escapeMetadata($asset->name).' //-->'."\n";
+			$section_description = $asset->attr('description');
+			if ($asset->attr('desc_frontend') == TRUE && !empty($section_description)) {
+				echo '<!-- '.$mm->escapeMetadata($section_description).' //-->'."\n";
+			}
 
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 			$valid_fields = Array();

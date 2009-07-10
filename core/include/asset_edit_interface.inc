@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.356 2009/06/04 05:41:01 cupreti Exp $
+* $Id: asset_edit_interface.inc,v 1.357 2009/07/10 01:22:10 wszymanski Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356 $
+* @version $Revision: 1.357 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1330,7 +1330,6 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 						}
 					}//end if
-	
 					// Metadata & workflow don't have an xml file defined, so move onto the next screen.
 					if ($screen == 'metadata') continue;
 					if ($screen == 'workflow') continue;
@@ -2742,8 +2741,17 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			if (!strcmp(strtolower($current_screen_name), 'metadata')) {
+				$o->openField('<span class="field_title"><strong>Print a specific metadata section name</strong></span> ');
+				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_name%</span>';
+				$o->closeField();
+				$o->openField('<span class="field_title"><strong>Print a specific metadata section description</strong></span> ');
+				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_description%</span>';
+				$o->closeField();
+				$o->openField('<span class="field_title"><strong>Print a specific metadata section interface</strong></span> ');
+				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_values%</span>';
+				$o->closeField();
 				$o->openField('<span class="field_title"><strong>Print a specific metadata schema field</strong></span> ');
-				echo '<span class="field_kw">%metadata-F_{metadata schema field id}% </span>';
+				echo '<span class="field_kw">%metadata-F_{metadata schema field id}%</span>';
 				$o->closeField();
 				$o->openRaw();
 				echo '<span class="field_title">For example: %metadata-F_99999%</span>';
@@ -2752,7 +2760,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$o->closeSection();
 			$o->openRaw();
-			echo '</fdiv>';
+			echo '</div>';
 			$o->closeRaw();
 		}//end foreach
 
