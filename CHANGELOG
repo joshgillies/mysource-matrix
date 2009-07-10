@@ -105,6 +105,10 @@ A further "ignore" file can be provided with single column list of items to igno
 As with the previous revision of this script, a CSV file is provided on STDOUT to monitor the assets affected. In this revision an additional column is given in this output to indicate the actual operation performed on the asset (eg; [primary identifier],[asset id],E).
 
 
+Username availability upon Archiving User Assets
+	When a Matrix User asset is set to "Archived", the held username is released for use by subseqent User assets. Upon changing the status back from "Archived", if the old username is taken by another user, a number is appended to the username to maintain the unique association (eg; fred => fred1), similar to the handling of Web Paths. 
+
+
 
 Additional Changes and Bug Fixes
 -----------------------------------
