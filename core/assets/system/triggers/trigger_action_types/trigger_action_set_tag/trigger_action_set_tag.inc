@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.10 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_set_tag.inc,v 1.10.6.1 2009/07/10 05:59:27 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,9 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
 		$param_map_value = $param_map_attr->getParameterValue('tag_id');
 		if (!empty($param_map_value)) {
-			$tmp_ids = explode(',', $param_map_value);
+			// check if map value is array, otherwise explode by comma
+			if (is_array($param_map_value)) $tmp_ids = $param_map_value;
+			else $tmp_ids = explode(',', $param_map_value);
 			$tagid = Array();
 			foreach ($tmp_ids as $tmp_id) {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($tmp_id)) {
