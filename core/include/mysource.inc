@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.302 2009/07/10 03:32:48 lwright Exp $
+* $Id: mysource.inc,v 1.303 2009/07/10 06:10:35 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.302 $
+* @version $Revision: 1.303 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2439,8 +2439,12 @@ class MySource
 	* @return boolean
 	*/
 	public function deleteContextData($contextid)
-	{
-		
+	{	
+		try {
+			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));	
+		} catch (DALException $e) {
+			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
+		}
 
 		return TRUE;
 
