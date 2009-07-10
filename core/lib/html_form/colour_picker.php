@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.php,v 1.9 2006/12/05 05:11:15 bcaldwell Exp $
+* $Id: colour_picker.php,v 1.10 2009/07/10 00:14:12 bpearson Exp $
 *
 */
 
@@ -18,10 +18,13 @@
 * Pop-Up for the colour picker
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
+// Sanitise data
+$colour = htmlentities($_GET['colour']);
+$pickerid = htmlentities($_GET['pickerid']);
 ?>
 <!-- note: this version of the color picker is optimized for IE 5.5+ only -->
 
@@ -39,7 +42,7 @@
 			function Init() { // run on page load
 				document.body.onkeypress = _CloseOnEsc;
 
-				var color = '<?php echo $_GET['colour']?>';
+				var color = '<?php echo $colour?>';
 				color = ValidateColor(color) || '000000';
 				View(color); // set default color
 			}
@@ -57,7 +60,7 @@
 				} else {
 					// valid color
 					View(color); // show selected color
-					window.opener.update_colour(color,<?php echo $_GET['pickerid']?>);
+					window.opener.update_colour(color,<?php echo $pickerid?>);
 					window.close();
 				}
 			}
