@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.2 2009/07/08 23:56:27 lwright Exp $
+* $Id: context_config.inc,v 1.3 2009/07/10 03:17:41 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1100,7 +1100,7 @@ class Context_Config extends Config
 					$GLOBALS['SQ_SYSTEM']->restoreContext();
 					$new_alternate_context = $GLOBALS['SQ_SYSTEM']->getAlternateContext();
 					$GLOBALS['SQ_SYSTEM']->changeContext($new_alternate_context);
-					$_SESSION['SQ_ALTERNATE_CONTEXT_ID'] = $new_alternate_context;
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $new_alternate_context;
 				}
 				$save_required = TRUE;
 
