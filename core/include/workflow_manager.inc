@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.135.2.6 2009/07/09 01:12:01 ewang Exp $
+* $Id: workflow_manager.inc,v 1.135.2.7 2009/07/10 04:04:55 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135.2.6 $
+* @version $Revision: 1.135.2.7 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -70,10 +70,8 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function allowsWorkflow($assetid)
 	{
-		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($asset)) return FALSE;
-		$edit_fns = $asset->getEditFns();
-		return isset($edit_fns->static_screens['workflow']);
+		if (preg_match('/:/',$assetid)) return FALSE;
+		return TRUE;
 
 	}//end allowsWorkflow()
 	
