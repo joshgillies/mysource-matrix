@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.46.2.1 2009/05/29 00:30:15 cupreti Exp $
+* $Id: metadata.inc,v 1.46.2.2 2009/07/10 01:20:41 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46.2.1 $
+* @version $Revision: 1.46.2.2 $
 * @package MySource_Matrix
 */
 
@@ -276,7 +276,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 		$o->closeSection();
 	}
 
-	// set the keyword replacements for any numbered field keywords
+	// set the keyword replacements for any numbered field or section keywords
 	if (!is_null($keywords) && isset($keywords['fields'])) {
 
 		// get the schemas that apply to this asset
@@ -304,8 +304,36 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 					ob_end_flush();
 				}
 			}
-		}
-	}
+			// if this is section keyword replacement
+			$matches = Array();
+			if (preg_match('/section_(\d+)_(name|description|values)/', $field_assetid, $matches)) {
+				// get the parent of this metadata section
+				$section_id = $matches[1];
+				$keyword_suffix = $matches[2];
+				$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($section_id, 'metadata_schema');
+
+				// Only display the section if its schema is applied to the asset,
+				// or if the asset is not yet created
+				if (empty($owner->id) || (array_intersect($schemas, array_keys($schemaid)) != Array())) {
+					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+
+					if ($keyword_suffix == 'values') {
+						ob_start();
+						$values = $mm->getMetadata($owner->id);
+						$edit_fns = $section->getEditFns();
+						$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option);
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
+						ob_end_flush();
+					} else {
+						ob_start();
+						echo $section->attr($keyword_suffix);
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
+						ob_end_flush();
+					}
+				}//end if
+			}//end if
+		}//end foreach
+	}//end if
 
 	return $print_commit_button;
 
