@@ -10,9 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pre_session.php,v 1.7.6.1 2008/12/29 05:03:23 lwright Exp $
+* $Id: pre_session.php,v 1.7.6.2 2009/07/10 00:09:59 bpearson Exp $
 *
 */
+
+// Suppress frontend errors
+$current_val = ini_get('display_errors');
+ini_set('display_errors', 0);
 
 if (!isset($_SESSION['PRIMARY_SESSIONID'])) {
 	error_log('No primary session');
@@ -37,6 +41,8 @@ if (!isset($_SESSION['PRIMARY_SESSIONID'])) {
 	}
 }
 
+// Restore the current setting
+ini_set('display_errors', $current_val);
 
 function reload_browser($do_js_request=FALSE, $site_network)
 {
