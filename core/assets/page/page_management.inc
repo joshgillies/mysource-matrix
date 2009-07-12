@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_management.inc,v 1.10 2007/12/03 05:01:05 lwright Exp $
+* $Id: page_management.inc,v 1.11 2009/07/12 23:26:19 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,7 @@ class Page_Management extends Asset_Management
 											'description'	=> 'The full name of the page',
 											'update_fn'		=> '',
 											'is_admin'		=> FALSE,
+											'is_contextable' => TRUE,
 										   ),
 						'short_name'	=> Array(
 											'added'			=> '0.0.1',
@@ -55,6 +56,7 @@ class Page_Management extends Asset_Management
 											'description'	=> 'The short name of the page (often used in menus)',
 											'update_fn'		=> '',
 											'is_admin'		=> FALSE,
+											'is_contextable' => TRUE,
 										   ),
 					  );
 

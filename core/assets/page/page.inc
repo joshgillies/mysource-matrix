@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.19 2009/03/27 00:40:59 ewang Exp $
+* $Id: page.inc,v 1.20 2009/07/12 23:26:19 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,7 +148,7 @@ class Page extends Asset
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+		return (($short_name) ? $this->attr('short_name', 0) : $this->attr('name', 0));
 
 	}//end _getName()
 
