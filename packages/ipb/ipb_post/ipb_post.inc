@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_post.inc,v 1.4 2007/01/08 03:49:23 emcdonald Exp $
+* $Id: ipb_post.inc,v 1.5 2009/07/12 23:49:18 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb_topic/ipb_topic.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -46,38 +46,38 @@ class Ipb_Post extends Ipb_Topic
 
 		if (array_key_exists('author_name', $data)) {
 			$this->vars['author_name']['type'] = 'text';
-			$this->vars['author_name']['value'] = $data['author_name'];
+			$this->vars['author_name']['value'][0] = $data['author_name'];
 		}
 
 		if (array_key_exists('post_date', $data)) {
 			$this->vars['post_date']['type'] = 'text';
 			$value =  date('g:i:s D j M Y', intval($data['post_date']));
-			$this->vars['post_date']['value'] = $value;
+			$this->vars['post_date']['value'][0] = $value;
 		}
 
 		if (array_key_exists('post_title', $data)) {
 			$this->vars['post_title']['type'] = 'text';
-			$this->vars['post_title']['value'] = (empty($data['post_title'])) ? 'none' : $data['post_title'];
+			$this->vars['post_title']['value'][0] = (empty($data['post_title'])) ? 'none' : $data['post_title'];
 		}
 
 		if (array_key_exists('post_parent', $data)) {
 			$this->vars['post_parent']['type'] = 'text';
-			$this->vars['post_parent']['value'] = ($data['post_parent']) ? 'Yes' : 'No';
+			$this->vars['post_parent']['value'][0] = ($data['post_parent']) ? 'Yes' : 'No';
 		}
 
 		if (array_key_exists('post', $data)) {
 			$this->vars['post']['type'] = 'text';
-			$this->vars['post']['value'] = $data['post'];
+			$this->vars['post']['value'][0] = $data['post'];
 		}
 
 		if (array_key_exists('topic_name', $data)) {
 			$this->vars['topic_name']['type'] = 'text';
-			$this->vars['topic_name']['value'] = $data['topic_name'];
+			$this->vars['topic_name']['value'][0] = $data['topic_name'];
 		}
 
 		if (array_key_exists('forum_name', $data)) {
 			$this->vars['forum_name']['type'] = 'text';
-			$this->vars['forum_name']['value'] = $data['forum_name'];
+			$this->vars['forum_name']['value'][0] = $data['forum_name'];
 		}
 
 		if (array_key_exists('forum_name', $data)) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_forum.inc,v 1.4 2007/01/08 03:49:22 emcdonald Exp $
+* $Id: ipb_forum.inc,v 1.5 2009/07/12 23:49:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -103,11 +103,11 @@ class Ipb_Forum extends Asset
 		// Ipb_Post doesn't have 'name' and 'description'
 		if ($this->_prefix != 'p') {
 			$this->vars['name']['type'] = 'text';
-			$this->vars['name']['value'] = $data['name'];
+			$this->vars['name']['value'][0] = $data['name'];
 
 			$this->vars['description']['type'] = 'text';
 			if (!empty($data['description'])) {
-				$this->vars['description']['value'] = $data['description'];
+				$this->vars['description']['value'][0] = $data['description'];
 			}
 		}
 
@@ -119,13 +119,13 @@ class Ipb_Forum extends Asset
 			$root_forums = $ipb->getListOfRootForums();
 
 			$this->vars['root_forums']['type'] = 'int';
-			$this->vars['root_forums']['value'] = count($root_forums);
+			$this->vars['root_forums']['value'][0] = count($root_forums);
 		}
 
 		// nomal forum
 		if ($this->_prefix == 'f' && $this->_suffix != '0') {
 			$this->vars['topics']['type'] = 'int';
-			$this->vars['topics']['value'] = $data['topics'];
+			$this->vars['topics']['value'][0] = $data['topics'];
 		}
 
 	}//end constructor

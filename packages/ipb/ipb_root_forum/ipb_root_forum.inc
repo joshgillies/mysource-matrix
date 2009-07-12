@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_root_forum.inc,v 1.3 2007/01/08 03:49:23 emcdonald Exp $
+* $Id: ipb_root_forum.inc,v 1.4 2009/07/12 23:49:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb_forum/ipb_forum.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -51,10 +51,10 @@ class Ipb_Root_Forum extends Ipb_Forum
 			$forums = $ipb->getListOfForums($data['id']);
 
 			$this->vars['description']['type'] = 'text';
-			$this->vars['description']['value'] = 'IPB Root Forum';
+			$this->vars['description']['value'][0] = 'IPB Root Forum';
 
 			$this->vars['forums']['type'] = 'int';
-			$this->vars['forums']['value'] = count($forums);
+			$this->vars['forums']['value'][0] = count($forums);
 		}
 
 	}//end constructor
