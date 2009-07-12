@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.162 2008/06/26 05:13:34 bpearson Exp $
+* $Id: backend_outputter.inc,v 1.163 2009/07/12 22:34:14 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1199,6 +1199,7 @@ class Backend_Outputter
 						<div id="sq_screen_menu_filler" style="display: none"></div>
 						<div id="sq_screen_menu">
 							<?php
+							$this->printContextSwitcher();
 							$this->printScreenMenu();
 							sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable" style="margin-bottom: -2px; margin-right: 4px"');
 							?>
@@ -1610,6 +1611,68 @@ class Backend_Outputter
 		}
 
 	}//end printScreenMenu()
+
+
+	/**
+	* Prints the interface for switching between contexts
+	*
+	* The context switcher will only be painted if there is
+	* at least one alternate context set up (it does not need
+	* to be valid for initial selection). If there is only one
+	* context (ie. the default), nothing will be printed.
+	*
+	* @return void
+	*/
+	public function printContextSwitcher()
+	{
+		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+		if (count($contexts) > 1) {
+			?>
+			<span id="sq_context_switcher_current">
+				Context: <strong><?php echo $contexts[$current_context][0]['name'] ?></strong> [ <a href="#" onclick="this.parentNode.nextSibling.style.display = 'inline'; this.parentNode.style.display = 'none'; return false;">Change</a> ]
+			</span><span id="sq_context_switcher_change">Change Context: <?php
+				$this->printSimpleContextSwitcher();
+			?></span> <?php
+		}
+
+	}//end printContextSwitcher()
+
+
+	/**
+	* Print only the drop-down part of the context switcher
+	*
+	* It is expected that the "simple" version of the context
+	* switcher will be used within Simple Edit interfaces,
+	* in a similar way to the Screen Menu.
+	*
+	* @return void
+	*/
+	public function printSimpleContextSwitcher()
+	{
+		$current_location = $this->getCurrentLocation();
+		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
+		$default_url = NULL;
+
+		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+		if (count($contexts) > 1) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+	
+			$context_list = Array();
+			foreach ($contexts as $context_item_id => $context_item) {
+				$url = replace_query_string_vars(Array('SQ_ACTION' => 'set_context', 'SQ_CONTEXT_NAME' => rawurlencode($context_item[0]['name'])), $current_loc_base, $current_loc_query);
+				if ((int)$contextid === (int)$context_item_id) {
+					$default_url = $url;
+				}
+
+				$context_list[$url] = $context_item[0]['name'];
+			}
+			combo_box('sq_context_switcher', $context_list, FALSE, Array($default_url), 1, ' onchange="self.location = this.value;"');
+		}
+	
+
+	}//end printSimpleContextSwitcher()
 
 
 	/**
