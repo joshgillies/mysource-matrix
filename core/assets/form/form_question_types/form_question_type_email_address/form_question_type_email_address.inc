@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.7 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: form_question_type_email_address.inc,v 1.8 2009/07/12 23:42:01 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,10 +87,10 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 		}
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
-		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
-		array_push($this->vars['rules']['value'], $req_rule);
+		$req_rule = Array('rule_code' => 'email', 'operator' => '1', 'value' => '');
+		$this->addRule($req_rule['rule_code'], $req_rule['operator'], $req_rule['value']);
 		$ok = parent::hasValidValue($answer, $mute_errors);
-		array_pop($this->vars['rules']['value']);
+		$this->removeRule($req_rule);
 		return $ok;
 
 	}//end hasValidValue()
@@ -108,12 +108,12 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	function generateJSCode()
 	{
 		// borrow a valid email rule
-		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
-		array_push($this->vars['rules']['value'], $req_rule);
+		$req_rule = Array('rule_code' => 'email', 'operator' => '1', 'value' => '');
+		$this->addRule($req_rule['rule_code'], $req_rule['operator'], $req_rule['value']);
 
 		$code = parent::generateJSCode();
 
-		array_pop($this->vars['rules']['value']);
+		$this->removeRule($req_rule);
 
 		return $code;
 
