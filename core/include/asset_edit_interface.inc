@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.357 2009/07/10 01:22:10 wszymanski Exp $
+* $Id: asset_edit_interface.inc,v 1.358 2009/07/12 22:39:49 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.357 $
+* @version $Revision: 1.358 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1451,6 +1451,11 @@ class Asset_Edit_Interface extends MySource_Object
 				ob_start();
 					$o->printScreenMenu();
 					$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
+				ob_end_clean();
+				
+				ob_start();
+					$o->printSimpleContextSwitcher();
+					$this->_tmp['layout_keyword_replacements']['context_switcher'] = ob_get_contents();
 				ob_end_clean();
 				continue;
 
