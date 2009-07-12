@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.87 2009/05/22 03:12:01 wszymanski Exp $
+* $Id: install.inc,v 1.88 2009/07/12 23:45:12 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -36,6 +36,10 @@
 */
 function regenerate_configs()
 {
+	// We need to include this so we can find out whether we should save the context
+	// config (which is stored in a database rather than a config file)
+	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg = new System_Config();
@@ -82,6 +86,19 @@ function regenerate_configs()
 	require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
 	$pa_cfg = new Proxy_Authentication_Config();
 	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
+
+	// Re-generate the Context Config to ma.... yeah, yeah, you know the deal by now =)
+	// But this is a special case - saving to a DB table rather than a config file
+	// So need to make sure the table exists before saving to it
+	$db_tables = get_database_tables();
+	if (in_array('sq_ctx_def', $db_tables)) {
+		require_once SQ_INCLUDE_PATH.'/context_config.inc';
+		$context_cfg = new Context_Config();
+		$current = $context_cfg->load();
+		if (!$context_cfg->save(Array('contexts' => $current), FALSE)) {
+			return FALSE;
+		}
+	}
 
 	return TRUE;
 
