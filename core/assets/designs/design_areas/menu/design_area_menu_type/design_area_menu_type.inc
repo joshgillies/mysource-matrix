@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.102 2009/07/06 06:27:50 cupreti Exp $
+* $Id: design_area_menu_type.inc,v 1.103 2009/07/12 23:31:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,7 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'normal'    :
 				case 'hierarchy' :
 				case 'current'   :
-					$new_value = $this->vars['settings']['value'];
+					$new_value = $this->vars['settings']['value'][0];
 					if (!is_array($new_value)) $new_value = Array();
 					if (!isset($new_value[$split[1]])) {
 						$new_value[$split[1]] = Array();
@@ -226,7 +226,7 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$settings = $this->attr('settings');
 		$settings_changed = FALSE;
-		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
+		foreach ($this->vars['var_references']['value'][0] as $var_name => $info) {
 			// if this is a setting and it is available in the var_ref_values
 			if (substr($var_name, 0, 9) == 'settings.' && isset($var_ref_values[$info['id_name']][$info['var']])) {
 				// The name is in the form 'settings.[var_name].[setting type]'

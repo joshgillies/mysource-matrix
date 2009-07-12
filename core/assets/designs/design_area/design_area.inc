@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.63 2009/02/25 23:34:31 ewang Exp $
+* $Id: design_area.inc,v 1.64 2009/07/12 23:31:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,7 +184,8 @@ class Design_Area extends Asset
 	public function getVarReferences()
 	{
 		$var_refs = Array();
-		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
+		// Always get references from the default context; design areas will not vary
+		foreach ($this->vars['var_references']['value'][0] as $var_name => $info) {
 			if (!isset($var_refs[$info['id_name']])) {
 				$var_refs[$info['id_name']] = Array();
 			}
@@ -209,7 +210,8 @@ class Design_Area extends Asset
 		if (!isset($this->_tmp['var_reference_values'])) {
 			$this->_tmp['var_reference_values'] = Array();
 		}
-		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
+		// Always get references from the default context; design areas will not vary
+		foreach ($this->vars['var_references']['value'][0] as $var_name => $info) {
 			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
 				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.23 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area_colourise_image.inc,v 1.24 2009/07/12 23:31:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,13 +54,17 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	public function setAttrValue($name, $value)
+	public function setAttrValue($name, $value, $contextid=NULL)
 	{
+		if (func_num_args() === 2) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
 		// if this is one of the colour attributes then let's grab the value, add it the
 		// $this->colours and then save that array
 		if ($name == 'black_colour' || $name == 'white_colour'
 			|| stristr($name, 'from_colour') || stristr($name, 'to_colour')) {
-			$new_value = $this->vars['colours']['value'];
+			$new_value = $this->vars['colours']['value'][0];
 			if (!is_array($new_value)) $new_value = Array();
 			$new_value[$name] = $value;
 			$name = 'colours';
@@ -84,12 +88,16 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return mixed array|string
 	* @access public
 	*/
-	public function attr($name)
+	public function attr($name, $contextid=NULL)
 	{
-		if (empty($this->vars['colours']['value'][$name])) {
+		if (func_num_args() === 1) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
+		if (empty($this->vars['colours']['value'][0][$name])) {
 			return parent::attr($name);
 		} else {
-			return $this->vars['colours']['value'][$name];
+			return $this->vars['colours']['value'][0][$name];
 		}
 
 	}//end attr()

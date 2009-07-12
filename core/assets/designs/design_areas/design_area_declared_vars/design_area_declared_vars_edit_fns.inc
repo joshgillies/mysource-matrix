@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.28 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.29 2009/07/12 23:31:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,8 +131,8 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				echo $attr->value;
 			}
-			if ($asset->vars['declared_vars']['value'][$name]['description']) {
-				$o->note($asset->vars['declared_vars']['value'][$name]['description']);
+			if ($asset->vars['declared_vars']['value'][0][$name]['description']) {
+				$o->note($asset->vars['declared_vars']['value'][0][$name]['description']);
 			}
 
 		}// end foreach

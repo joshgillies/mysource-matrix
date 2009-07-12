@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.21 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_declared_vars.inc,v 1.22 2009/07/12 23:31:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,12 +53,16 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return mixed string|object|int|float
 	* @access public
 	*/
-	public function attr($name)
+	public function attr($name, $contextid=NULL)
 	{
-		if (empty($this->vars['declared_vars']['value'][$name])) {
-			return parent::attr($name);
+		if (func_num_args() === 1) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
+		if (empty($this->vars['declared_vars']['value'][0][$name])) {
+			return parent::attr($name, $contextid);
 		} else {
-			return $this->vars['declared_vars']['value'][$name]['value'];
+			return $this->vars['declared_vars']['value'][0][$name]['value'];
 		}
 
 	}//end attr()
@@ -87,7 +91,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	public function getDeclaredVarAttributes()
 	{
 		$attrs = Array();
-		foreach ($this->vars['declared_vars']['value'] as $name => $data) {
+		foreach ($this->vars['declared_vars']['value'][0] as $name => $data) {
 			$type = basename($data['type']); // just to make sure they aren't attempting to be a bit tricky
 			// do include,so it doesn't die if it ain't there
 			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
