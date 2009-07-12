@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.10 2008/12/16 06:04:00 mbrydon Exp $
+* $Id: layout.inc,v 1.11 2009/07/12 23:24:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,6 +228,7 @@ class Layout extends Bodycopy
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'layout', TRUE);
 		if (!empty($parents) && isset($parents[$this->id])) {
 			$vars['keywords']['screen_menu'] = 'Screen Menu';
+			$vars['keywords']['context_switcher'] = 'Context Switcher';
 			$vars['keywords']['commit_button'] = 'Commit Button';
 			$vars['keywords']['commit_button_clean'] = 'Commit Button (without formatting)';
 			$vars['keywords']['release_locks_button'] = 'Release-locks button';
