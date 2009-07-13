@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.98 2008/05/02 00:56:13 lwright Exp $
+* $Id: hipo_job.inc,v 1.99 2009/07/13 06:05:08 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -660,6 +660,18 @@ class HIPO_Job extends MySource_Object
 		$this->_running_vars    = unserialize($result['running_vars']);
 		$this->last_updated     = iso8601_ts($result['last_updated']);
 
+		// Add in the progress_data
+		if (!empty($result['step_progress'])) {
+			$progress = unserialize($result['step_progress']);
+			if (!empty($progress) && isset($progress['current_step']) && isset($this->_steps[$progress['current_step']])) {
+				if (isset($progress['percent_done']) && isset($progress['message'])) {
+					// Update to the current spot
+					$this->_steps[$progress['current_step']]['percent_done'] = $progress['percent_done'];
+					$this->_steps[$progress['current_step']]['message'] = $progress['message'];
+				}//end if
+			}//end if
+		}//end if
+
 		// previous last_updated - the last_updated var from the last time load() was called
 		$prev_last_updated = array_get_index($this->_hipo_vars, 'timeout_prev_last_updated', $this->last_updated);
 
@@ -743,11 +755,12 @@ class HIPO_Job extends MySource_Object
 	*
 	* @param boolean	$ignore_running_mode	whether to ignore the running mode check or not
 	*											(SHOULD ONLY BE USED BY setRunningMode())
+	* @param array		$progress_data			a reference to the array of information about the current step
 	*
 	* @return boolean
 	* @access public
 	*/
-	function save($ignore_running_mode=FALSE)
+	function save($ignore_running_mode=FALSE, $progress_data=Array())
 	{
 		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
 			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
@@ -759,24 +772,7 @@ class HIPO_Job extends MySource_Object
 			return FALSE;
 		}
 
-		// First let's make sure that everything is in order with the hipo vars and our complete status
-		if (!$this->complete()) {
-			$step = $this->_hipo_vars['current_step'];
-
-			$prev_step_per = ($step / count($this->_steps)) * 100;
-			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
-			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
-
-			if (!empty($this->_steps[$step]['complete'])) {
-				$this->getNextStep();
-			}
-
-		}// end if
-
-		// if we have completed then we need to re-set the running mode back to the init mode
-		if ($this->complete()) {
-			$this->_hipo_vars['running_mode'] = $this->_hipo_vars['initialise_mode'];
-		}
+		$this->_updateProgress();
 
 		// Second let's decide, depening on the circumstances, whether to delete or update
 		$delete = FALSE;
@@ -829,6 +825,7 @@ class HIPO_Job extends MySource_Object
 								'steps'			=> serialize($this->_steps),
 								'running_vars'	=> serialize($this->_running_vars),
 								'last_updated'	=> $last_updated,
+								'progress'		=> serialize($progress_data),
 								'code_name'		=> $this->code_name,
 							  );
 				MatrixDAL::executeQuery('core', 'updateHipoJobVars', $bind_vars);
@@ -845,6 +842,79 @@ class HIPO_Job extends MySource_Object
 		return TRUE;
 
 	}//end save()
+
+
+	/**
+	* Save the progress vars to the database
+	*
+	* @param array	$progress_data	a reference to the array of information about the current step
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveProgress($progress_data)
+	{
+		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
+			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
+			return FALSE;
+		}
+
+		$this->_updateProgress();
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = MatrixDAL::getDb();
+		// now we just do what we are told
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		try {
+			// get timestamp for db type TODO
+			$bind_vars	= Array (
+							'progress'		=> serialize($progress_data),
+							'code_name'		=> $this->code_name,
+						  );
+			MatrixDAL::executeQuery('core', 'updateHipoJobProgress', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update HIPO progress due to database error: '.$e->getMessage());
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end saveProgress()
+
+
+	/**
+	* Update progress 
+	*
+	* @return void
+	* @access private
+	*/
+	function _updateProgress()
+	{
+		// First let's make sure that everything is in order with the hipo vars and our complete status
+		if (!$this->complete()) {
+			$step = $this->_hipo_vars['current_step'];
+
+			$prev_step_per = ($step / count($this->_steps)) * 100;
+			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
+			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
+
+			if (!empty($this->_steps[$step]['complete'])) {
+				$this->getNextStep();
+			}
+
+		}// end if
+
+		// if we have completed then we need to re-set the running mode back to the init mode
+		if ($this->complete()) {
+			$this->_hipo_vars['running_mode'] = $this->_hipo_vars['initialise_mode'];
+		}
+
+	}//end _updateProgress()
 
 
 	/**
@@ -1342,13 +1412,32 @@ class HIPO_Job extends MySource_Object
 	{
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
+			$prev_percent = (int) $this->_hipo_vars['percent_done'];
 			while (!$step_data['complete']) {
 				if (!$this->$fn($step_data, $prefix)) {
 					$this->save();
 					return FALSE;
 				}
-				$this->save();
-			}
+
+				$current_percent = (int) $this->_hipo_vars['percent_done'];
+				$progress = Array(
+								'percent_done'	=> $step_data['percent_done'],
+								'current_step'	=> $this->_hipo_vars['current_step'],
+								'message'		=> $step_data['message'],
+							);
+				if ((($current_percent != $prev_percent) && ($current_percent % 3 == 0)) || $step_data['complete']) {
+					// Full save point or job is finished
+					$this->save(FALSE, $progress);
+					$prev_percent = $current_percent;
+				} else if (($current_percent != $prev_percent) && ($current_percent % 1 == 0)) {
+					// Save the progress
+					$this->saveProgress($progress);
+					$prev_percent = $current_percent;
+				} else {
+					// Else progress to the next step
+					$this->_updateProgress();
+				}//end if
+			}//end while
 			return TRUE;
 
 		} else if (!empty($step_data['hipo_job'])) {
