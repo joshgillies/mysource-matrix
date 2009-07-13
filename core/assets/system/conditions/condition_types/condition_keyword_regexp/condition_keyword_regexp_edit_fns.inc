@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp_edit_fns.inc,v 1.5 2008/11/25 15:15:45 gnoel Exp $
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.6 2009/07/13 09:22:23 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,6 +115,14 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 					?>
 				</td>
 			</tr>
+			<tr>
+				<td colspan="2">
+					<?php
+						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+						label('Replace keywords in pattern', $prefix.'[replace_keyword_in_match]');
+					?>
+				</td>
+			</tr>
 		</table>
 		<?php // echo translate('condition_server_variable_is_regular_expression_enabled'); ?>
 		<?php
@@ -134,8 +142,9 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		$results = Array(
-					'keyword'		=> $_POST[$prefix]['keyword'],
-					'keyword_match'	=> $_POST[$prefix]['keyword_match'],
+					'keyword'					=> $_POST[$prefix]['keyword'],
+					'keyword_match'				=> $_POST[$prefix]['keyword_match'],
+					'replace_keyword_in_match'	=> array_get_index($_POST[$prefix], 'replace_keyword_in_match', '0'),
 				   );
 
 		if (!empty($_POST[$prefix]['keyword_extension'])) {

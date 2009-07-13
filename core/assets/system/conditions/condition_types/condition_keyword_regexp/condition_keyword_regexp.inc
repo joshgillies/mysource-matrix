@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.9 2009/07/07 16:26:17 jhurst Exp $
+* $Id: condition_keyword_regexp.inc,v 1.10 2009/07/13 09:22:40 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *     This condition compares a keyword against a specified regular expression
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,6 +76,20 @@ class Condition_Keyword_Regexp extends Condition
 		}
 		
 		$keyword_match = $condition_data['keyword_match'];
+		
+		if (array_get_index($condition_data, 'replace_keyword_in_match', '0') == '1') {
+			//replace global keywords
+			replace_global_keywords($keyword_match);
+	
+			//replace asset keywords
+			$keywords = retrieve_keywords_replacements($keyword_match);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+			replace_keywords($keyword_match, $replacements);
+		}
+		
 		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
 
