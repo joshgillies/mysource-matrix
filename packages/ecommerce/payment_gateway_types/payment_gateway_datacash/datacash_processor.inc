@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datacash_processor.inc,v 1.1 2009/06/22 09:27:23 ata Exp $
+* $Id: datacash_processor.inc,v 1.2 2009/07/13 11:22:16 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DATACASH_LOG_FILE_PREFIX', 'datacash_transactions_account_');
 * Datacash payment gateway processing object. Use Datacash PHP API to build the Request XML and parse the Response XML
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -166,6 +166,7 @@ class Datacash_Processor
 						'1000681548753461'		=> 'Laser - DECLINED (Status: 7)',
 						'3528000000000007'		=> 'JCB - SUCCESS (Status: 1)',
 						'3528000000000023'		=> 'JCB - DECLINED (Status: 7)',
+						'1000350000000007'		=> 'MASTER - AVS/CV2 TEST (Amount: 1010.00 - 1010.14)',
 					);
 	
 	
@@ -188,7 +189,7 @@ class Datacash_Processor
 		$this->_cardinfo_dir_path = $cardinfo_dir_path;
 		$this->_timeout = $timeout;
 		$this->_test_mode = $test_mode;
-		$this->_log_file_name = DATACASH_LOG_FILE_PREFIX.$this->_client;
+		$this->_log_file_name = DATACASH_LOG_FILE_PREFIX.$this->_client.($test_mode? '_test' : '_live');
 		
 		$this->_createConfigurationDocument();
 		$this->_createRequestDocument();
@@ -313,6 +314,52 @@ HEREDOC;
 		
 	}//end setCardIssueNumber()
 	
+
+	/**
+	* Set card CV2
+	*
+	* @param string	$cv2	the card CV2
+	*
+	* @return void
+	* @access public
+	*/
+	public function setCardCV2($cv2)
+	{
+		@$this->_request->set('Request.Transaction.CardTxn.Card.Cv2Avs.cv2', $cv2);
+		
+	}//end setCardCV2()
+
+	
+	/**
+	* Set Street Address
+	*
+	* @param int	$number		the order of line of the address
+	* @param string	$address	the $number-th line of the address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setStreetAddress($number, $address)
+	{
+		@$this->_request->set('Request.Transaction.CardTxn.Card.Cv2Avs.street_address'.$number, $address);
+		
+	}//end setStreetAddress()
+	
+
+	/**
+	* Set Postcode
+	*
+	* @param string	$postcode	the postcode of the address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setPostcode($postcode)
+	{
+		@$this->_request->set('Request.Transaction.CardTxn.Card.Cv2Avs.postcode', $postcode);
+		
+	}//end setPostcode()
+	
 	
 	/**
 	* Set transaction type to "auth"
@@ -402,6 +449,21 @@ HEREDOC;
 		@$this->_request->set('Request.Transaction.TxnDetails.ThreeDSecure.Browser.user_agent', array_get_index($_SERVER, 'HTTP_USER_AGENT', 'Mozilla/5.0'));
 		
 	}//end setThreeDSecure()
+	
+
+	/**
+	* Set Standard Policy
+	*
+	* @param string	$policy		the policy value (1, 2, 3, 5, 6, 7) for standard policy
+	*
+	* @return void
+	* @access public
+	*/
+	public function setStandardPolicy($policy)
+	{
+		@$this->_request->set('Request.Transaction.CardTxn.Card.Cv2Avs.policy', $policy);
+		
+	}//end setStandardPolicy()
 	
 	
 	/**
@@ -634,7 +696,7 @@ HEREDOC;
 			
 			//log amount
 			$amount_ele = @$this->_request->get('Request.Transaction.TxnDetails.amount', FALSE);//this second parameter is different from the phpdoc of the Datacash_Document class
-			if (!is_null($amount_ele)) {
+			if ($amount_ele !== FALSE) {
 				$attr_arr = $amount_ele->getAllAttributes();
 				$currency = '';
 				foreach ($attr_arr as $attr) {
@@ -690,6 +752,20 @@ HEREDOC;
 			if ($card_type !== FALSE) {
 				$message .= "Card type by Datacash: $card_type\n";
 			}
+			
+			//log AVS/CV2 check status
+			$cv2avs_ele = @$this->_response->get('Response.CardTxn.Cv2Avs.cv2avs_status', FALSE);//this second parameter is different from the phpdoc of the Datacash_Document class
+			if ($cv2avs_ele !== FALSE) {
+				$message .= 'AVS/CV2 check: '.$cv2avs_ele->getText()."\n";
+				$attr_arr = $cv2avs_ele->getAllAttributes();
+				foreach ($attr_arr as $attr) {
+					if ($attr->getName() == 'reversal') {
+						$message .= 'Reversal: '.($attr->getValue() == 0? 'failed' : 'successful')."\n";
+						break;
+					}
+				}
+			}
+			
 		} else { //an error occurs
 			$message .= 'HTTP Error: '.@$this->_response->get('Response.reason').' (status = '.@$this->_response->get('Response.status').")\n";
 		}
