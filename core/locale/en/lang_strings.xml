@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.329 2009/07/08 23:56:27 lwright Exp $
+* $Id: lang_strings.xml,v 1.330 2009/07/13 00:02:15 lwright Exp $
 *
 */
 
@@ -2521,7 +2521,7 @@ Are you sure you want to proceed?</string>
 	<string source="config_context_minimum_matches">Minimum Matches</string>
 	<string source="config_context_minimum_matches_interface">%1$s %2$s condition(s) must match before this alternate context can be considered for selection.</string><!-- %1$s = 'at least/all' combo box; %2$s = 'at least number' text box -->
 	<string source="config_context_context_name">Context Name</string>
-	<string source="config_context_context_details">Context Details</string>
+	<string source="config_context_context_details">Conditions for Context Detection</string>
 	<string source="config_context_condition_type">Condition Type</string>
 	<string source="config_context_condition_details">Condition Details</string>
 	<string source="config_context_edit_alt_text"><![CDATA[Edit context &quot;%s&quot;]]></string>
@@ -2630,5 +2630,6 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_context_at_least_too_many"><![CDATA[This context requires &quot;at least %1$s&quot; conditions to match, however it only contains %2$s conditions, making this context impossible to select.<br/>Either reduce the minimum number of matches (or set to &quot;all&quot;), or add more conditions, to make this context valid.]]></string>
 	<string source="config_context_not_enough_valid_cond_to_be_valid"><![CDATA[There are not enough valid conditions to satisfy the minimum number required for this context to be selected.<br/>Fixing the invalid condition(s) may make this context eligible for selection.]]></string>
 	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
-	<string source="config_context_note"><![CDATA[<p>Alternate contexts are evaluated in the order they appear on screen, top to bottom, stopping when one is matched. Keep this in mind if conditions overlap between contexts. If no alternate contexts can be selected, the default context is used.</p><p>Each alternate contexts is marked as &quot;valid&quot; if it is possible for them to match a request&apos;s details, and thus be able to be selected. Contexts may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough conditions to meet the requirement.</li><li>A context has enough invalid conditions to make it impossible to be selected. Note that with contexts set to require &quot;at least&quot; a certain number of conditions, the context may still be valid if there are enough valid conditions </li></ul><p>A context being &quot;invalid&quot; only affects its ability to be selected as an initial contextbased on request settings. It can still be switched to at any time using the Context Switcher, or used as an override via a User Group preference.</p>]]></string>
+	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. This occurs on the first request of a session, or when the context is otherwise reset. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the default context is used.</p>
+	<p>Conditions do not affect a context&apos;s ability to be used through methods outside context detection, such as through global action, or User Group override. If you do not want a context to be selected through context detection, simply leave its conditions blank. The <strong>Valid ?</strong> column states whether a context&apos;s conditions are achievable, based on the number of valid conditions and the set logic (either &quot;All&quot; or &quot;At least&quot;). A context&apos;s conditions may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no valid conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough valid conditions to meet the requirement. (If some conditions are invalid, but not all, the conditions can still be &quot;valid&quot; if there enough valid ones.)</li></ul>]]></string>
 </strings>
