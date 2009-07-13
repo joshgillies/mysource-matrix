@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.7 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.8 2009/07/13 10:51:23 ata Exp $
 *
 */
 -->
@@ -20,6 +20,12 @@
 		<function_call>
 			<paint_function   name="paintEcommerceQuestionLinks"   />
 			<process_function name="processEcommerceQuestionLinks" />
+		</function_call>
+	</section>
+	<section name="Pass-through Variables Questions">
+		<function_call>
+			<paint_function   name="paintPassthroughVarQuestionLinks"   />
+			<process_function name="processPassthroughVarQuestionLinks" />
 		</function_call>
 	</section>
 </contents>
