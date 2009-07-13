@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: sagepay_processor.inc,v 1.1 2009/06/22 09:32:12 ata Exp $
+* $Id: sagepay_processor.inc,v 1.2 2009/07/13 11:43:08 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('SAGEPAY_LOG_FILE_PREFIX', 'sagepay_transactions_account_');
 * Sage Pay payment gateway processing object
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -91,15 +91,21 @@ class SagePay_Processor
 	
 	/**
 	 * The amount of money used in a transaction
-	 * @var unknown_type
+	 * @var string
 	 */
 	private $_amount;
 	
 	/**
 	 * The currency that used in a transaction
-	 * @var unknown_type
+	 * @var string
 	 */
 	private $_currency;
+	
+	/**
+	 * The gift aid payment of this transaction
+	 * @var string
+	 */
+	private $_gift_aid = 'no';
 	
 	/**
 	 * The time to wait for a SagePay response
@@ -175,7 +181,7 @@ class SagePay_Processor
 		$this->_post_string = "VPSProtocol=$protocol&Vendor=$vendor";
 		$this->_timeout = $timeout;
 		$this->_post_urls = self::$_URLS[$run_mode];
-		$this->_log_file_name = SAGEPAY_LOG_FILE_PREFIX.$vendor;
+		$this->_log_file_name = SAGEPAY_LOG_FILE_PREFIX.$vendor.'_'.strtolower($run_mode);
 		
 	}//end constructor
 	
@@ -260,6 +266,21 @@ class SagePay_Processor
 	
 	
 	/**
+	* Set card CV2
+	*
+	* @param string	$cv2	the card CV2
+	*
+	* @return void
+	* @access public
+	*/
+	public function setCardCV2($cv2)
+	{
+		$this->_post_string .= "&CV2=$cv2";
+		
+	}//end setCardCV2()
+	
+	
+	/**
 	* Set transaction type to PAYMENT
 	*
 	* @return void
@@ -337,7 +358,277 @@ class SagePay_Processor
 		
 	}//end setCardType()
 	
+	
+	/**
+	* Set billing first names
+	*
+	* @param string	$first_names	the customer's first names
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingFirstnames($first_names)
+	{
+		$this->_post_string .= '&BillingFirstnames='.urlencode($first_names);
+		
+	}//end setBillingFirstnames()
+	
 
+	/**
+	* Set billing surname
+	*
+	* @param string	$first_names	the customer's surname
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingSurname($surname)
+	{
+		$this->_post_string .= '&BillingSurname='.urlencode($surname);
+		
+	}//end setBillingSurname()
+	
+
+	/**
+	* Set billing address 1
+	*
+	* @param string	$address	the first line of the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingAddress1($address)
+	{
+		$this->_post_string .= '&BillingAddress1='.urlencode($address);
+		
+	}//end setBillingAddress1()
+
+	
+	/**
+	* Set billing address 2
+	*
+	* @param string	$address	the second line of the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingAddress2($address)
+	{
+		$this->_post_string .= '&BillingAddress2='.urlencode($address);
+		
+	}//end setBillingAddress2()
+
+	
+	/**
+	* Set billing city
+	*
+	* @param string	$city	the city component of the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingCity($city)
+	{
+		$this->_post_string .= '&BillingCity='.urlencode($city);
+		
+	}//end setBillingCity()
+	
+
+	/**
+	* Set billing postcode
+	*
+	* @param string	$postcode	the postcode component of the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingPostcode($postcode)
+	{
+		$this->_post_string .= '&BillingPostCode='.urlencode($postcode);
+		
+	}//end setBillingPostcode()
+
+	
+	/**
+	* Set billing country
+	*
+	* @param string	$address	the country component of the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingCountry($country)
+	{
+		$this->_post_string .= '&BillingCountry='.urlencode($country);
+		
+	}//end setBillingCountry()
+
+	
+	/**
+	* Set billing state
+	*
+	* @param string	$state	the state component of the billing address if the country is the United States
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingState($state)
+	{
+		$this->_post_string .= '&BillingState='.urlencode($state);
+		
+	}//end setBillingState()
+	
+	
+	/**
+	* Set billing phone
+	*
+	* @param string	$phone_no	the phone number at the billing address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setBillingPhone($phone_no)
+	{
+		$this->_post_string .= '&BillingPhone='.urlencode($phone_no);
+		
+	}//end setBillingPhone()
+
+	
+	/**
+	* Set delivery first names
+	*
+	* @param string	$first_names	the customer's first names
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryFirstnames($first_names)
+	{
+		$this->_post_string .= '&DeliveryFirstnames='.urlencode($first_names);
+		
+	}//end setDeliveryFirstnames()
+	
+
+	/**
+	* Set delivery surname
+	*
+	* @param string	$first_names	the customer's surname
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliverySurname($surname)
+	{
+		$this->_post_string .= '&DeliverySurname='.urlencode($surname);
+		
+	}//end setDeliverySurname()
+	
+
+	/**
+	* Set delivery address 1
+	*
+	* @param string	$address	the first line of the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryAddress1($address)
+	{
+		$this->_post_string .= '&DeliveryAddress1='.urlencode($address);
+		
+	}//end setDeliveryAddress1()
+
+	
+	/**
+	* Set delivery address 2
+	*
+	* @param string	$address	the second line of the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryAddress2($address)
+	{
+		$this->_post_string .= '&DeliveryAddress2='.urlencode($address);
+		
+	}//end setDeliveryAddress2()
+
+	
+	/**
+	* Set delivery city
+	*
+	* @param string	$city	the city component of the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryCity($city)
+	{
+		$this->_post_string .= '&DeliveryCity='.urlencode($city);
+		
+	}//end setDeliveryCity()
+	
+
+	/**
+	* Set delivery postcode
+	*
+	* @param string	$postcode	the postcode component of the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryPostcode($postcode)
+	{
+		$this->_post_string .= '&DeliveryPostCode='.urlencode($postcode);
+		
+	}//end setDeliveryPostcode()
+
+	
+	/**
+	* Set delivery country
+	*
+	* @param string	$address	the country component of the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryCountry($country)
+	{
+		$this->_post_string .= '&DeliveryCountry='.urlencode($country);
+		
+	}//end setDeliveryCountry()
+
+
+	/**
+	* Set delivery state
+	*
+	* @param string	$state	the state component of the delivery address if the country is the United States
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryState($state)
+	{
+		$this->_post_string .= '&DeliveryState='.urlencode($state);
+		
+	}//end setDeliveryState()
+	
+	
+	/**
+	* Set delivery phone
+	*
+	* @param string	$phone_no	the phone number at the delivery address
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDeliveryPhone($phone_no)
+	{
+		$this->_post_string .= '&DeliveryPhone='.urlencode($phone_no);
+		
+	}//end setDeliveryPhone()
+	
+	
 	/**
 	* Set 3-D Secure for the transaction
 	*
@@ -349,6 +640,33 @@ class SagePay_Processor
 		$this->_post_string .= '&Apply3DSecure=0';
 		
 	}//end setThreeDSecure()
+	
+
+	/**
+	* Set AVS/CV2 for the transaction
+	*
+	* @return void
+	* @access public
+	*/
+	public function setAVSCV2()
+	{
+		$this->_post_string .= '&ApplyAVSCV2=0';
+		
+	}//end setAVSCV2()
+	
+	
+	/**
+	* Set Gift Aid Payment for the transaction
+	*
+	* @return void
+	* @access public
+	*/
+	public function setGiftAidPayment()
+	{
+		$this->_gift_aid = 'yes';
+		$this->_post_string .= '&GiftAidPayment=1';
+		
+	}//end setGiftAidPayment()
 	
 	
 	/**
@@ -556,6 +874,9 @@ class SagePay_Processor
 			
 			//log amount
 			$message .= "Amount: {$this->_amount} {$this->_currency}\n";
+			
+			//gift aid
+			$message .= "Gift Aid Payment: {$this->_gift_aid}\n";
 			
 		}
 			
