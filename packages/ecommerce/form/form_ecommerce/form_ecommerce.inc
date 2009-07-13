@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.46 2009/04/29 03:49:20 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.47 2009/07/13 11:06:32 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -151,6 +151,33 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
+	* Check if question type can be used for pass through variable
+	*
+	* @param string	$type	question type code
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _isAllowedPassThroughQuestionType($type='')
+	{
+		switch ($type) {
+			case('form_question_type_text'):
+			case('form_question_type_numeric'):
+			case('form_question_type_email_address'):
+			case('form_question_type_select'):
+			case('form_question_type_option_list'):
+			case('form_question_type_tickbox_list'):
+			case('form_question_type_tickbox_table'):
+				return TRUE;
+
+			default:
+				return FALSE;
+		}
+
+	}//end _isAllowedPassThroughQuestionType()
+	
+	
+	/**
 	* Return question rule for e-commerce form
 	*
 	* @param string	$name	question type code
@@ -209,12 +236,6 @@ class Form_Ecommerce extends Form_Email
 			$order = $this->_readOrder();
 		}
 
-		if (!empty($order)) {
-			$this->current_answers = $order['submission'];
-			$this->extra_data = $order['submission_extra_data'];
-			$this->repopulate();
-		}
-
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// check to see if the form has been submitted or not
@@ -223,8 +244,15 @@ class Form_Ecommerce extends Form_Email
 			if ($this->processPage(1) && empty($action)) {
 				$action = $this->confirm_view;
 			}
+		} else if (!empty($order)) {
+			//only get the current answers from session variables if we do not process after the submit button is clicked
+			//if we put this block of codes before processPage() method is called like in the previous version, the result
+			//of the answers will be wrong with tickbox list question type (it remembers the previous checked answer not the current unchecked one)
+			$this->current_answers = $order['submission'];
+			$this->extra_data = $order['submission_extra_data'];
+			$this->repopulate();
 		}
-
+		
 		$request_var_name = $this->attr('item_req_var');
 		if (empty($action) && isset($_REQUEST[$request_var_name])) {
 			$action = 'add_to_cart';
@@ -280,6 +308,12 @@ class Form_Ecommerce extends Form_Email
 				$_SESSION['SQ_ECOM_SUCCESS_URL'] = $this->getURL().'?'.$action_name.'='.$this->receipt_view;
 				$_SESSION['SQ_ECOM_CANCEL_URL'] = $this->getURL().'?'.$action_name.'='.$this->confirm_view;
 				$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
+				
+				//Add the pass through variables to SESSION variables
+				$pass_through_vars = $this->_getPassThroughVars();
+				if (!empty($pass_through_vars)) {
+					$_SESSION['SQ_ECOM_PASS_THROUGH_VARS'] = $pass_through_vars;
+				}
 
 				// if the custom reference id attribtue is not empty it means
 				// that we need a customised reference id
@@ -922,6 +956,13 @@ class Form_Ecommerce extends Form_Email
 		$order->setIP($_SERVER['REMOTE_ADDR']);
 		$order->setAttrValue('complete', TRUE);
 		$order->setAttrValue('xml', $this->getXML());
+		//set ecommerce order's details
+		$order->setAttrValue('transaction_id', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'TRANSACTION', ''));
+		$order->setAttrValue('billing_name', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_NAME', ''));
+		$order->setAttrValue('billing_addr', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_ADDR', ''));
+		$order->setAttrValue('delivery_name', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_NAME', ''));
+		$order->setAttrValue('delivery_addr', array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_ADDR', ''));
+		
 		$order->saveAttributes();
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2019,6 +2060,52 @@ class Form_Ecommerce extends Form_Email
 	}//end _getPurchasableAssetName()
 
 
+	/**
+	* Get the pass through variables under key - value pair array
+	*
+	* @return array
+	* @access private
+	*/
+	function _getPassThroughVars()
+	{
+		$key_val_arr = Array();
+		$var_rules = $this->attr('key_val_rules');
+		if (empty($var_rules)) {
+			return $key_val_arr;
+		}
+		
+		$questions =& $this->getAllQuestionAssets();
+		foreach ($questions as $q_id => $question) {
+			if (key_exists($q_id, $var_rules)) {
+				$var_rule = $var_rules[$q_id];
+				$key = array_get_index($var_rule, 'key', '');
+				if (trim($key) == '') {
+					continue;
+				}
+				
+				$val = '';
+				if ($question->isSelection()) {
+					$options = array_get_index($var_rule, 'value', Array());
+					foreach ($options as $option_id => $option_val) {
+						//if option is selcted and option is not --leave empty--
+						if ($question->isSelected($option_id) && (!($question instanceof Form_question_type_select) || !$question->isEmptyOption($option_id))) {
+							$val = $option_val;
+							break;
+						}
+					}
+				} else {
+					$val = $this->current_answers[$q_id];
+				}
+				
+				$key_val_arr[$key] = $val;
+			}//end if
+		}//end for
+		
+		return $key_val_arr;
+
+	}//end _getPassThroughVars()
+	
+	
 	/**
 	* True if passed asset is purchasable
 	*
