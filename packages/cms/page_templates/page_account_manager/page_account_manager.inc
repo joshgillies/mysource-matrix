@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.69.2.1 2009/04/08 06:08:28 lwright Exp $
+* $Id: page_account_manager.inc,v 1.69.2.2 2009/07/13 00:59:53 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.69.2.1 $
+* @version $Revision: 1.69.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -793,12 +793,43 @@ class Page_Account_Manager extends Page_Asset_Builder
  			$vars = Array('assetids' => Array($user->id));
 			$hipo_empty_array = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
-			// if the hipo was not successfull - fullstop and rollback.
-			if (!empty($hipo_empty_array)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				return FALSE;
+			// Here after moving the asset away from pending accounts folder we check for the
+			// permission/metadata/workflow of the new parent asset and cascade same permission
+			// to the new user also if the hipo was not successfull - fullstop and rollback.
+			foreach ($create_locations as $location_id => $link_type) {
+				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($location_id, $perm, NULL, TRUE);
+					foreach ($set_perms as $perm_info) {
+						if (!empty($hipo_empty_array) || !$GLOBALS['SQ_SYSTEM']->am->setPermission($user->id, $perm_info['userid'], $perm, $perm_info['granted'], TRUE, TRUE)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							return FALSE;
+						}
+					}
+				}//end foreach
+
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm_schema =  $mm->getSchemas($location_id, NULL, TRUE);
+				foreach ($mm_schema as $schema_id => $granted ) {
+					if (!$mm->setSchema($user->id, $schema_id, $granted)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}//end if
+				}//end foreach
+
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wf_schema = $wfm->getSchemas($location_id, NULL, FALSE, TRUE);
+				foreach ($wf_schema as $schema_id => $granted ) {
+					if (!$wfm->setSchema($user->id, $schema_id, $granted)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}//end if
+				}//end foreach
 			}
 
 			// all done
