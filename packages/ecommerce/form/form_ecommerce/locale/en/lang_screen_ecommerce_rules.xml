@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_ecommerce_rules.xml,v 1.6 2009/07/07 05:28:48 lwright Exp $
+* $Id: lang_screen_ecommerce_rules.xml,v 1.7 2009/07/13 10:57:36 ata Exp $
 *
 */
 -->
@@ -29,5 +29,12 @@
 		</ul>
 		
 		<p>If the <strong>Is Taxable?</strong> option is set, the value of the question <strong>includes</strong> any tax rate set on the Details screen.</p>]]></note>
+	</section>
+	<section name="Pass-through Variables Questions">
+		<function_call>
+			<paint_function   name="paintPassthroughVarQuestionLinks"   />
+			<process_function name="processPassthroughVarQuestionLinks" />
+		</function_call>
+		<note>Key value pair pass-through variables. These variables will be sent to the Payment Gateways. Each Payment Gateway defines different pass-through variables for their own usage. For example, Datacash Payment Gateway can use Address 1, Address 2, Address 3, Address 4 and Postcode values from Ecommerce Form to run AVS check.</note>
 	</section>
 </contents>
