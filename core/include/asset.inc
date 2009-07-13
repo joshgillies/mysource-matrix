@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.678 2009/07/12 23:12:40 lwright Exp $
+* $Id: asset.inc,v 1.679 2009/07/13 04:07:43 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.678 $
+* @version $Revision: 1.679 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -750,7 +750,7 @@ class Asset extends MySource_Object
 							.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 							WHERE atr.type_code = :type_code
 					)
-						UNION
+						UNION ALL
 					(
 						SELECT name, attrid, type, default_val as value, NULL as contextid, is_contextable
 							FROM sq_ast_attr 
