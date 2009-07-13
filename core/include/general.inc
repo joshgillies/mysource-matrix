@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.224 2009/07/07 16:26:17 jhurst Exp $
+* $Id: general.inc,v 1.225 2009/07/13 09:49:36 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix
 */
 
@@ -1751,7 +1751,15 @@ function replace_global_keywords(&$text)
 
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
-					$asset_url = current_url(FALSE, TRUE);
+					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+						$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
+						$protocol_pos = strpos($asset_url, '://');
+						if ($protocol_pos !== FALSE) {
+							$asset_url = substr($asset_url, $protocol_pos + 3);
+						}
+					} else {
+						$asset_url = current_url(FALSE, TRUE);
+					}
 					$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
 
 					$site_assetid = 0;
@@ -1778,22 +1786,25 @@ function replace_global_keywords(&$text)
 					if (empty($matches[2])) {
 						$asset_replacement = '%'.$asset_keyword.'%';
 
-						if (SQ_IN_LIMBO) {
-							$limbo_asset = NULL;
-
-							if (isset($_REQUEST['limbo_assetid'])) {
-								$limbo_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
-							} else {
-								$limbo_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
-							}
-
-							if ($limbo_asset) {
-								$asset_replacement = $limbo_asset->getKeywordReplacement($asset_keyword);
-							}
+						$current_asset = NULL;
+						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+							$current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 						} else {
-							$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
+							if (SQ_IN_LIMBO) {
+								if (isset($_REQUEST['limbo_assetid'])) {
+									$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
+								} else {
+									$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+								}
+							} else {
+								$current_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+							}
 						}
 
+						if ($current_asset) {
+							$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
+						}
+								
 						if ($asset_replacement != "%$asset_keyword%") {
 							$replacements[$full_keyword] = $asset_replacement;
 						}
