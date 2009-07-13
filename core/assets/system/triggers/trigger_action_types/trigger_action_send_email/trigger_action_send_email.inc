@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.23 2009/06/03 22:45:06 cupreti Exp $
+* $Id: trigger_action_send_email.inc,v 1.24 2009/07/13 10:03:35 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,6 +149,24 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$email_format_value = serialize($unserialised);
 		}
 
+		//override the Asset To Send if specified
+		$ast2send_id = NULL;
+		if (!empty($settings['asset_to_send_map'])){
+			$ast2send_param_map_value = array_get_index($settings, 'asset_to_send_map', serialize(Array()));
+			$ast2send_atr_param_map = new Asset_Attribute_Parameter_Map(0, $ast2send_param_map_value);
+			$ast2send_id = $ast2send_atr_param_map->getParameterValue('ast2send_assetid');
+		}
+		
+		if (empty($ast2send_id) && array_get_index($settings, 'override_asset_to_send', FALSE)) {
+			$ast2send_id = $assetid;
+		}
+		
+		if (!empty($ast2send_id)) {
+			$unserialised = unserialize($email_format_value);
+			$unserialised['asset_to_send'] = $ast2send_id;
+			$email_format_value = serialize($unserialised);
+		}
+		
 		// create a new email format object and send emails
 		$email_format_attr = new Asset_Attribute_Email_Format(0, $email_format_value);
 		if (is_null($email_format_attr)) return FALSE;
@@ -179,8 +197,17 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
 
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+		
 		$email_format_attr->sendMail($replacements);
 
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
+		
 		return Array(
 				'assetid'	=> $assetid,
 			   );
@@ -219,6 +246,12 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$atr_parameter_map->setParameter('user_assetid', 'Recipient Asset ID');
 		$atr_parameter_map->setParameter('user_email', 'Recipient E-mail Address');
 
+		//parameter map for Asset To Send
+		$ast2send_param_map_value = array_get_index($settings, 'asset_to_send_map', serialize(Array()));
+		$ast2send_atr_param_map = new Asset_Attribute_Parameter_Map(0, $ast2send_param_map_value);
+
+		$ast2send_atr_param_map->setParameter('ast2send_assetid', 'Asset To Send Asset ID');
+		
 		?>
 		<table class="sq-backend-table" border="1" style="width: auto">
 			<tr>
@@ -239,7 +272,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<th><?php echo translate('trigger_group_recipients');; ?></th>
+				<th><?php echo translate('trigger_group_recipients'); ?></th>
 				<td>
 					<?php
 					if ($write_access) {
@@ -280,6 +313,19 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				<th><?php echo 'Recipient Source'; ?></th>
 				<td>
 					<?php echo $atr_parameter_map->paint($new_prefix.'_param', !$write_access); ?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo 'Asset To Send'; ?></th>
+				<td>
+					<?php
+						//checkbox for Asset To Send
+						check_box($prefix.'[override_asset_to_send]', '1', array_get_index($settings, 'override_asset_to_send', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+						label('Override the Asset To Send with the asset that causes this trigger to fire. You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.', $prefix.'[override_asset_to_send]');
+						
+						//parameter map for Asset To Send
+						echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access); 
+					?>
 				</td>
 			</tr>
 			<tr>
@@ -343,6 +389,15 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$atr_parameter_map->process($new_prefix.'_param');
 
 		$settings['email_recipient_map'] = $atr_parameter_map->value;
+		
+		//checkbox for Asset To Send
+		$settings['override_asset_to_send'] = array_get_index($request_data, 'override_asset_to_send', FALSE);
+		
+		//parameter map for Asset To Send
+		$ast2send_param_map = new Asset_Attribute_Parameter_Map();
+		$ast2send_param_map->process($new_prefix.'_ast2send_param');
+		
+		$settings['asset_to_send_map'] = $ast2send_param_map->value;
 
 		return FALSE;
 
