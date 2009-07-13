@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2009/06/22 09:33:08 ata Exp $
+* $Id: lang_screen_details.xml,v 1.2 2009/07/13 11:43:50 ata Exp $
 *
 */
 -->
@@ -45,7 +45,51 @@
 		</field>
 		<field attribute="description">
 			<display_name>Description</display_name>
-			<note>The free text description of goods or services being purchased.</note>
+			<note>The free text description of goods or services being purchased. It is displayed in the My Sage Page screens of the vendor account for reference.</note>
+		</field>
+		<field attribute="delivery_addr_is_billing_addr">
+			<display_name>Delivery Address is Billing Address?</display_name>
+			<note>The flag to indicate if delivery address is billing address. If the answer is yes, the card holder will not need to supply delivery address.</note>
+		</field>
+	</section>
+	<section name="Fraud Prevention">
+		<field attribute="threeds_enabled">
+			<display_name>Enable 3-D Secure?</display_name>
+			<note>The flag to enable 3-D Secure check for the transactions. If 3-D Secure is ON for the vendor account, this flag must be yes.</note>
+		</field>
+		<field attribute="avscv2_enabled">
+			<display_name>Enable AVS/CV2?</display_name>
+			<note>The flag to enable AVS/CV2 check for the transactions. If AVS/CV2 is ON for the vendor account, this flag must be yes.</note>
+		</field>
+	</section>
+	<section name="Pass through Variables">
+		<field attribute="giftaid_var_name">
+			<display_name>Gift Aid Variable Name</display_name>
+			<note>The name of the pass through variable for Gift Aid. If the pass through value is 1, yes or true string, this payment will be a Gift Aid charitable donation and the customer has AGREED to donate the tax. This feature is only of use if your merchant account is Gift Aid enabled.</note>
+		</field>
+		<field attribute="firstname_var_name">
+			<display_name>First Name Variable Name</display_name>
+			<note>The name of the pass through variable for First Name.</note>
+		</field>
+		<field attribute="surname_var_name">
+			<display_name>Surname Variable Name</display_name>
+			<note>The name of the pass through variable for Surname.</note>
+		</field>
+		<field attribute="addr1_var_name">
+			<display_name>Address 1 Variable Name</display_name>
+			<note>The name of the pass through variable for the first line of address.</note>
+		</field>
+		<field attribute="addr2_var_name">
+			<display_name>Address 2 Variable Name</display_name>
+			<note>The name of the pass through variable for the second line of address.</note>
+		</field>
+		<field attribute="city_var_name">
+			<display_name>City Variable Name</display_name>
+			<note>The name of the pass through variable for City.</note>
+		</field>
+		<field attribute="postcode_var_name">
+			<display_name>Postcode Variable Name</display_name>
+			<note>The name of the pass through variable for Postcode.</note>
 		</field>
 	</section>
 	<section name="Interface Options">

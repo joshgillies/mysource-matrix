@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.1 2009/06/22 09:32:12 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.2 2009/07/13 11:40:25 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/sagepay_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,10 +41,10 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	private $_redirect_info = NULL;
 	
 	/**
-	 * The formatted last 4 digits of card number string, e.g. ****-****-****-1234
-	 * @var string
+	 * The pass through variable array
+	 * @var array
 	 */
-	private $_formatted_card_no = '';
+	private $_pass_through_vars = NULL;
 	
 	
 	/**
@@ -146,7 +146,29 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		$keywords['card_expiry_month'] = 'Card Expiry Month';
 		$keywords['card_expiry_year'] = 'Card Expiry Year';
 		$keywords['card_issue_number'] = 'Card Issue Number';
+		$keywords['card_cv2'] = 'Card CV2';
 		$keywords['card_type'] = 'Card Type';
+		
+		$keywords['billing_first_names'] = 'Billing First Names';
+		$keywords['billing_surname'] = 'Billing Surname';
+		$keywords['billing_address1'] = 'Billing Address1';
+		$keywords['billing_address2'] = 'Billing Address2';
+		$keywords['billing_city'] = 'Billing City';
+		$keywords['billing_postcode'] = 'Billing Postcode';
+		$keywords['billing_country'] = 'Billing Country';
+		$keywords['billing_state'] = 'Billing State';
+		$keywords['billing_phone'] = 'Billing Phone';
+		
+		$keywords['delivery_first_names'] = 'Delivery First Names';
+		$keywords['delivery_surname'] = 'Delivery Surname';
+		$keywords['delivery_address1'] = 'Delivery Address1';
+		$keywords['delivery_address2'] = 'Delivery Address2';
+		$keywords['delivery_city'] = 'Delivery City';
+		$keywords['delivery_postcode'] = 'Delivery Postcode';
+		$keywords['delivery_country'] = 'Delivery Country';
+		$keywords['delivery_state'] = 'Delivery State';
+		$keywords['delivery_phone'] = 'Delivery Phone';
+		
 		$keywords['transaction_amount'] = 'Transaction Amount';
 		$keywords['processing_error'] = 'Processing Error (empty if no error)';
 		$keywords['submit_button'] = 'Submit Button';
@@ -210,6 +232,10 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	
 			} else if (empty($amount)) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
+				//clear pass through variables
+				if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
+					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
+				}
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
@@ -218,8 +244,6 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				if ($success === 2) {
 					//store the md5 of MD to authenticate the payment after the card holder verify himself
 					$_SESSION['SQ_ECOM_MD'] = md5($this->_redirect_info['MD']);
-					//store the last 4 digits of card number to display it later in Form Ecommerce or Delivery Method through the Session variable SQ_ECOM_RESPONSE
-					$_SESSION['SQ_ECOM_CARD_NUMBER'] = $this->_formatted_card_no;
 					//print the Card Holder Verification bodycopy
 					$this->printBodycopy('card_holder_verification');
 					return;
@@ -229,9 +253,7 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		} else if (!empty($_SESSION['SQ_ECOM_MD']) && (md5($_POST['MD']) == $_SESSION['SQ_ECOM_MD'])) {
 			//THIS PAGE IS REDIRECTED TO BY THE ACCESS CONTROL SERVER (ACS) OF ISSUEING BANK AFTER CARD HOLDER VERIFICATION PROCESS
 			$is_in_frame = TRUE;
-			$this->_formatted_card_no = array_get_index($_SESSION, 'SQ_ECOM_CARD_NUMBER', '');
 			unset($_SESSION['SQ_ECOM_MD']);
-			unset($_SESSION['SQ_ECOM_CARD_NUMBER']);
 			$success = $this->authorizePayment($_POST['MD'], $_POST['PaRes']);
 			if ($success === FALSE) {
 				//transaction fails, redirect the parent document of the iframe and display error
@@ -242,6 +264,11 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		//if transaction is accepted, redirect the user to the success page
 		if ($success === 1) {
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
+			//clear pass through variables
+			if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
+				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
+			}
+		
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		}
 		
@@ -386,12 +413,140 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			}
 		}
 		
+		//SET CARD CV2, IF SPECIFIED
+		if (!empty($card_info['cv2'])) {
+			if ($this->_isValidCV2($card_info['cv2'], $card_info['type'])) {
+				$processor->setCardCV2($card_info['cv2']);
+			} else {
+				$this->_setError(translate('sagepay_card_cv2_invalid'));
+			}
+		}
+		
 		//SET CARD TYPE
 		if (empty($card_info['type'])) {
 			$this->_setError(translate('sagepay_card_type_not_specified'));
 		} else {
 			$processor->setCardType($card_info['type']);
 		}
+		
+		$billing_name = '';
+		//SET BILLING FIRST NAMES
+		if (!empty($card_info['billing_first_names'])) {
+			$billing_name .= $card_info['billing_first_names'].' ';
+			$processor->setBillingFirstnames($card_info['billing_first_names']);
+		}
+		
+		//SET BILLING SURNAME
+		if (!empty($card_info['billing_surname'])) {
+			$billing_name .= $card_info['billing_surname'];
+			$processor->setBillingSurname($card_info['billing_surname']);
+		}
+		
+		$billing_addr = '';
+		//SET BILLING ADDRESS 1
+		if (!empty($card_info['billing_address1'])) {
+			$billing_addr .= $card_info['billing_address1']."\n";
+			$processor->setBillingAddress1($card_info['billing_address1']);
+		}
+		
+		//SET BILLING ADDRESS 2
+		if (!empty($card_info['billing_address2'])) {
+			$billing_addr .= $card_info['billing_address2']."\n";
+			$processor->setBillingAddress2($card_info['billing_address2']);
+		}
+		
+		//SET BILLING CITY
+		if (!empty($card_info['billing_city'])) {
+			$billing_addr .= $card_info['billing_city']."\n";
+			$processor->setBillingCity($card_info['billing_city']);
+		}
+		
+		//SET BILLING POSTCODE
+		if (!empty($card_info['billing_postcode'])) {
+			$billing_addr .= $card_info['billing_postcode']."\n";
+			$processor->setBillingPostcode($card_info['billing_postcode']);
+		}
+		
+		//SET BILLING COUNTRY
+		if (!empty($card_info['billing_country'])) {
+			$billing_addr .= strtoupper($card_info['billing_country'])."\n";
+			$processor->setBillingCountry($card_info['billing_country']);
+		}
+
+		//SET BILLING STATE
+		if (!empty($card_info['billing_state'])) {
+			$billing_addr .= $card_info['billing_state']."\n";
+			$processor->setBillingState($card_info['billing_state']);
+		}
+		
+		//SET BILLING PHONE
+		if (!empty($card_info['billing_phone'])) {
+			$billing_addr .= 'Phone: '.$card_info['billing_phone']."\n";
+			$processor->setBillingPhone($card_info['Delivery_phone']);
+		}
+		
+		if ($this->attr('delivery_addr_is_billing_addr')) {
+			$delivery_str = 'billing_';
+		} else {
+			$delivery_str = 'delivery_';
+		}
+		
+		$delivery_name = '';
+		//SET DELIVERY FIRST NAMES
+		if (!empty($card_info[$delivery_str.'first_names'])) {
+			$delivery_name .= $card_info[$delivery_str.'first_names'].' ';
+			$processor->setDeliveryFirstnames($card_info[$delivery_str.'first_names']);
+		}
+		
+		//SET DELIVERY SURNAME
+		if (!empty($card_info[$delivery_str.'surname'])) {
+			$delivery_name .= $card_info[$delivery_str.'surname'];
+			$processor->setDeliverySurname($card_info[$delivery_str.'surname']);
+		}
+		
+		$delivery_addr = '';
+		//SET DELIVERY ADDRESS 1
+		if (!empty($card_info[$delivery_str.'address1'])) {
+			$delivery_addr .= $card_info[$delivery_str.'address1']."\n";
+			$processor->setDeliveryAddress1($card_info[$delivery_str.'address1']);
+		}
+		
+		//SET DELIVERY ADDRESS 2
+		if (!empty($card_info[$delivery_str.'address2'])) {
+			$delivery_addr .= $card_info[$delivery_str.'address2']."\n";
+			$processor->setDeliveryAddress2($card_info[$delivery_str.'address2']);
+		}
+		
+		//SET DELIVERY CITY
+		if (!empty($card_info[$delivery_str.'city'])) {
+			$delivery_addr .= $card_info[$delivery_str.'city']."\n";
+			$processor->setDeliveryCity($card_info[$delivery_str.'city']);
+		}
+		
+		//SET DELIVERY POSTCODE
+		if (!empty($card_info[$delivery_str.'postcode'])) {
+			$delivery_addr .= $card_info[$delivery_str.'postcode']."\n";
+			$processor->setDeliveryPostcode($card_info[$delivery_str.'postcode']);
+		}
+		
+		//SET DELIVERY COUNTRY
+		if (!empty($card_info[$delivery_str.'country'])) {
+			$delivery_addr .= strtoupper($card_info[$delivery_str.'country'])."\n";
+			$processor->setDeliveryCountry($card_info[$delivery_str.'country']);
+		}
+
+		//SET DELIVERY STATE
+		if (!empty($card_info[$delivery_str.'state'])) {
+			$delivery_addr .= $card_info[$delivery_str.'state']."\n";
+			$processor->setDeliveryState($card_info[$delivery_str.'state']);
+		}
+		
+		//SET DELIVERY PHONE
+		if (!empty($card_info[$delivery_str.'phone'])) {
+			$delivery_addr .= 'Phone: '.$card_info[$delivery_str.'phone']."\n";
+			$processor->setDeliveryPhone($card_info[$delivery_str.'phone']);
+		}
+		
 		
 		//SET DESCRIPTION
 		$processor->setDescription($this->attr('description'));
@@ -400,7 +555,76 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		$processor->setTransactionTypePayment();
 		
 		//SET 3-D SECURE
-		$processor->setThreeDSecure();
+		if ($this->attr('threeds_enabled')) {
+			$processor->setThreeDSecure();
+		}
+
+		//SET AVS/CV2
+		if ($this->attr('avscv2_enabled')) {
+			$processor->setAVSCV2();
+			
+			if (empty($card_info['cv2'])) {
+				$this->_setError(translate('sagepay_card_cv2_not_specified'));
+			}
+			
+			if (empty($card_info['billing_first_names'])) {
+				$this->_setError(translate('sagepay_billing_first_names_not_specified'));
+			}
+			if (empty($card_info['billing_surname'])) {
+				$this->_setError(translate('sagepay_billing_surname_not_specified'));
+			}
+			if (empty($card_info['billing_address1'])) {
+				$this->_setError(translate('sagepay_billing_address1_not_specified'));
+			}
+			if (empty($card_info['billing_city'])) {
+				$this->_setError(translate('sagepay_billing_city_not_specified'));
+			}
+			if (empty($card_info['billing_postcode'])) {
+				$this->_setError(translate('sagepay_billing_postcode_not_specified'));
+			}
+			if (empty($card_info['billing_country'])) {
+				$this->_setError(translate('sagepay_billing_country_not_specified'));
+			}
+			if (!empty($card_info['billing_country']) && ($card_info['billing_country'] == 'us') && empty($card_info['billing_state'])) {
+				$this->_setError(translate('sagepay_billing_state_not_specified'));
+			}
+			
+			if (!$this->attr('delivery_addr_is_billing_addr')) {
+				if (empty($card_info['delivery_first_names'])) {
+					$this->_setError(translate('sagepay_delivery_first_names_not_specified'));
+				}
+				if (empty($card_info['delivery_surname'])) {
+					$this->_setError(translate('sagepay_delivery_surname_not_specified'));
+				}
+				if (empty($card_info['delivery_address1'])) {
+					$this->_setError(translate('sagepay_delivery_address1_not_specified'));
+				}
+				if (empty($card_info['delivery_city'])) {
+					$this->_setError(translate('sagepay_delivery_city_not_specified'));
+				}
+				if (empty($card_info['delivery_postcode'])) {
+					$this->_setError(translate('sagepay_delivery_postcode_not_specified'));
+				}
+				if (empty($card_info['delivery_country'])) {
+					$this->_setError(translate('sagepay_delivery_country_not_specified'));
+				}
+				if (!empty($card_info['delivery_country']) && ($card_info['delivery_country'] == 'us') && empty($card_info['delivery_state'])) {
+					$this->_setError(translate('sagepay_delivery_state_not_specified'));
+				}
+			}
+		}
+		
+		//SET GIFT AID PAYMENT
+		$var_name = $this->attr('giftaid_var_name');
+		if (!empty($var_name)) {
+			$gift_aid = $this->_getPassThroughVariable($var_name, FALSE);
+			if ($gift_aid !== FALSE){
+				$gift_aid = strtolower($gift_aid);
+				if (($gift_aid == '1') || ($gift_aid == 'yes') || ($gift_aid == 'true')) {
+					$processor->setGiftAidPayment();
+				}
+			}
+		}
 		
 		//CHECK IF THERE IS ERROR BEFORE SENDING DATA TO SagePay SERVER, RETURN FALSE
 		if ($this->isError()) {
@@ -414,7 +638,13 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		
 		//if success (1 or 2), save the last 4 digits of card number to output later
 		if ($success) {
-			$this->_formatted_card_no = $this->_getFormattedCardNumber($card_info['number']);
+			//store the last 4 digits of card number to display it later in Form Ecommerce or Delivery Method through the Session variable SQ_ECOM_RESPONSE
+			$_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'] = $this->_getFormattedCardNumber($card_info['number']);
+			//store the billing name, billing address, deliver name and deliver address to store in the Order asset of Form Ecommerce
+			$_SESSION['SQ_ECOM_ORDER_BILLING_NAME'] = $billing_name;
+			$_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'] = $billing_addr;
+			$_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME'] = $delivery_name;
+			$_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR'] = $delivery_addr;
 		}
 		
 		//if $success = 2, redirect user for card holder verification
@@ -473,8 +703,42 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				$response['STATUS'] = '!!!ATTENTION!!! '.strtoupper($this->attr('run_mode')).' MODE (transaction not performed) -- '.$response['STATUS'];
 			}
 
-			$response['CARDNO'] = $this->_formatted_card_no;
+			$card_no = '';
+			if (isset($_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'])) {
+				$card_no = $_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'];
+				unset($_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER']);
+			}
+			
+			$response['CARDNO'] = $card_no;
 			$response['AMOUNT'] = $_SESSION['SQ_ECOM_AMOUNT'];
+			
+			$billing_name = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_BILLING_NAME'])) {
+				$billing_name = $_SESSION['SQ_ECOM_ORDER_BILLING_NAME'];
+				unset($_SESSION['SQ_ECOM_ORDER_BILLING_NAME']);
+			}
+			$response['BILLING_NAME'] = $billing_name;
+			
+			$billing_addr = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'])) {
+				$billing_addr = $_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'];
+				unset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR']);
+			}
+			$response['BILLING_ADDR'] = $billing_addr;
+			
+			$delivery_name = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME'])) {
+				$delivery_name = $_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME'];
+				unset($_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME']);
+			}
+			$response['DELIVERY_NAME'] = $delivery_name;
+			
+			$delivery_addr = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR'])) {
+				$delivery_addr = $_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR'];
+				unset($_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR']);
+			}
+			$response['DELIVERY_ADDR'] = $delivery_addr;
 			
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
@@ -699,6 +963,23 @@ HEREDOC;
 
 
 	/**
+	* Card CV2 keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardCv2KeywordReplacement()
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<input name="'.$card.'[cv2]" size="4" />';
+		
+		return $string;
+
+	}//end getCardCv2KeywordReplacement()
+	
+	
+	/**
 	* Card Type keyword replacement
 	*
 	* @return string
@@ -722,6 +1003,310 @@ HEREDOC;
 		return ob_get_clean();
 
 	}//end getCardTypeKeywordReplacement()
+	
+	
+	/**
+	* Billing First Names keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingFirstNamesKeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_first_names]', $this->_getDefaultInputFromPassThroughAttribute('firstname_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingFirstNamesKeywordReplacement()
+	
+
+	/**
+	* Billing Surname keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingSurnameKeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_surname]', $this->_getDefaultInputFromPassThroughAttribute('surname_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingSurnameKeywordReplacement()
+
+	
+	/**
+	* Billing Address 1 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingAddress1KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_address1]', $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingAddress1KeywordReplacement()
+	
+
+	/**
+	* Billing Address 2 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingAddress2KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_address2]', $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingAddress2KeywordReplacement()
+	
+
+	/**
+	* Billing City keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingCityKeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_city]', $this->_getDefaultInputFromPassThroughAttribute('city_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingCityKeywordReplacement()
+	
+
+	/**
+	* Billing Postcode keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingPostcodeKeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[billing_postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getBillingPostcodeKeywordReplacement()
+
+	
+	/**
+	* Billing Country keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingCountryKeywordReplacement()
+	{
+		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+		
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		combo_box($card.'[billing_country]', $standards_lists_countries, FALSE, 'gb');
+
+		return ob_get_clean();
+		
+
+	}//end getBillingCountryKeywordReplacement()
+	
+
+	/**
+	* Billing State keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingStateKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[billing_state]" />';
+		return $string;
+
+	}//end getBillingStateKeywordReplacement()
+	
+	
+	/**
+	* Billing Phone keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getBillingPhoneKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_phone]" />';
+		return $string;
+
+	}//end getBillingPhoneKeywordReplacement()
+
+	
+	/**
+	* Delivery First Names keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryFirstNamesKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_first_names]" />';
+		return $string;
+
+	}//end getDeliveryFirstNamesKeywordReplacement()
+	
+
+	/**
+	* Delivery Surname keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliverySurnameKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_surname]" />';
+		return $string;
+
+	}//end getDeliverySurnameKeywordReplacement()
+
+	
+	/**
+	* Delivery Address 1 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryAddress1KeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_address1]" />';
+		return $string;
+
+	}//end getDeliveryAddress1KeywordReplacement()
+	
+
+	/**
+	* Delivery Address 2 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryAddress2KeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_address2]" />';
+		return $string;
+
+	}//end getDeliveryAddress2KeywordReplacement()
+	
+
+	/**
+	* Delivery City keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryCityKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_city]" />';
+		return $string;
+
+	}//end getDeliveryCityKeywordReplacement()
+	
+
+	/**
+	* Delivery Postcode keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryPostcodeKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_postcode]" />';
+		return $string;
+
+	}//end getDeliveryPostcodeKeywordReplacement()
+
+	
+	/**
+	* Delivery Country keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryCountryKeywordReplacement()
+	{
+		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+		
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		combo_box($card.'[delivery_country]', $standards_lists_countries, FALSE, 'gb');
+
+		return ob_get_clean();
+		
+
+	}//end getDeliveryCountryKeywordReplacement()
+	
+	
+	/**
+	* Delivery State keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryStateKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_state]" />';
+		return $string;
+
+	}//end getDeliveryStateKeywordReplacement()
+	
+	
+	/**
+	* Delivery Phone keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getDeliveryPhoneKeywordReplacement()
+	{
+
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[delivery_phone]" />';
+		return $string;
+
+	}//end getDeliveryPhoneKeywordReplacement()
 	
 	
 	/**
@@ -845,7 +1430,17 @@ HEREDOC;
 	private function _setError($err_message)
 	{
 		$this->_tmp['is_error'] = TRUE;
-		$this->_tmp['error_message'][] = $err_message;
+		//we need to split the error message here because SagePay error has the following format:
+		//3153 : The Card AddressLine1 is required., 3156 : The Card City field is required., 5022 : The Postcode value is required.
+		$errs = explode(',', $err_message);
+		foreach ($errs as $err_str) {
+			$err_details = explode(':', $err_str, 2);
+			if (isset($err_details[1]) && !empty($err_details[1])) {
+				$this->_tmp['error_message'][] = trim($err_details[1]);
+			} else {
+				$this->_tmp['error_message'][] = $err_details[0];
+			}
+		}
 		
 	}//end _setError()
 	
@@ -881,7 +1476,7 @@ HEREDOC;
 	 * 
 	 * @param string $issue_no		the input issue number to test
 	 * 
-	 * @return boolean				return TRUE if the date is valid; otherwise, return FALSE
+	 * @return boolean				return TRUE if the issue number is valid; otherwise, return FALSE
 	 * @access private
 	 */
 	private function _isValidIssueNumber($issue_no)
@@ -897,6 +1492,59 @@ HEREDOC;
 		return $valid;
 		
 	}//end _isValidIssueNumber()
+	
+
+	/**
+	 * Check if the CV2 is valid
+	 * 
+	 * @param string $cv2			the input CV2 to test
+	 * @param string $card_type		the type of the card to test
+	 * 
+	 * @return boolean				return TRUE if the CV2 is valid; otherwise, return FALSE
+	 * @access private
+	 */
+	private function _isValidCV2($cv2, $card_type)
+	{
+		$valid = FALSE;
+		
+		if ($card_type == 'AMEX') {
+			$digit_no = 4;
+		} else {
+			$digit_no = 3;
+		}
+		$pattern = '/^\d{'.$digit_no.'}$/';
+		//cv2 must be three or four (AMEX card only) digits long
+		if (preg_match($pattern, $cv2)) {
+			$valid = TRUE;
+		}
+		
+		return $valid;
+		
+	}//end _isValidCV2()
+	
+	
+	private function _getPassThroughVariable($var_name, $default)
+	{
+		if (is_null($this->_pass_through_vars)) {
+			$this->_pass_through_vars = array_get_index($_SESSION, 'SQ_ECOM_PASS_THROUGH_VARS', Array());
+		}
+		
+		return array_get_index($this->_pass_through_vars, $var_name, $default);
+		
+	}//end _getPassThroughVariable()
+	
+	
+	private function _getDefaultInputFromPassThroughAttribute($attr_name)
+	{
+		$result = '';
+		$var_name = $this->attr($attr_name);
+		if (!empty($var_name)) {
+			$result = $this->_getPassThroughVariable($var_name, '');
+		}
+		
+		return $result;
+		
+	}//end _getDefaultInputFromPassThroughAttribute()
 	
 	
 	/**

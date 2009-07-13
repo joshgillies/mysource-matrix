@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.1 2009/06/22 09:32:12 ata Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.2 2009/07/13 11:40:56 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -82,6 +82,75 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> 'The total amount',
 													'description'	=> 'The free text description of goods or services being purchased',
+												   ),
+			'delivery_addr_is_billing_addr'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'The flag to indicate if delivery address is billing address',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'threeds_enabled'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'description'	=> 'The flag to enable 3-D Secure check for the transactions',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'avscv2_enabled'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'description'	=> 'The flag to enable AVS/CV2 check for the transactions',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'giftaid_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Gift Aid',
+												   ),
+						'firstname_var_name'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of First Name',
+												   ),
+						'surname_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Surname',
+												   ),
+						'addr1_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 1',
+												   ),
+						'addr2_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 2',
+												   ),
+						'city_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of City',
+												   ),
+						'postcode_var_name'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Postcode',
 												   ),
 						'submit_text'			=> Array(
 													'added'			=> '0.1',
