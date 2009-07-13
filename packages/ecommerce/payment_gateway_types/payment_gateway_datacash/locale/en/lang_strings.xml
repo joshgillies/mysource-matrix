@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2009/06/22 09:28:20 ata Exp $
+* $Id: lang_strings.xml,v 1.2 2009/07/13 11:27:33 ata Exp $
 *
 */
 -->
@@ -45,4 +45,8 @@
 	<string source="datacash_start_date_invalid">The start date (MM/YY) is not valid</string>
 	<string source="datacash_issue_number_invalid">The issue number is invalid (must be one or two digits long)</string>
 	<string source="datacash_cardinfo_dir_no_required_files">The Datacash CardInfo Directory does not contain CardInfo1.bin or CardInfo2.bin file</string>
+	<string source="datacash_card_cv2_not_specified">No CV2 is specified for the card</string>
+	<string source="datacash_card_cv2_invalid">The card CV2 is invalid (must be three or four (only American Express Card) digits long)</string>
+	<string source="datacash_street_address_not_specified">The street address is not specified</string>
+	<string source="datacash_postcode_not_specified">No postcode is specified</string>
 </strings>

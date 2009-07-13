@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/06/22 09:27:23 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/07/13 11:24:25 ata Exp $
 *
 */
 -->
@@ -61,6 +61,28 @@
 		</field>
 		<field attribute="nonthreed_card_types">
 			<selection style="boxes" columns="1" />
+		</field>
+	</section>
+	<section name="Address and Security Code Verification (AVS/CV2)" write_access="write:attributes">
+		<field attribute="avscv2_standard_policy">
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="Pass through Variables" write_access="write:attributes">
+		<field attribute="addr1_var_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="addr2_var_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="addr3_var_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="addr4_var_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="postcode_var_name">
+			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Interface Options" write_access="write:attributes">

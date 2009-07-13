@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash_management.inc,v 1.1 2009/06/22 09:27:23 ata Exp $
+* $Id: payment_gateway_datacash_management.inc,v 1.2 2009/07/13 11:26:55 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -119,6 +119,55 @@ class Payment_Gateway_Datacash_Management extends Asset_Management
 																							'Solo'				=> 'Solo',
 																						   ),
 																	   ),
+												   ),
+						'avscv2_standard_policy'=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> '0',
+													'description'	=> 'The standard policy used in all the e-commerce transactions',
+													'parameters'	=> Array(
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
+																		'options'		=> Array(
+																							'0'	=> 'No',
+																							'1'	=> 'AVS check',
+																							'2'	=> 'CV2 check',
+																							'3'	=> 'both AVS and CV2 check',
+																							'5'	=> 'Either AVS check or NOT CHECKED',
+																							'6'	=> 'Either CV2 check or NOT CHECKED',
+																							'7'	=> 'Either AVS and CV2 check or NOT CHECKED',
+																						   ),
+																	   ),
+												   ),
+						'addr1_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 1',
+												   ),
+						'addr2_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 2',
+												   ),
+						'addr3_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 3',
+												   ),
+						'addr4_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Address 4',
+												   ),
+						'postcode_var_name'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Postcode',
 												   ),
 						'submit_text'			=> Array(
 													'added'			=> '0.1',

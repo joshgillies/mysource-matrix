@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2009/06/22 09:28:20 ata Exp $
+* $Id: lang_screen_details.xml,v 1.2 2009/07/13 11:27:33 ata Exp $
 *
 */
 -->
@@ -74,6 +74,34 @@
 		<field attribute="nonthreed_card_types">
 			<display_name>Non-3D Secure Card Types</display_name>
 			<note>The Card Types that are not going through the 3-D Secure check. The above list includes the card types that can support 3-D Secure (depending upon your Acquiring Bank). The cards that do not support 3-D Secure check such as American Express, Diners Club, Duet, GE Capital, JCB and Laser will be automatically included. Maestro (includes Switch) card is excluded from this list as MasterCard apply the mandating rule from 1st July 2007.</note>
+		</field>
+	</section>
+	<section name="Address and Security Code Verification (AVS/CV2)">
+		<field attribute="avscv2_standard_policy">
+			<display_name>Standard Policy</display_name>
+			<note>If a check is selected to perform (AVS, CV2 or both), it must be passed for the payment transaction to succeed. NOT CHECKED means that the Card Issuers is not able to check the data provided for AVS/CV2 test such as the AVS elements of cards issued outside the United Kingdom. Remember that if you choose a policy, you must provide all of its elements to send to the Datacash Payment Gateway. Otherwise all transactions will be rejected. For example, if you select CV2 check policy, you must provide the CV2 number on the credit cards.</note>
+		</field>
+	</section>
+	<section name="Pass through Variables">
+		<field attribute="addr1_var_name">
+			<display_name>Address 1 Variable Name</display_name>
+			<note>The name of the pass through variable for the first line of address.</note>
+		</field>
+		<field attribute="addr2_var_name">
+			<display_name>Address 2 Variable Name</display_name>
+			<note>The name of the pass through variable for the second line of address.</note>
+		</field>
+		<field attribute="addr3_var_name">
+			<display_name>Address 3 Variable Name</display_name>
+			<note>The name of the pass through variable for the third line of address.</note>
+		</field>
+		<field attribute="addr4_var_name">
+			<display_name>Address 4 Variable Name</display_name>
+			<note>The name of the pass through variable for the fourth line of address.</note>
+		</field>
+		<field attribute="postcode_var_name">
+			<display_name>Postcode Variable Name</display_name>
+			<note>The name of the pass through variable for Postcode.</note>
 		</field>
 	</section>
 	<section name="Interface Options">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash.inc,v 1.3 2009/07/06 14:28:47 ata Exp $
+* $Id: payment_gateway_datacash.inc,v 1.4 2009/07/13 11:26:23 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/datacash_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,10 +41,10 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 	private $_redirect_info = NULL;
 	
 	/**
-	 * The formatted last 4 digits of card number string, e.g. ****-****-****-1234
-	 * @var string
+	 * The pass through variable array
+	 * @var array
 	 */
-	private $_formatted_card_no = '';
+	private $_pass_through_vars = NULL;
 	
 	
 	/**
@@ -145,6 +145,14 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		$keywords['card_expiry_month'] = 'Card Expiry Month';
 		$keywords['card_expiry_year'] = 'Card Expiry Year';
 		$keywords['card_issue_number'] = 'Card Issue Number';
+		$keywords['card_cv2'] = 'Card CV2';
+		
+		$keywords['street_address1'] = 'Street Address 1';
+		$keywords['street_address2'] = 'Street Address 2';
+		$keywords['street_address3'] = 'Street Address 3';
+		$keywords['street_address4'] = 'Street Address 4';
+		$keywords['postcode'] = 'Postcode';
+		
 		$keywords['transaction_amount'] = 'Transaction Amount';
 		$keywords['transaction_currency'] = 'Transaction Currency';
 		$keywords['processing_error'] = 'Processing Error (empty if no error)';
@@ -210,6 +218,10 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			} else if (empty($amount)) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
 				$this->_unsetCurrency();
+				//clear pass through variables
+				if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
+					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
+				}
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
@@ -218,8 +230,6 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				if ($success === 2) {
 					//store the Datacash reference number to authorize payment after the card holder verify himself
 					$_SESSION['SQ_ECOM_TRANSACTION_REF_NO'] = $this->_redirect_info['TRANSACTION'];
-					//store the last 4 digits of card number to display it later in Form Ecommerce or Delivery Method through the Session variable SQ_ECOM_RESPONSE
-					$_SESSION['SQ_ECOM_CARD_NUMBER'] = $this->_formatted_card_no;
 					//print the Card Holder Verification bodycopy
 					$this->printBodycopy('card_holder_verification');
 					return;
@@ -230,9 +240,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			//THIS PAGE IS REDIRECTED TO BY THE ACCESS CONTROL SERVER (ACS) OF ISSUEING BANK AFTER CARD HOLDER VERIFICATION PROCESS
 			$is_in_frame = TRUE;
 			$datacash_ref = $_SESSION['SQ_ECOM_TRANSACTION_REF_NO'];
-			$this->_formatted_card_no = array_get_index($_SESSION, 'SQ_ECOM_CARD_NUMBER', '');
 			unset($_SESSION['SQ_ECOM_TRANSACTION_REF_NO']);
-			unset($_SESSION['SQ_ECOM_CARD_NUMBER']);
 			$success = $this->authorizePayment($datacash_ref, $_POST['PaRes']);
 			if ($success === FALSE) {
 				//transaction fails, redirect the parent document of the iframe and display error
@@ -244,6 +252,10 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		if ($success === 1) {
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
 			$this->_unsetCurrency();
+			//clear pass through variables
+			if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
+				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
+			}
 			//broadcast payment completed trigger event before return
 			if (isset($_SESSION['SQ_ECOM_PAYMENT_COMPLETED_BROADCASTER_ASSETID'])) {
 				$broadcaster = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_ECOM_PAYMENT_COMPLETED_BROADCASTER_ASSETID']);
@@ -397,6 +409,30 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 			}
 		}
 		
+		//SET CARD CV2, IF SPECIFIED
+		if (!empty($card_info['cv2'])) {
+			if ($this->_isValidCV2($card_info['cv2'])) {
+				$processor->setCardCV2($card_info['cv2']);
+			} else {
+				$this->_setError(translate('datacash_card_cv2_invalid'));
+			}
+		}
+		
+		$addr = '';
+		//SET STREET ADDRESS (1 - 4)
+		for ($i = 1; $i < 5; $i++) {
+			if (!empty($card_info['street_address'.$i])) {
+				$addr .= $card_info['street_address'.$i]."\n";
+				$processor->setStreetAddress($i, $card_info['street_address'.$i]);
+			}
+		}
+		
+		//SET POSTCODE
+		if (!empty($card_info['postcode'])) {
+			$addr .= $card_info['postcode']."\n";
+			$processor->setPostcode($card_info['postcode']);
+		}
+		
 		//SET TRANSACTION TYPE AS "AUTH" (ONE STAGE PROCESSING)
 		$processor->setTransactionTypeAuth();
 		
@@ -404,6 +440,29 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		$nonthreed_card_types = $this->attr('nonthreed_card_types');
 		$processor->setThreeDSecureParams($this->attr('merchant_url'), $this->attr('purchase_desc'), time(), empty($nonthreed_card_types)? Array() : explode('|', $nonthreed_card_types));
 
+		//SET AVS/CV2
+		$policy = $this->attr('avscv2_standard_policy');
+		if ($policy != 0) {
+			$processor->setStandardPolicy($policy);
+			
+			if (($policy == 2) || ($policy == 3) || ($policy == 6) || ($policy == 7)) {
+				if (empty($card_info['cv2'])) {
+					$this->_setError(translate('datacash_card_cv2_not_specified'));
+				}
+			}
+			
+			if (($policy == 1) || ($policy == 3) || ($policy == 5) || ($policy == 7)) {
+				if (empty($card_info['street_address1']) && empty($card_info['street_address2']) && empty($card_info['street_address3']) && empty($card_info['street_address4'])) {
+					$this->_setError(translate('datacash_street_address_not_specified'));
+				}
+				
+				if (empty($card_info['postcode'])) {
+					$this->_setError(translate('datacash_postcode_not_specified'));
+				}
+			}
+			
+		}
+		
 		//CHECK IF THERE IS ERROR BEFORE SENDING DATA TO DATACASH SERVER, RETURN FALSE
 		if ($this->isError()) {
 			return FALSE;
@@ -414,9 +473,12 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		//GET RESPONSE
 		$response = $processor->getResponse();
 		
-		//if success (1 or 2), save the last 4 digits of card number to output later
+		//if success is 1 (payment is accepted) or 2 (redirect)
 		if ($success) {
-			$this->_formatted_card_no = $this->_getFormattedCardNumber($card_info['number']);
+			//store the last 4 digits of card number to display it later in Form Ecommerce or Delivery Method through the Session variable SQ_ECOM_RESPONSE
+			$_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'] = $this->_getFormattedCardNumber($card_info['number']);
+			//store the billing address to store in the Order asset of Form Ecommerce
+			$_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'] = $addr;
 		}
 		
 		//if $success = 2, redirect user for card holder verification
@@ -475,9 +537,22 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				$response['STATUS'] = '!!!ATTENTION!!! TEST MODE (transaction not performed) -- '.$response['STATUS'];
 			}
 
-			$response['CARDNO'] = $this->_formatted_card_no;
+			$card_no = '';
+			if (isset($_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'])) {
+				$card_no = $_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'];
+				unset($_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER']);
+			}
+			
+			$response['CARDNO'] = $card_no;
 			$response['AMOUNT'] = $_SESSION['SQ_ECOM_AMOUNT'];
 			$response['CURRENCY'] = $this->_getCurrency();
+			
+			$billing_addr = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'])) {
+				$billing_addr = $_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'];
+				unset($_SESSION['SQ_ECOM_ORDER_BILLING_ADDR']);
+			}
+			$response['BILLING_ADDR'] = $billing_addr;
 			
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
@@ -686,6 +761,108 @@ HEREDOC;
 
 
 	/**
+	* Card CV2 keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardCv2KeywordReplacement()
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<input name="'.$card.'[cv2]" size="4" />';
+		
+		return $string;
+
+	}//end getCardCv2KeywordReplacement()
+	
+	
+	/**
+	* Street Address 1 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getStreetAddress1KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[street_address1]', $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getStreetAddress1KeywordReplacement()
+
+	
+	/**
+	* Street Address 2 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getStreetAddress2KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[street_address2]', $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getStreetAddress2KeywordReplacement()
+	
+
+	/**
+	* Street Address 3 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getStreetAddress3KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[street_address3]', $this->_getDefaultInputFromPassThroughAttribute('addr3_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getStreetAddress3KeywordReplacement()
+	
+
+	/**
+	* Street Address 4 keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getStreetAddress4KeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[street_address4]', $this->_getDefaultInputFromPassThroughAttribute('addr4_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getStreetAddress4KeywordReplacement()
+	
+	
+	/**
+	* Postcode keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getPostcodeKeywordReplacement()
+	{
+		ob_start();
+		$card = $this->getPrefix().'_card';
+		text_box($card.'[postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
+		
+		return ob_get_clean();
+
+	}//end getPostcodeKeywordReplacement()
+	
+	
+	/**
 	* Transaction Amount keyword replacement
 	*
 	* @return string
@@ -873,6 +1050,53 @@ HEREDOC;
 		return $valid;
 		
 	}//end _isValidIssueNumber()
+	
+
+	/**
+	 * Check if the CV2 is valid
+	 * 
+	 * @param string $cv2		the input CV2 to test
+	 * 
+	 * @return boolean				return TRUE if the CV2 is valid; otherwise, return FALSE
+	 * @access private
+	 */
+	private function _isValidCV2($cv2)
+	{
+		$valid = FALSE;
+		
+		$pattern = '/^\d{3,4}$/';
+		//cv2 must be three or four (AMEX card only) digits long
+		if (preg_match($pattern, $cv2)) {
+			$valid = TRUE;
+		}
+		
+		return $valid;
+		
+	}//end _isValidCV2()
+	
+	
+	private function _getPassThroughVariable($var_name, $default)
+	{
+		if (is_null($this->_pass_through_vars)) {
+			$this->_pass_through_vars = array_get_index($_SESSION, 'SQ_ECOM_PASS_THROUGH_VARS', Array());
+		}
+		
+		return array_get_index($this->_pass_through_vars, $var_name, $default);
+		
+	}//end _getPassThroughVariable()
+	
+	
+	private function _getDefaultInputFromPassThroughAttribute($attr_name)
+	{
+		$result = '';
+		$var_name = $this->attr($attr_name);
+		if (!empty($var_name)) {
+			$result = $this->_getPassThroughVariable($var_name, '');
+		}
+		
+		return $result;
+		
+	}//end _getDefaultInputFromPassThroughAttribute()
 	
 	
 	/**
