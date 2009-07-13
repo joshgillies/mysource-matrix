@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.71 2009/07/13 00:41:56 akarelia Exp $
+* $Id: page_account_manager.inc,v 1.72 2009/07/13 00:46:28 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -803,6 +803,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if (!empty($hipo_empty_array) || !$GLOBALS['SQ_SYSTEM']->am->setPermission($user->id, $perm_info['userid'], $perm, $perm_info['granted'], TRUE, TRUE)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 							return FALSE;
 						}
 					}
@@ -814,6 +815,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if (!$mm->setSchema($user->id, $schema_id, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						return FALSE;
 					}//end if
 				}//end foreach
@@ -824,6 +826,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if (!$wfm->setSchema($user->id, $schema_id, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						return FALSE;
 					}//end if
 				}//end foreach
@@ -832,7 +835,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 			// all done
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		return TRUE;
 
