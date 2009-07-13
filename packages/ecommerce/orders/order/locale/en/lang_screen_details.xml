@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.7 2009/07/13 11:14:55 ata Exp $
 *
 */
 -->
@@ -24,6 +24,31 @@
 				<paint_function name="paintSubmissionAnswers" />
 				<process_function name="processSubmissionAnswers" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Order Details">
+		<field>
+			<display_name>Transaction ID</display_name>
+			<note>The ID of the trasaction returned by the Payment Gateway.</note>
+			<function_call>
+				<paint_function name="paintTransactionID" />
+			</function_call>
+		</field>
+		<field attribute="billing_name">
+			<display_name>Billing Name</display_name>
+			<note />
+		</field>
+		<field attribute="billing_addr">
+			<display_name>Billing Address</display_name>
+			<note />
+		</field>
+		<field attribute="delivery_name">
+			<display_name>Delivery Name</display_name>
+			<note />
+		</field>
+		<field attribute="delivery_addr">
+			<display_name>Delivery Address</display_name>
+			<note />
 		</field>
 	</section>
 </contents>
