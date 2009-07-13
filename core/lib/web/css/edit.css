@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.86 2008/07/06 23:19:05 bpearson Exp $
+* $Id: edit.css,v 1.87 2009/07/13 00:01:05 lwright Exp $
 *
 */
 
@@ -760,4 +760,17 @@ ul.radio-list {
 
 #sq-commit-button-spacer {
 	height: 10px;
+}
+
+#sq_context_switcher_current {
+	font-weight: normal;
+}
+
+#sq_context_switcher_current a {
+	color: #f4f4eb;
+}
+
+#sq_context_switcher_change {
+	font-weight: normal;
+	display: none;
 }
