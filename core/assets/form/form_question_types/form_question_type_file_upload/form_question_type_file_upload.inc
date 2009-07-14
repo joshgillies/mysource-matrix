@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.33.2.6 2009/07/01 06:48:00 akarelia Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33.2.7 2009/07/14 22:58:18 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33.2.6 $
+* @version $Revision: 1.33.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,8 +88,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 			<?php if (!$this->attr('is_required')) {
 				echo check_box($name.'_clear', 1, FALSE) ?> Clear?<?php
 			}
+			?></p><?php
 		}
-		?></p><?php
 		file_upload($name, $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
