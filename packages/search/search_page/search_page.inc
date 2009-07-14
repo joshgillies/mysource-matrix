@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.233.2.4 2009/06/10 03:58:58 akarelia Exp $
+* $Id: search_page.inc,v 1.233.2.5 2009/07/14 02:52:36 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.4 $
+* @version $Revision: 1.233.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2958,21 +2958,15 @@ class Search_Page extends Listing_Engine
 	*
 	* This is being overridden to cache the results of each asset, and add
 	* the score and result number keyword replacements
-	* Note that the second parameter is score and not type code. This is because
-	* we send the search results which is (assetid => score) instead of
-	* (assetid => type_code). It still works - and allows us to add the score
-	* keyword easily - but we turn it into the correct format when sending to
-	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
 	* @param int	$list_position	Asset's position in the list
-	* @param array	$keywords		Keywords
 	* @param int	$num_items		the number of items in the current list (required by Listing Engine)
 	*
 	* @return void
 	* @access protected
 	*/
-	function _printAsset($assetid, $list_position, $keywords=Array(), $num_items=0)
+	function _printAsset($assetid, $list_position, $num_items=0)
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
