@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.21 2007/12/17 22:18:15 mwegermann Exp $
+* $Id: trigger_action_create_clone.inc,v 1.22 2009/07/14 09:30:04 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,12 +58,18 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-		// if no settings, fail
-		if (empty($settings['assetid']) || empty($settings['link_type'])) {
+		$clone_broadcaster   = array_get_index($settings, 'clone_broadcaster', 1);
+		$link_to_broadcaster = array_get_index($settings, 'link_to_broadcaster', 0);
+		
+		if (($clone_broadcaster == 0) && (empty($settings['clone_assetid']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['clone_assetid']))) {
 			return FALSE;
 		}
-
-		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
+		
+		if (($link_to_broadcaster == 0) && (empty($settings['assetid']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid']))) {
+			return FALSE;
+		}
+		
+		if (empty($settings['link_type'])) {
 			return FALSE;
 		}
 
@@ -81,15 +87,26 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			}
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		$major = $am->getAsset($settings['assetid']);
-		$minor =& $state['asset'];
+		$major = NULL;
+		if ($link_to_broadcaster == 1) {
+			$major = $state['asset'];
+		} else {
+			$major = $am->getAsset($settings['assetid']);
+		}
+		
+		$minor = NULL;
+		if ($clone_broadcaster == 1) {
+			$minor = $state['asset'];
+		} else {
+			$minor = $am->getAsset($settings['clone_assetid']);
+		}
 
 		if ($disallow_duplicates) {
 			// get all the children of the target asset, check whether an asset
 			// with the same name, short_name and type_code already exists
-			$children = $am->getChildren($settings['assetid']);
+			$children = $am->getChildren($major->id);
 			foreach ($children as $childid => $child_type) {
 				$name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'name');
 				$short_name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'short_name');
@@ -169,12 +186,20 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
+		$clone_assetid       = array_get_index($settings, 'clone_assetid', 0);
 		$selected_assetid    = array_get_index($settings, 'assetid', 0);
 		$selected_link_type  = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
 		$value               = array_get_index($settings, 'value', '');
 		$is_dependant        = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive        = array_get_index($settings, 'is_exclusive', 0);
 		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
+		$clone_broadcaster   = array_get_index($settings, 'clone_broadcaster', 1);
+		$link_to_broadcaster = array_get_index($settings, 'link_to_broadcaster', 0);
+		
+		// check if the cloned asset is valid
+		if ($clone_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($clone_assetid)) {
+			$clone_assetid = 0;
+		}
 
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
@@ -193,6 +218,21 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		// begin buffering basic options
 		ob_start();
 			if ($write_access) {
+				asset_finder($prefix.'[clone_assetid]', $clone_assetid);
+			} else {
+				if ($clone_assetid) {
+					$clone_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($clone_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[clone_assetid]', $clone_assetname[$clone_assetid].' (#'.$clone_assetid.')', '', '', FALSE, $form_element_extras);
+				} else {
+					text_box($prefix.'[clone_assetid]', '', '', '', FALSE, $form_element_extras);
+				}
+			}
+
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+		
+		ob_start();
+			if ($write_access) {
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
@@ -203,12 +243,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 				}
 			}
 
-			$basic_part_1 = ob_get_contents();
+			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
 			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras);
-			$basic_part_2 = ob_get_contents();
+			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
 		// begin buffering advanced options
@@ -241,12 +281,24 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			$advanced_part_4 = ob_get_contents();
 		ob_end_clean();
 
-
+		ob_start();
+			check_box($prefix.'[clone_broadcaster]', '1', $clone_broadcaster, NULL, $form_element_extras);
+			label(translate('clone_broadcasting_asset'), $prefix.'[clone_broadcaster]');
+			$advanced_part_5 = ob_get_contents();
+		ob_end_clean();
+		
+		ob_start();
+			check_box($prefix.'[link_to_broadcaster]', '1', $link_to_broadcaster, NULL, $form_element_extras);
+			label(translate('link_to_broadcasting_asset'), $prefix.'[link_to_broadcaster]');
+			$advanced_part_6 = ob_get_contents();
+		ob_end_clean();
+		
+		
 		// now patch together the output
-		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2).
+		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2, $basic_part_3).
 					'<br /><br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
+					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4, $advanced_part_5, $advanced_part_6);
 
 		return $contents;
 
@@ -268,8 +320,16 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	{
 		$link_type_list = get_link_type_names();
 
-		// make sure the assetid isn't blank
-		if (empty($request_data['assetid']['assetid'])) {
+		$clone_broadcaster   = array_get_index($request_data, 'clone_broadcaster', 0);
+		$link_to_broadcaster = array_get_index($request_data, 'link_to_broadcaster', 0);
+		
+		// make sure the clone assetid isn't blank if "Clone broadcasting asset" is not selected
+		if (($clone_broadcaster == 0) && empty($request_data['clone_assetid']['assetid'])) {
+			return translate('trigger_clone_asset_missing');
+		}
+		
+		// make sure the assetid isn't blank if "Link to broadcasting asset" is not selected
+		if (($link_to_broadcaster == 0) && empty($request_data['assetid']['assetid'])) {
 			return translate('trigger_clone_parent_missing');
 		}
 
@@ -277,15 +337,16 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			return translate('trigger_link_type_missing');
 		}
 
-		$settings['assetid']   = $request_data['assetid']['assetid'];
-		$settings['link_type'] = $request_data['link_type'];
-
-		// optional fields
-		$settings['value']               = array_get_index($request_data, 'value', '');
-		$settings['is_dependant']        = array_get_index($request_data, 'is_dependant', 0);
-		$settings['is_exclusive']        = array_get_index($request_data, 'is_exclusive', 0);
-		$settings['disallow_duplicates'] = array_get_index($request_data, 'disallow_duplicates', 0);
-
+		$settings['clone_assetid']			= $request_data['clone_assetid']['assetid'];
+		$settings['assetid']				= $request_data['assetid']['assetid'];
+		$settings['link_type']				= $request_data['link_type'];
+		$settings['value']					= array_get_index($request_data, 'value', '');
+		$settings['is_dependant']			= array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive']			= array_get_index($request_data, 'is_exclusive', 0);
+		$settings['disallow_duplicates']	= array_get_index($request_data, 'disallow_duplicates', 0);
+		$settings['clone_broadcaster']		= $clone_broadcaster;
+		$settings['link_to_broadcaster']	= $link_to_broadcaster;
+		
 		return FALSE;
 
 	}//end processInterface()
