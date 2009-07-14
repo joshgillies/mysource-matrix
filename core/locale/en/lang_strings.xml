@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.330 2009/07/13 00:02:15 lwright Exp $
+* $Id: lang_strings.xml,v 1.331 2009/07/14 09:42:42 ata Exp $
 *
 */
 
@@ -1163,7 +1163,8 @@
 	<string source="include_children_question">Include Children ?</string>
 	<string source="link">Link</string>
 
-	<string source="trigger_clone_parent_missing">Parent to clone under is missing</string>
+	<string source="trigger_clone_asset_missing">The asset to clone is missing and cloning broadcasting asset is not selected</string>
+	<string source="trigger_clone_parent_missing">Parent to clone under is missing and linking to broadcasting asset is not selected</string>
 	<string source="trigger_link_type_missing">Link type is missing</string>
 	<string source="trigger_input_data_missing">Input Data is missing</string>
 	<string source="trigger_no_user_selected">No User Selected</string>
@@ -1183,9 +1184,11 @@
 	<string source="trigger_cannot_set_variety_value">Unable to set the variety's "%s" value</string>
 
 	<string source="trigger_replace_file">Replace the file asset's contents with the file stored on the server at %s</string>
-	<string source="trigger_create_clone_basic">Create a clone of the asset, and link it as child of: %1$s using a %2$s link.</string>
-	<string source="trigger_create_clone_advanced">Use this value as the link value: %1$s and link the child %2$s to the parent&lt;br /&gt;&lt;br /&gt;%4$s</string>
+	<string source="trigger_create_clone_basic">Create a clone of the asset: %1$s, and link it as child of the asset: %2$s using a %3$s link.</string>
+	<string source="trigger_create_clone_advanced">Use this value as the link value: %1$s and link the child %2$s to the parent&lt;br /&gt;&lt;br /&gt;%4$s&lt;br /&gt;%5$s&lt;br /&gt;%6$s</string>
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
+	<string source="clone_broadcasting_asset">Clone broadcasting asset</string>
+	<string source="link_to_broadcasting_asset">Link to broadcasting asset</string>
 
 	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s&lt;br /&gt;and constrain by: %2$s and size it to: (width) %3$s by (height) %4$s</string>
 	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s of any global variable (POST, GET, SESSION) as the assetid of the image to use. &lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
