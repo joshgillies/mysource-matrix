@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.679 2009/07/13 04:07:43 lwright Exp $
+* $Id: asset.inc,v 1.680 2009/07/14 06:45:26 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.679 $
+* @version $Revision: 1.680 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3113,7 +3113,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
-		if (((boolean)$this->vars[$name]['is_contextable']) === FALSE) {
+		if (((boolean)array_get_index($this->vars[$name], 'is_contextable', FALSE)) === FALSE) {
 			// This attribute does NOT vary based on context. Therefore,
 			// always redirect it to the default context.
 			$contextid = 0;
@@ -3183,13 +3183,14 @@ class Asset extends MySource_Object
 		} else {
 			$old_value = $this->vars[$name]['value']['default'];
 		}
+		
 		if (is_scalar($old_value)) {
 			// vars_set is being ordered by context first to simplify matters
 			// once we get to saveAttributes()
 			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = $old_value;
 		} else {
 			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = '__(old value)__';
-		}
+		}		
 
 		$this->vars[$name]['value'][$contextid] = $value;
 
@@ -3359,7 +3360,7 @@ class Asset extends MySource_Object
 
 				$this->_tmp['attributes'][$name][$contextid] = NULL;
 			} else {
-				if (((boolean)$this->vars[$name]['is_contextable']) === FALSE) {
+				if (((boolean)array_get_index($this->vars[$name], 'is_contextable', FALSE)) === FALSE) {
 					// This attribute does NOT vary based on context. Therefore,
 					// always redirect it to the default context.
 					$use_contextid = 0;
@@ -4052,7 +4053,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	public function canliveEdit($lock_type)
+	public function canLiveEdit($lock_type)
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (!$this->id) return TRUE;
@@ -4080,7 +4081,6 @@ class Asset extends MySource_Object
 		// must be the only concerned user to be able to live edit
 		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 		if ($wf_complete) return TRUE;
-
 		return FALSE;
 
 	}//end canliveEdit()
