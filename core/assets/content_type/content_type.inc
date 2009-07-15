@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.22 2008/09/22 03:28:36 ata Exp $
+* $Id: content_type.inc,v 1.23 2009/07/15 02:55:09 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,16 @@ class Content_Type extends Asset
 	*/
 	public function saveAttributes($dont_run_updated=FALSE)
 	{
-		$contents_changed = isset($this->_tmp['vars_set']['html']);
+		// First check whethe the contents have changed. This
+		// can occur in any context.
+		$vars_set = array_get_index($this->_tmp, 'vars_set', Array());
+		$contents_changed = FALSE;
+		foreach ($vars_set as $contextid => $vars_set_item) {
+			if (isset($vars_set_item['html'])) {
+				$contents_changed = TRUE;
+				break;
+			}
+		}
 
 		// Want to see if the content has been changed.
 		if ($contents_changed) {
