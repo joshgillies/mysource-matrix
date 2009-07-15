@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.19 2008/08/13 23:16:59 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.20 2009/07/15 05:16:32 wszymanski Exp $
 *
 */
 -->
@@ -56,6 +56,10 @@
 		<field attribute="link_value_filter">
 			<display_name>Link Value</display_name>
 			<note>The value provided in that field will be used to filter the assets returned. You will need to enable 'Link Value Filtering'.</note>
+		</field>
+		<field attribute="link_value_filter_logic">
+			<display_name>Link Value Filtering Logic</display_name>
+			<note>This specifies if assets returned should have link value equal or diffrent from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
 		</field>
 		<field attribute="link_value_filter_enabled">
 			<display_name>Enable Link Value Filtering</display_name>

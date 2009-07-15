@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.732 2009/07/02 06:25:07 cupreti Exp $
+* $Id: asset_manager.inc,v 1.733 2009/07/15 05:16:04 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.732 $
+* @version $Revision: 1.733 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3070,7 +3070,7 @@ class Asset_Manager extends MySource_Object
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
-	* @param string			$value				The value for all the links must equal this (if not null)
+	* @param string|array	$value				The value for all the links must equal this (if not null)
 	* @param boolean		$dependant			The dependant status for all the links must be
 	*											this (if not null)
 	* @param boolean		$exclusive			The exclusive status for all the links must be
@@ -3196,6 +3196,13 @@ class Asset_Manager extends MySource_Object
 		}//end foreach
 
 		if (!empty($query_assetids)) {
+			// if value is not null and not array, convert it to array
+			if (!is_null($value) && !is_array($value)) {
+				$value = Array(
+							'link_value' 	=> Array($value),
+							'equal' 		=> TRUE,
+					 	 );
+			}
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
 
@@ -3574,7 +3581,7 @@ class Asset_Manager extends MySource_Object
 	*											the specified asset for a parent to qualify to be returned
 	* @param boolean		$ignore_bridge		Optional parameter that, if true, will prevent this function from
 	*											requesting parents from shadow asset bridges
-	* @param string			$link_value_wanted	Link Value Wanted
+	* @param string|array	$link_value_wanted	Link Value Wanted
 	* @param string			$bind_var_prefix	Prefix for bind variables. Use if this query is going to be used
 	*											more than once in a larger query (say, a UNION).
 	*
@@ -3651,6 +3658,14 @@ class Asset_Manager extends MySource_Object
 			return $parents;
 		}//end if shadow asset
 
+		// if value is not null and not array, convert it to array
+		if (!is_null($link_value_wanted) && !is_array($link_value_wanted)) {
+			$link_value_wanted = Array(
+									'link_value' 	=> Array($link_value_wanted),
+									'equal' 		=> TRUE,
+								 );
+		}
+
 		$ret_val = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height, $link_value_wanted);
 		if (empty($ret_val)) return Array();
 
@@ -3702,7 +3717,7 @@ class Asset_Manager extends MySource_Object
 	*												the specified asset for a child to qualify to be returned
 	* @param boolean		$direct_shadows_only	If TRUE, ONLY direct shadow asset children will be returned
 	*												If FALSE, ALL the shadow asset children will be returned
-	* @param string			$link_value_wanted		Link value wanted
+	* @param string|array	$link_value_wanted		Link value wanted
 	*
 	* @return array
 	* @access public
@@ -3738,6 +3753,14 @@ class Asset_Manager extends MySource_Object
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
 			return $children;
+		}
+
+		// if value is not null and not array, convert it to array
+		if (!is_null($link_value_wanted) && !is_array($link_value_wanted)) {
+			$link_value_wanted = Array(
+									'link_value' 	=> Array($link_value_wanted),
+									'equal' 		=> TRUE,
+				 	 			 );
 		}
 
 		$ret_val = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted);
@@ -8208,7 +8231,7 @@ class Asset_Manager extends MySource_Object
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link the specified asset
 	*											is on ('major' or 'minor')
-	* @param string			$value				The value for all the links must equal this (if not null)
+	* @param array			$value				The value for all the links must equal this (if not null)
 	* @param boolean		$dependant			The dependant status for all the links must be
 	*											this (if not null)
 	* @param boolean		$exclusive			The exclusive status for all the links must be
@@ -8260,12 +8283,16 @@ class Asset_Manager extends MySource_Object
 			AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', ':'.$bind_prefix.'link_types').' > 0 ';
 		$bind_vars[$bind_prefix.'link_types'] = $link_types;
 
-		if (!is_null($value)) {
-			$where .= ' AND (l.value = :'.$bind_prefix.'link_value';
-			if ($value == '') $where .= ' OR l.value IS NULL';
+		if (!is_null($value) && is_array($value)) {
+			$link_value = Array();
+			for (reset($value['link_value']); NULL !== ($i = key($value['link_value'])); next($value['link_value'])) {
+				$link_value[] = ':'.$bind_prefix.'link_value_'.$i;
+				$bind_vars[$bind_prefix.'link_value_'.$i] = $value['link_value'][$i];
+			}
+			$equal_prefix = $value['equal'] ? '': 'NOT ';
+			$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+			if ($link_value == '') $where .= ' OR l.value IS '.$equal_prefix.'NULL';
 			$where .= ')';
-
-			$bind_vars[$bind_prefix.'link_value'] = $value;
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = :'.$bind_prefix.'is_dependant';
@@ -8525,11 +8552,16 @@ class Asset_Manager extends MySource_Object
 			// adding a new filter 'link value'
 			// If $link_value_wanted is  '', we should get all records including '' and NULL,
 			// because Oracle will think '' same as NULL.
-			if ($link_value_wanted !== NULL) {
-				$where .= ' AND (l.value= :'.$bind_prefix.'link_value ';
-				if ($link_value_wanted == '') $where .= ' OR l.value IS NULL';
+			if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
+				$link_value = Array();
+				for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
+					$link_value[] = ':'.$bind_prefix.'link_value_'.$i;
+					$where_bind_vars[$bind_prefix.'link_value_'.$i] = $link_value_wanted['link_value'][$i];
+				}
+				$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
+				$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+				if ($link_value == '') $where .= ' OR l.value IS '.$equal_prefix.'NULL';
 				$where .= ')';
-				$where_bind_vars[$bind_prefix.'link_value'] = $link_value_wanted;
 			}
 
 			// now merge the bind vars into the master array
@@ -8703,7 +8735,7 @@ class Asset_Manager extends MySource_Object
 	*											the specified asset for a parent to qualify (immediate parent is 1)
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
 	*											the specified asset for a parent to qualify to be returned
-	* @param string			$link_value_wanted	the link value wanted
+	* @param array			$link_value_wanted	the link value wanted
 	* @param string			$bind_prefix		The prefix for bind variables generated by this function
 	*											(default: 'gp_'). Set this parameter if you are planning to use more than
 	*											one call to this function in a query (through a UNION, say).
@@ -8888,11 +8920,16 @@ class Asset_Manager extends MySource_Object
 
 		// If $link_value_wanted is  '', we should get all records including '' and NULL,
 		// because Oracle will think '' same as NULL.
-		if ($link_value_wanted !== NULL) {
-			$where .= ' AND (l.value = :'.$bind_prefix.'link_value_wanted ';
-			if ($link_value_wanted == '') $where .= ' OR l.value IS NULL';
+		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
+			$link_value = Array();
+			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
+				$link_value[] = ':'.$bind_prefix.'link_value_wanted_'.$i;
+				$bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
+			}
+			$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
+			$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+			if ($link_value == '') $where .= ' OR l.value IS '.$equal_prefix.'NULL';
 			$where .= ')';
-			$bind_vars[$bind_prefix.'link_value_wanted'] = $link_value_wanted;
 		}
 
 		if (!empty($type_code)) {

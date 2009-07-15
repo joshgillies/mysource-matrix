@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.72 2009/04/27 01:29:49 cupreti Exp $
+* $Id: form_section.inc,v 1.73 2009/07/15 05:17:24 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1062,8 +1062,11 @@ class Form_Section extends Asset implements Bridge
 	{
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().
-
-		$sql_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
+		$value = Array(
+					'link_value' 	=> Array(''),
+					'equal' 		=> TRUE,
+				 );
+		$sql_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', $value, '1', '0');
 		if (empty($sql_query)) return Array();
 		$sql_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
 		$db = MatrixDAL::getDb();
