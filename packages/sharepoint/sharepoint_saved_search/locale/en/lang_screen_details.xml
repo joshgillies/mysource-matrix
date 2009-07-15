@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2009/01/09 04:07:04 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.5 2009/07/15 23:40:12 hnguyen Exp $
 *
 */
 -->
@@ -35,7 +35,7 @@
                 <paint_function     name="paintSystemUrl" />
                 <process_function   name="processSystemUrl" />
             </function_call>
-			<display_name>WSDL URL</display_name>
+			<display_name>System URL</display_name>
         </field>
         <field attribute="username">
 			<display_name>Username</display_name>
