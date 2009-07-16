@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.148 2009/06/01 01:30:12 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.149 2009/07/16 00:01:15 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -673,14 +673,16 @@ class Page_Asset_Builder extends Page
 						// make sure text attributes dont have javascripts etc
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							if ($attr_info['type'] == 'text') {
-								if ($attr_name == 'name' || $attr_name == 'short_name') {
-									$attr_name_value = htmlspecialchars($attr_info['value'], ENT_NOQUOTES);
-									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
-									$new_asset->setAttrValue($attr_name, $attr_name_value);
-								} else {
-									$attr_name_value = htmlspecialchars($attr_info['value']);
-									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
-									$new_asset->setAttrValue($attr_name, $attr_name_value);
+								foreach (array_get_index($attr_info, 'value', Array()) as $contextid => $attr_value) { 
+									if ($attr_name == 'name' || $attr_name == 'short_name') {
+										$attr_name_value = htmlspecialchars($attr_value, ENT_NOQUOTES);
+										$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+										$new_asset->setAttrValue($attr_name, $attr_name_value, $contextid);
+									} else {
+										$attr_name_value = htmlspecialchars($attr_value);
+										$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+										$new_asset->setAttrValue($attr_name, $attr_name_value, $contextid);
+									}
 								}
 							}
 						}
