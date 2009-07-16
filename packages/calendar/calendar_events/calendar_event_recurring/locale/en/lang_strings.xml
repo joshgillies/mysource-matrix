@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.13 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.13.2.1 2009/07/16 23:23:34 mbrydon Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -31,7 +31,7 @@
 <string source="cal_event_every_month_first_day">Every month on the %s day of the month</string>
 <string source="cal_event_every_month_first_weekday">Every month on the %1$s %2$s of the month</string>
 <string source="cal_event_every_month_last_day">Every month on the %s last day of the month</string>
-<string source="cal_event_every_month_last_weekday">Every month on the %1$s %2$s of the month</string>
+<string source="cal_event_every_month_last_weekday">Every month on the %1$s last %2$s of the month</string>
 <string source="cal_event_every_week">Every week on %s</string>
 <string source="cal_event_every_weekday">Every weekday</string>
 <string source="cal_event_every_weekend">Every weekend day</string>
