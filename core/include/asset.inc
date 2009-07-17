@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.681 2009/07/17 00:20:23 lwright Exp $
+* $Id: asset.inc,v 1.682 2009/07/17 02:40:54 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.681 $
+* @version $Revision: 1.682 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3121,7 +3121,15 @@ class Asset extends MySource_Object
 		$attribute = $this->getAttribute($name, $contextid);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);
-			$attribute->setValue($this->vars[$name]['value']);
+			// Revert to the old value, whatever that is
+			if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
+				$old_value = $this->vars[$name]['value'][$contextid];
+			} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === TRUE)) {
+				$old_value = $this->vars[$name]['value'][0];
+			} else {
+				$old_value = $this->vars[$name]['value']['default'];
+			}
+			$attribute->setValue($old_value);
 			return FALSE;
 		}
 
