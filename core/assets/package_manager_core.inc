@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.41 2008/09/15 06:04:37 ewang Exp $
+* $Id: package_manager_core.inc,v 1.42 2009/07/17 01:52:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -286,7 +286,7 @@ class Package_Manager_Core extends Package_Manager
 		$root_user->setAttrValue('password',   $root_pass);
 		$root_user->setAttrValue('first_name', 'Root');
 		$root_user->setAttrValue('last_name',  'User');
-		$root_email = (SQ_CONF_DEFAULT_EMAIL) ? SQ_CONF_DEFAULT_EMAIL : ('root@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
+		$root_email = (SQ_CONF_DEFAULT_EMAIL) ? SQ_CONF_DEFAULT_EMAIL : ('root@'.((SQ_PHP_CLI) ? php_uname('n') : $_SERVER['HTTP_HOST']));
 		$root_user->setAttrValue('email', $root_email);
 
 		if (!$root_user->create($user_link)) {
