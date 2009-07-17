@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.682 2009/07/17 02:40:54 lwright Exp $
+* $Id: asset.inc,v 1.683 2009/07/17 06:23:10 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.682 $
+* @version $Revision: 1.683 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1157,7 +1157,7 @@ class Asset extends MySource_Object
 		// update all the vars
 		foreach ($old_version->vars as $var_name => $var_data) {
 			foreach ($var_data['value'] as $contextid => $var_value) {
-				if (!$this->setAttrValue($var_name, $var_data['value'], $contextid)) {
+				if (!$this->setAttrValue($var_name, $var_value, $contextid)) {
 					trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
 					$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
 					return FALSE;
@@ -3291,6 +3291,9 @@ class Asset extends MySource_Object
 		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) == TRUE)) {
 			return $this->vars[$name]['value'][0];
 		} else {
+			if (isset($this->vars[$name]['value']['default']) === FALSE) {
+				bam($this->vars[$name]);
+			}
 			return $this->vars[$name]['value']['default'];
 		}
 
