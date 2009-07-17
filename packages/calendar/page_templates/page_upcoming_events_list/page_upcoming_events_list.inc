@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.22 2009/07/01 04:12:57 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.23 2009/07/17 03:51:22 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -572,8 +572,8 @@ class Page_Upcoming_Events_List extends Page
 
 		while ((count($all_events) < $this->attr('num_events')) && ($start_ts < $horizon_ts)) {
 
-			$end_ts = strtotime('+'.$this->attr('num_events').' days', $start_ts);
-
+			$end_ts = strtotime('+'.$this->attr('horizon').' days', $start_ts);
+			if ($end_ts > $horizon_ts) break;
 			$single_result = Array();
 			$recur_result = Array();
 
