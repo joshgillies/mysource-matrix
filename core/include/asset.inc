@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.680 2009/07/14 06:45:26 lwright Exp $
+* $Id: asset.inc,v 1.681 2009/07/17 00:20:23 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.680 $
+* @version $Revision: 1.681 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3138,6 +3138,17 @@ class Asset extends MySource_Object
 			}
 		}
 
+		// Do not save a default context value if it's being set to the
+		// base default for the first time.
+		// Reduces the problem where setting this triggers update events (incl.
+		// uniq attr checks, content updates) - which wouldn't have happened
+		// before. It's not a var-change after all.
+		// This can't happen in alternate contexts, because it needs to stay
+		// the same regardless of changes to default context.
+		if (($contextid === 0) && (isset($this->vars[$name]['value'][0]) === FALSE) && ($value === $this->vars[$name]['value']['default'])) {
+			return TRUE;
+		}
+
 		// if this is a uniq attribute then let's make sure that this isn't already set
 		if ($attribute->uniq) {
 			$db = MatrixDAL::getDb();
@@ -3183,14 +3194,14 @@ class Asset extends MySource_Object
 		} else {
 			$old_value = $this->vars[$name]['value']['default'];
 		}
-		
+
 		if (is_scalar($old_value)) {
 			// vars_set is being ordered by context first to simplify matters
 			// once we get to saveAttributes()
 			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = $old_value;
 		} else {
 			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = '__(old value)__';
-		}		
+		}
 
 		$this->vars[$name]['value'][$contextid] = $value;
 
