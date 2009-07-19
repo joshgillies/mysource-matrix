@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.104 2009/07/14 05:58:34 lwright Exp $
+* $Id: design_area_menu_type.inc,v 1.105 2009/07/19 23:47:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,8 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'normal'    :
 				case 'hierarchy' :
 				case 'current'   :
-					$new_value = $this->vars['settings']['value'][0];
+					$use_contextid = $this->isAttrSetInContext('settings', 0) ? 0 : 'default';
+					$new_value = $this->vars['settings']['value'][$use_contextid];
 					if (!is_array($new_value)) $new_value = Array();
 					if (!isset($new_value[$split[1]])) {
 						$new_value[$split[1]] = Array();
