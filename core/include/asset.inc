@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.684 2009/07/19 22:47:15 lwright Exp $
+* $Id: asset.inc,v 1.685 2009/07/20 01:19:37 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.684 $
+* @version $Revision: 1.685 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3240,8 +3240,8 @@ class Asset extends MySource_Object
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
-	
-		return isset($this->vars[$attr_name]['value'][$contextid]) ? TRUE : FALSE;
+
+		return array_key_exists($contextid, $this->vars[$attr_name]['value']) ? TRUE : FALSE;
 
 	}//end isAttrSetInContext()
 
@@ -3288,7 +3288,7 @@ class Asset extends MySource_Object
 
 		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
 			return $this->vars[$name]['value'][$contextid];
-		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) == TRUE)) {
+		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === TRUE)) {
 			return $this->vars[$name]['value'][0];
 		} else {
 			return $this->vars[$name]['value']['default'];
