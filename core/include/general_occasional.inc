@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.90 2009/06/17 04:49:10 wszymanski Exp $
+* $Id: general_occasional.inc,v 1.91 2009/07/20 06:56:56 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 
@@ -676,6 +676,32 @@ function getLangCharMap($lang_code='')
 	return $character_map;
 
 }//end getLangCharMap()
+
+
+/**
+* Parses contents for self links and removes them
+*
+* @param string $contents	the content to be parsed out
+*
+* @return string
+* @access public
+*/
+function parse_self_links($content)
+{
+	// get the current frontend asset url
+	$url = str_replace("/", "\/", $GLOBALS['SQ_SYSTEM']->frontend_asset->getURL());
+	$web_path = substr($url, strrpos($url, "/") + 1);
+
+	// preg for every occurence of url including all system url suffixes
+	$suffixes = Array(SQ_CONF_BACKEND_SUFFIX, SQ_CONF_LIMBO_SUFFIX, SQ_CONF_LOGIN_SUFFIX, SQ_CONF_NOCACHE_SUFFIX, SQ_CONF_RECACHE_SUFFIX);
+	$match = $url."(\/".implode("|\/", $suffixes).")?(\?.*?)?";
+    $href_pattern = "/<a href=\"".$match."\">.*?<\/a>/";
+    $web_path_pattern = "/<a href=\"(\.{0,2}\/{1})?".$web_path."\">.*?<\/a>/";
+    $content = preg_replace(Array($href_pattern, $web_path_pattern), '', $content);
+
+	return $content;
+
+}
 
 
 ?>

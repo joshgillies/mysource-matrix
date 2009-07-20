@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.303 2009/07/10 06:10:35 lwright Exp $
+* $Id: mysource.inc,v 1.304 2009/07/20 06:56:56 wszymanski Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.303 $
+* @version $Revision: 1.304 $
 * @package MySource_Matrix
 */
 class MySource
@@ -599,6 +599,10 @@ class MySource
 			ob_end_clean();
 
 			$this->_replaceKeyword($content);
+			// parse out self links if configured so
+			if (SQ_CONF_NO_ASSET_SELF_LINKS) {				
+				$content = parse_self_links($content);
+			}
 			echo $content;
 
 		}//end else backend/limbo

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.129 2009/07/07 00:35:39 akarelia Exp $
+* $Id: system_config.inc,v 1.130 2009/07/20 06:56:56 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -97,6 +97,7 @@ class System_Config extends Config
 						'SQ_CONF_CUSTOM_SESSION_SAVE_PATH'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_ENABLE_ROLES_SYSTEM'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ENABLE_GLOBAL_ROLES'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_NO_ASSET_SELF_LINKS'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 					   );
 
@@ -931,6 +932,23 @@ class System_Config extends Config
 					}
 				$o->closeField();
 			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('search_engine_optimizations'));
+
+			$o->openField(translate('remove_self_links'));
+				if ($write_access) {
+					$options = Array(
+								'0'	=> translate('no'),
+								'1'	=> translate('yes'),
+							   );
+					combo_box($class.'[SQ_CONF_NO_ASSET_SELF_LINKS]', $options, FALSE, !defined('SQ_CONF_NO_ASSET_SELF_LINKS') ? '0' : SQ_CONF_NO_ASSET_SELF_LINKS);
+				} else {
+					echo (SQ_CONF_NO_ASSET_SELF_LINKS) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('remove_self_links_note'));
+			$o->closeField();
 
 		$o->closeSection();
 
