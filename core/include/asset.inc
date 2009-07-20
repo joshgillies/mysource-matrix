@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.685 2009/07/20 01:19:37 lwright Exp $
+* $Id: asset.inc,v 1.686 2009/07/20 02:09:45 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.685 $
+* @version $Revision: 1.686 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3140,7 +3140,7 @@ class Asset extends MySource_Object
 		// if the value being set is the same as the current value - don't do anything
 		// take into consideration Oracle's treatment of empty strings - they are retrieved as NULL values
 		// this condition is satisfied when assigning an empty string in place of a pre-existing NULL value in the case of Oracle systems
-		if (isset($this->vars[$name]['value'][$contextid]) === TRUE) {
+		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
 			if (($this->vars[$name]['value'][$contextid] === $value) || (is_null($this->vars[$name]['value'][$contextid]) && $value === '')) {
 				return TRUE;
 			}
@@ -3153,7 +3153,7 @@ class Asset extends MySource_Object
 		// before. It's not a var-change after all.
 		// This can't happen in alternate contexts, because it needs to stay
 		// the same regardless of changes to default context.
-		if (($contextid === 0) && (isset($this->vars[$name]['value'][0]) === FALSE) && ($value === $this->vars[$name]['value']['default'])) {
+		if (($contextid === 0) && ($this->isAttrSetInContext($name, 0) === FALSE) && ($value === $this->vars[$name]['value']['default'])) {
 			return TRUE;
 		}
 
