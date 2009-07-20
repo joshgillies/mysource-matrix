@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.63 2008/09/22 02:07:29 ata Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.64 2009/07/20 03:52:07 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -360,13 +360,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$replace_assetids = array_unique($replace_assetids);
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
-			// this container currently has a system version floating around
-			// so we have to be careful not to delete notice links that are
-			// still being used in this system version
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$system_assetids = unserialize(file_to_string($asset->data_path.'/.sq_system/.notice_links'));
-			$replace_assetids = array_merge($replace_assetids, $system_assetids);
-		}
+			$notice_links_file = file_to_string($asset->data_path.'/.sq_system/.notice_links');
+			if (!empty($notice_links_file)) {
+				// this container currently has a system version floating around
+				// so we have to be careful not to delete notice links that are
+				// still being used in this system version
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$system_assetids = unserialize($notice_links_file);
+				$replace_assetids = array_merge($replace_assetids, $system_assetids);
+			}//end if
+		}//end if
 
 		if (!empty($replace_assetids) || !empty($notice_links)) {
 

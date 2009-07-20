@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.65 2008/12/23 23:48:51 akarelia Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.66 2009/07/20 03:52:07 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,12 +265,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<table border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<?php
-								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
-									?>
-									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
-									<?php
-								}
-								else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+								if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
 									?>
 									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
 									<?php
@@ -324,12 +319,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							<?php
-							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
-								?>
-								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
-								<?php
-							}
-							else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+							if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
 								?>
 								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
 								<?php
@@ -469,6 +459,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function insertContainer(Bodycopy $asset, $type, $containerid, Array $bc_data)
 	{
+		// Save the current setup of links, if it has not been saved already
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+			if (!file_exists($asset->data_path.'/.safe_edit_before')) {
+				$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+				file_put_contents($asset->data_path.'/.safe_edit_before', serialize($containers));
+			}//end if
+		}//end if
+
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		$num_containers = count($containers);
@@ -501,7 +499,38 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$new_container->saveAttributes();
 		}
 
+		// Tweaking this asset is under safe edit and has a workflow on it
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($asset->id, TRUE);
+			if (!empty($schemas) && $new_container->status != SQ_STATUS_EDITING) {
+				// Drop to a run level to force the status change to SQ_STATUS_EDITING (saveSystemVersion() so it can go back to LIVE)
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(191);
+				$new_container->saveSystemVersion();
+				$new_container->processStatusChange(SQ_STATUS_EDITING, FALSE);
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($new_container->id);
+				if (!empty($children)) {
+					foreach (array_keys($children) as $child_assetid) {
+						$child = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_assetid, '', TRUE);
+						if (!is_null($child)) {
+							$child->saveSystemVersion();
+							$child->processStatusChange(SQ_STATUS_EDITING, FALSE);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($child);
+						}//end if
+					}//end foreach
+				}//end if
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}//end if
+		}//end if
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_container);
+
+		// Save the current setup of links
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+			file_put_contents($asset->data_path.'/.safe_edit_after', serialize($containers));
+		}//end if
+
 		return $retval;
 
 	}//end insertContainer()

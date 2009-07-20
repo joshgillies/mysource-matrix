@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.47 2007/12/17 02:19:50 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.48 2009/07/20 03:52:07 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,6 +194,80 @@ class Bodycopy extends Asset
 			   );
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Provides extra checking and disable invalid status change on errors 
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directories exists
+		if (!create_directory($this->data_path)) {
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
+		switch ($new_status) {
+			case SQ_STATUS_EDITING:
+				// Going to safe edit
+				if ($this->status == SQ_STATUS_LIVE) {
+					$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+					file_put_contents($this->data_path.'/.safe_edit_before', serialize($containers));
+					file_put_contents($this->data_path.'/.safe_edit_after', serialize($containers));
+				}//end if
+			break;
+			case SQ_STATUS_LIVE:
+				if ($this->status == SQ_STATUS_EDITING) {
+					// Cancel safe edit
+					$before_safe_edit = Array();
+					$after_safe_edit = Array();
+					$before_safe_edit_string = file_to_string($this->data_path.'/.safe_edit_before');
+					$after_safe_edit_string = file_to_string($this->data_path.'/.safe_edit_after');
+
+					if (!empty($before_safe_edit_string)) {
+						$before_safe_edit = @unserialize($before_safe_edit_string);
+					}//end if
+					if (!empty($after_safe_edit_string)) {
+						$after_safe_edit = @unserialize($after_safe_edit_string);
+					}//end if
+
+					// Remove DIVs if they did not exist before going back to Safe Edit
+					if (!empty($after_safe_edit)) {
+						foreach ($after_safe_edit as $active_link) {
+							if (!$this->_compareLink($active_link, $before_safe_edit)) {
+								// The link didn't exist, move to trash
+								if (isset($active_link['linkid'])) {
+									// Drop to a run level to allow the links to be shuffled out without a fuss
+									$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+									$this->deleteLink($active_link['linkid']);	
+									$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+								}//end if
+							}//end if
+						}//end foreach
+					}//end if
+
+					// Coming out of safe edit remove safe edit files
+					$this->_cleanupSafeEdit();
+				}//end if
+
+				if ($this->status == SQ_STATUS_EDITING_APPROVED) {
+					// Changes approved
+					$this->_cleanupSafeEdit();
+				}//end if
+			break;
+		}//end switch
+
+		return parent::processStatusChange($new_status, $update_parents);
+
+	}//end processStatusChange()
 
 
 	/**
@@ -420,6 +494,55 @@ class Bodycopy extends Asset
 		return TRUE;
 
 	}//end setKeywordReplacements()
+
+
+	/**
+	* Compares the before and after state to check for div/table removal 
+	*
+	* @param array		$current_link	The info about the current link
+	* @param array		$before_links	An array of all the before links
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _compareLink($current_link, $before_links)
+	{
+		if (!isset($current_link['minorid'])) {
+			// Not enough information to proceed
+			return FALSE;
+		}//end if
+
+		foreach ($before_links as $before_link) {
+			if (isset($before_link['minorid'])) {
+				if ($before_link['minorid'] == $current_link['minorid']) {
+					// It exists!
+					return TRUE;
+				}//end if
+			}//end if
+		}//end foreach
+
+		// Didn't find one, report that...
+		return FALSE;
+	
+	}//end _compareLink()
+
+
+	/**
+	* Cleaning up files after coming out of Safe Edit 
+	*
+	* @return void
+	* @access private
+	*/
+	function _cleanupSafeEdit()
+	{
+		if (file_exists($this->data_path.'/.safe_edit_after')) {
+			unlink($this->data_path.'/.safe_edit_after');
+		}//end if
+		if (file_exists($this->data_path.'/.safe_edit_before')) {
+			unlink($this->data_path.'/.safe_edit_before');
+		}//end if
+	
+	}//end _cleanupSafeEdit()
 
 
 }//end class
