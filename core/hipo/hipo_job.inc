@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.99 2009/07/13 06:05:08 bpearson Exp $
+* $Id: hipo_job.inc,v 1.100 2009/07/20 01:10:50 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1423,7 +1423,7 @@ class HIPO_Job extends MySource_Object
 				$progress = Array(
 								'percent_done'	=> $step_data['percent_done'],
 								'current_step'	=> $this->_hipo_vars['current_step'],
-								'message'		=> $step_data['message'],
+								'message'		=> substr($step_data['message'], 0, 150),
 							);
 				if ((($current_percent != $prev_percent) && ($current_percent % 3 == 0)) || $step_data['complete']) {
 					// Full save point or job is finished
