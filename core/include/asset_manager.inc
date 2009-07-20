@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.734 2009/07/20 01:50:44 lwright Exp $
+* $Id: asset_manager.inc,v 1.735 2009/07/20 06:51:47 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.734 $
+* @version $Revision: 1.735 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8562,7 +8562,7 @@ class Asset_Manager extends MySource_Object
 				}
 				$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
 				$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
-				if (in_array('', $link_value_wanted) === TRUE) {
+				if (in_array('', $link_value_wanted['link_value']) === TRUE) {
 					$where .= ' OR l.value IS '.$equal_prefix.'NULL';
 				}
 				$where .= ')';
