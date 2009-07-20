@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.50 2009/07/20 06:56:56 wszymanski Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.51 2009/07/20 07:00:10 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,7 +184,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-bam($clone);
+
 			$data[$id_name] = Array($clone->id, $clone->type());
 
 		}// end foreach
