@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.6 2009/07/07 03:56:50 ewang Exp $
+* $Id: mysource.inc,v 1.290.2.7 2009/07/20 07:29:19 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.6 $
+* @version $Revision: 1.290.2.7 $
 * @package MySource_Matrix
 */
 class MySource
@@ -547,9 +547,14 @@ class MySource
 					}
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
+				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
+					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
+					
+					unset($_REQUEST['just_logged_out']);
 					$this->_sendHTTPHeaders($asset);
+
 				} else {
 					$asset->printFrontend();
 				}
@@ -1243,6 +1248,11 @@ class MySource
 					}
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
+
+					// Flag to know that logout request is made
+					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
+					$_REQUEST['just_logged_out'] = 1;
+
 				}
 			break;
 			case 'real_logout' :
