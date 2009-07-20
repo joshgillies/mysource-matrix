@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.304 2009/07/20 06:56:56 wszymanski Exp $
+* $Id: mysource.inc,v 1.305 2009/07/20 07:27:48 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.305 $
 * @package MySource_Matrix
 */
 class MySource
@@ -589,9 +589,14 @@ class MySource
 					}
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
+				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
+					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
+					
+					unset($_REQUEST['just_logged_out']);
 					$this->_sendHTTPHeaders($asset);
+
 				} else {
 					$asset->printFrontend();
 				}
@@ -1182,7 +1187,7 @@ class MySource
 				if (is_null($login_username) || is_null($login_password)) {
 					return;
 				}
-
+				
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
@@ -1192,7 +1197,6 @@ class MySource
 					}
 					return;
 				}
-
 				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
@@ -1235,7 +1239,7 @@ class MySource
 					// incorrect login key
 					$this->addMessage(translate('login_key_incorrect'));
 				}
-
+				
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
@@ -1248,7 +1252,6 @@ class MySource
 				} else {
 					$this->_logSecurityMsg('system.security.logout.manual');
 				}
-
 				$stalled_hipo_array = Array();
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1275,7 +1278,7 @@ class MySource
 				// clear PHP authentication
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
-
+				
 				// Restore a previous System Administrator account after user switching
 				$invoker_user_id = NULL;
 				if (isset($_SESSION['login_as_invoker_id']) && isset($_SESSION['login_as_invoker_username'])) {
@@ -1289,6 +1292,10 @@ class MySource
 					}
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
+
+					// Flag to know that logout request is made
+					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used 
+					$_REQUEST['just_logged_out'] = 1;
 				}
 			break;
 			case 'real_logout' :
@@ -1304,6 +1311,7 @@ class MySource
 				}
 				$this->loginPublicUser();
 				$this->generateLoginKey(TRUE);
+
 			break;
 			case 'login_as' :
 				$username = '';
