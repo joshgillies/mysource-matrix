@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: connectivity.php,v 1.3 2008/12/02 00:05:53 mbrydon Exp $
+* $Id: connectivity.php,v 1.4 2009/07/20 03:17:03 bpearson Exp $
 *
 */
 
@@ -23,17 +23,22 @@ require_once 'HTTP/Client.php';
 *     Check if a remote page exists (returns 200 OK)
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 */
 
 
 $url = '';
 if (isset($_REQUEST['connect_url'])) {
 	$url = $_REQUEST['connect_url'];
-}
+}//end if
 
-// no url supplied? return 0.
-if (empty($url)) {
+$current_url = '';
+if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['PHP_SELF'])) {
+	$current_url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+}//end if
+
+// no url supplied or trying to recurse? return 0.
+if (empty($url) || (!empty($current_url) && strpos($url, $current_url) !== FALSE)) {
 	echo 0;
 	exit;
 }
@@ -60,7 +65,6 @@ $HTTP_Client =& new HTTP_Client($request_parameters);
 $HTTP_Client->setMaxRedirects(5);
 
 $result = $HTTP_Client->head($url);
-
 if (!PEAR::isError($result)) {
 	echo ($result == 200) ? 1 : 0;
 } else {
