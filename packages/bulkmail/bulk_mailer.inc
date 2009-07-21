@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.86.2.5 2009/07/07 03:59:27 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.86.2.6 2009/07/21 00:44:50 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.86.2.5 $
+* @version $Revision: 1.86.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -391,9 +391,17 @@ class Bulk_Mailer
 				$am->forgetAsset($job);
 				$am->forgetAsset($current_post_office);
 
-				$status = $mail_queue->sendMailsInQueue();
+				try {	
+					$status = $mail_queue->sendMailsInQueue();
+				} catch (Exception $e) {
+					trigger_localised_error('BML0001', E_USER_WARNING, $e->getMessage());
+					$this->nextChunk($progress_path);
+					exit;
+				}
+				
 				if ($status instanceof PEAR_Error) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
+					$this->nextChunk($progress_path);
 					exit;
 				}
 				// proceed to next chunk
