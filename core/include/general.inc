@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.225 2009/07/13 09:49:36 ata Exp $
+* $Id: general.inc,v 1.226 2009/07/21 05:59:51 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225 $
+* @version $Revision: 1.226 $
 * @package MySource_Matrix
 */
 
@@ -71,7 +71,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	if (count($bt) > 1) {
 		$real_bt_index = 0;
-		while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
+		while (($real_bt_index < count($bt)-1) && ((array_get_index($bt[$real_bt_index], 'function', '') === __FUNCTION__) || (FALSE !== stripos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
 			$real_bt_index++;
 		}
 		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
