@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.13 2009/05/28 01:58:11 ewang Exp $
+* $Id: design_area_access_history.inc,v 1.14 2009/07/21 06:37:57 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,7 +448,7 @@ class Design_Area_Access_History extends Design_Area
 						echo '
 						// now that the session is saved, we want to remove the first item because
 						// we do not want to list the current page
-						array_shift($history);
+						if (!$excluded) array_shift($history);
 						';
 					}
 					echo '
