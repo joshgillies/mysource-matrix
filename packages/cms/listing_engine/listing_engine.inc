@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.283 2009/07/21 01:01:04 cupreti Exp $
+* $Id: listing_engine.inc,v 1.284 2009/07/21 03:58:19 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1934,7 +1934,6 @@ class Listing_Engine extends Page
 								}
 							}
 							$replacements['group_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->name).'</a>';
-							$replacements['group_asset_url'] = $asset->getUrl();
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						break;
 
@@ -3862,7 +3861,6 @@ class Listing_Engine extends Page
 		$keywords['group_listing']                 = translate('cms_listing_group_listing');
 		$keywords['group_name']                    = translate('cms_listing_group_name');
 		$keywords['group_name_linked']             = translate('cms_listing_group_name_linked');
-		$keywords['group_asset_url']               = translate('cms_listing_group_asset_url');
 		$keywords['parent_contents']               = translate('cms_listing_parent_contents');
 		$keywords['parent_contents_raw']           = translate('cms_listing_parent_contents_raw');
 		$keywords['group_immed_child_group_count'] = translate('cms_listing_group_immed_child_group_count');
