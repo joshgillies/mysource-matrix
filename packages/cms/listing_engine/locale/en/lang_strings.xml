@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.37 2008/07/23 18:31:23 gnoel Exp $
+* $Id: lang_strings.xml,v 1.37.4.1 2009/07/21 01:04:48 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -109,6 +109,7 @@
 <string source="cms_listing_group_listing">Asset Group Listing</string>
 <string source="cms_listing_group_name">Asset Group Name</string>
 <string source="cms_listing_group_name_linked">Asset Group Name Linked</string>
+<string source="cms_listing_group_asset_url">Asset Group Asset URL</string>
 <string source="cms_listing_group_immed_child_group_count">Asset Group Immediate Child Group Count</string>
 <string source="cms_listing_group_total_child_asset_count">Asset Group Total Child Asset Count</string>
 <string source="cms_structured_name_note">*This must be set as a dynamic parameter in the above section to function correctly</string>
