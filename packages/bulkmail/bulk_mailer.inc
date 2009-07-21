@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.90 2009/07/07 04:50:19 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.91 2009/07/21 00:43:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -168,6 +168,7 @@ class Bulk_Mailer
 			$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 			$info = $bm->getQueuedJobs($job_id);
 			$job_path = $bm->getJobDataPath($job_id);
+
 			$recipient_path = $job_path.'/cache/recipient';
 			$progress_path = $job_path.'/progress_info';
 			$recip_per_chunk = $this->calculateChunkSize($info[$job_id]['details']['threshold'], $progress_path);
@@ -390,10 +391,17 @@ class Bulk_Mailer
 
 				$am->forgetAsset($job);
 				$am->forgetAsset($current_post_office);
-
-				$status = $mail_queue->sendMailsInQueue();
+				try {	
+					$status = $mail_queue->sendMailsInQueue();
+				} catch (Exception $e) {
+					trigger_localised_error('BML0001', E_USER_WARNING, $e->getMessage());
+					$this->nextChunk($progress_path);
+					exit;
+				}
+				
 				if ($status instanceof PEAR_Error) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
+					$this->nextChunk($progress_path);
 					exit;
 				}
 				// proceed to next chunk
