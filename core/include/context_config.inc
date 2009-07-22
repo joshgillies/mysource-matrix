@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.3 2009/07/10 03:17:41 lwright Exp $
+* $Id: context_config.inc,v 1.4 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1545,6 +1545,13 @@ class Context_Config extends Config
 			}//end try
 
 		}//end if
+
+		foreach ($new_contextids as $new_contextid) {
+			if ($GLOBALS['SQ_SYSTEM']->insertContextData($new_contextid) === FALSE) {
+				// ??? Presuming here that above function will throw error, perhaps fatal
+				exit(1);
+			}
+		}
 
 		foreach ($deleted_contextids as $deleted_contextid) {
 			if ($GLOBALS['SQ_SYSTEM']->deleteContextData($deleted_contextid) === FALSE) {

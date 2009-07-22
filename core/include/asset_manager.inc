@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.735 2009/07/20 06:51:47 wszymanski Exp $
+* $Id: asset_manager.inc,v 1.736 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.735 $
+* @version $Revision: 1.736 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -916,17 +916,25 @@ class Asset_Manager extends MySource_Object
 	* only be used for common attributes like name). It returns the array of
 	* (string => mixed) representing assetid => attribute value
 	*
+	* This method will also allow you to get attribute values for a different context.
+	* (The methods in Asset class, like attr(), will only return information for the
+	* currently active context, for simplicity in handling.)
+	*
 	* @param string	$attr_name	The name of the attribute to get the values of
 	* @param string	$asset_type	The type code of the asset type that defines the attribute
 	* @param array	$assetids	IDs of the assets whose values we want
+	* @param int	$contextid	The ID of the context we wish to get the value of the attr for.
+	*							(If omitted, use the currently active context.)
 	*
 	* @return array
 	* @access public
 	*/
-	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
+	function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
 	{
 		if (empty($assetids)) return Array();
-		$db = MatrixDAL::getDb();
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
 
 		// IN clause fix - assetids were not being treated as strings
 		$in = 'assetid IN (';
@@ -964,10 +972,11 @@ class Asset_Manager extends MySource_Object
 		// Now get customised values where applicable
 		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = :attr_name';
 		if ($asset_type != 'asset') {
-			$sub_sql .= ' AND (type_code = :asset_type OR owning_type_code = :asset_type)';
+			$sub_sql .= ' AND (type_code = :asset_type OR owning_type_code = :asset_type_1)';
 		}
 
 		$dbtype = MatrixDAL::getDbType();
+		$bind_vars = Array();
 		if ($dbtype === 'pgsql') {
 			/**
 			* We make two parts of a query here
@@ -985,14 +994,18 @@ class Asset_Manager extends MySource_Object
 			$sql1 = 'SELECT assetid, custom_val
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
 			$where1 = 'attrid IN ('.$sub_sql.') ';
+			$where1 .= ' AND contextid = :contextid_1';
 			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1);
 
 			$sql2 = 'SELECT assetid, custom_val
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
 			$where2 = $in;
+			$where2 .= ' AND contextid = :contextid_2';
 			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2);
 
 			$sql = $sql1 . $where1 . ' INTERSECT ' . $sql2 . $where2;
+			$bind_vars['contextid_1'] = $contextid;
+			$bind_vars['contextid_2'] = $contextid;
 		}
 
 		/**
@@ -1007,17 +1020,24 @@ class Asset_Manager extends MySource_Object
 		if ($dbtype === 'oci') {
 			$sql = 'SELECT assetid, custom_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
 			$where = 'attrid IN ('.$sub_sql.') AND '.$in;
+			$where .= ' AND contextid = :contextid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where;
+			$bind_vars['contextid'] = $contextid;
+		}
+
+		$bind_vars['attr_name'] = $attr_name;
+		if ($asset_type !== 'asset') {
+			$bind_vars['asset_type'] = $asset_type;
+			$bind_vars['asset_type_1'] = $asset_type;
 		}
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'attr_name', $attr_name);
-			if ($asset_type != 'asset') {
-				MatrixDAL::bindValueToPdo($query, 'asset_type', $asset_type);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 			}
-			$custom_vals = DAL::executePdoGroupedAssoc($query);
+			$custom_vals = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get customised attribute values for attr "'.$attr_name.'" and type "'.$asset_type.'" due to database error: '.$e->getMessage());
 		}

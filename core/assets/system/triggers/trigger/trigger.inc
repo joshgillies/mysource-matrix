@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.12 2009/07/12 23:18:26 lwright Exp $
+* $Id: trigger.inc,v 1.13 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -135,14 +135,14 @@ class Trigger extends Asset
 		$this->status = $tm->status;
 
 		// load attributes
-		$this->vars['name']['value'][0]			= $trigger_info['name'];
-		$this->vars['description']['value'][0]	= $trigger_info['description'];
-		$this->vars['events']['value'][0]		= $trigger_info['data']['events'];
-		$this->vars['conditions']['value'][0]	= $trigger_info['data']['conditions'];
-		$this->vars['actions']['value'][0]		= $trigger_info['data']['actions'];
-		$this->vars['active']['value'][0]		= $trigger_info['active'];
-		$this->vars['category']['value'][0]		= $trigger_info['category'];
-		$this->vars['blocking']['value'][0]		= empty($trigger_info['data']['settings']['blocking']) ? 0 : 1;
+		$this->vars['name']['value']		= $trigger_info['name'];
+		$this->vars['description']['value']	= $trigger_info['description'];
+		$this->vars['events']['value']		= $trigger_info['data']['events'];
+		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
+		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
+		$this->vars['active']['value']		= $trigger_info['active'];
+		$this->vars['category']['value']	= $trigger_info['category'];
+		$this->vars['blocking']['value']	= empty($trigger_info['data']['settings']['blocking']) ? 0 : 1;
 
 		return TRUE;
 

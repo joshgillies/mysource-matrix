@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.65 2009/07/12 23:18:26 lwright Exp $
+* $Id: trigger_manager.inc,v 1.66 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -229,9 +229,9 @@ class Trigger_Manager extends Asset implements Bridge
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger');
 				$asset = new Trigger($this->id, $id);
 				//set up status and display name
-				$asset->short_name = ($asset->vars['active']['value'][0] == '1') ? $asset->vars['name']['value'][0] : $asset->vars['name']['value'][0].' (disabled)';
-				$asset->name = ($asset->vars['active']['value'][0] == '1') ? $asset->vars['name']['value'][0] : $asset->vars['name']['value'][0].' (disabled)';
-				$asset->status = ($asset->vars['active']['value'][0] == '1') ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
+				$asset->short_name = ($asset->vars['active']['value'] == '1') ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
+				$asset->name = ($asset->vars['active']['value'] == '1') ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
+				$asset->status = ($asset->vars['active']['value'] == '1') ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 
 				// if no id, this trigger is bodge
 				if (empty($asset->id)) $asset = NULL;

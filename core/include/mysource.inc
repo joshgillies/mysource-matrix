@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.306 2009/07/20 16:31:49 jhurst Exp $
+* $Id: mysource.inc,v 1.307 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.306 $
+* @version $Revision: 1.307 $
 * @package MySource_Matrix
 */
 class MySource
@@ -251,7 +251,7 @@ class MySource
 			// Set up the session handler
 			$session_handler = $this->getSessionHandlerClassName();
 			eval($session_handler.'::init();');
-
+			
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
@@ -260,8 +260,9 @@ class MySource
 				session_id($_GET['SESSION_ID']);
 				$session_set = TRUE;
 			}
-			session_start();
 
+			session_start();
+			
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
 				define('SQ_ROLLBACK_VIEW', '0');
@@ -274,7 +275,7 @@ class MySource
 				$log->send();
 				exit();
 			}
-
+			
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 				$this->_processGlobalActions();
@@ -330,7 +331,7 @@ class MySource
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-
+		
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -367,7 +368,7 @@ class MySource
 		}
 		
 		$this->changeContext($alternate_context_id);
-
+	
 	}//end init()
 
 
@@ -2451,10 +2452,34 @@ class MySource
 	*
 	* @return boolean
 	*/
+	public function insertContextData($contextid)
+	{	
+		try {
+			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));	
+			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));	
+		} catch (DALException $e) {
+			throw new Exception('Cannot insert default attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
+		}
+
+		return TRUE;
+
+	}//end deleteContextData()
+
+
+	/**
+	* Deletes the information associated with a deleted context
+	*
+	* Returns TRUE on success, FALSE on failure
+	*
+	* @param int	$contextid	The ID of the context to get info for
+	*
+	* @return boolean
+	*/
 	public function deleteContextData($contextid)
 	{	
 		try {
 			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));	
+			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));	
 		} catch (DALException $e) {
 			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}

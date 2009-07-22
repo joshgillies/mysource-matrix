@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.686 2009/07/20 02:09:45 lwright Exp $
+* $Id: asset.inc,v 1.687 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.686 $
+* @version $Revision: 1.687 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -727,8 +727,6 @@ class Asset extends MySource_Object
 	*/
 	protected function _loadVars()
 	{
-		$db = MatrixDAL::getDb();
-
 		// let's setup the data path
 		$this->_loadDataPaths();
 
@@ -740,25 +738,15 @@ class Asset extends MySource_Object
 		if ($this->id) {
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
-			// This has had to be expanded a bit. What we need is ALL contexted values where possible,
-			// and all default values (for context ID 0) if a custom value does not exist for context ID 0
-			$sql = '(
-						SELECT atr.name, atr.attrid, atr.type, v.custom_val AS value, v.contextid, atr.is_contextable
-						FROM sq_ast_attr atr
-						  JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
-							ON (atr.attrid = v.attrid AND v.assetid = :assetid'
-							.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
-							WHERE atr.type_code = :type_code
-					)
-						UNION ALL
-					(
-						SELECT name, attrid, type, default_val as value, NULL as contextid, is_contextable
-							FROM sq_ast_attr 
-							WHERE type_code = :type_code_1
-					)';
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value, atr.is_contextable
+					FROM (sq_ast_attr atr
+					  LEFT OUTER JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val WHERE contextid = :contextid) v
+						ON (atr.attrid = v.attrid AND v.assetid = :assetid'
+						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').'))
+						WHERE atr.type_code = :type_code';
 		} else {
 			// else just load all defaults
-			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value, NULL as contextid, atr.is_contextable
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value, atr.is_contextable
 					FROM sq_ast_attr atr
 					WHERE atr.type_code = :type_code';
 		}// end if
@@ -768,8 +756,8 @@ class Asset extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'type_code', $this->type(), PDO::PARAM_STR);
 			// Only bind it if we are using the first query, not binding when going in the else above
 			if ($this->id) {
-				MatrixDAL::bindValueToPdo($query, 'type_code_1', $this->type(), PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'assetid',     $this->id, PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'contextid', $GLOBALS['SQ_SYSTEM']->getContextId(), PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'assetid',   $this->id, PDO::PARAM_STR);
 			}//end if
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 
@@ -778,18 +766,8 @@ class Asset extends MySource_Object
 			} else {
 				$this->vars = $result;
 				foreach (array_keys($this->vars) as $name) {
-					$values = Array();
-					foreach ($this->vars[$name] as $value_row) {
-						if ($value_row['contextid'] === NULL) {
-							$value_row['contextid'] = 'default';
-						}
-						$values[$value_row['contextid']] = $value_row['value'];
-					}
-					// We can get the common info from the first row
 					$this->vars[$name] = $this->vars[$name][0];
 					unset($this->vars[$name][0]);
-					unset($this->vars[$name]['contextid']);
-					$this->vars[$name]['value'] = $values;
 				}
 			}
 
@@ -803,12 +781,7 @@ class Asset extends MySource_Object
 				if ($this->vars[$name]['type'] != 'serialise') {
 					continue;
 				}
-				// Loop through each context (well, only one so far) and unserialise it
-				// (using the foreach-by-ref features of PHP 5).
-				foreach ($this->vars[$name]['value'] as $contextid => &$var_value) {
-					$var_value = @unserialize($var_value);
-				}
-				unset($var_value);
+				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
 			}
 		}
 
@@ -1156,12 +1129,10 @@ class Asset extends MySource_Object
 
 		// update all the vars
 		foreach ($old_version->vars as $var_name => $var_data) {
-			foreach ($var_data['value'] as $contextid => $var_value) {
-				if (!$this->setAttrValue($var_name, $var_value, $contextid)) {
-					trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
-					$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
-					return FALSE;
-				}
+			if (!$this->setAttrValue($var_name, $var_data['value'], TRUE)) {
+				trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+				return FALSE;
 			}
 		}
 
@@ -1961,12 +1932,10 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
 				// Now we set all the attributes
 				foreach ($this->vars as $name => $data) {
-					foreach ($data['value'] as $contextid => $var_value) {
-						if (!$clone->setAttrValue($name, $var_value, $contextid)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-							return FALSE;
-						}
+					if (!$clone->setAttrValue($name, $data['value'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
 					}
 				}
 				if (!$clone->saveAttributes()) {
@@ -2855,6 +2824,7 @@ class Asset extends MySource_Object
 
 		$save_vars = Array();
 		$attr_ids  = Array();
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		$db = MatrixDAL::getDb();
 
@@ -2864,184 +2834,261 @@ class Asset extends MySource_Object
 
 		$changed_array = Array();
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		foreach ($this->_tmp['vars_set'] as $var_name => $var_data) {
+			$attr_id = $this->vars[$var_name]['attrid'];
+			$is_contextable = array_get_index($this->vars[$var_name], 'is_contextable', FALSE) ? TRUE : FALSE;
 
-		foreach ($this->_tmp['vars_set'] as $contextid => $vars_set) {
-			$attr_ids = Array();
+			// if this is a unique attribute then let's make sure that this isn't already set
+			$owning_attributeid = 0;
+			$attribute = $this->getAttribute($var_name);
+			if ($attribute->uniq) {
 
-			foreach ($vars_set as $var_name => $var_data) {
-				$attr_id = $this->vars[$var_name]['attrid'];
+				$sql = 'SELECT oa.attrid
+						FROM sq_ast_attr a
+						  INNER JOIN sq_ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
+						WHERE a.name      = :name
+							AND a.type_code = :type_code';
 
-				// if this is a unique attribute then let's make sure that this isn't already set
-				$owning_attributeid = 0;
-				$attribute = $this->getAttribute($var_name, NULL, $contextid);
-				if ($attribute->uniq) {
-
-					$sql = 'SELECT oa.attrid
-							FROM sq_ast_attr a
-							  INNER JOIN sq_ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
-							WHERE a.name      = :name
-								AND a.type_code = :type_code';
-
-					try {
-						$query = MatrixDAL::preparePdoQuery($sql);
-						MatrixDAL::bindValueToPdo($query, 'name',      $var_name);
-						MatrixDAL::bindValueToPdo($query, 'type_code', $this->type());
-						$owning_attributeid = MatrixDAL::executePdoOne($query);
-					} catch (Exception $e) {
-						throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
-					}
-
-				}// end if
-
-				$attr_value = $this->vars[$var_name]['value'][$contextid];
-				if ($this->vars[$var_name]['type'] == 'serialise') {
-					$attr_value = serialize($attr_value);
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'name',      $var_name);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $this->type());
+					$owning_attributeid = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
 				}
-				$save_vars[$attr_id]['value'][$contextid] = $attr_value;
-				$save_vars[$attr_id]['name']  = $var_name;
-				$save_vars[$attr_id]['owning_attrid']  = $owning_attributeid;
-				$attr_ids[] = $attr_id;
 
-				// log a message for the asset - this wont get logged until we close the queue
-				$msg_reps = Array(
+			}// end if
+
+			$attr_value = $this->vars[$var_name]['value'];
+			if ($this->vars[$var_name]['type'] == 'serialise') {
+				$attr_value = serialize($attr_value);
+			}
+			$save_vars[$attr_id]['value'] = $attr_value;
+			$save_vars[$attr_id]['name']  = $var_name;
+			$save_vars[$attr_id]['owning_attrid']  = $owning_attributeid;
+			$attr_ids[] = $attr_id;
+
+			// log a message for the asset - this wont get logged until we close the queue
+			$msg_reps = Array(
 							'asset_name'	=> $this->name,
 							'attr_name'		=> $attribute->name,
-							'context_id'	=> $contextid,
 						);
-				$msg_type = 'asset.attributes.fulllog';
-				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = $var_data['old_value'];
-					$msg_reps['new_value'] = $attr_value;
-					$msg_type .= '.scalar';
-				}
-				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-				$message->parameters['assetid'] = $this->id;
-				$ms->logMessage($message);
-
-				// log a smaller message for users to view - this wont get logged until we close the queue
-				require_once SQ_FUDGE_PATH.'/general/general.inc';
-				$msg_type = 'asset.attributes';
-				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
-					$msg_reps['new_value'] = ellipsisize($attr_value,30);
-					$msg_type .= '.scalar';
-				}
-				$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-				$sml_message->parameters['assetid'] = $this->id;
-				$ms->logMessage($sml_message);
-
-				// add attribute to the event broadcaster array (for notification of what has changed)
-				// this allows event listener to act only on what has changed
-
-				$changed_array[] = $attribute->name;
-
-			}//end foreach var in context
-		
-			// find any previous entries
-			$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
-			$sql   = 'SELECT attrid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val ';
-			$where = 'assetid = :assetid
-						AND attrid '.$atrr_id_cond.'
-						AND contextid = :contextid';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-				MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
-				$existing = MatrixDAL::executePdoAssoc($query, 0);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get attributes for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			$msg_type = 'asset.attributes.fulllog';
+			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				$msg_reps['old_value'] = $var_data['old_value'];
+				$msg_reps['new_value'] = $attr_value;
+				$msg_type .= '.scalar';
 			}
+			$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+			$message->parameters['assetid'] = $this->id;
+			$ms->logMessage($message);
 
-			$new = array_diff($attr_ids, $existing);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			// log a smaller message for users to view - this wont get logged until we close the queue
+			require_once SQ_FUDGE_PATH.'/general/general.inc';
+			$msg_type = 'asset.attributes';
+			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
+				$msg_reps['new_value'] = ellipsisize($attr_value,30);
+				$msg_type .= '.scalar';
+			}
+			$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+			$sml_message->parameters['assetid'] = $this->id;
+			$ms->logMessage($sml_message);
 
-			// update existing custom attribute values
-			if (!empty($existing)) {
+			// add attribute to the event broadcaster array (for notification of what has changed)
+			// this allows event listener to act only on what has changed
 
-				foreach ($existing as $attr_id) {
-					$attr_id = (int) $attr_id;
-					$attr_value = $save_vars[$attr_id]['value'][$contextid];
+			$changed_array[] = $attribute->name;
 
-					// if this is a unique attribute then let's make sure we register that in the unique value table
-					// (doesn't matter which context we get it for, an attribute is either unique or not)
-					$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+		}//end foreach
 
-					if ($attribute->uniq) {
-						// update existing entry
-						try {
-							$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
-							MatrixDAL::bindValueToPdo($prepared, 'custom_val', $attr_value);
-							MatrixDAL::bindValueToPdo($prepared, 'attrid',     $save_vars[$attr_id]['owning_attrid']);
-							MatrixDAL::bindValueToPdo($prepared, 'assetid',    $this->id);
-							MatrixDAL::bindValueToPdo($prepared, 'contextid',  $contextid);
-							MatrixDAL::execPdoQuery($prepared);
-						} catch (Exception $e) {
-							throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-						}
-					}
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = MatrixDAL::getDb();
 
+		// find any previous entries
+		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
+		$sql   = 'SELECT attrid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val ';
+		$where = 'assetid = :assetid
+					AND attrid '.$atrr_id_cond.'
+					AND contextid = :contextid';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
+			$existing = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get attributes for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
+
+		$new = array_diff($attr_ids, $existing);
+
+		// update existing custom attribute values
+		if (!empty($existing)) {
+
+			foreach ($existing as $attr_id) {
+				$attr_id = (int) $attr_id;
+				$attr_value = $save_vars[$attr_id]['value'];
+
+				// if this is a unique attribute then let's make sure we register that in the unique value table
+				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+
+				if ($attribute->uniq) {
+					// update existing entry
 					try {
-						$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
-						MatrixDAL::bindValueToPdo($prepared, 'custom_val', $attr_value);
-						MatrixDAL::bindValueToPdo($prepared, 'attrid',     $attr_id);
-						MatrixDAL::bindValueToPdo($prepared, 'assetid',    $this->id);
-						MatrixDAL::bindValueToPdo($prepared, 'contextid',  $contextid);
+						if (($contextid === 0) || ($is_contextable === FALSE)) {
+							// If updating in the default context, we should be updating all
+							// context values that are still using the default
+							// If not contextable, just keep them linked together as well
+							$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid AND use_default = :use_default');
+							$bind_vars = Array(
+											'custom_val'	=> $attr_value,
+											'attrid'		=> $attr_id,
+											'assetid'		=> $this->id,
+											'use_default'	=> 1,
+										 );
+						} else {
+							// Updating in alternate context. Set the value and mark that
+							// we have now broken away from the default
+							$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val, use_default = :use_default WHERE owning_attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
+							$bind_vars = Array(
+											'custom_val'	=> $attr_value,
+											'attrid'		=> $attr_id,
+											'assetid'		=> $this->id,
+											'contextid'		=> $contextid,
+											'use_default'	=> 0,
+										 );
+						}
+						foreach ($bind_vars as $bind_var => $bind_value) {
+							MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+						}
 						MatrixDAL::execPdoQuery($prepared);
 					} catch (Exception $e) {
-						throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
+				}
 
-				}//end foreach
-
-			}//end updating existing custom attribute values
-
-			// insert new custom attribute values
-			if (!empty($new)) {
-
-				foreach ($new as $attr_id) {
-					$attr_id = (int) $attr_id;
-					$attr_value = $save_vars[$attr_id]['value'][$contextid];
-
-					// if this is a unique attribute then let's make sure we register that in the unique value table
-					// (does matter which context we grab it for; it's either unique or it's not)
-					$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
-
-					if ($attribute->uniq) {
-						try {
-							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, contextid, custom_val, assetid) VALUES (:attrid, :contextid, :custom_val, :assetid)');
-							MatrixDAL::bindValueToPdo($prepared, 'custom_val', $attr_value);
-							MatrixDAL::bindValueToPdo($prepared, 'attrid',     $save_vars[$attr_id]['owning_attrid']);
-							MatrixDAL::bindValueToPdo($prepared, 'assetid',    $this->id);
-							MatrixDAL::bindValueToPdo($prepared, 'contextid',  $contextid);
-							MatrixDAL::execPdoQuery($prepared);
-						} catch (Exception $e) {
-							throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-						}
+				try {
+					if (($contextid === 0) || ($is_contextable === FALSE)) {
+						// If updating in the default context, we should be updating all
+						// context values that are still using the default
+						// If not contextable, just keep them linked together as well
+						$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid AND use_default = :use_default');
+						$bind_vars = Array(
+										'custom_val'	=> $attr_value,
+										'attrid'		=> $attr_id,
+										'assetid'		=> $this->id,
+										'use_default'	=> 1,
+									 );
+					} else {
+						// Updating in alternate context. Set the value and mark that
+						// we have now broken away from the default
+						$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val, use_default = :use_default WHERE attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
+						$bind_vars = Array(
+										'custom_val'	=> $attr_value,
+										'attrid'		=> $attr_id,
+										'assetid'		=> $this->id,
+										'contextid'		=> $contextid,
+										'use_default'	=> 0,
+									 );
 					}
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+					}
+					MatrixDAL::execPdoQuery($prepared);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 
+			}//end foreach
+
+		}//end updating existing custom attribute values
+
+		// insert new custom attribute values
+		if (!empty($new)) {
+
+			foreach ($new as $attr_id) {
+				$attr_id = (int) $attr_id;
+				$attr_value = $save_vars[$attr_id]['value'];
+
+				// if this is a unique attribute then let's make sure we register that in the unique value table
+				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+				if ($attribute->uniq) {
 					try {
-						$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid) VALUES (:attrid, :contextid, :custom_val, :assetid)');
-						MatrixDAL::bindValueToPdo($prepared, 'custom_val', $attr_value);
-						MatrixDAL::bindValueToPdo($prepared, 'attrid',     $attr_id);
-						MatrixDAL::bindValueToPdo($prepared, 'assetid',    $this->id);
-						MatrixDAL::bindValueToPdo($prepared, 'contextid',  $contextid);
+						if (($contextid === 0) || ($is_contextable === FALSE)) {
+							// Inserting into the default context. Insert into all other
+							// existing contexts that don't yet have a value set, and
+							// mark them as using the default
+							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, contextid, custom_val, assetid, use_default) SELECT :attrid AS owning_attrid, contextid, :custom_val AS custom_val, :assetid AS assetid, :use_default as use_default FROM sq_ctx_def WHERE contextid NOT IN (SELECT contextid FROM sq_ast_attr_uniq_val WHERE assetid = :assetid_1 AND owning_attrid = :attrid_1)');
+							$bind_vars = Array(
+											'custom_val'	=> $attr_value,
+											'attrid'		=> $save_vars[$attr_id]['owning_attrid'],
+											'assetid'		=> $this->id,
+											'attrid_1'		=> $save_vars[$attr_id]['owning_attrid'],
+											'assetid_1'		=> $this->id,
+											'use_default'	=> 1,
+										 );
+						} else {
+							// Inseting into an alternate context. (Strange...)
+							// Set up the row, set as broken away from default
+							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) VALUES (:attrid, :contextid, :custom_val, :assetid, :use_default)');
+							$bind_vars = Array(
+											'custom_val'	=> $attr_value,
+											'contextid'		=> $contextid,
+											'attrid'		=> $save_vars[$attr_id]['owning_attrid'],
+											'assetid'		=> $this->id,
+											'use_default'	=> 0,
+										 );
+						}
+						foreach ($bind_vars as $bind_var => $bind_value) {
+							MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+						}
 						MatrixDAL::execPdoQuery($prepared);
 					} catch (Exception $e) {
-						throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
+				}
 
-				}//end foreach attribute
+				try {
+					if (($contextid === 0) || ($is_contextable === FALSE)) {
+						// Inserting into the default context. Insert into all other
+						// existing contexts that don't yet have a value set, and
+						// mark them as using the default
+						$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) SELECT :attrid AS attrid, contextid, :custom_val AS custom_val, :assetid AS assetid, :use_default as use_default FROM sq_ctx_def WHERE contextid NOT IN (SELECT contextid FROM sq_ast_attr_val WHERE assetid = :assetid_1 AND attrid = :attrid_1)');
+						$bind_vars = Array(
+										'custom_val'	=> $attr_value,
+										'attrid'		=> $attr_id,
+										'assetid'		=> $this->id,
+										'attrid_1'		=> $attr_id,
+										'assetid_1'		=> $this->id,
+										'use_default'	=> 1,
+									 );
+					} else {
+						// Inseting into an alternate context. (Strange...)
+						// Set up the row, set as broken away from default
+						$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) VALUES (:attrid, :contextid, :custom_val, :assetid, :use_default)');
+						$bind_vars = Array(
+										'custom_val'	=> $attr_value,
+										'contextid'		=> $contextid,
+										'attrid'		=> $attr_id,
+										'assetid'		=> $this->id,
+										'use_default'	=> 0,
+									 );
+					}
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+					}
+					MatrixDAL::execPdoQuery($prepared);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 
-			}//end new custom attribute values
+			}//end foreach
 
-			// if we get this far, then commit this context
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		}//end foreach context in vars_set
+		}//end new custom attribute values
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
@@ -3058,15 +3105,12 @@ class Asset extends MySource_Object
 
 		if (!empty($this->_tmp['vars_set'])) {
 			// prepare to broadcast the attributes_changed
-			foreach ($this->_tmp['vars_set'] as $contextid => $attrs) {
-				foreach ($attrs as $attr => $details) {
-					$changed_vars[$attr] = Array(
-											'contextid'	=> $contextid,
-											'type'		=> $this->vars[$attr]['type'],
-											'old_value'	=> $details['old_value'],
-											'new_value'	=> $this->attr($attr),
-										   );
-				}
+			foreach ($this->_tmp['vars_set'] as $attr => $details) {
+				$changed_vars[$attr] = Array(
+										'type'		=> $this->vars[$attr]['type'],
+										'old_value'	=> $details['old_value'],
+										'new_value'	=> $this->attr($attr),
+									   );
 			}
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_changed', $this, $changed_vars);
 		}
@@ -3089,47 +3133,23 @@ class Asset extends MySource_Object
 	* This function sets the value of the attribute locally, but does not database updating.
 	* The change is queued awaiting the call of saveAttributes()
 	*
-	* If we are in the middle of creating this asset while an alternate
-	* context is active (or selected via parameter), this function will
-	* also set the attribute in the default context to the specified value.
-	*
-	* @param string	$name		the name of the attribute
-	* @param string	$value		the new value of the attribute
-	* @param int	$contextid	the ID of the context in which we are
-	*							setting this attribute (defaults to
-	*							currently active context).
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
 	* @see saveAttributes()
 	*/
-	public function setAttrValue($name, $value, $contextid=NULL)
+	public function setAttrValue($name, $value)
 	{
-		if (func_num_args() === 2) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
-		if (((boolean)array_get_index($this->vars[$name], 'is_contextable', FALSE)) === FALSE) {
-			// This attribute does NOT vary based on context. Therefore,
-			// always redirect it to the default context.
-			$contextid = 0;
-		}
-		$attribute = $this->getAttribute($name, $contextid);
+		$attribute = $this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);
-			// Revert to the old value, whatever that is
-			if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
-				$old_value = $this->vars[$name]['value'][$contextid];
-			} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === TRUE)) {
-				$old_value = $this->vars[$name]['value'][0];
-			} else {
-				$old_value = $this->vars[$name]['value']['default'];
-			}
-			$attribute->setValue($old_value);
+			$attribute->setValue($this->vars[$name]['value']);
 			return FALSE;
 		}
 
@@ -3140,20 +3160,7 @@ class Asset extends MySource_Object
 		// if the value being set is the same as the current value - don't do anything
 		// take into consideration Oracle's treatment of empty strings - they are retrieved as NULL values
 		// this condition is satisfied when assigning an empty string in place of a pre-existing NULL value in the case of Oracle systems
-		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
-			if (($this->vars[$name]['value'][$contextid] === $value) || (is_null($this->vars[$name]['value'][$contextid]) && $value === '')) {
-				return TRUE;
-			}
-		}
-
-		// Do not save a default context value if it's being set to the
-		// base default for the first time.
-		// Reduces the problem where setting this triggers update events (incl.
-		// uniq attr checks, content updates) - which wouldn't have happened
-		// before. It's not a var-change after all.
-		// This can't happen in alternate contexts, because it needs to stay
-		// the same regardless of changes to default context.
-		if (($contextid === 0) && ($this->isAttrSetInContext($name, 0) === FALSE) && ($value === $this->vars[$name]['value']['default'])) {
+		if (($this->vars[$name]['value'] === $value) || (is_null($this->vars[$name]['value']) && $value === '')) {
 			return TRUE;
 		}
 
@@ -3167,9 +3174,9 @@ class Asset extends MySource_Object
 						INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
 					  ';
 			$where = ' uv.custom_val =    :custom_val
-						AND uv.contextid = :contextid
 						AND a.name =      :name
-						AND a.type_code = :type_code';
+						AND a.type_code = :type_code
+						AND uv.contextid = :contextid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
 
 			try {
@@ -3177,7 +3184,7 @@ class Asset extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'custom_val', $value);
 				MatrixDAL::bindValueToPdo($query, 'name',       $name);
 				MatrixDAL::bindValueToPdo($query, 'type_code',  $this->type());
-				MatrixDAL::bindValueToPdo($query, 'contextid',  $contextid);
+				MatrixDAL::bindValueToPdo($query, 'contextid',  $GLOBALS['SQ_SYSTEM']->getContextId());
 				$result = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Cannot check for unique attribute value "'.$name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
@@ -3185,7 +3192,7 @@ class Asset extends MySource_Object
 
 			if ((int) $result > 0) {
 				trigger_localised_error('SYS0251', E_USER_WARNING, $name, $value);
-				$attribute->setValue($this->vars[$name]['value'][$contextid]);
+				$attribute->setValue($this->vars[$name]['value']);
 				return FALSE;
 			}
 
@@ -3194,28 +3201,15 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['vars_set'])) {
 			$this->_tmp['vars_set'] = Array();
 		}
-
-		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
-			$old_value = $this->vars[$name]['value'][$contextid];
-		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === TRUE)) {
-			$old_value = $this->vars[$name]['value'][0];
+		if (is_scalar($this->vars[$name]['value'])) {
+			$this->_tmp['vars_set'][$name]['old_value'] = $this->vars[$name]['value'];
 		} else {
-			$old_value = $this->vars[$name]['value']['default'];
+			$this->_tmp['vars_set'][$name]['old_value'] = '__(old value)__';
 		}
 
-		if (is_scalar($old_value)) {
-			// vars_set is being ordered by context first to simplify matters
-			// once we get to saveAttributes()
-			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = $old_value;
-		} else {
-			$this->_tmp['vars_set'][$contextid][$name]['old_value'] = '__(old value)__';
-		}
+		$this->vars[$name]['value'] = $value;
 
-		$this->vars[$name]['value'][$contextid] = $value;
 
-		if (((!$this->id) || (isset($this->_tmp['creating']) === TRUE)) && ($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === FALSE)) {
-			$this->setAttrValue($name, $value, 0);
-		}
 
 		return TRUE;
 
@@ -3223,76 +3217,20 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Determines whether an attribute has been given a custom value in
-	* the specified context.
-	*
-	* If the context ID is omitted or is NULL, the current context ID
-	* will be used.
-	*
-	* @param string	$attr_name	The name of the attribute to test
-	* @param int	$contextid	The context ID to check for (defaults
-	*							to the active context).
-	*
-	* @return boolean
-	*/
-	public function isAttrSetInContext($attr_name, $contextid=NULL)
-	{
-		if ($contextid === NULL) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
-		return array_key_exists($contextid, $this->vars[$attr_name]['value']) ? TRUE : FALSE;
-
-	}//end isAttrSetInContext()
-
-
-	/**
 	* Get the value of an attribute
 	*
-	* When getting the value of an attribute in an alternate context,
-	* the value used is the first of the following values found:
-	* <ul>
-	* <li>The attribute's value in the alternate context selected,</li>
-	* <li>The attribute's value in the default context,</li>
-	* <li>The attribute's base default value.</li>
-	* </ul>
+	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @param string	$name		the name of the attribute whose value
-	*							you want to get
-	* @param int	$contextid	The context to use when getting the
-	*							attribute value (defaults to the
-	*							currently active context).
-	*
-	* @see Asset::attrByRef()
 	* @return mixed string|NULL
 	* @access public
 	*/
-	public function attr($name, $contextid=NULL)
+	public function attr($name)
 	{
-		if (func_num_args() === 1) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
 			return NULL;
 		}
-		
-		$is_contextable = (boolean)array_get_index($this->vars[$name], 'is_contextable', FALSE);
-		if ($is_contextable === FALSE) {
-			// This attribute does NOT vary based on context. Therefore,
-			// always redirect it to the default context.
-			$contextid = 0;
-		}
-
-
-		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
-			return $this->vars[$name]['value'][$contextid];
-		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) === TRUE)) {
-			return $this->vars[$name]['value'][0];
-		} else {
-			return $this->vars[$name]['value']['default'];
-		}
+		return $this->vars[$name]['value'];
 
 	}//end attr()
 
@@ -3300,49 +3238,18 @@ class Asset extends MySource_Object
 	/**
 	* Get the value of an attribute by reference
 	*
-	* When getting the value of an attribute in an alternate context,
-	* the value used is the first of the following values found:
-	* <ul>
-	* <li>The attribute's value in the alternate context selected,</li>
-	* <li>The attribute's value in the default context,</li>
-	* <li>The attribute's base default value.</li>
-	* </ul>
+	* @param string	$name	the name of the attribute whose value you want to get
 	*
-	* @param string	$name		the name of the attribute whose value
-	*							you want to get
-	* @param int	$contextid	The context to use when getting the
-	*							attribute value (defaults to the
-	*							currently active context).
-	*
-	* @see Asset::attr()
 	* @return mixed object|NULL
 	* @access public
 	*/
-	public function &attrByRef($name, $contextid=NULL)
+	public function &attrByRef($name)
 	{
-		if (func_num_args() === 1) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
-			$null = NULL;
-			return $null;
+			return NULL;
 		}
-		
-		if (((boolean)$this->vars[$name]['is_contextable']) === FALSE) {
-			// This attribute does NOT vary based on context. Therefore,
-			// always redirect it to the default context.
-			$contextid = 0;
-		}
-
-		if ($this->isAttrSetInContext($name, $contextid) === TRUE) {
-			return $this->vars[$name]['value'][$contextid];
-		} else if (($contextid !== 0) && ($this->isAttrSetInContext($name, 0) == TRUE)) {
-			return $this->vars[$name]['value'][0];
-		} else {
-			return $this->vars[$name]['value']['default'];
-		}
+		return $this->vars[$name]['value'];
 
 	}//end attrByRef()
 
@@ -3354,19 +3261,13 @@ class Asset extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
 	*									because you can't use the '@' operator when
 	*									returning by reference
-	* @param int		$contextid		Fill the attribute object with the value from this
-	*									context ID (defaults to currently active context).
 	*
 	* @return mixed object|NULL
 	* @access public
 	*/
-	public function getAttribute($name, $mute_errors=FALSE, $contextid=NULL)
+	public function getAttribute($name, $mute_errors=FALSE)
 	{
-		if (func_num_args() < 3) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
-		if (!isset($this->_tmp['attributes'][$name][$contextid]) || !is_object($this->_tmp['attributes'][$name][$contextid])) {
+		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
 
 			if (empty($this->_tmp['attributes'])) {
 				$this->_tmp['attributes'] = Array();
@@ -3377,32 +3278,18 @@ class Asset extends MySource_Object
 					trigger_localised_error('SYS0094', E_USER_WARNING, $name, $this->type());
 				}
 
-				$this->_tmp['attributes'][$name][$contextid] = NULL;
+				$this->_tmp['attributes'][$name] = NULL;
 			} else {
-				if (((boolean)array_get_index($this->vars[$name], 'is_contextable', FALSE)) === FALSE) {
-					// This attribute does NOT vary based on context. Therefore,
-					// always redirect it to the default context.
-					$use_contextid = 0;
-				} else {
-					$use_contextid = $contextid;
-				}
-			
+
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
-				if ($this->isAttrSetInContext($name, $use_contextid) === FALSE) {
-					if (($use_contextid === 0) || ($this->isAttrSetInContext($name, 0) === FALSE)) {
-						$use_contextid = 'default';
-					} else {
-						$use_contextid = 0;
-					}
-				}
-				$this->_tmp['attributes'][$name][$contextid] = new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value'][$use_contextid]);
+				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
 
 			}//end if
 
 		}//end if
 
-		return $this->_tmp['attributes'][$name][$contextid];
+		return $this->_tmp['attributes'][$name];
 
 	}//end getAttribute()
 
@@ -4072,7 +3959,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	public function canLiveEdit($lock_type)
+	public function canliveEdit($lock_type)
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (!$this->id) return TRUE;
@@ -4100,6 +3987,7 @@ class Asset extends MySource_Object
 		// must be the only concerned user to be able to live edit
 		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 		if ($wf_complete) return TRUE;
+
 		return FALSE;
 
 	}//end canliveEdit()

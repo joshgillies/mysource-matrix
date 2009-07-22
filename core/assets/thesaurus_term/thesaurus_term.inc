@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.21 2009/07/15 06:35:05 lwright Exp $
+* $Id: thesaurus_term.inc,v 1.22 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,14 +250,12 @@ class Thesaurus_Term extends Asset
 
 			if (!empty($this->_tmp['vars_set'])) {
 				// prepare to broadcast the attributes_changed
-				foreach ($this->_tmp['vars_set'] as $contextid => $var_data) {
-					foreach ($var_data as $attr => $details) {
-						$changed_vars[$attr] = Array(
-												'type'		=> $this->vars[$attr]['type'],
-												'old_value'	=> $details['old_value'],
-												'new_value'	=> $this->attr($attr, $contextid),
-											   );
-					}
+				foreach ($this->_tmp['vars_set'] as $attr => $details) {
+					$changed_vars[$attr] = Array(
+											'type'		=> $this->vars[$attr]['type'],
+											'old_value'	=> $details['old_value'],
+											'new_value'	=> $this->attr($attr),
+										   );
 				}
 				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_changed', $this, $changed_vars);
 			}

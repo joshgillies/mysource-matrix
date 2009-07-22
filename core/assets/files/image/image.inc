@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.75 2009/07/16 00:52:04 lwright Exp $
+* $Id: image.inc,v 1.76 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -311,8 +311,7 @@ class Image extends File implements Bridge
 		}
 		$varieties['data'][$varietyid] = Array();
 		foreach ($variety->vars as $attr_name => $attr_data) {
-			$use_contextid = (isset($attr_data['value'][0]) === TRUE) ? 0 : 'default';
-			$varieties['data'][$varietyid][$attr_name] = $attr_data['value'][$use_contextid];
+			$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 		}
 
 		if (!$this->setAttrValue('varieties', $varieties)) {
@@ -336,7 +335,7 @@ class Image extends File implements Bridge
 
 			// Now get the variables again because updateImage() can update stuff
 			foreach ($variety->vars as $attr_name => $attr_data) {
-				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'][0];
+				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 			}
 			if (!$this->setAttrValue('varieties', $varieties)) {
 				return FALSE;

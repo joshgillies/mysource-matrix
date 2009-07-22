@@ -1648,6 +1648,21 @@
 		</primary>
 	</query>
 
+	<query id="getContextByName">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ctx_def" column="contextid" />
+				</fields>
+				<from>
+					<table>sq_ctx_def</table>
+				</from>
+				<where>
+					<equal table="sq_ctx_def" column="name">:name</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
 	<query id="getContexts">
 		<primary>
 			<select>
@@ -1690,6 +1705,67 @@
 		</alternate>
 	</query>
 
+	<!-- Copy existing attribute data for the default context into a new alternate
+	     context. These new values are marked as "using default". -->
+	<query id="copyContextAttributeData">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_val">
+					<field>assetid</field>
+					<field>attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<select>
+					<fields>
+						<field table="sq_ast_attr_val" column="assetid" />
+						<field table="sq_ast_attr_val" column="attrid" />
+						<value>:contextid</value>
+						<field table="sq_ast_attr_val" column="custom_val" />
+						<value>1</value>
+					</fields>
+					<from>
+						<table>sq_ast_attr_val</table>
+					</from>
+					<where>
+						<equal table="sq_ast_attr_val" column="contextid">0</equal>
+					</where>
+				</select>
+			</insert>
+		</primary>
+	</query>
+
+	<!-- Copy existing UNIQUE attribute data for the default context into a new alternate
+	     context. These new values are marked as "using default". -->
+	<query id="copyContextUniqueAttributeData">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_uniq_val">
+					<field>assetid</field>
+					<field>owning_attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<select>
+					<fields>
+						<field table="sq_ast_attr_uniq_val" column="assetid" />
+						<field table="sq_ast_attr_uniq_val" column="owning_attrid" />
+						<value>:contextid</value>
+						<field table="sq_ast_attr_uniq_val" column="custom_val" />
+						<value>1</value>
+					</fields>
+					<from>
+						<table>sq_ast_attr_uniq_val</table>
+					</from>
+					<where>
+						<equal table="sq_ast_attr_uniq_val" column="contextid">0</equal>
+					</where>
+				</select>
+			</insert>
+		</primary>
+	</query>
 	<query id="createContext">
 		<primary>
 			<insert>
@@ -1748,6 +1824,15 @@
 			<delete>
 				<where>
 					<in table="sq_ast_attr_val" column="contextid">:contextids</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteContextUniqueAttributeData">
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_attr_uniq_val" column="contextid">:contextids</in>
 				</where>
 			</delete>
 		</primary>

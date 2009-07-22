@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.48 2009/07/12 23:33:08 lwright Exp $
+* $Id: image_variety.inc,v 1.49 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Image_Variety extends Asset
 
 		foreach ($data as $attr_name => $attr_value) {
 			if (!isset($this->vars[$attr_name])) continue;
-			$this->vars[$attr_name]['value'][0] = ($this->vars[$attr_name]['type'] == 'serialise') ? unserialize($attr_value) : $attr_value;
+			$this->vars[$attr_name]['value'] = ($this->vars[$attr_name]['type'] == 'serialise') ? unserialize($attr_value) : $attr_value;
 		}
 
 		// set general object properties, now we have the name of the thing

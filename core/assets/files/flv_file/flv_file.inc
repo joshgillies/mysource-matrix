@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.2 2009/07/12 23:33:08 lwright Exp $
+* $Id: flv_file.inc,v 1.3 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class FLV_File extends File
 		//make asset_attribute_<metadata_name> keywords available
 		$metadata = $this->attr('attributes');
 		foreach ($metadata as $meta_name => $meta_val) {
-			$this->vars[$meta_name] = Array('value' => Array(0 => $meta_val), 'type' => 'text', 'attrid' => 0);
+			$this->vars[$meta_name] = Array('value' => $meta_val, 'type' => 'text', 'attrid' => 0);
 		}
 
 	}//end constructor

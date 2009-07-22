@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.36 2009/07/20 01:17:55 lwright Exp $
+* $Id: form_question.inc,v 1.37 2009/07/22 01:23:53 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,21 +123,21 @@ class Form_Question extends Asset
 			$this->vars[$attribute_name]['type'] = $asset_attribute['type'];
 			$this->vars[$attribute_name]['attrid'] = $asset_attribute['attrid'];
 			if (isset($data['attributes'][$attribute_name])) {
-				$this->vars[$attribute_name]['value'][0] = (($asset_attribute['type'] == 'serialise') ? unserialize($data['attributes'][$attribute_name]) : $data['attributes'][$attribute_name]);
+				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($data['attributes'][$attribute_name]) : $data['attributes'][$attribute_name]);
 			} else {
-				$this->vars[$attribute_name]['value'][0] = (($asset_attribute['type'] == 'serialise') ? unserialize($asset_attribute['default_val']) : $asset_attribute['default_val']);
+				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($asset_attribute['default_val']) : $asset_attribute['default_val']);
 			}
 		}
 
 		// set general object properties, now we have the name of the thing
 		$this->id = $formid.':q'.$this->_questionid;
-		$this->name = $this->vars['name']['value'][0];
+		$this->name = $this->vars['name']['value'];
 		$this->short_name = $this->name;
 		$this->status = $form->status;
 		$this->version = '0.1';
 
 		// set variable values
-		$this->vars['question_type_code']['value'][0] = get_class_lower($this);
+		$this->vars['question_type_code']['value'] = get_class_lower($this);
 		$this->vars['question_type_code']['type'] = 'text';
 
 	}//end constructor
@@ -212,7 +212,7 @@ class Form_Question extends Asset
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
-			MatrixDAL::bindValueToPdo($query, 'type_code', $this->vars['question_type_code']['value'][0]);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $this->vars['question_type_code']['value']);
 			$existing = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Can not get default val and name base on type code due to the following database error	'.$e->getMessage());
