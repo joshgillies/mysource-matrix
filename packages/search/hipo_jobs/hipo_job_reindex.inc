@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.30 2008/11/25 05:03:12 mbrydon Exp $
+* $Id: hipo_job_reindex.inc,v 1.31 2009/07/22 09:26:16 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -235,8 +235,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			if (is_null($sm)) return FALSE;
 
 			// get next asset to reindex
-			$array_keys = array_keys($this->_running_vars['todo_assetids']);
-			$assetid = array_shift($array_keys);
+			reset($this->_running_vars['todo_assetids']);
+			$assetid = key($this->_running_vars['todo_assetids']);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
