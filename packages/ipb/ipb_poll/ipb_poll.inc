@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_poll.inc,v 1.5 2009/07/12 23:49:17 lwright Exp $
+* $Id: ipb_poll.inc,v 1.6 2009/07/22 04:09:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -105,31 +105,31 @@ class Ipb_Poll extends Asset
 
 		if ($this->_suffix != '0') {
 			$this->vars['pid']['type'] = 'int';
-			$this->vars['pid']['value'][0] = $data['pid'];
+			$this->vars['pid']['value'] = $data['pid'];
 
 			$this->vars['tid']['type'] = 'int';
-			$this->vars['tid']['value'][0] = $data['tid'];
+			$this->vars['tid']['value'] = $data['tid'];
 
 			$this->vars['start_date']['type'] = 'int';
-			$this->vars['start_date']['value'][0] = $data['start_date'];
+			$this->vars['start_date']['value'] = $data['start_date'];
 
 			$this->vars['choices']['type'] = 'text';
-			$this->vars['choices']['value'][0] = $data['choices'];
+			$this->vars['choices']['value'] = $data['choices'];
 
 			$this->vars['starter_id']['type'] = 'int';
-			$this->vars['starter_id']['value'][0] = $data['starter_id'];
+			$this->vars['starter_id']['value'] = $data['starter_id'];
 
 			$this->vars['votes']['type'] = 'int';
-			$this->vars['votes']['value'][0] = $data['votes'];
+			$this->vars['votes']['value'] = $data['votes'];
 
 			$this->vars['forum_id']['type'] = 'int';
-			$this->vars['forum_id']['value'][0] = $data['forum_id'];
+			$this->vars['forum_id']['value'] = $data['forum_id'];
 
 			$this->vars['poll_question']['type'] = 'text';
-			$this->vars['poll_question']['value'][0] = $data['poll_question'];
+			$this->vars['poll_question']['value'] = $data['poll_question'];
 
 			$this->vars['poll_state']['type'] = 'text';
-			$this->vars['poll_state']['value'][0] = $data['poll_state'];
+			$this->vars['poll_state']['value'] = $data['poll_state'];
 		}
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.76 2009/07/12 23:50:16 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.77 2009/07/22 04:09:55 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1435,13 +1435,13 @@ class LDAP_Bridge extends Asset implements Bridge
 				if (isset($value['count'])) unset($value['count']);
 				if (count($value) > 1) {
 					$user->vars[$key] = Array(
-											'value'		=> Array('0' => $value),
+											'value'		=> $value,
 											'type'		=> 'serialise',
 											'attrid'	=> 0,
 										);
 				} else {
 					$user->vars[$key] = Array(
-											'value'		=> Array('0' => array_shift($value)),
+											'value'		=> array_shift($value),
 											'type'		=> 'text',
 											'attrid'	=> 0,
 										);
@@ -1453,37 +1453,37 @@ class LDAP_Bridge extends Asset implements Bridge
 		$user->_loadDataPaths();
 
 		// set variable values
-		$user->vars['dn']['value'] = Array('0' => $data['dn']);
+		$user->vars['dn']['value'] = $data['dn'];
 		$user->vars['dn']['type'] = 'text';
 
 		if (isset($attrs['uid']) && isset($data[$attrs['uid']])) {
-			$user->vars['username']['value'] = Array('0' => $data[$attrs['uid']][0]);
+			$user->vars['username']['value'] = $data[$attrs['uid']][0];
 		} else {
-			$user->vars['username']['value'] = Array('0' => $data['dn']);
+			$user->vars['username']['value'] = $data['dn'];
 		}
 
 		$user->vars['username']['type'] = 'text';
 
 		if (isset($attrs['email']) && isset($data[$attrs['email']])) {
-			$user->vars['email']['value'] = Array('0' => $data[$attrs['email']][0]);
+			$user->vars['email']['value'] = $data[$attrs['email']][0];
 		} else {
-			$user->vars['email']['value'] = Array('0' => '');
+			$user->vars['email']['value'] = '';
 		}
 
 		$user->vars['email']['type'] = 'email';
 
 		if (isset($attrs['fn']) && isset($data[$attrs['fn']])) {
-			$user->vars['first_name']['value'] = Array('0' => $data[$attrs['fn']][0]);
+			$user->vars['first_name']['value'] = $data[$attrs['fn']][0];
 		} else {
-			$user->vars['first_name']['value'] = Array('0' => '');
+			$user->vars['first_name']['value'] = '';
 		}
 
 		$user->vars['first_name']['type'] = 'text';
 
 		if (isset($attrs['sn']) && isset($data[$attrs['sn']])) {
-			$user->vars['last_name']['value'] = Array('0' => $data[$attrs['sn']][0]);
+			$user->vars['last_name']['value'] = $data[$attrs['sn']][0];
 		} else {
-			$user->vars['last_name']['value'] = Array('0' => '');
+			$user->vars['last_name']['value'] = '';
 		}
 
 		$user->vars['last_name']['type'] = 'text';

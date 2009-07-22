@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user_group.inc,v 1.6 2009/07/12 23:49:18 lwright Exp $
+* $Id: ipb_user_group.inc,v 1.7 2009/07/22 04:09:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -96,7 +96,7 @@ class Ipb_User_Group extends User_Group
 		$this->_loadDataPaths();
 
 		$this->vars['name']['type'] = 'text';
-		$this->vars['name']['value'][0] = (empty($data['name'])) ? 'none' : $data['name'];
+		$this->vars['name']['value'] = (empty($data['name'])) ? 'none' : $data['name'];
 
 		if ($this->_suffix != '0') {
 
@@ -116,9 +116,9 @@ class Ipb_User_Group extends User_Group
 							if (!empty($tmp[2])) {
 								$value .= ', Max Height (px): '.$tmp[2];
 							}//end if
-							$this->vars[$key]['value'][0] = $value;
+							$this->vars[$key]['value'] = $value;
 						} else {
-							$this->vars[$key]['value'][0] = '0';
+							$this->vars[$key]['value'] = '0';
 						}//end if
 					break;
 
@@ -132,9 +132,9 @@ class Ipb_User_Group extends User_Group
 							if ($tmp[1] != '0') {
 								$value .= ' and only allow 1 email every '.$tmp[1].' minutes';
 							}
-							$this->vars[$key]['value'][0] = $value;
+							$this->vars[$key]['value'] = $value;
 						} else {
-							$this->vars[$key]['value'][0] = 'No';
+							$this->vars[$key]['value'] = 'No';
 						}
 
 					break;
@@ -151,12 +151,12 @@ class Ipb_User_Group extends User_Group
 						if ($tmp[1] != '-1') {
 							$value .= ' when they reach '.$tmp[1].' posts';
 						}
-						$this->vars['g_promotion']['value'][0] = $value;
+						$this->vars['g_promotion']['value'] = $value;
 
 					break;
 
 					default:
-						$this->vars[$key]['value'][0] = $data[$key];
+						$this->vars[$key]['value'] = $data[$key];
 					break;
 
 				}//end switch

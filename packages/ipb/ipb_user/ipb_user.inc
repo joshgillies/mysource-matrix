@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user.inc,v 1.8 2009/07/12 23:49:18 lwright Exp $
+* $Id: ipb_user.inc,v 1.9 2009/07/22 04:09:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -89,79 +89,79 @@ class Ipb_User extends Backend_User
 
 		// set variable values
 		$this->vars['mgroup']['type']	= 'text';
-		$this->vars['mgroup']['value'][0]	= (empty($data['mgroup'])) ? 'none' : $data['mgroup'];
+		$this->vars['mgroup']['value']	= (empty($data['mgroup'])) ? 'none' : $data['mgroup'];
 
 		$this->vars['name']['type']		= 'text';
-		$this->vars['name']['value'][0]	= (empty($data['name'])) ? 'none' : $data['name'];
+		$this->vars['name']['value']	= (empty($data['name'])) ? 'none' : $data['name'];
 
 		$this->vars['email']['type']	= 'email';
-		$this->vars['email']['value'][0]	= (empty($data['email'])) ? 'none' : $data['email'];
+		$this->vars['email']['value']	= (empty($data['email'])) ? 'none' : $data['email'];
 
 		$this->vars['title']['type']	= 'text';
-		$this->vars['title']['value'][0]	= (empty($data['title'])) ? 'none' : $data['title'];
+		$this->vars['title']['value']	= (empty($data['title'])) ? 'none' : $data['title'];
 
 		$this->vars['member_login_key']['type']		= 'text';
-		$this->vars['member_login_key']['value'][0]	= (empty($data['member_login_key'])) ? 'none' : $data['member_login_key'];
+		$this->vars['member_login_key']['value']	= (empty($data['member_login_key'])) ? 'none' : $data['member_login_key'];
 
 		$day_empty = empty($data['bday_day']);
 		$month_empty = empty($data['bday_month']);
 		$year_empty = empty($data['bday_year']);
 		$this->vars['date_of_birth']['type'] = 'text';
 		if ($day_empty || $month_empty || $year_empty) {
-			$this->vars['date_of_birth']['value'][0] = 'none';
+			$this->vars['date_of_birth']['value'] = 'none';
 		} else {
-			$this->vars['date_of_birth']['value'][0] = $data['bday_day'].' / '.$data['bday_month'].' / '.$data['bday_year'];
+			$this->vars['date_of_birth']['value'] = $data['bday_day'].' / '.$data['bday_month'].' / '.$data['bday_year'];
 		}
 
 		if (isset($data['photo_type'])) {
-			$this->vars['photo_type']['value'][0]	= $data['photo_type'];
+			$this->vars['photo_type']['value']	= $data['photo_type'];
 		} else {
-			$this->vars['photo_type']['value'][0]	= '';
+			$this->vars['photo_type']['value']	= '';
 		}
 		$this->vars['photo_type']['type']       = 'text';
 
 		if (isset($data['photo_location'])) {
-			$this->vars['photo_location']['value'][0]	= $data['photo_location'];
+			$this->vars['photo_location']['value']	= $data['photo_location'];
 		} else {
-			$this->vars['photo_location']['value'][0]  = '';
+			$this->vars['photo_location']['value']  = '';
 		}
 		$this->vars['photo_location']['type']   = 'text';
 
 		$this->vars['aim_name']['type']			= 'text';
-		$this->vars['aim_name']['value'][0]		= (empty($data['aim_name'])) ? 'none' : $data['aim_name'];
+		$this->vars['aim_name']['value']		= (empty($data['aim_name'])) ? 'none' : $data['aim_name'];
 
 		$this->vars['icq_number']['type']		= 'text';
-		$this->vars['icq_number']['value'][0]		= (empty($data['icq_number'])) ? 'none' : $data['icq_number'];
+		$this->vars['icq_number']['value']		= (empty($data['icq_number'])) ? 'none' : $data['icq_number'];
 
 		$this->vars['website']['type']			= 'text';
-		$this->vars['website']['value'][0]			= (empty($data['website'])) ? 'none' : $data['website'];
+		$this->vars['website']['value']			= (empty($data['website'])) ? 'none' : $data['website'];
 
 		$this->vars['yahoo']['type']			= 'text';
-		$this->vars['yahoo']['value'][0]			= (empty($data['yahoo'])) ? 'none' : $data['yahoo'];
+		$this->vars['yahoo']['value']			= (empty($data['yahoo'])) ? 'none' : $data['yahoo'];
 
 		$this->vars['interests']['type']		= 'text';
-		$this->vars['interests']['value'][0]		= (empty($data['interests'])) ? 'none' : html_entity_decode($data['interests']);
+		$this->vars['interests']['value']		= (empty($data['interests'])) ? 'none' : html_entity_decode($data['interests']);
 
 		$this->vars['msnname']['type']			= 'text';
-		$this->vars['msnname']['value'][0]			= (empty($data['msnname'])) ? 'none' : $data['msnname'];
+		$this->vars['msnname']['value']			= (empty($data['msnname'])) ? 'none' : $data['msnname'];
 
 		$this->vars['vdirs']['type']			= 'text';
-		$this->vars['vdirs']['value'][0]			= (empty($data['vdirs'])) ? 'none' : $data['vdirs'];
+		$this->vars['vdirs']['value']			= (empty($data['vdirs'])) ? 'none' : $data['vdirs'];
 
 		$this->vars['location']['type']			= 'text';
-		$this->vars['location']['value'][0]		= (empty($data['location'])) ? 'none' : $data['location'];
+		$this->vars['location']['value']		= (empty($data['location'])) ? 'none' : $data['location'];
 
 		$this->vars['signature']['type']		= 'text';
-		$this->vars['signature']['value'][0]		= (empty($data['signature'])) ? 'none' : $data['signature'];
+		$this->vars['signature']['value']		= (empty($data['signature'])) ? 'none' : $data['signature'];
 
 		$this->vars['avatar_location']['type']	= 'text';
-		$this->vars['avatar_location']['value'][0]	= (empty($data['avatar_location'])) ? 'none' : $data['avatar_location'];
+		$this->vars['avatar_location']['value']	= (empty($data['avatar_location'])) ? 'none' : $data['avatar_location'];
 
 		$this->vars['avatar_size']['type']		= 'text';
-		$this->vars['avatar_size']['value'][0]		= (empty($data['avatar_size'])) ? 'none' : $data['avatar_size'];
+		$this->vars['avatar_size']['value']		= (empty($data['avatar_size'])) ? 'none' : $data['avatar_size'];
 
 		$this->vars['avatar_type']['type']		= 'text';
-		$this->vars['avatar_type']['value'][0]		= (empty($data['avatar_type'])) ? 'none' : $data['avatar_type'];
+		$this->vars['avatar_type']['value']		= (empty($data['avatar_type'])) ? 'none' : $data['avatar_type'];
 
 		// custom fields
 		$ipb =& $ipb_bridge->getIpbConn();
@@ -171,7 +171,7 @@ class Ipb_User extends Backend_User
 			$field_name = strtolower($field['pf_title']);
 			$field_name = str_replace(' ', '_', $field_name);
 			$field_value = (isset($user_custom_data[0]['field_'.$field['pf_id']]) ? $user_custom_data[0]['field_'.$field['pf_id']] : '');
-			$this->vars[$field_name]['value'][0] = $field_value;
+			$this->vars[$field_name]['value'] = $field_value;
 			$this->vars[$field_name]['type'] = 'text';
 		}
 
