@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.37 2009/07/22 01:23:53 lwright Exp $
+* $Id: form_question.inc,v 1.38 2009/07/22 05:47:19 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,14 +220,14 @@ class Form_Question extends Asset
 
 		// check against default values; we don't need to save that attribute if it is
 		foreach ($existing as $name => $default_val) {
-			if ($saved_vars[$name]['value'][0] == $default_val['0']['default_val']) {
+			if ($saved_vars[$name]['value'] == $default_val['0']['default_val']) {
 				unset($saved_vars[$name]);
 			}
 		}//end foreach
 
 		// only save the values
 		foreach ($saved_vars as $attr_id => $saved_var) {
-			$saved_vars_ser[$attr_id] = (($saved_vars[$attr_id]['type'] == 'serialise') ? serialize($saved_vars[$attr_id]['value'][0]) : $saved_vars[$attr_id]['value'][0]);
+			$saved_vars_ser[$attr_id] = (($saved_vars[$attr_id]['type'] == 'serialise') ? serialize($saved_vars[$attr_id]['value']) : $saved_vars[$attr_id]['value']);
 		}
 
 
