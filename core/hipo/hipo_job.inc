@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.100 2009/07/20 01:10:50 bpearson Exp $
+* $Id: hipo_job.inc,v 1.101 2009/07/22 09:23:07 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1429,7 +1429,7 @@ class HIPO_Job extends MySource_Object
 					// Full save point or job is finished
 					$this->save(FALSE, $progress);
 					$prev_percent = $current_percent;
-				} else if (($current_percent != $prev_percent) && ($current_percent % 1 == 0)) {
+				} else if ($current_percent != $prev_percent) {
 					// Save the progress
 					$this->saveProgress($progress);
 					$prev_percent = $current_percent;
