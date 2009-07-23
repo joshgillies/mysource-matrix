@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.115.2.1 2009/07/23 05:09:46 cupreti Exp $
+* $Id: site.inc,v 1.115.2.2 2009/07/23 05:18:23 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115.2.1 $
+* @version $Revision: 1.115.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -519,7 +519,6 @@ class Site extends Folder
 
 		// if we have urls then do some url inserting
 		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
-			log_dump($urls);
 			
 			// merge old paint layout lookup values with design values for inserting into the lookup_value table later
 			// i.e. designs are set on an asset basis, not on a URL basis like paint layouts
