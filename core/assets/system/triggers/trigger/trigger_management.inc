@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_management.inc,v 1.8 2009/06/11 06:54:16 wszymanski Exp $
+* $Id: trigger_management.inc,v 1.9 2009/07/23 02:46:17 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * Trigger_Management
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,7 +100,7 @@ class Trigger_Management extends Asset_Management
 					  );
 
 	}//end constructor
-	
+
 
 	/**
 	* Upgrade script
@@ -131,6 +131,29 @@ class Trigger_Management extends Asset_Management
 				$trigger->saveAttributes();
 			}
 		}//end if version 0.3
+
+		if (version_compare($current_version, '0.4', '<')) {
+			pre_echo('UPGRADING TRIGGER ASSETS - FROM VERSION '.$current_version);
+			$trigger_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trigger_manager');
+			$children = $trigger_manager->getTriggerList();
+			foreach ($children as $trigger_data) {
+				$trigger = $trigger_manager->getAsset($trigger_data['id']);
+				$actions = $trigger->attr('actions');
+				foreach ($actions as $index => $action) {
+					if (isset($action['type']) && $action['type'] == 'trigger_action_set_thumbnail') {
+						$data = array_get_index($action, 'data', Array());
+						if (isset($data['index'])) {
+							$parameter_map = Array( 'thumbnail' => Array( Array( 'source' => 'GLOBALS', 'index' => 'thumbnail') ) );
+							$data['thumbnail'] = serialize($parameter_map);
+							unset($data['index']);
+							$actions[$index]['data'] = $data;
+						}//end if
+					}//end if
+				}//end foreach
+				$trigger->setAttrValue('actions', $actions);
+				$trigger->saveAttributes();
+			}
+		}//end if version 0.4
 
 		return TRUE;
 
