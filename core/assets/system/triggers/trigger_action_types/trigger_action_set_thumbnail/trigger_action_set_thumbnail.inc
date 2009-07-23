@@ -10,11 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thumbnail.inc,v 1.2 2008/04/22 06:02:43 bpearson Exp $
+* $Id: trigger_action_set_thumbnail.inc,v 1.2.4.1 2009/07/23 02:38:50 bpearson Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_ATTRIBUTES_PATH.'/parameter_map/parameter_map.inc';
 
 /**
 * Trigger Action Set Thumbnail
@@ -23,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author   Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,22 +66,11 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 		if (isset($settings['imageid']) && !empty($settings['imageid'])) {
 			$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['imageid']);
 		} else {
-			if (!empty($settings['index'])) {
-				$vars_index = $settings['index'];
-
-				// Grab the image id from the request vars, fail if nothing set
-				if (isset($_SESSION[$vars_index]) && (!(trim($_SESSION[$vars_index]) == ''))) {
-					$imageid = $_SESSION[$vars_index];
-				} else if (isset($_POST[$vars_index]) && (!(trim($_POST[$vars_index]) == ''))) {
-					$imageid = $_POST[$vars_index];
-				} else if (isset($_GET[$vars_index]) && (!(trim($_GET[$vars_index]) == ''))) {
-					$imageid = $_GET[$vars_index];
-				} else {
-					// Fail silently if nothing found
-					return TRUE;
-				}
-
-				$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($imageid);
+			$parameter_map_value = array_get_index($settings, 'thumbnail', serialize(Array()));
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+			$assetid = $atr_parameter_map->getParameterValue('thumbnail');
+			if (!empty($assetid)) {
+				$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			} else {
 				// Fail silently if empty
 				return TRUE;
@@ -120,17 +111,19 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set defaults
-		$settings['index']      = array_get_index($settings, 'index', '');
+		$settings['thumbnail']  = array_get_index($settings, 'thumbnail', Array());
 
-		if (!$write_access) {
-			$form_element_extras = 'disabled="disabled"';
-		} else {
-			$form_element_extras = '';
-		}
+		$pmap = new Asset_Attribute_Parameter_Map();
+		$pmap->setParameter('thumbnail', 'Set new Thumbnail');
+		$pmap->setValue($settings['thumbnail']);
 
 		// begin buffering basic options
 		ob_start();
-			text_box($prefix.'[index]', $settings['index'], '', '', FALSE, $form_element_extras);
+			// Save the prefix
+			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+			hidden_field($prefix.'[new_prefix]', $new_prefix);
+
+			echo $pmap->paint($new_prefix, !$write_access);
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
@@ -156,13 +149,13 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 			return translate('trigger_input_data_missing');
 		}
 
-		// check if the name, constrain, width and height are set
-		if (empty($request_data['index'])) {
-			return translate('trigger_thumbnail_index_cannot_be_empty');
-		}
+		// Get the prefix
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 
-		// save settings
-		$settings['index'] = $request_data['index'];
+		// check if the name, constrain, width and height are set
+		$pmap = new Asset_Attribute_Parameter_Map();
+		$pmap->process($new_prefix);
+		$settings['thumbnail'] = $pmap->value;
 
 		return FALSE;
 

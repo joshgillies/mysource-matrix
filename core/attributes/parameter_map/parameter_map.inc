@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.25.6.1 2009/06/12 05:09:19 bpearson Exp $
+* $Id: parameter_map.inc,v 1.25.6.2 2009/07/23 02:36:49 bpearson Exp $
 *
 */
 
@@ -45,9 +45,10 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 *		*SET VALUE: A value or global keyword
+*		*GLOBALS:	Any Super Global variable like GET, POST, SESSION
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25.6.1 $
+* @version $Revision: 1.25.6.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -155,7 +156,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function paint($prefix, $read_only=FALSE)
 	{
-		$value = unserialize($this->value);
+		$value = @unserialize($this->value);
 
 		?>
 
@@ -167,39 +168,42 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 			<?php
 
 			$source_types = $this->_getSourceTypes();
-			foreach ($value as $parameter => $sources) {
-				?>
-				<tr>
-					<td><?php echo $this->_params['parameters'][$parameter]; ?></td>
-					<td>
-						<table border="0" cellpadding="5" cellspacing="0" class="sq-backend-table">
-						<?php
-						foreach ($sources as $index => $details) {
-							$source_type = $details['source'];
-							if (!isset($source_types[$source_type])) continue;
-
-							$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
-							?>
-							<tr>
-								<td style="width:30ex"><strong><?php echo $source_types[$source_type]; ?></strong></td>
-								<td><?php $this->_printSourceInterface($one_source_prefix, $details, $read_only); ?></td>
-								<td style="text-align:right">
-									<?php
-									if (!$read_only) {
-										check_box($one_source_prefix.'[delete]');
-										echo '<label for="'.$one_source_prefix.'[delete]">'.translate('delete').'</label>';
-									}
-									?>
-								</td>
-							</tr>
+			if (!empty($value)) {
+				foreach ($value as $parameter => $sources) {
+					?>
+					<tr>
+						<td><?php echo $this->_params['parameters'][$parameter]; ?></td>
+						<td>
+							<table border="0" cellpadding="5" cellspacing="0" class="sq-backend-table">
 							<?php
-						}
-						?>
-						</table>
-					</td>
-				</tr>
-				<?php
-			}//end foreach
+							foreach ($sources as $index => $details) {
+								$source_type = $details['source'];
+								if (!isset($source_types[$source_type])) continue;
+
+								$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
+								?>
+								<tr>
+									<td style="width:30ex"><strong><?php echo $source_types[$source_type]; ?></strong></td>
+									<td><?php $this->_printSourceInterface($one_source_prefix, $details, $read_only); ?></td>
+									<td style="text-align:right">
+										<?php
+										if (!$read_only) {
+											check_box($one_source_prefix.'[delete]');
+											echo '<label for="'.$one_source_prefix.'[delete]">'.translate('delete').'</label>';
+										}
+										?>
+									</td>
+								</tr>
+								<?php
+							}
+							?>
+							</table>
+						</td>
+					</tr>
+					<?php
+				}//end foreach
+			}//end if
+
 			if (!$read_only) {
 				?>
 				<tr>
@@ -412,6 +416,18 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					}
 				break;
 
+				case 'GLOBALS':
+					if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$rule['index']]) && (!empty($_SESSION[SQ_SESSION_SANDBOX_INDEX][$rule['index']]))) {
+						return $_SESSION[SQ_SESSION_SANDBOX_INDEX][$rule['index']];
+					} else if (isset($_POST[$rule['index']]) && (!empty($_POST[$rule['index']]))) {
+						return $_POST[$rule['index']];
+					} else if (isset($_GET[$rule['index']]) && (!empty($_GET[$rule['index']]))) {
+						return $_GET[$rule['index']];
+					} else {
+						return '';
+					}
+				break;
+
 				case 'SET_VALUE':
 					if (!empty($rule['value'])) {
 						return replace_global_keywords($rule['value']);
@@ -523,6 +539,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				'USER'			=> translate('current_user'),
 				'CURRENT_SITE'	=> translate('current_site'),
 				'SET_VALUE'		=> translate('set_value'),
+				'GLOBALS'		=> translate('super_global'),
 			   );
 
 	}//end _getSourceTypes()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.14 2009/07/07 23:28:52 cupreti Exp $
+* $Id: lang_strings.xml,v 1.311.2.15 2009/07/23 02:40:55 bpearson Exp $
 *
 */
 
@@ -1183,7 +1183,7 @@
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
 
 	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s&lt;br /&gt;and constrain by: %2$s and size it to: (width) %3$s by (height) %4$s</string>
-	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s of any global variable (POST, GET, SESSION) as the assetid of the image to use. &lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
+	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s&lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
 
 	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
 	<string source="trigger_create_link_advanced">Use this value as the link value: %1$s and link the child %2$s and %3$s to the parent</string>
@@ -2289,6 +2289,7 @@ Are you sure you want to proceed?</string>
 	<!-- Parameter Map -->
 	<string source="current_site">Current Site</string>
 	<string source="set_value">Set Value</string>
+	<string source="super_global">Any Super Global</string>
 
 	<!-- Linking errors -->
 	<string source="cannot_create_notice_link_permission_denied">Cannot create notice link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - No write access to "%1$s")</string>
