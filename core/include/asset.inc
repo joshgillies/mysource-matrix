@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.687 2009/07/22 01:23:53 lwright Exp $
+* $Id: asset.inc,v 1.688 2009/07/23 06:46:51 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.687 $
+* @version $Revision: 1.688 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2936,69 +2936,34 @@ class Asset extends MySource_Object
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 
-				if ($attribute->uniq) {
-					// update existing entry
-					try {
-						if (($contextid === 0) || ($is_contextable === FALSE)) {
-							// If updating in the default context, we should be updating all
-							// context values that are still using the default
-							// If not contextable, just keep them linked together as well
-							$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid AND use_default = :use_default');
-							$bind_vars = Array(
-											'custom_val'	=> $attr_value,
-											'attrid'		=> $attr_id,
-											'assetid'		=> $this->id,
-											'use_default'	=> 1,
-										 );
-						} else {
-							// Updating in alternate context. Set the value and mark that
-							// we have now broken away from the default
-							$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val, use_default = :use_default WHERE owning_attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
-							$bind_vars = Array(
-											'custom_val'	=> $attr_value,
-											'attrid'		=> $attr_id,
-											'assetid'		=> $this->id,
-											'contextid'		=> $contextid,
-											'use_default'	=> 0,
-										 );
-						}
-						foreach ($bind_vars as $bind_var => $bind_value) {
-							MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
-						}
-						MatrixDAL::execPdoQuery($prepared);
-					} catch (Exception $e) {
-						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-					}
-				}
-
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE)) {
 						// If updating in the default context, we should be updating all
 						// context values that are still using the default
 						// If not contextable, just keep them linked together as well
-						$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid AND use_default = :use_default');
+						$unique_query_name = 'updateDefaultContextUniqueAttrValue';
+						$query_name = 'updateDefaultContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
 										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
-										'use_default'	=> 1,
 									 );
 					} else {
 						// Updating in alternate context. Set the value and mark that
 						// we have now broken away from the default
-						$prepared = MatrixDAL::preparePdoQuery('UPDATE sq_ast_attr_val SET custom_val = :custom_val, use_default = :use_default WHERE attrid = :attrid AND assetid = :assetid AND contextid = :contextid');
+						$unique_query_name = 'updateAlternateContextUniqueAttrValue';
+						$query_name = 'updateAlternateContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
 										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
 										'contextid'		=> $contextid,
-										'use_default'	=> 0,
 									 );
 					}
-					foreach ($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+					if ((boolean)$attribute->uniq === TRUE) {
+						MatrixDAL::executeQuery('core', $unique_query_name, $bind_vars);
 					}
-					MatrixDAL::execPdoQuery($prepared);
+					MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
@@ -3016,74 +2981,53 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
-				if ($attribute->uniq) {
-					try {
-						if (($contextid === 0) || ($is_contextable === FALSE)) {
-							// Inserting into the default context. Insert into all other
-							// existing contexts that don't yet have a value set, and
-							// mark them as using the default
-							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, contextid, custom_val, assetid, use_default) SELECT :attrid AS owning_attrid, contextid, :custom_val AS custom_val, :assetid AS assetid, :use_default as use_default FROM sq_ctx_def WHERE contextid NOT IN (SELECT contextid FROM sq_ast_attr_uniq_val WHERE assetid = :assetid_1 AND owning_attrid = :attrid_1)');
-							$bind_vars = Array(
-											'custom_val'	=> $attr_value,
-											'attrid'		=> $save_vars[$attr_id]['owning_attrid'],
-											'assetid'		=> $this->id,
-											'attrid_1'		=> $save_vars[$attr_id]['owning_attrid'],
-											'assetid_1'		=> $this->id,
-											'use_default'	=> 1,
-										 );
-						} else {
-							// Inseting into an alternate context. (Strange...)
-							// Set up the row, set as broken away from default
-							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) VALUES (:attrid, :contextid, :custom_val, :assetid, :use_default)');
-							$bind_vars = Array(
-											'custom_val'	=> $attr_value,
-											'contextid'		=> $contextid,
-											'attrid'		=> $save_vars[$attr_id]['owning_attrid'],
-											'assetid'		=> $this->id,
-											'use_default'	=> 0,
-										 );
-						}
-						foreach ($bind_vars as $bind_var => $bind_value) {
-							MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
-						}
-						MatrixDAL::execPdoQuery($prepared);
-					} catch (Exception $e) {
-						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-					}
-				}
 
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE)) {
 						// Inserting into the default context. Insert into all other
 						// existing contexts that don't yet have a value set, and
 						// mark them as using the default
-						$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) SELECT :attrid AS attrid, contextid, :custom_val AS custom_val, :assetid AS assetid, :use_default as use_default FROM sq_ctx_def WHERE contextid NOT IN (SELECT contextid FROM sq_ast_attr_val WHERE assetid = :assetid_1 AND attrid = :attrid_1)');
+						$unique_query_name = 'insertDefaultContextUniqueAttrValue';
+						$query_name = 'insertDefaultContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
 										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
-										'attrid_1'		=> $attr_id,
-										'assetid_1'		=> $this->id,
-										'use_default'	=> 1,
 									 );
+						// Oracle has problems handling INSERT..SELECT, because we
+						// can't make the DAL know whether it's a LOB or not.
+						// Changes have been made to MatrixDAL so we can pass LOB
+						// objects to bindings DAL has not assigned to a field.
+						// Two LOBs are needed if we are inserting unique values,
+						// since one is invalidated after each query is run.
+						if (MatrixDAL::getDbType() === 'oci') {
+							if ((boolean)$attribute->uniq === TRUE) {
+								$lob1 = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);
+								$lob1->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);							
+							}
+							$lob2 = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);
+							$lob2->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);							
+						}
 					} else {
 						// Inseting into an alternate context. (Strange...)
 						// Set up the row, set as broken away from default
-						$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_val (attrid, contextid, custom_val, assetid, use_default) VALUES (:attrid, :contextid, :custom_val, :assetid, :use_default)');
+						$unique_query_name = 'insertAlternateContextUniqueAttrValue';
+						$query_name = 'insertAlternateContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
 										'contextid'		=> $contextid,
 										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
-										'use_default'	=> 0,
 									 );
 					}
-					foreach ($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($prepared, $bind_var, $bind_value);
+					if ((boolean)$attribute->uniq === TRUE) {
+						$bind_vars['custom_val'] = $lob1;
+						MatrixDAL::executeQuery('core', $unique_query_name, $bind_vars);
 					}
-					MatrixDAL::execPdoQuery($prepared);
+					$bind_vars['custom_val'] = $lob2;
+					MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 				} catch (Exception $e) {
-					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					throw new Exception('Unable to insert new attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
 
 			}//end foreach

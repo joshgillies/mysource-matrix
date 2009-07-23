@@ -1548,6 +1548,208 @@
 	
 
 
+	<!-- //        ATTRIBUTE UPDATE/INSERT        // -->
+	<query id="insertDefaultContextAttrValue">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_val">
+					<field>assetid</field>
+					<field>attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<select>
+					<fields>
+						<value>:assetid</value>
+						<value>:attrid</value>
+						<field table="sq_ctx_def" column="contextid" />
+						<value>:custom_val</value>
+						<value>1</value>
+					</fields>
+					<from>
+						<table>sq_ctx_def</table>
+					</from>
+					<where>
+						<in table="sq_ctx_def" column="contextid">
+							<select>
+								<fields>
+									<field table="sq_ast_attr_val" column="contextid" />
+								</fields>
+								<from>
+									<table>sq_ast_attr_val</table>
+								</from>
+								<where>
+									<or>
+										<not-equal table="sq_ast_attr_val" column="assetid">:assetid</not-equal>
+										<not-equal table="sq_ast_attr_val" column="attrid">:attrid</not-equal>
+									</or>
+								</where>
+							</select>
+						</in>
+					</where>
+				</select>
+			</insert>
+		</primary>
+	</query>
+	<query id="updateDefaultContextAttrValue">
+		<primary>
+			<update>
+				<fields table="sq_ast_attr_val">
+					<field>custom_val</field>
+				</fields>
+				<values>
+					<value column="custom_val">:custom_val</value>
+				</values>
+				<where>
+					<equal table="sq_ast_attr_val" column="assetid">:assetid</equal>
+					<equal table="sq_ast_attr_val" column="attrid">:attrid</equal>
+					<equal table="sq_ast_attr_val" column="use_default">'1'</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="insertAlternateContextAttrValue">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_val">
+					<field>assetid</field>
+					<field>attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="attrid">:attrid</value>
+					<value column="contextid">:contextid</value>
+					<value column="custom_val">:custom_val</value>
+					<value column="use_default">0</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="updateAlternateContextAttrValue">
+		<primary>
+			<update>
+				<fields table="sq_ast_attr_val">
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<values>
+					<value column="custom_val">:custom_val</value>
+					<value column="use_default">0</value>
+				</values>
+				<where>
+					<equal table="sq_ast_attr_val" column="assetid">:assetid</equal>
+					<equal table="sq_ast_attr_val" column="attrid">:attrid</equal>
+					<equal table="sq_ast_attr_val" column="contextid">:contextid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<!-- //        ATTRIBUTE UNIQUE UPDATE/INSERT        // -->
+	<query id="insertDefaultContextUniqueAttrValue">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_uniq_val">
+					<field>assetid</field>
+					<field>owning_attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<select>
+					<fields>
+						<value>:assetid</value>
+						<value>:attrid</value>
+						<field table="sq_ctx_def" column="contextid" />
+						<value>:custom_val</value>
+						<value>1</value>
+					</fields>
+					<from>
+						<table>sq_ctx_def</table>
+					</from>
+					<where>
+						<in table="sq_ctx_def" column="contextid">
+							<select>
+								<fields>
+									<field table="sq_ast_attr_uniq_val" column="contextid" />
+								</fields>
+								<from>
+									<table>sq_ast_attr_uniq_val</table>
+								</from>
+								<where>
+									<or>
+										<not-equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</not-equal>
+										<not-equal table="sq_ast_attr_uniq_val" column="owning_attrid">:attrid</not-equal>
+									</or>
+								</where>
+							</select>
+						</in>
+					</where>
+				</select>
+			</insert>
+		</primary>
+	</query>
+	<query id="updateDefaultContextUniqueAttrValue">
+		<primary>
+			<update>
+				<fields table="sq_ast_attr_uniq_val">
+					<field>custom_val</field>
+				</fields>
+				<values>
+					<value column="custom_val">:custom_val</value>
+				</values>
+				<where>
+					<equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</equal>
+					<equal table="sq_ast_attr_uniq_val" column="owning_attrid">:attrid</equal>
+					<equal table="sq_ast_attr_uniq_val" column="use_default">'1'</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="insertAlternateContextUniqueAttrValue">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr_uniq_val">
+					<field>assetid</field>
+					<field>owning_attrid</field>
+					<field>contextid</field>
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="owning_attrid">:attrid</value>
+					<value column="contextid">:contextid</value>
+					<value column="custom_val">:custom_val</value>
+					<value column="use_default">0</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="updateAlternateContextUniqueAttrValue">
+		<primary>
+			<update>
+				<fields table="sq_ast_attr_uniq_val">
+					<field>custom_val</field>
+					<field>use_default</field>
+				</fields>
+				<values>
+					<value column="custom_val">:custom_val</value>
+					<value column="use_default">0</value>
+				</values>
+				<where>
+					<equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</equal>
+					<equal table="sq_ast_attr_uniq_val" column="owning_attrid">:attrid</equal>
+					<equal table="sq_ast_attr_uniq_val" column="contextid">:contextid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
 	<!-- //        DESIGNS        // -->
 
 

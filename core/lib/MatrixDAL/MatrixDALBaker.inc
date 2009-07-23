@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.12 2009/03/17 03:33:47 bpearson Exp $
+* $Id: MatrixDALBaker.inc,v 1.13 2009/07/23 06:46:51 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -345,7 +345,14 @@ class MatrixDALBaker extends DALBaker
                 $system   = $binding->getAttribute('system');
                 //$dataType = self::_getPdoDataType($system, $table, $column);
 
-                if (self::_fieldRequiresOciClob($table, $column) === TRUE) {
+				if (empty($table) === TRUE) {
+					// We are not tied to any column. Therefore we have no idea whether
+					// it requires a LOB or not. I think it's fair to assume that if
+					// it's a placeholder, then it will not need a LOB.
+					if (array_key_exists($bindName, $placeHolders) === FALSE) {
+						$requiresLob = NULL;
+					}
+				} else if (self::_fieldRequiresOciClob($table, $column) === TRUE) {
                     // OCI;
                     $requiresLob = TRUE;
                 }
@@ -372,12 +379,24 @@ class MatrixDALBaker extends DALBaker
                     $bindCall = "\nif (array_key_exists('$index',\$data) === TRUE) {\n";
                 }
 
-                if ((MatrixDAL::getDbType() === 'oci') && ($requiresLob === TRUE)) {
-                    // OCI:
-                    $lobCount++;
-                    $bindCall .= "\$lob{$lobCount} = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);\n";
-                    $bindCall .= "\$query->bind('$bindName', \$lob{$lobCount}, PDO::PARAM_LOB);\n";
-                    $bindCall .= "\$lob{$lobCount}->writeTemporary($varName, OCI_TEMP_CLOB);\n";
+                if (MatrixDAL::getDbType() === 'oci') {
+					if ($requiresLob === TRUE) {
+	                    $lobCount++;
+    	                $bindCall .= "\$lob{$lobCount} = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);\n";
+        	            $bindCall .= "\$query->bind('$bindName', \$lob{$lobCount}, PDO::PARAM_LOB);\n";
+            	        $bindCall .= "\$lob{$lobCount}->writeTemporary($varName, OCI_TEMP_CLOB);\n";
+					} else if ($requiresLob === NULL) {
+						// Not tied to a column. If we got passed a LOB, then use it,
+						// otherwise, pass it as normal. Note that we cannot use instanceof()
+						// because of the dodgy class name OCI8 extension uses.
+	                    $bindCall .= "if (get_class($varName) === 'OCI-Lob') {\n";
+	                    $bindCall .= "\$query->bind('$bindName', $varName, PDO::PARAM_LOB);\n";
+	                    $bindCall .= "} else {\n";
+	                    $bindCall .= "\$query->bind('$bindName', $varName);\n";
+	                    $bindCall .= "}\n";
+					} else {
+	                    $bindCall .= "\$query->bind('$bindName', $varName);\n";
+					}
                 } else {
                 //$bindCall .= "\$query->bind('$bindName', $varName, $dataType);\n";
                     $bindCall .= "\$query->bind('$bindName', $varName);\n";
