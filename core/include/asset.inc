@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.688 2009/07/23 06:46:51 lwright Exp $
+* $Id: asset.inc,v 1.689 2009/07/23 22:56:41 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.688 $
+* @version $Revision: 1.689 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3021,10 +3021,10 @@ class Asset extends MySource_Object
 									 );
 					}
 					if ((boolean)$attribute->uniq === TRUE) {
-						$bind_vars['custom_val'] = $lob1;
+						if (isset($lob1) === TRUE) $bind_vars['custom_val'] = $lob1;
 						MatrixDAL::executeQuery('core', $unique_query_name, $bind_vars);
 					}
-					$bind_vars['custom_val'] = $lob2;
+					if (isset($lob2) === TRUE) $bind_vars['custom_val'] = $lob2;
 					MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert new attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
