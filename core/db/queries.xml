@@ -1571,7 +1571,7 @@
 						<table>sq_ctx_def</table>
 					</from>
 					<where>
-						<in table="sq_ctx_def" column="contextid">
+						<not-in table="sq_ctx_def" column="contextid">
 							<select>
 								<fields>
 									<field table="sq_ast_attr_val" column="contextid" />
@@ -1580,13 +1580,11 @@
 									<table>sq_ast_attr_val</table>
 								</from>
 								<where>
-									<or>
-										<not-equal table="sq_ast_attr_val" column="assetid">:assetid</not-equal>
-										<not-equal table="sq_ast_attr_val" column="attrid">:attrid</not-equal>
-									</or>
+									<equal table="sq_ast_attr_val" column="assetid">:assetid</equal>
+									<equal table="sq_ast_attr_val" column="attrid">:attrid</equal>
 								</where>
 							</select>
-						</in>
+						</not-in>
 					</where>
 				</select>
 			</insert>
@@ -1673,7 +1671,7 @@
 						<table>sq_ctx_def</table>
 					</from>
 					<where>
-						<in table="sq_ctx_def" column="contextid">
+						<not-in table="sq_ctx_def" column="contextid">
 							<select>
 								<fields>
 									<field table="sq_ast_attr_uniq_val" column="contextid" />
@@ -1682,13 +1680,11 @@
 									<table>sq_ast_attr_uniq_val</table>
 								</from>
 								<where>
-									<or>
-										<not-equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</not-equal>
-										<not-equal table="sq_ast_attr_uniq_val" column="owning_attrid">:attrid</not-equal>
-									</or>
+									<equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</equal>
+									<equal table="sq_ast_attr_uniq_val" column="owning_attrid">:attrid</equal>
 								</where>
 							</select>
-						</in>
+						</not-in>
 					</where>
 				</select>
 			</insert>
