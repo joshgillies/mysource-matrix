@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.115 2008/07/03 05:35:21 lwright Exp $
+* $Id: site.inc,v 1.116 2009/07/23 05:07:57 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -569,66 +569,70 @@ class Site extends Folder
 			}
 		}
 
-		// merge in asset based paint layout values if they do not already exist
-		foreach ($lookup_values as $url => $data) {
-			if (preg_match('/.+\/$/', $url)) {
-				// override layout
-				foreach ($override_paint_layouts as $name => $value) {
-					if (empty($data)) {
-						$lookup_values[$url][$name] = $value;
-					} else if (!in_array($name, array_keys($data))) {
-						$lookup_values[$url][$name] = $value;
+		// If theres no lookup entry, do not insert value for it (See bug #3796)
+		if (!empty($urls)) {
+
+			// merge in asset based paint layout values if they do not already exist
+			foreach ($lookup_values as $url => $data) {
+				if (preg_match('/.+\/$/', $url)) {
+					// override layout
+					foreach ($override_paint_layouts as $name => $value) {
+						if (empty($data)) {
+							$lookup_values[$url][$name] = $value;
+						} else if (!in_array($name, array_keys($data))) {
+							$lookup_values[$url][$name] = $value;
+						}
 					}
-				}
-			} else {
-				// normal layout
-				foreach ($paint_layouts as $name => $value) {
-					if (empty($data)) {
-						$lookup_values[$url][$name] = $value;
-					} else if (!in_array($name, array_keys($data))) {
-						$lookup_values[$url][$name] = $value;
-					}
-				}
-			}
-		}
-
-		// insert lookup values
-		foreach ($lookup_values as $url => $data) {
-			// calculate the depth of the url
-			$exploded_url = explode('/', $url);
-			$depth = count($exploded_url)-1;
-
-			if (!empty($data)) {
-				foreach ($data as $layout_name => $value) {
-					$sql = 'INSERT INTO
-								sq_ast_lookup_value
-								(
-									url,
-									name,
-									value,
-									depth
-								)
-								VALUES
-								(
-									:url,
-									:name,
-									:value,
-									:depth
-								)';
-
-					try {
-						$query = MatrixDAL::preparePdoQuery($sql);
-						MatrixDAL::bindValueToPdo($query, 'url',   $url);
-						MatrixDAL::bindValueToPdo($query, 'name',  $layout_name);
-						MatrixDAL::bindValueToPdo($query, 'value', $value['value']);
-						MatrixDAL::bindValueToPdo($query, 'depth', $depth);
-						MatrixDAL::execPdoQuery($query);
-					} catch (Exception $e) {
-						throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				} else {
+					// normal layout
+					foreach ($paint_layouts as $name => $value) {
+						if (empty($data)) {
+							$lookup_values[$url][$name] = $value;
+						} else if (!in_array($name, array_keys($data))) {
+							$lookup_values[$url][$name] = $value;
+						}
 					}
 				}
 			}
-		}
+	
+			// insert lookup values
+			foreach ($lookup_values as $url => $data) {
+				// calculate the depth of the url
+				$exploded_url = explode('/', $url);
+				$depth = count($exploded_url)-1;
+	
+				if (!empty($data)) {
+					foreach ($data as $layout_name => $value) {
+						$sql = 'INSERT INTO
+									sq_ast_lookup_value
+									(
+										url,
+										name,
+										value,
+										depth
+									)
+									VALUES
+									(
+										:url,
+											:name,
+										:value,
+										:depth
+									)';
+	
+						try {
+							$query = MatrixDAL::preparePdoQuery($sql);
+							MatrixDAL::bindValueToPdo($query, 'url',   $url);
+							MatrixDAL::bindValueToPdo($query, 'name',  $layout_name);
+							MatrixDAL::bindValueToPdo($query, 'value', $value['value']);
+							MatrixDAL::bindValueToPdo($query, 'depth', $depth);
+							MatrixDAL::execPdoQuery($query);
+						} catch (Exception $e) {
+							throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+						}
+					}	
+				}
+			}
+		} // End if empty urls
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
