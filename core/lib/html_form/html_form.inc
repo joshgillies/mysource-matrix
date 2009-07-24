@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.149 2009/07/07 01:28:26 wszymanski Exp $
+* $Id: html_form.inc,v 1.150 2009/07/24 02:57:10 wszymanski Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1404,7 +1404,8 @@ function get_url_tester_url($name)
 */
 function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE, $permission=NULL)
 {
-	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
+	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id, 0, $permission);
+
 	$child_links = $all_child_links;
 	$search_tree = Array();
 
@@ -1465,16 +1466,6 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 	}
 
-	if (!is_null($permission) && !($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
-		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
-		foreach ($child_links as $treeid => $data) {
-			$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($data['assetid'], $permission, NULL, TRUE, TRUE);
-			if (!in_array($GLOBALS['SQ_SYSTEM']->user->id, $perms) && !in_array($public_user->id, $perms)) {
-				unset($child_links[$treeid]);
-			}
-		}
-	}
-
 	$options = Array();
 	if ($allow_empty) $options[''] = '';
 	$level = 1;
@@ -1490,7 +1481,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	$search_tree = Array();
 	foreach ($child_links as $treeid => $child) {
 		id_list_to_tree($treeid, $search_tree, '', $child['sort_order']);
-	}
+	}log_dump($search_tree);
 	sort_tree($search_tree);
 	draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth, $structured);
 

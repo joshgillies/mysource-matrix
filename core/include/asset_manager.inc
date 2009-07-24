@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.736 2009/07/22 01:23:53 lwright Exp $
+* $Id: asset_manager.inc,v 1.737 2009/07/24 02:56:42 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.736 $
+* @version $Revision: 1.737 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3258,7 +3258,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAllChildLinks($assetid, $link_type=0)
+	function getAllChildLinks($assetid, $link_type=0, $access=NULL, $effective=TRUE, $bind_prefix='gc_')
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -3297,8 +3297,8 @@ class Asset_Manager extends MySource_Object
 
 			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
 
-			$where = 't.treeid LIKE :treeid_like
-					  AND t.treeid > :treeid';
+			$where = 't.treeid LIKE :'.$bind_prefix.'treeid_like
+					  AND t.treeid > :'.$bind_prefix.'treeid';
 
 			// only do a link comparison if they have specified a link type
 			if ($link_type != 0) {
@@ -3308,21 +3308,87 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT SUBSTR(t.treeid, '.MatrixDAL::quote((int) strlen($treeid) + 1).') as treeid,
+
+			$select = 'SELECT SUBSTR(t.treeid, '.MatrixDAL::quote((int) strlen($treeid) + 1).') as treeid,
 							((LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').') as lvl,
-							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive';
+			$from = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-					'.$where.'
-					ORDER BY t.treeid';
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid';
+			$order_by = 'ORDER BY t.treeid';
+			$having = '';
+			$group_by = '';
+
+			$bind_vars[$bind_prefix.'treeid_like'] = $treeid.'%';
+			$bind_vars[$bind_prefix.'treeid'] = $treeid;
+			
+			if (!is_null($access)) {
+				$access = (String)$access;
+				$userid_cond = '';
+				$group_by = 'GROUP BY t.treeid, l.linkid, l.minorid, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive, a.assetid, a.short_name, a.type_code, a.name';
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
+					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
+
+					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+					$public_userid = (String)$this->getSystemAssetid('public_user');
+					$userids[] = $public_userid;
+
+					$p_userids_str = Array();
+					$r_userids_str = Array();
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
+						$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
+						$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
+						$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
+					}
+
+					$p_userids_str = implode(',', $p_userids_str);
+					$r_userids_str = implode(',', $r_userids_str);
+					$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
+					$where .= ' AND '.$userid_cond.'
+								AND (
+									(p.permission = :'.$bind_prefix.'_access AND (
+									p.userid <> :'.$bind_prefix.'_public_userid
+									OR r.userid <> :'.$bind_prefix.'_public_userid_1
+									OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
+									OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
+								)
+							)';
+
+					$bind_vars[$bind_prefix.'_access'] = $access;
+					$bind_vars[$bind_prefix.'_public_userid'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_1'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_2'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
+
+					if ($effective) {
+						$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
+						$bind_vars[$bind_prefix.'_access_effective'] = $access;
+					}
+					$where .= ') ';
+					$having = 'HAVING MIN(p.granted) <> \'0\'';
+					$group_by .= ', p.assetid';
+				}
+			}
+
+			$sql_array = Array(
+								'select'		=> '('.$select,
+								'from'			=> $from,
+								'where'			=> $where,
+								'group_by'		=> $group_by,
+								'having'		=> $having,
+								'order_by'		=> ')'.$order_by,
+							);
 
 			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'treeid_like', $treeid.'%');
-				MatrixDAL::bindValueToPdo($query, 'treeid', $treeid);
+				$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
 				$links = MatrixDAL::executePdoGroupedAssoc($query);
-
+			
 				$child_links = Array();
 				foreach ($links as $id => $info) {
 					$child_links[$id] = $info[0];
