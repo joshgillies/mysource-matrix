@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.7 2009/07/20 07:29:19 cupreti Exp $
+* $Id: mysource.inc,v 1.290.2.8 2009/07/24 00:41:52 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.7 $
+* @version $Revision: 1.290.2.8 $
 * @package MySource_Matrix
 */
 class MySource
@@ -538,9 +538,14 @@ class MySource
 					}//end if
 					
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
+					
+					// See if caching is enabled for the asset
+					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
+
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -552,7 +557,9 @@ class MySource
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
 					
-					unset($_REQUEST['just_logged_out']);
+					if (isset($_REQUEST['just_logged_out'])) {
+						unset($_REQUEST['just_logged_out']);
+					}
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
