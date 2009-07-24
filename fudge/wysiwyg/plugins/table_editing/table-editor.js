@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.26.4.2 2009/06/26 03:15:41 cupreti Exp $
+* $Id: table-editor.js,v 1.26.4.3 2009/07/24 01:11:18 akarelia Exp $
 *
 */
 
@@ -94,7 +94,7 @@ TCell = function(parent)
 				style += 'border-style:' + 'dashed' + ';';
 			}
 		}
-
+		this.style = style;
 		this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
 		this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
 		this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
