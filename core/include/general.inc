@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.226 2009/07/21 05:59:51 lwright Exp $
+* $Id: general.inc,v 1.227 2009/07/26 23:43:39 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.226 $
+* @version $Revision: 1.227 $
 * @package MySource_Matrix
 */
 
@@ -1812,12 +1812,17 @@ function replace_global_keywords(&$text)
 						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
 						if ($asset_exist === TRUE) {
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
-							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
-							if ($asset_replacement != "%$matches[1]%") {
-								$replacements[$full_keyword] = $asset_replacement;
-							}
-						}
-					}
+							$read_access = $asset->readAccess();
+							if ($read_access) {
+								$asset_replacement = $asset->getKeywordReplacement($matches[1]);
+								if ($asset_replacement != "%$matches[1]%") {
+									$replacements[$keyword] = $asset_replacement;
+								}//end if
+							} else {
+								$replacement[$keyword] = '';
+							}//end if
+						}//end if
+					}//end if
 				}//end if
 				if (0 === strpos($keyword, 'globals_snippet_')) {
 					$replacements[$full_keyword] = '';
