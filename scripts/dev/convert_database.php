@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.2.2.4 2009/05/01 02:13:06 csmith Exp $
+* $Id: convert_database.php,v 1.2.2.5 2009/07/27 04:16:31 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2.2.4 $
+* @version $Revision: 1.2.2.5 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -587,9 +587,15 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 		$index_name = str_replace(',', '_', $column);
 	}
 
+	$dbtype = _getDbType();
+
 	$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
+
 	if (!empty($index_type)) {
-			$sql .= '('.$column.') indextype is '.$index_type;
+		$sql .= '('.$column.')';
+		if ($dbtype == 'oci') {
+	   		$sql .= ' indextype is '.$index_type;
+		}
 	} else {
 		$sql .= ' ('.$column.')';
 	}
@@ -728,7 +734,7 @@ function getIndexes()
 
 /**
  * _getDbType
- * Returns the type of db
+ * Returns the type of db for the destination db.
  * It's in it's own function because the connection can either be
  * a native 'resource' (oci) or it can be a PDO type
  * If it's a pdo type, it's changed to it's driver name.
