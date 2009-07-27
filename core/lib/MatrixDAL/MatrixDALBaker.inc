@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.13 2009/07/23 06:46:51 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.14 2009/07/27 04:41:45 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -279,15 +279,20 @@ class MatrixDALBaker extends DALBaker
      */
      public static function findRollbackBindVars($queryBody)
      {
-       $sqlQuery = preg_match("/\('(.*)'\)/", $queryBody, $matches);
+       $sqlQuery = preg_match_all("/\('(.*)'\)/", $queryBody, $matches);
 
+       $allBindVars = Array();
        if (isset($matches[1]) && !empty($matches[1])) {
-          $query = DAL::getQueryObject($matches[1]);
-          $rollbackBinds = preg_match_all('/(:rbtime[0-9]*)\b/i', $query->getSql(), $foundBindVars);
-          if (isset($foundBindVars[1]) && !empty($foundBindVars[1])) {
-               return $foundBindVars[1];
-          }//end if
+	       foreach ($matches[1] as $match) {
+	           $query = DAL::getQueryObject($match);
+               $rollbackBinds = preg_match_all('/(:rbtime[0-9]*)\b/i', $query->getSql(), $foundBindVars);
+               if (isset($foundBindVars[1]) && !empty($foundBindVars[1])) {
+                   $allBindVars = array_merge($allBindVars, $foundBindVars[1]);
+               }//end if
+           }//end foreach
+		   return $allBindVars;
        }//end if
+
 
        return Array();
 
@@ -732,7 +737,7 @@ class MatrixDALBaker extends DALBaker
         $doc->appendChild($queryNode);
         $xpath = new DOMXPath($doc);
 
-        $whereNodes = $xpath->query('//query/primary/select/where');
+        $whereNodes = $xpath->query('//query//select/where');
         if (count($whereNodes) == 0)
         {
             $whereNode = NULL;
@@ -740,7 +745,7 @@ class MatrixDALBaker extends DALBaker
             $whereNode = $whereNodes->item(0);
         }
 
-        $nodes = $xpath->query('//query/primary/select/from/table');
+        $nodes = $xpath->query('//query//select/from/table');
         foreach ($nodes as $node) {
             $table = $node->nodeValue;
 
@@ -748,7 +753,7 @@ class MatrixDALBaker extends DALBaker
                 // TODO: replace "from" tables with 'sq_rb_'
 
                 // Add rollback where clause
-                $fieldNodes = $xpath->query('//query/primary/select/fields/field');
+                $fieldNodes = $xpath->query('//query//select/fields/field');
                 foreach ($fieldNodes as $fieldNode) {
                     $table = $fieldNode->getAttribute('table');
                     if (self::_tableRequiresRollback($table)) {
@@ -758,7 +763,7 @@ class MatrixDALBaker extends DALBaker
                 }
 
                 // Replace where attributes
-                $condNodes = $xpath->query('//query/primary/select/where//*');
+                $condNodes = $xpath->query('//query//select/where//*');
                 foreach ($condNodes as $condNode) {
                     $table = $condNode->getAttribute('table');
                     if (self::_tableRequiresRollback($table)) {
@@ -766,11 +771,31 @@ class MatrixDALBaker extends DALBaker
                         $condNode->setAttribute('table', $rbTableName);
                     }
                 }
+                
+				// Replace order-by attributes
+                $orderByNodes = $xpath->query('//query//select/order-by//*');
+                foreach ($orderByNodes as $orderByNode) {
+                    $table = $orderByNode->getAttribute('table');
+                    if (self::_tableRequiresRollback($table)) {
+                        $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
+                        $orderByNode->setAttribute('table', $rbTableName);
+                    }
+                }
+				
+				// Replace group-by attributes
+                $groupByNodes = $xpath->query('//query//select/group-by//*');
+                foreach ($groupByNodes as $groupByNode) {
+                    $table = $groupByNode->getAttribute('table');
+                    if (self::_tableRequiresRollback($table)) {
+                        $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
+                        $groupByNode->setAttribute('table', $rbTableName);
+                    }
+                }
             }
         }
 
         // Add rollback where queries, no matter where they are found
-        $fromNodes = $xpath->query('//query/primary//select/from/table');
+        $fromNodes = $xpath->query('//query//select/from/table');
 		$count = 0;
         foreach ($fromNodes as $fromNode) {
             $table = trim($fromNode->nodeValue);
