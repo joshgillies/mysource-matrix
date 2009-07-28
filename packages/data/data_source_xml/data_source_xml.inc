@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.6 2009/07/07 00:44:22 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.7 2009/07/28 06:48:24 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -118,25 +118,28 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function getResultSet()
-	{
+	{	
 		// use feed url as the cache key
-		$url = $this->attr('url');
-
-		$result = Array();
-		$result = parent::getResultSet($url);
-		if (empty($result)) {
-			if (!empty($url)) {
-				if (isset($this->_tmp[$url])) {
-					$result = $this->_tmp[$url];
-				}
-				if (empty($result)) $result = $this->getItems();
-				if (!empty($result)) {
-					parent::setResultSet($result, $url);
-					$this->_tmp[$url] = $result;
+		$url = $this->_getFeedURL();
+		
+		if (!empty($url)) {
+			$hash = md5($url);
+			
+			// Check the local cache
+			if (!isset($this->_tmp[$hash])) {				
+				// Try from the system cache
+				$result = parent::getResultSet($hash);
+								
+				if ($result !== FALSE) {	
+					$this->_tmp[$hash] = $result;					
+				} else {
+					 $this->_tmp[$hash] = $this->getItems();
+					 parent::setResultSet($this->_tmp[$hash], $hash);
 				}
 			}
 		}
-		return $result;
+
+		return (!empty($url)) ? $this->_tmp[$hash] : Array();
 
 	}//end getResultSet()
 
@@ -168,13 +171,16 @@ class Data_Source_Xml extends Data_Source
 		// Using HTTP_Client PEAR package
 		// check whether or not the HTTP_Client object has already been
 		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
-		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
-		if (!empty($HTTP_Client)) {
-			$HTTP_Client = unserialize($HTTP_Client);
+		$HTTP_Client = NULL;
+		
+		if (isset($_SESSION)) {
+			$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
+			if (!empty($HTTP_Client)) {
+				$HTTP_Client = unserialize($HTTP_Client);
+			}
 		}
-
 		if (is_null($HTTP_Client)) {
-			// parameters for HTTP_Request. See Package for description.
+			// parameters for HTTP_Request. See dPackage for description.
 			$request_parameters['useBrackets'] = FALSE;
 
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
@@ -225,11 +231,26 @@ class Data_Source_Xml extends Data_Source
 	{
 		$url = html_entity_decode($this->attr('url'));
 		$content = $this->openFeed($url);
-
+		$content = $this->_addCDATA($content);
+		
 		return $this->_createParser($content);
 
 	}//end parseXML()
 
+	/**
+	* Returns the processed content of XML feed
+	*
+	* @return string
+	* @access public
+	*/
+	function getXMLContent()
+	{
+		$url = html_entity_decode($this->attr('url'));
+		$content = $this->openFeed($url);
+
+		return $this->_addCDATA($content);
+	
+	}//end getXMLContent()
 
 	/**
 	* Creates the xml parser which will then go off and parse our feed
@@ -342,7 +363,7 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function characterData($parser, $data)
-	{
+	{   
 		$required_attributes = $this->_getRequiredAttributes();
 		if ($this->_inside_relevant_tag && trim($data) !== '') {
 			$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
@@ -412,7 +433,107 @@ class Data_Source_Xml extends Data_Source
 		return unserialize(html_entity_decode($this->attr('tag_attributes')));
 
 	}//end _getRequiredAttributes()
+	
+	
+	/**
+	* Processes and returns the XML Feed URL for the XML datasource
+	*
+	* @return string
+	* @access private
+	*/
+	function _getFeedURL()
+	{	
+		$url_string = isset($this->_tmp['url_string']) ? $this->_tmp['url_string'] : '';
+		if (!empty($url_string)) return $url_string;
+
+		$url = $this->attr('url');
+		$keyword_wrapper = '%%';
+		$keyword_pattern = '('.$keyword_wrapper.'([a-zA-Z_\-0-9\.]+)'.$keyword_wrapper.')';
+
+		// insert the dynamic parameters into the url
+		preg_match_all ('/'.$keyword_pattern.'/', $url, $matches, PREG_PATTERN_ORDER);
+		if (empty($matches[1])) {
+			$this->_tmp['url_string'] = $url;
+			return $this->_tmp['url_string'];
+		}
+
+		$raw_keywords =& $matches[1];
+		$keywords =& $matches[2];
+
+		foreach ($keywords as $keyword) {
+			$value = $this->getDynamicVariableValue($keyword);
+			$replacements[] = str_replace('$', '\$', $value);
+			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
+		}
+
+		$url = preg_replace($patterns, $replacements, $url);
+
+		$this->_tmp['url_string'] = $url;
+		return $this->_tmp['url_string'];
+
+	}//end _getFeedURL()
+
+	
+	/**
+	* Returns the XML Feed URL for the XML datasource
+	*
+	* @return string
+	* @access public
+	*/
+	function getURLString()
+	{
+		return isset($this->_tmp['url_string']) ? $this->_tmp['url_string'] : '';
+	
+	}//end getURLString()
 
 
-}//end class
+	/**
+	* Get a value of a dynamic variable
+	*
+	* @param string	$variable_name	Name of variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getDynamicVariableValue($variable_name)
+	{	
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
+		$parameter_map = $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
+		
+		if (empty($value)) {
+			$value = array_get_index($dynamic_vars, $variable_name, '');
+		}
+
+		return $value;
+
+	}//end getDynamicVariableValue()
+
+	
+	/**
+	* Encloses the selected XML elements with CDATA term
+	*
+	* @param string $content 	XML content
+	*
+	* @return string
+	* @access private
+	*/
+	function _addCDATA($content)
+	{	
+		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));		
+		if (empty($cdata_tags)) return $content;
+
+		foreach($cdata_tags as $cdata_tag) {			
+			if (!$cdata_tag) continue;
+			
+			// Replace only if the element data is not already wrapped with CDATA
+			$replace_pattern = "/(\<$cdata_tag\s*.*?>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag>)/";
+			$replacement = "$1<![CDATA[$2]]>$3";			
+			$content = preg_replace($replace_pattern, $replacement, $content);			
+		}		
+		return $content;
+	}
+
+ }//end class
 ?>
