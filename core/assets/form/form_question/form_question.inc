@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.38 2009/07/22 05:47:19 lwright Exp $
+* $Id: form_question.inc,v 1.39 2009/07/28 23:28:30 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -550,7 +550,12 @@ class Form_Question extends Asset
 	function &removeRule(&$deleted_rule)
 	{
 		$rules = $this->attr('rules');
-		$rules = array_diff($rules, $deleted_rule);
+		foreach (array_keys($rules) as $rule_index) {
+			if ($rules[$rule_index] == $deleted_rule) {
+				unset($rules[$rule_index]);
+				break;
+			}
+		}
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
 		return $rules;
