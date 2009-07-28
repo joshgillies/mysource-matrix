@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.310 2009/07/28 05:16:21 lwright Exp $
+* $Id: mysource.inc,v 1.311 2009/07/28 22:42:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.310 $
+* @version $Revision: 1.311 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2470,6 +2470,13 @@ class MySource extends MySource_Object
 			throw new Exception('Cannot insert default attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
 
+		// Broadcast a 'context created' event so that assets can do something
+		// with it if they want (such as create a new content file to go with it)
+		// The broadcaster makes no difference since this will be called from a
+		// config screen - so the currently logged in user will suffice
+		$em = $this->getEventManager();
+		$em->broadcastEvent($this->user, 'contextCreate', Array('contextid' => $contextid));
+
 		return TRUE;
 
 	}//end deleteContextData()
@@ -2493,6 +2500,12 @@ class MySource extends MySource_Object
 			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
 
+		// Broadcast a 'context deleted' event so that assets can do something
+		// with it if they want (such as cleaning up content files)
+		// The broadcaster makes no difference since this will be called from a
+		// config screen - so the currently logged in user will suffice
+		$em = $this->getEventManager();
+		$em->broadcastEvent($this->user, 'contextDelete', Array('contextid' => $contextid));
 		return TRUE;
 
 	}//end deleteContextData()
@@ -2518,7 +2531,6 @@ class MySource extends MySource_Object
 		// also unserialise conditions where needed
 		// use PHP 5 assign-value-by-ref trick
 		foreach ($contexts as $key => &$value) {
-			$value = $value[0];
 			if (empty($value["conditions"]) === FALSE) {
 				$value["conditions"] = unserialize($value["conditions"]);
 			}
