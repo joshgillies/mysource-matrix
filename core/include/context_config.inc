@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.6 2009/07/28 05:19:36 lwright Exp $
+* $Id: context_config.inc,v 1.7 2009/07/28 06:51:18 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1410,7 +1410,7 @@ class Context_Config extends Config
 	*/
 	public function load()
 	{
-		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts(TRUE);
 
 		// Remove the intervening '0' since the context ID is unique;
 		// also unserialise conditions where needed
