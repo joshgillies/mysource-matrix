@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.5 2009/07/28 04:23:22 lwright Exp $
+* $Id: context_config.inc,v 1.6 2009/07/28 05:19:36 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1416,7 +1416,6 @@ class Context_Config extends Config
 		// also unserialise conditions where needed
 		// use PHP 5 assign-value-by-ref trick
 		foreach ($contexts as $key => &$value) {
-			$value = $value[0];
 			if (empty($value["conditions"]) === FALSE) {
 				$value["conditions"] = unserialize($value["conditions"]);
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.164 2009/07/28 04:23:21 lwright Exp $
+* $Id: backend_outputter.inc,v 1.165 2009/07/28 05:18:57 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1630,7 +1630,7 @@ class Backend_Outputter
 		if (count($contexts) > 1) {
 			?>
 			<span id="sq_context_switcher_current">
-				Context: <strong><?php echo $contexts[$current_context][0]['name'] ?></strong> [ <a href="#" onclick="this.parentNode.nextSibling.style.display = 'inline'; this.parentNode.style.display = 'none'; return false;">Change</a> ]
+				Context: <strong><?php echo $contexts[$current_context]['name'] ?></strong> [ <a href="#" onclick="this.parentNode.nextSibling.style.display = 'inline'; this.parentNode.style.display = 'none'; return false;">Change</a> ]
 			</span><span id="sq_context_switcher_change">Change Context: <?php
 				$this->printSimpleContextSwitcher();
 			?></span> <?php
@@ -1661,12 +1661,12 @@ class Backend_Outputter
 	
 			$context_list = Array();
 			foreach ($contexts as $context_item_id => $context_item) {
-				$url = replace_query_string_vars(Array('SQ_ACTION' => 'set_context', 'SQ_CONTEXT_NAME' => rawurlencode($context_item[0]['name'])), $current_loc_base, $current_loc_query);
+				$url = replace_query_string_vars(Array('SQ_ACTION' => 'set_context', 'SQ_CONTEXT_NAME' => rawurlencode($context_item['name'])), $current_loc_base, $current_loc_query);
 				if ((int)$contextid === (int)$context_item_id) {
 					$default_url = $url;
 				}
 
-				$context_list[$url] = $context_item[0]['name'];
+				$context_list[$url] = $context_item['name'];
 			}
 			combo_box('sq_context_switcher', $context_list, FALSE, Array($default_url), 1, ' onchange="self.location = this.value;"');
 		}
