@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.24 2009/04/03 00:52:42 ewang Exp $
+* $Id: trigger_action_set_permission.inc,v 1.25 2009/07/28 14:10:42 jhurst Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,9 +57,6 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// check required settings
 		if (!isset($settings['permission'])) return FALSE;
 
-		// must provide a static id, even if it is only a default for the param map
-		if (empty($settings['userid'])) return FALSE;
-
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$userid = $atr_parameter_map->getParameterValue('user');
@@ -72,6 +69,9 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			// no user id has been supplied by the parameter map, so use the static userid
 			$userid = $settings['userid'];
 		}
+
+		// if we still have no userid, bail.
+		if (empty($userid)) return FALSE;
 
 		if (empty($state['assetid'])) return FALSE;
 		$granted = array_get_index($settings, 'granted', TRUE);
@@ -143,13 +143,14 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$current_schemaid      = array_get_index($settings, 'schemaid', 0);
+		$action                = array_get_index($settings, 'action', 1);
 		$granted               = array_get_index($settings, 'granted', 1);
+		$permission            = array_get_index($settings, 'permission', SQ_PERMISSION_READ);
+		$userid                = array_get_index($settings, 'userid', 0);
 		$dependants_only       = array_get_index($settings, 'dependant_only', FALSE);
 		$dependant_parents     = array_get_index($settings, 'dependant_parents', FALSE);
 		$cascade_to_new        = array_get_index($settings, 'cascade_to_new', TRUE);
 
-	// due to "access for" being the only stable text in this interface
-		// we are not translating like the rest but just the text as it appears
 		ob_start();
 
 		// attribute friendly prefix
@@ -157,57 +158,55 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// print the grant/deny selection
-		if (!isset($settings['granted'])) {
-			$selected_granted = '1';
-		} else {
-			$selected_granted = $settings['granted'];
-		}
 		if ($write_access) {
-			combo_box($prefix.'[granted]', Array(
-											'1'	=> translate('grant'),
-											'0'	=> translate('deny'),
-										   ), FALSE, $selected_granted);
+			combo_box($prefix.'[granted]', 
+				Array (
+					'1' => translate('grant'), 
+					'0' => translate('deny'), 
+					'-1' => translate('delete'),
+				), 
+				FALSE, 
+				$granted);
 		} else {
 			echo '<b>';
-			echo ($selected_granted) ? translate('grant') : translate('deny');
+			switch ($granted) {
+			case 1:
+				echo translate('grant');
+				break;
+			case 0:
+				echo translate('deny');
+				break;
+			case -1:
+				echo translate('delete');
+				break;
+			}
 			echo '</b> ';
 		}
 
 		// print the permission level selection
-		if (empty($settings['permission'])) {
-			$selected_permission = SQ_PERMISSION_READ;
-		} else {
-			$selected_permission = $settings['permission'];
-		}
 		$permissions = Trigger_Action_Set_Permission::_getPermissionList();
+
 		if ($write_access) {
-			combo_box($prefix.'[permission]', $permissions, FALSE, $selected_permission);
+			combo_box($prefix.'[permission]', $permissions, FALSE, $permission);
 		} else {
-			echo '<b>'.$permissions[$selected_permission].'</b>';
+			echo '<b>'.$permissions[$permission].'</b>';
 		}
 		echo ' '.translate('access_for').' ';
 
-
-
 		// print the asset finder
-		if (empty($settings['userid'])) {
-			$selected_userid = 0;
-		} else {
-			$selected_userid = $settings['userid'];
-		}
 		if ($write_access) {
 			asset_finder(
 				$prefix.'[userid]',
-				$selected_userid,
+				$userid,
 				Array(
 					'user'			=> 'D',
 					'user_group'	=> 'D',
 				)
-			);
+		 	);
 		} else {
 			$user = NULL;
-			if ($selected_userid > 0) {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
+			if ($userid > 0) {
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			}
 			if (is_null($user)) {
 				echo '<b>['.translate('trigger_no_user_selected').']</b>';
@@ -222,7 +221,6 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
 		echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
-
 
 		// Only cascade to our dependants (and not all our children)?
 		if ($write_access) {
@@ -287,32 +285,36 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			return 'Specified permission is invalid';
 		}
 
-		// access must be either 1 or 0
+		// access must be either 1 or 0 or -1
 		$granted = array_get_index($request_data, 'granted', FALSE);
-		if ($granted != '1' && $granted != '0') {
+		if ($granted < -1 || $granted > 1) {
 			return 'Access parameter is invalid';
 		}
 		$settings['granted'] = $granted;
 
-		// a userid must have been selected
+		// The selected userid/groupid must be valid.
 		$user_data = array_get_index($request_data, 'userid', FALSE);
 		$userid = $user_data['assetid'];
 
-		if (empty($userid)) return 'User id is not specified';
-
-
-		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
-		$atr_parameter_map->process($new_prefix.'_parameter_map');
-
-
-		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-		if (is_null($user)) {
-			return 'Specified user is not a valid asset';
+		if (!empty($userid)) {
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+			if (is_null($user)) {
+				return 'Specified user is not a valid asset';
+			}
 		}
 		$settings['userid'] = $userid;
 
-
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
+		$atr_parameter_map->process($new_prefix.'_parameter_map');
 		$settings['user_map'] = $atr_parameter_map->value;
+
+		// Check we have a static id OR some parameter map settings. The param map settings
+		// can't really be validated, but checking for something means we ensure they've at least been
+		// reminded to configure it.
+		$user_map = unserialize($settings['user_map']);
+		if (empty($settings['userid']) && (empty($user_map))) {
+			return 'No user or group id provided';
+		}	
 
 		// dependants_only
 		$dependants_only = array_get_index($request_data, 'dependants_only', FALSE);
