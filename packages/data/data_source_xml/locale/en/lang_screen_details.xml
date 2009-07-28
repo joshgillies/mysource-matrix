@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2008/12/10 05:47:18 bshkara Exp $
+* $Id: lang_screen_details.xml,v 1.3 2009/07/28 06:56:48 cupreti Exp $
 *
 */
 -->
@@ -38,11 +38,19 @@
 		<field>
 			<function_call>
 				<paint_function name="paintTags" />
-				<process_function name="processTag" />
+				<process_function name="processTags" />
 			</function_call>
 			<display_name>Tag Names</display_name>
 			<note>You may enter a comma-separated list of tag names that you would like captured</note>
-		</field>
+		</field>		
+		<field>
+			<function_call>
+				<paint_function name="paintCDATATags" />
+				<process_function name="processCDATATags" />
+			</function_call>
+			<display_name>CDATA Tag Names</display_name>
+			<note>You may enter a comma-separated list of tag names that you would like to enclose in [CDATA]</note>
+		</field>		
 	</section>
 	<section name ="Tag Attributes">
 		<field>

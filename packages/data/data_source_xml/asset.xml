@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2008/12/10 05:47:18 bshkara Exp $
+* $Id: asset.xml,v 1.3 2009/07/28 06:55:23 cupreti Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
     <package>data</package>
     <type_code>data_source_xml</type_code>
-    <version>0.2</version>
+    <version>0.3</version>
     <name>XML Data Source</name>
     <description>Provides ability to create shadow assets from any XML source</description>
     <instantiable>yes</instantiable>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_management.inc,v 1.2 2008/12/10 05:47:18 bshkara Exp $
+* $Id: data_source_xml_management.inc,v 1.3 2009/07/28 06:55:23 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -70,6 +70,27 @@ class Data_Source_Xml_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'Serialized array of tags and their selected attributes',
 											   ),
+						'dynamic_vars'		=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												),
+						'parameter_map'		=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'parameter_map',
+												'default'		=> Array(),
+												'parameters'	=> Array(
+																'parameters'	=> Array(),
+															),
+												),
+						'cdata_tags'				=> Array (
+												'added'			=> '0.3',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'Serialized array of tag names which data are to be enclosed in [CDATA]',
+											   ),
+												
+											   
 					  );
 
 	}//end constructor
