@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.17 2008/11/30 21:50:35 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.18 2009/07/28 11:19:20 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -390,7 +390,9 @@ class Ecommerce_Cart_Processor
 		if (is_null($this->cart)) return 0;
 		$count = 0;
 		foreach ($this->cart as $assetid => $details) {
-			$count += $details['quantity'];
+			if (!array_get_index($details, 'is_donation', FALSE)) {
+				$count += $details['quantity'];
+			}
 		}
 
 		return $count;
@@ -426,76 +428,76 @@ class Ecommerce_Cart_Processor
 	*/
 	function addItem($assetid, $quantity=1)
 	{
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			return FALSE;
+		}
+		
+		if (!($asset instanceof Donation) && !($asset instanceof Buyable)) {
+			trigger_localised_error('ECOM0005', E_USER_WARNING, $assetid);
+			return FALSE;
+		}
+		
 		if ($quantity <= 0) {
-			// quantity is less than zero, throw a hissy fit
-			if ($quantity < 0) {
+			if ($asset instanceof Donation) {
+				trigger_localised_error('ECOM0025', E_USER_WARNING);
+			} else if ($quantity < 0) { // quantity is less than zero, throw a hissy fit
 				trigger_localised_error('ECOM0004', E_USER_WARNING);
 			}
 			return FALSE;
 		}
 
-		// check that the passed item assetid is indeed valid and
-		// able to be bought
-		assert_valid_assetid($assetid);
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), '', FALSE, 'type_code');
-
-		if (!$asset_info) {
-			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
-			return FALSE;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_info[$assetid]);
-		if (!implements_interface($asset_info[$assetid], 'buyable')) {
-			trigger_localised_error('ECOM0005', E_USER_WARNING, $assetid);
-			return FALSE;
-		}
 
 		if (!isset($this->cart[$assetid])) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if ($asset) {
-
-				// ugly, but we need to work around the backwards way Files store names
-				if ($asset instanceof File) {
-					$name = $asset->attr('title');
-				} else {
-					$name = $asset->name;
-				}
-
-				// only include a price if the object is a product
-				// only include taxable boolean if the object is a product
-				$taxable = FALSE;
-				$has_tax = FALSE;
-				if ($asset instanceof Product) {
-					$price = $asset->attr('price');
-
-					// get the taxable boolean
-					$tmp_price_obj = $asset->attr('price_obj');
-					if (!empty($tmp_price_obj) ) {
-						if ((!empty($tmp_price_obj->value_has_tax)) && ($tmp_price_obj->value_has_tax == 1)) {
-							$has_tax = TRUE;
-						}
-						if ((!empty($tmp_price_obj->calculate_tax)) && ($tmp_price_obj->calculate_tax == 1)) {
-							$taxable = TRUE;
-						}
-					}
-				} else {
-					$price = -1;
-				}
-
-				$this->cart[$assetid] = Array(
-											'price'		=> $price,
-											'quantity'	=> 0,
-											'name'		=> $name,
-											'has_tax'	=> $has_tax,
-											'taxable'	=> $taxable,
-										);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			// ugly, but we need to work around the backwards way Files store names
+			if ($asset instanceof File) {
+				$name = $asset->attr('title');
 			} else {
-				return FALSE;
+				$name = $asset->name;
+			}
+
+			// only include a price if the object is a product
+			// only include taxable boolean if the object is a product
+			$taxable = FALSE;
+			$has_tax = FALSE;
+			$is_donation = FALSE;
+			if ($asset instanceof Donation) {
+				$price = 1;
+				$is_donation = TRUE;
+			} else if ($asset instanceof Product) {
+				$price = $asset->attr('price');
+
+				// get the taxable boolean
+				$tmp_price_obj = $asset->attr('price_obj');
+				if (!empty($tmp_price_obj) ) {
+					if ((!empty($tmp_price_obj->value_has_tax)) && ($tmp_price_obj->value_has_tax == 1)) {
+						$has_tax = TRUE;
+					}
+					if ((!empty($tmp_price_obj->calculate_tax)) && ($tmp_price_obj->calculate_tax == 1)) {
+						$taxable = TRUE;
+					}
+				}
+			} else {
+				$price = -1;
+			}
+
+			$this->cart[$assetid] = Array(
+										'price'			=> $price,
+										'quantity'		=> $quantity,
+										'name'			=> $name,
+										'has_tax'		=> $has_tax,
+										'taxable'		=> $taxable,
+										'is_donation'	=> $is_donation,
+									);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			
+		} else {
+			if ($asset instanceof Donation) {
+				$this->cart[$assetid]['quantity'] = $quantity;
+			} else {
+				$this->cart[$assetid]['quantity'] += $quantity;
 			}
 		}//end if
-
-		$this->cart[$assetid]['quantity'] += $quantity;
 
 		return TRUE;
 
@@ -637,6 +639,7 @@ class Ecommerce_Cart_Processor
 
 		$name_length = 0;
 		$has_price = FALSE;
+		$has_products = FALSE;
 
 		// formatting preparation
 		foreach ($this->cart as $assetid => $details) {
@@ -654,8 +657,14 @@ class Ecommerce_Cart_Processor
 			}
 
 			// determine whether all items have price
-			if (!$has_price && array_get_index($details, 'price', -1) != -1) {
+			$price = array_get_index($details, 'price', -1);
+			if (!$has_price && ($price != -1)) {
 				$has_price = TRUE;
+			}
+			
+			// check if there are not only donations
+			if (!$has_products && !array_get_index($details, 'is_donation', FALSE) && ($price != -1)) {
+				$has_products = TRUE;
 			}
 		}
 
@@ -669,10 +678,14 @@ class Ecommerce_Cart_Processor
 		}
 
 		// standard format for the receipt header and rows
-		$row_format = '%-'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
+		$row_format = '%-'.$name_length.'s %10s'.($has_price && $has_products ? ' %10s' : '')."\n";
 
 		if ($has_price) {
-			$header = sprintf($row_format, 'Item', 'Quantity', 'Price');
+			if ($has_products) {
+				$header = sprintf($row_format, 'Item', 'Quantity', 'Price');
+			} else { // there are donations only
+				$header = sprintf($row_format, 'Item', 'Amount');
+			}
 		} else {
 			$header = sprintf($row_format, 'Item', 'Quantity');
 		}
@@ -710,7 +723,14 @@ class Ecommerce_Cart_Processor
 			}
 
 			if ($has_price) {
-				printf($row_format, array_get_index($details, 'name', ''), $product_quantity, $cost);
+				if ($has_products) {
+					if (array_get_index($details, 'is_donation', FALSE)) {
+						$product_quantity = '';
+					}
+					printf($row_format, array_get_index($details, 'name', ''), $product_quantity, $cost);
+				} else {
+					printf($row_format, array_get_index($details, 'name', ''), $cost);
+				}
 			} else {
 				printf($row_format, array_get_index($details, 'name', ''), $product_quantity);
 			}
@@ -719,13 +739,18 @@ class Ecommerce_Cart_Processor
 		echo $break;
 
 		// change the row format for the totals line
-		$row_format = '%'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
+		$row_format = '%'.$name_length.'s %10s'.($has_price && $has_products ? ' %10s' : '')."\n";
 
 		if ($has_price) {
 			$total_tax = $this->getTotalTax($taxation_rate);
 
 			$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
-			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $sub_total));
+			
+			if ($has_products) {
+				echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $sub_total));
+			} else {
+				echo sprintf($row_format, 'Total', sprintf('$%.2f', $sub_total));
+			}
 
 			if (($total_tax > 0) || ($flat_charges_total > 0.0)) {
 				if ($total_tax > 0) {
@@ -815,9 +840,14 @@ class Ecommerce_Cart_Processor
 			}
 
 			// replace all ecommerce specific keywords
-			$format_replacements['item_quantity_added'] = $product_quantity;
+			if (array_get_index($details, 'is_donation', FALSE)) {
+				$format_replacements['item_quantity_added'] = '';
+				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $product_quantity);
+			} else {
+				$format_replacements['item_quantity_added'] = $product_quantity;
+				$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost);
+			}
 
-			$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost);
 			$format_replacements['item_tax'] = sprintf($price_format, $tax_cost);
 
 			$format_replacements['total_item_price'] = sprintf($price_format, $cost * $product_quantity);

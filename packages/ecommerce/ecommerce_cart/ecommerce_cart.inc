@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.41 2009/05/17 22:22:40 bpearson Exp $
+* $Id: ecommerce_cart.inc,v 1.42 2009/07/28 11:21:51 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -505,15 +505,18 @@ class Ecommerce_Cart extends Listing_Engine
 				if (isset($cart_contents[$assetid]['quantity'])) {
 					// we updated the quantity for the product
 					$amount = $cart_contents[$assetid]['quantity'];
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if ($asset instanceof Donation) {
+						//if the asset is a Donation, remove the existing amount to use the update amount only. Do not confuse the users how much he has donated
+						$amount = 0;
+					}
+					
 					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount+$quantity, $assetid))) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
 
-					continue;
-				}
-
-				// only add if it's not going to break our Quantity selection
-				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity, $assetid) == $quantity) {
+				} else if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity, $assetid) == $quantity) {
+					// only add if it's not going to break our Quantity selection
 					if ($cart->addItem($assetid, $quantity)) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
@@ -584,6 +587,11 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function _validateItemUpdate($selection_name, $quantity, $assetid)
 	{
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if ($asset instanceof Donation) {
+			return $quantity;
+		}
+		
 		$selections     = $this->attr('asset_selections');
 		$final_quantity = $quantity;
 
@@ -606,7 +614,6 @@ class Ecommerce_Cart extends Listing_Engine
 							if ($quantity > $available_quantity) {
 								$this->insufficient_quantities = TRUE;
 								// add name of asset to error list for displaying on frontend
-								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$this->insufficient_quantity_assets[] = $asset->name;
 								$final_quantity = $available_quantity;
 							} else {
@@ -618,7 +625,6 @@ class Ecommerce_Cart extends Listing_Engine
 						case 'attribute':
 						$quantity_attribute = $checkout_asset->attr('quantity_attribute');
 						if (!empty($quantity_attribute)) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$available_quantity = $asset->attr($quantity_attribute);
 							if ($quantity > $available_quantity) {
 								$this->insufficient_quantities = TRUE;
