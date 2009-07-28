@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.308 2009/07/24 00:45:18 cupreti Exp $
+* $Id: mysource.inc,v 1.309 2009/07/28 04:17:33 lwright Exp $
 *
 */
 
@@ -31,10 +31,10 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308 $
+* @version $Revision: 1.309 $
 * @package MySource_Matrix
 */
-class MySource
+class MySource extends MySource_Object
 {
 	/**
 	* The current DB object
@@ -2424,29 +2424,30 @@ class MySource
 
 
 	/**
-	* Gets information about the current context, based on the
-	* context ID passed to it.
+	* Gets and caches information about all contexts
 	*
-	* If the context ID was omitted from the function call,
-	* the current context ID is used instead.
+	* This could be just called from the database each time.
+	* This is being placed in a function to allow us to
+	* cache the info, as it's unlikely to change within a
+	* request.
 	*
-	* @param int	$contextid	The ID of the context to get info for
+	* If it's vital to get the latest context info, call
+	* with a parameter of TRUE to force reload.
+	*
+	* @param boolean	$force_reload	If TRUE, always reload data from
+	*									the database. If FALSE, use cache
+	*									if loaded.
 	*
 	* @return void
 	*/
-	public function getContextInfo($contextid=NULL)
-	{
-		$context_info = Array();
-		if (func_num_args() === 0) {
-			$contextid = $this->getContextId();
+	public function getAllContexts($force_reload=FALSE)
+	{		
+		if (((boolean)$force_reload === TRUE) || (array_key_exists('context_cache', $this->_tmp) === FALSE)) {
+			$context_data = MatrixDAL::executeAll('core', 'getContexts', Array('contextids' => NULL));	
+			$this->_tmp['context_cache'] = $context_data;
 		}
 
-		if ($contextid !== NULL) {
-			// Query the list/table of contexts to work out what to do
-
-		}
-
-		return $context_info;
+		return $this->_tmp['context_cache'];
 
 	}//end getContextInfo()
 
@@ -2510,7 +2511,7 @@ class MySource
 	public function getAlternateContext()
 	{
 		// Get all contexts, except the default
-		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
 		
 		// Remove the intervening '0' since the context ID is unique;
