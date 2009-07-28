@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.33 2008/03/18 22:23:47 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.34 2009/07/28 02:14:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -32,6 +32,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 {
 
 
+
+	
 	/**
 	* Constructor
 	*
@@ -90,13 +92,13 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		$minor = $this->getAssetInLink('minor');
-		if (is_null($minor)) {
+		$asset = $this->attr('reverse_mode') ? $this->getAssetInLink('major') : $this->getAssetInLink('minor');
+		if (is_null($asset)) {
 			return translate('cron_job_asset-less_future_linking');
 		} else if ($short_name) {
-			return translate('cron_fl_for', translate('asset_format', $minor->short_name, $minor->id));
+			return translate('cron_fl_for', translate('asset_format', $asset->short_name, $asset->id));
 		} else {
-			return translate('cron_future_linking_for', translate('asset_format', $minor->name, $minor->id));
+			return translate('cron_future_linking_for', translate('asset_format', $asset->name, $asset->id));
 		}//end if
 
 	}//end _getName()
@@ -135,8 +137,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		if (parent::canDelete()) return TRUE;
 
-		$minor = $this->getAssetInLink('minor');
-		if (!is_null($minor)) return $minor->adminAccess('');
+		$asset = $this->attr('reverse_mode') ? $this->getAssetInLink('major') : $this->getAssetInLink('minor');
+		if (!is_null($asset)) return $asset->adminAccess('');
 		return FALSE;
 
 	}//end canDelete()
@@ -245,11 +247,16 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	*/
 	public function readableDescription()
 	{
+		if($this->attr('reverse_mode')) return $this->_readableDescriptionReverse();
+		
 		$minor = $this->getAssetInLink('minor');
+
+		
 		if (is_null($minor)) {
 			return translate('no_minor_asset_found');
 		}
-
+		
+		
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
@@ -269,7 +276,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if ($this->attr('delete_linkid') && !is_null($new_major)) {
 			$str .= "\n";
 		}
-
+	
 		if (!is_null($new_major)) {
 			$str .= translate('create_new_link_for', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $new_major->name, $new_major->id));
 		}
@@ -278,6 +285,49 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 	}//end readableDescription()
 
+	/**
+	* Returns a description of what this future lineage job is going to do for reverse mode
+	*
+	* @return string
+	* @access public
+	*/
+	public function _readableDescriptionReverse()
+	{
+		$major = $this->getAssetInLink('major');
+		$new_minor =  $this->getAssetInLink('minor');
+
+		if(is_null($major)){
+			return translate('no_major_asset_found');
+		}
+		
+		$str = '';
+
+		if ($this->attr('delete_linkid')) {
+			$str .= translate('deleting_link_id', $this->attr('delete_linkid'));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
+
+			if (!empty($link)) {
+				$old_minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (!is_null($old_minor)) {
+					$str = ' - '.translate('asset_from_under_asset', translate('asset_format', $old_minor->name, $old_minor->id), translate('asset_format', $major->name, $major->id));
+				}	
+
+			}
+		}
+
+
+		if ($this->attr('delete_linkid') && !is_null($new_minor)) {
+			$str .= "\n";
+		}
+
+		if (!is_null($new_minor)) {
+			$str .= translate('create_new_link_for', translate('asset_format', $new_minor->name, $new_minor->id), translate('asset_format', $major->name, $major->id));
+		}
+
+		return $str;
+
+	}//end _readableDescriptionReverse()
+	
 
 	/**
 	* Actually executes the functionality for this job, called by run()
@@ -296,80 +346,53 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$failed_ret_val = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
 		// need to get this here because we are could be deleting the link below
+		
 		$desc = $this->readableDescription();
-
+		$major = $this->getAssetInLink('major');
 		$minor = $this->getAssetInLink('minor');
-		if (is_null($minor)) {
+		
+		//in reverse mode, the current asset is major asset
+		$main_asset = $this->attr('reverse_mode') ? $major : $minor;
+		$target_asset = $this->attr('reverse_mode') ? $minor : $major;
+		$side_of_link = $this->attr('reverse_mode') ? 'major' : 'minor';
+		
+
+		if (is_null($main_asset)) {
 			trigger_localised_error('CRON0019', E_USER_WARNING);
 			return $failed_ret_val;
 		}
 
+
 		// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
-		$can_safe_trash = TRUE;
+		
 		$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
-		if ($safe_trash) {
-			// safe trash is enabled, and asset is LIVE
-			if ($minor->status >= SQ_STATUS_LIVE ) {
-				$can_safe_trash = FALSE;
+		
+		if ($safe_trash) {		
+			$exclude_self = FALSE;
+			//if minor asset is empty, it must be deletion of children links
+			// so have to check the minor asset/assets
+			if(empty($minor)){
+				if ($this->attr('delete_link_all')){
+					$minor = $major;
+					$exclude_self = TRUE;
+				}
+				else if($this->attr('delete_linkid') > 0){
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
+					$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				}
+				
 			}
-			// safe trash is enabled, and there are notice link(s) to other assets
-			$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
-			foreach ($affected_links as $info) {
-				// make sure that we are not treating notice link to this future cron job as problematic link
-				if ($info['major_type_code'] != $this->type()) {
-					$can_safe_trash = FALSE;
-					break;
-				}
-			}
-
-			// check the same thing for all children
-			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($minor, '', TRUE, FALSE);
-			$children  = $ret_val['sql_array'];
-			$bind_vars = $ret_val['bind_vars'];
-
-			if (!empty($children)) {
-				// modify the selection so that we only get 1 column
-				$children['select'] = '(SELECT DISTINCT l.minorid';
-				if (isset($children['union_select'])) {
-					$children['union_select'] = 'UNION ALL SELECT sl.minorid';
-				}
-
-				$sql = 'SELECT
-							majorid, minorid, name, linkid, status, link_type
-						FROM
-							'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
-						WHERE
-							(
-								(link_type = :link_type_3 OR link_type = :link_notice) OR
-								(status >= :status_live)
-							) AND
-							assetid IN ('.implode(' ', $children).')';
-
-				try {
-					$query = MatrixDAL::preparePdoQuery($sql);
-					foreach ($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-					}
-					MatrixDAL::bindValueToPdo($query, 'link_type_3', SQ_LINK_TYPE_3);
-					MatrixDAL::bindValueToPdo($query, 'link_notice', SQ_LINK_NOTICE);
-					MatrixDAL::bindValueToPdo($query, 'status_live', SQ_STATUS_LIVE);
-					$result = MatrixDAL::executePdoAll($query);
-				} catch (DALException $e) {
-					throw new Exception ('Unable to check if asset "'.$minor->name.'" (#'.$minor->id.') can be safe-trashed due to database error: '.$e->getMessage());
-				}
-				if (!empty($result)) {
-					$can_safe_trash = FALSE;
-				}
-			}
+			
+			$can_safe_trash = $this->_canSafeTrash($minor, $exclude_self);
 		}
+	
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$delete_link_success = TRUE;
-		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
+		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {	
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($main_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, $side_of_link);
 			foreach ($links as $link) {
 				if (!$delete_link_success = $this->_execDeleteLink($link['linkid'])) {
 					break;
@@ -381,13 +404,12 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		if (!$delete_link_success) return $failed_ret_val;
 
-		$new_major = $this->getAssetInLink('major');
 
-		if (!is_null($new_major)) {
+		if (!is_null($target_asset)) {
 
 			// if moving to the trash, and it is not safe to do so, throw an error
 			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if ($new_major->id == $trash_folder->id && !$can_safe_trash) {
+			if ($major->id == $trash_folder->id && !$can_safe_trash) {
 				trigger_localised_error('CRON0051', E_USER_WARNING, $minor->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -408,7 +430,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				$link_info['is_exclusive'] = '0';
 			}
 
-			$linkid = $new_major->createLink($minor,
+			$linkid = $major->createLink($minor,
 											 $link_info['link_type'],
 											 $link_info['value'],
 											 $link_info['sort_order'],
@@ -419,24 +441,29 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$create_ok = ($linkid > 0);
 
 			if (!$create_ok) {
-				trigger_localised_error('CRON0004', E_USER_WARNING, $new_major->name, $new_major->id);
+				trigger_localised_error('CRON0004', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $failed_ret_val;
 			}
 
 		}//end if
-
+		
+		//update lookups for all assets involved
+		if(!empty($minor)){
+			$this->_tmp['_update_lookups_assets'][] = $minor->id;
+		}
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => Array($minor->id));
+
+		$vars = Array('assetids' => $this->_tmp['_update_lookups_assets']);
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
-			trigger_localised_error('CRON0008', E_USER_WARNING, $minor->name, $minor->id);
+			trigger_localised_error('CRON0008', E_USER_WARNING, $main_asset->name, $main_asset->id);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $failed_ret_val;
 		}
-
+	
 		$msg = "Successful in \n".$desc;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -462,6 +489,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if (!empty($link)) {
 			$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			//keep all minor assets which must need a lookup update later
+			$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$this->_tmp['_update_lookups_assets'][] = $minor->id;
 			if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
 				$delete_ok = $old_major->deleteLink($linkid, TRUE);
 			}
@@ -483,12 +513,13 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* returned in chronological order
 	*
 	* @param Asset	$asset	the asset to get the future status jobs for
-	*
+	* @param Boolean $reverse_mode get active jobs for linked parents or children
+	* 
 	* @return array
 	* @access public
 	* @static
 	*/
-	public static function &getActiveJobs(Asset $asset)
+	public static function &getActiveJobs(Asset $asset, $reverse_mode = FALSE)
 	{
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) {
@@ -501,8 +532,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		$dates = Array();
 		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
-
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', FALSE, 'minor_asset');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', FALSE, $reverse_mode ? 'major_asset' : 'minor_asset');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
 				$dates[$i] = $all_jobs[$i]->attr('when');
 			}
@@ -519,8 +549,79 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		return $assets_jobs;
 
 	}//end getActiveJobs()
+	
 
+	/**
+	* Given the $minor asset, check if this asset can be safe trashed
+	*
+	* @param Asset	 $minor the asset to be checked
+	* @param Boolean $exclude_self exclude the asset itself while checking safe trash status
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function _canSafeTrash ($minor, $exclude_self = FALSE) {
+		$can_safe_trash = TRUE;
+		if(!$exclude_self){
+			// safe trash is enabled, and asset is LIVE
+			if ($minor->status >= SQ_STATUS_LIVE ) {
+				$can_safe_trash = FALSE;
+			}
+			// safe trash is enabled, and there are notice link(s) to other assets
+			$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+			foreach ($affected_links as $info) {
+				// make sure that we are not treating notice link to this future cron job as problematic link
+				if ($info['major_type_code'] != $this->type()) {
+					$can_safe_trash = FALSE;
+					break;
+				}
+			}
+		}
 
+		// check the same thing for all children
+		$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($minor, '', TRUE, FALSE);
+		$children  = $ret_val['sql_array'];
+		$bind_vars = $ret_val['bind_vars'];
+
+		if (!empty($children)) {
+			// modify the selection so that we only get 1 column
+			$children['select'] = '(SELECT DISTINCT l.minorid';
+			if (isset($children['union_select'])) {
+				$children['union_select'] = 'UNION ALL SELECT sl.minorid';
+			}
+
+			$sql = 'SELECT
+						majorid, minorid, name, linkid, status, link_type
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
+					WHERE
+						(
+							(link_type = :link_type_3 OR link_type = :link_notice) OR
+							(status >= :status_live)
+						) AND
+						assetid IN ('.implode(' ', $children).')';
+
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+				MatrixDAL::bindValueToPdo($query, 'link_type_3', SQ_LINK_TYPE_3);
+				MatrixDAL::bindValueToPdo($query, 'link_notice', SQ_LINK_NOTICE);
+				MatrixDAL::bindValueToPdo($query, 'status_live', SQ_STATUS_LIVE);
+				$result = MatrixDAL::executePdoAll($query);
+			} catch (DALException $e) {
+				throw new Exception ('Unable to check if asset "'.$minor->name.'" (#'.$minor->id.') can be safe-trashed due to database error: '.$e->getMessage());
+			}
+			if (!empty($result)) {
+				$can_safe_trash = FALSE;
+			}
+		}
+		return $can_safe_trash;
+	}//end _canSafeTrash()
+	
+	
 }//end class
 
 ?>

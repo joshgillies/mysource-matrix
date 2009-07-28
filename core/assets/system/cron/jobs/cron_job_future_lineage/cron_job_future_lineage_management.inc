@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_management.inc,v 1.11 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_future_lineage_management.inc,v 1.12 2009/07/28 02:12:21 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,12 @@ class Cron_Job_Future_Lineage_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> '',
+											   ),
+						'reverse_mode'				=> Array(
+												'added'			=> '0.4',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'description'	=> 'Creating/deleteing links of its children or its parents',
 											   ),
 					  );
 
