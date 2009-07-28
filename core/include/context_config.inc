@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.4 2009/07/22 01:23:53 lwright Exp $
+* $Id: context_config.inc,v 1.5 2009/07/28 04:23:22 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1410,7 +1410,7 @@ class Context_Config extends Config
 	*/
 	public function load()
 	{
-		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		// Remove the intervening '0' since the context ID is unique;
 		// also unserialise conditions where needed

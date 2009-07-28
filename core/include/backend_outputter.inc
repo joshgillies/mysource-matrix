@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.163 2009/07/12 22:34:14 lwright Exp $
+* $Id: backend_outputter.inc,v 1.164 2009/07/28 04:23:21 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1625,7 +1625,7 @@ class Backend_Outputter
 	*/
 	public function printContextSwitcher()
 	{
-		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 		$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if (count($contexts) > 1) {
 			?>
@@ -1654,7 +1654,7 @@ class Backend_Outputter
 		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$default_url = NULL;
 
-		$contexts = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 		$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if (count($contexts) > 1) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
