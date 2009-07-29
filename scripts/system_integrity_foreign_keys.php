@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_foreign_keys.php,v 1.3 2008/02/18 05:28:41 lwright Exp $
+* $Id: system_integrity_foreign_keys.php,v 1.3.4.1 2009/07/29 02:36:46 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Checks the integrity of the database foreign keys
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -183,12 +183,24 @@ class Foreign_Key_Integrity_Check
 		}
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$table_info = $db->tableInfo($table);
-
+		$dbtype = $this->_getDbType();
+		switch ($dbtype) {
+			case 'oci':
+				$sql = "SELECT column_name FROM user_tab_cols WHERE table_name = '".strtoupper($table)."'";
+			break;
+			default:
+				$sql = "select column_name from information_schema.columns WHERE table_name='".$table."'";
+			break;
+		}//end switch
+		$results = MatrixDAL::executeSqlAssoc($sql);
 		$columns = Array();
-		foreach ($table_info as $column_info) {
-			$columns[] = $column_info['name'];
-		}
+		foreach ($results as $column) {
+			$column_name = array_get_index($column, 'column_name', '');
+			if (!empty($column_name)) {
+				$columns[] = strtolower($column_name);
+			}//end if
+		}//end foreach
+
 		return $columns;
 
 	}//end columns()
@@ -234,9 +246,28 @@ class Foreign_Key_Integrity_Check
 	function load()
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+		$dbtype = $this->_getDbType();
 
 		// load our tables from the database
-		$this->tables = $db->getTables();
+		switch ($dbtype) {
+			case 'oci':
+				$sql = "SELECT object_name AS table_name FROM user_objects WHERE object_type = 'TABLE'";
+			break;
+			default:
+				$sql = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'";
+			break;
+		}//end switch
+		$results = MatrixDAL::executeSqlAssoc($sql);
+		$tables = Array();
+		foreach ($results as $table) {
+			$table_name = array_get_index($table, 'table_name', '');
+			if (!empty($table_name)) {
+				$tables[] = strtolower($table_name);
+			}//end if
+		}//end foreach
+
+		$this->tables = $tables;
 		if (empty($this->tables)) {
 			return FALSE;
 		}
@@ -277,6 +308,7 @@ class Foreign_Key_Integrity_Check
 	function checkTable($table)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$dbtype = $this->_getDbType();
 
 		// we're going to check these keys
 		$fks = $this->fks($table);
@@ -287,12 +319,29 @@ class Foreign_Key_Integrity_Check
 
 		foreach ($fks as $fk_field => $fk_info) {
 			// query db for invalid foreign keys
-			$sql = "SELECT $fk_field
-					FROM $table
-					WHERE
-						$fk_field > 0
-					AND
-						$fk_field NOT IN (SELECT ".$fk_field." FROM ".$fk_info['table'].")";
+			switch($fk_field) {
+				case 'treeid':
+				case 'type_code':
+				case 'inhd_type_code':
+					switch ($dbtype) {
+						case 'oci':
+							$where_cond = $fk_field." > ''";
+						break;
+						default:
+							$where_cond = $fk_field."::text > ''";
+					}//end switch
+				break;
+				default:
+					switch ($dbtype) {
+						case 'oci':
+							$where_cond = 'CAST ('.$fk_field." as int) > 0";
+						break;
+						default:
+							$where_cond = $fk_field."::int > 0";
+					}//end switch
+			}//end switch
+			$sub_sql = 'SELECT '.$fk_field.' FROM '.$fk_info['table'];
+			$sql = 'SELECT '.$fk_field.' FROM '.$table.' WHERE '.$where_cond.' AND '.$fk_field.' NOT IN ('.$sub_sql.')';
 			$assetids = MatrixDAL::executeSqlAssoc($sql, 0);
 
 			$broken_count = count($assetids);
@@ -361,6 +410,24 @@ class Foreign_Key_Integrity_Check
 		echo "\t".'\''.implode('\', \'', $assetids).'\''."\n";
 
 	}//end printResult
+
+
+	/**
+	 * Get the type of database we dealing with
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function _getDbType()
+	{
+		$dbtype = MatrixDAL::GetDbType();
+
+		if ($dbtype instanceof PDO) {
+			$dbtype = $dbtype->getAttribute(PDO::ATTR_DRIVER_NAME);
+		}
+		return strtolower($dbtype);
+
+	}//end _getDbType()
 
 
 }//end class
