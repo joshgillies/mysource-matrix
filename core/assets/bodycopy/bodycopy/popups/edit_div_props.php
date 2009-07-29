@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.25 2009/07/07 23:04:39 cupreti Exp $
+* $Id: edit_div_props.php,v 1.26 2009/07/29 00:34:48 wszymanski Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,8 +42,25 @@ include(dirname(__FILE__).'/header.php');
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
 		f.desc.value  	   = (data['desc']       == null) ? "" : data['desc'];
-		f.css_class.value  = (data['css_class']  == null) ? "" : data['css_class'];
 		f.dir.value		   = (data['dir']  		 == null) ? "" : data['dir'];
+		f.css_class.value  = (data['css_class']  == null) ? "" : data['css_class'];
+
+		css_class_list = owner.bodycopy_current_edit["data"]["available_classes"];
+		if (css_class_list != null) {
+			var checked = 0;
+			var i = 1;
+			for (var key in css_class_list) {
+				f.css_class_list.options[i] = new Option(css_class_list[key], key);
+				if (key == f.css_class.value) {
+					f.css_class_list.value = f.css_class.value;
+					checked = 1;
+				}
+				i++;
+			}
+			if (checked == 0) {
+				f.css_class_list.options[0].value = f.css_class.value;
+			}
+		}
 
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
@@ -82,7 +99,18 @@ include(dirname(__FILE__).'/header.php');
 		data["content_type"]     = owner.form_element_value(f.content_type);
 		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
 		data["dir"] 			 = owner.form_element_value(f.dir);
+		if (f.css_class_list.options.length > 1) {
+			classes = new Array();
+			for(var i = 1; i < f.css_class_list.options.length; i++) {
+				classes.push(f.css_class_list.options[i].value);
+			}
+			data["css_class_list"] = classes;
+		}
 		owner.bodycopy_save_div_properties(data);
+	}
+	
+	function set_class(value) {
+		document.main_form.css_class.value = value;
 	}
 
 </script>
@@ -127,7 +155,12 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				</tr>
 				<tr>
 					<td class="label"><?php echo translate('class'); ?>:</td>
-					<td><input type="text" name="css_class" value="" size="15"></td>
+					<td>
+						<input type="text" name="css_class" value="" size="15"><br />
+						<select name="css_class_list" onchange="set_class(this.value);">
+							<option value=""><?php echo translate('content_type_no_change'); ?></option>
+						</select>
+					</td>
 				</tr>				
 			</table>
 		</fieldset>
