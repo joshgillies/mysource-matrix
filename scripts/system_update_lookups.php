@@ -10,15 +10,23 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.8 2009/07/29 00:27:00 ewang Exp $
+* $Id: system_update_lookups.php,v 1.9 2009/07/29 01:57:44 ewang Exp $
 *
 */
 
 /**
 * Run updateLookups() on each site-based asset in the system
+* 
+* Example usage:	
+* php scripts/system_update_lookups .
+* or 
+* php scripts/system_update_lookups . 46 70
+* 
+* First argument specifies system root path
+* Following arguments specifies root asset ids (sites) 
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -30,6 +38,22 @@ if ((php_sapi_name() != 'cli')) {
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+}
+$ROOT_ASSETID = 1;
+$ROOT_ASSETID_ARG = Array();
+
+//Read in the asset id for those assets to be updated
+for($i=2; $i<count($_SERVER['argv']); $i++) {
+	$ROOT_ASSETID_ARG[] = $_SERVER['argv'][$i]; 
+}
+
+if (count($ROOT_ASSETID_ARG) == 0) {
+	echo "\nWARNING: You are running this update lookup on the whole system.\nThis is fine but it may take a long time\n\nYOU HAVE 5 SECONDS TO CANCEL THIS SCRIPT... ";
+	for ($i = 1; $i <= 5; $i++) {
+		sleep(1);
+		echo $i.' ';
+	}
+	echo "\n\n";
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -57,8 +81,20 @@ $am = $GLOBALS['SQ_SYSTEM']->am;
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $site_ids = $am->getTypeAssetids('site', FALSE, TRUE);
 $sites = Array();
-foreach ($site_ids as $assetid => $info) {
-	$sites[] = $am->getAsset($assetid, $info['type_code']);
+if (count($ROOT_ASSETID_ARG) == 0) {
+	foreach ($site_ids as $assetid => $info) {
+		$sites[] = $am->getAsset($assetid, $info['type_code']);
+	}
+//Check to see if given assetid is a site asset  
+} else {
+	for($i=0; $i<count($ROOT_ASSETID_ARG); $i++) {
+		if (isset($site_ids[$ROOT_ASSETID_ARG[$i]])) {
+			$sites[] = $am->getAsset($ROOT_ASSETID_ARG[$i], $site_ids[$ROOT_ASSETID_ARG[$i]]['type_code']);
+		} else {
+			echo "\n".'ERROR: The asset id "',$ROOT_ASSETID_ARG[$i],'" is not a valid site asset.'."\n";  
+			exit;
+		}
+	}
 }
 
 foreach ($sites as $key => $site) {
