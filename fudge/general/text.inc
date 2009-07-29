@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.43 2009/07/09 23:29:50 wszymanski Exp $
+* $Id: text.inc,v 1.44 2009/07/29 11:34:34 jhurst Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage Text
 */
@@ -178,16 +178,12 @@ function apply_keyword_modifier($text, $modifier)
 
 	case "maxchars":
 		// One argument; the max characters as an integer.
-		$max = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
-		if (is_numeric($max)) {
-			return substr($text, 0, $max);
-		} else {
-			return $text;
-		}
+		$max = array_get_index($modifier['args'], 0, -1);
+		return substr($text, 0, $max);
 
 	case "maxwords":
 		// One argument; the max words as an integer.
-		$max = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		$max = array_get_index($modifier['args'], 0, 0);
 		if (is_numeric($max)) {
 			$words = str_word_count($text, 2);
 			$keys = array_keys($words);
@@ -229,8 +225,10 @@ function apply_keyword_modifier($text, $modifier)
 		// The path lists all titles in the feed, delimited by </li><li>, and then conditionally wrapped in <li>, 
 		// which in turn is conditionally wrapped in <ol>.
 		//
-		$delim  = isset($modifier['args'][0]) ? $modifier['args'][0] : '';
-		$path   = isset($modifier['args'][1]) ? $modifier['args'][1] : NULL;
+		if (empty($text)) return $text;
+
+		$delim = array_get_index($modifier['args'], 0, '');
+		$path  = array_get_index($modifier['args'], 1, NULL);
 
 		// If there are more args, this means there were colons in the path. Fixup.
 		for ($i = 2; $i < count($modifier['args']); $i++) {
@@ -259,19 +257,20 @@ function apply_keyword_modifier($text, $modifier)
 				// Badly formed xml, most likely.
 				trigger_error($e->getMessage());
 			}
+
 		}
 		return $text;
 
 	case "empty":
 		// One argument; text to display if the keyword result is empty.
 		if (empty($text)) {
-			$text = isset($modifier['args'][0]) ? $modifier['args'][0] : '';
+			$text = array_get_index($modifier['args'], 0, ''); 
 		}
 		return $text;
 
 	case "tag":
 		// One argument; the tag name to wrap around the text.
-		$tag = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		$tag = array_get_index($modifier['args'], 0, NULL);
 		if ($tag) {
 			if (empty($text)) {
 				return "<$tag />";
@@ -283,7 +282,7 @@ function apply_keyword_modifier($text, $modifier)
 
 	case "tagif":
 		// Same as above, except do nothing if the text is empty.
-		$tag = isset($modifier['args'][0]) ? $modifier['args'][0] : NULL;
+		$tag = array_get_index($modifier['args'], 0, NULL);
 		if ($tag) {
 			if (empty($text)) {
 				return "";
@@ -298,12 +297,160 @@ function apply_keyword_modifier($text, $modifier)
 		$text = str_replace(']]>', ']]]]><![CDATA[>', $text);
 		return "<![CDATA[$text]]>";
 
+	case "increment":
+		// Increment
+		return ++$text;
+	
+	case "decrement":
+		// Decrement
+		return --$text;
+
+	case "negate":
+		// Negate
+		return -$text;
+	
+	case "abs":
+		// Returns the absolute number.
+		return abs($text);
+
+	case "sign":
+		// Returns the sign of a number, +, -, or 0. Overriden in args 2, 3, and 4.
+		$plus  = array_get_index($modifier['args'], 0, '+');
+		$minus = array_get_index($modifier['args'], 1, '-');
+		$zero  = array_get_index($modifier['args'], 2, '0');
+
+		if ($text > 0) {
+			return $plus;
+		} else if ($text < 0) {
+			return $minus;
+		} else {
+			return $zero;
+		}
+	
+	case "ceil":
+		// Rounds up to integer.
+		return ceil($text);
+
+	case "floor":
+		// Rounds down to integer.
+		return floor($text);
+
+	case "round":
+		// Round to specified precision (0 by default).
+		$precision = array_get_index($modifier['args'], 0, 0);
+		return round($text, $precision);
+
+	// Arithmetic modifiers.
+	case "add":
+	case "subtract":
+	case "modulo":
+	case "divide":
+	case "multiply":
+		return _run_arithmetic_keyword_modifier($modifier, $text);
+
+	// Comparison operator modifiers. By detault these return '1' if true and '' if false.
+	// Return values can be overriden with the subsequent args, e.g:
+	//
+	//  %asset_contents~eq:Hello:MATCH:NOMATCH%
+	case "eq":
+	case "neq":
+	case "gt":
+	case "lt":
+	case "gte":
+	case "lte":
+		return _run_comparison_keyword_modifier($modifier, $text);
+
 	default:
 		return $text;
 
 	}
 
 }//end _run_keyword_modifier()
+
+
+/**
+ * Returns a version of $text piped through a predefined arithmetic modifier.
+ *
+ * Mofifiers should be self explanatory.
+ *
+ * @return string
+ * @access public
+ */
+function _run_arithmetic_keyword_modifier($modifier, $text)
+{
+	// Divide
+	$n = array_get_index($modifier['args'], 0, 0);
+
+	switch ($modifier['modifier']) {
+	case "add":
+		return $text + $n;
+	case "subtract":
+		return $text - $n;
+	case "multiply":
+		return $text * $n;
+	case "divide":
+		if ($n != 0) {
+			return $text / $n;
+		} else {
+			return '';
+		}
+	case "modulo":
+		if ($n != 0) {
+			return $text % $n;
+		} else {
+			return '';
+		}
+	default:
+		return $text;
+	}	
+
+}//end _run_arithmetic_keyword_modifier()
+
+
+/**
+ * Returns a version of $text piped through a predefined comparison operator modifier.
+ *
+ * Mofifiers should be self explanatory.
+ *
+ * @return string
+ * @access public
+ */
+function _run_comparison_keyword_modifier($modifier, $text)
+{
+	// Greater than. Returns '1' or ''.
+	$n = array_get_index($modifier['args'], 0, 0);
+	$t = array_get_index($modifier['args'], 1, '1');
+	$f = array_get_index($modifier['args'], 2, '');
+
+	$ret = FALSE;
+	switch ($modifier['modifier']) {
+	case "eq":
+		$ret = $text == $n;
+		break;
+	case "neq":
+		$ret = $text != $n;
+		break;
+	case "gt":
+		$ret = $text > $n;
+		break;
+	case "gte":
+		$ret = $text >= $n;
+		break;
+	case "lt":
+		$ret = $text < $n;
+		break;
+	case "lte":
+		$ret = $text <= $n;
+		break;
+	}
+
+	if ($ret) {
+		return $t;
+	} else {
+		return $f;
+	}
+
+}//end _run_comparison_keyword_modifier()
 
 
 /**
