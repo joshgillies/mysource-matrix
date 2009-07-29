@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.27 2008/04/11 03:24:48 ncallahan Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.28 2009/07/29 00:58:12 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,6 +69,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// settings contains the 'fallback' static value.
 		if (!empty($param_map_value)) {
 			$value = $param_map_value;
+			// Fix for #3803 set metadata trigger not escaping "=" correctly. Moved following
+			// code from outside the IF block into. We will not need to escaps the "=" if we
+			// fetching value from DB. "=" are already escapped in there.
+			// use this only for param map values.
+			//
+			// Sanitise the value for equal signs (=)
+			// As per Bug #2951 HTML Submitted becomes malformed due to a simple equals sign
+			$value = str_replace('=', '\=', $value);
 		} else {
 			$value = $settings['value'];
 		}
@@ -97,10 +105,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		if (isset($metadata[$settings['fieldid']])) {
 			$field_name = $metadata[$settings['fieldid']][0]['name'];
 		}
-
-		// Sanitise the value for equal signs (=)
-		// As per Bug #2951 HTML Submitted becomes malformed due to a simple equals sign
-		$value = str_replace('=', '\=', $value);
 
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
