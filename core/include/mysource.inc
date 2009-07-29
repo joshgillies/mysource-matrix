@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.312 2009/07/29 00:39:35 lwright Exp $
+* $Id: mysource.inc,v 1.313 2009/07/29 03:43:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.312 $
+* @version $Revision: 1.313 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2386,6 +2386,9 @@ class MySource extends MySource_Object
 		$stack_height = count($this->_context_stack);
 		if ($stack_height > 0) {
 			$current_contextid = $this->_context_stack[$stack_height - 1];	
+		}
+		if (is_null($current_contextid) === FALSE) {
+			$current_contextid = (int)$current_contextid;
 		}
 		return $current_contextid;
 
