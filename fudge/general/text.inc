@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.44 2009/07/29 11:34:34 jhurst Exp $
+* $Id: text.inc,v 1.45 2009/07/29 13:28:18 jhurst Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package Fudge
 * @subpackage Text
 */
@@ -264,7 +264,16 @@ function apply_keyword_modifier($text, $modifier)
 	case "empty":
 		// One argument; text to display if the keyword result is empty.
 		if (empty($text)) {
-			$text = array_get_index($modifier['args'], 0, ''); 
+			// We only want one arg, which might have : in. So implode.
+			$text = implode(':', $modifier['args']);
+		}
+		return $text;
+
+	case "notempty":
+		// One argument; text to display if the keyword result is not empty.
+		if (!empty($text)) {
+			// We only want one arg, which might have : in. So implode.
+			$text = implode(':', $modifier['args']);
 		}
 		return $text;
 
@@ -348,7 +357,7 @@ function apply_keyword_modifier($text, $modifier)
 	case "multiply":
 		return _run_arithmetic_keyword_modifier($modifier, $text);
 
-	// Comparison operator modifiers. By detault these return '1' if true and '' if false.
+	// Comparison operator modifiers. By default these return '1' if true and '' if false.
 	// Return values can be overriden with the subsequent args, e.g:
 	//
 	//  %asset_contents~eq:Hello:MATCH:NOMATCH%
