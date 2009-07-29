@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.65 2009/03/27 00:50:54 hnguyen Exp $
+* $Id: ecommerce_checkout.inc,v 1.66 2009/07/29 09:33:19 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1258,49 +1258,40 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getKeywordReplacement($keyword)
 	{
-		if (empty($keyword)) return '';
+		$keyword_replaced = FALSE;
+		
+		if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && !empty($_SESSION['sq_local_cart_contents']['editing_order'])) {
+			$orderid = $_SESSION['sq_local_cart_contents']['order_id'];
+			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
 
-		$replacement = "%$keyword%";
-
-		$tmp_keyword = strtr($keyword, '_', ' ');
-		$tmp_keyword = ucwords($tmp_keyword);
-		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
-		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-		if (method_exists($this, $func_name)) {
-			$replacement = $this->$func_name();
-		} else {
-
-			if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && !empty($_SESSION['sq_local_cart_contents']['editing_order'])) {
-				$orderid = $_SESSION['sq_local_cart_contents']['order_id'];
-				$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
-
-				if (!empty($order)) {
-					if (strcmp('asset_assetid', $keyword) == 0) {
-						$replacement = $order->id;
-					} else if (0 === strpos($keyword, 'asset_attribute_')) {
-						$attr_name = substr($keyword, strlen('asset_attribute_'));
-						if (array_key_exists($attr_name, $order->vars)) {
-							$attr = $order->getAttribute($attr_name);
-							if (!$attr->is_admin) {
-								$replacement = $this->attr($attr_name);
-							}
-						}
-					} else {
-						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-						$dummy_array = Array($keyword);
-						$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, FALSE);
-						if (isset($mm_keyword[$keyword])) {
-							$replacement = $mm_keyword[$keyword];
+			if (!empty($order)) {
+				if (strcmp('asset_assetid', $keyword) == 0) {
+					$replacement = $order->id;
+					$keyword_replaced = TRUE;
+				} else if (0 === strpos($keyword, 'asset_attribute_')) {
+					$attr_name = substr($keyword, strlen('asset_attribute_'));
+					if (array_key_exists($attr_name, $order->vars)) {
+						$attr = $order->getAttribute($attr_name);
+						if (!$attr->is_admin) {
+							$replacement = $this->attr($attr_name);
+							$keyword_replaced = TRUE;
 						}
 					}
 				} else {
-					$replacement = '';
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$dummy_array = Array($keyword);
+					$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, FALSE);
+					if (isset($mm_keyword[$keyword])) {
+						$replacement = $mm_keyword[$keyword];
+						$keyword_replaced = TRUE;
+					}
 				}
-
-			} else {
-				$replacement = '';
-			}
-		}//end else
+			}//end if (!empty($order))
+		}//end if
+		
+		if (!$keyword_replaced) {
+			$replacement = parent::getKeywordReplacement($keyword);
+		}
 
 		return $replacement;
 
