@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.737 2009/07/24 02:56:42 wszymanski Exp $
+* $Id: asset_manager.inc,v 1.738 2009/07/29 06:39:06 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.737 $
+* @version $Revision: 1.738 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1077,6 +1077,7 @@ class Asset_Manager extends MySource_Object
 	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$this->_get_asset_history[] = $assetid;
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		// This function is supposed to take in an assetid of type int or string only, array of assetids should not be accepted.
 		if (is_array($assetid)) {
@@ -1087,7 +1088,7 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		assert_valid_assetid($assetid);
-		$asset = $this->_asset_cache->get($assetid);
+		$asset = $this->_asset_cache->get($contextid.'\\'.$assetid);
 		if (!empty($asset) && !empty($type_code)) {
 			if ($asset->type() != $type_code) {
 				if (!$mute_errors) {
@@ -1146,7 +1147,7 @@ class Asset_Manager extends MySource_Object
 
 			}//end if
 
-			if (isset($asset)) $this->_asset_cache->add($asset);
+			if (isset($asset)) $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 
 		}//end if
 
@@ -1278,7 +1279,9 @@ class Asset_Manager extends MySource_Object
 			return;
 		}
 
-		if (!$this->_asset_cache->add($obj)) {
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if (!$this->_asset_cache->add($obj, $contextid.'\\'.$obj->id)) {
 			trigger_localised_error('SYS0305', E_USER_ERROR, $obj->id);
 		}
 
@@ -1305,10 +1308,12 @@ class Asset_Manager extends MySource_Object
 			return;
 		}
 
-		$this->_asset_cache->release($obj->id);
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		$this->_asset_cache->release($contextid.'\\'.$obj->id);
 		if ($force_clean) {
-			if (!$this->_asset_cache->remove($obj->id, TRUE)) {
-				trigger_localised_error('SYS0306', E_USER_WARNING, $obj->id);
+			if (!$this->_asset_cache->remove($contextid.'\\'.$obj->id, TRUE)) {
+				trigger_localised_error('SYS0306', E_USER_WARNING, $contextid.'\\'.$obj->id);
 			}
 		}
 

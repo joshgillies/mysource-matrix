@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.689 2009/07/23 22:56:41 lwright Exp $
+* $Id: asset.inc,v 1.690 2009/07/29 06:39:06 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.689 $
+* @version $Revision: 1.690 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -992,14 +992,16 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// make sure our data directory exists
-		if (!file_exists($this->data_path.'/.object_data')) {
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
+		if (!file_exists($this->data_path.'/'.$filename)) {
 			trigger_localised_error('SYS0159', E_USER_WARNING, $this->id, $this->data_path);
 			return FALSE;
 		}
 
 		$real_status = $this->status;
 
-		foreach (get_object_vars(unserialize(file_to_string($this->data_path.'/.object_data'))) as $key => $value) {
+		foreach (get_object_vars(unserialize(file_to_string($this->data_path.'/'.$filename))) as $key => $value) {
 			$this->$key = $value;
 		}
 		$this->status = $real_status;
@@ -1039,9 +1041,20 @@ class Asset extends MySource_Object
 		}
 
 		// save the object for later (in the restricted directory)
-		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
-			return FALSE;
+		$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		foreach ($contextids as $contextid) {
+			$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+			$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
+			if (!string_to_file(serialize($contexted_asset), $this->data_path.'/.sq_system/'.$filename)) {
+				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
+				return FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
+			unset($contexted_asset);			
 		}
 
 		// move all the other files in our data directories
@@ -1105,15 +1118,6 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = TRUE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		// load our object data in as it was before
-		if (is_file($this->data_path.'/.sq_system/.object_data')) {
-			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
-		} else {
-			trigger_localised_error('SYS0163', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
-			return FALSE;
-		}
-
 		// copy over the old files we stored in the system directory
 		$files_to_copy = list_files($this->data_path.'/.sq_system');
 		foreach ($files_to_copy as $filename) {
@@ -1127,20 +1131,48 @@ class Asset extends MySource_Object
 			}
 		}
 
-		// update all the vars
-		foreach ($old_version->vars as $var_name => $var_data) {
-			if (!$this->setAttrValue($var_name, $var_data['value'], TRUE)) {
-				trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
+		// load our object data in as it was before
+		$current_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		foreach ($contextids as $contextid) {
+			if ($contextid !== $current_contextid) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+			} else {
+				$contexted_asset = $this;
+			}
+			
+			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
+			if (is_file($this->data_path.'/.sq_system/'.$filename)) {
+				$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/'.$filename));
+			} else {
+				trigger_localised_error('SYS0163', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
 				return FALSE;
 			}
-		}
 
-		if (!$this->saveAttributes()) {
-			trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
-			return FALSE;
-		}
+			// update all the vars
+			foreach ($old_version->vars as $var_name => $var_data) {
+				if (!$contexted_asset->setAttrValue($var_name, $var_data['value'], TRUE)) {
+					trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
+					$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+					return FALSE;
+				}
+			}
+
+			if (!$contexted_asset->saveAttributes()) {
+				trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+				return FALSE;
+			}
+
+			if ($contextid !== $current_contextid) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
+				unset($contexted_asset);
+			}
+
+		}//end foreach
 
 		// If we have metadata, load the old version so we can revert the values
 		$metadata_filename = $this->data_path.'/.sq_system/metadata_field_values.php';
