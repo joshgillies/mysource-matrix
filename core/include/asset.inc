@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.690 2009/07/29 06:39:06 lwright Exp $
+* $Id: asset.inc,v 1.691 2009/07/29 06:43:13 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.690 $
+* @version $Revision: 1.691 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -994,14 +994,21 @@ class Asset extends MySource_Object
 		// make sure our data directory exists
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
-		if (!file_exists($this->data_path.'/'.$filename)) {
+		
+		if (file_exists($this->data_path.'/.sq_system/'.$filename) === TRUE) {
+			$use_filename = $this->data_path.'/.sq_system/'.$filename;
+		} else if (file_exists($this->data_path.'/.sq_system/.object_data') === TRUE) {
+			// The context mustn't have existed when we saved the system
+			// version, so use the default context version instead...?
+			$use_filename = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
+		} else {
 			trigger_localised_error('SYS0159', E_USER_WARNING, $this->id, $this->data_path);
 			return FALSE;
 		}
 
 		$real_status = $this->status;
 
-		foreach (get_object_vars(unserialize(file_to_string($this->data_path.'/'.$filename))) as $key => $value) {
+		foreach (get_object_vars(unserialize(file_to_string($use_filename))) as $key => $value) {
 			$this->$key = $value;
 		}
 		$this->status = $real_status;
@@ -1142,9 +1149,14 @@ class Asset extends MySource_Object
 				$contexted_asset = $this;
 			}
 			
+
 			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
 			if (is_file($this->data_path.'/.sq_system/'.$filename)) {
 				$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/'.$filename));
+			} else if (is_file($this->data_path.'/.sq_system/.object_data')) {
+				// The context mustn't have existed when we saved the system
+				// version, so use the default context version instead...?
+				$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
 			} else {
 				trigger_localised_error('SYS0163', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
