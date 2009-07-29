@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.3 2009/07/29 11:53:42 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.4 2009/07/29 15:43:19 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/sagepay_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -142,9 +142,13 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		$keywords['card_name'] = 'Name on Card';
 		$keywords['card_number'] = 'Card Number';
 		$keywords['card_start_month'] = 'Card Start Month';
+		$keywords['card_start_month_select'] = 'Card Start Month Select';
 		$keywords['card_start_year'] = 'Card Start Year';
+		$keywords['card_start_year_select_XX'] = 'Card Start Year Select';
 		$keywords['card_expiry_month'] = 'Card Expiry Month';
+		$keywords['card_expiry_month_select'] = 'Card Expiry Month Select';
 		$keywords['card_expiry_year'] = 'Card Expiry Year';
+		$keywords['card_expiry_year_select_XX'] = 'Card Expiry Year Select';
 		$keywords['card_issue_number'] = 'Card Issue Number';
 		$keywords['card_cv2'] = 'Card CV2';
 		$keywords['card_type'] = 'Card Type';
@@ -199,6 +203,44 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 	}//end onRequestKeywords()
 
 
+	/**
+	* Get bodycopy keyword replacement
+	* 
+	* If keyword is %card_start_year_select_XX% or %card_expiry_year_select_XX%, call the correct method with XX is 
+	* $period parameter. Otherwise, call the parent method.
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	* @see _getKeywordReplacement
+	*/
+	public function getKeywordReplacement($keyword)
+	{
+		$replacement = NULL;
+		
+		if (0 === strpos($keyword, 'card_start_year_select_')) {
+			$period = substr($keyword, 23);
+			if (is_numeric($period)) {
+				$replacement = $this->getCardStartYearSelectKeywordReplacement($period);
+			}
+			
+		} else if (0 === strpos($keyword, 'card_expiry_year_select_')) {
+			$period = substr($keyword, 24);
+			if (is_numeric($period)) {
+				$replacement = $this->getCardExpiryYearSelectKeywordReplacement($period);
+			}
+			
+		} else {
+			$replacement = parent::getKeywordReplacement($keyword);
+			
+		}
+		
+		return $replacement;
+
+	}//end getKeywordReplacement()
+	
+	
 	/**
 	* Basic output function. root of output process
 	*
@@ -893,6 +935,29 @@ HEREDOC;
 
 	}//end getCardStartMonthKeywordReplacement()
 
+	
+	/**
+	* Card Start Month Select keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardStartMonthSelectKeywordReplacement()
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<select name="'.$card.'[start_month]">';
+		$string .= '<option value="" >--</option>';
+		for ($i = 1; $i <= 12; $i++) {
+			$month = sprintf('%02s', $i);
+			$string .= '<option value="'.$month.'" >'.$month.'</option>';
+		}
+		$string .= '</select>';
+		
+		return $string;
+
+	}//end getCardStartMonthSelectKeywordReplacement()
+	
 
 	/**
 	* Card Start Year keyword replacement
@@ -910,6 +975,30 @@ HEREDOC;
 
 	}//end getCardStartYearKeywordReplacement()
 
+	
+	/**
+	* Card Start Year Select keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardStartYearSelectKeywordReplacement($period = 5)
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<select name="'.$card.'[start_year]">';
+		$string .= '<option value="" >----</option>';
+		$year = date('Y') - $period;
+		for ($i = 0; $i <= $period; $i++) {
+			$string .= '<option value="'.substr($year, -2).'" >'.$year.'</option>';
+			$year++;
+		}
+		$string .= '</select>';
+		
+		return $string;
+
+	}//end getCardStartYearSelectKeywordReplacement()
+	
 
 	/**
 	* Card Expiry Month keyword replacement
@@ -929,6 +1018,29 @@ HEREDOC;
 
 
 	/**
+	* Card Expiry Month Select keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardExpiryMonthSelectKeywordReplacement()
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<select name="'.$card.'[expiry_month]">';
+		$string .= '<option value="" >--</option>';
+		for ($i = 1; $i <= 12; $i++) {
+			$month = sprintf('%02s', $i);
+			$string .= '<option value="'.$month.'" >'.$month.'</option>';
+		}
+		$string .= '</select>';
+		
+		return $string;
+
+	}//end getCardExpiryMonthSelectKeywordReplacement()
+	
+	
+	/**
 	* Card Expiry Year keyword replacement
 	*
 	* @return string
@@ -945,6 +1057,30 @@ HEREDOC;
 	}//end getCardExpiryYearKeywordReplacement()
 
 
+	/**
+	* Card Expiry Year Select keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCardExpiryYearSelectKeywordReplacement($period = 18)
+	{
+		$card = $this->getPrefix().'_card';
+
+		$string = '<select name="'.$card.'[expiry_year]">';
+		$string .= '<option value="" >----</option>';
+		$year = date('Y');
+		for ($i = 0; $i <= $period; $i++) {
+			$string .= '<option value="'.substr($year, -2).'" >'.$year.'</option>';
+			$year++;
+		}
+		$string .= '</select>';
+		
+		return $string;
+
+	}//end getCardExpiryYearSelectKeywordReplacement()
+	
+	
 	/**
 	* Card Issue Number keyword replacement
 	*
