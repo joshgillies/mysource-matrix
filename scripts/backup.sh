@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.17.2.2 2009/07/07 22:55:19 csmith Exp $
+#* $Id: backup.sh,v 1.17.2.3 2009/07/29 02:16:55 csmith Exp $
 #*
 #*/
 #
@@ -621,8 +621,10 @@ mydir=`pwd`
 cd "${sysroot_dir}/"
 
 print_verbose "Creating an exclude file .. "
-exclude_file="${sysroot_dir}/tar_exclude_file"
-echo "${sysroot_base}/${backupfilename}" > "${exclude_file}"
+exclude_file="${mydir}/tar_exclude_file"
+echo "${exclude_file}" > "${exclude_file}"
+echo "${sysroot_base}/tar_exclude_file" >> "${exclude_file}"
+echo "${sysroot_base}/${backupfilename}" >> "${exclude_file}"
 echo "${sysroot_base}/.extra_backup_files" >> "${exclude_file}"
 echo "${backupdir}/${backupfilename}" >> "${exclude_file}"
 
