@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.2 2009/07/13 11:40:25 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.3 2009/07/29 11:53:42 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/sagepay_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -990,12 +990,14 @@ HEREDOC;
 
 		$card = $this->getPrefix().'_card';
 
-		$card_types = SagePay_Processor::getCardTypes();
+		$available_card_types = SagePay_Processor::getCardTypes();
+		
+		$selected_card_types = explode('|', $this->attr('supported_card_types'));
 
 		ob_start();
 		echo '<select name="'.$card.'[type]">';
-		foreach ($card_types as $type => $name) {
-			echo '<option value="'.$type.'">'.$name.'</option>';
+		foreach ($selected_card_types as $type) {
+			echo '<option value="'.$type.'">'.$available_card_types[$type].'</option>';
 		}
 
 		echo '</select>';

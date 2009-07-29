@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.2 2009/07/13 11:40:56 ata Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.3 2009/07/29 11:53:42 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -37,6 +37,12 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 	function Payment_Gateway_SagePay_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		
+		//include the SagePay_Processor class to get its supported card types. With this, we need only 1 place to change the list of supported card types and do not need to include this file in processing stage
+		require_once dirname(__FILE__).'/sagepay_processor.inc';
+		$supported_card_types = SagePay_Processor::getCardTypes();
+		$default_card_types = implode('|', array_keys($supported_card_types));
+		
 		$this->vars = Array(
 						'protocol'				=> Array(
 													'added'			=> '0.1',
@@ -90,6 +96,17 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 													'description'	=> 'The flag to indicate if delivery address is billing address',
 													'parameters'	=> Array(
 																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'supported_card_types'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> $default_card_types,
+													'description'	=> 'The card types supported by this payment gateway',
+													'parameters'	=> Array(
+																		'multiple'		=> TRUE,
+																		'allow_empty'	=> FALSE,
+																		'options'		=> $supported_card_types, 
 																	   ),
 												   ),
 						'threeds_enabled'		=> Array(

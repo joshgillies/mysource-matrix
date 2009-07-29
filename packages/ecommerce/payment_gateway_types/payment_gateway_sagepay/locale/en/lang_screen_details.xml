@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2009/07/13 11:43:50 ata Exp $
+* $Id: lang_screen_details.xml,v 1.3 2009/07/29 11:53:42 ata Exp $
 *
 */
 -->
@@ -50,6 +50,10 @@
 		<field attribute="delivery_addr_is_billing_addr">
 			<display_name>Delivery Address is Billing Address?</display_name>
 			<note>The flag to indicate if delivery address is billing address. If the answer is yes, the card holder will not need to supply delivery address.</note>
+		</field>
+		<field attribute="supported_card_types">
+			<display_name>Supported Card Types</display_name>
+			<note>The Card Types that are supported by this Payment Gateway. The selected card types will be available in the drop-down box of %card_type% keyword replacement.</note>
 		</field>
 	</section>
 	<section name="Fraud Prevention">
