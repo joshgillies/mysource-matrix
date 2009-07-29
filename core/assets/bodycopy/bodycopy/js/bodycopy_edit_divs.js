@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.11.6.1 2009/05/15 07:17:11 wszymanski Exp $
+* $Id: bodycopy_edit_divs.js,v 1.11.6.2 2009/07/29 00:36:27 wszymanski Exp $
 *
 */
 
@@ -42,11 +42,12 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	bodycopy_current_edit["data"]            = new Object();
 	bodycopy_current_edit["data"]["divid"] = divid;
 	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();
+	bodycopy_current_edit["data"]["available_classes"] = get_bodycopy_div_available_classes();
 	var data = get_bodycopy_current_div_data(bodycopy_name, divid);
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 320, 460);
+	bodycopy_show_popup("edit_div_props.php", 320, 470);
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {

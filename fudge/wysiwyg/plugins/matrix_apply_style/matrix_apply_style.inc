@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.20.4.2 2009/06/16 00:15:15 wszymanski Exp $
+* $Id: matrix_apply_style.inc,v 1.20.4.3 2009/07/29 00:36:49 wszymanski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.4.2 $
+* @version $Revision: 1.20.4.3 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -56,14 +56,14 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		// check for any classes declared for current design
 		$classes = $this->getDesignClasses();
 		if (!empty($classes)) {
-			foreach ($classes as $css_class) {
-				$this->_css_classes[$css_class] = $css_class;
+			foreach ($classes as $class_name => $short_name) {
+				$this->_css_classes[$class_name] = $short_name;
 			}
 		}
 
 		// if there weren't any classes defined for design, we are getting some out from ccs file 
 		if (empty($this->_css_classes) && isset($GLOBALS['sq_bodycopy_cssids'])) {
-					foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
+			foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
 				$css = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 				$css_file = $css->getExistingFile();
 				$stylesheet_src = '';
@@ -506,11 +506,10 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 
 			if ($designid) {
 				$design = $am->getAsset($designid);
-				$classes_list = $design->attr('classes');
+				$classes_list = $design->attr('wysiwyg_classes');
 				if (!empty($classes_list)) {
-					$vars = explode("\n", $classes_list);
-					foreach ($vars as $value) {
-						$classes[] = trim($value);
+					foreach ($classes_list as $key => $value) {
+						$classes[$key] = $value;
 					}
 				}
 			}

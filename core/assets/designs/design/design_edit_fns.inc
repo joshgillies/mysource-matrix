@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.130 2008/10/22 00:10:40 bpearson Exp $
+* $Id: design_edit_fns.inc,v 1.130.4.1 2009/07/29 00:36:11 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.130.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1489,6 +1489,207 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return strlen($a) > strlen($b);
 
 	}//end _strlenCmp()
+
+
+	/**
+	* Generic fucntion to paint the interface for dropdown classes selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* @param string					$attribute name of the attribute to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function _paintSelection(Design $asset, Backend_Outputter $o, $prefix, $attribute)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$select_options = $asset->attr($attribute);
+
+		if (!empty($select_options)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('core_design_class_name'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('core_design_class_short_name'); ?></td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+					}
+					?>
+				</tr>
+				<?php
+				$i = 0;
+				foreach ($select_options as $option_key => $option_value) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+							} else {
+								echo $option_key;
+							}
+							?>
+						</td>
+						<td class="sq-backend-table-cell" align="left">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_options[val]['.$i.']', $option_value, 20);
+							} else {
+								echo $option_value;
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+					$i++;
+				}//end foreach select_options
+				?>
+			</table>
+			<?php
+
+		} else {
+			echo translate('no_select_box_options');
+		}//end if empty
+
+		// now adding two fields for new entry (key => value)
+		if ($write_access) {
+			$o->openField(translate('new_option'));
+				echo '<b>'.translate('key').'</b> ';
+				text_box($prefix.'_new_key','');
+				echo ' <b>'.translate('value').'</b> ';
+				text_box($prefix.'_new_val','');
+			$o->closeField();
+		}
+
+		return TRUE;
+
+	}//end _paintSelection()
+
+
+	/**
+	* Generic function to process the interface for classes dropdown selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* @param string					$attribute name of the attribute to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function _processSelection(Design $asset, Backend_Outputter $o, $prefix, $attribute)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		$select_options = Array();
+		if (isset($_POST[$prefix.'_options'])) {
+			$option_changes = $_POST[$prefix.'_options'];
+			foreach ($option_changes['key'] as $i => $key) {
+				if (isset($option_changes['del'][$i])) continue;
+				$select_options[trim($key)] = trim($option_changes['val'][$i]);
+			}
+		}
+
+		// now get the new submitted values (if any) and add them to array
+		if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
+			$new_select_key  = trim($_POST[$prefix.'_new_key']);
+			$new_select_val  = trim($_POST[$prefix.'_new_val']);
+			$select_options[$new_select_key] = $new_select_val;
+		}
+
+		// updating asset attribute value
+		$asset->setAttrValue($attribute, $select_options);
+
+		return TRUE;
+
+	}//end _processSelection()
+
+
+	/**
+	* Function to paint the interface for WYSIWYG classes dropdown selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* 
+	*/
+	public function paintWysiwygClasses(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		$this->_paintSelection($asset, $o, $prefix.'_wysiwyg', 'wysiwyg_classes');
+		$o->openField('');
+		$o->note(translate('core_design_class_wysiwyg_note'));
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintWysiwygClasses()
+
+
+	/**
+	* Function to process the interface for WYSIWYG classes dropdown selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* 
+	*/
+	public function processWysiwygClasses(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		$this->_processSelection($asset, $o, $prefix.'_wysiwyg', 'wysiwyg_classes');
+
+		return TRUE;
+
+	}//end processWysiwygClasses()
+
+
+	/**
+	* Function to paint the interface for DIV classes dropdown selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* 
+	*/
+	public function paintDivClasses(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		$this->_paintSelection($asset, $o, $prefix.'_div', 'div_classes');
+		$o->openField('');
+		$o->note(translate('core_design_class_div_note'));
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintDivClasses()
+
+
+	/**
+	* Function to process the interface for DIV classes dropdown selection box
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	* 
+	*/
+	public function processDivClasses(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		$this->_processSelection($asset, $o, $prefix.'_div', 'div_classes');
+
+		return TRUE;
+
+	}//end processDivClasses()	
 
 
 }//end class

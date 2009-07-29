@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.18.6.1 2009/06/15 06:43:44 wszymanski Exp $
+* $Id: design_management.inc,v 1.18.6.2 2009/07/29 00:36:11 wszymanski Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18.6.1 $
+* @version $Revision: 1.18.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,14 +45,20 @@ class Design_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> '',
 								 		   ),
-						'classes'	=> Array(
+						'wysiwyg_classes'	=> Array(
 											'added'			=> '0.2',
-											'type'			=> 'option_list',
-											'default'		=> '',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
 											'description'	=> 'Use saved classes in the wysiwyg dropdown list',
 										   ),
-					  );								 
-		
+						'div_classes'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Use saved classes in the DIV container properties class dropdown',
+										   ),
+					  );
+
 	}//end constructor
 
 
