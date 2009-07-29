@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.7 2009/07/28 06:51:18 lwright Exp $
+* $Id: context_config.inc,v 1.8 2009/07/29 00:39:35 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1415,13 +1415,6 @@ class Context_Config extends Config
 		// Remove the intervening '0' since the context ID is unique;
 		// also unserialise conditions where needed
 		// use PHP 5 assign-value-by-ref trick
-		foreach ($contexts as $key => &$value) {
-			if (empty($value["conditions"]) === FALSE) {
-				$value["conditions"] = unserialize($value["conditions"]);
-			}
-		}
-		unset($value);
-
 		if (isset($contexts[0]) === FALSE) {
 			$contexts[0] = Array(
 							'name'			=> 'Default Context',

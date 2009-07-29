@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.311 2009/07/28 22:42:04 lwright Exp $
+* $Id: mysource.inc,v 1.312 2009/07/29 00:39:35 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.311 $
+* @version $Revision: 1.312 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2443,7 +2443,14 @@ class MySource extends MySource_Object
 	public function getAllContexts($force_reload=FALSE)
 	{		
 		if (((boolean)$force_reload === TRUE) || (is_array($this->_tmp) === FALSE) || (array_key_exists('context_cache', $this->_tmp) === FALSE)) {
-			$context_data = MatrixDAL::executeAll('core', 'getContexts', Array('contextids' => NULL));	
+			$context_data = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
+			foreach ($context_data as $contextid => &$context_item) {
+				$context_item = $context_item[0];
+				if (empty($context_item["conditions"]) === FALSE) {
+					$context_item['conditions'] = unserialize($context_item['conditions']);
+				}
+			}
+			unset($context_item);
 			$this->_tmp['context_cache'] = $context_data;
 		}
 
