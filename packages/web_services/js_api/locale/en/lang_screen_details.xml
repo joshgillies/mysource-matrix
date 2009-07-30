@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2009/07/06 22:55:10 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.3 2009/07/30 22:56:51 bpearson Exp $
 *
 */
 -->
@@ -38,31 +38,89 @@
             <note />
         </field>
     </section>
-    <section name="Core Functions" write_access="write:attributes">
+    <section name="Core" write_access="write:attributes">
+        <field attribute="create_asset">
+            <display_name>Create Asset</display_name>
+            <note />
+        </field>
         <field attribute="get_general">
-            <display_name>Get General Info Function</display_name>
+            <display_name>Get General Info</display_name>
+            <note />
+        </field>
+        <field attribute="get_asset_types">
+            <display_name>Get Asset Types</display_name>
             <note />
         </field>
         <field attribute="get_attributes">
-            <display_name>Get Attributes Function</display_name>
+            <display_name>Get Attributes</display_name>
             <note />
         </field>
         <field attribute="set_attribute">
-            <display_name>Set Attribute Function</display_name>
+            <display_name>Set Attribute</display_name>
+            <note />
+        </field>
+        <field attribute="acquire_lock">
+            <display_name>Acquire Lock</display_name>
+            <note />
+        </field>
+        <field attribute="release_lock">
+            <display_name>Release Lock</display_name>
             <note />
         </field>
         <field attribute="trash_asset">
-            <display_name>Trash Asset Function</display_name>
+            <display_name>Trash Asset</display_name>
             <note />
         </field>
     </section>
-    <section name="Metadata Functions" write_access="write:attributes">
+    <section name="Linking" write_access="write:attributes">
+        <field attribute="create_link">
+            <display_name>Create Link</display_name>
+            <note />
+        </field>
+        <field attribute="remove_link">
+            <display_name>Remove Link</display_name>
+            <note />
+        </field>
+        <field attribute="move_link">
+            <display_name>Move Link</display_name>
+            <note />
+        </field>
+        <field attribute="update_link">
+            <display_name>Update Link</display_name>
+            <note />
+        </field>
+        <field attribute="get_link_id">
+            <display_name>Get Link Id</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="Permissions" write_access="write:attributes">
+        <field attribute="get_permissions">
+            <display_name>Get Permissions</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="Traversing" write_access="write:attributes">
+        <field attribute="get_parents">
+            <display_name>Get Parents</display_name>
+            <note />
+        </field>
+        <field attribute="get_children">
+            <display_name>Get Children</display_name>
+            <note />
+        </field>
+        <field attribute="get_asset_tree">
+            <display_name>Get Asset Tree</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="Metadata" write_access="write:attributes">
         <field attribute="get_metadata">
-            <display_name>Get Metadata Function</display_name>
+            <display_name>Get Metadata</display_name>
             <note />
         </field>
         <field attribute="set_metadata">
-            <display_name>Set Metadata Function</display_name>
+            <display_name>Set Metadata</display_name>
             <note />
         </field>
     </section>
