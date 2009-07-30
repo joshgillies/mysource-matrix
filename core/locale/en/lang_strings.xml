@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.334 2009/07/23 02:43:56 bpearson Exp $
+* $Id: lang_strings.xml,v 1.335 2009/07/30 00:43:55 ewang Exp $
 *
 */
 
@@ -113,6 +113,9 @@
 	<string source="csv_upload">CSV Upload</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
+	<string source="display_linking_type">Display Type</string>
+	<string source="display_linked_parents">Linked Parents</string>
+	<string source="display_linked_children">Linked Children</string>
 	<string source="current_linking">Current Linking</string>
 	<string source="create_linking">Create Link</string>
 	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
@@ -246,6 +249,7 @@
 	<string source="new_field_type">New Field Type</string>
 	<string source="new_link_confirmation">New Link Confirmation</string>
 	<string source="new_link_parent">New Link Parent</string>
+	<string source="new_link_child">New Link Child</string>
 	<string source="new_link_type">New Link Type</string>
 	<string source="new_option">New Option</string>
 	<string source="new_url">New URL</string>
@@ -1495,6 +1499,7 @@
 	<string source="run_as">Run As</string>
 	<string source="not_set">Not Set</string>
 	<string source="no_minor_asset_found">No Minor Asset Found</string>
+	<string source="no_major_asset_found">No Major Asset Found</string>
 	<string source="choose_layout">Choose Layout</string>
 	<string source="log_name">Log Name</string>
 	<string source="rows_displayed">Rows displayed</string>
