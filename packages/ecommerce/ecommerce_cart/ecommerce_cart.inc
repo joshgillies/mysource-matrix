@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.42 2009/07/28 11:21:51 ata Exp $
+* $Id: ecommerce_cart.inc,v 1.43 2009/07/30 14:30:23 ata Exp $
 *
 */
 
@@ -30,13 +30,22 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Ecommerce_Cart extends Listing_Engine
 {
 
+	
+	/**
+	 * The ecommerce cart processor linked with this Ecommerce cart asset
+	 * 
+	 * @var Ecommerce_Cart_Processor
+	 */
+	var $_cart = NULL;
+	
+	
 	/**
 	* Whether there are insufficient product quantities
 	* @var boolean
@@ -93,18 +102,22 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function &_getCart()
 	{
-		if (!empty($this->_tmp['cart_processor'])) {
-			$cart =& $this->_tmp['cart_processor'];
-			$cart->initialiseCart();
-		} else {
-			$cart = new Ecommerce_Cart_Processor();
+		if (is_null($this->_cart)) {
+			if (!empty($this->_tmp['cart_processor'])) {
+				$cart =& $this->_tmp['cart_processor'];
+				$cart->initialiseCart();
+			} else {
+				$cart = new Ecommerce_Cart_Processor();
+			}
+	
+			if ($this->attr('use_local_cart')) {
+				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+			}
+			
+			$this->_cart = $cart;
 		}
 
-		if ($this->attr('use_local_cart')) {
-			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
-		}
-
-		return $cart;
+		return $this->_cart;
 
 	}//end _getCart()
 
@@ -236,8 +249,6 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function printContents()
 	{
-		$cart =& $this->_getCart();
-
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (empty($bodycopy_link)) return FALSE;
 
@@ -361,8 +372,6 @@ class Ecommerce_Cart extends Listing_Engine
 		}
 		$replacements['asset_listing']         = $global_contents;
 		$replacements['asset_count']           = $num_kids;
-		$replacements['product_count']         = $cart->getCount();
-		$replacements['total_value']           = $cart->getTotal();
 		$replacements['page_asset_count']      = $num_assets_showing;
 		$replacements['page_number']           = $result_page;
 		$replacements['first_asset_position']  = $num_per_page * ($result_page - 1) + 1;
@@ -689,6 +698,31 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
+	* Return the available keywords
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['product_count'] = translate('ecom_cart_keyword_product_count');
+		$keywords['total_value'] = translate('ecom_cart_keyword_total_value');
+		
+		return $keywords;
+
+	}//end getAvailableKeywords()
+	
+	
+	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
 	* @param object	&$broadcaster	the asset that triggered the event
@@ -814,6 +848,36 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end getInsufficientQuantityMessageKeywordReplacement()
 
 
+	/**
+	* Product Count keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getProductCountKeywordReplacement()
+	{
+		$cart =& $this->_getCart();
+		
+		return $cart->getCount();
+
+	}//end getProductCountKeywordReplacement()
+	
+
+	/**
+	* Total Value keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTotalValueKeywordReplacement()
+	{
+		$cart =& $this->_getCart();
+		
+		return $cart->getTotal();
+
+	}//end getTotalValueKeywordReplacement()
+	
+	
 	/**
 	* Get the current form submit method (always POST)
 	*
