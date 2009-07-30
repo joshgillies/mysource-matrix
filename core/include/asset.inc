@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.692 2009/07/30 05:31:57 lwright Exp $
+* $Id: asset.inc,v 1.693 2009/07/30 15:33:58 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.692 $
+* @version $Revision: 1.693 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3569,8 +3569,24 @@ class Asset extends MySource_Object
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
+		
+		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this 
+		//method through the replace_global_keywords() function (general.inc) with the keyword starts with asset_
+		$possible_func_name = '';
+		if (0 === strpos($keyword, 'asset_')) {
+			//get the method name without the start "Asset"
+			$possible_tmp_keyword = substr($tmp_keyword, 5);
+			if ($possible_tmp_keyword != '') {
+				$possible_func_name = 'get'.$possible_tmp_keyword.'KeywordReplacement';
+			}
+		}
+		
 		if (method_exists($this, $func_name)) {
 			$replacement = $this->$func_name();
+		} else if (($possible_func_name != '') && method_exists($this, $possible_func_name)) {
+			//allow the use of %globals_asset_<keyword>:<assetid>% if the %<keyword>% is available for 
+			//the <assetid> asset through the get<Keyword>KeywordReplacement() method
+			$replacement = $this->$possible_func_name();
 		} else if (strcmp('asset_assetid', $keyword) == 0) {
 			$replacement = $this->id;
 		} else if (strcmp('asset_name', $keyword) == 0) {
