@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.12 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_container_management.inc,v 1.13 2009/07/30 04:29:41 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,7 @@ class Bodycopy_Container_Management extends Asset_Management
 											'type'			=> 'serialise',
 											'default'		=> Array(),
 											'description'	=> 'Array holding the assetids belonging to shadow assets that are used within the content. Needed because they cannot be notice linked like normal assets can.',
+											'is_contextable' => FALSE,
 										   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.42 2008/08/12 05:34:18 bpearson Exp $
+* $Id: bodycopy_container.inc,v 1.43 2009/07/30 04:29:41 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,8 +158,15 @@ class Bodycopy_Container extends Asset
 			return FALSE;
 		}
 
-		$copy_usv = copy_file($this->data_path.'/content_file.php', $this->data_path.'/.sq_system/.content_file.php');
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($contexts as $contextid => $context_data) {
+			$filename_suffix = ((int)$contextid === 0) ? '' : '.'.$contextid;
+			if (file_exists($this->data_path.'/content_file'.$filename_suffix.'.php') === TRUE) {
+				$copy_usv = copy_file($this->data_path.'/content_file'.$filename_suffix.'.php', $this->data_path.'/.sq_system/.content_file'.$filename_suffix.'.php');
 
+			}
+		}
+		
 		// save the current notice links
 		$replace_assetids = Array();
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
@@ -342,9 +349,17 @@ class Bodycopy_Container extends Asset
 	public function printBody(Array $keyword_replacements=Array())
 	{
 		if (!$this->readAccess()) return;
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+		$context_suffix = ($contextid === 0) ? '' : ('.'.$contextid);
+		$content_file_name = 'content_file'.$context_suffix.'.php';
+		$default_content_file_name = 'content_file.php';
 
 		if ($this->useSystemVersion()) {
-			if (file_exists($this->data_path.'/.content_file.php')) {
+			$safe_edit_file_name = $this->data_path.'/.'.$content_file_name;
+			if (file_exists($safe_edit_file_name) === FALSE) {
+				$safe_edit_file_name = $this->data_path.'/.'.$default_content_file_name;
+			}
+			if (file_exists($safe_edit_file_name) === TRUE) {
 				// create an array of urls that the content file is
 				// going to try and use to work out file urls, link hrefs etc
 				$sq_asset_url_list = Array();
@@ -364,7 +379,7 @@ class Bodycopy_Container extends Asset
 				}
 
 				ob_start();
-					include($this->data_path.'/.content_file.php');
+					include($safe_edit_file_name);
 					$content = ob_get_contents();
 				ob_end_clean();
 				replace_keywords($content, $this->keyword_replacements);
@@ -421,16 +436,16 @@ class Bodycopy_Container extends Asset
 				return;
 			}
 
-			if (!file_exists($this->data_path.'/content_file.php')) {
+			if (!file_exists($this->data_path.'/'.$content_file_name)) {
 				// generate the content file
 				$edit = $this->getEditFns();
 				$edit->generateContentFile($this);
 			}
 
-			if (!file_exists($this->data_path.'/content_file.php')) {
+			if (!file_exists($this->data_path.'/'.$content_file_name)) {
 				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 			} else {
-				include($this->data_path.'/content_file.php');
+				include($this->data_path.'/'.$content_file_name);
 			}
 		}//end else
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.64 2009/07/20 03:52:07 bpearson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.65 2009/07/30 04:29:41 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -310,7 +310,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$output = str_replace("\n","\r\n", $output);
 
 		create_directory($asset->data_path);
-		return string_to_file($output, $asset->data_path.'/content_file.php');
+
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
+		return string_to_file($output, $asset->data_path.'/'.$file_name);
 
 	}//end generateContentFile()
 
@@ -333,6 +336,20 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$this->paint($asset, TRUE);
 				$output = ob_get_contents();
 			ob_end_clean();
+
+		}
+
+		// Grab the output from other contexts, so we can keep notice
+		// links from them, too. (Content file is fine enough.)
+		// But exclude the current context, because it's either been
+		// sent to us, or generated above. 
+		$files = glob($asset->data_path.'/content_file*.php');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$current_filename = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
+		foreach ($files as $file) {
+			if (strpos($file, $current_filename) === FALSE) {
+				$output .= file_get_contents($file);
+			}
 		}
 
 		$existing_links = $asset->attr('shadow_links');
