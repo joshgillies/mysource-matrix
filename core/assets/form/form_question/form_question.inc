@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.39 2009/07/28 23:28:30 lwright Exp $
+* $Id: form_question.inc,v 1.40 2009/07/31 02:06:03 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -682,6 +682,9 @@ class Form_Question extends Asset
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
 		if (is_null($answer)) $answer = $this->getValue();
+		if ($mute_errors === FALSE) {
+			$this->failed_rules = Array();
+		}
 
 		$rules = $this->getRules();
 		$ok = TRUE;						// We start as being all OK
