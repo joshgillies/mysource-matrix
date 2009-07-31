@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.52 2009/05/21 00:57:48 cupreti Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.53 2009/07/31 02:00:12 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -187,7 +187,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$asset_tree_ids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($trash->id);
 		$this->_running_vars['trash_treeid'] = reset($asset_tree_ids);
 
-		if (!empty($this->_running_vars['purge_root_linkid'])) { 
+		if (!empty($this->_running_vars['purge_root_linkid'])) {
 
 			$purge_root_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid']);
 			$this->_running_vars['purge_root_id'] = $purge_root_link['minorid'];
@@ -211,6 +211,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		}
 		$this->_running_vars['to_check'] = $purge_root_children;
 		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
+
 		$db = MatrixDAL::getDb();
 		try {
 			$bind_vars['treeid'] = $this->_running_vars['purge_root_treeid'].'%';
@@ -231,12 +232,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* @access public
 	*/
 	function freestyle()
-	{	
+	{
 		while (!empty($this->_running_vars['to_check'])) {
 			if (!$this->buildListToDelete($this->_steps[0], $this->getCodeName())) {
 				return FALSE;
 			}
 		}
+
 		while (!empty($this->_running_vars['to_delete'])) {
 			if (!$this->purgeAsset($this->_steps[1], $this->getCodeName())) {
 				return FALSE;
@@ -246,6 +248,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		if (!$this->deleteRemainingTrashLinks($this->_steps[2], $this->getCodeName())) {
 			return FALSE;
 		}
+
 		return TRUE;
 
 	}//end freestyle()
@@ -270,28 +273,21 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			unset($this->_running_vars['to_check'][$assetid]);
 
 			if (strpos($assetid, ':') === FALSE) {
-				
-				if (empty($this->_running_vars['purge_root_linkid'])) {
-
-					$db = MatrixDAL::getDb();
-					try {
-						$bind_vars = Array(
-										'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
-										'assetid'	=> $assetid,
-									 );
-						$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
-					} catch (Exception $e) {
-						throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
-						$num_external_links = -1;
-					}
-							
-					if ($num_external_links == 0) {
-						$this->_running_vars['to_delete'][$assetid] = $type_code;
-					}
+				$db = MatrixDAL::getDb();
+				try {
+					$bind_vars = Array(
+									'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
+									'assetid'	=> $assetid,
+								 );
+					$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
+					$num_external_links = -1;
 				}
-				else {
+
+				if ($num_external_links == 0) {
 					$this->_running_vars['to_delete'][$assetid] = $type_code;
-				 }
+				}
 			}
 		}
 
@@ -361,6 +357,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				foreach ($links as $link) {
 					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 				}
+
 				// the delete function will remove all links in which the asset is the minor party
 				if (!$asset->delete(FALSE)) {
 					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
@@ -416,6 +413,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			// if the root node has not been deleted, the selected purge root link should be.
 			$links[] = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid'], $this->_running_vars['purge_root_id'], 'minor');
 		}
+
 		// We reverse the array to start deleting the assets with the highest sort-order.
 		// This is *much* faster because we don't have to update the sort order  
 		// of all the other assets under the trash each time
