@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.43 2009/07/30 14:30:23 ata Exp $
+* $Id: ecommerce_cart.inc,v 1.44 2009/07/31 12:40:50 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -858,7 +858,7 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$cart =& $this->_getCart();
 		
-		return $cart->getCount();
+		return (string)$cart->getCount();
 
 	}//end getProductCountKeywordReplacement()
 	
@@ -873,7 +873,7 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$cart =& $this->_getCart();
 		
-		return $cart->getTotal();
+		return (string)$cart->getTotal();
 
 	}//end getTotalValueKeywordReplacement()
 	
