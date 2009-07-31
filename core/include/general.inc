@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.228 2009/07/28 10:52:37 ata Exp $
+* $Id: general.inc,v 1.229 2009/07/31 13:14:02 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228 $
+* @version $Revision: 1.229 $
 * @package MySource_Matrix
 */
 
@@ -1697,7 +1697,7 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_user_')) {
 					$user_keyword = 'asset_'.substr($keyword, 13);
 					$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-					if ($user_replacement != "%$user_keyword%") {
+					if ((string)$user_replacement != "%$user_keyword%") {
 						$replacements[$full_keyword] = $user_replacement;
 					}
 				}
@@ -1774,7 +1774,7 @@ function replace_global_keywords(&$text)
 						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						$site_replacement = $site->getKeywordReplacement($site_keyword);
-						if ($site_replacement != "%$site_keyword%") {
+						if ((string)$site_replacement != "%$site_keyword%") {
 							$replacements[$full_keyword] = $site_replacement;
 						}
 					}
@@ -1805,7 +1805,7 @@ function replace_global_keywords(&$text)
 							$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
 						}
 								
-						if ($asset_replacement != "%$asset_keyword%") {
+						if ((string)$asset_replacement != "%$asset_keyword%") {
 							$replacements[$full_keyword] = $asset_replacement;
 						}
 					} else {
@@ -1814,7 +1814,7 @@ function replace_global_keywords(&$text)
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 							if ($asset->readAccess()) {
 								$asset_replacement = $asset->getKeywordReplacement($matches[1]);
-								if ($asset_replacement != "%$matches[1]%") {
+								if ((string)$asset_replacement != "%$matches[1]%") {
 									$replacements[$full_keyword] = $asset_replacement;
 								}
 							}
