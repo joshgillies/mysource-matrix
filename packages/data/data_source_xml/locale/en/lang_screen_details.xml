@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2009/07/28 06:56:48 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.4 2009/07/31 05:05:00 cupreti Exp $
 *
 */
 -->
@@ -50,7 +50,12 @@
 			</function_call>
 			<display_name>CDATA Tag Names</display_name>
 			<note>You may enter a comma-separated list of tag names that you would like to enclose in [CDATA]</note>
-		</field>		
+		</field>
+		<field attribute="data_delimiter">
+			<display_name>Data Delimiter</display_name>
+			<note>Delimiler to seperate data from xml elements with same name..</note>
+		</field>
+
 	</section>
 	<section name ="Tag Attributes">
 		<field>

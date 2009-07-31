@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2009/07/28 06:55:23 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2009/07/31 05:00:52 cupreti Exp $
 *
 */
 -->
@@ -43,6 +43,10 @@
 				<process_function name="processCDATATags" />
 			</function_call>
 		</field>
+		<field attribute="data_delimiter">
+			<text width="25" height="1"/>
+		</field>
+
 
 	</section>
 	<section name="Tag Attributes" write_access="write:attributes" show_if="resultSetExists">

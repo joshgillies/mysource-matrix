@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.7 2009/07/28 06:48:24 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.8 2009/07/31 05:00:52 cupreti Exp $
 *
 */
 
@@ -27,12 +27,35 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
 class Data_Source_Xml extends Data_Source
 {
+	/**
+	* Current tree level of XML doc while parsing
+	*
+	* @var int
+	*/
+	protected $_tree_level = 0;
+
+	
+	/**
+	* XML tree level where the record(s) is/are to be picked lies
+	*
+	* @var int
+	*/
+	protected $_record_tree_level = 0;
+
+
+	/**
+	* Flag set when relevent tag is encountered and unset when current xml recordset is done parsing with 
+	*
+	* @var boolean
+	*/
+	protected $_non_empty_record = FALSE;
+
 
 	/**
 	* Parsed XML is stored in this array
@@ -72,22 +95,6 @@ class Data_Source_Xml extends Data_Source
 	* @var array
 	*/
 	protected $_current_attributes = Array();
-
-
-	/**
-	* Number of tags parsed
-	*
-	* @var int
-	*/
-	protected $_passes = 0;
-
-
-	/**
-	* Result of: passes / number of required tags
-	*
-	* @var int
-	*/
-	protected $_quotient = 0;
 
 
 	/**
@@ -237,6 +244,7 @@ class Data_Source_Xml extends Data_Source
 
 	}//end parseXML()
 
+
 	/**
 	* Returns the processed content of XML feed
 	*
@@ -252,6 +260,7 @@ class Data_Source_Xml extends Data_Source
 	
 	}//end getXMLContent()
 
+
 	/**
 	* Creates the xml parser which will then go off and parse our feed
 	*
@@ -261,8 +270,7 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function _createParser($content)
-	{
-		if (!empty($content)) {
+	{	if (!empty($content)) {
 			$xml_parser = xml_parser_create();
 			// stop the parser upper-casing everything
 			xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
@@ -326,7 +334,9 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function startElement($parser, $name, $attributes=FALSE)
-	{
+	{	// Increment the XML tree level tracker one level up
+		$this->_tree_level++; 
+			
 		if (!empty($name)) {
 			// check that we are inside the root tag
 			$this->_checkRootTag($name);
@@ -337,9 +347,13 @@ class Data_Source_Xml extends Data_Source
 					if ($name === $required_tags[$i]) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
-						$this->_passes++;
-						// used to calculate when next record set begins
-						$this->_quotient = $this->_passes / count($required_tags);
+								
+						// Set record tree level to where required elemets are
+						$this->_record_tree_level = $this->_tree_level;						
+						
+						// As far as required tags are concerned current record is non empty for sure
+						$this->_non_empty_record = TRUE;
+
 						if ($attributes) {
 							$this->_current_attributes = $attributes;
 						} else {
@@ -347,7 +361,16 @@ class Data_Source_Xml extends Data_Source
 						}
 					}
 				}
-			}
+				
+				// If the current tree level is less than tree level where records are then we are finished with the current record
+				if ($this->_non_empty_record && ($this->_tree_level < $this->_record_tree_level)) {
+					$this->_record_set_index++;
+					
+					// Don't know if required tags are going to be there in next recordset
+					$this->_non_empty_record = FALSE;
+				}
+
+			}//end if inside root node
 		}
 
 	}//end startElement()
@@ -364,9 +387,16 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function characterData($parser, $data)
 	{   
-		$required_attributes = $this->_getRequiredAttributes();
-		if ($this->_inside_relevant_tag && trim($data) !== '') {
-			$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
+		if ($this->_inside_relevant_tag) {
+			
+			// if there are multiple tags with same name in the record, merge the values using the given delimiter
+			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
+				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
+			} else {
+				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $this->attr('data_delimiter') . $data;
+			}
+
+			$required_attributes = $this->_getRequiredAttributes();
 			// add attribute values if required
 			if (!empty($required_attributes) && $this->_current_attributes) {
 				foreach ($required_attributes as $tag_name => $attr_name) {
@@ -381,12 +411,10 @@ class Data_Source_Xml extends Data_Source
 					}
 				}
 			}
-			// integer quotient means we've iterated required tags
-			if (is_int($this->_quotient)) {
-				$this->_record_set_index++;
-			}
 		}
-
+		
+		$this->_inside_relevant_tag = FALSE;
+			
 	}//end characterData()
 
 
@@ -400,11 +428,12 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function endElement($parser, $name)
-	{
+	{	
 		// check that we are outside of the root tag
 		$this->_checkRootTag($name);
 
-		$this->_inside_relevant_tag = FALSE;
+		// Move the XML tree level tracker one level down on the closing of the element
+		$this->_tree_level--;
 
 	}//end endElement()
 
