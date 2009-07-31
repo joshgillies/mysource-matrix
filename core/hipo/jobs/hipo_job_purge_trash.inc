@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.51.4.1 2009/05/21 00:58:56 cupreti Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.51.4.2 2009/07/31 02:02:45 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.4.1 $
+* @version $Revision: 1.51.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -272,31 +272,25 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			list($assetid, $type_code) = each($this->_running_vars['to_check']);
 			unset($this->_running_vars['to_check'][$assetid]);
 
-			if (empty($this->_running_vars['purge_root_linkid'])) {
+			if (strpos($assetid, ':') === FALSE) {
+				$db = MatrixDAL::getDb();
+				try {
+					$bind_vars = Array(
+									'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
+									'assetid'	=> $assetid,
+								 );
+					$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
+					$num_external_links = -1;
+				}
 
-				if (strpos($assetid, ':') === FALSE) {
-
-					$db = MatrixDAL::getDb();
-					try {
-						$bind_vars = Array(
-										'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
-										'assetid'	=> $assetid,
-									 );
-						$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
-					} catch (Exception $e) {
-						throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
-						$num_external_links = -1;
-					}
-
-					if ($num_external_links == 0) {
-						$this->_running_vars['to_delete'][$assetid] = $type_code;
-					}
+				if ($num_external_links == 0) {
+					$this->_running_vars['to_delete'][$assetid] = $type_code;
 				}
 			}
-			else {
-				$this->_running_vars['to_delete'][$assetid] = $type_code;
-			}
 		}
+
 		if (empty($this->_running_vars['to_check'])) {
 			$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
 			$step_data['percent_done'] = 100;
