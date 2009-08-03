@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.284 2009/07/21 03:58:19 cupreti Exp $
+* $Id: listing_engine.inc,v 1.285 2009/08/03 05:19:08 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.284 $
+* @version $Revision: 1.285 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2275,28 +2275,13 @@ class Listing_Engine extends Page
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 
-		// For each keyword starting with 'asset_contents', ensure there is an entry 
-		// in $bc_keywords for both the plain keyword and any equivalents with modifiers. 
-		//
-		// This way plain replacement works as expected, and the modifiers can be run
-		// later in this method..
-		foreach ($bc_keywords as $kw) {
-			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
-				$kw = parse_keyword($kw);
-
-				if (in_array($kw, $bc_keywords)) {
-					array_push($bc_keywords, $kw);
-				}
-			}
-		}
-
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 
 			// Body with paint layout applied, if any (inherited from the
 			// listing engine asset, usually)
-			if (array_key_exists("asset_contents", $bc_keywords)) {
+			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
 					if ($assetid != $this->id) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -2309,7 +2294,7 @@ class Listing_Engine extends Page
 
 			// %asset_contents_raw% will print the asset's body WITHOUT a
 			// paint layout
-			if (array_key_exists("asset_contents_raw", $bc_keywords)) {
+			if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
 					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2337,7 +2322,7 @@ class Listing_Engine extends Page
 
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
-				if (array_key_exists("asset_contents", $keywords)) {
+				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 					ob_start();
 						if ($asset->id != $this->id) {
 							$asset->printBodyWithPaintLayout();
@@ -2365,7 +2350,7 @@ class Listing_Engine extends Page
 
 				// %asset_contents_raw% will print the asset's body WITHOUT a
 				// paint layout
-				if (array_key_exists("asset_contents_raw", $keywords)) {
+				if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
 					ob_start();
 						if ($asset->id != $this->id) $asset->printBody();
 						$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2583,22 +2568,6 @@ class Listing_Engine extends Page
 		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
-
-		// For every keyword with modifiers starting with 'asset_contents', apply the modifiers..
-		foreach ($keywords as $kw => $val) {
-			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
-
-				$plain_keyword = parse_keyword($kw, $modifiers);
-				if (!empty($modifiers)) {
-					// Start the modified keyword off with the plain replaced value
-					$keywords[$kw] = $keywords[$plain_keyword];
-
-					// Apply modifiers
-					apply_keyword_modifiers($keywords[$kw], $modifiers);
-				}
-
-			}
-		}
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
