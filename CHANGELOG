@@ -69,6 +69,7 @@ Fixed Bug #3799: No preview shown when adding col or row in Wysiwyg Table Proper
 Fixed Bug #3802: backup.sh v1.17.2.1 trying to write to the wrong directory
 Fixed Bug #3803: Set metadata trigger not escaping "=" correctly
 Fixed Bug #3805: Script system_update_lookups.php will faill if there is any assets in system with safe edit status
+Fixed Bug #3810: Ecommerce Form Page cloning
 Fixed Bug #3814: Ensure one upper case letter, if upper case letter is enabled in CAPTCHA
 + Increased randomness added to CAPTCHA string - no longer alternates between vowels and consonants
 
@@ -87,9 +88,6 @@ Fixed Bug #3808: Asset listing gives error if sent list of assetid's that have a
 
 Data
 Fixed Bug #3704: Apostrophe in XML Data Source output shows only remaining of the elements content
-
-E-Commerce
-Fixed Bug #3810: Ecommerce Form Page cloning
 
 Search
 Fixed Bug #3780: Search Page position -1 formatting not applied
