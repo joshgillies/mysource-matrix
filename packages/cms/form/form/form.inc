@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.20 2009/06/25 00:00:58 ewang Exp $
+* $Id: form.inc,v 1.207.2.21 2009/08/03 04:52:14 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.20 $
+* @version $Revision: 1.207.2.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -316,13 +316,20 @@ class Form extends Asset implements Bridge
 							'use_bodycopy_main'			=> 'Page Contents',
 							'use_bodycopy_thank_you'	=> 'Thank You',
 						  );
+			if ((isset($clone->_bodycopies) && !empty($clone->_bodycopies)) ) {
+				$bodycopies = array_merge($bodycopies, Array ('use_bodycopy_receipt' => 'Receipt'));
+			}
+
 			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
 			foreach ($bodycopies as $attribute => $bodycopy_name) {
 				$bodycopy = NULL;
-				$attr_value = $clone->attr($attribute);
-				if (!empty($attr_value)) {
+				if ((isset($clone->_bodycopies) && !empty($clone->_bodycopies)) ) {
 					$bodycopy = $clone->getBodycopy($bodycopy_name);
+				} else {
+					$attr_value = $clone->attr($attribute);
+					if (!empty($attr_value)) $bodycopy = $clone->getBodycopy($bodycopy_name);
 				}
+
 				if (!empty($bodycopy)) {
 					$containers = $bodycopy->getContainers();
 					foreach ($containers as $container) {
