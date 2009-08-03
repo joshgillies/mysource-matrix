@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.44 2009/08/03 01:34:43 ewang Exp $
+* $Id: general.inc,v 1.45 2009/08/03 04:00:39 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package Fudge
 * @subpackage General
 */
@@ -366,13 +366,11 @@ function dal_array_flatten($array, $column='')
 function random_password($length, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 	if (!$length) $length = 8;
-	$consonants			= 'bcdfghjklmnpqrstvwyz';
-	$vowels				= 'aeiou';
-
+	$letters			= 'aeioubcdfghjklmnpqrstvwyz';
+	
 	// Please note that certain letters and numbers are missing due to being represented in a similar manner to lowercase chars in some fonts
 	$numbers			= '2346789';
-	$upper_consonants	= 'DFGHLMNQRT';
-	$upper_vowels		= 'AEU';
+	$upper_letters		= 'AEUDFGHLMNQRT';
 
 	$password   = '';
 	global $RANDOM_PASSWORD_SEED;
@@ -424,35 +422,21 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 		$RANDOM_PASSWORD_SEED += $length;
 		$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
 		srand($seed);
-		$appended_characters = $consonants[rand(0,strlen($consonants)-1)];
+		$appended_characters = $letters[rand(0,strlen($letters)-1)];
 
-		// Assign either an uppercase consonant or a number if we are destined to do so
+		// Assign either an uppercase letter or a number if we are destined to do so
 		if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
-			$appended_characters = $upper_consonants[rand(0,strlen($upper_consonants)-1)];
+			$appended_characters = $upper_letters[rand(0,strlen($upper_letters)-1)];
 		} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
 			$appended_characters = $numbers[rand(0,strlen($numbers)-1)];
 		}
 		$current_index++;
 
-		if ($length > 1) {
-			srand($seed);
-			$appended_character = $vowels[rand(0,strlen($vowels)-1)];
-
-			// Assign either an uppercase vowel or a number if we are destined to do so
-			if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
-				$appended_character = $upper_vowels[rand(0,strlen($upper_vowels)-1)];
-			} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
-				$appended_character = $numbers[rand(0,strlen($numbers)-1)];
-			}
-
-			$appended_characters .= $appended_character;
-			$current_index++;
-		}
-
 		$password .= $appended_characters;
-		$length -= 2;
+		$length -= 1;
 	}//end while
 	$RANDOM_PASSWORD_SEED++;
+
 	return $password;
 
 }//end random_password()
