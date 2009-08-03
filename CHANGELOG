@@ -42,6 +42,9 @@ Fixed Bug #3808: Asset listing gives error if sent list of assetid's that have a
 Data
 Fixed Bug #3704: Apostrophe in XML Data Source output shows only remaining of the elements content
 
+E-Commerce
+Fixed Bug #3810: Ecommerce Form Page cloning
+
 Search
 Fixed Bug #3780: Search Page position -1 formatting not applied
 
