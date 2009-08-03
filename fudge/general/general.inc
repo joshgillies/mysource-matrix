@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.41.2.2 2009/03/08 23:32:11 mbrydon Exp $
+* $Id: general.inc,v 1.41.2.3 2009/08/03 01:36:15 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41.2.2 $
+* @version $Revision: 1.41.2.3 $
 * @package Fudge
 * @subpackage General
 */
@@ -379,7 +379,7 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 	// If we are including uppercase characters, ensure at least one is present
 	$uppercase_indexes = Array();
-	$chosen_default_uppercase_index = -1;
+	$chosen_default_uppercase_index = rand(0, $length-1);
 	$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
 	if (($include_uppercase) && ($length > 1)) {
 		srand($seed);
