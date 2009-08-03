@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.44 2009/07/31 12:40:50 ata Exp $
+* $Id: ecommerce_cart.inc,v 1.45 2009/08/03 10:05:32 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -103,12 +103,7 @@ class Ecommerce_Cart extends Listing_Engine
 	function &_getCart()
 	{
 		if (is_null($this->_cart)) {
-			if (!empty($this->_tmp['cart_processor'])) {
-				$cart =& $this->_tmp['cart_processor'];
-				$cart->initialiseCart();
-			} else {
-				$cart = new Ecommerce_Cart_Processor();
-			}
+			$cart = new Ecommerce_Cart_Processor();
 	
 			if ($this->attr('use_local_cart')) {
 				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
