@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.694 2009/08/03 00:01:25 lwright Exp $
+* $Id: asset.inc,v 1.695 2009/08/03 03:53:47 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.694 $
+* @version $Revision: 1.695 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3013,7 +3013,6 @@ class Asset extends MySource_Object
 						$query_name = 'updateDefaultContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
-										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
 									 );
 					} else {
@@ -3023,14 +3022,15 @@ class Asset extends MySource_Object
 						$query_name = 'updateAlternateContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
-										'attrid'		=> $attr_id,
-										'assetid'		=> $this->id,
 										'contextid'		=> $contextid,
+										'assetid'		=> $this->id,
 									 );
 					}
 					if ((boolean)$attribute->uniq === TRUE) {
+						$bind_vars['attrid'] = $save_vars[$attr_id]['owning_attrid'];
 						MatrixDAL::executeQuery('core', $unique_query_name, $bind_vars);
 					}
+					$bind_vars['attrid'] = $attr_id;
 					MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -3059,7 +3059,6 @@ class Asset extends MySource_Object
 						$query_name = 'insertDefaultContextAttrValue';
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
-										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
 									 );
 						// Oracle has problems handling INSERT..SELECT, because we
@@ -3084,15 +3083,16 @@ class Asset extends MySource_Object
 						$bind_vars = Array(
 										'custom_val'	=> $attr_value,
 										'contextid'		=> $contextid,
-										'attrid'		=> $attr_id,
 										'assetid'		=> $this->id,
 									 );
 					}
 					if ((boolean)$attribute->uniq === TRUE) {
 						if (isset($lob1) === TRUE) $bind_vars['custom_val'] = $lob1;
+						$bind_vars['attrid'] = $save_vars[$attr_id]['owning_attrid'];
 						MatrixDAL::executeQuery('core', $unique_query_name, $bind_vars);
 					}
 					if (isset($lob2) === TRUE) $bind_vars['custom_val'] = $lob2;
+					$bind_vars['attrid'] = $attr_id;
 					MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert new attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
