@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.34 2009/07/28 02:14:21 ewang Exp $
+* $Id: cron_job_future_lineage.inc,v 1.35 2009/08/03 06:27:13 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -366,6 +366,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
 		
 		$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+		$can_safe_trash = TRUE;
 		
 		if ($safe_trash) {		
 			$exclude_self = FALSE;
@@ -485,8 +486,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	protected function _execDeleteLink($linkid)
 	{
 		$delete_ok = FALSE;
-
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+	
 		if (!empty($link)) {
 			$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			//keep all minor assets which must need a lookup update later
