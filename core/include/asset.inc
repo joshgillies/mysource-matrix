@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.693 2009/07/30 15:33:58 ata Exp $
+* $Id: asset.inc,v 1.694 2009/08/03 00:01:25 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.693 $
+* @version $Revision: 1.694 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -738,7 +738,7 @@ class Asset extends MySource_Object
 		if ($this->id) {
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
-			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value, atr.is_contextable
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value, atr.is_contextable, v.use_default
 					FROM (sq_ast_attr atr
 					  LEFT OUTER JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val WHERE contextid = :contextid) v
 						ON (atr.attrid = v.attrid AND v.assetid = :assetid'
@@ -746,7 +746,7 @@ class Asset extends MySource_Object
 						WHERE atr.type_code = :type_code';
 		} else {
 			// else just load all defaults
-			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value, atr.is_contextable
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value, atr.is_contextable, \'1\' as use_default
 					FROM sq_ast_attr atr
 					WHERE atr.type_code = :type_code';
 		}// end if
@@ -1047,21 +1047,27 @@ class Asset extends MySource_Object
 		}
 
 		// save the object for later (in the restricted directory)
+		// The only thing that varies at the moment is attributes, so we
+		// can reload the vars in each context instead of completely reloading
+		// the asset
+		$current_vars = $this->vars;
 		$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 		foreach ($contextids as $contextid) {
+			// Reload the vars for this context
 			$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
-			$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			$this->_loadVars();
 
 			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
-			if (!string_to_file(serialize($contexted_asset), $this->data_path.'/.sq_system/'.$filename)) {
+			if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/'.$filename)) {
 				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
 
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
-			unset($contexted_asset);			
-		}
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		}//end foreach
+
+		// Put it back how it was
+		$this->vars = $current_vars;
 
 		// move all the other files in our data directories
 		// into the new system directories for later use
@@ -1973,19 +1979,38 @@ class Asset extends MySource_Object
 
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
-				// Now we set all the attributes
-				foreach ($this->vars as $name => $data) {
-					if (!$clone->setAttrValue($name, $data['value'])) {
+				// Save the current variables so we can restore them afterwards
+				$current_vars = $this->vars;
+				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+
+				foreach ($all_contexts as $contextid => $context_data) {
+					// Change the context, then reload the attributes
+					// (we don't need to change the clone, because saveAttributes()
+					// already works with the current context)
+					$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+					$this->_loadVars();
+
+					// Now we set all the attributes
+					foreach ($this->vars as $name => $data) {
+						if (($contextid === 0) || ((boolean)$data['use_default'] === FALSE)) {
+							if (!$clone->setAttrValue($name, $data['value'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								return FALSE;
+							}
+						}
+					}
+					if (!$clone->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
-				}
-				if (!$clone->saveAttributes()) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
-				}
+
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				}//end foreach
+
+				// Move the original context's vars back
+				$this->vars = $current_vars;
 			} else {
 				trigger_localised_error('SYS0328', E_USER_WARNING, $clone->name);
 			}//end if (permissions)
