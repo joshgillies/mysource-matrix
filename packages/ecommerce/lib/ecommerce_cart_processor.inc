@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.18 2009/07/28 11:19:20 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.19 2009/08/03 10:07:34 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,6 +44,8 @@ class Ecommerce_Cart_Processor
 		// set, but rely on external objects to initialise
 		$this->setCartContainer($_SESSION['sq_cart_contents']);
 
+		if (is_null($this->cart)) $this->initialiseCart();
+
 	}//end constructor
 
 
@@ -60,21 +62,6 @@ class Ecommerce_Cart_Processor
 		$this->cart =& $cart;
 
 	}//end setCartContainer()
-
-
-	/**
-	* Sets the cart to use for the cart
-	*
-	* @param object	$cart	the cart to set the contents of the processor's cart to
-	*
-	* @return void
-	* @access public
-	*/
-	function setCartContents($cart)
-	{
-		$this->cart = $cart;
-
-	}//end setCartContents()
 
 
 	/**
@@ -157,8 +144,6 @@ class Ecommerce_Cart_Processor
 	*/
 	function &getCart()
 	{
-		if (is_null($this->cart)) $this->initialiseCart();
-
 		// remove any invalid cart items
 		$this->validateCart();
 
