@@ -1,5 +1,52 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.20.7
+
+Featured Changes
+-----------------------------------
+
+Update Sharepoint Record CRON Job
+	A nightly Cron Job has been added to download and update Sharepoint documents as specified in a Data Source asset.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3760: Structured Root Selector listing order problem
+Fixed Bug #3766: "?SQ_ACTION=logout" can send cacheable headers
+Fixed Bug #3770: Can not remove workflow schema for image asset with varieties
+Fixed Bug #3771: Workflow cascade option give error
+Fixed Bug #3773: Update lookups fail when asset has more than 1000 web paths 
+Fixed Bug #3784: Custom form - file upload
+Fixed Bug #3795: Turning off caching for a customised type code does not turn off cacheable headers
+Fixed Bug #3796: Paint layouts no removed from DB when URLs removed
+Fixed Bug #3799: No preview shown when adding col or row in Wysiwyg Table Properties 
+Fixed Bug #3803: Set metadata trigger not escaping "=" correctly
+Fixed Bug #3805: Script system_update_lookups.php will faill if there is any assets in system with safe edit status
+Fixed Bug #3814: Ensure one upper case letter, if upper case letter is enabled in CAPTCHA
+
+Bulkmail
+Fixed Bug #3414: Bulkmail + Oracle = Lost connection
+Fixed Bug #3783: Bulkmail progress exceeding 100 percent
+
+Calendar
+Fixed Bug #3788: "Last" prefix on day of month missing
+Fixed Bug #3789: Upcoming events Showing events beyond horizon 
+
+CMS
+Fixed Bug #3758: %root_nodes% keyword broken on simple edit layout
+Fixed Bug #3774: Validated users don't get permissions from user group
+Fixed Bug #3808: Asset listing gives error if sent list of assetid's that have a trailing comma 
+
+Data
+Fixed Bug #3704: Apostrophe in XML Data Source output shows only remaining of the elements content
+
+Search
+Fixed Bug #3780: Search Page position -1 formatting not applied
+
+
+
 VERSION 3.20.6
 
 Featured Changes
