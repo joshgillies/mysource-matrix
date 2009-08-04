@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.106 2009/07/22 01:23:53 lwright Exp $
+* $Id: design_area_menu_type.inc,v 1.107 2009/08/04 03:33:21 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -760,7 +760,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @access private
 	*/
 	protected function _printContentItemCode(Array $element)
-	{	log_dump("HERE");
+	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
 				if ($divider_contents = $this->attr('divider_contents')) {
