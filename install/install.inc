@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.88 2009/07/12 23:45:12 lwright Exp $
+* $Id: install.inc,v 1.88.2.1 2009/08/04 23:07:24 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.88 $
+* @version $Revision: 1.88.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -91,7 +91,8 @@ function regenerate_configs()
 	// But this is a special case - saving to a DB table rather than a config file
 	// So need to make sure the table exists before saving to it
 	$db_tables = get_database_tables();
-	if (in_array('sq_ctx_def', $db_tables)) {
+	$query_found = file_exists(MatrixDAL::getOvenPath().'/core/coreQueries.inc') ? TRUE : FALSE;
+	if ((in_array('sq_ctx_def', $db_tables) === TRUE) && ($query_found === TRUE)) {
 		require_once SQ_INCLUDE_PATH.'/context_config.inc';
 		$context_cfg = new Context_Config();
 		$current = $context_cfg->load();
