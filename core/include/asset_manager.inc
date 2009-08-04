@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738 2009/07/29 06:39:06 lwright Exp $
+* $Id: asset_manager.inc,v 1.739 2009/08/04 02:17:43 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738 $
+* @version $Revision: 1.739 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8381,9 +8381,9 @@ class Asset_Manager extends MySource_Object
 				$bind_vars[$bind_prefix.'link_value_'.$i] = $value['link_value'][$i];
 			}
 			$equal_prefix = $value['equal'] ? '': 'NOT ';
-			$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+			$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
 			if (in_array('', $value['link_value']) === TRUE) {
-				$where .= ' OR l.value IS '.$equal_prefix.'NULL';
+				$where .= ' OR l.value IS NULL';
 			}
 			$where .= ')';
 		}
@@ -8652,9 +8652,9 @@ class Asset_Manager extends MySource_Object
 					$where_bind_vars[$bind_prefix.'link_value_'.$i] = $link_value_wanted['link_value'][$i];
 				}
 				$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
-				$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+				$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
 				if (in_array('', $link_value_wanted['link_value']) === TRUE) {
-					$where .= ' OR l.value IS '.$equal_prefix.'NULL';
+					$where .= ' OR l.value IS NULL';
 				}
 				$where .= ')';
 			}
@@ -9022,9 +9022,9 @@ class Asset_Manager extends MySource_Object
 				$bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
 			}
 			$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
-			$where .= ' AND (l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).')';
+			$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
 			if (in_array('', $link_value_wanted['link_value']) === TRUE) {
-				$where .= ' OR l.value IS '.$equal_prefix.'NULL';
+				$where .= ' OR l.value IS NULL';
 			}
 			$where .= ')';
 		}
