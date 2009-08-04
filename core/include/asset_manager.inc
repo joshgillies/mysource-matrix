@@ -10,7 +10,8 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.1 2009/08/04 02:45:34 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.738.2.2 2009/08/04 07:12:47 lwright Exp $
+>>>>>>> 1.740
 *
 */
 
@@ -25,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.1 $
+* @version $Revision: 1.738.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8374,18 +8375,42 @@ class Asset_Manager extends MySource_Object
 			AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', ':'.$bind_prefix.'link_types').' > 0 ';
 		$bind_vars[$bind_prefix.'link_types'] = $link_types;
 
+		// If $link_value_wanted is  '', we should get all records including '' and NULL,
+		// because Oracle will think '' same as NULL.
+		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
 		if (!is_null($value) && is_array($value)) {
 			$link_value = Array();
+			$has_empty = FALSE;
 			for (reset($value['link_value']); NULL !== ($i = key($value['link_value'])); next($value['link_value'])) {
-				$link_value[] = ':'.$bind_prefix.'link_value_'.$i;
-				$bind_vars[$bind_prefix.'link_value_'.$i] = $value['link_value'][$i];
+				if ($value['link_value'][$i] === '') {
+					$has_empty = TRUE;
+					if ($is_oci === TRUE) {
+						unset($value['link_value'][$i]);
+						continue;
+					}
+				}
+				$link_value[] = ':'.$bind_prefix.'value_'.$i;
+				$bind_vars[$bind_prefix.'value_'.$i] = $value['link_value'][$i];
 			}
+
 			$equal_prefix = $value['equal'] ? '': 'NOT ';
-			$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
-			if (in_array('', $value['link_value']) === TRUE) {
-				$where .= ' OR l.value IS NULL';
+			if (count($link_value) === 0) {
+				$in_clause = '';
+			} else {
+				$in_clause = '(l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).'))';
 			}
-			$where .= ')';
+			$null_clause = '';
+			if ($is_oci === TRUE) {
+				if ((!$value['equal']) ^ $has_empty) {
+					$null_clause = ' OR l.value IS NULL';
+					if ($in_clause === '') $null_clause = ' OR '.$null_clause; 					
+				} else {
+					if ($in_clause === '') {
+						$null_clause = ' l.value IS NOT NULL';
+					}
+				}
+			}
+			$where .= ' AND ('.$in_clause.$null_clause.')';
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = :'.$bind_prefix.'is_dependant';
@@ -8645,18 +8670,40 @@ class Asset_Manager extends MySource_Object
 			// adding a new filter 'link value'
 			// If $link_value_wanted is  '', we should get all records including '' and NULL,
 			// because Oracle will think '' same as NULL.
+			$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
 			if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
 				$link_value = Array();
+				$has_empty = FALSE;
 				for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
-					$link_value[] = ':'.$bind_prefix.'link_value_'.$i;
-					$where_bind_vars[$bind_prefix.'link_value_'.$i] = $link_value_wanted['link_value'][$i];
+					if ($link_value_wanted['link_value'][$i] === '') {
+						$has_empty = TRUE;
+						if ($is_oci === TRUE) {
+							unset($link_value_wanted['link_value'][$i]);
+							continue;
+						}
+					}
+					$link_value[] = ':'.$bind_prefix.'link_value_wanted_'.$i;
+					$where_bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
 				}
+
 				$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
-				$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
-				if (in_array('', $link_value_wanted['link_value']) === TRUE) {
-					$where .= ' OR l.value IS NULL';
+				if (count($link_value) === 0) {
+					$in_clause = '';
+				} else {
+					$in_clause = '(l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).'))';
 				}
-				$where .= ')';
+				$null_clause = '';
+				if ($is_oci === TRUE) {
+					if ((!$link_value_wanted['equal']) ^ $has_empty) {
+						$null_clause = ' OR l.value IS NULL';
+						if ($in_clause === '') $null_clause = ' OR '.$null_clause; 					
+					} else {
+						if ($in_clause === '') {
+							$null_clause = ' l.value IS NOT NULL';
+						}
+					}
+				}
+				$where .= ' AND ('.$in_clause.$null_clause.')';
 			}
 
 			// now merge the bind vars into the master array
@@ -9015,18 +9062,40 @@ class Asset_Manager extends MySource_Object
 
 		// If $link_value_wanted is  '', we should get all records including '' and NULL,
 		// because Oracle will think '' same as NULL.
+		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
 		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
 			$link_value = Array();
+			$has_empty = FALSE;
 			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
+				if ($link_value_wanted['link_value'][$i] === '') {
+					$has_empty = TRUE;
+					if ($is_oci === TRUE) {
+						unset($link_value_wanted['link_value'][$i]);
+						continue;
+					}
+				}
 				$link_value[] = ':'.$bind_prefix.'link_value_wanted_'.$i;
 				$bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
 			}
+
 			$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
-			$where .= ' AND '.$equal_prefix.'(l.value IN ('.implode(', ', $link_value).')';
-			if (in_array('', $link_value_wanted['link_value']) === TRUE) {
-				$where .= ' OR l.value IS NULL';
+			if (count($link_value) === 0) {
+				$in_clause = '';
+			} else {
+				$in_clause = '(l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).'))';
 			}
-			$where .= ')';
+			$null_clause = '';
+			if ($is_oci === TRUE) {
+				if ((!$link_value_wanted['equal']) ^ $has_empty) {
+					$null_clause = ' OR l.value IS NULL';
+					if ($in_clause === '') $null_clause = ' OR '.$null_clause; 					
+				} else {
+					if ($in_clause === '') {
+						$null_clause = ' l.value IS NOT NULL';
+					}
+				}
+			}
+			$where .= ' AND ('.$in_clause.$null_clause.')';
 		}
 
 		if (!empty($type_code)) {
