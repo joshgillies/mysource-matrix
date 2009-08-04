@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.150 2009/07/24 02:57:10 wszymanski Exp $
+* $Id: html_form.inc,v 1.150.2.1 2009/08/04 06:01:02 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.150.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1481,7 +1481,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	$search_tree = Array();
 	foreach ($child_links as $treeid => $child) {
 		id_list_to_tree($treeid, $search_tree, '', $child['sort_order']);
-	}log_dump($search_tree);
+	}
 	sort_tree($search_tree);
 	draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth, $structured);
 

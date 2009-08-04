@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.131 2009/07/29 00:35:10 wszymanski Exp $
+* $Id: design_edit_fns.inc,v 1.131.2.1 2009/08/04 06:01:02 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.131.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,7 +275,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$return_string .= '<span '.$cmmt_style.'>&lt;!-- ';
 				$white_space = Array("\r\n", "\n", "\r");
 				$return_string .= str_replace($white_space, "</span>\n<span ".$cmmt_style.'>', $matches[1]);
-				$return_string .= '</span>';log_dump($matches);
+				$return_string .= '</span>';
 				return $return_string;
 			}
 			$cmmt_search	= Array(
