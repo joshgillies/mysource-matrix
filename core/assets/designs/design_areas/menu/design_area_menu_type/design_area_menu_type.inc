@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.107 2009/08/04 03:33:21 bpearson Exp $
+* $Id: design_area_menu_type.inc,v 1.108 2009/08/04 05:56:11 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -909,7 +909,7 @@ class Design_Area_Menu_Type extends Design_Area
 							if ($custom_da['minorid'] != $sub->id) {
 								$new_da = $am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
 								if (is_null($new_da)) continue;
-								if ($new_da->name == $sub->name) { log_dump($new_da); log_dump($sub);
+								if ($new_da->name == $sub->name) {
 									foreach ($new_da->vars as $name => $details) {
 										if (in_array($name, Array('unwanted_asset_types', 'self_link'))) {
 											$sub->vars[$name] = $new_da->vars[$name];
