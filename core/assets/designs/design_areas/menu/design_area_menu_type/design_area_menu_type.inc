@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.106 2009/07/22 01:23:53 lwright Exp $
+* $Id: design_area_menu_type.inc,v 1.106.2.1 2009/08/04 04:31:59 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.106.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -760,7 +760,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @access private
 	*/
 	protected function _printContentItemCode(Array $element)
-	{	log_dump("HERE");
+	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
 				if ($divider_contents = $this->attr('divider_contents')) {
@@ -909,7 +909,7 @@ class Design_Area_Menu_Type extends Design_Area
 							if ($custom_da['minorid'] != $sub->id) {
 								$new_da = $am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
 								if (is_null($new_da)) continue;
-								if ($new_da->name == $sub->name) { log_dump($new_da); log_dump($sub);
+								if ($new_da->name == $sub->name) {
 									foreach ($new_da->vars as $name => $details) {
 										if (in_array($name, Array('unwanted_asset_types', 'self_link'))) {
 											$sub->vars[$name] = $new_da->vars[$name];
