@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.8 2009/07/31 05:00:52 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.9 2009/08/05 07:36:28 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -236,7 +236,7 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function parseXML()
 	{
-		$url = html_entity_decode($this->attr('url'));
+		$url = html_entity_decode($this->_tmp['url_string']);
 		$content = $this->openFeed($url);
 		$content = $this->_addCDATA($content);
 		
@@ -253,7 +253,7 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function getXMLContent()
 	{
-		$url = html_entity_decode($this->attr('url'));
+		$url = html_entity_decode(isset($this->_tmp['url_string']) ? $this->_tmp['url_string'] : $this->attr('url'));
 		$content = $this->openFeed($url);
 
 		return $this->_addCDATA($content);
@@ -472,9 +472,6 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function _getFeedURL()
 	{	
-		$url_string = isset($this->_tmp['url_string']) ? $this->_tmp['url_string'] : '';
-		if (!empty($url_string)) return $url_string;
-
 		$url = $this->attr('url');
 		$keyword_wrapper = '%%';
 		$keyword_pattern = '('.$keyword_wrapper.'([a-zA-Z_\-0-9\.]+)'.$keyword_wrapper.')';
@@ -535,7 +532,7 @@ class Data_Source_Xml extends Data_Source
 			$value = array_get_index($dynamic_vars, $variable_name, '');
 		}
 
-		return $value;
+		return urlencode($value);
 
 	}//end getDynamicVariableValue()
 
@@ -549,7 +546,7 @@ class Data_Source_Xml extends Data_Source
 	* @access private
 	*/
 	function _addCDATA($content)
-	{	
+	{		
 		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));		
 		if (empty($cdata_tags)) return $content;
 
