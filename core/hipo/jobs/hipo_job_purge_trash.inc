@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.53 2009/07/31 02:00:12 bpearson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.54 2009/08/05 06:20:08 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -418,9 +418,18 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		// This is *much* faster because we don't have to update the sort order  
 		// of all the other assets under the trash each time
 		foreach (array_reverse($links) as $link) {
-			// we know it has other links so no new trash link will be created
-			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
-		}
+			// Extra check to make sure the link is under trash exclusively before deleting the link itself
+			$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link['linkid']);
+			if (!is_null($link_info['minorid'])) {
+				$under_trash = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['trash_id'], $link_info['minorid']);
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($link_info['minorid'], TRUE) || !empty($under_trash)) {
+					// we know it has other links so no new trash link will be created
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+				}//end if
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+			}//end if
+		}//end foreach
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = TRUE;
 		$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
