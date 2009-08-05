@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.3 2009/08/04 07:13:27 lwright Exp $
+* $Id: asset_manager.inc,v 1.738.2.4 2009/08/05 06:34:47 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.3 $
+* @version $Revision: 1.738.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3154,6 +3154,9 @@ class Asset_Manager extends MySource_Object
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
 
 					$where = 'minorid = '.MatrixDAL::quote($assetid);
+					if(!is_null($link_types)){
+						$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', MatrixDAL::quote($link_types)).' > 0 ';
+					}
 					if ($type_code) {
 						if ($strict_type_code) {
 							$where .= ' AND a.type_code = '.MatrixDAL::quote($type_code);
