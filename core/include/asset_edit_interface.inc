@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.354.2.3 2009/07/10 01:20:25 wszymanski Exp $
+* $Id: asset_edit_interface.inc,v 1.354.2.4 2009/08/05 01:45:18 wszymanski Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.354.2.3 $
+* @version $Revision: 1.354.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2830,4 +2830,3 @@ class Asset_Edit_Interface extends MySource_Object
 }// end class
 
 ?>
-	
