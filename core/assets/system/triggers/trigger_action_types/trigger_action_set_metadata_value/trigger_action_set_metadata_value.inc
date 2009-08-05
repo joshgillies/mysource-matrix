@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.28 2009/07/29 00:58:12 akarelia Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.29 2009/08/05 16:13:53 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,10 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'fieldid'		=> int    // metadata_field id
-	*		'field_name'	=> string // name of the field
-	*       'value'			=> string // the value to set
+	*       'fieldid'							=> int    // metadata_field id
+	*       'field_name'						=> string // name of the field
+	*       'value'								=> string // the value to set
+	*       'replace_keywords_in_set_value'		=> boolean (0|1), // the flag to indicate if this trigger action will replace the keywords in the set value with the broadcasting asset is the current asset in the replacement context
 	*       );
 	* </PRE>
 	*
@@ -106,6 +107,29 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$field_name = $metadata[$settings['fieldid']][0]['name'];
 		}
 
+		//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to metadata field
+		if (array_get_index($settings, 'replace_keywords_in_set_value', 0)) {
+			// replace global keywords
+			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
+			
+			replace_global_keywords($value);
+
+			if (is_null($old_current_asset)) {
+				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+			} else {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+			}
+			
+			// replace broadcasting asset keywords
+			$keywords = retrieve_keywords_replacements($value);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+			replace_keywords($value, $replacements);
+		}
+		
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
 											0	=> Array (
@@ -194,6 +218,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		ob_end_clean();
 		$output .= $output_part2;
 
+		// Replace keywords checkbox
+		ob_start();
+			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
+			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
+		$output_part3 = '<br />'.ob_get_clean();
+		
+		$output .= $output_part3;
+		
 		return $output;
 
 	}//end getInterface()
@@ -248,6 +280,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				$settings['value_map'] = $atr_parameter_map->value;
 			}
 		}
+		
+		$settings['replace_keywords_in_set_value']	= array_get_index($request_data, 'replace_keywords_in_set_value', 0);
 
 		return FALSE;
 
