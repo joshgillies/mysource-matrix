@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.43.2.2 2009/08/03 04:01:22 ewang Exp $
+* $Id: general.inc,v 1.43.2.3 2009/08/05 04:33:03 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43.2.2 $
+* @version $Revision: 1.43.2.3 $
 * @package Fudge
 * @subpackage General
 */
@@ -366,11 +366,11 @@ function dal_array_flatten($array, $column='')
 function random_password($length, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 	if (!$length) $length = 8;
-	$letters			= 'aeioubcdfghjklmnpqrstvwyz';
+	$letters			= 'bcdfghjklmnpqrstvwyz';
 	
 	// Please note that certain letters and numbers are missing due to being represented in a similar manner to lowercase chars in some fonts
 	$numbers			= '2346789';
-	$upper_letters		=	'AEUDFGHLMNQRT';
+	$upper_letters		=	'DFGHLMNQRT';
 
 	$password   = '';
 	global $RANDOM_PASSWORD_SEED;
