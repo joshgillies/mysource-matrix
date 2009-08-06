@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.11 2009/08/03 05:18:55 mbrydon Exp $
+* $Id: condition_keyword_regexp.inc,v 1.12 2009/08/06 02:27:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *     This condition compares a keyword against a specified regular expression
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,8 +137,13 @@ class Condition_Keyword_Regexp extends Condition
 	*/
 	public static function updateKeywords(Array $logical_keywords, Array &$condition_data)
 	{
-		$keyword_name = $condition_data['keyword'];
-		$condition_data['keyword_value'] = isset($logical_keywords[$keyword_name]) ? $logical_keywords[$keyword_name] : '';
+		$keyword_name = parse_keyword($condition_data['keyword'], $modifiers);
+
+		if (count($modifiers) >= 1) {
+			$condition_data['keyword_value'] = '%'.$condition_data['keyword'].'%';
+		} else {
+			$condition_data['keyword_value'] = isset($logical_keywords[$keyword_name]) ? $logical_keywords[$keyword_name] : '';
+		}//end if
 
 	}//end updateKeywords()
 

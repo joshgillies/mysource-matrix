@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696 2009/08/03 05:18:55 mbrydon Exp $
+* $Id: asset.inc,v 1.697 2009/08/06 02:26:56 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696 $
+* @version $Revision: 1.697 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3582,9 +3582,12 @@ class Asset extends MySource_Object
 	protected function _getKeywordReplacement($keyword)
 	{
 		if (empty($keyword)) return '';
-		if (0 === strpos($keyword, 'globals_')) {
+		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
 			return "%$keyword%";
 		}
+
+		// Remove any modifiers from keyword, and keep them for later..
+		$keyword = parse_keyword($keyword, $modifiers);
 
 		$replacement = NULL;
 		$tmp_keyword = strtr($keyword, '_', ' ');
@@ -3666,10 +3669,20 @@ class Asset extends MySource_Object
 			if (isset($mm_keyword[$keyword])) {
 				$replacement = $mm_keyword[$keyword];
 			} else {
-				// replace at higher level
-				return "%$keyword%";
+				// If we got here, we couldn't do anything with the keyword.
+				// If this is because of a modifier on a keyword that's
+				// supposed to be dealt with higher up the inheritance chain..
+				if (count($modifiers) > 1) {
+					// Go back up the chain trying to call with just the keyword part.
+					$replacement = $this->getKeywordReplacement($keyword);
+				} else {
+					// replace at higher level
+					return "%$keyword%";
+				}//end if
 			}
 		}
+
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 

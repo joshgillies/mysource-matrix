@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.40 2009/08/03 05:18:55 mbrydon Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.41 2009/08/06 02:27:48 bpearson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -353,20 +353,29 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	{
 		$ret = Array();
 
-		// 1. asset content
-		if (in_array('asset_contents', $required_keywords)) {
-			ob_start();
-				$asset->printBody();
-				$ret['asset_contents'] = ob_get_contents();
-			ob_end_clean();
-		}
-
-		// 2. asset keywords (includes attributes and metadata)
 		foreach ($required_keywords as $required_keyword) {
-			if ($required_keyword != 'asset_contents') {
+			$full_keyword = $required_keyword;
+			$required_keyword = parse_keyword($required_keyword, $modifiers);
+
+			// 1. asset content
+			if ($required_keyword == 'asset_contents') {	
+				if (!isset($ret['asset_contents'])) {
+					ob_start();
+						$asset->printBody();
+						$ret['asset_contents'] = ob_get_contents();
+					ob_end_clean();
+				}
+
+				// If we have modifiers
+				if ($full_keyword != $required_keyword) {
+					// Start with the plain asset_contents
+					$ret[$full_keyword] = $ret['asset_contents'];
+					apply_keyword_modifiers($ret[$full_keyword], $modifiers);
+				}//end if
+			} else {
 				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
-			}
-		}
+			}//end if
+		}//end foreach
 
 		// asset lineage
 		if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
