@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200 2009/05/21 05:02:46 hnguyen Exp $
+* $Id: search_manager.inc,v 1.201 2009/08/06 07:14:44 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2717,17 +2717,36 @@ class Search_Manager extends Asset
 		 * No need to include this if we're not checking permissions.
 		*/
 		if (!empty($permission_check_query['where'])) {
-			if (!empty($subquery['where'])) {
-				$subquery_string .= ' AND ';
-			} else {
-				$subquery_string .= ' WHERE ';
+			/**
+			 * put the base permission check query together
+			 * it's used differently depending on the type of db we're talking to.
+			 * if it's oracle, we use it as a subquery:
+			 * .. a.assetid IN ( permission_check_query )
+			 * otherwise we end up with mismatching datatypes because of the intersect
+			 *
+			 * if it's postgres, it's done as an intersect
+			 * .. $prev_query intersect all permission_check_query
+			 */
+			$permission_check_query_string = 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
+			$permission_check_query_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
+			$permission_check_query_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
+			$permission_check_query_string .= ' HAVING MIN(p.granted) <> \'0\'';
+
+			if (DAL::getDbType() == 'oci') {
+				if (!empty($subquery['where'])) {
+					$subquery_string .= ' AND ';
+				} else {
+					$subquery_string .= ' WHERE ';
+				}
+				$subquery_string .= ' a.assetid IN (';
+				$subquery_string .= $permission_check_query_string;
+				$subquery_string .= ')';
 			}
-			$subquery_string .= ' a.assetid IN (';
-			$subquery_string .= 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
-			$subquery_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
-			$subquery_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
-			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
-			$subquery_string .= ')';
+
+			if (DAL::getDbType() == 'pgsql') {
+				$subquery_string .= ' INTERSECT ALL ';
+				$subquery_string .= $permission_check_query_string;
+			}
 		}
 
 		/**
