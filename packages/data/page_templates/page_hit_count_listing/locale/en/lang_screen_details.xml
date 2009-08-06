@@ -28,6 +28,14 @@
 			<display_name>Lookup Direction</display_name>
 			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
 		</field>
+		<field attribute="min_depth">
+			<display_name>Minimum Depth/Height</display_name>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results</note>
+		</field>
+		<field attribute="max_depth">
+			<display_name>Maximum Depth/Height</display_name>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0 (with the minimum depth/height set to 0 as well) will only return the root nodes.</note>
+		</field>
 		<field attribute="group_by">
 			<display_name>List Format</display_name>
 			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
