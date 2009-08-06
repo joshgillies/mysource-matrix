@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313 2009/07/29 03:43:18 lwright Exp $
+* $Id: mysource.inc,v 1.314 2009/08/06 05:18:13 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313 $
+* @version $Revision: 1.314 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1761,6 +1761,15 @@ class MySource extends MySource_Object
 			$this->_logSecurityMsg('system.security.login');
 		} else {
 			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
+		}
+		
+		// Get login context if any. If the value returned is numeric, it's
+		// a context ID. (Otherwise it's something like 'default', ie. don't
+		// change it.) Save it to the session...
+		$login_contextid = $this->getUserPrefs('user', 'SQ_USER_SET_CONTEXT_ON_LOGIN', TRUE);
+		if (is_numeric($login_contextid) === TRUE) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $login_contextid;
+			$this->changeContext($login_contextid);
 		}
 
 		// generate a new login key so that when they try and login next
