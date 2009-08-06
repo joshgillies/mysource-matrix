@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_sharepoint.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: package_manager_sharepoint.inc,v 1.1.1.1.4.1 2009/08/06 00:08:53 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -51,7 +51,7 @@ class Package_Manager_Sharepoint extends Package_Manager
 	* @return array
 	* @access public
 	* @static
-	
+	*/
 	function getSystemAssetTypes()
 	{
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_update_sharepoint_record')) {
@@ -61,7 +61,6 @@ class Package_Manager_Sharepoint extends Package_Manager
 		}
 
 	}//end getSystemAssetTypes()
-	*/
 
 
 	/**
@@ -69,7 +68,7 @@ class Package_Manager_Sharepoint extends Package_Manager
 	*
 	* @return object
 	* @access public
-	
+	*/
 	function &createCronJobUpdateSharepointRecord()
 	{
 		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
@@ -81,7 +80,7 @@ class Package_Manager_Sharepoint extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_update_sharepoint_record');
 
-		$cron_job = new Cron_Job_Update_Trim_Record();
+		$cron_job = new Cron_Job_Update_Sharepoint_Record();
 		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Update Trim Record Cron Job NOT CREATED', E_USER_ERROR);
@@ -92,8 +91,7 @@ class Package_Manager_Sharepoint extends Package_Manager
 
 		return $cron_job;
 
-	}//end createCronJobUpdateSharepointRecord()
-	*/
+	}//end createCronJobUpdateSharepointRecord()	
 
 
 }//end class
