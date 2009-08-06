@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.17 2009/02/11 05:22:31 bpearson Exp $
+#* $Id: clean.sh,v 1.17.4.1 2009/08/06 06:19:38 lwright Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -108,7 +108,7 @@ case "${DB_TYPE}" in
 
 	"oci")
 
-		export ORACLE_HOME="/usr/local/lib/instantclient_10_2"
+		export ORACLE_HOME="/usr/local/instantclient"
 		SQLPLUS="$ORACLE_HOME/sqlplus"
 
 		# The oracle dsn is in the format of:
