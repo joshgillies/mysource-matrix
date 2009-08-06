@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.66 2009/07/29 09:33:19 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.67 2009/08/06 15:19:51 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -378,26 +378,32 @@ class Ecommerce_Checkout extends Page
 					}
 
 					// only set region specific options if we have a country code to compare against
-					if (isset($country_code)) {
+					$has_country_code = isset($country_code);
+					if ($has_country_code || $this->attr('accept_empty_country_question')) {
 						// place all region specific options here to evaluate later
 						$_SESSION['sq_region_specific'] = Array();
 						// if customer is not defined as a taxable country then exclude tax
-						if (!in_array($country_code, $taxable_countries)) {
-							$_SESSION['sq_region_specific']['remove_tax'] = TRUE;
-						} else {
-							$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
-						}
+						if ($has_country_code) {
+							if (!in_array($country_code, $taxable_countries)) {
+								$_SESSION['sq_region_specific']['remove_tax'] = TRUE;
+							} else {
+								$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
+							}
+						}//end if
 
 						// delivery prices per weight metric
-						$delivery_weight_fees = $this->attr('delivery_weight_fee_mapping');
-						foreach ($delivery_weight_fees as $key => $data) {
-							if (in_array($country_code, $data['countries'])) {
-								// found a valid mapping for this country so record the fee
-								$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $data['price'];
-								// only find the first occurrence of the country
-								break;
+						if ($has_country_code) {
+							$delivery_weight_fees = $this->attr('delivery_weight_fee_mapping');
+							foreach ($delivery_weight_fees as $key => $data) {
+								if (in_array($country_code, $data['countries'])) {
+									// found a valid mapping for this country so record the fee
+									$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $data['price'];
+									// only find the first occurrence of the country
+									break;
+								}
 							}
-						}
+						}//end if
+						
 						// record the item weight source
 						$selector_type = $this->attr('item_weight_selector');
 						switch ($selector_type) {
@@ -415,6 +421,8 @@ class Ecommerce_Checkout extends Page
 								}
 							break;
 						}
+						
+						//if there is no custom fee, use the default fee
 						if (!isset($_SESSION['sq_region_specific']['delivery_weight_fee']['fee'])) {
 							// use default value price per weight metric
 							$default_price_weight = $this->attr('default_delivery_weight_fee');
@@ -422,29 +430,36 @@ class Ecommerce_Checkout extends Page
 						}
 
 						// additional international delivery fee
-						$exempt_countries = $this->attr('international_delivery_fee_exempt_countries');
-						if (!in_array($country_code, $exempt_countries)) {
-							// you are going to be charged with this fee
-							$international_fee = $this->attr('international_delivery_fee');
-							if (!empty($international_fee)) {
-								$_SESSION['sq_region_specific']['international_delivery_fee'] = $international_fee;
-							}
-						}
-
-						// additional conditional delivery fee
-						$conditional_fees = $this->attr('conditional_delivery_fees');
-						$comparison_data = Array();
-						if (!empty($conditional_fees)) {
-							foreach ($conditional_fees as $key => $data) {
-								if (in_array($country_code, $data['countries'])) {
-									unset($data['countries']);
-									$comparison_data[] = $data;
+						if ($has_country_code) {
+							$exempt_countries = $this->attr('international_delivery_fee_exempt_countries');
+							if (!in_array($country_code, $exempt_countries)) {
+								// you are going to be charged with this fee
+								$international_fee = $this->attr('international_delivery_fee');
+								if (!empty($international_fee)) {
+									$_SESSION['sq_region_specific']['international_delivery_fee'] = $international_fee;
 								}
 							}
-							if (!empty($comparison_data)) {
-								$_SESSION['sq_region_specific']['conditions'] = $comparison_data;
+						}//end if
+
+						// additional conditional delivery fee
+						if ($has_country_code) {
+							$conditional_fees = $this->attr('conditional_delivery_fees');
+							$comparison_data = Array();
+							if (!empty($conditional_fees)) {
+								foreach ($conditional_fees as $key => $data) {
+									if (in_array($country_code, $data['countries'])) {
+										unset($data['countries']);
+										$comparison_data[] = $data;
+									}
+								}
+								if (!empty($comparison_data)) {
+									$_SESSION['sq_region_specific']['conditions'] = $comparison_data;
+								}
 							}
-						}
+						}//end if
+						
+					} else if (isset($_SESSION['sq_region_specific'])) {
+						unset($_SESSION['sq_region_specific']);
 					}//end if
 
 					// create a temporary order

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_region_specific.xml,v 1.5 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_region_specific.xml,v 1.6 2009/08/06 15:19:51 ata Exp $
 *
 */
 -->
@@ -19,6 +19,9 @@
 	<section name="Country Question" write_access="write:attributes">
 		<field attribute="country_question">
 			<assetid type_codes="form_question_type_country:I" />
+		</field>
+		<field attribute="accept_empty_country_question">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 

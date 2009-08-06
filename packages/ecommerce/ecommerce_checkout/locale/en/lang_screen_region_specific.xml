@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_region_specific.xml,v 1.5 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_screen_region_specific.xml,v 1.6 2009/08/06 15:19:51 ata Exp $
 *
 */
 -->
@@ -20,6 +20,10 @@
 		<field attribute="country_question">
 			<display_name>Country Question</display_name>
 			<note>Select a form question of type 'country' from one of your defined delivery methods. This form question will be used as the country identifier for the region specific options defined below.&lt;br/&gt; Note: If this form question is not selected, none of the region specific options will be evaluated.</note>
+		</field>
+		<field attribute="accept_empty_country_question">
+			<display_name>Accept empty question?</display_name>
+			<note>If set to 'Yes', delivery prices per weight metric will be calculated without the need of the above country question is specified.</note>
 		</field>
 	</section>
 

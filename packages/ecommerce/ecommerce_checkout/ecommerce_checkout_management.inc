@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.11 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.12 2009/08/06 15:19:51 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -144,6 +144,17 @@ class Ecommerce_Checkout_Management extends Asset_Management
 											'default'	=> '',
 											'is_admin'	=> 'TRUE',
 										  );
+
+		$this->vars['accept_empty_country_question'] = Array(
+																'added'			=> '0.4',
+																'type'			=> 'boolean',
+																'default'		=> FALSE,
+																'is_admin'		=> TRUE,
+																'description' 	=> 'This attribute indicates whether delivery prices per weight metric are applied even without a country question specified',
+																'parameters'	=> Array(
+																							'allow_empty'	=> FALSE,
+																						),
+															);
 
 		$this->vars['taxable_countries'] = Array(
 												'added'		=> '0.3',
