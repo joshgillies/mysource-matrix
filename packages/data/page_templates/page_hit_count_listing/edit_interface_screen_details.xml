@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2009/04/20 03:41:52 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2009/08/06 03:32:34 akarelia Exp $
 *
 */
 -->
@@ -47,6 +47,12 @@
 		</field>
 		<field attribute="direction">
 			<selection style="list" />
+		</field>
+		<field attribute="min_depth">
+			<int width="5" />
+		</field>
+		<field attribute="max_depth">
+			<int width="5" />
 		</field>
 		<field attribute="group_by">
 			<selection style="list" />
