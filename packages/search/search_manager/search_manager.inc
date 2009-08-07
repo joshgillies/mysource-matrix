@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200 2009/05/21 05:02:46 hnguyen Exp $
+* $Id: search_manager.inc,v 1.200.2.1 2009/08/07 00:32:39 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.200.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1090,6 +1090,7 @@ class Search_Manager extends Asset
 		$metadata = $mm->getMetadata($asset->id);
 
 		foreach ($fieldids as $fieldid => $field_type) {
+
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($fieldid, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
 
 			foreach ($current_links as $link) {
@@ -1107,7 +1108,7 @@ class Search_Manager extends Asset
 						} else {
 							if (array_key_exists($asset->type(), $restrictions)) {
 								$flag_match_found = TRUE;
-							}
+							}						
 						}
 					}
 				if (!$flag_match_found) return $index_content;
@@ -1939,6 +1940,7 @@ class Search_Manager extends Asset
 			} else {
 				$field_results = $field_results + $cross_source_results;
 			}
+
 			// if this search field has its own logic, use it first
 			if(isset($field_details['specific_field_logic'])) {
 				$final_results = $this->_combineResults($final_results, $field_results, $field_details['specific_field_logic']);
@@ -2468,7 +2470,7 @@ class Search_Manager extends Asset
 	* We end up with a subquery from this method which the calling code
 	* then uses to restrict which assets the search index table will look at.
 	*
-	* We end up with something like this for the subquery:
+	* We end up with something like this for the subquery if we're using oracle:
 	* select assetid from sq_ast
 	* inner join sq_ast_lnk inner join sq_ast_lnk_tree ...
 	* where tree.node like ('starting_tree_id%')
@@ -2476,6 +2478,17 @@ class Search_Manager extends Asset
 	* select assetid from sq_ast_perm
 	* ... check all permissions are ok here.
 	* )
+	*
+	* Postgres gives a slightly different query for performance reasons:
+	* select assetid from sq_ast
+	* inner join sq_ast_lnk inner join sq_ast_lnk_tree ...
+	* where tree.node like ('starting_tree_id%')
+	* intersect all
+	* select assetid from sq_ast_perm
+	* ... check all permissions are ok here.
+	*
+	* We use an intersect all so we don't waste time removing duplicate id's
+	* (the outer query does a group by on the assetid so it'll do it anyway)
 	*
 	* @param array	$search_info	an array of search settings
 	*
@@ -2572,7 +2585,6 @@ class Search_Manager extends Asset
 
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
 		if ($user_restrictions) {
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
@@ -2711,43 +2723,64 @@ class Search_Manager extends Asset
 			$subquery_string .= ' WHERE ' . implode(' ' . $subquery['where_joiner'] . ' ', $subquery['where']);
 		}
 
+		$db_type = DAL::getDbType();
+
 		/**
 		 * If/only if we are checking permissions,
 		 * make the permission checking a subquery off the other sub query.
 		 * No need to include this if we're not checking permissions.
 		*/
 		if (!empty($permission_check_query['where'])) {
-			if (!empty($subquery['where'])) {
-				$subquery_string .= ' AND ';
-			} else {
-				$subquery_string .= ' WHERE ';
+			/**
+			 * put the base permission check query together
+			 * it's used differently depending on the type of db we're talking to.
+			 * if it's oracle, we use it as a subquery:
+			 * .. a.assetid IN ( permission_check_query )
+			 * otherwise we end up with mismatching datatypes because of the intersect
+			 *
+			 * if it's postgres, it's done as an intersect
+			 * .. $prev_query intersect all permission_check_query
+			 */
+			$permission_check_query_string = 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
+			$permission_check_query_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
+			$permission_check_query_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
+			$permission_check_query_string .= ' HAVING MIN(p.granted) <> \'0\'';
+
+			if ($db_type == 'oci') {
+				if (!empty($subquery['where'])) {
+					$subquery_string .= ' AND ';
+				} else {
+					$subquery_string .= ' WHERE ';
+				}
+				$subquery_string .= ' a.assetid IN (';
+				$subquery_string .= $permission_check_query_string;
+				$subquery_string .= ')';
 			}
-			$subquery_string .= ' a.assetid IN (';
-			$subquery_string .= 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
-			$subquery_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
-			$subquery_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
-			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
-			$subquery_string .= ')';
+
+			if ($db_type == 'pgsql') {
+				$subquery_string .= ' INTERSECT ALL ';
+				$subquery_string .= $permission_check_query_string;
+			}
 		}
 
-		/**
-		 * If we're using oracle, then do an IN() query
-		 * We can't use the join trick below because it gives an error
-		 * about "inconsistent datatypes"
-		*/
-		if (DAL::getDbType() == 'oci')  {
-			$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
-		}
+		 /**
+         * If we're using oracle, then do an IN() query
+         * We can't use the join trick below because it gives an error
+         * about "inconsistent datatypes"
+        */
+        if ($db_type == 'oci')  {
+            $query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+        }
 
-		/**
-		 * If we're using postgres, do it as a JOIN instead
-		 * it gives much better performance
-		*/
-		if (DAL::getDbType() == 'pgsql')  {
-			$subquery_string = '(' . $subquery_string . ') asset_check';
-			$query['from'][] = $subquery_string;
-			$query['where'][] = 'ai.assetid=asset_check.assetid';
-		}
+        /**
+         * If we're using postgres, do it as a JOIN instead
+         * it gives much better performance
+        */
+        if ($db_type == 'pgsql')  {
+            $subquery_string = '(' . $subquery_string . ') asset_check';
+            $query['from'][] = $subquery_string;
+            $query['where'][] = 'ai.assetid=asset_check.assetid';
+        }
 
 		return $query;
 
