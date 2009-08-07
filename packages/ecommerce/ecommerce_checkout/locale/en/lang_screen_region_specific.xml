@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_region_specific.xml,v 1.6 2009/08/06 15:19:51 ata Exp $
+* $Id: lang_screen_region_specific.xml,v 1.7 2009/08/07 08:56:35 ata Exp $
 *
 */
 -->
@@ -62,6 +62,10 @@
 		<field attribute="default_delivery_weight_fee">
 			<display_name>Default Price Per Weight Metric</display_name>
 			<note>If a country is not configured above to have a specific delivery price per weight metric, this value will be used.</note>
+		</field>
+		<field attribute="default_max_product_quantity">
+			<display_name>Default Maximum Product Quantity</display_name>
+			<note>The maximum number of products used for calculating weight. The default empty value means all products are included.</note>
 		</field>
 	</section>
 

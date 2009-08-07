@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.19 2009/08/03 10:07:34 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.20 2009/08/07 08:57:59 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -268,6 +268,11 @@ class Ecommerce_Cart_Processor
 
 					if (isset($weight) && !empty($weight)) {
 						$product_quantity = array_get_index($details, 'quantity', 0);
+						
+						if (isset($delivery_weight_fee['max_quantity']) && ($delivery_weight_fee['max_quantity'] < $product_quantity)) {
+							$product_quantity = $delivery_weight_fee['max_quantity'];
+						}
+						
 						$total_delivery_cost += $weight * $delivery_weight_fee['fee'] * $product_quantity;
 					}
 				}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.67 2009/08/06 15:19:51 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.68 2009/08/07 08:56:35 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -427,6 +427,12 @@ class Ecommerce_Checkout extends Page
 							// use default value price per weight metric
 							$default_price_weight = $this->attr('default_delivery_weight_fee');
 							$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $default_price_weight;
+						}
+						
+						//if there is default maximum number of product quantity, add it to the session variable
+						$default_max_product_quantity = $this->attr('default_max_product_quantity');
+						if (!empty($default_max_product_quantity)) {
+							$_SESSION['sq_region_specific']['delivery_weight_fee']['max_quantity'] = $default_max_product_quantity;
 						}
 
 						// additional international delivery fee

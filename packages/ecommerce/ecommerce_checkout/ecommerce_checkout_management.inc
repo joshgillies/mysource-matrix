@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.12 2009/08/06 15:19:51 ata Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.13 2009/08/07 08:56:35 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -203,6 +203,18 @@ class Ecommerce_Checkout_Management extends Asset_Management
 														'type'		=> 'float',
 														'default'	=> 0.0,
 														'is_admin'	=> TRUE,
+													 );
+
+		$this->vars['default_max_product_quantity'] = Array(
+														'added'			=> '0.4',
+														'type'			=> 'int',
+														'default'		=> '',
+														'is_admin'		=> TRUE,
+														'parameters'	=> Array(
+																					'allow_negative'	=> FALSE,
+																					'allow_empty'		=> TRUE,
+																					'range_lower'		=> 1,
+																				),
 													 );
 
 		$this->vars['international_delivery_fee_exempt_countries'] = Array(

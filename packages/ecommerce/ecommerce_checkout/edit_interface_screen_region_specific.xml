@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_region_specific.xml,v 1.6 2009/08/06 15:19:51 ata Exp $
+* $Id: edit_interface_screen_region_specific.xml,v 1.7 2009/08/07 08:56:35 ata Exp $
 *
 */
 -->
@@ -52,6 +52,9 @@
 		</field>
 		<field attribute="default_delivery_weight_fee">
 			<float width="10" />
+		</field>
+		<field attribute="default_max_product_quantity">
+			<int width="5" />
 		</field>
 	</section>
 
