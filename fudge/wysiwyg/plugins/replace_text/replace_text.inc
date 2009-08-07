@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.7 2009/06/18 03:11:22 cupreti Exp $
+* $Id: replace_text.inc,v 1.7.2.1 2009/08/07 00:07:18 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -93,7 +93,8 @@ class Replace_Text extends WYSIWYG_Plugin
 									break;
 								}
 								case 2	: {
-									reg = new RegExp("(&nbsp;| |\t|\n){2,}", "gi");
+									//#3827 -- using regexp literal 
+									reg = /(\s|&nbsp;){2,}/gi;
 									rep = "$1";
 									break;
 								}
