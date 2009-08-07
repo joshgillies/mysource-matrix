@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.21 2008/11/27 05:24:14 ewang Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.22 2009/08/07 11:30:21 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,6 +42,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	*       'attribute' => string // the attribute to modify
 	*       'value'     => string // the value to set
 	*       'value_map' => string // parameter map setting
+	*       'replace_keywords_in_set_value' => boolean (0|1), // the flag to indicate if this trigger action will replace the keywords in the set value with the broadcasting asset acting as the current asset in the replacement context
 	*       );
 	* </PRE>
 	*
@@ -101,6 +102,30 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 					}
 				break;
 			}
+			
+			//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to attribute
+			if (array_get_index($settings, 'replace_keywords_in_set_value', 0)) {
+				// replace global keywords
+				$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+				
+				replace_global_keywords($value);
+	
+				if (is_null($old_current_asset)) {
+					$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+				} else {
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+				}
+				
+				// replace broadcasting asset keywords
+				$keywords = retrieve_keywords_replacements($value);
+				$replacements = Array();
+				foreach ($keywords as $keyword) {
+					$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+				}
+				replace_keywords($value, $replacements);
+			}
+			
 		}
 
 		// dont change anything if the attribute already has the required value
@@ -238,6 +263,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				$output .= '<br /><i>'.translate('trigger_set_attribute_value_serialise_note').'</i>';
 			}
 		}
+		
+		// Replace keywords checkbox
+		ob_start();
+			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
+			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
+		$basic_part_4 = '<br />'.ob_get_clean();
+		
+		$output .= $basic_part_4;
 
 		return $output;
 
@@ -294,7 +327,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				break;
 			}
 		}
-
+		
+		$settings['replace_keywords_in_set_value']	= array_get_index($request_data, 'replace_keywords_in_set_value', 0);
+		
 		return FALSE;
 
 	}//end processInterface()
