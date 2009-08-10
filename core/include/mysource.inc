@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.314 2009/08/06 05:18:13 lwright Exp $
+* $Id: mysource.inc,v 1.315 2009/08/10 03:11:47 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.314 $
+* @version $Revision: 1.315 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2546,15 +2546,6 @@ class MySource extends MySource_Object
 		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
 		
-		// Remove the intervening '0' since the context ID is unique;
-		// also unserialise conditions where needed
-		// use PHP 5 assign-value-by-ref trick
-		foreach ($contexts as $key => &$value) {
-			if (empty($value["conditions"]) === FALSE) {
-				$value["conditions"] = unserialize($value["conditions"]);
-			}
-		}
-		unset($value);
 		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
 
 		$use_contextid = 0;
