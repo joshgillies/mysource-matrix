@@ -10,14 +10,14 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.13.4.1 2009/08/09 23:21:14 ewang Exp $
+* $Id: ipb_bridge.inc,v 1.13.4.2 2009/08/10 01:49:43 ewang Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
-
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * IPB_Bridge
@@ -26,12 +26,12 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13.4.1 $
+* @version $Revision: 1.13.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
-register_implementation('ipb_bridge', 'bridge');
-class IPB_Bridge extends Asset
+
+class IPB_Bridge extends Asset implements Bridge
 {
 
 	/**
@@ -171,13 +171,12 @@ class IPB_Bridge extends Asset
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
-	* @param boolean	$return_null	Return null over an empty asset
 	*
 	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 
@@ -188,7 +187,7 @@ class IPB_Bridge extends Asset
 			return $asset;
 		}
 
-		$ipb =& $this->getIpbConn();
+		$ipb = $this->getIpbConn();
 		if (is_null($ipb)) return $asset;
 		$prefix = substr($shadowid, 0, 1);
 
@@ -246,14 +245,13 @@ class IPB_Bridge extends Asset
 				$class_name	= 'Ipb_Poll';
 			}
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$ipb =& $this->getIpbConn();
+			$ipb = $this->getIpbConn();
 				eval('$data = $ipb->'.$method.'($this->id.\':\'.$shadowid);');
-			// Return if empty
-			if ($return_null && empty($data)) return $asset;
+			
 
 			$data['id'] = $shadowid;
 
-			$asset =& new $class_name($this->id, $data);
+			$asset = new $class_name($this->id, $data);
 
 		}//end else
 		return $asset;
