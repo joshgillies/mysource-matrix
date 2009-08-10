@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.741 2009/08/05 06:33:47 ewang Exp $
+* $Id: asset_manager.inc,v 1.742 2009/08/10 03:58:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.741 $
+* @version $Revision: 1.742 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3534,6 +3534,8 @@ class Asset_Manager extends MySource_Object
 
 		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 		$sub_where = 'l.minorid = :minorid';
+		// Bug Fix #3835 Notice links Lineage shown when clicking on binoculars icon
+		if (MatrixDAL::getDbType() === 'oci' && $only_significant) $sub_where .= ' and link_type < '.SQ_SC_LINK_SIGNIFICANT;
 		$bind_vars['minorid'] = (string)$assetid;
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
