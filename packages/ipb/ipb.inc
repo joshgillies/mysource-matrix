@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.12 2009/02/04 05:41:05 ewang Exp $
+* $Id: ipb.inc,v 1.13 2009/08/10 04:53:09 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -279,7 +279,7 @@ class Ipb
 			$db_result = $this->db->query($sql);
 			$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
 
-			while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+			while ($row = $this->db->fetch_row($db_result)) {
 				$test[] = $row;
 			}
 			if (empty($test)) return FALSE;
@@ -364,7 +364,7 @@ class Ipb
 
 		$result = Array();
 		$cols = array_merge($m_cols, $g_cols);
-		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+		while ($row = $this->db->fetch_row($db_result)) {
 			if (!$custom_columns) {
 				$key = $row[$cols[0]];
 				$tmp_cols = array_slice($cols, 1);
@@ -381,7 +381,7 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		mysql_free_result($db_result);
+		$this->db->free_result($db_result);
 
 		return $result;
 
@@ -490,7 +490,7 @@ class Ipb
 		$this->_assertValidResult($this->db, 'Could not get IPB member group info');
 
 		$result = Array();
-		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+		while ($row = $this->db->fetch_row($db_result)) {
 			if (!$custom_columns) {
 				$tmp_col_name = explode('.', $cols[0]);
 				$key = $row[$tmp_col_name[1]];
@@ -514,7 +514,7 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		mysql_free_result($db_result);
+		$this->db->free_result($db_result);
 
 		return $result;
 
@@ -570,7 +570,7 @@ class Ipb
 		$this->_assertValidResult($this->db, 'Could not get IPB member(s)');
 
 		$result = Array();
-		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+		while ($row = $this->db->fetch_row($db_result)) {
 			if (!$custom_columns) {
 				$key = $row[$cols[0]];
 				$tmp_cols = array_slice($cols, 1);
@@ -596,7 +596,7 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		mysql_free_result($db_result);
+		$this->db->free_result($db_result);
 
 		return $result;
 
@@ -1269,7 +1269,7 @@ class Ipb
 		$this->_assertValidResult($this->db, 'Could not get result from IPB');
 
 		$result = Array();
-		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+		while ($row = $this->db->fetch_row($db_result)) {
 			if (!empty($key_change)) {
 				foreach ($key_change as $old_key => $new_key) {
 					$row[$new_key] = $row[$old_key];
