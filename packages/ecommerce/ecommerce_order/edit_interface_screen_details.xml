@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2009/08/11 09:10:42 ata Exp $
 *
 */
 -->
@@ -26,6 +26,18 @@
 			<function_call>
 				<paint_function   name="paintOrderStatus"   />
 			</function_call>
+		</field>
+		<field attribute="billing_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="billing_addr">
+			<text width="30" height="8" />
+		</field>
+		<field attribute="delivery_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="delivery_addr">
+			<text width="30" height="8" />
 		</field>
 	</section>
 	<section name="Summary" write_access="write:none">
@@ -46,6 +58,11 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintEcomRefNo"   />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintTransactionID" />
 			</function_call>
 		</field>
 	</section>

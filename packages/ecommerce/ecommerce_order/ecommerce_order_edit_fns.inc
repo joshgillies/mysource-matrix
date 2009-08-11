@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.10 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.11 2009/08/11 09:10:42 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -157,6 +157,25 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 
 	}//end paintOrderStatus()
 
+	
+	/**
+	* Paints the transaction ID generated during payment processing
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTransactionID(&$asset, &$o, $prefix)
+	{
+		echo '<pre>'.$asset->attr('transaction_id').'</pre>';
+
+		return FALSE;
+
+	}//end paintTransactionID()
+	
 
 }//end class
 

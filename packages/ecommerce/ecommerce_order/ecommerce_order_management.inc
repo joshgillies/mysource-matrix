@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.11 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: ecommerce_order_management.inc,v 1.12 2009/08/11 09:10:42 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -86,6 +86,36 @@ class Ecommerce_Order_Management extends Asset_Management
 												'default'	=> '',
 												'is_admin'	=> FALSE,
 											   ),
+						'transaction_id'	=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The ID of the payment transaction returned by the Payment Gateway',
+												   ),
+						'billing_name'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The billing name returned by the Payment Gateway',
+												   ),
+						'billing_addr'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The billing address returned by the Payment Gateway',
+												   ),
+						'delivery_name'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The delivery name returned by the Payment Gateway',
+												   ),
+						'delivery_addr'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The delivery address returned by the Payment Gateway',
+												   ),
 					  );
 
 	}//end constructor
