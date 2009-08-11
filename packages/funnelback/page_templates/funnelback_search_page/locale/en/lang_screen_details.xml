@@ -1,0 +1,85 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Search Options" write_access="write:attributes">
+		<field attribute="funnelback_url">
+			<display_name>Funnelback URL</display_name>
+			<note></note>
+		</field>
+		<field attribute="collection">
+			<display_name>Collection</display_name>
+			<note></note>
+		</field>
+		<field keyword="scope">
+			<display_name>Scope</display_name>
+			<note>Use ALL as the scope to search all scopes</note>
+			<function_call>
+				<paint_function		name="paintScope" />
+				<process_function	name="processScope" />
+			</function_call>
+		</field>
+		<field keyword="default_scope">
+			<display_name>Default Scope</display_name>
+			<note>Please choose the default scope</note>
+			<function_call>
+				<paint_function		name="paintDefaultScope" />
+				<process_function	name="processDefaultScope" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Dynamic Parameters" write_access="write:attributes"  limbo_access="1">
+		<field attribute="dynamic_parameters">
+			<display_name>Dynamic Parameters</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Stored Search Options" write_access="write:attributes">
+		<field attribute="stored_query_show_results">
+			<display_name>Show Results Page</display_name>
+			<note>If set to yes, and the dynamic query is set, then instead of displaying the initial layout page, it will jump directly to the results page</note>
+		</field>
+	</section>
+	<section name="Formatting Options" write_access="write:attributes">
+		<field attribute="num_per_page">
+			<display_name>Results per page</display_name>
+			<note />
+		</field>
+		<field attribute="submit_button_text">
+			<display_name>Submit Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="prev_page_text">
+			<display_name>Previous page link text</display_name>
+			<note />
+		</field>
+		<field attribute="next_page_text">
+			<display_name>Next page link text</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

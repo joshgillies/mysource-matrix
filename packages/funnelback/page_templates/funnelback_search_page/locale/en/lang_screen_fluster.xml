@@ -1,0 +1,99 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_fluster.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Fluster Options">
+		<field attribute="show_fluster_more">
+			<boolean true_text="yes" false_text="no" />
+			<display_name>Show Fluster Expansion</display_name>
+			<note><![CDATA[When this is enable, flustering lists show extra links to enable more clusters to be shown]]></note>
+		</field>
+	</section>
+	<section name="Category Type Options">
+		<field attribute="more_type_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name><![CDATA[Category "Type" show more link]]></display_name>
+			<note><![CDATA[The maximum number of clusters for the category "Type"]]></note>
+		</field>
+		<field attribute="more_type_num" write_access="write:attributes">
+			<int width="10" />
+			<display_name><![CDATA[Maximum <i>type</i> clusters displayed]]></display_name>
+			<note><![CDATA[The maximum number of clusters for the category "Type"]]></note>
+		</field>
+		<field attribute="less_type_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name>Next page link text</display_name>
+			<note><![CDATA[The text for the link to show less for the category "Type"]]></note>
+		</field>
+		<field attribute="less_type_num" write_access="write:attributes">
+			<int width="10" />
+			<display_name><![CDATA[Minimum <i>type</i> clusters displayed]]></display_name>
+			<note><![CDATA[The minimum number of clusters for the category "Type"]]></note>
+		</field>
+	</section>
+	<section name="Category Topic Options">
+		<field attribute="more_topic_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name><![CDATA[Category "Topic" show more link]]></display_name>
+			<note><![CDATA[The text for the link to show more for the category "Topic"]]></note>
+		</field>
+		<field attribute="more_topic_num" write_access="write:attributes">
+			<int width="10" />
+			<display_name><![CDATA[Maximum <i>topic</i> clusters displayed]]></display_name>
+			<note><![CDATA[The maximum number of clusters for the category "Topic"]]></note>
+		</field>
+		<field attribute="less_topic_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name><![CDATA[Category "Topic" show fewer link]]></display_name>
+			<note><![CDATA[The text for the link to show less for the category "Topic"]]></note>
+		</field>
+		<field attribute="less_topic_num" write_access="write:attributes">
+			<int width="10" />
+			<display_name><![CDATA[Minimum <i>topic</i> clusters displayed]]></display_name>
+			<note><![CDATA[The minimum number of clusters for the category "Topic"]]></note>
+		</field>
+	</section>
+	<section name="Category Site Options">
+		<field attribute="more_site_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name><![CDATA[Category "Site" show more link]]></display_name>
+			<note><![CDATA[The text for the link to show more for the category "Site"]]></note>
+		</field>
+		<field attribute="more_site_num" write_access="write:attributes">
+			<display_name><![CDATA[Maximum <i>site</i> clusters displayed]]></display_name>
+			<note><![CDATA[The maximum number of clusters for the category "Site"]]></note>
+		</field>
+		<field attribute="less_site_text" write_access="write:attributes">
+			<text width="30" />
+			<display_name><![CDATA[Category "Site" show fewer link]]></display_name>
+			<note><![CDATA[The text for the link to show less for the category "Site"]]></note>
+		</field>
+		<field attribute="less_site_num" write_access="write:attributes">
+			<display_name><![CDATA[Minimum <i>site</i> clusters displayed]]></display_name>
+			<note><![CDATA[The minimum number of clusters for the category "Site"]]></note>
+		</field>
+	</section>
+	<section name="Fluster Formats">
+		<field>
+			<display_name />
+			<note></note>
+			<function_call>
+				<paint_function   name="paintFlusterFormatLinks"   />
+			</function_call>
+		</field>
+	</section>
+</contents>

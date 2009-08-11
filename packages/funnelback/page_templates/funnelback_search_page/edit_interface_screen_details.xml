@@ -1,0 +1,71 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes"  limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Search Options" write_access="write:attributes"  limbo_access="1">
+		<field attribute="funnelback_url">
+			<text width="80" height="1" />
+		</field>
+		<field attribute="collection">
+			<text width="35" height="1" />
+		</field>
+		<field keyword="scope">
+			<function_call>
+				<paint_function		name="paintScope" />
+				<process_function	name="processScope" />
+			</function_call>
+		</field>
+		<field keyword="default_scope">
+			<function_call>
+				<paint_function		name="paintDefaultScope" />
+				<process_function	name="processDefaultScope" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Dynamic Parameters" write_access="write:attributes"  limbo_access="1">
+		<field attribute="dynamic_parameters">
+			<parameter_map />
+		</field>
+	</section>
+	<section name="Stored Search Options" write_access="write:attributes">
+		<field attribute="stored_query_show_results">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Display Options" write_access="write:attributes" limbo_access="1">
+		<field attribute="num_per_page">
+			<text width="30" />
+		</field>
+		<field attribute="submit_button_text">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="prev_page_text" write_access="write:attributes">
+			<text width="30" />
+		</field>
+		<field attribute="next_page_text" write_access="write:attributes">
+			<text width="30" />
+		</field>
+	</section>
+</contents>

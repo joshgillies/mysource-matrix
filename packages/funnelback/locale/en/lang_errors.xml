@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1.1.1 2009/08/11 01:51:55 bpearson Exp $
+*
+*/
+
+	Funnelback Search xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
+-->
+
+<errors>
+	<error code="FNB0001">Unable to contact the Funnelback server (%s)</error>
+	<error code="FNB0002">Invalid response from the Funnelback server (%s)</error>
+	<error code="FNB0003">No Funnelback server or collection is set</error>
+	<error code="FNB0004">Cannot find the %s bodycopy</error>
+	<error code="FNB0005">Bodycopy (%s) already exists</error>
+	<error code="FNB0006">Unable to delete Bodycopy (%s)</error>
+</errors>

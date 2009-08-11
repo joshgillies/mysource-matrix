@@ -1,0 +1,41 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+*
+*
+* Funnelback Search Package Localised Strings File
+*/
+-->
+<strings>
+	<string source="funnelback_scope">Scope</string>
+	<string source="funnelback_no_default_scope">No Default Scope is selected</string>
+	<string source="featured_format">Featured Result Format</string>
+	<string source="fluster_format">Fluster Category Format</string>
+	<string source="cluster_format">Fluster Item Format</string>
+	<string source="navigation_format">Fluster Navigation Format</string>
+	<string source="spell_format">Spelling Format</string>
+	<string source="funnelback_customised_type">Customised Type Format</string>
+	<string source="funnelback_no_type_formats">No Type Formats Defined</string>
+	<string source="funnelback_new_type_format">New Type:</string>
+	<string source="funnelback_initial_bodycopy_desc">This format defines the layout for the initial funnelback search page</string>
+	<string source="funnelback_results_bodycopy_desc">This format defines the layout for the funnelback search results</string>
+	<string source="funnelback_no_results_bodycopy_desc">This format defines the layout for the page returned when no results are found</string>
+	<string source="funnelback_default_bodycopy_desc">This is the default format for all results in the list if they do not have a customised format</string>
+	<string source="funnelback_featured_bodycopy_desc">This format defines how the featured results are to be displayed.</string>
+	<string source="funnelback_fluster_format_desc">This is the layout of how the fluster results looks.</string>
+	<string source="funnelback_cluster_format_desc">This is the layout of how each fluster element looks.</string>
+	<string source="funnelback_navigation_format_desc">This is the layout of how the fluster navigation looks.</string>
+	<string source="funnelback_spell_format_desc">This is the layout of how the spelling suggestion looks.</string>
+	<string source="funnelback_custom_format_desc">This is the customised layout for the %s type formats.</string>
+	<string source="funnelback_custom_format_note"><![CDATA[Enter a file type (eg. pdf, html, doc) to use the customised format for that file type. File types can be exposed by <b>result_type</b> keyword]]></string>
+</strings>
