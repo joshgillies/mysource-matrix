@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335 2009/07/30 00:43:55 ewang Exp $
+* $Id: lang_strings.xml,v 1.336 2009/08/11 15:35:01 ata Exp $
 *
 */
 
@@ -1237,6 +1237,7 @@
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
 	<string source="trigger_asset_sysadmin">Current user %s effectively a system administrator</string>
+	<string source="trigger_asset_public_user">Current user %s a public user</string>
 
 	<string source="trigger_request_method">HTTP Request Method:%s</string>
 
