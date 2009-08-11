@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.68 2009/08/07 08:56:35 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.69 2009/08/11 09:19:29 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -650,6 +650,17 @@ class Ecommerce_Checkout extends Page
 				} else {
 					$this->_logOrderAction(translate('ecom_order_history_ecom_ref_not_recorded'), $order_asset);
 				}
+				
+				//customer has just paid for this order
+				if ($payment_response) {
+					//set ecommerce order's details
+					$order_asset->setAttrValue('transaction_id', array_get_index($payment_response, 'TRANSACTION', ''));
+					$order_asset->setAttrValue('billing_name', array_get_index($payment_response, 'BILLING_NAME', ''));
+					$order_asset->setAttrValue('billing_addr', array_get_index($payment_response, 'BILLING_ADDR', ''));
+					$order_asset->setAttrValue('delivery_name', array_get_index($payment_response, 'DELIVERY_NAME', ''));
+					$order_asset->setAttrValue('delivery_addr', array_get_index($payment_response, 'DELIVERY_ADDR', ''));
+				}
+				
 			}
 
 			if (!isset($order_asset) || is_null($order_asset)) {
