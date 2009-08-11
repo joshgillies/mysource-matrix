@@ -18,12 +18,24 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 @require_once 'HTTP/Client.php';
 
+
+/**
+* Default_Delivery_Method
+*
+* Purpose
+*
+*
+* @version $Revision: 1.19 $
+* @package MySource_Matrix_Packages
+* @subpackage ecommerce
+*/
 class Default_Delivery_Method extends Ecommerce_Delivery_Method
 {
 
 
 	function Default_Delivery_Method($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		$this->Ecommerce_Delivery_Method($assetid);
 
 	}//end constructor
@@ -288,6 +300,33 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 	}//end _getAllowedLinks()
 
+	
+	/**
+	* Check if question type can be used for pass through variable
+	*
+	* @param string	$type	question type code
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _isAllowedPassThroughQuestionType($type='')
+	{
+		switch ($type) {
+			case('form_question_type_text'):
+			case('form_question_type_numeric'):
+			case('form_question_type_email_address'):
+			case('form_question_type_select'):
+			case('form_question_type_option_list'):
+			case('form_question_type_tickbox_list'):
+			case('form_question_type_tickbox_table'):
+				return TRUE;
+
+			default:
+				return FALSE;
+		}
+
+	}//end _isAllowedPassThroughQuestionType()
+	
 
 	/**
 	* Get the Receipt
@@ -747,11 +786,74 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=payment_gateway_successful';
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
+		
+		//Add the pass through variables to SESSION variables
+		$pass_through_vars = $this->_getPassThroughVars();
+		if (!empty($pass_through_vars)) {
+			$_SESSION['SQ_ECOM_PASS_THROUGH_VARS'] = $pass_through_vars;
+		}
 
 		header('Location: '.$gateway_asset_url);
 
 	}//end processPaymentGateway()
 
+	
+	/**
+	* Get the pass through variables under key - value pair array
+	*
+	* @return array
+	* @access private
+	*/
+	function _getPassThroughVars()
+	{
+		$key_val_arr = Array();
+		$var_rules = $this->attr('key_val_rules');
+		if (empty($var_rules)) {
+			return $key_val_arr;
+		}
+		
+		//get Asset Manager
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		
+		//get the current answers entered by the user
+		$current_answers = unserialize($_SESSION['order_extra_information']);
+		
+		$form =& $this->getForm();
+		$questions = $form->getQuestions();
+		foreach ($questions as $q_id => $question_data) {
+			if (key_exists($q_id, $var_rules)) {
+				$var_rule = $var_rules[$q_id];
+				$key = array_get_index($var_rule, 'key', '');
+				if (trim($key) == '') {
+					continue;
+				}
+				
+				$val = '';
+				$question = $am->getAsset($q_id);
+				if ($question->isSelection()) {
+					$options = array_get_index($var_rule, 'value', Array());
+					foreach ($options as $option_id => $option_val) {
+						//if option is selcted and option is not --leave empty--
+						if ($question->isSelected($option_id) && (!($question instanceof Form_question_type_select) || !$question->isEmptyOption($option_id))) {
+							$val = $option_val;
+							break;
+						}
+					}
+				} else {
+					$key_parts = split(':', $q_id);
+					if (!empty($current_answers[$key_parts[1]])) {
+						$val = $current_answers[$key_parts[1]];
+					}
+				}
+				
+				$key_val_arr[$key] = $val;
+			}//end if
+		}//end for
+		
+		return $key_val_arr;
+
+	}//end _getPassThroughVars()
+	
 
 }//end class
 
