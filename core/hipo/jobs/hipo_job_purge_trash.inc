@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.53.2.1 2009/08/05 06:18:56 bpearson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.53.2.2 2009/08/11 05:23:16 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53.2.1 $
+* @version $Revision: 1.53.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -348,7 +348,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
-
+				
+				// Get all the shadow asset links in which this asset is the major party and delete it
+				$shadow_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, NULL, NULL, NULL, 'major', TRUE);
+				foreach($shadow_links as $shadow_link) {
+					$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($shadow_link['linkid']);
+				}
+				
 				// because we delete the deepest assets first, it's safe to assume
 				// that anything linked under this asset is also linked outside the
 				// trash (or it would already have been deleted itself), so we will
