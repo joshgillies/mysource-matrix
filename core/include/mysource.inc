@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.1 2009/08/10 03:12:25 lwright Exp $
+* $Id: mysource.inc,v 1.313.2.2 2009/08/11 05:38:59 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.1 $
+* @version $Revision: 1.313.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2463,11 +2463,11 @@ class MySource extends MySource_Object
 
 
 	/**
-	* Deletes the information associated with a deleted context
+	* Copies the attribute data for a new contextid from the default
 	*
 	* Returns TRUE on success, FALSE on failure
 	*
-	* @param int	$contextid	The ID of the context to get info for
+	* @param int	$contextid	The ID of the new context
 	*
 	* @return boolean
 	*/
@@ -2489,7 +2489,7 @@ class MySource extends MySource_Object
 
 		return TRUE;
 
-	}//end deleteContextData()
+	}//end insertContextData()
 
 
 	/**
@@ -2497,7 +2497,7 @@ class MySource extends MySource_Object
 	*
 	* Returns TRUE on success, FALSE on failure
 	*
-	* @param int	$contextid	The ID of the context to get info for
+	* @param int	$contextid	The ID of the condemned context
 	*
 	* @return boolean
 	*/
