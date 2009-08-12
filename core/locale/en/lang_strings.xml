@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.336 2009/08/11 15:35:01 ata Exp $
+* $Id: lang_strings.xml,v 1.337 2009/08/12 00:02:21 ewang Exp $
 *
 */
 
@@ -2474,6 +2474,7 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
 	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
+	<string source="trigger_action_future_status_date_format">NB. Metadata Date Field must provide ISO8601 format as Y-m-d H:i:s</string>
 	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
 	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
