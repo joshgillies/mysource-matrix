@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: edit_interface_screens.xml,v 1.5.6.1 2009/08/12 04:13:38 bpearson Exp $
 *
 */
 -->
 
 <screens>
 	<screen code_name="paths"   display_name="Web Paths"       icon="web" lock_type="lookups"/>
+	<screen code_name="labels"  display_name="Day Labels"      icon="web" lock_type="attributes"/>
 </screens>

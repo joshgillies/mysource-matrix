@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.226.2.1 2009/08/12 03:28:16 cupreti Exp $
+* $Id: page_calendar.inc,v 1.226.2.2 2009/08/12 04:13:38 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.226.2.1 $
+* @version $Revision: 1.226.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -846,8 +846,10 @@ class Page_Calendar extends Page
 					<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 			<?php
 			for ($i = $week_start_day; $i < $week_start_day + 37; $i++) {
+				$day = strtolower(substr($this->day_names[$i % 7], 0, 3));
+				$label = $this->attr('label_'.$day);
 				?>
-					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3.5ex"><b><?php echo substr($this->day_names[$i % 7], 0, 1); ?></b></th>
+					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3.5ex"><b><?php echo substr($label, 0, 1); ?></b></th>
 				<?php
 			}
 			?>
@@ -1024,9 +1026,11 @@ class Page_Calendar extends Page
 					}
 					for ($i=0; $i < $week_length; $i++) {
 						$day_name = $this->day_names[($week_start_day + $i) % 7];
+						$day = substr(strtolower($day_name), 0, 3);
+						$day_label = $this->attr('label_'.$day);
 						?>
 						<th style="width: <?php echo $column_width; ?>px" class="dayLabel<?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'Weekend' : ''; ?>">
-							<?php echo $day_name; ?>
+							<?php echo $day_label; ?>
 						</th>
 						<?php
 					}
@@ -1272,7 +1276,10 @@ class Page_Calendar extends Page
 			$column_links = Array();
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
-				$column_names[$day_date] = date('l jS', strtotime($day_date));
+				$date = date('l', strtotime($day_date));
+				$day = strtolower(substr($date, 0, 3));
+				$label = $this->attr('label_'.$day);
+				$column_names[$day_date] = $label.' '.date('jS', strtotime($day_date));
 				if ($enabled_views['week']) {
 					$column_links[$day_date] = $this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date;
 				}
