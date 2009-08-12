@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: char_map.php,v 1.4 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: char_map.php,v 1.4.14.1 2009/08/12 04:33:53 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Character Map popup for the WYSIWYG
 *
 * @author	Darren McKee	<dmckee@squiz.net>
-* @version	$Revision: 1.4 $
+* @version	$Revision: 1.4.14.1 $
 * @package	WYSIWYG
 */
 
@@ -156,6 +156,16 @@
 					'&pi;',
 					'&loz;',
 					'&shy;',
+					'&#256;',
+					'&#257;',
+					'&#274;',
+					'&#275;',
+					'&#298;',
+					'&#299;',
+					'&#332;',
+					'&#333;',
+					'&#362;',
+					'&#363;',
 				);
 
 	$col_limit = 10;
