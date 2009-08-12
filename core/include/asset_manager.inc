@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.745 2009/08/11 01:23:34 akarelia Exp $
+* $Id: asset_manager.inc,v 1.746 2009/08/12 06:03:18 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.745 $
+* @version $Revision: 1.746 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2625,7 +2625,8 @@ class Asset_Manager extends MySource_Object
 						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-		$where = 'l.'.$side_of_link.'id = \''.$assetid.'\'';
+		$where = 'l.'.$side_of_link.'id = :assetid';
+		$bind_vars['assetid'] = $assetid;
 
 		if (!is_null($link_type)) {
 			$where .= '
