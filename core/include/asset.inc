@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.697 2009/08/06 02:26:56 bpearson Exp $
+* $Id: asset.inc,v 1.698 2009/08/12 05:57:56 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.697 $
+* @version $Revision: 1.698 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3851,16 +3851,16 @@ class Asset extends MySource_Object
 			return TRUE;
 		}
 
-		// if the asset is in the middle of workflow and the current user
-		// can approve the asset, we really need to give them read access to it
-		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$publishers = $wfm->whoCanPublish($this->id);
-		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-			return TRUE;
-		}
-
 		// if asset is not live we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE) {
+			// if the asset is in the middle of workflow and the current user
+			// can approve the asset, we really need to give them read access to it
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$publishers = $wfm->whoCanPublish($this->id);
+			if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
+				return TRUE;
+			}
+
 			// if we are in rollback view mode, bypass extra write access checks or we
 			// we always be returning FALSE here (writeAccess returns FALSE)
 			if (SQ_ROLLBACK_VIEW) {
