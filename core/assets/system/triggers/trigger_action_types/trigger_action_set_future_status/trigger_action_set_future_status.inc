@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.23 2009/02/16 03:38:06 mbrydon Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.23.4.1 2009/08/12 00:00:48 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,6 +265,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			$metadata_field_id = $settings['when_meta_field_id'];
             if ($write_access) {
                 asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
+                ?>
+                <p><em class="sq-backend-smallprint">(<?php echo translate('trigger_action_future_status_date_format'); ?>)</em></p>
+                <?php
             } else {
 				if ($metadata_field_id) {
 					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
