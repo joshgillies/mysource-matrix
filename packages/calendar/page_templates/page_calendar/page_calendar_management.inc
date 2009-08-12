@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.60 2009/06/22 06:43:00 wszymanski Exp $
+* $Id: page_calendar_management.inc,v 1.61 2009/08/12 04:15:12 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -347,7 +347,7 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> Array(
 															'forward'	=> '',
 															'backward'	=> '',
-													       ),
+														   ),
 										 );
 		$this->vars['month_navi_limit'] = Array(
 											'added'		=> '0.9',
@@ -355,7 +355,7 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> Array(
 															'forward'	=> '',
 															'backward'	=> '',
-													       ),
+														   ),
 										 );
 		$this->vars['week_navi_limit'] = Array(
 											'added'		=> '0.9',
@@ -363,7 +363,7 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> Array(
 															'forward'	=> '',
 															'backward'	=> '',
-													       ),
+														   ),
 										 );
 		$this->vars['day_navi_limit'] = Array(
 											'added'		=> '0.9',
@@ -371,8 +371,45 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> Array(
 															'forward'	=> '',
 															'backward'	=> '',
-													       ),
+														   ),
 										 );
+
+		// Day Labels
+		$this->vars['label_mon'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Monday',
+								   );
+		$this->vars['label_tue'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Tuesday',
+								   );
+		$this->vars['label_wed'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Wednesday',
+								   );
+		$this->vars['label_thu'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Thursday',
+								   );
+		$this->vars['label_fri'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Friday',
+								   );
+		$this->vars['label_sat'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Saturday',
+								   );
+		$this->vars['label_sun'] = Array(
+										'added'		=> '0.9',
+										'type'		=> 'text',
+										'default'	=> 'Sunday',
+								   );
 
 	}//end constructor
 
