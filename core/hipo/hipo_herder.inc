@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.104 2009/01/19 23:43:00 akarelia Exp $
+* $Id: hipo_herder.inc,v 1.105 2009/08/13 06:48:27 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -138,6 +138,33 @@ class HIPO_Herder extends MySource_Object
 		return $this->_jobs[$code_name];
 
 	}//end getJob()
+
+
+	/**
+	* De-caches a job from the job list, so it can be run again in the same script cleanly
+	*
+	* Mainly to do with freestylin' jobs that spawn a dependant sub-job - it needs to generate
+	* a code name, and eventually hits the job cache. If the same job is run the same session,
+	* it will re-use the job, even if complete.
+	*
+	* No checking of hipo job status performed. Probably not a good idea to run until a job
+	* is complete (whether through abortion or natural circumstances).
+	*
+	* @param string	$code_name	The code name of the job to uncache
+	*
+	* @return boolean
+	*/
+	public function uncacheJob($code_name)
+	{
+		$job = $this->getJob($code_name);
+		if ($job === NULL) {
+			return FALSE;
+		}
+
+		unset($this->_jobs[$code_name]);
+		return TRUE;
+ 
+	}//end uncacheJob()
 
 
 	/**
