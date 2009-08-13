@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual-aid.js,v 1.7 2009/08/13 04:59:04 ewang Exp $
+* $Id: visual-aid.js,v 1.8 2009/08/13 05:44:06 ewang Exp $
 *
 */
 
@@ -242,7 +242,6 @@ visual_aid_p = function(element, editor)
 	}
 	this.turnOff = function()
 	{
-		alert(element);
 		if (HTMLArea.is_gecko) {
 			element.innerHTML = element.innerHTML.replace(/<img id="wysiwyg-visual-aid-plugin-p"([^>]*)>(&nbsp;| )/g, '');
 		} else if (HTMLArea.is_ie) {
