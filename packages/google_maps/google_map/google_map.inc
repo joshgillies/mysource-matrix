@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.16.2.2 2009/06/29 05:10:13 bpearson Exp $
+* $Id: google_map.inc,v 1.16.2.3 2009/08/13 06:01:19 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.16.2.2 $
+* @version $Revision: 1.16.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -1012,7 +1012,6 @@ class Google_Map extends Page_Asset_Listing
 		}//end if
 		$base_url		= "http://maps.google.com/maps/geo?output=xml" . "&key=" . $this->api_key;
 		$request_url	= $base_url."&q=" . urlencode($address);
-		$xml			= simplexml_load_file($request_url) or die("url not loading");
 
 		$geocode_pending = TRUE;
 
@@ -1021,6 +1020,7 @@ class Google_Map extends Page_Asset_Listing
 		$steps  = 0;
 		while ($geocode_pending) {
 			$delay	= 0;
+			$xml	= simplexml_load_file($request_url) or die("url not loading");
 			$status = $xml->Response->Status->code;
 			if (strcmp($status, "200") == 0) {
 				$geocode_pending = false;
