@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.69 2009/08/11 09:19:29 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.70 2009/08/14 10:37:16 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -703,7 +703,21 @@ class Ecommerce_Checkout extends Page
 		// set the order summary
 		$order_summary = 'Order ID: '.$order_asset->id;
 		$order_summary .= $this->_getCartSummary();
+		//get cart XML
+		$cart_xml = $this->_getCartXml();
+		
 		$order_summary .= $delivery_method->getReceipt();
+		//get delivery method XML
+		$questions_xml = $delivery_method->getDeliveryMethodXML();
+		
+		//create order xml
+		$order_xml = <<<HEREDOC
+<order>
+	<id>{$order_asset->id}</id>
+$cart_xml
+$questions_xml
+</order>
+HEREDOC;
 
 		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
 		if (isset($neg_quantity_list)) {
@@ -712,9 +726,10 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$order_asset->setAttrValue('summary',			$order_summary);
+		$order_asset->setAttrValue('order_xml',			$order_xml);
 		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
 		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
-
+		
 		// delivery failed
 		if (!$delivery_processing_status) {
 			$order_asset->setAttrValue('status', SQ_ECOM_ORDER_STATUS_FAILED);
@@ -1269,6 +1284,25 @@ class Ecommerce_Checkout extends Page
 		return  $cart_summary;
 
 	}//end _getCartSummary()
+	
+	
+	/**
+	* Get the XML representation of the cart to store in the order_xml attribute of Ecommerce Order asset
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCartXml()
+	{
+		$cart = new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+
+		// if products are taxed, remove tax from final amount
+		$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+		
+		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
+
+	}//end _getCartXml()
 
 
 	//// -- Keywords
