@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.20 2009/08/07 08:57:59 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.21 2009/08/14 10:28:18 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -250,10 +250,10 @@ class Ecommerce_Cart_Processor
 	function getTotalDeliveryCosts($grand_total)
 	{
 		$total_delivery_cost = 0.00;
-		foreach ($this->cart as $assetid => $details) {
-			if (isset($_SESSION['sq_region_specific'])) {
-				// calculate delivery prices per weight metric
-				if (isset($_SESSION['sq_region_specific']['delivery_weight_fee'])) {
+		if (isset($_SESSION['sq_region_specific'])) {
+			foreach ($this->cart as $assetid => $details) {
+				//if the asset (product) is not a donation, calculate delivery prices per weight metric
+				if (!array_get_index($details, 'is_donation', FALSE) && isset($_SESSION['sq_region_specific']['delivery_weight_fee'])) {
 					$delivery_weight_fee = $_SESSION['sq_region_specific']['delivery_weight_fee'];
 					// it will either be a metadata field or an asset attribute that we have to get weight info from
 					if (isset($_SESSION['sq_region_specific']['delivery_weight_fee']['metadata_fieldid'])) {
@@ -275,9 +275,9 @@ class Ecommerce_Cart_Processor
 						
 						$total_delivery_cost += $weight * $delivery_weight_fee['fee'] * $product_quantity;
 					}
-				}
-			}
-		}
+				}//end if
+			}//end for
+		}//end if
 
 		// calculate international delivery fee
 		if (isset($_SESSION['sq_region_specific']['international_delivery_fee'])) {
@@ -884,6 +884,161 @@ class Ecommerce_Cart_Processor
 	}//end printCustomisedReceipt()
 
 
+	/**
+	*
+	* Get the XML representation of this cart to store in the order_xml attribute of Ecommerce Order asset
+	*
+	* @param string		$taxation_name		name of tax
+	* @param int		$taxation_rate		tax value (0.1 is 10%, 0.2 is 20%)
+	* @param array		$flat_charges		flat charges Array('Name' => 'Price')
+	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
+	* @param string		$currency_symbol	symbol to use as the currency for all prices
+	* @param int		$float_precision	precision of the floating numbers used for prices
+	*
+	* @return void
+	* @access public
+	*/
+	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
+	{
+		if (empty($this->cart)) return '';
+
+		// ensure the float precision is an int
+		$float_precision = (int) $float_precision;
+		$price_format = '%.'.$float_precision.'f';
+
+		//get Metadata Manager
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		
+		$products_str = '';
+		foreach ($this->cart as $assetid => $details) {
+			$quantity = array_get_index($details, 'quantity', 0);
+
+			// calculate tax and costs for this item
+			$cost = array_get_index($details, 'price', 0);
+			if (array_get_index($details, 'taxable', FALSE)) {
+				$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, array_get_index($details, 'has_tax', FALSE));
+				$cost = $item_costs['tax_adjusted_cost'];
+				$tax_cost = $item_costs['tax_cost'];
+			} else {
+				$tax_cost = 0;
+			}
+
+			//information of product is different if it is a donation
+			if (array_get_index($details, 'is_donation', FALSE)) {
+				$donation = 'yes';
+				$cost = $quantity;
+				$quantity = 1;
+			} else {
+				$donation = 'no';
+			}
+
+			$item_price = sprintf($price_format, $cost);
+			$item_price_incl_tax = sprintf($price_format, $cost + $tax_cost);
+			$total_item_price = sprintf($price_format, $cost * $quantity);
+			$total_item_price_incl_tax = sprintf($price_format, ($cost + $tax_cost) * $quantity);
+			$total_item_tax = sprintf($price_format, $tax_cost * $quantity);
+
+			//get metadata of the product/donation asset
+			$metadata_values = $mm->getMetadataFieldValues($assetid);
+			$metadata_values_str = '';
+			foreach ($metadata_values as $name => $value) {
+				$metadata_values_str .= <<<HEREDOC
+
+					<field>
+						<name><![CDATA[$name]]></name>
+						<value><![CDATA[$value]]></value>
+					</field>
+HEREDOC;
+			}
+			
+			$metadata_str = '';
+			if ($metadata_values_str != '') {
+				$metadata_str = <<<HEREDOC
+
+				<metadata>$metadata_values_str
+				</metadata>
+HEREDOC;
+			}
+			
+			$products_str .= <<<HEREDOC
+
+			<product>
+				<id>$assetid</id>
+				<name><![CDATA[{$details['name']}]]></name>
+				<is_donation>$donation</is_donation>
+				<quantity>$quantity</quantity>
+				<item_price>$item_price</item_price>
+				<total_item_price>$total_item_price</total_item_price>
+				<item_price_incl_tax>$item_price_incl_tax</item_price_incl_tax>
+				<total_item_price_incl_tax>$total_item_price_incl_tax</total_item_price_incl_tax>
+				<item_tax>$tax_cost</item_tax>
+				<total_item_tax>$total_item_tax</total_item_tax>$metadata_str
+			</product>
+HEREDOC;
+		}
+		
+		//currency symbol
+		$currency_symbol = htmlentities($currency_symbol);
+		
+		//get total tax
+		$total_tax = $this->getTotalTax($taxation_rate);
+		$total_tax = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
+		
+		//get flat charges string
+		$flat_charge_values_str = '';
+		$flat_charges_total = 0.0;
+		foreach ($flat_charges as $name => $price) {
+			$flat_charge_values_str .= <<<HEREDOC
+
+			<flat_charge>
+				<name><![CDATA[$name]]></name>
+				<price>$price</price>
+			</flat_charge>
+HEREDOC;
+			$flat_charges_total += $price;
+		}
+		
+		$flat_charges_str = '';
+		if ($flat_charge_values_str != ''){
+			$flat_charges_str = <<<HEREDOC
+
+		<flat_charges>$flat_charge_values_str
+		</flat_charges>
+HEREDOC;
+			
+		}
+		
+		$flat_fees_total = sprintf($price_format, $flat_charges_total);
+
+		$sub_total = sprintf($price_format, $this->getTotal(0, $taxation_rate));
+
+		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+		$delivery_total = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
+		
+		$grand_total = sprintf($price_format, $grand_total_ex_delivery + $delivery_total);
+		$grand_total_ex_delivery = sprintf($price_format, $grand_total_ex_delivery);
+		$delivery_total = sprintf($price_format, $delivery_total);
+		
+		$cart_xml = <<<HEREDOC
+	<cart>
+		<currency_symbol><![CDATA[$currency_symbol]]></currency_symbol>
+		<sub_total>$sub_total</sub_total>
+		<taxation_name><![CDATA[$taxation_name]]></taxation_name>
+		<total_tax>$total_tax</total_tax>
+		<flat_fees_total>$flat_fees_total</flat_fees_total>
+		<delivery_total>$delivery_total</delivery_total>
+		<grand_total_ex_delivery>$grand_total_ex_delivery</grand_total_ex_delivery>
+		<grand_total>$grand_total</grand_total>
+		<products>$products_str
+		</products>$flat_charges_str
+	</cart>
+HEREDOC;
+		
+		return $cart_xml;
+
+	}//end getCartXml()
+	
+	
 	/**
 	* Check the current cart and if the cart item does not exist,
 	* remove them from the cart
