@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -329,6 +329,46 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	
 
 	/**
+	* Get the XML representation of this delivery method to store in the order_xml attribute of Ecommerce Order asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getDeliveryMethodXML()
+	{
+		$xml_str = '';
+		
+		$form =& $this->getForm();
+		$questions = $form->getQuestions();
+		$answers = unserialize($_SESSION['order_extra_information']);
+		
+		foreach ($questions as $q_id => $question_data) {
+			$id_parts = split(':', $q_id);
+			$answer = array_get_index($answers, $id_parts[1], '');
+			
+			$xml_str .= <<<HEREDOC
+
+			<question>
+				<id><![CDATA[$q_id]]></id>
+				<name><![CDATA[{$question_data['name']}]]></name>
+				<answer><![CDATA[$answer]]></answer>
+			</question>
+HEREDOC;
+		}
+
+		$xml_str = <<<HEREDOC
+	<delivery_method>
+		<questions>$xml_str
+		</questions>
+	</delivery_method>
+HEREDOC;
+		
+		return $xml_str;
+		
+	}//end getDeliveryMethodXML()
+	
+	
+	/**
 	* Get the Receipt
 	*
 	* @param boolean	$html	if true means we are returning a html format
@@ -338,8 +378,6 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	*/
 	function getReceipt($html=FALSE)
 	{
-		$form =& $this->getForm();
-
 		ob_start();
 		if ($html) echo '<pre><ul>';
 
