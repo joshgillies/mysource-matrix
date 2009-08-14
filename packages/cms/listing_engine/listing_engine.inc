@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.286 2009/08/06 02:27:15 bpearson Exp $
+* $Id: listing_engine.inc,v 1.287 2009/08/14 06:11:01 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.286 $
+* @version $Revision: 1.287 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1927,8 +1927,8 @@ class Listing_Engine extends Page
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
 							$group_name = htmlspecialchars($asset->attr('name'));
 							foreach ($format_keywords as $format_keyword) {
-								$pos = strpos($format_keyword, 'group');
-								if ($pos === FALSE) {
+								$pos = strpos($format_keyword, 'parent');
+								if ($pos === 0) {
 									$keyword = substr_replace($format_keyword, 'asset', 0, 6);
 									$replacements[$format_keyword] = $asset->getKeywordReplacement($keyword);
 								}
