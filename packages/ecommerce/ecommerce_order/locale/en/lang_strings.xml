@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.8 2009/08/14 10:16:48 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -24,4 +24,5 @@
 	<string source="ecom_order_keyword_status">Status of ecommerce order</string>
 	<string source="ecom_order_keyword_status_message">Message which is related to the status</string>
 	<string source="ecom_order_keyword_edit_url">URL to the page where to edit this ecommerce order</string>
+	<string source="ecom_order_keyword_order_xml">XML representation of this order</string>
 </strings>

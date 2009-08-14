@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.12 2009/08/11 09:10:42 ata Exp $
+* $Id: ecommerce_order_management.inc,v 1.13 2009/08/14 10:16:48 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -115,6 +115,12 @@ class Ecommerce_Order_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The delivery address returned by the Payment Gateway',
+												   ),
+						'order_xml'			=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The XML representation of this Order asset',
 												   ),
 					  );
 

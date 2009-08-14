@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.16 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: ecommerce_order.inc,v 1.17 2009/08/14 10:16:48 ata Exp $
 *
 */
 
@@ -312,7 +312,8 @@ class Ecommerce_Order extends Asset
 		$keywords['status']				= translate('ecom_order_keyword_status');
 		$keywords['status_message']		= translate('ecom_order_keyword_status_message');
 		$keywords['edit_url']			= translate('ecom_order_keyword_edit_url');
-
+		$keywords['order_xml']			= translate('ecom_order_keyword_order_xml');
+		
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -418,6 +419,19 @@ class Ecommerce_Order extends Asset
 
 	}//end getEditUrlKeywordReplacement()
 
+	
+	/**
+	* Get order_xml keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getOrderXmlKeywordReplacement()
+	{
+		return $this->attr('order_xml');
+
+	}//end getOrderXmlKeywordReplacement()
+	
 
 	/**
 	* Get the delivery method related to this order, if set

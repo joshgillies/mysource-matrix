@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.11 2009/08/11 09:10:42 ata Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.12 2009/08/14 10:16:48 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -175,6 +175,31 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end paintTransactionID()
+	
+	
+	/**
+	* Paints the XML representation of ecommerce order
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintOrderXML(&$asset, &$o, $prefix)
+	{
+		$order_xml = $asset->attr('order_xml');
+		
+		if ($asset->writeAccess('attributes')) {
+			text_area($prefix.'_order_xml', $order_xml, 80, 30);
+		} else {
+			echo '<pre>'.htmlspecialchars($order_xml).'</pre>';
+		}
+		
+		return FALSE;
+
+	}//end paintOrderXML()
 	
 
 }//end class
