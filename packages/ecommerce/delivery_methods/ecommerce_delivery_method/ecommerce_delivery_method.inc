@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.12 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.13 2009/08/14 10:32:28 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -238,6 +238,19 @@ class Ecommerce_Delivery_Method extends Asset
 
 	}//end getConfirmationSummary()
 
+	
+	/**
+	* Get the XML representation of the delivery method to store in the order_xml attribute of Ecommerce Order asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getDeliveryMethodXML()
+	{
+		return '';
+
+	}//end getDeliveryMethodXML()
+	
 
 }//end class
 ?>
