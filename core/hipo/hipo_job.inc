@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.102 2009/08/13 06:48:27 lwright Exp $
+* $Id: hipo_job.inc,v 1.103 2009/08/16 23:08:58 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -809,8 +809,6 @@ class HIPO_Job extends MySource_Object
 			try {
 				$bind_vars['code_name'] = $this->code_name;
 				MatrixDAL::executeQuery('core', 'deleteHipoJobFromCodeName', $bind_vars);
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hh->uncacheJob($this->code_name);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete HIPO job with code name: '.$code_name.' due to database error: '.$e->getMessage());
 			}

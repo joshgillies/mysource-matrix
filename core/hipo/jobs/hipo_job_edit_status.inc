@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.60 2009/01/19 06:26:32 akarelia Exp $
+* $Id: hipo_job_edit_status.inc,v 1.61 2009/08/16 23:08:58 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -348,6 +348,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				// we're freestylin' and that it, done
 				unset($this->_running_vars['dependant_hipo_job']);
 				$hipo->save();
+				$hh->uncacheJob($hipo->code_name);
 			} else if ($hipo->process() && $hipo->complete()) {
 				// process the sub hipo on each refresh
 				$running_vars = $hipo->getRunningVars();
