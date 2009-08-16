@@ -1,0 +1,37 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.2.2 2009/08/16 23:13:24 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="iCal Feed Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="path">
+			<text width="35" height="1"/>
+		</field>
+	</section>
+	<section name="Shadow Asset Name">
+		<field>
+			<function_call>	
+				<paint_function		name="paintKeywords" />
+				<process_function	name="processKeywords" />
+			</function_call>
+		</field>
+	</section>
+</contents>
