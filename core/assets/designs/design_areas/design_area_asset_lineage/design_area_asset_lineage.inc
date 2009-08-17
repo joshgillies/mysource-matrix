@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.23 2008/10/28 00:39:00 bpearson Exp $
+* $Id: design_area_asset_lineage.inc,v 1.24 2009/08/17 06:04:48 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 				$start_at_level = $this->attr('start_at_level');
 				if (!is_null($start_at_level) && $start_at_level !== '') {
-					$start_index = $start_at_level;
+					$start_index = $start_at_level >= 0 ? $start_at_level : 'max(0, (count($ASSET_LINEAGE) - 1 - '.abs($start_at_level).'))';
 				}//end if
 
 				$total = 'count($ASSET_LINEAGE)';
@@ -143,11 +143,11 @@ class Design_Area_Asset_Lineage extends Design_Area
 				}
 
 				$levels_to_print = (int) $this->attr('levels_to_print');
-
+                
 				if (is_int($levels_to_print)) {
 					// if we have pages to print, we just adjust the total count factor
 					if ($levels_to_print > 0) {
-						$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
+						$total = 'min('.$total.', '.($levels_to_print.' + '.$start_index).')';
 					} else if ($levels_to_print < 0) {
 						// need to minus 1 because the current link is included in the lineage count
 						$start_index = 'max(0, (count($ASSET_LINEAGE) - 1 - '.abs($levels_to_print).'))';
