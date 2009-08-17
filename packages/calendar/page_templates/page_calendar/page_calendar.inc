@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.226.2.2 2009/08/12 04:13:38 bpearson Exp $
+* $Id: page_calendar.inc,v 1.226.2.3 2009/08/17 04:39:28 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.226.2.2 $
+* @version $Revision: 1.226.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -891,7 +891,7 @@ class Page_Calendar extends Page
 							$classes[] = 'weekend';
 						}
 						if (!empty($events[$current_month][$current_day])) {
-							$classes[] = 'eventate';
+							$classes[] = 'eventDate';
 						}
 						$tag_attrs[] = 'class="'.implode(' ', $classes).'"';
 						$day_href = $this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.sprintf('%04d-%02d-%02d', $year, $current_month, $current_day);
