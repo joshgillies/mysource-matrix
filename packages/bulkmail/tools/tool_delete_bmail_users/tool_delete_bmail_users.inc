@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_delete_bmail_users.inc,v 1.6 2009/07/02 04:44:25 wszymanski Exp $
+* $Id: tool_delete_bmail_users.inc,v 1.7 2009/08/17 02:31:27 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *	matching those in the supplied text file
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -75,6 +75,18 @@ class Tool_Delete_Bmail_Users extends Tool
 			$o->note(translate('bm_tool_delete_bmail_users_confirm_note'));
 		$o->closeField();
 
+		$o->openField(translate('bm_tool_delete_bmail_users_link_node'));
+			asset_finder($type_code.'_link_node');
+		  	$o->note(translate('bm_tool_delete_bmail_users_link_node_note'));
+		$o->closeField();
+
+		$link_type_list = get_link_type_names();
+
+		$o->openField(translate('bm_tool_delete_bmail_users_link_type'));
+			combo_box($type_code.'_link_type', $link_type_list, FALSE);
+		  	$o->note(translate('bm_tool_delete_bmail_users_link_type_note'));
+		$o->closeField();
+
 		$o->closeSection();
 
 	}//end paintTool()
@@ -109,10 +121,17 @@ class Tool_Delete_Bmail_Users extends Tool
 			}//end foreach
 		}//end if
 
+		$link_node = array_get_index($_POST, $type_code.'_link_node');
+		$link_type = array_get_index($_POST, $type_code.'_link_type', Array());
+
 		// set HIPO running_vars
 		$vars = Array(
 					'file_info'		=> $file_info,
 					'root_nodes'	=> $root_nodes,
+					'link_asset' 	=> Array(
+										'assetid' 	=> $link_node['assetid'],
+										'link_type' => $link_type,
+									),
 				);
 
 		// OK to continue?
