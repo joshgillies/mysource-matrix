@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.4 2009/07/29 15:43:19 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.5 2009/08/17 15:54:54 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/sagepay_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -471,60 +471,73 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			$processor->setCardType($card_info['type']);
 		}
 		
-		$billing_name = '';
 		//SET BILLING FIRST NAMES
-		if (!empty($card_info['billing_first_names'])) {
-			$billing_name .= $card_info['billing_first_names'].' ';
-			$processor->setBillingFirstnames($card_info['billing_first_names']);
+		$billing_first_names = array_get_index($card_info, 'billing_first_names', '');
+		if ($billing_first_names != '') {
+			$processor->setBillingFirstnames($billing_first_names);
 		}
 		
 		//SET BILLING SURNAME
-		if (!empty($card_info['billing_surname'])) {
-			$billing_name .= $card_info['billing_surname'];
-			$processor->setBillingSurname($card_info['billing_surname']);
+		$billing_surname = array_get_index($card_info, 'billing_surname', '');
+		if ($billing_surname != '') {
+			$processor->setBillingSurname($billing_surname);
 		}
 		
 		$billing_addr = '';
 		//SET BILLING ADDRESS 1
-		if (!empty($card_info['billing_address1'])) {
-			$billing_addr .= $card_info['billing_address1']."\n";
-			$processor->setBillingAddress1($card_info['billing_address1']);
+		$billing_address1 = array_get_index($card_info, 'billing_address1', '');
+		if ($billing_address1 != '') {
+			$billing_addr .= $billing_address1."\n";
+			$processor->setBillingAddress1($billing_address1);
 		}
 		
 		//SET BILLING ADDRESS 2
-		if (!empty($card_info['billing_address2'])) {
-			$billing_addr .= $card_info['billing_address2']."\n";
-			$processor->setBillingAddress2($card_info['billing_address2']);
+		$billing_address2 = array_get_index($card_info, 'billing_address2', '');
+		if ($billing_address2 != '') {
+			$billing_addr .= $billing_address2."\n";
+			$processor->setBillingAddress2($billing_address2);
 		}
 		
 		//SET BILLING CITY
-		if (!empty($card_info['billing_city'])) {
-			$billing_addr .= $card_info['billing_city']."\n";
-			$processor->setBillingCity($card_info['billing_city']);
+		$billing_city = array_get_index($card_info, 'billing_city', '');
+		if ($billing_city != '') {
+			$billing_addr .= $billing_city."\n";
+			$processor->setBillingCity($billing_city);
+		}
+		
+		//SET BILLING STATE
+		$billing_state = array_get_index($card_info, 'billing_state', '');
+		if ($billing_state != '') {
+			$billing_addr .= $billing_state."\n";
+			$processor->setBillingState($billing_state);
 		}
 		
 		//SET BILLING POSTCODE
-		if (!empty($card_info['billing_postcode'])) {
-			$billing_addr .= $card_info['billing_postcode']."\n";
-			$processor->setBillingPostcode($card_info['billing_postcode']);
+		$billing_postcode = array_get_index($card_info, 'billing_postcode', '');
+		if ($billing_postcode != '') {
+			$billing_addr .= $billing_postcode."\n";
+			$processor->setBillingPostcode($billing_postcode);
+		}
+		
+		//GET THE LIST OF COUNTRY CODE IF NECESSARY
+		if ((array_get_index($card_info, 'billing_country', '') != '') || (array_get_index($card_info, 'delivery_country', '') != '')) {
+			global $standards_lists_countries;
+			require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 		}
 		
 		//SET BILLING COUNTRY
-		if (!empty($card_info['billing_country'])) {
-			$billing_addr .= strtoupper($card_info['billing_country'])."\n";
-			$processor->setBillingCountry($card_info['billing_country']);
+		$billing_country_code = array_get_index($card_info, 'billing_country', '');
+		if ($billing_country_code != '') {
+			$billing_country = array_get_index($standards_lists_countries, $billing_country_code, strtoupper($billing_country_code));
+			$billing_addr .= $billing_country."\n";
+			$processor->setBillingCountry($billing_country_code);
 		}
 
-		//SET BILLING STATE
-		if (!empty($card_info['billing_state'])) {
-			$billing_addr .= $card_info['billing_state']."\n";
-			$processor->setBillingState($card_info['billing_state']);
-		}
-		
 		//SET BILLING PHONE
-		if (!empty($card_info['billing_phone'])) {
-			$billing_addr .= 'Phone: '.$card_info['billing_phone']."\n";
-			$processor->setBillingPhone($card_info['Delivery_phone']);
+		$billing_phone = array_get_index($card_info, 'billing_phone', '');
+		if ($billing_phone != '') {
+			$billing_addr .= 'Phone: '.$billing_phone."\n";
+			$processor->setBillingPhone($billing_phone);
 		}
 		
 		if ($this->attr('delivery_addr_is_billing_addr')) {
@@ -533,60 +546,67 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			$delivery_str = 'delivery_';
 		}
 		
-		$delivery_name = '';
 		//SET DELIVERY FIRST NAMES
-		if (!empty($card_info[$delivery_str.'first_names'])) {
-			$delivery_name .= $card_info[$delivery_str.'first_names'].' ';
-			$processor->setDeliveryFirstnames($card_info[$delivery_str.'first_names']);
+		$delivery_first_names = array_get_index($card_info, $delivery_str.'first_names', '');
+		if ($delivery_first_names != '') {
+			$processor->setDeliveryFirstnames($delivery_first_names);
 		}
 		
 		//SET DELIVERY SURNAME
-		if (!empty($card_info[$delivery_str.'surname'])) {
-			$delivery_name .= $card_info[$delivery_str.'surname'];
-			$processor->setDeliverySurname($card_info[$delivery_str.'surname']);
+		$delivery_surname = array_get_index($card_info, $delivery_str.'surname', '');
+		if ($delivery_surname != '') {
+			$processor->setDeliverySurname($delivery_surname);
 		}
 		
 		$delivery_addr = '';
 		//SET DELIVERY ADDRESS 1
-		if (!empty($card_info[$delivery_str.'address1'])) {
-			$delivery_addr .= $card_info[$delivery_str.'address1']."\n";
-			$processor->setDeliveryAddress1($card_info[$delivery_str.'address1']);
+		$delivery_address1 = array_get_index($card_info, $delivery_str.'address1', '');
+		if ($delivery_address1 != '') {
+			$delivery_addr .= $delivery_address1."\n";
+			$processor->setDeliveryAddress1($delivery_address1);
 		}
 		
 		//SET DELIVERY ADDRESS 2
-		if (!empty($card_info[$delivery_str.'address2'])) {
-			$delivery_addr .= $card_info[$delivery_str.'address2']."\n";
-			$processor->setDeliveryAddress2($card_info[$delivery_str.'address2']);
+		$delivery_address2 = array_get_index($card_info, $delivery_str.'address2', '');
+		if ($delivery_address2 != '') {
+			$delivery_addr .= $delivery_address2."\n";
+			$processor->setDeliveryAddress2($delivery_address2);
 		}
 		
 		//SET DELIVERY CITY
-		if (!empty($card_info[$delivery_str.'city'])) {
-			$delivery_addr .= $card_info[$delivery_str.'city']."\n";
-			$processor->setDeliveryCity($card_info[$delivery_str.'city']);
+		$delivery_city = array_get_index($card_info, $delivery_str.'city', '');
+		if ($delivery_city != '') {
+			$delivery_addr .= $delivery_city."\n";
+			$processor->setDeliveryCity($delivery_city);
+		}
+		
+		//SET DELIVERY STATE
+		$delivery_state = array_get_index($card_info, $delivery_str.'state', '');
+		if ($delivery_state != '') {
+			$delivery_addr .= $delivery_state."\n";
+			$processor->setDeliveryState($delivery_state);
 		}
 		
 		//SET DELIVERY POSTCODE
-		if (!empty($card_info[$delivery_str.'postcode'])) {
-			$delivery_addr .= $card_info[$delivery_str.'postcode']."\n";
-			$processor->setDeliveryPostcode($card_info[$delivery_str.'postcode']);
+		$delivery_postcode = array_get_index($card_info, $delivery_str.'postcode', '');
+		if ($delivery_postcode != '') {
+			$delivery_addr .= $delivery_postcode."\n";
+			$processor->setDeliveryPostcode($delivery_postcode);
 		}
 		
 		//SET DELIVERY COUNTRY
-		if (!empty($card_info[$delivery_str.'country'])) {
-			$delivery_addr .= strtoupper($card_info[$delivery_str.'country'])."\n";
-			$processor->setDeliveryCountry($card_info[$delivery_str.'country']);
+		$delivery_country_code = array_get_index($card_info, $delivery_str.'country', '');
+		if ($delivery_country_code != '') {
+			$delivery_country = array_get_index($standards_lists_countries, $delivery_country_code, strtoupper($delivery_country_code));
+			$delivery_addr .= $delivery_country."\n";
+			$processor->setDeliveryCountry($delivery_country_code);
 		}
 
-		//SET DELIVERY STATE
-		if (!empty($card_info[$delivery_str.'state'])) {
-			$delivery_addr .= $card_info[$delivery_str.'state']."\n";
-			$processor->setDeliveryState($card_info[$delivery_str.'state']);
-		}
-		
 		//SET DELIVERY PHONE
-		if (!empty($card_info[$delivery_str.'phone'])) {
-			$delivery_addr .= 'Phone: '.$card_info[$delivery_str.'phone']."\n";
-			$processor->setDeliveryPhone($card_info[$delivery_str.'phone']);
+		$delivery_phone = array_get_index($card_info, $delivery_str.'phone', '');
+		if ($delivery_phone != '') {
+			$delivery_addr .= 'Phone: '.$delivery_phone."\n";
+			$processor->setDeliveryPhone($delivery_phone);
 		}
 		
 		
@@ -609,48 +629,48 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				$this->_setError(translate('sagepay_card_cv2_not_specified'));
 			}
 			
-			if (empty($card_info['billing_first_names'])) {
+			if ($billing_first_names == '') {
 				$this->_setError(translate('sagepay_billing_first_names_not_specified'));
 			}
-			if (empty($card_info['billing_surname'])) {
+			if ($billing_surname == '') {
 				$this->_setError(translate('sagepay_billing_surname_not_specified'));
 			}
-			if (empty($card_info['billing_address1'])) {
+			if ($billing_address1 == '') {
 				$this->_setError(translate('sagepay_billing_address1_not_specified'));
 			}
-			if (empty($card_info['billing_city'])) {
+			if ($billing_city == '') {
 				$this->_setError(translate('sagepay_billing_city_not_specified'));
 			}
-			if (empty($card_info['billing_postcode'])) {
+			if ($billing_postcode == '') {
 				$this->_setError(translate('sagepay_billing_postcode_not_specified'));
 			}
-			if (empty($card_info['billing_country'])) {
+			if ($billing_country_code == '') {
 				$this->_setError(translate('sagepay_billing_country_not_specified'));
 			}
-			if (!empty($card_info['billing_country']) && ($card_info['billing_country'] == 'us') && empty($card_info['billing_state'])) {
+			if (($billing_country_code == 'us') && ($billing_state == '')) {
 				$this->_setError(translate('sagepay_billing_state_not_specified'));
 			}
 			
 			if (!$this->attr('delivery_addr_is_billing_addr')) {
-				if (empty($card_info['delivery_first_names'])) {
+				if ($delivery_first_names == '') {
 					$this->_setError(translate('sagepay_delivery_first_names_not_specified'));
 				}
-				if (empty($card_info['delivery_surname'])) {
+				if ($delivery_surname == '') {
 					$this->_setError(translate('sagepay_delivery_surname_not_specified'));
 				}
-				if (empty($card_info['delivery_address1'])) {
+				if ($delivery_address1 == '') {
 					$this->_setError(translate('sagepay_delivery_address1_not_specified'));
 				}
-				if (empty($card_info['delivery_city'])) {
+				if ($delivery_city == '') {
 					$this->_setError(translate('sagepay_delivery_city_not_specified'));
 				}
-				if (empty($card_info['delivery_postcode'])) {
+				if ($delivery_postcode == '') {
 					$this->_setError(translate('sagepay_delivery_postcode_not_specified'));
 				}
-				if (empty($card_info['delivery_country'])) {
+				if ($delivery_country_code == '') {
 					$this->_setError(translate('sagepay_delivery_country_not_specified'));
 				}
-				if (!empty($card_info['delivery_country']) && ($card_info['delivery_country'] == 'us') && empty($card_info['delivery_state'])) {
+				if (($delivery_country_code == 'us') && ($delivery_state == '')) {
 					$this->_setError(translate('sagepay_delivery_state_not_specified'));
 				}
 			}
@@ -683,10 +703,55 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			//store the last 4 digits of card number to display it later in Form Ecommerce or Delivery Method through the Session variable SQ_ECOM_RESPONSE
 			$_SESSION['SQ_ECOM_FORMATTED_CARD_NUMBER'] = $this->_getFormattedCardNumber($card_info['number']);
 			//store the billing name, billing address, deliver name and deliver address to store in the Order asset of Form Ecommerce
-			$_SESSION['SQ_ECOM_ORDER_BILLING_NAME'] = $billing_name;
+			$_SESSION['SQ_ECOM_ORDER_BILLING_NAME'] = "$billing_first_names $billing_surname";
 			$_SESSION['SQ_ECOM_ORDER_BILLING_ADDR'] = $billing_addr;
-			$_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME'] = $delivery_name;
+			$_SESSION['SQ_ECOM_ORDER_DELIVERY_NAME'] = "$delivery_first_names $delivery_surname";
 			$_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR'] = $delivery_addr;
+			//build the addresses XML to store in the Ecommerce Order XML
+			$billing_state_str = '';
+			if ($billing_state != '') {
+				$billing_state_str = <<<HEREDOC
+
+			<state><![CDATA[{$this->_getCDATAAllowedString($billing_state)}]]></state>
+HEREDOC;
+			}
+			
+			$delivery_state_str = '';
+			if ($delivery_state != '') {
+				$delivery_state_str = <<<HEREDOC
+
+			<state><![CDATA[{$this->_getCDATAAllowedString($delivery_state)}]]></state>
+HEREDOC;
+			}
+			
+			$_SESSION['SQ_ECOM_ORDER_PAYMENT_GATEWAY_XML'] = <<<HEREDOC
+
+	<payment_gateway>
+		<billing_address>
+			<first_names><![CDATA[{$this->_getCDATAAllowedString($billing_first_names)}]]></first_names>
+			<surname><![CDATA[{$this->_getCDATAAllowedString($billing_surname)}]]></surname>
+			<address1><![CDATA[{$this->_getCDATAAllowedString($billing_address1)}]]></address1>
+			<address2><![CDATA[{$this->_getCDATAAllowedString($billing_address2)}]]></address2>
+			<city><![CDATA[{$this->_getCDATAAllowedString($billing_city)}]]></city>$billing_state_str
+			<postcode><![CDATA[{$this->_getCDATAAllowedString($billing_postcode)}]]></postcode>
+			<country><![CDATA[{$this->_getCDATAAllowedString($billing_country)}]]></country>
+			<country_code><![CDATA[{$this->_getCDATAAllowedString($billing_country_code)}]]></country_code>
+			<phone><![CDATA[{$this->_getCDATAAllowedString($billing_phone)}]]></phone>
+		</billing_address>
+		<delivery_address>
+			<first_names><![CDATA[{$this->_getCDATAAllowedString($delivery_first_names)}]]></first_names>
+			<surname><![CDATA[{$this->_getCDATAAllowedString($delivery_surname)}]]></surname>
+			<address1><![CDATA[{$this->_getCDATAAllowedString($delivery_address1)}]]></address1>
+			<address2><![CDATA[{$this->_getCDATAAllowedString($delivery_address2)}]]></address2>
+			<city><![CDATA[{$this->_getCDATAAllowedString($delivery_city)}]]></city>$delivery_state_str
+			<postcode><![CDATA[{$this->_getCDATAAllowedString($delivery_postcode)}]]></postcode>
+			<country><![CDATA[{$this->_getCDATAAllowedString($delivery_country)}]]></country>
+			<country_code><![CDATA[{$this->_getCDATAAllowedString($delivery_country_code)}]]></country_code>
+			<phone><![CDATA[{$this->_getCDATAAllowedString($delivery_phone)}]]></phone>
+		</delivery_address>
+	</payment_gateway>
+HEREDOC;
+			
 		}
 		
 		//if $success = 2, redirect user for card holder verification
@@ -781,6 +846,13 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_ORDER_DELIVERY_ADDR']);
 			}
 			$response['DELIVERY_ADDR'] = $delivery_addr;
+			
+			$addresses_xml = '';
+			if (isset($_SESSION['SQ_ECOM_ORDER_PAYMENT_GATEWAY_XML'])) {
+				$addresses_xml = $_SESSION['SQ_ECOM_ORDER_PAYMENT_GATEWAY_XML'];
+				unset($_SESSION['SQ_ECOM_ORDER_PAYMENT_GATEWAY_XML']);
+			}
+			$response['PAYMENT_GATEWAY_XML'] = $addresses_xml;
 			
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
@@ -1292,7 +1364,7 @@ HEREDOC;
 	{
 
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_phone]" />';
+		$string = '<input name="'.$card.'[billing_phone]" />';
 		return $string;
 
 	}//end getBillingPhoneKeywordReplacement()
@@ -1661,6 +1733,14 @@ HEREDOC;
 	}//end _isValidCV2()
 	
 	
+	/**
+	 * Get pass-through variable which is stored in a Session variable
+	 * 
+	 * @param string 	$var_name	the name of the pass-through variable
+	 * @param mixed 	$default	the default value to get if the $var_name variable is not in the Session
+	 * @return mixed
+	 * @access private
+	 */
 	private function _getPassThroughVariable($var_name, $default)
 	{
 		if (is_null($this->_pass_through_vars)) {
@@ -1672,6 +1752,13 @@ HEREDOC;
 	}//end _getPassThroughVariable()
 	
 	
+	/**
+	 * Get pass-through variable with the variable names from attributes 
+	 * 
+	 * @param string $attr_name		the name of the attribute that stores the variable name
+	 * @return mixed
+	 * @access private
+	 */
 	private function _getDefaultInputFromPassThroughAttribute($attr_name)
 	{
 		$result = '';
@@ -1683,6 +1770,24 @@ HEREDOC;
 		return $result;
 		
 	}//end _getDefaultInputFromPassThroughAttribute()
+	
+	
+	/**
+	 * Get the string that is allowed in an XML's CDATA section
+	 * 
+	 * @param string $text	the input string to check and get allowed CDATA string
+	 * @return string
+	 * @access private
+	 */
+	private function _getCDATAAllowedString($text)
+	{
+		//CDATA section can not contain a nested CDATA and the closed string ]]>
+		$search = Array('<![CDATA[', ']]>');
+		$replace = Array('&lt;![CDATA[', ']]&gt;');
+		
+		return str_replace($search, $replace, $text);
+		
+	}//end _getCDATAAllowedString()
 	
 	
 	/**
