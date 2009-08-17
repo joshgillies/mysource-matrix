@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.22 2009/08/14 15:16:04 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.23 2009/08/17 15:45:07 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -977,9 +977,6 @@ HEREDOC;
 HEREDOC;
 		}
 		
-		//currency symbol
-		$currency_symbol = $this->_replaceXmlEntities($currency_symbol);
-		
 		//get total tax
 		$total_tax = $this->getTotalTax($taxation_rate);
 		$total_tax = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
@@ -1068,25 +1065,6 @@ HEREDOC;
 		}
 
 	}//end validateCart()
-	
-	
-	/**
-	 * Replace the currencies which are not in the ASCII table with their the number entity so that the XML
-	 * containing those currencies is valid
-	 * 
-	 * @param string $text	the string to be replaced 
-	 * 
-	 * @return string
-	 * @access private
-	 */
-	private function _replaceXmlEntities($text)
-	{
-		$search = Array('£', 'Û');
-		$replace = Array('&#163;', '&#8364;');
-		
-		return str_replace($search, $replace, $text);
-		
-	}//end _replaceXmlEntities()
 
 
 }//end class
