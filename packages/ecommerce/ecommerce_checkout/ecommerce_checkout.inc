@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.70 2009/08/14 10:37:16 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.71 2009/08/17 15:58:06 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -566,6 +566,9 @@ class Ecommerce_Checkout extends Page
 			$this->_logOrderAction(translate('ecom_order_history_commence_process_existing'), $order_asset);
 		}
 
+		//prepare the addresses XML to write to the Ecommerce Order asset
+		$payment_gateway_xml = '';
+		
 		// does this order need to be reviewed, i.e. placed in the Orders To Review folder
 		$review_order = FALSE;
 
@@ -659,6 +662,7 @@ class Ecommerce_Checkout extends Page
 					$order_asset->setAttrValue('billing_addr', array_get_index($payment_response, 'BILLING_ADDR', ''));
 					$order_asset->setAttrValue('delivery_name', array_get_index($payment_response, 'DELIVERY_NAME', ''));
 					$order_asset->setAttrValue('delivery_addr', array_get_index($payment_response, 'DELIVERY_ADDR', ''));
+					$payment_gateway_xml = array_get_index($payment_response, 'PAYMENT_GATEWAY_XML', '');
 				}
 				
 			}
@@ -708,14 +712,18 @@ class Ecommerce_Checkout extends Page
 		
 		$order_summary .= $delivery_method->getReceipt();
 		//get delivery method XML
-		$questions_xml = $delivery_method->getDeliveryMethodXML();
+		$delivery_method_xml = $delivery_method->getDeliveryMethodXML();
+		
+		//get the default character set of Matrix System
+		$default_char_set = SQ_CONF_DEFAULT_CHARACTER_SET;
 		
 		//create order xml
 		$order_xml = <<<HEREDOC
+<?xml version="1.0" encoding="$default_char_set"?>
 <order>
 	<id>{$order_asset->id}</id>
 $cart_xml
-$questions_xml
+$delivery_method_xml$payment_gateway_xml
 </order>
 HEREDOC;
 
