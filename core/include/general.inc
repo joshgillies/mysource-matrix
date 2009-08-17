@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.231 2009/08/06 00:46:03 bpearson Exp $
+* $Id: general.inc,v 1.232 2009/08/17 05:39:16 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.232 $
 * @package MySource_Matrix
 */
 
@@ -101,6 +101,10 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	while (ob_get_level() > SQ_INIT_OB_LEVEL) {
 		$buffers[] = ob_get_contents();
 		ob_end_clean();
+	}
+
+	if ((boolean)SQ_CONF_ERRORS_LOG_TO_SYSLOG === TRUE) {
+		log_to_syslog($err_no, $err_msg, $err_file, $err_line);
 	}
 
 	$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
@@ -340,6 +344,40 @@ function hide_frontend_errors()
 	}//end if
 
 }//end hide_front_errors
+
+
+/**
+*
+*
+*/
+function log_to_syslog($error_code, $message, $file, $line)
+{
+	$syslog_code = LOG_NOTICE;
+
+	switch ($error_code) {
+		case E_ERROR:
+		case E_USER_ERROR:
+			$syslog_code = LOG_ERR;
+		break;
+
+		case E_WARNING:
+		case E_USER_WARNING:
+			$syslog_code = LOG_WARNING;
+		break;
+
+		default:
+			$syslog_code = LOG_NOTICE;
+		break;
+
+	}//end switch
+
+	if ((SQ_CONF_DEBUG & 1) !== 0) {
+		$message .= ' ('.$file.':'.$line.')';
+	}
+
+	syslog($syslog_code, $message);
+
+}//end log_to_syslog()
 
 
 /**
