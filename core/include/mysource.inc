@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.316 2009/08/11 05:38:26 lwright Exp $
+* $Id: mysource.inc,v 1.317 2009/08/17 06:50:56 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.316 $
+* @version $Revision: 1.317 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3795,11 +3795,20 @@ class MySource extends MySource_Object
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 		}
 
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
+
 		ob_start();
 			$site->paintAsset($asset);
 		$content = ob_get_clean();
 
 		$this->_replaceKeyword($content);
+
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}//end if
 
 		echo $content;
 
