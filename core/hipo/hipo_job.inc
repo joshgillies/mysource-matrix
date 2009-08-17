@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.101 2009/07/22 09:23:07 ata Exp $
+* $Id: hipo_job.inc,v 1.101.2.1 2009/08/17 01:09:04 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.101.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -660,18 +660,6 @@ class HIPO_Job extends MySource_Object
 		$this->_running_vars    = unserialize($result['running_vars']);
 		$this->last_updated     = iso8601_ts($result['last_updated']);
 
-		// Add in the progress_data
-		if (!empty($result['step_progress'])) {
-			$progress = unserialize($result['step_progress']);
-			if (!empty($progress) && isset($progress['current_step']) && isset($this->_steps[$progress['current_step']])) {
-				if (isset($progress['percent_done']) && isset($progress['message'])) {
-					// Update to the current spot
-					$this->_steps[$progress['current_step']]['percent_done'] = $progress['percent_done'];
-					$this->_steps[$progress['current_step']]['message'] = $progress['message'];
-				}//end if
-			}//end if
-		}//end if
-
 		// previous last_updated - the last_updated var from the last time load() was called
 		$prev_last_updated = array_get_index($this->_hipo_vars, 'timeout_prev_last_updated', $this->last_updated);
 
@@ -755,12 +743,11 @@ class HIPO_Job extends MySource_Object
 	*
 	* @param boolean	$ignore_running_mode	whether to ignore the running mode check or not
 	*											(SHOULD ONLY BE USED BY setRunningMode())
-	* @param array		$progress_data			a reference to the array of information about the current step
 	*
 	* @return boolean
 	* @access public
 	*/
-	function save($ignore_running_mode=FALSE, $progress_data=Array())
+	function save($ignore_running_mode=FALSE)
 	{
 		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
 			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
@@ -825,7 +812,6 @@ class HIPO_Job extends MySource_Object
 								'steps'			=> serialize($this->_steps),
 								'running_vars'	=> serialize($this->_running_vars),
 								'last_updated'	=> $last_updated,
-								'progress'		=> serialize($progress_data),
 								'code_name'		=> $this->code_name,
 							  );
 				MatrixDAL::executeQuery('core', 'updateHipoJobVars', $bind_vars);
@@ -842,49 +828,6 @@ class HIPO_Job extends MySource_Object
 		return TRUE;
 
 	}//end save()
-
-
-	/**
-	* Save the progress vars to the database
-	*
-	* @param array	$progress_data	a reference to the array of information about the current step
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveProgress($progress_data)
-	{
-		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
-			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
-			return FALSE;
-		}
-
-		$this->_updateProgress();
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db = MatrixDAL::getDb();
-		// now we just do what we are told
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		try {
-			// get timestamp for db type TODO
-			$bind_vars	= Array (
-							'progress'		=> serialize($progress_data),
-							'code_name'		=> $this->code_name,
-						  );
-			MatrixDAL::executeQuery('core', 'updateHipoJobProgress', $bind_vars);
-		} catch (Exception $e) {
-			throw new Exception('Unable to update HIPO progress due to database error: '.$e->getMessage());
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return TRUE;
-
-	}//end saveProgress()
 
 
 	/**
@@ -1420,18 +1363,9 @@ class HIPO_Job extends MySource_Object
 				}
 
 				$current_percent = (int) $this->_hipo_vars['percent_done'];
-				$progress = Array(
-								'percent_done'	=> $step_data['percent_done'],
-								'current_step'	=> $this->_hipo_vars['current_step'],
-								'message'		=> substr($step_data['message'], 0, 150),
-							);
 				if ((($current_percent != $prev_percent) && ($current_percent % 3 == 0)) || $step_data['complete']) {
 					// Full save point or job is finished
-					$this->save(FALSE, $progress);
-					$prev_percent = $current_percent;
-				} else if ($current_percent != $prev_percent) {
-					// Save the progress
-					$this->saveProgress($progress);
+					$this->save(FALSE);
 					$prev_percent = $current_percent;
 				} else {
 					// Else progress to the next step

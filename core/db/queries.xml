@@ -850,7 +850,6 @@
 					<field table="sq_hipo_job" column="steps" />
 					<field table="sq_hipo_job" column="running_vars" />
 					<field table="sq_hipo_job" column="last_updated" />
-					<field table="sq_hipo_job" column="step_progress" />
 				</fields>
 				<from>
 					<table>sq_hipo_job</table>
@@ -915,7 +914,6 @@
 					<field>steps</field>
 					<field>running_vars</field>
 					<field>last_updated</field>
-					<field>step_progress</field>
 				</fields>
 				<values>
 					<value column="hipo_vars">:hipo_vars</value>
@@ -923,24 +921,6 @@
 					<value column="steps">:steps</value>
 					<value column="running_vars">:running_vars</value>
 					<value column="last_updated">:last_updated</value>
-					<value column="step_progress">:progress</value>
-				</values>
-				<where>
-					<equal table="sq_hipo_job" column="code_name">:code_name</equal>
-				</where>
-			</update>
-		</primary>
-	</query>
-
-	<query id="updateHipoJobProgress">
-	<!-- Updates a HIPO job progress -->
-		<primary>
-			<update>
-				<fields table="sq_hipo_job">
-					<field>step_progress</field>
-				</fields>
-				<values>
-					<value column="step_progress">:progress</value>
 				</values>
 				<where>
 					<equal table="sq_hipo_job" column="code_name">:code_name</equal>
