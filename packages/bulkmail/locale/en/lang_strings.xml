@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.38 2009/06/16 01:30:42 bpearson Exp $
+* $Id: lang_strings.xml,v 1.39 2009/08/17 02:41:36 cupreti Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -133,6 +133,13 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_tool_delete_bmail_users_file_upload_note">Each line must contain one email address only</string>
 	<string source="bm_tool_delete_bmail_users_root_node">Root Node</string>
 	<string source="bm_tool_delete_bmail_users_root_node_note">Select a root node(s) to delete the bulkmail users from only the specified root node(s). Leave blank to delete bulkmail users from the whole system</string>
+
+	<string source="bm_tool_delete_bmail_users_link_node">Move Under Asset</string>
+	<string source="bm_tool_delete_bmail_users_link_node_note">Select the asset where you want bulkmail users to move</string>
+
+	<string source="bm_tool_delete_bmail_users_link_type">Using the Link Type</string>
+	<string source="bm_tool_delete_bmail_users_link_type_note">Select the type of link to use for linking bulkmail users to the asset where they are moved</string>
+
 	<string source="bm_tool_delete_bmail_users_confirm">Confirm deletion of bulkmail users</string>
 	<string source="bm_tool_delete_bmail_users_confirm_note">All matching bulkmail users will be deleted, when Yes is selected</string>
 
