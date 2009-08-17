@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.1 2009/08/11 23:58:37 ewang Exp $
+* $Id: lang_strings.xml,v 1.335.2.2 2009/08/17 06:20:03 lwright Exp $
 *
 */
 
@@ -2654,4 +2654,14 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
 	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. This occurs on the first request of a session, or when the context is otherwise reset. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the default context is used.</p>
 	<p>Conditions do not affect a context&apos;s ability to be used through methods outside context detection, such as through global action, or User Group override. If you do not want a context to be selected through context detection, simply leave its conditions blank. The <strong>Valid ?</strong> column states whether a context&apos;s conditions are achievable, based on the number of valid conditions and the set logic (either &quot;All&quot; or &quot;At least&quot;). A context&apos;s conditions may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no valid conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough valid conditions to meet the requirement. (If some conditions are invalid, but not all, the conditions can still be &quot;valid&quot; if there enough valid ones.)</li></ul>]]></string>
+
+	<!-- System Config - Log errors to Syslog -->
+	<string source="log_errors_to_syslog">Log Errors to Syslog ?</string>
+	<string source="log_errors_to_syslog_note">If enabled, errors will be sent to the *nix Syslog. Please contact your system administrator for appropriate settings if you are to use this feature.</string>
+	<string source="log_errors_syslog_facility">Syslog Facility</string>
+	<string source="log_errors_syslog_facility_note">Syslog defines a number of &quot;facilities&quot;, which can be used to perform different actions on different types of messages. You can send syslog messages to the default &quot;user&quot; facility, or one of eight user-defined &quot;local&quot; facilities. Changing this may be useful if you are planning to send all MySource Matrix system messages into a separate syslog facility.</string>
+	<string source="log_errors_syslog_ident">Syslog Ident</string>
+	<string source="log_errors_syslog_ident_note">If entered, this string will be used to identify the system within the syslog. If not entered, the long name of the system (&quot;%s&quot;) will be used.</string>
+	<string source="syslog_facility_user">User</string>
+	<string source="syslog_facility_local">Local %s</string>
 </strings>

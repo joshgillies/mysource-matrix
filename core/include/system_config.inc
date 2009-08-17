@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.130 2009/07/20 06:56:56 wszymanski Exp $
+* $Id: system_config.inc,v 1.130.2.1 2009/08/17 06:20:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.130.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,6 +69,9 @@ class System_Config extends Config
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_404_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ERRORS_LOG_TO_SYSLOG'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ERRORS_SYSLOG_FACILITY'		=> Array('editable' => 1, 'default' => 'user'),
+						'SQ_CONF_ERRORS_SYSLOG_IDENT'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
@@ -164,6 +167,7 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
 					unset($vars['SQ_CONF_LOG_ERRORS']);
 					unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
+					unset($vars['SQ_CONF_ERRORS_LOG_TO_SYSLOG']);
 					unset($vars['SQ_CONF_BACKEND_SUFFIX']);
 					unset($vars['SQ_CONF_LIMBO_SUFFIX']);
 					unset($vars['SQ_CONF_LOGIN_SUFFIX']);
@@ -720,6 +724,7 @@ class System_Config extends Config
 			} else {
 				echo (SQ_CONF_LOG_ERRORS) ? translate('yes') : translate('no');
 			}
+			$o->closeField();
 
 			$o->openField(translate('hide_errors_on_the_frontend'));
 			if ($write_access && $is_root) {
@@ -727,6 +732,46 @@ class System_Config extends Config
 			} else {
 				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? translate('yes') : translate('no');
 			}
+			$o->closeField();
+
+			$o->openField(translate('log_errors_to_syslog'));
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ERRORS_LOG_TO_SYSLOG]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ERRORS_LOG_TO_SYSLOG);
+			} else {
+				echo (SQ_CONF_ERRORS_LOG_TO_SYSLOG) ? translate('yes') : translate('no');
+			}
+			$o->note(translate('log_errors_to_syslog_note'));
+			$o->closeField();
+			
+			$o->openField(translate('log_errors_syslog_facility'));
+			// We only provide the common
+			$options = Array(
+						'user'		=> translate('syslog_facility_user'),
+						'local0'	=> translate('syslog_facility_local', 0),
+						'local1'	=> translate('syslog_facility_local', 1),
+						'local2'	=> translate('syslog_facility_local', 2),
+						'local3'	=> translate('syslog_facility_local', 3),
+						'local4'	=> translate('syslog_facility_local', 4),
+						'local5'	=> translate('syslog_facility_local', 5),
+						'local6'	=> translate('syslog_facility_local', 6),
+						'local7'	=> translate('syslog_facility_local', 7),
+					   );
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ERRORS_SYSLOG_FACILITY]', $options, FALSE, SQ_CONF_ERRORS_SYSLOG_FACILITY);
+			} else {
+				echo $options[SQ_CONF_ERRORS_SYSLOG_FACILITY];
+			}
+			$o->note(translate('log_errors_syslog_facility_note'));
+			$o->closeField();
+
+			$o->openField(translate('log_errors_syslog_ident'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_ERRORS_SYSLOG_IDENT]', SQ_CONF_ERRORS_SYSLOG_IDENT, 30);
+			} else {
+				echo SQ_CONF_ERRORS_SYSLOG_IDENT;
+			}
+			$o->note(translate('log_errors_syslog_ident_note', SQ_SYSTEM_LONG_NAME));
+			$o->closeField();
 
 			$o->openField(translate('debug_settings'));
 			if ($write_access && $is_root) {

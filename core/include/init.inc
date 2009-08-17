@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.108 2009/06/23 03:13:04 bpearson Exp $
+* $Id: init.inc,v 1.108.2.1 2009/08/17 06:20:03 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.108.2.1 $
 * @package MySource_Matrix
 */
 
@@ -214,6 +214,16 @@ if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & hide_frontend_errors()) {
 	ini_set('display_errors', 0);
 }
 
+// Logging to syslog? If so, turn it on now (it won't connect to syslog until the first actual error)
+if ((boolean)SQ_CONF_ERRORS_LOG_TO_SYSLOG === TRUE) {
+	$ident = SQ_CONF_ERRORS_SYSLOG_IDENT;
+	if (empty($ident) === TRUE) {
+		$ident = SQ_SYSTEM_LONG_NAME;
+	}
+	$consts = get_defined_constants();
+	$facility = $consts['LOG_'.strtoupper(SQ_CONF_ERRORS_SYSLOG_FACILITY)];
+	openlog($ident, LOG_ODELAY, $facility);
+}
 
 // if there is magic quotes, strip them out
 if (get_magic_quotes_gpc()) {
