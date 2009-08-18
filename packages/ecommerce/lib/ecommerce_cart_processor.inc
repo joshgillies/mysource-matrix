@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.23 2009/08/17 15:45:07 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.24 2009/08/18 09:47:37 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -619,14 +619,20 @@ class Ecommerce_Cart_Processor
 	* @param int		$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
 	* @param array		$flat_charges	flat charges Array('Name' => 'Price')
 	* @param boolean	$remove_tax		whether to remove tax from taxed products, i.e. if country is not defined as taxable
+	* @param string		$currency_symbol	symbol to use as the currency for all prices
+	* @param int		$float_precision	precision of the floating numbers used for prices
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE)
+	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
 	{
 		if (empty($this->cart)) return;
 
+		// ensure the float precision is an int
+		$float_precision = (int) $float_precision;
+		$price_format = $currency_symbol.'%.'.$float_precision.'f';
+		
 		$name_length = 0;
 		$has_price = FALSE;
 		$has_products = FALSE;
@@ -708,8 +714,8 @@ class Ecommerce_Cart_Processor
 			if ($cost < 0) {
 				$cost = '';
 			} else {
-				$cost = sprintf('$%.2f', $cost * $product_quantity);
-				$tax_cost = sprintf('$%.2f', $tax_cost * $product_quantity);
+				$cost = sprintf($price_format, $cost * $product_quantity);
+				$tax_cost = sprintf($price_format, $tax_cost * $product_quantity);
 			}
 
 			if ($has_price) {
@@ -737,19 +743,19 @@ class Ecommerce_Cart_Processor
 			$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
 			
 			if ($has_products) {
-				echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $sub_total));
+				echo sprintf($row_format, 'Total', $this->getCount(), sprintf($price_format, $sub_total));
 			} else {
-				echo sprintf($row_format, 'Total', sprintf('$%.2f', $sub_total));
+				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
 
 			if (($total_tax > 0) || ($flat_charges_total > 0.0)) {
 				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
-					echo sprintf($row_format, $row_title, $this->getCount(), sprintf('$%.2f', $total_tax));
+					echo sprintf($row_format, $row_title, $this->getCount(), sprintf($price_format, $total_tax));
 				}
 				echo $break;
 				foreach ($flat_charges as $name => $price) {
-					echo sprintf($row_format, $name, '', sprintf('$%.2f', $price));
+					echo sprintf($row_format, $name, '', sprintf($price_format, $price));
 				}
 
 				$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
@@ -757,14 +763,14 @@ class Ecommerce_Cart_Processor
 				$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
 
 				if ($total_delivery_cost > 0) {
-					echo sprintf($row_format, 'Delivery Fee', '', sprintf('$%.2f', $total_delivery_cost));
+					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
 				}
 
 				// figure out whether to print this last line break
 				if (($total_delivery_cost > 0) || ($flat_charges_total > 0)) {
 					echo $break;
 				}
-				echo sprintf($row_format, 'Grand Total', '', sprintf('$%.2f', $grand_total_ex_delivery + $total_delivery_cost));
+				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, $grand_total_ex_delivery + $total_delivery_cost));
 			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
