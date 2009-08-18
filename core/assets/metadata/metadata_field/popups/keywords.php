@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.6 2007/12/07 00:43:24 hnguyen Exp $
+* $Id: keywords.php,v 1.7 2009/08/18 06:54:35 ewang Exp $
 *
 */
 
@@ -59,7 +59,9 @@
 			<table border="0" width="100%">
 			<tr><td valign="top" width="200"><b>%asset_assetid%</b></td><td valign="top">The ID of the asset</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_name%</b></td><td valign="top">Full name of the asset</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_short_name%</b></td><td valign="top">Short name of the asset</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_name_linked%</b></td><td valign="top">Full name of the asset with hyperlink</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_short_name%</b></td><td valign="top">Short name of the asset</td></tr>			
+			<tr><td valign="top" width="200"><b>%asset_short_name_linked%</b></td><td valign="top">Short name of the asset with hyperlink</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_version%</b></td><td valign="top">Version of the asset being displayed</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_url%</b></td><td valign="top">URL of the asset</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_href%</b></td><td valign="top">Relative HREF of the asset</td></tr>
