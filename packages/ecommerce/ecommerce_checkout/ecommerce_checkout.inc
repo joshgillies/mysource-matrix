@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.71 2009/08/17 15:58:06 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.72 2009/08/18 09:45:21 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -686,19 +686,15 @@ class Ecommerce_Checkout extends Page
 		// get the arguments for customised receipts if set
 		$format_bodycopy = NULL;
 		$contents_bodycopy = NULL;
-		$currency_symbol = '$';
-		$float_precision = 2;
 		if ($this->attr('customise_receipt')) {
 			$format_bodycopy = $this->getBodycopy('receipt_format', TRUE);
 			$contents_bodycopy = $this->getBodycopy('receipt_contents', TRUE);
-			$currency_symbol = $this->attr('currency_symbol');
-			$float_precision = $this->attr('float_precision');
 		}
 
 		$this->_logOrderAction(translate('ecom_order_history_commence_delivery_method'), $order_asset);
 
 		// process the delivery and provide the tax name and tax rate
-		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $currency_symbol, $float_precision, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
+		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
 
 		$this->_logOrderAction(translate('ecom_order_history_end_delivery_method'), $order_asset);
 
@@ -1284,7 +1280,7 @@ HEREDOC;
 
 			// if products are taxed, remove tax from final amount
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax);
+			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
 
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();

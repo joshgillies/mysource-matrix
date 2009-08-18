@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formatting_options.xml,v 1.5 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_formatting_options.xml,v 1.6 2009/08/18 09:45:21 ata Exp $
 *
 */
 -->
@@ -36,17 +36,17 @@
 		</field>
 	</section>
 	<section name="Customise Receipt" write_access="write:attributes">
+		<field attribute="currency_symbol">
+			<text width="5" height="1" />
+		</field>
+		<field attribute="float_precision">
+			<int width="5" height="1" />
+		</field>
 		<field>
 			<function_call>
 				<paint_function name="paintCustomiseReceipt" />
 				<process_function name="processCustomiseReceipt" />
 			</function_call>
-		</field>
-		<field attribute="currency_symbol" show_if="receiptCustomised">
-			<text width="5" height="1" />
-		</field>
-		<field attribute="float_precision" show_if="receiptCustomised">
-			<int width="5" height="1" />
 		</field>
 	</section>
 </contents>

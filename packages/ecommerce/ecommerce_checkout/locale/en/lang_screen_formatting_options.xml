@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting_options.xml,v 1.4 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_screen_formatting_options.xml,v 1.5 2009/08/18 09:45:21 ata Exp $
 *
 */
 -->
@@ -33,14 +33,6 @@
 		</field>
 	</section>
 	<section name="Customise Receipt">
-		<field>
-			<function_call>
-				<paint_function name="paintCustomiseReceipt" />
-				<process_function name="processCustomiseReceipt" />
-			</function_call>
-			<display_name>Customise Receipt Contents</display_name>
-			<note>You may choose to customise the receipt that is generated and available throughout the Checkout and Delivery Method assets.&lt;br/&gt;If you choose to customise the receipt, Type Format and Page Contents bodycopies will be made available for you to customise.</note>
-		</field>
 		<field attribute="currency_symbol">
 			<display_name>Currency Symbol</display_name>
 			<note>The symbol prefixed on all costs.</note>
@@ -48,6 +40,14 @@
 		<field attribute="float_precision">
 			<display_name>Float Precision</display_name>
 			<note>The precision of the floating point decimal numbers used to denote all item costs.</note>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintCustomiseReceipt" />
+				<process_function name="processCustomiseReceipt" />
+			</function_call>
+			<display_name>Customise Receipt Contents</display_name>
+			<note>You may choose to customise the receipt that is generated and available throughout the Checkout and Delivery Method assets.&lt;br/&gt;If you choose to customise the receipt, Type Format and Page Contents bodycopies will be made available for you to customise.</note>
 		</field>
 	</section>
 </contents>

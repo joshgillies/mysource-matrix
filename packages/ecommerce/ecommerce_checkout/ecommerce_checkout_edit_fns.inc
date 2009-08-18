@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.12 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.13 2009/08/18 09:45:21 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -995,21 +995,6 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $wa;
 
 	}//end processCustomiseReceipt()
-
-
-	/**
-	* Show-if condition
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	*
-	* @return boolean
-	* @access public
-	*/
-	function receiptCustomised(&$asset)
-	{
-		return $asset->attr('customise_receipt');
-
-	}//end receiptCustomised()
 
 
 }//end class
