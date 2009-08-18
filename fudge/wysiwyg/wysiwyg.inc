@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.75.4.1 2009/05/27 00:12:37 wszymanski Exp $
+* $Id: wysiwyg.inc,v 1.75.4.2 2009/08/18 03:37:11 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.4.1 $
+* @version $Revision: 1.75.4.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -819,24 +819,44 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							// Set the start and end points such that they're going /forward/ through the document
 							var leftRange = this._doc.createRange();
 							var rightRange = this._doc.createRange();
-							leftRange.setStart(sel.anchorNode,sel.anchorOffset);
-							rightRange.setStart(sel.focusNode,sel.focusOffset);
+
+							// While getting anchorNode and focusNode, for some reason Firefox is getting parent node of the 
+							// selected node instead of selected node itself when non-text node is selected
+							// See bug #3826
+							var sAnchorNode = sel.anchorNode;
+							var sFocusNode = sel.focusNode;							
+							var sAnchorOffset = sel.anchorOffset;
+							var sFocusOffset = sel.focusOffset;							
+							
+							if (sAnchorNode.nodeType == 1) {								
+								tempAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
+								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset + 1] :  sAnchorNode.childNodes[sAnchorOffset];
+								sAnchorOffset = sAnchorNode.childNodes.length;
+							}
+							
+							if (sFocusNode.nodeType == 1) {
+								sFocusNode = sFocusNode.childNodes[sFocusOffset];
+								sFocusOffset = sFocusNode.childNodes.length;
+							}
+							
+							leftRange.setStart(sAnchorNode,sAnchorOffset);
+							rightRange.setStart(sFocusNode,sFocusOffset);
 							leftRange.collapse(true);
 							rightRange.collapse(true);
 
 							var direct = leftRange.compareBoundaryPoints(leftRange.START_TO_END,rightRange);
-
-							var startNode = (direct<0) ? sel.anchorNode : sel.focusNode;
-							var startOffset = (direct<0) ? sel.anchorOffset : sel.focusOffset;
-							var endNode = (direct<0) ? sel.focusNode : sel.anchorNode;
-							var endOffset = (direct<0) ? sel.focusOffset : sel.anchorOffset;
-
+						
+							var startNode = (direct<0) ? sAnchorNode : sFocusNode;
+							var startOffset = (direct<0) ? sAnchorOffset : sFocusOffset;
+							var endNode = (direct<0) ? sFocusNode : sAnchorNode;
+							var endOffset = (direct<0) ? sFocusOffset : sAnchorOffset;
+							
 							// Find the parent blocks of nodes at either end, and get paragraph attributes
 							var startBlock = this.parentBlock(startNode);
 							var endBlock = this.parentBlock(endNode);
 							var leftParagraphAttributes = new Array();
 							var rightParagraphAttributes = new Array();
-
+						
 							// Inside a list Item, let the browser handle it.
 							if ( this.isElem(startBlock,'li') || this.isElem(endBlock,'li') ) return;
 
@@ -864,11 +884,11 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 							var choppingStart = startNode;
 							var choppingEnd = endNode;
-
-							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 ) )
+							
+							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 && choppingStart.parentNode.nodeType != 1) )
 								choppingStart = choppingStart.previousSibling ? choppingStart.previousSibling : choppingStart.parentNode;
 
-							while ( ( choppingEnd.nextSibling && !this.isElem(choppingEnd.nextSibling,'p') ) || ( choppingEnd.parentNode && choppingEnd.parentNode != endBlock && choppingEnd.parentNode.nodeType != 9 ) )
+							while ( ( choppingEnd.nextSibling && !this.isElem(choppingEnd.nextSibling,'p') ) || ( choppingEnd.parentNode && choppingEnd.parentNode != endBlock && choppingEnd.parentNode.nodeType != 9 && choppingEnd.parentNode.nodeType != 1) )
 								choppingEnd = choppingEnd.nextSibling ? choppingEnd.nextSibling : choppingEnd.parentNode;
 
 							// Set up new paragraphs
