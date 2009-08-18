@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -725,7 +725,7 @@ HEREDOC;
 			echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax);
+			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision);
 
 			$tmp_order_receipt_cart_text .= ob_get_contents();
 			ob_end_clean();
