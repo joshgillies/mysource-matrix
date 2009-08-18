@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.13 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: ecommerce_cart_management.inc,v 1.14 2009/08/18 11:31:28 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -141,6 +141,12 @@ class Ecommerce_Cart_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 													'update_fn'		=> '',
+												   ),
+						'float_precision'		=> Array(
+													'added'			=> '0.5',
+													'type'			=> 'int',
+													'default'		=> '2',
+													'is_admin'	=> TRUE,
 												   ),
 					  );
 

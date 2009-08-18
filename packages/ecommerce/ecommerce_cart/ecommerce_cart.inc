@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.45 2009/08/03 10:05:32 ata Exp $
+* $Id: ecommerce_cart.inc,v 1.46 2009/08/18 11:31:28 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -452,7 +452,7 @@ class Ecommerce_Cart extends Listing_Engine
 									'product_quantity'	=> $cart_contents[$assetid]['quantity'],
 								);
 		$sub_total = $cart_contents[$assetid]['quantity'] * $cart_contents[$assetid]['price'];
-		$element_replacements['product_total'] = $sub_total;
+		$element_replacements['product_total'] = sprintf("%.{$this->attr('float_precision')}f", $sub_total);
 		$element_contents = replace_keywords($element_contents, $element_replacements);
 
 		echo $element_contents;
@@ -868,7 +868,7 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$cart =& $this->_getCart();
 		
-		return (string)$cart->getTotal();
+		return sprintf("%.{$this->attr('float_precision')}f", $cart->getTotal());
 
 	}//end getTotalValueKeywordReplacement()
 	
