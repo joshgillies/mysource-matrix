@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.1 2009/08/16 23:05:21 bpearson Exp $
+* $Id: data_source_ical.inc,v 1.2 2009/08/18 22:21:16 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -166,19 +166,22 @@ class Data_Source_iCal extends Data_Source
 										if (strlen($parameter) == 8) {
 											$date_str .= 'T------';
 										}//end if
-										$value  = substr($date_str, 0, 4);		// Year
-										$value .= '-'.substr($date_str, 4, 2);	// Month
-										$value .= '-'.substr($date_str, 6, 2);	// Day
-										$value .= 'T'.substr($date_str, 9, 2);	// Hour
-										$value .= ':'.substr($date_str, 11, 2);	// Minute
-										$value .= ':'.substr($date_str, 13, 2);	// Second
 										if (substr($date_str, 15, 1) === 'Z') {
-											$date_time = new DateTime($date_str);
-											$timezone = timezone_open(SQ_CONF_TIMEZONE);
-											$date_time->setTimezone($timezone);
-											$value = $date_time->format('jS M Y g:ia');
+											$timestamp = gmmktime(	substr($date_str, 9, 2),
+																	substr($date_str, 11, 2),
+																	substr($date_str, 13, 2),
+																	substr($date_str, 4, 2),
+																	substr($date_str, 6, 2),
+																	substr($date_str, 0, 4) );
+											$value = readable_datetime($timestamp);
 										} else {
-											$value = readable_datetime(iso8601_ts($value));
+											$date_value  = substr($date_str, 0, 4);			// Year
+											$date_value .= '-'.substr($date_str, 4, 2);		// Month
+											$date_value .= '-'.substr($date_str, 6, 2);		// Day
+											$date_value .= 'T'.substr($date_str, 9, 2);		// Hour
+											$date_value .= ':'.substr($date_str, 11, 2);	// Minute
+											$date_value .= ':'.substr($date_str, 13, 2);	// Second
+											$value = readable_datetime(iso8601_ts($date_value));
 										}//end if
 									break;
 									default:
