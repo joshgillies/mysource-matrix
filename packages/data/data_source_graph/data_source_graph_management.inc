@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.10 2007/04/05 00:13:19 skim Exp $
+* $Id: data_source_graph_management.inc,v 1.11 2009/08/19 05:56:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,12 +62,14 @@ class Data_Source_Graph_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
 													'is_admin'		=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'name'					=> Array(
 													'added'		=> '0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 													'is_admin'	=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'alt'					=> Array(
 													'added'			=> '0.1',
@@ -75,6 +77,7 @@ class Data_Source_Graph_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
 													'is_admin'		=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'caption'				=> Array(
 													'added'			=> '0.1',
@@ -82,6 +85,7 @@ class Data_Source_Graph_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
 													'is_admin'		=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'width'					=> Array(
 													'added'			=> '0.1',
@@ -118,6 +122,7 @@ class Data_Source_Graph_Management extends Asset_Management
 													'default'		=> 'x-Axis',
 													'description'	=> 'The text to be used in the x-Axis label',
 													'is_admin'		=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'y_set_title'			=> Array(
 													'added'			=> '0.1',
@@ -125,6 +130,7 @@ class Data_Source_Graph_Management extends Asset_Management
 													'default'		=> 'y-Axis',
 													'description'	=> 'The text to be used in the y-Axis label',
 													'is_admin'		=> FALSE,
+													'is_contextable'	=> TRUE,
 												   ),
 						'x_label_interval'		=> Array(
 													'added'			=> '0.1',

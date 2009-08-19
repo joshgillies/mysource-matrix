@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.15 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: product_management.inc,v 1.16 2009/08/19 05:56:46 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -54,6 +54,7 @@ class Product_Management extends Asset_Management
 							'type'			=> 'text',
 							'default'		=> '',
 							'description'	=> 'The name of the Product that this asset represents',
+							'is_contextable'	=> TRUE,
 						),
 						'price' => array(
 							'added'			=> '0.1',
@@ -82,6 +83,7 @@ class Product_Management extends Asset_Management
 							'default'		=> '',
 							'description'	=> 'Long description of the product',
 							'is_admin'		=> false,
+							'is_contextable'	=> TRUE,
 						),
 						'short_description' => array(
 							'added'			=> '0.1',
@@ -89,6 +91,7 @@ class Product_Management extends Asset_Management
 							'default'		=> '',
 							'description'	=> 'Short description of product for small display space',
 							'is_admin'		=> false,
+							'is_contextable'	=> TRUE,
 						),
 						'details' => array(
 							'added'			=> '0.1',
@@ -96,6 +99,7 @@ class Product_Management extends Asset_Management
 							'default'		=> '',
 							'description'	=> 'Detailed specifications of the Product',
 							'is_admin'		=> false,
+							'is_contextable'	=> TRUE,
 						),
 		);
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.22 2008/02/22 02:50:58 colivar Exp $
+* $Id: page_remote_content_management.inc,v 1.23 2009/08/19 05:56:41 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,6 +104,7 @@ class Page_Remote_Content_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'wysiwyg',
 													'default'	=> '<p>Content cannot be accessed</p>',
+													'is_contextable'	=> TRUE,
 												   ),
 						'display_error'			=> Array(
 													'added'			=> '0.1',
@@ -119,6 +120,7 @@ class Page_Remote_Content_Management extends Asset_Management
 																	Please click the url to open it in another window.<br />
 																	<a href='%remote_url%' target='_blank'>%remote_url%</a>
 																	</p>",
+													'is_contextable'	=> TRUE,
 												   ),
 						'strip_images'			=> Array(
 													'added'			=> '1.4',

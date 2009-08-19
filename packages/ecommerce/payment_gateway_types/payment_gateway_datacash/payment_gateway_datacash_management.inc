@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash_management.inc,v 1.2 2009/07/13 11:26:55 ata Exp $
+* $Id: payment_gateway_datacash_management.inc,v 1.3 2009/08/19 05:56:46 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -174,18 +174,21 @@ class Payment_Gateway_Datacash_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '   Pay   ',
 													'description'	=> 'Submit button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'reset_text'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> 'Reset',
 													'description'	=> 'Reset button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'cancel_text'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> 'Cancel',
 													'description'	=> 'Cancel button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'test_mode'				=> Array(
 													'added'			=> '0.1',

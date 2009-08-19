@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.8 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_poll_management.inc,v 1.9 2009/08/19 05:56:41 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,6 +50,7 @@ class Page_Poll_Management extends Asset_Management
 														'added'		=> '0.2',
 														'type'		=> 'text',
 														'default'	=> 'Vote',
+														'is_contextable'	=> TRUE,
 													   ),
 						'allow_multiple_votes'		=> Array(
 														'added'			=> '0.2',
@@ -63,11 +64,13 @@ class Page_Poll_Management extends Asset_Management
 														'added'		=> '0.2',
 														'type'		=> 'text',
 														'default'	=> 'View Previous Questions',
+														'is_contextable'	=> TRUE,
 													   ),
 						'view_results_text'			=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
 														'default'	=> 'View Results',
+														'is_contextable'	=> TRUE,
 													   ),
 						'new_window_optionsss'		=> Array(
 														'added'		=> '0.2',

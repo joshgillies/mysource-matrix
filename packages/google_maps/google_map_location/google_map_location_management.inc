@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_location_management.inc,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: google_map_location_management.inc,v 1.2 2009/08/19 05:56:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -46,6 +46,7 @@ class Google_Map_Location_Management extends Asset_Management
 										'default'		=> '',
 										'description'	=> 'The name of the location',
 										'is_admin'		=> FALSE,
+										'is_contextable'	=> TRUE,
 										'parameters'	=> Array (
 															'allow_empty'	=> FALSE,
 															   ),
@@ -56,6 +57,7 @@ class Google_Map_Location_Management extends Asset_Management
 										'default'		=> '',
 										'description'	=> 'The name of the location',
 										'is_admin'		=> FALSE,
+										'is_contextable'	=> TRUE,
 										'parameters'	=> Array (
 															'allow_empty'	=> FALSE,
 															   ),
@@ -86,6 +88,7 @@ class Google_Map_Location_Management extends Asset_Management
 										'default'		=> '',
 										'description'	=> 'The description of the location',
 										'is_admin'		=> FALSE,
+										'is_contextable'	=> TRUE,
 										'parameters'	=> Array (
 															'allow_empty'	=> TRUE,
 															   ),

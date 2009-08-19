@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_management.inc,v 1.3 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event_multi_date_management.inc,v 1.4 2009/08/19 05:56:37 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -47,6 +47,7 @@ class Calendar_Event_Multi_Date_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'The full name of the calendar_event_multi_date',
 											'update_fn'		=> '',
+											'is_contextable'	=> TRUE,
 										   ),
 						'short_date'	=> Array(
 											'added'			=> '0.1',
@@ -54,6 +55,7 @@ class Calendar_Event_Multi_Date_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'Summary of the dates',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 					  );
 

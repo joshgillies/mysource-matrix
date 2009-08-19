@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_management.inc,v 1.5 2007/12/02 22:34:13 lwright Exp $
+* $Id: data_source_management.inc,v 1.6 2009/08/19 05:56:34 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +46,7 @@ class Data_Source_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> '',
+											'is_contextable'	=> TRUE,
 										   ),
 						'dsn'			=> Array(
 											'added'		=> '0.1',

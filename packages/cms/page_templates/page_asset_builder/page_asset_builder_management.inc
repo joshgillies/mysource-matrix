@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.38 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: page_asset_builder_management.inc,v 1.39 2009/08/19 05:56:41 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -153,21 +153,25 @@ class Page_Asset_Builder_Management extends Asset_Management
 										'added'		=> '0.1',
 										'type'		=> 'wysiwyg',
 										'default'	=> '<p>Sign in using the form below.</p>',
+										'is_contextable'	=> TRUE,
 									  );
 		$this->vars['login_error'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'wysiwyg',
 										'default'	=> '<p>Incorrect username or password entered. Please try again.</p>',
+										'is_contextable'	=> TRUE,
 									 );
 		$this->vars['create_invite'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'wysiwyg',
 										'default'	=> '<p>Create an asset using the form below.</p>',
+										'is_contextable'	=> TRUE,
 									   );
 		$this->vars['create_error'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'wysiwyg',
 										'default'	=> '<p>The new asset was not created. Ensure you have entered all required information and try again.</p>',
+										'is_contextable'	=> TRUE,
 									  );
 
 		/* Additional (query-fed) create locations must be children of one of these */

@@ -44,7 +44,9 @@ class Default_Delivery_Method_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> 'This is a list of products which have been paid for but for which you do not have enough quantity of.
 The listed numbers are the amount of products which have been ordered but which are currently not in stock:
-'),
+',
+														'is_contextable'	=> TRUE,
+),
 						'key_val_rules'				=> Array(
 														'added'		=> '0.3',
 														'type'		=> 'serialise',

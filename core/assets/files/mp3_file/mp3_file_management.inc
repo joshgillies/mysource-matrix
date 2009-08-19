@@ -19,7 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * MP3_File_Management
 *
 * @author  Nicholas Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,7 @@ class MP3_File_Management extends Asset_Management
                                                     'default'       => '',
                                                     'is_admin'      => '0',
                                                     'description'   => 'Name of album',
+													'is_contextable'	=> TRUE,
                                                    ),
 					 	'artist'				=> Array(
                                                     'added'         => '0.1',
@@ -59,6 +60,7 @@ class MP3_File_Management extends Asset_Management
                                                     'default'       => '',
                                                     'is_admin'      => '0',
                                                     'description'   => 'Name of artist',
+													'is_contextable'	=> TRUE,
                                                    ),
 					 	'track'					=> Array(
                                                     'added'         => '0.1',
@@ -73,6 +75,7 @@ class MP3_File_Management extends Asset_Management
                                                     'default'       => '',
                                                     'is_admin'      => '0',
                                                     'description'   => 'Name of track',
+													'is_contextable'	=> TRUE,
                                                    ),
 					 	'year'					=> Array(
                                                     'added'         => '0.1',
@@ -115,6 +118,7 @@ class MP3_File_Management extends Asset_Management
 						   							'default'       => '',
 						   							'is_admin'      => '0',
 						   							'description'   => 'Lyrics for this audio file',
+													'is_contextable'	=> TRUE,
 						   							),
 					);
 

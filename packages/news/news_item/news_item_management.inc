@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.11 2007/12/03 05:02:59 lwright Exp $
+* $Id: news_item_management.inc,v 1.12 2009/08/19 05:56:54 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -44,6 +44,7 @@ class News_Item_Management extends Asset_Management
 								'type'		=> 'text',
 								'default'	=> '',
 								'is_admin'      => false,
+								'is_contextable'	=> TRUE,
 							  );
 		$this->vars['link_url'] = Array(
 									'added'		=> '0.1',
@@ -64,12 +65,14 @@ class News_Item_Management extends Asset_Management
 									'default'		=> '',
 									'description'	=> 'Short summary of the item',
 									'is_admin'      => false,
+									'is_contextable'	=> TRUE,
 								 );
 		$this->vars['body'] = Array(
 								'added'		=> '0.1',
 								'type'		=> 'wysiwyg',
 								'default'	=> '',
 								'is_admin'      => false,
+								'is_contextable'	=> TRUE,
 							  );
 
 		$this->vars['contact_name'] = Array(

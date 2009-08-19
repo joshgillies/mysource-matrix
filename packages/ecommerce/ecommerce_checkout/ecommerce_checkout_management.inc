@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.13 2009/08/07 08:56:35 ata Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.14 2009/08/19 05:56:46 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,6 +43,7 @@ class Ecommerce_Checkout_Management extends Asset_Management
 															'type'			=> 'text',
 															'default'		=> 'Go To Confirmation',
 															'description'	=> 'Go To Confirmation Button Text',
+															'is_contextable'	=> TRUE,
 														);
 
 		$this->vars['confirm_order_button_text'] = Array(
@@ -50,6 +51,7 @@ class Ecommerce_Checkout_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> 'Confirm Order',
 													'description'	=> 'Confirm Order Button Text',
+													'is_contextable'	=> TRUE,
 												   );
 
 		$this->vars['return_to_checkout_button_text'] = Array(
@@ -57,6 +59,7 @@ class Ecommerce_Checkout_Management extends Asset_Management
 															'type'			=> 'text',
 															'default'		=> 'Return To Checkout',
 															'description'	=> 'Return To Checkout Button Text',
+															'is_contextable'	=> TRUE,
 														);
 
 		// taxation variables
@@ -65,6 +68,7 @@ class Ecommerce_Checkout_Management extends Asset_Management
 										'type'			=> 'text',
 										'default'		=> 'GST',
 										'description'	=> 'Taxation Name',
+										'is_contextable'	=> TRUE,
 									   );
 
 		$this->vars['taxation_rate'] = Array(
@@ -130,12 +134,14 @@ class Ecommerce_Checkout_Management extends Asset_Management
 												'added'		=> '0.3',
 												'type'		=> 'text',
 												'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order quantities have been altered to reflect the amount available. Items which are currently not in stock have been deleted from your cart. These items with insufficient quantities are listed below:',
+												'is_contextable'	=> TRUE,
 											   );
 
 		$this->vars['quantity_message_checkout'] = Array(
 													'added'		=> '0.3',
 													'type'		=> 'text',
 													'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order has not been processed. The items with insufficient quantities are listed below:',
+													'is_contextable'	=> TRUE,
 												   );
 
 		$this->vars['country_question'] = Array(
