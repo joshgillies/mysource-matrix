@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_assets_of_type.php,v 1.7 2008/02/18 05:28:41 lwright Exp $
+* $Id: remove_assets_of_type.php,v 1.8 2009/08/19 01:52:37 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -72,8 +72,36 @@ MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
 $assets_of_type = MatrixDAL::executePdoAssoc($query, 0);
 
 if (!empty($assets_of_type)) {
+
+	// bugfix #3820	, use MatrixDAL to quote the asset ids
+	foreach($assets_of_type as $index => $asset_id) {
+		$assets_of_type[$index] = MatrixDAL::quote($asset_id);
+	}
 	$asset_ids_set = '('.implode(', ', $assets_of_type).')';
 
+	$sql = 'SELECT linkid FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set.' OR majorid in '.$asset_ids_set;
+	$query = MatrixDAL::preparePdoQuery($sql);
+	// bugfix #3820 
+	$res = MatrixDAL::executePdoAssoc($query);
+
+	// bugfix #3849 Script remove_assets_of_type.php leaves unwanted table entries
+	// while deleting the link make sure we call asset_manager function to do the same
+	// we should not be just deleting the links and treeids from the table as it can
+	// lead to unexpected behaviour. for more information see the Bug report
+	if (!empty($res)) {
+		$links_array = Array();
+		foreach ($res as $value) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid']);
+			array_push($links_array, MatrixDAL::quote($value['linkid']));
+		}
+		$links_set = '('.implode(', ', $links_array).')';
+
+		$sql = 'DELETE FROM sq_ast_lnk WHERE linkid in '.$links_set;
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::execPdoQuery($query);
+	}
+	// we need to delete asset from sq_ast table after deleteAssetLink() call
+	// or else then function call will throw errors.
 	$sql = 'DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set;
 	$query = MatrixDAL::preparePdoQuery($sql);
 	MatrixDAL::execPdoQuery($query);
@@ -82,26 +110,6 @@ if (!empty($assets_of_type)) {
 	$query = MatrixDAL::preparePdoQuery($sql);
 	MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
 	MatrixDAL::execPdoQuery($query);
-
-	$sql = 'SELECT linkid FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set.' OR majorid in '.$asset_ids_set;
-	$query = MatrixDAL::preparePdoQuery($sql);
-	$res = MatrixDAL::executePdoQuery($query);
-
-	if (!empty($res)) {
-		$links_array = Array();
-		foreach ($res as $value) {
-			array_push($links_array, MatrixDAL::quote($value['linkid']));
-		}
-		$links_set = '('.implode(', ', $links_array).')';
-
-		$sql = 'DELETE FROM sq_ast_lnk WHERE linkid in '.$links_set;
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::execPdoQuery($query);
-
-		$sql = 'UPDATE sq_ast_lnk_tree SET linkid=0 where linkid in '.$links_set;
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::execPdoQuery($query);
-	}
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
