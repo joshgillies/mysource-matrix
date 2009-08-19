@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value_management.inc,v 1.2 2008/03/12 03:18:13 bpearson Exp $
+* $Id: trigger_condition_metadata_value_management.inc,v 1.3 2009/08/19 14:16:41 ata Exp $
 *
 */
 
@@ -21,8 +21,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @author   Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @author  Benjamin Pearson <bpearson@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

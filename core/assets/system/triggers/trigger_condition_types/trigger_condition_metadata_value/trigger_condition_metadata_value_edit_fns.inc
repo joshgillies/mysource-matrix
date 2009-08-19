@@ -10,22 +10,22 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value_edit_fns.inc,v 1.2 2008/03/12 03:18:13 bpearson Exp $
+* $Id: trigger_condition_metadata_value_edit_fns.inc,v 1.3 2009/08/19 14:16:41 ata Exp $
 *
 */
 
-require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_condition_asset_type_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_condition_edit_fns.inc';
 
 /**
 * Trigger_Condition_Metadata_Value_Edit_Fns
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Trigger_Condition_Metadata_Value_Edit_Fns extends Trigger_Condition_Asset_type_Edit_Fns
+class Trigger_Condition_Metadata_Value_Edit_Fns extends Trigger_Condition_Edit_Fns
 {
 
 }//end class
