@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.192 2009/06/26 06:57:17 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.193 2009/08/19 14:10:37 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1616,16 +1616,20 @@ class Metadata_Manager extends MySource_Object
 	* @param boolean	$mute_errors	Set TRUE to mute errors that occur when
 	*									the asset (specified in $assetid) does
 	*									not have a schema applied to it
+	* @param boolean	$has_errors		This parameter is set to TRUE when an
+	* 									error occurs so that errors are acknowledged
+	* 									even they are mute ($mute_errors = TRUE)
 	*
 	* @return array
 	* @access public
 	*/
-	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
+	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, &$has_errors=FALSE)
 	{
 		if (empty($assetid)) return NULL;
 
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
+			$has_errors = TRUE;
 			if (!$mute_errors) {
 				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 			}
@@ -1639,6 +1643,7 @@ class Metadata_Manager extends MySource_Object
 		$schemas = $this->getSchemas($assetid, TRUE);
 
 		if (array_intersect($schemas, array_keys($schemaid)) == Array()) {
+			$has_errors = TRUE;
 			if (!$mute_errors) {
 				// SYS0307: Asset #<assetid> does not have the schema for field #<field assetid> applied
 				trigger_localised_error('SYS0307', E_USER_WARNING, $assetid, $field_assetid);
@@ -1719,9 +1724,11 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		if ($value === '') {
-			$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
+			$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors, $has_errors);
 
-			if (is_null($value)) {
+			//if there is no error such as the field ID is not a metadata field ID or the metadata schema containing
+			//that field is not applied to the asset
+			if (!$has_errors && is_null($value)) {
 				// not set - need the default value
 				$value = $this->getMetadataFieldDefaultValue($field_assetid);
 			}
