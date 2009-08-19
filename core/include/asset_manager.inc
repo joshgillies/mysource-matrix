@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.723.2.7 2009/08/10 04:15:08 akarelia Exp $
+* $Id: asset_manager.inc,v 1.723.2.8 2009/08/19 00:45:19 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.723.2.7 $
+* @version $Revision: 1.723.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5947,19 +5947,7 @@ class Asset_Manager extends MySource_Object
 				if ($result != FALSE) return $result;
 			}
 			// Link between a normal asset and a shadow asset
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			$db = MatrixDAL::getDb();
-			try {
-				$bind_vars = Array('linkid' => $linkid);
-				$result = MatrixDAL::executeQuery('core', 'deleteShadowAssetLink', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception('Unable to delete shadow asset link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
-			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$this->deleteShadowAssetLink($linkid);
 			return TRUE;
 
 		}//end if shadow asset
@@ -6199,7 +6187,7 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		try {
 			$bind_vars = Array('linkid' => $linkid);
-			$result = MatrixDAL::executeOne('core', 'deleteShadowAssetLink', $bind_vars);
+			$result = MatrixDAL::executeQuery('core', 'deleteShadowAssetLink', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete shadow asset link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
 		}
