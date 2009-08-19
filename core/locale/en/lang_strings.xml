@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.338 2009/08/17 05:39:16 lwright Exp $
+* $Id: lang_strings.xml,v 1.339 2009/08/19 14:12:33 ata Exp $
 *
 */
 
@@ -294,6 +294,7 @@
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
 	<string source="proxy_url_strip_port_note">Useful if you access MySource Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by MySource Matrix will not contain the port number by which the system is being accessed.</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
+	<string source="regex_match">RegEx Match</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove ?</string>
 	<string source="reorder_question">Reorder ?</string>
