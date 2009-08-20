@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.27 2009/06/10 04:04:39 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.28 2009/08/20 06:09:32 ewang Exp $
 *
 */
 -->
@@ -112,6 +112,12 @@
 		</field>
 		<field attribute="other_page_text" show_if="isAZListing">
 			<text width="30" />
+		</field>
+		<field attribute="page_link_format">
+			<text width="50" />
+		</field>
+		<field attribute="current_page_format">
+			<text width="50" />
 		</field>
 	</section>
 	<section name="Customise Bodycopies" write_access="write:links">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.20 2009/06/10 04:04:39 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.21 2009/08/20 06:05:18 ewang Exp $
 *
 */
 -->
@@ -113,6 +113,14 @@
 			<display_name>Non A-Z page text</display_name>
 			<note>Link text to a page containg assets in the A-Z list format which do not begin with A-Z, i.e. numbers or other characters</note>
 		</field>
+		<field attribute="page_link_format">
+			<display_name>Page Link Format</display_name>
+			<note>This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%</note>
+		</field>
+		<field attribute="current_page_format">
+			<display_name>Current Page Format</display_name>
+			<note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
+		</field>	
 	</section>
 	<section name="List Position Settings">
 		<field>

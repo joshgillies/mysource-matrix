@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.79 2009/08/19 05:56:41 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.80 2009/08/20 06:04:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -421,7 +421,20 @@ class Listing_Engine_Management extends Asset_Management
 										'type'		=> 'serialise',
 										'default'	=> Array(),
 									 );
-
+									 
+		$this->vars['page_link_format'] = Array(
+											'added'		=> '0.16',
+											'type'		=> 'text',
+											'default'	=> ' <a href="%page_link%">%page_number%</a> ',
+										);
+										
+		$this->vars['current_page_format'] = Array(
+											'added'		=> '0.16',
+											'type'		=> 'text',
+											'default'	=> ' %page_number% ',
+										);
+										
+										
 	}//end constructor
 
 

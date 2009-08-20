@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.66 2009/08/19 05:56:57 lwright Exp $
+* $Id: search_page_management.inc,v 1.67 2009/08/20 06:15:49 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -309,6 +309,17 @@ class Search_Page_Management extends Asset_Management
 																	'allow_null'	=> TRUE,
 																   ),
 											   );
+		$this->vars['page_link_format'] = Array(
+											'added'		=> '0.22',
+											'type'		=> 'text',
+											'default'	=> ' <a href="%page_link%">%page_number%</a>',
+										);
+										
+		$this->vars['current_page_format'] = Array(
+											'added'		=> '0.22',
+											'type'		=> 'text',
+											'default'	=> ' <b>%page_number%</b>',
+										);
 	}//end constructor
 
 
