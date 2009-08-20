@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.285.2.1 2009/08/14 06:12:19 lwright Exp $
+* $Id: listing_engine.inc,v 1.285.2.2 2009/08/20 07:05:01 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.285.2.1 $
+* @version $Revision: 1.285.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1771,6 +1771,9 @@ class Listing_Engine extends Page
 	*/
 	function _getPageList($total_pages, $current_page, $window_size=NULL)
 	{
+		$current_page_format = $this->attr('current_page_format');
+		$page_link_format = $this->attr('page_link_format');
+		 
 		if (is_null($window_size)) {
 			$start_page = 1;
 			$end_page = $total_pages;
@@ -1782,11 +1785,12 @@ class Listing_Engine extends Page
 		$page_list = '';
 		for ($i = $start_page; $i <= $end_page; $i++) {
 			if ($i == $current_page) {
-				$page_list .= " $i ";
+				$page_list .= str_replace('%page_number%', $i, $current_page_format);
 			} else {
-				$page_list .= ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $i)).'">'.$i.'</a> ';
+				$page_list .= str_replace(Array('%page_number%', '%page_link%'), Array($i, replace_query_string_vars(Array($asset_result_page_var => $i))), $page_link_format);
 			}
 		}
+		
 		return $page_list;
 
 	}//end _getPageList()

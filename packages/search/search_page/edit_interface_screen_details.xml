@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.52 2009/06/10 04:04:47 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.52.2.1 2009/08/20 07:12:17 ewang Exp $
 *
 */
 -->
@@ -95,6 +95,12 @@
 		</field>
 		<field attribute="next_page_text" write_access="write:attributes">
 			<text width="30" />
+		</field>
+		<field attribute="page_link_format" write_access="write:attributes">
+			<text width="50" />
+		</field>
+		<field attribute="current_page_format" write_access="write:attributes">
+			<text width="50" />
 		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">

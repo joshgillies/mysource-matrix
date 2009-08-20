@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2009/04/20 03:42:24 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.6.2.1 2009/08/20 07:12:49 ewang Exp $
 *
 */
 -->
@@ -70,6 +70,14 @@
 		<field attribute="next_page_text">
 			<display_name>Next Link</display_name>
 			<note>This is the text that will be printed to link to the next results page</note>
+		</field>
+		<field attribute="page_link_format">
+			<display_name>Page Link Format</display_name>
+			<note>This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%</note>
+		</field>
+		<field attribute="current_page_format">
+			<display_name>Current Page Format</display_name>
+			<note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
 		</field>
 	</section>
 	<section name="Sorting">

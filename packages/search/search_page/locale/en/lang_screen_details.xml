@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.32 2009/06/10 04:04:47 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.32.2.1 2009/08/20 07:12:17 ewang Exp $
 *
 */
 -->
@@ -121,6 +121,14 @@
 		<field attribute="prev_page_text">
 			<display_name>Previous page link text</display_name>
 			<note>This text will appear on the link to the previous page of results (if any)</note>
+		</field>
+		<field attribute="page_link_format">
+			<display_name>Page Link Format</display_name>
+			<note>This is the format of a linked page number in pagination. Available keywords are %page_link%, %page_number%</note>
+		</field>
+		<field attribute="current_page_format">
+			<display_name>Current Page Format</display_name>
+			<note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
 		</field>
 	</section>
 	<section name="Advanced Settings">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.239 2009/07/14 02:50:43 cupreti Exp $
+* $Id: search_page.inc,v 1.239.2.1 2009/08/20 07:12:17 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.239.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1856,13 +1856,15 @@ class Search_Page extends Listing_Engine
 
 				case 'result_page_index':
 					$replacement = '';
+					$current_page_format = $this->attr('current_page_format');
+					$page_link_format = $this->attr('page_link_format');
+					
 					for ($i = 1; $i <= $total_pages; $i++) {
-						if ($replacement != '') $replacement .= ' ';
-
 						if ($i == $current_result_page) {
-							$replacement .= '<b>'.$i.'</b>';
+							$replacement .= str_replace('%page_number%', $i, $current_page_format);
 						} else {
-							$replacement .= '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.$i.'</a>';
+							$href = ($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries);
+							$replacement .= str_replace(Array('%page_number%', '%page_link%'), Array($i, $href), $page_link_format);
 						}
 					}
 				break;
