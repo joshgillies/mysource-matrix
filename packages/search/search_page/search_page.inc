@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.240 2009/08/20 06:14:15 ewang Exp $
+* $Id: search_page.inc,v 1.241 2009/08/20 07:43:22 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.241 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1886,7 +1886,7 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'previous_result_page_href':
-					if ($current_result_page < 1) {
+					if ($current_result_page <= 1) {
 						$replacement = '';
 						break;
 					}
@@ -1894,7 +1894,7 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'next_result_page_href':
-					if ($current_result_page >= $total_pages - 1) {
+					if ($current_result_page >= $total_pages) {
 						$replacement = '';
 						break;
 					}
