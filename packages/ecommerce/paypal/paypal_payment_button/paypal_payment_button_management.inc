@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button_management.inc,v 1.3 2009/04/02 23:45:24 mbrydon Exp $
+* $Id: paypal_payment_button_management.inc,v 1.4 2009/08/20 06:39:57 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -54,6 +54,7 @@ class Paypal_Payment_Button_Management extends Asset_Management
 																'type'		=> 'text',
 																'default'	=> '',
 																'is_admin'	=> FALSE,
+																'is_contextable'	=> TRUE,
 															),
 							'item_id'				=> Array(
 																'added'		=> '0.1',

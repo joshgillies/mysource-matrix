@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_markdown_management.inc,v 1.1 2008/09/22 01:59:19 ata Exp $
+* $Id: content_type_markdown_management.inc,v 1.2 2009/08/20 06:39:52 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,6 +45,7 @@ class Content_Type_Markdown_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'The content of the markdown',
+												'is_contextable'	=> TRUE,
 									   ),
 							);
 
