@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.59 2008/02/21 00:29:28 colivar Exp $
+* $Id: selection.inc,v 1.60 2009/08/20 23:51:18 cupreti Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -227,100 +227,100 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			$this->_edit_params['columns'] = $_POST[$prefix.'_columns'];
 		}
 
-		if (!empty($_POST[$prefix.'_empty'])) {
-			$this->_edit_params['empty_text'] = $_POST[$prefix.'_empty'];
+	if (!empty($_POST[$prefix.'_empty'])) {
+		$this->_edit_params['empty_text'] = $_POST[$prefix.'_empty'];
+	}
+
+	$values = Array();
+	$values['style']      = $this->_edit_params['style'];
+	$values['type']       = $this->_edit_params['type'];
+	$values['height']     = $this->_edit_params['height'];
+	$values['columns']    = $this->_edit_params['columns'];
+	$values['empty_text'] = $this->_edit_params['empty_text'];
+	$values['extras']     = $this->_edit_params['extras'];
+
+	return $values;
+
+}//end processEditParams()
+
+
+/**
+* Convert an array to a | separated string
+*
+* @param array	$array	the array to be converted
+*
+* @return string
+* @access private
+*/
+function _ar2str($array)
+{
+	return implode('|', array_intersect(array_keys($this->_params['options']), $array));
+
+}//end _ar2str()
+
+
+/**
+* Convert a | separated string to an array
+*
+* @param string	$string	the string to be converted
+*
+* @return array
+* @access private
+*/
+function _str2ar($string)
+{
+	return array_intersect(array_keys($this->_params['options']), explode('|', $string));
+
+}//end _str2ar()
+
+
+/**
+* Print the interface for filling in a value
+*
+* @param string		$prefix		prefix for the form element
+* @param boolean	$read_only	are we just printing the value
+*
+* @return NULL
+* @access public
+*/
+function paint($prefix, $read_only=FALSE)
+{
+	$options = $this->_params['options'];
+	if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
+		if (empty($this->_edit_params['empty_text'])) {
+			$this->_edit_params['empty_text'] = '-- Leave Empty --';
 		}
+		$options = Array('' => $this->_edit_params['empty_text']) + $options;
+	}
+	if (!empty($this->_params['multiple']) && !is_array($this->value)) {
+		$value = $this->_str2ar($this->value);
+	} else {
+		$value = $this->value;
+	}
 
-		$values = Array();
-		$values['style']      = $this->_edit_params['style'];
-		$values['type']       = $this->_edit_params['type'];
-		$values['height']     = $this->_edit_params['height'];
-		$values['columns']    = $this->_edit_params['columns'];
-		$values['empty_text'] = $this->_edit_params['empty_text'];
-		$values['extras']     = $this->_edit_params['extras'];
-
-		return $values;
-
-	}//end processEditParams()
-
-
-	/**
-	* Convert an array to a | separated string
-	*
-	* @param array	$array	the array to be converted
-	*
-	* @return string
-	* @access private
-	*/
-	function _ar2str($array)
-	{
-		return implode('|', array_intersect(array_keys($this->_params['options']), $array));
-
-	}//end _ar2str()
-
-
-	/**
-	* Convert a | separated string to an array
-	*
-	* @param string	$string	the string to be converted
-	*
-	* @return array
-	* @access private
-	*/
-	function _str2ar($string)
-	{
-		return array_intersect(array_keys($this->_params['options']), explode('|', $string));
-
-	}//end _str2ar()
-
-
-	/**
-	* Print the interface for filling in a value
-	*
-	* @param string		$prefix		prefix for the form element
-	* @param boolean	$read_only	are we just printing the value
-	*
-	* @return NULL
-	* @access public
-	*/
-	function paint($prefix, $read_only=FALSE)
-	{
-		$options = $this->_params['options'];
-		if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
-			if (empty($this->_edit_params['empty_text'])) {
-				$this->_edit_params['empty_text'] = '-- Leave Empty --';
-			}
-			$options = Array('' => $this->_edit_params['empty_text']) + $options;
-		}
-		if (!empty($this->_params['multiple']) && !is_array($this->value)) {
-			$value = $this->_str2ar($this->value);
-		} else {
-			$value = $this->value;
-		}
-
-		if ($read_only) {
-			if (empty($this->_params['multiple'])) {
-				if (!isset($options[$value])) {
-					// may be an "other" choice
-					if ($this->_params['allow_other']) {
-						echo translate('other').': '.$value;
-					}
-					// may have a value left over from when we
-					// were a mutiple selection field
-					$value = $this->_str2ar($value);
-					if (empty($value) || !isset($options[$value[0]])) {
-						return;
-					}
-					echo $options[$value[0]];
-				} else {
-					echo $options[$value];
+	if ($read_only) {
+		if (empty($this->_params['multiple'])) {
+			if (!isset($options[$value])) {
+				// may be an "other" choice
+				if ($this->_params['allow_other']) {
+					echo translate('other').': '.$value;
 				}
-
+				// may have a value left over from when we
+				// were a mutiple selection field
+				$value = $this->_str2ar($value);
+				if (empty($value) || !isset($options[$value[0]])) {
+					return;
+				}
+				echo $options[$value[0]];
 			} else {
-				echo '<ul>';
-				foreach ($value as $k) {
-					if (!isset($options[$k])) continue; // "other" not allowed with multiple
-					echo '<li class="sq-backend-data">'.htmlspecialchars($options[$k]).'</li>';
+				echo $options[$value];
+			}
+
+		} else {
+			echo '<ul>';
+			foreach ($value as $k) {
+				if (!isset($options[$k])) continue; // "other" not allowed with multiple
+				echo '<li class="sq-backend-data">'.htmlspecialchars($options[$k]).'</li>';
 				}
 				echo '</ul>';
 
@@ -437,11 +437,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 						check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
 						label($val, $id);
-						?>
-						</li>
-						<?php
 					}
-
+					?></li><?php
 					$i++;
 				}
 				?>
