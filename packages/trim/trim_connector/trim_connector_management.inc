@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector_management.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_connector_management.inc,v 1.1.1.1.8.1 2009/08/20 01:10:41 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -45,6 +45,7 @@ class Trim_Connector_Management extends Asset_Management
                                         'added'     => '0.1',
                                         'type'      => 'text',
                                         'default'   => '',
+										'is_contextable'	=> TRUE,
                                        ),
 						'wsdl'		=> Array (
 										'added'			=> '0.1',

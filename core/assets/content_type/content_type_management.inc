@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_management.inc,v 1.7 2009/07/28 04:29:53 lwright Exp $
+* $Id: content_type_management.inc,v 1.7.2.1 2009/08/20 01:10:16 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,12 +44,13 @@ class Content_Type_Management extends Asset_Management
 									'added'		=> '0.0.1',
 									'type'		=> 'text',
 									'default'	=> '',
+									'is_contextable'	=> TRUE,
 								   ),
 						'html'	=> Array(
 									'added'		=> '0.0.1',
 									'type'		=> 'text',
 									'default'	=> '',
-									'is_contextable' => 1,
+									'is_contextable' 	=> TRUE,
 								   ),
 					  );
 

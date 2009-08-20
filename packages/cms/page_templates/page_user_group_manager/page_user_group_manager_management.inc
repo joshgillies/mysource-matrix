@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_management.inc,v 1.6 2007/12/04 00:15:26 bshkara Exp $
+* $Id: page_user_group_manager_management.inc,v 1.6.8.1 2009/08/20 01:10:24 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,6 +119,7 @@ class Page_User_Group_Manager_Management extends Asset_Management
 										'type'			=> 'text',
 										'default'		=> 'Submit',
 										'description'	=> 'Value of submit button text',
+										'is_contextable'	=> TRUE,
 									   );
 
 		$this->vars['statuses'] = Array(

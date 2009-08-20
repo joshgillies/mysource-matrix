@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method_management.inc,v 1.4 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: ecommerce_delivery_method_management.inc,v 1.4.6.1 2009/08/20 01:10:28 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,6 +43,7 @@ class Ecommerce_Delivery_Method_Management extends Asset_Management
 							'added'		=> '0.1',
 							'type'		=> 'text',
 							'default'	=> '',
+							'is_contextable'	=> TRUE,
 						   ),
 			  );
 

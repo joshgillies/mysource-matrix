@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_management.inc,v 1.14 2009/07/10 01:21:42 wszymanski Exp $
+* $Id: metadata_section_management.inc,v 1.14.2.1 2009/08/20 01:10:17 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,7 @@ class Metadata_Section_Management extends Asset_Management
 												'added'		=> '0.2',
 												'type'		=> 'text',
 												'default'	=> '',
+												'is_contextable'	=> TRUE,
 											   ),
 						'desc_frontend'		=> Array(
 												'added'			=> '0.2',

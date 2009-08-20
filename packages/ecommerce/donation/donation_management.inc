@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: donation_management.inc,v 1.1 2009/07/28 11:26:23 ata Exp $
+* $Id: donation_management.inc,v 1.1.2.1 2009/08/20 01:10:28 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,24 +44,28 @@ class Donation_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'The name of the Donation that this asset represents',
+												'is_contextable'	=> TRUE,
 											   ),
 						'description'		=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'The long description of the donation',
+												'is_contextable'	=> TRUE,
 											   ),
 						'short_description'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'The short description of the donation for small display space',
+												'is_contextable'	=> TRUE,
 											   ),
 						'details'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'The detailed specifications of the donation',
+												'is_contextable'	=> TRUE,
 											   ),
 					  );
 		

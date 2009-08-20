@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.62 2009/06/15 04:31:20 ewang Exp $
+* $Id: form_management.inc,v 1.62.2.1 2009/08/20 01:10:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,6 +47,7 @@ class Form_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> '',
 														'update_fn'	=> '',
+														'is_contextable'	=> TRUE,
 													   ),
 						'log_submissions'			=> Array(
 														'added'			=> '0.0.1',
@@ -68,11 +69,13 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.0.1',
 														'type'		=> 'text',
 														'default'	=> '',
+														'is_contextable'	=> TRUE,
 													   ),
 						'reset_button'				=> Array(
 														'added'		=> '0.0.1',
 														'type'		=> 'text',
 														'default'	=> '',
+														'is_contextable'	=> TRUE,
 													   ),
 						'question_col_width'		=> Array(
 														'added'		=> '0.0.1',
@@ -161,6 +164,7 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.0.2',
 														'type'		=> 'wysiwyg',
 														'default'	=> '',
+														'is_contextable'	=> TRUE,
 													   ),
 						'require_captcha'			=> Array(
 														'type'			=> 'boolean',
@@ -183,6 +187,7 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.9',
 														'type'		=> 'text',
 														'default'	=> 'Regenerate security key',
+														'is_contextable'	=> TRUE,
 													   ),
 						'multi_page'				=> Array(
 														'added'		=> '0.13',
@@ -206,49 +211,56 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Next Page',
-														'description'	=> 'Sets the text of a Next Page button for multiple page forms. Next Page and Submit buttons both use the Submit Button keyword, however will show the Next Page text when there are still pages to view (rather than Submit on the last page).'
+														'description'	=> 'Sets the text of a Next Page button for multiple page forms. Next Page and Submit buttons both use the Submit Button keyword, however will show the Next Page text when there are still pages to view (rather than Submit on the last page).',
+														'is_contextable'	=> TRUE,
 													   ),
 						'previous_button'		=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Previous Page',
-														'description'	=> 'Sets the text of a Previous Page button for multiple page forms. In a single-page form, any Previous Page button keywords will be blanked out.'
+														'description'	=> 'Sets the text of a Previous Page button for multiple page forms. In a single-page form, any Previous Page button keywords will be blanked out.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'save_button'			=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> '',
-														'description'	=> 'Text of the Save button for multiple-page forms. The Save button saves the current page\'s contents (without validating), and reloads the same page.'
+														'description'	=> 'Text of the Save button for multiple-page forms. The Save button saves the current page\'s contents (without validating), and reloads the same page.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'save_confirmation_message'	=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Save',
-														'description'	=> 'The %save_confirmation% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.'
+														'description'	=> 'The %save_confirmation% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'save_and_exit_button'	=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Save and Exit',
-														'description'	=> 'Text of the Save and Exit button for multiple-page forms. Save and Exit saves the current page\'s contents (without validating), and then paints an "Exit Bodycopy". The current page counter is not changed from where the user clicked Save and Exit.'
+														'description'	=> 'Text of the Save and Exit button for multiple-page forms. Save and Exit saves the current page\'s contents (without validating), and then paints an "Exit Bodycopy". The current page counter is not changed from where the user clicked Save and Exit.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'unattached_page_name'		=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Unattached Questions',
-														'description'	=> 'Page name in a multi-page form for the "Unattached Questions" page (ie. questions attached directly to the form), which are displayed as Page 1 when at least one exists.'
+														'description'	=> 'Page name in a multi-page form for the "Unattached Questions" page (ie. questions attached directly to the form), which are displayed as Page 1 when at least one exists.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'confirmation_page_name'	=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> 'Confirmation',
-														'description'	=> 'Page name in a multi-page form for the "Confirmation" page, when turned on.'
+														'description'	=> 'Page name in a multi-page form for the "Confirmation" page, when turned on.',
+														'is_contextable'	=> TRUE,
 													   ),
 						'page_list_format'			=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
 														'default'	=> '%page_number%',
-														'description'	=> 'A format for each entry of a page list. Keywords allowed. HTML allowed, but keyword replacements will be escaped.'
+														'description'	=> 'A format for each entry of a page list. Keywords allowed. HTML allowed, but keyword replacements will be escaped.',
 													   ),
 						'submission_warning_time'	=> Array(
 														'added'		=> '0.13',
@@ -390,11 +402,13 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.15',
 														'type'		=> 'text',
 														'default'	=> 'Security Key Incorrect',
+														'is_contextable'	=> TRUE,
 														   ),
 						'captcha_form_invalid_error_message'	=> Array(
 														'added'		=> '0.15',
 														'type'		=> 'text',
 														'default'	=> 'Valid CAPTCHA is required, but none is found in this form submission',
+														'is_contextable'	=> TRUE,
 														   ),								   
 														   
 					  );

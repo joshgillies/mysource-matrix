@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.12 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event_management.inc,v 1.12.6.1 2009/08/20 01:10:20 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -46,6 +46,7 @@ class Calendar_Event_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'The name of the event',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'description'	=> Array(
 											'added'			=> '0.0.1',
@@ -53,6 +54,7 @@ class Calendar_Event_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'Description of the event',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'start_date'	=> Array(
 											'added'			=> '0.0.1',

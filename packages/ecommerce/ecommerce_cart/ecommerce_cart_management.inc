@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.13 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: ecommerce_cart_management.inc,v 1.13.6.1 2009/08/20 01:10:29 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -75,18 +75,21 @@ class Ecommerce_Cart_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> 'Proceed to Checkout',
 													'description'	=> 'The text on the "checkout" button',
+													'is_contextable'	=> TRUE,
 												   ),
 						'cart_updated_text'		=> Array(
 													'added'			=> '0.0.1',
 													'type'			=> 'text',
 													'default'		=> 'Your Cart has been Updated',
 													'description'	=> 'The text displayed when the cart is updated',
+													'is_contextable'	=> TRUE,
 												   ),
 						'no_items_text'			=> Array(
 													'added'			=> '0.2',
 													'type'			=> 'text',
 													'default'		=> 'There are currently no items in your cart',
 													'description'	=> 'The text that displays instead of the asset listing, when you have no items in your cart',
+													'is_contextable'	=> TRUE,
 												   ),
 						'parameter_map'			=> Array(
 													'added'			=> '0.4',

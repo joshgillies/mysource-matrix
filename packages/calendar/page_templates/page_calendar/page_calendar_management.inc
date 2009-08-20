@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.60.2.1 2009/08/12 04:13:38 bpearson Exp $
+* $Id: page_calendar_management.inc,v 1.60.2.2 2009/08/20 01:10:20 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -97,6 +97,7 @@ class Page_Calendar_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> '',
+											'is_contextable'	=> TRUE,
 										   );
 
 		// Earliest	and	latest times to	display	in week	and	day	view, stored as	strings
@@ -235,6 +236,7 @@ class Page_Calendar_Management extends Asset_Management
 										'added'		=> '0.1',
 										'type'		=> 'text',
 										'default'	=> '%v% view',
+										'is_contextable'	=> TRUE,
 									  );
 
 		// Text	for	the	link that takes	you	to the next	year/month/week/day
@@ -242,6 +244,7 @@ class Page_Calendar_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Next %v% >>',
+											'is_contextable'	=> TRUE,
 										);
 
 		// Text	for	the	link that takes	you	to the previous	year/month/week/day
@@ -249,6 +252,7 @@ class Page_Calendar_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> '<< Previous %v%',
+											'is_contextable'	=> TRUE,
 										);
 
 		// Text	for	the	link that takes	you	to the today's date
@@ -256,6 +260,7 @@ class Page_Calendar_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Show Today',
+											'is_contextable'	=> TRUE,
 										 );
 
 		// for the body copy no results use. If true we use the body copy no results.
@@ -379,36 +384,43 @@ class Page_Calendar_Management extends Asset_Management
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Monday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_tue'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Tuesday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_wed'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Wednesday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_thu'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Thursday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_fri'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Friday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_sat'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Saturday',
+										'is_contextable'	=> TRUE,
 								   );
 		$this->vars['label_sun'] = Array(
 										'added'		=> '0.9',
 										'type'		=> 'text',
 										'default'	=> 'Sunday',
+										'is_contextable'	=> TRUE,
 								   );
 
 	}//end constructor

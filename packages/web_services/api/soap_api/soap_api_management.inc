@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_management.inc,v 1.3 2009/04/03 05:52:43 hnguyen Exp $
+* $Id: soap_api_management.inc,v 1.3.4.1 2009/08/20 01:10:43 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -48,6 +48,7 @@ class SOAP_Api_Management extends Asset_Management
 											'description'	=> 'The full name of the page',
 											'update_fn'		=> '',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'short_name'	=> Array(
 											'added'			=> '0.0.1',
@@ -56,6 +57,7 @@ class SOAP_Api_Management extends Asset_Management
 											'description'	=> 'The short name of the page',
 											'update_fn'		=> '',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'function_list'	=> Array (
 											'added'			=> '0.1',

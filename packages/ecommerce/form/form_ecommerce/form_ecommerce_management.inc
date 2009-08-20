@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.14 2009/07/13 11:00:19 ata Exp $
+* $Id: form_ecommerce_management.inc,v 1.14.2.1 2009/08/20 01:10:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -58,12 +58,14 @@ class Form_Ecommerce_Management extends Asset_Management
 														'type'			=> 'text',
 														'default'		=> 'Confirm and proceed to payment',
 														'description'	=> 'Name of the button for confirming the order',
+														'is_contextable'	=> TRUE,
 													   ),
 						'cancel_button_name'		=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'text',
 														'default'		=> 'Go back to form',
 														'description'	=> 'Name of the button for cancellig the order',
+														'is_contextable'	=> TRUE,
 													   ),
 						'tax_value'					=> Array(
 														'added'			=> '0.2',
@@ -80,6 +82,7 @@ class Form_Ecommerce_Management extends Asset_Management
 														'added'		=> '0.2',
 														'type'		=> 'text',
 														'default'	=> '',
+														'is_contextable'	=> TRUE,
 													   ),
 						'taxable_rules'				=> Array(
 														'added'		=> '0.2',

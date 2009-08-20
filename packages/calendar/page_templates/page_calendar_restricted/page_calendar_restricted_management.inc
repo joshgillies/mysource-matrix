@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_management.inc,v 1.8 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_restricted_management.inc,v 1.8.6.1 2009/08/20 01:10:20 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -66,10 +66,12 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 						'next_text'		=> Array(
 											'type'		=> 'text',
 											'default'	=> 'Next %n% Days >>',
+											'is_contextable'	=> TRUE,
 										   ),
 						'prev_text'		=> Array(
 											'type'		=> 'text',
 											'default'	=> '<< Previous %n% days',
+											'is_contextable'	=> TRUE,
 										   ),
 					  );
 

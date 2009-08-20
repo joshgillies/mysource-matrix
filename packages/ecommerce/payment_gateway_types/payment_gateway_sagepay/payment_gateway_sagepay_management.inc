@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.3 2009/07/29 11:53:42 ata Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.3.2.1 2009/08/20 01:10:29 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -174,18 +174,21 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '   Pay   ',
 													'description'	=> 'Submit button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'reset_text'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> 'Reset',
 													'description'	=> 'Reset button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'cancel_text'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> 'Cancel',
 													'description'	=> 'Cancel button text',
+													'is_contextable'	=> TRUE,
 												   ),
 						'run_mode'				=> Array(
 													'added'			=> '0.1',

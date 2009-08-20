@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.6 2006/12/11 00:14:34 arailean Exp $
+* $Id: thesaurus_management.inc,v 1.6.14.1 2009/08/20 01:10:17 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,7 @@ class Thesaurus_Management extends Asset_Management
 												'added'		=> '0.0.1',
 												'type'		=> 'text',
 												'default'	=> '',
+												'is_contextable'	=> TRUE,
 											   ),
 						'relations'			=> Array(
 												'added'			=> '0.0.1',

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_management.inc,v 1.10 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: payment_gateway_esec_management.inc,v 1.10.6.1 2009/08/20 01:10:29 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -57,6 +57,7 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'wysiwyg',
 											'default'	=> '',
+											'is_contextable'	=> TRUE,
 										   ),
 						'display_ccv'	=> Array(
 											'added'			=> '0.2',
@@ -72,18 +73,21 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '   Pay   ',
 											'description'	=> 'Submit button text',
+											'is_contextable'	=> TRUE,
 										   ),
 						'reset_text'	=> Array(
 											'added'			=> '0.3',
 											'type'			=> 'text',
 											'default'		=> 'Reset',
 											'description'	=> 'Reset button text',
+											'is_contextable'	=> TRUE,
 										   ),
 						'cancel_text'	=> Array(
 											'added'			=> '0.3',
 											'type'			=> 'text',
 											'default'		=> 'Cancel',
 											'description'	=> 'Cancel button text',
+											'is_contextable'	=> TRUE,
 										   ),
 					  );
 

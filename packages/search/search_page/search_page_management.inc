@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.65 2009/03/11 23:00:27 ewang Exp $
+* $Id: search_page_management.inc,v 1.65.4.1 2009/08/20 01:10:39 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.65.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -57,6 +57,7 @@ class Search_Page_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> 'Search',
 											'description'	=> 'Text that would appear on the search in search submit button',
+											'is_contextable'	=> TRUE,
 										 );
 
 		$this->vars['fields'] = Array(
@@ -78,6 +79,7 @@ class Search_Page_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> 'No Category Selected',
 											'description'	=> 'The text that appears for a "no category selected" options.',
+											'is_contextable'	=> TRUE,
 										  );
 
 		$this->vars['auto_synonym_search_field'] = Array(
@@ -159,6 +161,7 @@ class Search_Page_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> 'Did you mean: %suggestions%',
 												'description'	=> 'String to use for the "spell check suggestions" keyword',
+												'is_contextable'	=> TRUE,
 											  );
 
 		$this->vars['synonym_string']	= Array(
@@ -166,6 +169,7 @@ class Search_Page_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> 'Did you mean: %suggestions%',
 											'description'	=> 'String to use for the "synonyms" keyword',
+											'is_contextable'	=> TRUE,
 										  );
 
 		$this->vars['auto_synonym_string']	= Array(
@@ -173,6 +177,7 @@ class Search_Page_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '(and related terms)',
 												'description'	=> 'String to display for the "auto synonym search triggered" keyword',
+												'is_contextable'	=> TRUE,
 											  );
 
 		$this->vars['stored_query_session']	= Array(

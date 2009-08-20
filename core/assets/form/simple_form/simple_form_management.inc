@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_management.inc,v 1.4 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: simple_form_management.inc,v 1.4.14.1 2009/08/20 01:10:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +50,7 @@ class Simple_Form_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> '',
+											'is_contextable'	=> TRUE,
 										   ),
 						'questions'		=> Array(
 											'added'		=> '0.1',
@@ -65,11 +66,13 @@ class Simple_Form_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Submit',
+											'is_contextable'	=> TRUE,
 										   ),
 						'reset_button'	=> Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Clear Form',
+											'is_contextable'	=> TRUE,
 										   ),
 						'client_side'	=> Array(
 											'added'			=> '0.1',

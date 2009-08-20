@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.19 2007/12/11 03:29:57 rong Exp $
+* $Id: image_management.inc,v 1.19.8.1 2009/08/20 01:10:17 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,6 +48,7 @@ class Image_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'caption'		=> Array(
 											'added'			=> '0.2',
@@ -55,6 +56,7 @@ class Image_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
 											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
 										   ),
 						'width'			=> Array(
 											'added'			=> '0.2',

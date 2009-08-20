@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.20 2007/12/11 03:29:57 rong Exp $
+* $Id: file_management.inc,v 1.20.8.1 2009/08/20 01:10:16 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,7 @@ class File_Management extends Asset_Management
 													'default'		=> '',
 													'is_admin'		=> '0',
 													'description'	=> 'Friendly name for the file',
+													'is_contextable'	=> TRUE,
 												   ),
 					  );
 

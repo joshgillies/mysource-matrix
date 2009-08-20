@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.78 2009/06/10 04:04:39 akarelia Exp $
+* $Id: listing_engine_management.inc,v 1.78.2.1 2009/08/20 01:10:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.78.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,12 +93,14 @@ class Listing_Engine_Management extends Asset_Management
 												'added'		=> '0.1',
 												'type'		=> 'text',
 												'default'	=> 'Submit',
+												'is_contextable'	=> TRUE,
 											);
 
 		$this->vars['reset_button_text'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Reset',
+											'is_contextable'	=> TRUE,
 										   );
 
 		$this->vars['sort_by'] = Array(
@@ -189,12 +191,14 @@ class Listing_Engine_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'text',
 													'default'	=> 'Ascending',
+													'is_contextable'	=> TRUE,
 												 );
 
 		$this->vars['sort_direction_desc_text'] = Array(
 													'added'		=> '0.1',
 													'type'		=> 'text',
 													'default'	=> 'Descending',
+													'is_contextable'	=> TRUE,
 												  );
 
 		$this->vars['subs_only'] = Array(
@@ -299,12 +303,14 @@ class Listing_Engine_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Previous',
+											'is_contextable'	=> TRUE,
 										);
 
 		$this->vars['next_page_text'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Next',
+											'is_contextable'	=> TRUE,
 										);
 
 		$this->vars['parameter_map'] = Array(
@@ -363,6 +369,7 @@ class Listing_Engine_Management extends Asset_Management
 											'added'		=> '0.11',
 											'type'		=> 'text',
 											'default'	=> '[Other]',
+											'is_contextable'	=> TRUE,
 										 );
 
 		$this->vars['form_submit_method'] = Array(
