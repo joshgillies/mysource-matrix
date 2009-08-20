@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_configuration_management.inc,v 1.1 2009/03/30 18:02:10 ata Exp $
+* $Id: paypal_configuration_management.inc,v 1.1.4.1 2009/08/20 06:48:39 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,6 +44,7 @@ class Paypal_Configuration_Management extends Asset_Management
 																	'added'			=> '0.1',
 																	'type'			=> 'text',
 																	'default'		=> '',
+																	'is_contextable'	=> TRUE,
 															    ),
 							'encryption_lib_path'		=> Array(
 																	'added'			=> '0.1',
