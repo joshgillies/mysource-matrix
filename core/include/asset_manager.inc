@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.747 2009/08/19 00:28:55 bpearson Exp $
+* $Id: asset_manager.inc,v 1.748 2009/08/20 03:29:53 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.747 $
+* @version $Revision: 1.748 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6887,13 +6887,14 @@ class Asset_Manager extends MySource_Object
 		// check if we are getting links for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
-
+		
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = $this->getAsset($real_assetid);
 
 			if (is_null($asset)) continue;
-
+			
+			$ret_val = FALSE;
 			if (method_exists($asset, 'deletePermission')) {
 				$ret_val = $asset->deletePermission($assetid, $userid, $permission);
 				$this->forgetAsset($asset);
