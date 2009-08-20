@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.193 2008/11/04 05:01:15 mbrydon Exp $
+* $Id: backend.inc,v 1.193.6.1 2009/08/20 04:14:19 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.193.6.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -541,7 +541,7 @@ class Backend extends MySource_Object
 									break;
 								}
 
-								$words = preg_split('/[\r\n\t \|\&\~]+/', $search_terms);
+								$words = preg_split('/[\r\n\t \|\&\~\/]+/', $search_terms);
 								$value = strip_tags($value);
 
 								preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);

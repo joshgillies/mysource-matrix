@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200.2.1 2009/08/07 00:32:39 csmith Exp $
+* $Id: search_manager.inc,v 1.200.2.2 2009/08/20 04:12:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200.2.1 $
+* @version $Revision: 1.200.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -3017,7 +3017,7 @@ class Search_Manager extends Asset
 	function getFormattedResults($results, $search_string)
 	{
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
-		$search_string = trim(preg_replace('/[\~\&\|]/i', ' ', $search_string));
+		$search_string = trim(preg_replace('/[\~\&\|\/]/i', ' ', $search_string));
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
