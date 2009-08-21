@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.109 2009/08/17 05:39:16 lwright Exp $
+* $Id: init.inc,v 1.110 2009/08/21 05:55:01 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 
@@ -216,7 +216,7 @@ if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & hide_frontend_errors()) {
 
 // Logging to syslog? If so, turn it on now (it won't connect to syslog until the first actual error)
 if ((boolean)SQ_CONF_ERRORS_LOG_TO_SYSLOG === TRUE) {
-	$ident = SQ_CONF_ERRORS_SYSLOG_IDENT;
+	$ident = SQ_CONF_SYSTEM_NAME;
 	if (empty($ident) === TRUE) {
 		$ident = SQ_SYSTEM_LONG_NAME;
 	}

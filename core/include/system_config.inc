@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.131 2009/08/17 05:39:16 lwright Exp $
+* $Id: system_config.inc,v 1.132 2009/08/21 05:55:01 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -71,7 +71,6 @@ class System_Config extends Config
 						'SQ_CONF_SEND_404_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ERRORS_LOG_TO_SYSLOG'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ERRORS_SYSLOG_FACILITY'		=> Array('editable' => 1, 'default' => 'user'),
-						'SQ_CONF_ERRORS_SYSLOG_IDENT'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
@@ -761,17 +760,6 @@ class System_Config extends Config
 			} else {
 				echo $options[SQ_CONF_ERRORS_SYSLOG_FACILITY];
 			}
-			$o->note(translate('log_errors_syslog_facility_note'));
-			$o->closeField();
-
-			$o->openField(translate('log_errors_syslog_ident'));
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_ERRORS_SYSLOG_IDENT]', SQ_CONF_ERRORS_SYSLOG_IDENT, 30);
-			} else {
-				echo SQ_CONF_ERRORS_SYSLOG_IDENT;
-			}
-			$o->note(translate('log_errors_syslog_ident_note', SQ_SYSTEM_LONG_NAME));
-			$o->closeField();
 
 			$o->openField(translate('debug_settings'));
 			if ($write_access && $is_root) {
