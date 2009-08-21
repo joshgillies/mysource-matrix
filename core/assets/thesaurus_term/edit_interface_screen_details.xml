@@ -10,13 +10,16 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5.12.1 2009/06/25 06:52:03 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5.12.2 2009/08/21 04:00:27 akarelia Exp $
 *
 */
 -->
 <contents>
 	<section name="Term Information" limbo_access="0" write_access="write:attributes">
-		<field keyword="name">
+		<field attribute="name">
+			<text width="30" />
+		</field>
+		<field>
 			<function_call>
 				<paint_function		name="paintName" />
 				<process_function	name="processName" />

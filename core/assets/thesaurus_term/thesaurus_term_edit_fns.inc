@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.11.6.1 2009/06/25 06:52:03 bpearson Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.11.6.2 2009/08/21 04:00:27 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.6.1 $
+* @version $Revision: 1.11.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,13 +66,10 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 
 		// Paint the name
 		if ($write) {
-			text_box($prefix.'_name', $asset->attr('name'));
-			echo ' ';
 			check_box($prefix.'_rename', '1');
 			label(translate('rename_thesaurus_term_sys_wide'), $prefix.'_rename');
-		} else {
-			echo $asset->attr('name');
-		}//end if
+			echo '<input type="hidden" name="'.$prefix.'_old_name" value="'.$asset->attr('name').'" />';
+		}
 
 		return TRUE;
 
@@ -91,8 +88,8 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processName(&$asset, &$o, $prefix)
 	{
-		$old_name = $asset->attr('name');
-		$name = array_get_index($_POST, $prefix.'_name', '');
+		$old_name = array_get_index($_POST, $prefix.'_old_name', '');
+		$name = $asset->attr('name');
 		$rename = array_get_index($_POST, $prefix.'_rename', 0);
 
 		// Save the name
