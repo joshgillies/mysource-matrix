@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.59 2008/02/21 00:29:28 colivar Exp $
+* $Id: selection.inc,v 1.59.4.1 2009/08/21 00:06:16 cupreti Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -437,11 +437,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 						check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
 						label($val, $id);
-						?>
-						</li>
-						<?php
 					}
-
+					?></li><?php
 					$i++;
 				}
 				?>
