@@ -10,15 +10,17 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2009/06/25 06:58:53 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.7 2009/08/21 03:29:39 akarelia Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Term Information">
-		<field keyword="name">
+		<field attribute="name">
 			<display_name>Name</display_name>
+		</field>
+		<field>
 			<note>If the checkbox is selected, the name will be changed in metadata fields that use this term</note>
 			<function_call>
 				<paint_function		name="paintName" />
