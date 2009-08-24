@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.749 2009/08/24 06:21:42 csmith Exp $
+* $Id: asset_manager.inc,v 1.750 2009/08/24 23:26:31 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.749 $
+* @version $Revision: 1.750 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9027,10 +9027,17 @@ class Asset_Manager extends MySource_Object
 			$where = '(('.implode(') OR (', $where_comps).'))';
 
 		} else {
-			$in_sql = "SELECT treeid FROM " . SQ_TABLE_RUNNING_PREFIX . "ast_lnk l INNER JOIN " . SQ_TABLE_RUNNING_PREFIX .
-				"ast_lnk_tree t ON l.linkid = t.linkid WHERE l.minorid = :" . $bind_prefix . "minorid";
+			// No conditions, just stick the treeids query straight into the main query
+			$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
 
-			$bind_vars[$bind_prefix.'minorid'] = $assetid;
+			$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
+			$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
+
+			if (MatrixDAL::getDbType() === 'oci') {
+				$in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+			} else {
+				$in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
+			}
 
 			$from .= ', (' . $in_sql . ') tree_linkids';
 
