@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: justify_text.inc,v 1.9 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: justify_text.inc,v 1.9.12.1 2009/08/24 01:26:03 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow text alignment
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.12.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -48,6 +48,36 @@ class Justify_Text extends WYSIWYG_Plugin
 		$this->_add_button('justifyfull','JustifyFull','Justify Full','false','25');
 
 	}//end consturctor
+
+
+	/**
+	* Prints generic functions
+	*
+	* @return void
+	* @access public
+	*/
+	function paint_generic()
+	{
+		?>
+		<script type="text/javascript" language="Javascript">
+
+		HTMLArea.prototype._addAlignAttribute = function(node) {
+			var current = node.getAttribute("align");
+			if (current != "") {
+				node.style.textAlign = current;
+				node.removeAttribute("align");
+			}
+		}
+		HTMLArea.prototype._operateTags = function(tagname) {
+			nodes = document.getElementsByTagName(tagname);
+			for (var i=0; i<nodes.length; i++) {
+				this._addAlignAttribute(nodes[i]);
+			}
+		}
+		</script>
+		<?php
+
+	}//end paint_generic()
 
 
 	/**
@@ -74,6 +104,36 @@ class Justify_Text extends WYSIWYG_Plugin
 		<?php
 
 	}//end print_plugin_shortcuts()
+
+
+	/**
+	* Create the link a URL entered by the user
+	* IE has its own linking interface, while we use a JS prompt for Mozilla
+	*
+	* @returns void
+	* @access  public
+	*/
+	function print_plugin_exec_command()
+	{
+		?>
+		case "justifyleft":
+		case "justifyright":
+		case "justifycenter":
+		case "justifyfull":
+			this._doc.execCommand(cmdID, UI, param);
+			if (HTMLArea.is_ie) {
+				this._operateTags("p");
+				this._operateTags("div");
+				this._operateTags("h1");
+				this._operateTags("h2");
+				this._operateTags("h3");
+				this._operateTags("h4");
+				this._operateTags("h5");
+				this._operateTags("h6");
+			}
+		break;
+		<?php
+	}
 
 
 }//end class
