@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.87 2009/07/07 06:53:48 lwright Exp $
+* $Id: asset_management.inc,v 1.88 2009/08/24 03:46:01 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -508,6 +508,7 @@ class Asset_Management extends MySource_Object
 					echo '* '.$child['type_code']."\n";
 					$temp_attr_ids[] = $child['attrid'];
 				}
+				$temp_attr_ids = implode(', ', $temp_attr_ids);
 
 				// now, let's mark the attribute as being owned by this asset type
 				$sql = 'UPDATE sq_ast_attr
