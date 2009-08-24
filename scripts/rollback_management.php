@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.21 2008/05/16 07:00:56 mbrydon Exp $
+* $Id: rollback_management.php,v 1.22 2009/08/24 06:09:07 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,6 +37,10 @@ $longopt = Array('enable-rollback', 'disable-rollback', 'reset-rollback');
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
 $options = Console_Getopt::getopt($args, $shortopt, $longopt);
+
+if ($options instanceof PEAR_Error) {
+	usage();
+}
 
 if (empty($options[0])) usage();
 
