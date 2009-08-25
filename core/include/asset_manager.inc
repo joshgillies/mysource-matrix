@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.750 2009/08/24 23:26:31 csmith Exp $
+* $Id: asset_manager.inc,v 1.751 2009/08/25 00:18:16 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.750 $
+* @version $Revision: 1.751 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9027,27 +9027,49 @@ class Asset_Manager extends MySource_Object
 			$where = '(('.implode(') OR (', $where_comps).'))';
 
 		} else {
-			// No conditions, just stick the treeids query straight into the main query
-			$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
-
-			$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
-			$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
+			/**
+			 * If there are no conditions, then work out which treeid's to look at.
+			 *
+			 * This is a separate query for performance reasons.
+			 * Previously it was an 'IN' clause in the main query, but because it runs through a function
+			 * the query optimizers can't cope with it efficiently.
+			 * (this affects both oracle and postgres)
+			 *
+			 * So we do a query here to get the treeid's
+			 * which are then put into the main query.
+			 *
+			 * and since we're now looking at static id's basically,
+			 * the optimizers are a lot happier
+			 *
+			 * This is also done with the assumption that you'll never have a lot of parents
+			 * as oracle has a limit on the number of id's you can use in an in clause (999).
+			 */
+			$tree_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
 
 			if (MatrixDAL::getDbType() === 'oci') {
-				$in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+				$tree_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$tree_sql.' AS VARCHAR_2000_TABLE))';
 			} else {
-				$in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
+				$tree_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$tree_sql;
 			}
 
-			$from .= ', (' . $in_sql . ') tree_linkids';
+			$tree_bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
+			$tree_bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
+			$query = MatrixDAL::preparePdoQuery($tree_sql);
+			foreach ($tree_bind_vars as $tree_bind_var => $tree_bind_value) {
+				MatrixDAL::bindValueToPdo($query, $tree_bind_var, $tree_bind_value);
+			}
+			$tree_result = MatrixDAL::executePdoGroupedAssoc($query);
 
-			/**
-			* end up with
-			* select treeid from
-			* sq_ast_lnk_tree t, ($in_sql) tree_linkids
-			* where t.treeid=tree_linkids.treeid
-			*/
-			$where = 't.treeid=tree_linkids.treeid';
+			$where = '';
+
+			if (!empty($tree_result)) {
+				$where = 't.treeid IN (';
+				foreach ($tree_result as $treeid => $tree_val) {
+					$where .= MatrixDAL::Quote($treeid) . ',';
+				}
+				$where = rtrim($where, ',');
+				$where .= ')';
+			}
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
