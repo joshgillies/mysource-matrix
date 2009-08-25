@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.699 2009/08/13 00:22:16 csmith Exp $
+* $Id: asset.inc,v 1.700 2009/08/25 04:23:46 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.699 $
+* @version $Revision: 1.700 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3005,7 +3005,7 @@ class Asset extends MySource_Object
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 
 				try {
-					if (($contextid === 0) || ($is_contextable === FALSE)) {
+					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp) === TRUE)) {
 						// If updating in the default context, we should be updating all
 						// context values that are still using the default
 						// If not contextable, just keep them linked together as well
@@ -3051,7 +3051,7 @@ class Asset extends MySource_Object
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 
 				try {
-					if (($contextid === 0) || ($is_contextable === FALSE)) {
+					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp)  === TRUE)) {
 						// Inserting into the default context. Insert into all other
 						// existing contexts that don't yet have a value set, and
 						// mark them as using the default
