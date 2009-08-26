@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.24 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.25 2009/08/26 00:09:12 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -212,10 +212,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
 			}
 			$all = in_array('all', $plugins);
+			sort($plugins);
 
 			if ($have_lock && $is_admin) {
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
+				sort($all_plugins);
 				if (!empty($all_plugins)) {
 					hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
 				}
