@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: order.inc,v 1.8 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: order.inc,v 1.8.6.1 2009/08/26 01:37:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order_line/order_line.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -197,14 +197,16 @@ class Order extends Form_Submission
 	*/
 	function buildLinesFromCart($cart_items, $clear_after=true)
 	{
-		// cart items is passed in straight from $_SESSION['sq_cart_contents']
-		foreach($_SESSION['sq_cart_contents'] as $product_assetid => $product_info) {
+		$ecommerce_checkout_id = $cart_items->attr('ecommerce_checkout_id');
+		
+		// cart items is passed in straight from $_SESSION['sq_cart_contents'][$ecommerce_checkout_id];
+		foreach($_SESSION['sq_cart_contents'][$ecommerce_checkout_id] as $product_assetid => $product_info) {
 			$this->createLine($product_assetid, $product_info['price'], $product_info['quantity']);
 		}
 
 		// are we clearing the cart afterwards
 		if ($clear_after) {
-			unset($_SESSION['sq_cart_contents']);
+			unset($_SESSION['sq_cart_contents'][$ecommerce_checkout_id]);
 		}
 
 		return true;

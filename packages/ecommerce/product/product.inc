@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.16 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: product.inc,v 1.16.6.1 2009/08/26 01:37:37 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -124,6 +124,9 @@ class Product extends Page implements Buyable
 	*
 	* @return void
 	* @access public
+	* 
+	* Potential useless function
+	* 
 	*/
 	function printFrontend()
 	{
@@ -148,7 +151,11 @@ class Product extends Page implements Buyable
 	*
 	* @return void
 	* @access public
+	* 
+	* Potential useless function
+	* 
 	*/
+	
 	function printBody()
 	{
 		?>
@@ -184,6 +191,9 @@ class Product extends Page implements Buyable
 	*
 	* @return boolean
 	* @access public
+	* 
+	* Potential useless function
+	* 
 	*/
 	function processSelection()
 	{
@@ -219,6 +229,9 @@ class Product extends Page implements Buyable
 	*
 	* @return mixed {string|boolean}	the assetid of the active cart or false if nothing is found
 	* @access public
+	* 
+	* Potential useless function
+	* 
 	*/
 	function getActiveCartAssetid()
 	{
@@ -270,6 +283,9 @@ class Product extends Page implements Buyable
 	*
 	* @return array
 	* @access public
+	* 
+	* Potential useless function
+	* 
 	*/
 	function getAssetKeywords($descriptions=FALSE)
 	{

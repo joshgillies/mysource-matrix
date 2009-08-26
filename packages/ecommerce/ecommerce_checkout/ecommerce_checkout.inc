@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.66 2009/07/29 09:33:19 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.66.2.1 2009/08/26 01:36:47 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -159,7 +159,7 @@ class Ecommerce_Checkout extends Page
 
 			if (!isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
 				// clear global cart
-				$cart = new Ecommerce_Cart_Processor();
+				$cart = new Ecommerce_Cart_Processor($this->id);
 				$cart->clearCart();
 				unset($cart);
 			}
@@ -286,7 +286,7 @@ class Ecommerce_Checkout extends Page
 		// if they are different, update the local cart
 		if (empty($request_action)) {
 			if ($this->print_context === 'checkout') {
-				$global_cart = new Ecommerce_Cart_Processor();
+				$global_cart = new Ecommerce_Cart_Processor($this->id);
 
 				// unset previous order id and delivery information
 				unset($_SESSION['sq_local_cart_contents']['order_id']);
