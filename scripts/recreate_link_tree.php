@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.22 2008/12/02 23:58:31 bshkara Exp $
+* $Id: recreate_link_tree.php,v 1.22.2.1 2009/08/26 05:53:21 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -140,12 +140,16 @@ if ($pgdb) {
 }
 
 echo_headline($echo_i.' TREE ENTRIES CREATED');
+echo_headline('FIXING TRIGGER HASH TABLE');
+update_treeid_on_triggers();
+echo_headline('TRIGGER HASH TABLE SUCESSFULLY CREATED');
 
 $script_end = time();
 $script_duration = $script_end - $script_start;
 echo '-- Script Start : ', $script_start, '    Script End : ', $script_end, "\n";
 echo '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n";
 fwrite(STDERR, '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n");
+
 
 
 //--        FUNCTIONS        --//
@@ -211,6 +215,24 @@ function recurse_tree_create($majorid, $path)
 	}//end foreach
 
 }//end recurse_tree_create()
+
+
+/**
+* gets out all the trigger in the system and refreshes the sq_trig_hash table
+* to make sure if there has been any changes in treeid values
+*
+* @return void
+* @access public
+*/
+function update_treeid_on_triggers()
+{
+	$tm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trigger_manager');	
+	$trigger_db = MatrixDAL::executeAll('core', 'getTriggerList');	
+	foreach ($trigger_db as $index => $trigger_data) {
+		$trigger = $tm->_loadTrigger($trigger_data['id']);
+		$result = $tm->_saveTrigger($trigger);
+	}
+}
 
 
 ?>
