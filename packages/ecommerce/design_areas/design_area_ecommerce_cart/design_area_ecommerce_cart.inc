@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.12 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.13 2009/08/26 00:55:24 ewang Exp $
 *
 */
 
@@ -67,7 +67,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				echo '<','?php';
 				?>
 					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
-					$cart =& new Ecommerce_Cart_Processor();
+					$cart =& new Ecommerce_Cart_Processor(<?php echo $this->attr('ecom_form'); ?>);
 					echo (($cart->getCount() == 1) ? translate('item') : translate('items'));
 				<?php
 				echo '?','>';
@@ -77,7 +77,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				echo '<','?php';
 				?>
 					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
-					$cart =& new Ecommerce_Cart_Processor();
+					$cart =& new Ecommerce_Cart_Processor(<?php echo $this->attr('ecom_form'); ?>);
 					echo $cart->getCount();
 				<?php
 				echo '?','>';
@@ -87,7 +87,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				echo '<','?php';
 				?>
 					require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
-					$cart =& new Ecommerce_Cart_Processor();
+					$cart =& new Ecommerce_Cart_Processor(<?php echo $this->attr('ecom_form'); ?>);
 					echo number_format($cart->getTotal(), 2);
 				<?php
 				echo '?','>';

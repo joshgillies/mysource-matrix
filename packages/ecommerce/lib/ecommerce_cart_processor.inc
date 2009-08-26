@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.24 2009/08/18 09:47:37 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.25 2009/08/26 00:57:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -39,10 +39,10 @@ class Ecommerce_Cart_Processor
 	/**
 	* Constructor
 	*/
-	function Ecommerce_Cart_Processor()
+	function Ecommerce_Cart_Processor($checkout_id = 0)
 	{
 		// set, but rely on external objects to initialise
-		$this->setCartContainer($_SESSION['sq_cart_contents']);
+		$this->setCartContainer($_SESSION['sq_cart_contents'][$checkout_id]);
 
 		if (is_null($this->cart)) $this->initialiseCart();
 
