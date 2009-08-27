@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.286 2009/06/02 04:56:06 wszymanski Exp $
+* $Id: asset_map.inc,v 1.286.2.1 2009/08/27 00:55:21 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286 $
+* @version $Revision: 1.286.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -844,7 +844,7 @@ class Asset_Map
 
 
 					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-						$sql .= '				LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
+						$sql .= '				LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = l2.assetid)';
 					}
 
 					$sql .= '					WHERE l2.assetid = :assetid_1 AND (';
@@ -1059,7 +1059,7 @@ class Asset_Map
 										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid';
 
 				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-					$sql .=					' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
+					$sql .=					' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = l2.assetid)';
 				}
 
 				$sql .= '					WHERE l2.majorid = :assetid_1 AND (';
