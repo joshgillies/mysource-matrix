@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.25 2009/08/26 00:57:33 ewang Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.26 2009/08/27 14:28:52 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -304,6 +304,11 @@ class Ecommerce_Cart_Processor
 			}
 		}
 
+		//cap the delivery fee if the maximum delivery fee is set
+		if (isset($_SESSION['sq_region_specific']['max_delivery_fee']) && ($_SESSION['sq_region_specific']['max_delivery_fee'] < $total_delivery_cost)) {
+			$total_delivery_cost = $_SESSION['sq_region_specific']['max_delivery_fee'];
+		}
+		
 		return $total_delivery_cost;
 
 	}//end getTotalDeliveryCosts()
