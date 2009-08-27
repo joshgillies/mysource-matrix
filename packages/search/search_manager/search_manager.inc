@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200.2.2 2009/08/20 04:12:18 akarelia Exp $
+* $Id: search_manager.inc,v 1.200.2.3 2009/08/27 23:47:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200.2.2 $
+* @version $Revision: 1.200.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1108,7 +1108,7 @@ class Search_Manager extends Asset
 						} else {
 							if (array_key_exists($asset->type(), $restrictions)) {
 								$flag_match_found = TRUE;
-							}						
+							}
 						}
 					}
 				if (!$flag_match_found) return $index_content;
@@ -1224,6 +1224,11 @@ class Search_Manager extends Asset
 	*  <li> All components are returned a default weighing of 1</li>
 	* </ul>
 	*
+	* Weightings are now cached inside the search manager, per asset, to improve
+	* performance (instead of loading up the cached weightings file four times
+	* for a reindex, it only gets loaded once). Cached weightings are unset when
+	* the weightings are saved in _saveWeightings().
+	*
 	* @param string	$assetid	the assetid to obtain the weightings for
 	*
 	* @return array
@@ -1231,51 +1236,60 @@ class Search_Manager extends Asset
 	*/
 	function getWeightings($assetid)
 	{
-		// firstly, check if there are any weightings specific to this asset
-		$weightings = $this->getAssetWeightings($assetid);
+		if (isset($this->_tmp['asset_weightings'][$assetid]) === FALSE) {
 
-		if (empty($weightings)) {
+			// firstly, check if there are any weightings specific to this asset
+			$weightings = $this->getAssetWeightings($assetid);
 
-			// if we can't find any weightings specific to this asset, check
-			// to see if there are any tree weightings for this asset
-			$weightings = $this->getAssetTreeWeightings($assetid, FALSE);
-
-			// if we can't find any tree weightings that this asset exists under
-			// check the asset type weightings.
 			if (empty($weightings)) {
-				$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-				$type_code = array_get_index($type_code, $assetid, '');
-				if (!empty($type_code)) {
-					$weightings = $this->getAssetTypeWeightings($type_code);
-				}
 
-				// if there are no type weightings, then we will have to create
-				// some default values for this assetid
+				// if we can't find any weightings specific to this asset, check
+				// to see if there are any tree weightings for this asset
+				$weightings = $this->getAssetTreeWeightings($assetid, FALSE);
+
+				// if we can't find any tree weightings that this asset exists under
+				// check the asset type weightings.
 				if (empty($weightings)) {
-					$weightings  = Array();
-					$asset_comps = $this->getIndexableAssetComponents();
-					$attr_comps  = $this->getIndexableAttributes($type_code);
-					$components  = array_merge($asset_comps, $attr_comps);
-
-					foreach (array_keys($components) as $component) {
-						$weightings[$component] = 1;
+					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
+					$type_code = array_get_index($type_code, $assetid, '');
+					if (!empty($type_code)) {
+						$weightings = $this->getAssetTypeWeightings($type_code);
 					}
-					return $weightings;
+
+					// if there are no type weightings, then we will have to create
+					// some default values for this assetid
+					if (empty($weightings)) {
+						$weightings  = Array();
+						$asset_comps = $this->getIndexableAssetComponents();
+						$attr_comps  = $this->getIndexableAttributes($type_code);
+						$components  = array_merge($asset_comps, $attr_comps);
+
+						foreach (array_keys($components) as $component) {
+							$weightings[$component] = 1;
+						}
+						$this->_tmp['asset_weightings'][$assetid] = $weightings;
+					}
 				}
 			}
-		}
 
-		$indexed_weightings = Array();
-		// only add the weightings if the individual components are indexed
-		foreach (Array('attr_weights', 'asset_weights') as $type) {
-			foreach ($weightings[$type] as $component => $info) {
-				if ($info['indexed']) {
-					$indexed_weightings[$component] = $info['weight'];
+			// if not yet cached using default values, reorder array and cache
+			if (isset($this->_tmp['asset_weightings'][$assetid]) === FALSE) {
+				$indexed_weightings = Array();
+				// only add the weightings if the individual components are indexed
+				foreach (Array('attr_weights', 'asset_weights') as $type) {
+					foreach ($weightings[$type] as $component => $info) {
+						if ($info['indexed']) {
+							$indexed_weightings[$component] = $info['weight'];
+						}
+					}
 				}
-			}
-		}
 
-		return $indexed_weightings;
+				$this->_tmp['asset_weightings'][$assetid] = $indexed_weightings;
+			}
+
+		}//end if already cached
+
+		return $this->_tmp['asset_weightings'][$assetid];
 
 	}//end getWeightings()
 
@@ -1678,6 +1692,10 @@ class Search_Manager extends Asset
 			trigger_error('Could not write out the '.str_replace('_', ' ', $type).' weightings to file', E_USER_WARNING);
 			return FALSE;
 		}
+
+		// Flush the asset weightings cache
+		unset($this->_tmp['asset_weightings']);
+
 		return TRUE;
 
 	}//end _saveWeightings()
