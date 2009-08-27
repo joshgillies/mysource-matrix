@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.73 2009/08/26 00:56:47 ewang Exp $
+* $Id: ecommerce_checkout.inc,v 1.74 2009/08/27 14:28:03 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -463,6 +463,12 @@ class Ecommerce_Checkout extends Page
 								}
 							}
 						}//end if
+						
+						//if maximum delivery fee is set (!= 0), add it to the session variable
+						$max_delivery_fee = $this->attr('max_delivery_fee');
+						if ($max_delivery_fee != 0) {
+							$_SESSION['sq_region_specific']['max_delivery_fee'] = $max_delivery_fee;
+						}
 						
 					} else if (isset($_SESSION['sq_region_specific'])) {
 						unset($_SESSION['sq_region_specific']);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.14 2009/08/19 05:56:46 lwright Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.15 2009/08/27 14:28:03 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -262,6 +262,13 @@ class Ecommerce_Checkout_Management extends Asset_Management
 											'added'		=> '0.3',
 											'type'		=> 'int',
 											'default'	=> '2',
+											'is_admin'	=> TRUE,
+										 );
+										 
+		$this->vars['max_delivery_fee'] = Array(
+											'added'		=> '0.4',
+											'type'		=> 'float',
+											'default'	=> 0.0,
 											'is_admin'	=> TRUE,
 										 );
 

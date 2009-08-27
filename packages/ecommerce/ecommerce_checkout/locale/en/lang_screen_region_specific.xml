@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_region_specific.xml,v 1.7 2009/08/07 08:56:35 ata Exp $
+* $Id: lang_screen_region_specific.xml,v 1.8 2009/08/27 14:28:03 ata Exp $
 *
 */
 -->
@@ -92,6 +92,10 @@
 				<paint_function   name="paintConditionalDeliveryFee"  />
 				<process_function name="processConditionalDeliveryFee" />
 			</function_call>
+		</field>
+		<field attribute="max_delivery_fee">
+			<display_name>Maximum delivery fee</display_name>
+			<note>If this field is set to a value other than 0, the total delivery fee will be capped to this amount.</note>
 		</field>
 	</section>
 </contents>

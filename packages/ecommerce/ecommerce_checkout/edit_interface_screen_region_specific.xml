@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_region_specific.xml,v 1.7 2009/08/07 08:56:35 ata Exp $
+* $Id: edit_interface_screen_region_specific.xml,v 1.8 2009/08/27 14:28:03 ata Exp $
 *
 */
 -->
@@ -76,6 +76,9 @@
 				<paint_function   name="paintConditionalDeliveryFee"  />
 				<process_function name="processConditionalDeliveryFee" />
 			</function_call>
+		</field>
+		<field attribute="max_delivery_fee">
+			<float width="10" />
 		</field>
 	</section>
 </contents>
