@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.12.2.1 2009/08/10 04:54:26 ewang Exp $
+* $Id: ipb.inc,v 1.12.2.2 2009/08/27 03:56:27 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -49,6 +49,10 @@ class Ipb
 						);
 
 	var $info = NULL;
+	var $version = '2_0_4';
+	var $registry = NULL;
+	var $command = 'fetch_row';
+	var $command_free = 'free_result';
 
 
 	/**
@@ -59,7 +63,8 @@ class Ipb
 	function Ipb($path, $version)
 	{
 		if (!empty($path) && !empty($version)) {
-			$this->setup($path, $version);
+			$this->version = $version;
+			$this->setup($path);
 		}
 
 	}//end constructor
@@ -80,7 +85,7 @@ class Ipb
 	* @return boolean
 	* @access public
 	*/
-	function setup($path, $version)
+	function setup($path)
 	{
 		$ipb_root_path = $path;
 		$ipb_kernel_path = $ipb_root_path.'/ips_kernel';
@@ -100,7 +105,7 @@ class Ipb
 		$this->info =& $INFO;
 
 		// set URL
-		switch ($version) {
+		switch ($this->version) {
 			case '2_0_4' :
 				if (isset($INFO['html_url'])) {
 					$this->ipb_url = $INFO['html_url'];
@@ -110,36 +115,54 @@ class Ipb
 			break;
 			case '2_1_3' :
 			case '2_2_1' :
+			case '3_0_2' :
 				$this->ipb_url = $INFO['board_url'];
 			break;
-	}
+		}//end switch
 
 		$INFO['sql_driver'] = ! $INFO['sql_driver'] ? 'mysql' : strtolower($INFO['sql_driver']);
 
-		require_once $ipb_kernel_path.'/class_db_'.$INFO['sql_driver'].'.php';
+		if ($this->version != '3_0_2') {
+			require_once $ipb_kernel_path.'/class_db_'.$INFO['sql_driver'].'.php';
+		}//end if
 
-		switch ($version) {
+		switch ($this->version) {
 			case '2_0_4' :
-			case '2_1_3' :
 				if (class_exists('db_driver')) {
 					$this->db =& new db_driver;
 				} else {
 					return FALSE;
 				}
 			break;
+			case '2_1_3' :
 			case '2_2_1' :
 				$driver = 'db_driver_'.$INFO['sql_driver'];
 				$this->db =& new $driver;
 			break;
+			case '3_0_2' :
+				require_once($ipb_root_path.'/initdata.php');
+				require_once(IPS_ROOT_PATH.'/sources/base/ipsRegistry.php');
+				$this->registry = ipsRegistry::instance();
+				$this->registry->init();
+				error_reporting(E_ALL);
+				$this->db = $this->registry->DB();
+				$this->command = 'fetch';
+				$this->command_free = 'freeResult';
+			break;
 		}
 
-		define ('IN_IPB', TRUE);
+		if (!defined('IN_IPB')) {
+			define ('IN_IPB', TRUE);
+		}//end if
 		$this->db->obj['sql_database'] = $INFO['sql_database'];
 		$this->db->obj['sql_user'] = $INFO['sql_user'];
 		$this->db->obj['sql_pass'] = $INFO['sql_pass'];
 		$this->db->obj['sql_host'] = $INFO['sql_host'];
 		$this->db->obj['sql_tbl_prefix'] = $INFO['sql_tbl_prefix'];
 		$this->db->obj['query_cache_file'] = $ipb_root_path.'/sources/sql/'.$INFO['sql_driver'].'_queries.php';
+		if ($this->version == '3_0_2') {
+			$this->db->obj['query_cache_file'] = '';
+		}//end if
 		$this->db->obj['use_shutdown'] = 1;
 
 		if (is_array($this->db->connect_vars) && count($this->db->connect_vars)) {
@@ -260,34 +283,57 @@ class Ipb
 	*/
 	function authenticateUser(&$bridge, $username, $password, $is_email_login)
 	{
-		require_once $bridge->attr('location').'/ips_kernel/class_converge.php';
-		$converge =& new class_converge($this->db);
+		switch ($this->version) {
+			case '3_0_2':
+				// New style of authentication
+				$member_key = '';
+				if ($is_email_login) {
+					if (!IPSMember::checkByEmail($username)) return FALSE;
+					$member_key = $username;
+				} else {
+					$sql = 'SELECT m.member_id FROM '.$this->db->obj['sql_tbl_prefix'].'members m
+						WHERE m.name=\''.$username.'\';';
+					$member_info = $this->_getResult($sql, Array(), TRUE);
+					$member_id = array_get_index($member_info, 'member_id', 0);
+					if (empty($member_id)) return FALSE;
+					$member_key = $member_id;
+				}//end if
+				if (empty($member_key)) return FALSE;
+				$md5_password = md5($password);
+				$status = IPSMember::authenticateMember($member_key, $md5_password);
+				return $status;
+			break;
+			default:
+				// Old method of authentication
+				require_once $bridge->attr('location').'/ips_kernel/class_converge.php';
+				$converge =& new class_converge($this->db);
 
-		if ($is_email_login) {
-			if (!$converge->converge_check_for_member_by_email($username)) {
-				return FALSE;
-			}
-			$converge->converge_load_member_by_email($username);
-		} else {
-			$sql = 'SELECT
-						id
-					FROM
-						'.$this->db->obj['sql_tbl_prefix'].'members
-					WHERE
-						name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';
-			';
-			$db_result = $this->db->query($sql);
-			$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
+				if ($is_email_login) {
+					if (!$converge->converge_check_for_member_by_email($username)) {
+						return FALSE;
+					}
+					$converge->converge_load_member_by_email($username);
+				} else {
+					$sql = 'SELECT
+								id	
+							FROM
+								'.$this->db->obj['sql_tbl_prefix'].'members
+							WHERE
+								name=\''.$username.'\';
+					';
+					$db_result = $this->db->query($sql);
+					$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
 
-			while ($row = $this->db->fetch_row($db_result)) {
-				$test[] = $row;
-			}
-			if (empty($test)) return FALSE;
+					while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+						$test[] = $row;
+					}
+					if (empty($test)) return FALSE;
 
-			@$converge->converge_load_member_by_id($test[0]['id']);
-		}
+					@$converge->converge_load_member_by_id($test[0]['id']);
+				}
 
-		return $converge->converge_authenticate_member(md5($password));
+				return $converge->converge_authenticate_member(md5($password));
+		}//end switch
 
 	}//end authenticateUser()
 
@@ -336,8 +382,10 @@ class Ipb
 		$custom_columns		= FALSE;
 		$table_name			= 'members';
 		$table_short_name	= 'm';
-		$m_cols				= Array('id', 'name', 'mgroup', 'email', 'title', 'member_login_key');
-		$g_cols				= Array('g_id', 'g_title', 'g_mem_info', 'prefix', 'suffix');
+		$member_id_field = $this->_getMemberIdField();
+		$member_group_id_field = $this->_getMemberGroupIdField();
+		$m_cols = Array($member_id_field, 'name', $member_group_id_field, 'email', 'title', 'member_login_key');
+		$g_cols	= Array('g_id', 'g_title', 'g_mem_info', 'prefix', 'suffix');
 
 		if (empty($cols)) {
 			foreach ($m_cols as $c) {
@@ -351,11 +399,11 @@ class Ipb
 		}
 
 		// build query
-		$wher = '';
+		$where = '';
 		if ($id) {
-			$where = 'WHERE '.$table_short_name.'.id='.$id;
+			$where = 'WHERE '.$table_short_name.'.'.$member_id_field.'='.$id;
 		}
-		$join = 'LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'groups g ON (m.mgroup=g.g_id)';
+		$join = 'LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'groups g ON (m.'.$member_group_id_field.'=g.g_id)';
 		$sql = $this->_buildQuery($columns, $table_name, $table_short_name, $where, $join);
 
 		// get the result
@@ -364,7 +412,7 @@ class Ipb
 
 		$result = Array();
 		$cols = array_merge($m_cols, $g_cols);
-		while ($row = $this->db->fetch_row($db_result)) {
+		while ($row = $this->db->{$this->command}($db_result)) {
 			if (!$custom_columns) {
 				$key = $row[$cols[0]];
 				$tmp_cols = array_slice($cols, 1);
@@ -381,7 +429,9 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		$this->db->free_result($db_result);
+		$this->db->{$this->command_free}($db_result);
+
+		$result = $this->_maintainDataFormat($result);
 
 		return $result;
 
@@ -427,6 +477,8 @@ class Ipb
 		// add column names
 		$columns		= Array();
 		$custom_columns	= FALSE;
+		$member_id_field = $this->_getMemberIdField();
+		$member_group_id_field = $this->_getMemberGroupIdField();
 
 		if ($table_name == 'members') {
 			$table_short_name='u';
@@ -434,63 +486,94 @@ class Ipb
 			$table_short_name='g';
 		}
 
-		if (empty($cols)) {
-			if ($table_name == 'members') {
-				$cols = Array(
-							'u.id',
-							'u.name',
-							'u.mgroup',
-							'u.email',
-							'u.title',
-							'u.member_login_key',
-							'u.bday_day',
-							'u.bday_month',
-							'u.bday_year',
-							'ue.photo_type',
-							'ue.photo_location',
-							'ue.aim_name',
-							'ue.icq_number',
-							'ue.website',
-							'ue.yahoo',
-							'ue.interests',
-							'ue.msnname',
-							'ue.vdirs',
-							'ue.location',
-							'ue.signature',
-							'ue.avatar_location',
-							'ue.avatar_size',
-							'ue.avatar_type',
-						);
-			} else if ($table_name == 'groups') {
-				$cols = Array('g.g_id', 'g.g_title', 'g.g_mem_info', 'g.prefix', 'g.suffix');
-			}
-		} else {
-			$custom_columns = TRUE;
-		}
+		switch($this->version) {
+			case '3_0_2':
+				if (empty($cols)) {
+					if ($table_name == 'members') {
+						$cols = 'u.'.$member_id_field.', u.name, u.'.$member_group_id_field.', u.email, u.title, u.member_login_key, u.bday_day, u.bday_month, u.bday_year, \'\' as vdir, me.field_3 as aim_name, me.field_4 as msnname, me.field_5 as website, me.field_6 as icq_number, me.field_8 as location, me.field_9 as interests, me.field_10 as yahoo, ue.avatar_type as photo_type, ue.avatar_location as photo_location, ue.avatar_size as photo_dimensions, ue.notes, ue.links, ue.bio, ue.ta_size, ue.signature, ue.avatar_location, ue.avatar_size, ue.avatar_type '; 
+					} else if ($table_name == 'groups') {
+						$cols = 'g.g_id, g.g_title, g.g_mem_info, g.prefix, g.suffix ';
+					}//end if
+				} else {
+					$custom_columns = TRUE;
+				}//end if
+				
+				$from = $this->db->obj['sql_tbl_prefix'].$table_name.' '.$table_short_name;
+				$join = '';
+				if ($table_name == 'members') {
+					$join  = ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'profile_portal ue ON u.'.$member_id_field.'=ue.pp_member_id';
+					$join .= ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'pfields_content me ON me.member_id=u.'.$member_id_field;
+				}
+				// build query
+				$where = '';
+				if ($id) {
+					if ($table_name == 'members') {
+						$where = ' WHERE '.$table_short_name.'.'.$member_id_field.'='.$id;
+					} else if ($table_name == 'groups') {
+						$where = ' WHERE '.$table_short_name.'.g_id='.$id;
+					}
+				}
+				$sql = 'SELECT '.$cols.$from.$join.$where;
+			break;
+			default:
+				if (empty($cols)) {
+					if ($table_name == 'members') {
+						$cols = Array(
+									'u.'.$member_id_field,
+									'u.name',
+									'u.'.$member_group_id_field,
+									'u.email',
+									'u.title',
+									'u.member_login_key',
+									'u.bday_day',
+									'u.bday_month',
+									'u.bday_year',
+									'ue.photo_type',
+									'ue.photo_location',
+									'ue.aim_name',
+									'ue.icq_number',
+									'ue.website',
+									'ue.yahoo',
+									'ue.interests',
+									'ue.msnname',
+									'ue.vdirs',
+									'ue.location',
+									'ue.signature',
+									'ue.avatar_location',
+									'ue.avatar_size',
+									'ue.avatar_type',
+								);
+					} else if ($table_name == 'groups') {
+						$cols = Array('g.g_id', 'g.g_title', 'g.g_mem_info', 'g.prefix', 'g.suffix');
+					}
+				} else {
+					$custom_columns = TRUE;
+				}
 
-		$columns = $cols;
+				$columns = $cols;
 
-		$join = '';
-		if ($table_name == 'members') {
-			$join = ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra ue ON u.id=ue.id';
-		}
-		// build query
-		$where = '';
-		if ($id) {
-			if ($table_name == 'members') {
-				$where = ' WHERE '.$table_short_name.'.id='.$id;
-			} else if ($table_name == 'groups') {
-				$where = ' WHERE '.$table_short_name.'.g_id='.$id;
-			}
-		}
-		$sql = $this->_buildQuery($columns, $table_name, $table_short_name, $where, $join);
+				$join = '';
+				if ($table_name == 'members') {
+					$join = ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra ue ON u.'.$member_id_field.'=ue.id';
+				}
+				// build query
+				$where = '';
+				if ($id) {
+					if ($table_name == 'members') {
+						$where = ' WHERE '.$table_short_name.'.'.$member_id_field.'='.$id;
+					} else if ($table_name == 'groups') {
+						$where = ' WHERE '.$table_short_name.'.g_id='.$id;
+					}
+				}
+				$sql = $this->_buildQuery($columns, $table_name, $table_short_name, $where, $join);
+		}//end switch
 
 		// get the result
 		$db_result = $this->db->query($sql);
 		$this->_assertValidResult($this->db, 'Could not get IPB member group info');
 
 		$result = Array();
-		while ($row = $this->db->fetch_row($db_result)) {
+		while ($row = $this->db->{$this->command}($db_result)) {
 			if (!$custom_columns) {
 				$tmp_col_name = explode('.', $cols[0]);
 				$key = $row[$tmp_col_name[1]];
@@ -505,7 +588,7 @@ class Ipb
 			} else {
 				$tmp = Array('type' => $table_name);
 				foreach ($cols as $c) {
-					if ($c == 'id' || $c == 'g_id') {
+					if ($c == $member_id_field || $c == 'g_id') {
 						$tmp[$c] = $table_short_name.'_'.$row[$c];
 					} else {
 						$tmp[$c] = $row[$c];
@@ -514,7 +597,9 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		$this->db->free_result($db_result);
+		$this->db->{$this->command_free}($db_result);
+
+		$result = $this->_maintainDataFormat($result);
 
 		return $result;
 
@@ -534,14 +619,15 @@ class Ipb
 	*/
 	function getMembers($member_id=0, $group_id=0, $cols=Array())
 	{
-
 		// add column names
 		$columns		= Array();
 		$custom_columns	= FALSE;
 		$table_name = 'members';
 		$table_short_name='m';
+		$member_id_field = $this->_getMemberIdField();
+		$member_group_id_field = $this->_getMemberGroupIdField();
 		if (empty($cols)) {
-			$cols = Array('id', 'name', 'mgroup', 'email', 'title', 'member_login_key');
+			$cols = Array($member_id_field, 'name', $member_group_id_field, 'email', 'title', 'member_login_key');
 		} else {
 			$custom_columns = TRUE;
 		}
@@ -556,10 +642,10 @@ class Ipb
 		if ($member_id || $group_id) {
 			$where = ' WHERE ';
 			if ($member_id) {
-				$where .= $table_short_name.'.id='.$member_id.(($group_id) ? ' and ' : '');
+				$where .= $table_short_name.'.'.$member_id_field.'='.$member_id.(($group_id) ? ' and ' : '');
 			}
 			if ($group_id) {
-				$where .= $table_short_name.'.mgroup='.$group_id;
+				$where .= $table_short_name.'.'.$member_group_id_field.'='.$group_id;
 			}
 		}
 
@@ -570,13 +656,13 @@ class Ipb
 		$this->_assertValidResult($this->db, 'Could not get IPB member(s)');
 
 		$result = Array();
-		while ($row = $this->db->fetch_row($db_result)) {
+		while ($row = $this->db->{$this->command}($db_result)) {
 			if (!$custom_columns) {
 				$key = $row[$cols[0]];
 				$tmp_cols = array_slice($cols, 1);
 				$data = Array();
 				foreach ($tmp_cols as $c) {
-					if ($c == 'mgroup') {
+					if ($c == $member_group_id_field) {
 						$data[$c] = 'g_'.$row[$c];
 					} else {
 						$data[$c] = $row[$c];
@@ -587,7 +673,7 @@ class Ipb
 			} else {
 				$tmp = Array('type' => $table_name);
 				foreach ($cols as $c) {
-					if ($c == 'id') {
+					if ($c == $member_id_field) {
 						$tmp[$c] = 'u_'.$row[$c];
 					} else {
 						$tmp[$c] = $row[$c];
@@ -596,7 +682,9 @@ class Ipb
 				$result[] = $tmp;
 			}
 		}
-		$this->db->free_result($db_result);
+		$this->db->{$this->command_free}($db_result);
+
+		$result = $this->_maintainDataFormat($result);
 
 		return $result;
 
@@ -700,13 +788,14 @@ class Ipb
 	*/
 	function canViewBoard($username)
 	{
+		$member_group_id_field = $this->_getMemberGroupIdField();
 		$sql = 'SELECT
 					m.name, g.g_view_board
 				FROM
 					'.$this->db->obj['sql_tbl_prefix'].'members m,
 					'.$this->db->obj['sql_tbl_prefix'].'groups g
 				WHERE
-					m.mgroup=g.g_id and
+					m.'.$member_group_id_field.'=g.g_id and
 					m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\'
 				;';
 		return $this->_getResult($sql, Array(), TRUE);
@@ -728,10 +817,17 @@ class Ipb
 		if (!isset($tmp[1])) return Array();
 		$tmp = explode('_', $tmp[1]);
 		$id = $tmp[1];
+		switch ($this->version) {
+			case '3_0_2':
+				$sql = 'SELECT m.*, \'\' as vdir, me.field_3 as aim_name, me.field_4 as msnname, me.field_5 as website, me.field_6 as icq_number, me.field_8 as location, me.field_9 as interests, me.field_10 as yahoo, ue.avatar_type as photo_type, ue.avatar_location as photo_location, ue.avatar_size as photo_dimensions, ue.notes, ue.links, ue.bio, ue.ta_size, ue.signature, ue.avatar_location, ue.avatar_size, ue.avatar_type FROM '.$this->db->obj['sql_tbl_prefix'].'members m LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'profile_portal ue ON ue.pp_member_id=m.member_id LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'pfields_content me ON me.member_id=m.member_id WHERE m.member_id='.$id;
+			break;
+			default:
+				$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.id='.$id, ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		}//end switch
 
-		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.id='.$id, ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		$data = $this->_getResult($sql, Array(), TRUE, TRUE);
 
-		return $this->_getResult($sql, Array(), TRUE);
+		return $data;
 
 	}//end getMemberInfo()
 
@@ -746,9 +842,18 @@ class Ipb
 	*/
 	function getMemberInfoByName($member_name)
 	{
-		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($member_name, ENT_QUOTES)).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		switch ($this->version) {
+			case '3_0_2':
+				$member_id_field = $this->_getMemberIdField(); 
+				$sql = 'SELECT m.*, \'\' as vdir, me.field_3 as aim_name, me.field_4 as msnname, me.field_5 as website, me.field_6 as icq_number, me.field_8 as location, me.field_9 as interests, me.field_10 as yahoo, ue.avatar_type as photo_type, ue.avatar_location as photo_location, ue.avatar_size as photo_dimensions, ue.notes, ue.links, ue.bio, ue.ta_size, ue.signature, ue.avatar_location, ue.avatar_size, ue.avatar_type FROM '.$this->db->obj['sql_tbl_prefix'].'members m LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'profile_portal ue ON ue.pp_member_id=m.member_id LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'pfields_content me ON me.member_id=m.member_id WHERE m.name=\''.htmlspecialchars($member_name, ENT_QUOTES).'\'';
+			break;
+			default:
+				$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($member_name, ENT_QUOTES)).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		}//end switch
 
-		return $this->_getResult($sql, Array(), TRUE);
+		$data = $this->_getResult($sql, Array(), TRUE, TRUE);
+
+		return $data;
 
 	}//end getMemberInfoByName()
 
@@ -763,14 +868,27 @@ class Ipb
 	*/
 	function getMemberParent($member_id)
 	{
+		$member_id_field = $this->_getMemberIdField();
+		$member_group_id_field = $this->_getMemberGroupIdField();
+		switch ($this->version) {
+			case '3_0_2':
+				$member_id_field = 'member_id';
+				$member_group_id_field = 'member_group_id';
+			break;
+			default:
+				$member_id_field = 'id';
+				$member_group_id_field = 'mgroup';
+		}//end switch
 		$tmp = explode(':', $member_id);
 		if (!isset($tmp[1])) return Array();
 		$tmp = explode('_', $tmp[1]);
 		$id = $tmp[1];
 
-		$sql = $this->_buildQuery(Array('mgroup'), 'members', 'm', ' WHERE m.id='.$id);
+		$sql = $this->_buildQuery(Array($member_group_id_field), 'members', 'm', ' WHERE m.'.$member_id_field.'='.$id);
 
-		return $this->_getResult($sql, Array(), TRUE);
+		$data = $this->_getResult($sql, Array(), TRUE, TRUE);
+
+		return $data;
 
 	}//end getMemberParent()
 
@@ -785,10 +903,12 @@ class Ipb
 	*/
 	function getListOfMembers($group_id=0)
 	{
+		$member_id_field = $this->_getMemberIdField();
+		$member_group_id_field = $this->_getMemberGroupIdField();
 		$fields = Array(
-					'u.id',
+					'u.'.$member_id_field,
 					'u.name',
-					'u.mgroup',
+					'u.'.$member_group_id_field,
 				  );
 
 		if ($group_id== 0) {
@@ -798,10 +918,17 @@ class Ipb
 			if (!isset($tmp[1])) return Array();
 			$tmp = explode('_', $group_id);
 			$id = $tmp[1];
-			$sql = $this->_buildQuery($fields, 'members', 'u', ' WHERE u.mgroup='.$id);
+			$sql = $this->_buildQuery($fields, 'members', 'u', ' WHERE u.'.$member_group_id_field.'='.$id);
 		}
 
-		return $this->_getResult($sql, Array(), FALSE);
+		$results = $this->_getResult($sql, Array(), FALSE);
+
+		// Different format, so extra cleaning is involved
+		foreach ($results as $index => $result) {
+			$results[$index] = $this->_maintainDataFormat($result);
+		}//end foreach
+
+		return $results;
 
 	}//end getListOfMembers()
 
@@ -921,7 +1048,6 @@ class Ipb
 	*/
 	function getListOfForums($root_forum_id)
 	{
-
 		$tmp = explode('_', $root_forum_id);
 		$id = $tmp[1];
 
@@ -1259,17 +1385,18 @@ class Ipb
 	* @param array		$key_change		The caller can specify the name of the key
 	*									by providing the pair of the old and new key
 	* @param boolean	$one_element	If the result only contains one element, it's TRUE
+	* @param boolean	$backward		If TRUE, make sure the data in the array is backward compatible
 	*
 	* @return array
 	* @access private
 	*/
-	function _getResult($sql, $key_change=Array(), $one_element=FALSE)
+	function _getResult($sql, $key_change=Array(), $one_element=FALSE, $backward=FALSE)
 	{
 		$db_result = $this->db->query($sql);
 		$this->_assertValidResult($this->db, 'Could not get result from IPB');
 
 		$result = Array();
-		while ($row = $this->db->fetch_row($db_result)) {
+		while ($row = $this->db->{$this->command}($db_result)) {
 			if (!empty($key_change)) {
 				foreach ($key_change as $old_key => $new_key) {
 					$row[$new_key] = $row[$old_key];
@@ -1277,8 +1404,13 @@ class Ipb
 			}
 			$result[] = $row;
 		}
+		$this->db->{$this->command_free}($db_result);
 		if (empty($result)) return Array();
 		if ($one_element) $result = array_pop($result);
+
+		if ($backward) {
+			$result = $this->_maintainDataFormat($result);
+		}//end if
 
 		return $this->_htmlDecode($result);
 
@@ -1367,6 +1499,68 @@ class Ipb
 		}
 
 	}//end _assertValidResult()
+
+
+	/**
+	 * Return the member_id (used to maintain backwards compatability)
+	 *
+	 * @return string
+	 * @access private
+	 */
+	protected function _getMemberIdField()
+	{
+		switch ($this->version) {
+			case '3_0_2':
+				return 'member_id';
+			default:
+				return 'id';
+		}//end switch
+	
+	}//end _getMemberIdField()
+
+
+	/**
+	 * Return the member_group_id (used to maintain backwards compatability)
+	 *
+	 * @return string
+	 * @access private
+	 */
+	protected function _getMemberGroupIdField()
+	{
+		switch ($this->version) {
+			case '3_0_2':
+				return 'member_group_id';
+			default:
+				return 'mgroup';
+		}//end switch
+	
+	}//end _getMemberIdField()
+
+
+	/**
+	 * Maintain data format (used to maintain backwards compatability)
+	 *
+	 * @param array	$data	The array to maintain
+	 *
+	 * @return string
+	 * @access private
+	 */
+	protected function _maintainDataFormat($data=Array())
+	{
+		switch ($this->version) {
+			case '3_0_2':
+				if (isset($data['member_id'])) {
+					$data['id'] = $data['member_id'];
+				}//end if
+				if (isset($data['member_group_id'])) {
+					$data['mgroup'] = $data['member_group_id'];
+				}//end if
+			break;
+		}//end switch
+
+		return $data;
+	
+	}//end _maintainDataFormat()
 
 
 }//end class
