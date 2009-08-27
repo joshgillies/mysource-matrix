@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.12 2009/08/20 03:34:49 cupreti Exp $
+* $Id: asset_manager.inc,v 1.738.2.13 2009/08/27 00:25:28 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.12 $
+* @version $Revision: 1.738.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8427,7 +8427,6 @@ class Asset_Manager extends MySource_Object
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
 				$userid2_conds = Array(':'.$bind_prefix.'userids_2_current', ':'.$bind_prefix.'userids_2_public_user');
-				$userid3_conds = Array(':'.$bind_prefix.'userids_3_current', ':'.$bind_prefix.'userids_3_public_user');
 
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$public_userid = (string)$this->getSystemAssetid('public_user');
@@ -8436,27 +8435,20 @@ class Asset_Manager extends MySource_Object
 				$bind_vars[$bind_prefix.'userids_1_public_user']  = $public_userid;
 				$bind_vars[$bind_prefix.'userids_2_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
 				$bind_vars[$bind_prefix.'userids_2_public_user']  = $public_userid;
-				$bind_vars[$bind_prefix.'userids_3_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
-				$bind_vars[$bind_prefix.'userids_3_public_user']  = $public_userid;
 
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userid1_conds[] = ':'.$bind_prefix.'userids_1_'.$i;
 					$bind_vars[$bind_prefix.'userids_1_'.$i] = $userids[$i];
 					$userid2_conds[] = ':'.$bind_prefix.'userids_2_'.$i;
 					$bind_vars[$bind_prefix.'userids_2_'.$i] = $userids[$i];
-					$userid3_conds[] = ':'.$bind_prefix.'userids_3_'.$i;
-					$bind_vars[$bind_prefix.'userids_3_'.$i] = $userids[$i];
 				}
 
 				$userids1_str = implode(',', $userid1_conds);
 				$userids2_str = implode(',', $userid2_conds);
-				$userids3_str = implode(',', $userid3_conds);
 
 				$userid_cond = ' AND (p.userid IN ('.$userids1_str.') OR r.userid IN ('.$userids2_str.'))';
 				// join to roles table
-				$from .= '
-					LEFT JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role WHERE userid IN
-					('.$userids3_str.')) r on p.userid = r.roleid';
+				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = l.minorid)';
 
 
 				$where .= $userid_cond.'
@@ -8749,7 +8741,7 @@ class Asset_Manager extends MySource_Object
 				$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
+					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid r.assetid = a.assetid) ';
 
 					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
@@ -9175,7 +9167,7 @@ class Asset_Manager extends MySource_Object
 		$from .= $where.') ll ';
 		$outer_where = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON ll.userid = r.roleid';
+			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = a.assetid)';
 
 			// Need to regenerate the user conditions because of the need for different bind vars
 			$userid_cond_ll = Array();
