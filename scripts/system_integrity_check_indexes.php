@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.4 2009/03/17 05:54:49 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.5 2009/08/27 03:13:34 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -239,6 +239,20 @@ foreach ($packages as $_pkgid => $pkg_details) {
 							printUpdateStatus('OK');
 							continue;
 						} else {
+							/**
+							* Some fieldnames automatically have quotes put around them by postgres
+							* So see if that's the case.
+							* If it is, take them out and re-check the definition.
+							*/
+							if (preg_match('/"/', $index_definition)) {
+								$index_definition = str_replace('"', '', $index_definition);
+								$found_index_columns = explode(',', $index_definition);
+								if ($found_index_columns === $index_info['columns']) {
+									printUpdateStatus('OK');
+									continue;
+								}
+							}
+
 							printUpdateStatus('Incorrect');
 							$bad_indexes[] = array('index_name' => $full_idx_name, 'expected' => implode(',', $index_info['columns']), 'found' => $index_definition);
 							continue;
