@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.13 2009/08/27 00:25:28 akarelia Exp $
+* $Id: asset_manager.inc,v 1.738.2.14 2009/08/27 23:02:14 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.13 $
+* @version $Revision: 1.738.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7050,7 +7050,7 @@ class Asset_Manager extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get role data due to database error: '.$e->getMessage());
 		}
-		
+
 		$roles = Array();
 		foreach ($result as $roleid => $userid_assetids) {
 			foreach ($userid_assetids as $index => $userid_assetid) {
@@ -8741,7 +8741,7 @@ class Asset_Manager extends MySource_Object
 				$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid r.assetid = a.assetid) ';
+					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
 
 					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
