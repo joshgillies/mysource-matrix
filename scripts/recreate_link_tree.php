@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.22.2.2 2009/08/26 23:34:22 akarelia Exp $
+* $Id: recreate_link_tree.php,v 1.22.2.3 2009/08/27 01:45:07 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -140,6 +140,13 @@ if ($pgdb) {
 }
 
 echo_headline($echo_i.' TREE ENTRIES CREATED');
+
+// as a part of bug fix #3864 Rebuilding Link Tree breaks triggers , ask user runnin the script to 
+// also run regenerate_treeids_for_triggers.php script as well
+fwrite(STDERR, "\n\n*************************************************************************
+ PLEASE RUN regenerate_treeids_for_triggers.php SCRIPT AFTER RECREATING
+ LINK TREE IF YOU HAVE ANY TRIGGERS INSTALLED ON THE SYSTEM
+*************************************************************************\n\n");
 
 $script_end = time();
 $script_duration = $script_end - $script_start;
