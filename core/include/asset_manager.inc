@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.754 2009/08/28 01:05:45 csmith Exp $
+* $Id: asset_manager.inc,v 1.755 2009/08/28 06:45:58 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.754 $
+* @version $Revision: 1.755 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8694,7 +8694,6 @@ class Asset_Manager extends MySource_Object
 
 			// now merge the bind vars into the master array
 			$bind_vars = array_merge($bind_vars, $where_bind_vars);
-		
 
 			// if direct shadow asset children should be returned
 			$union_select = ' UNION ALL SELECT sl.minorid';
@@ -8838,8 +8837,8 @@ class Asset_Manager extends MySource_Object
 		$ret_val = Array(
 					'sql_array'	=> $sql_array,
 					'bind_vars'	=> $bind_vars,
-				   );
-		
+				);
+
 		return $ret_val;
 
 	}//end generateGetChildrenQuery()
@@ -9228,7 +9227,7 @@ class Asset_Manager extends MySource_Object
 		$from .= $where.') ll ';
 		$outer_where = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = a.assetid)';
+			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid)';
 
 			// Need to regenerate the user conditions because of the need for different bind vars
 			$userid_cond_ll = Array();
