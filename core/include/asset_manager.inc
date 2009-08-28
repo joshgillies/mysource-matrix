@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.755 2009/08/28 06:45:58 csmith Exp $
+* $Id: asset_manager.inc,v 1.756 2009/08/28 07:04:49 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.755 $
+* @version $Revision: 1.756 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8883,7 +8883,7 @@ class Asset_Manager extends MySource_Object
 
 		$from = 'FROM
 					(
-					SELECT l.majorid, t.treeid, a.type_code, a.name ';
+					SELECT a.assetid, l.majorid, t.treeid, a.type_code, a.name ';
 
 		$perm_join = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -9227,7 +9227,7 @@ class Asset_Manager extends MySource_Object
 		$from .= $where.') ll ';
 		$outer_where = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid)';
+			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = ll.assetid)';
 
 			// Need to regenerate the user conditions because of the need for different bind vars
 			$userid_cond_ll = Array();
