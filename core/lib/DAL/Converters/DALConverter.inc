@@ -276,19 +276,13 @@ class DALConverter
             }
 
             if ($joins !== '') {
-                $sql .= $this->getConstructName('where');
                 $sql .= "\n".$joins."\n";
             }
         }
 
         if (in_array('where', $ignore) === FALSE) {
             if (isset($sqlArray['WHERE']) === TRUE) {
-                if ($joins === '') {
-                    $sql .= $this->getConstructName('where');
-                } else {
-                    $sql .= 'AND';
-                }
-
+                $sql .= $this->getConstructName('where');
                 $sql .= "\n".$this->convertWhereClause($sqlArray['WHERE'], $level);
             }
         }
@@ -1127,11 +1121,13 @@ class DALConverter
     {
         $sql  = '';
         $list = array();
+        $first = TRUE;
         foreach ($joins as $join) {
-            $list[] = $this->convertSingleJoin($join);
+            $list[] = $this->convertSingleJoin($join, $first);
+            $first  = FALSE;
         }
 
-        $sql = implode("\nAND ", $list);
+        $sql = implode(",\n", $list);
 
         return $sql;
 
@@ -1146,14 +1142,29 @@ class DALConverter
      * @since  4.0.0
      * @return string
      */
-    protected function convertSingleJoin(array $join)
+    protected function convertSingleJoin(array $join, $first=FALSE)
     {
         $sql = '';
         if (isset($join['ARGS']) === TRUE) {
-            // Each join must have 2 elements.
-            $sql  = $join['ARGS'][0]['table'].'.'.$join['ARGS'][0]['column'];
-            $sql .= ' '.$this->getComparisonOperators($join['type']).' ';
-            $sql .= $join['ARGS'][1]['table'].'.'.$join['ARGS'][1]['column'];
+            if ($first === FALSE) {
+                $sql .= $join['ARGS'][0]['table'].' ';
+            }
+
+            $joinType = strtoupper($join['type']);
+            if ($joinType === '') {
+                $joinType = 'INNER JOIN';
+            }
+
+            $sql .= $joinType.' ';
+            $sql .= $join['ARGS'][1]['table'].' ';
+
+            // Do not write ON clause if this is a Natural or Cross join.
+            if ($joinType !== 'NATURAL JOIN' || $joinType === 'CROSS JOIN') {
+                $sql .= ' ON ';
+                $sql .= $join['ARGS'][0]['table'].'.'.$join['ARGS'][0]['column'];
+                $sql .= ' = ';
+                $sql .= $join['ARGS'][1]['table'].'.'.$join['ARGS'][1]['column'];
+            }
         }
 
         return $sql;
