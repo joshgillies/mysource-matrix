@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.14 2009/08/27 23:02:14 bpearson Exp $
+* $Id: asset_manager.inc,v 1.738.2.15 2009/08/28 06:49:15 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.14 $
+* @version $Revision: 1.738.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2625,7 +2625,8 @@ class Asset_Manager extends MySource_Object
 						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-		$where = 'l.'.$side_of_link.'id = \''.$assetid.'\'';
+		$where = 'l.'.$side_of_link.'id = :assetid';
+		$bind_vars['assetid'] = $assetid;
 
 		if (!is_null($link_type)) {
 			$where .= '
@@ -8693,7 +8694,6 @@ class Asset_Manager extends MySource_Object
 
 			// now merge the bind vars into the master array
 			$bind_vars = array_merge($bind_vars, $where_bind_vars);
-		
 
 			// if direct shadow asset children should be returned
 			$union_select = ' UNION ALL SELECT sl.minorid';
@@ -8837,8 +8837,8 @@ class Asset_Manager extends MySource_Object
 		$ret_val = Array(
 					'sql_array'	=> $sql_array,
 					'bind_vars'	=> $bind_vars,
-				   );
-		
+				);
+
 		return $ret_val;
 
 	}//end generateGetChildrenQuery()
@@ -8996,21 +8996,55 @@ class Asset_Manager extends MySource_Object
 				/**
 				 * Here we have both min_height & max_height
 				 * and they are also different values
-				 * TODO: more work on optimizing this case.
+				 */
+
+				/**
+				 * If min_height > max_height, just switch them
+				 * We would end up with the same queries anyway.
 				*/
-
-				$where_comp = ':'.$bind_prefix.'treeid_'.$i.' LIKE t.treeid || \'%\'';
-				$bind_vars[$bind_prefix.'treeid_'.$i] = $treeid;
-
-				if ($min_height < $max_height) {
-					$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-					$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-				} else if ($min_height > $max_height) {
-					$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-					$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				if ($min_height > $max_height) {
+					$temp_min_height = $min_height;
+					$max_height = $min_height;
+					$min_height = $temp_min_height;
+					unset($temp_min_height);
 				}
+
+				/**
+				* Set some temporary variables in case the originals are used elsewhere.
+				*/
+				$temp_min_height = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				$treeid_counter = 1;
+
+				/**
+				* Because we actually take (max_height - 1), we need to copy off one chunk from the end
+				*/
+				$temp_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+
+				$where_comp = 't.treeid IN (';
+
+				/**
+				* Get exact treeid's by taking off SQ_CONF_ASSET_TREE_SIZE chunks from the end
+				* until we end up with the length we're looking for (temp_min_height)
+				*/
+				while (strlen($temp_treeid) > $temp_min_height) {
+					$tree_var_name = $bind_prefix . 'treeid_' . $i . '_' . $treeid_counter;
+					$bind_vars[$tree_var_name] = $temp_treeid;
+					$where_comp .= ':' . $tree_var_name.',';
+					$treeid_counter++;
+					$temp_treeid = substr($temp_treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+				}
+
+				/**
+				* If the height is > 0, we need to add the last treeid to the query.
+				* This can't be done above because we'd end up with an infinite loop
+				*/
+				if ($temp_min_height > 0) {
+					$tree_var_name = $bind_prefix . 'treeid_' . $i . '_' . $treeid_counter;
+					$bind_vars[$tree_var_name] = $temp_treeid;
+					$where_comp .= ':' . $tree_var_name.',';
+				}
+				$where_comp = rtrim($where_comp, ',');
+				$where_comp .= ')';
 
 				$where_comps[] = $where_comp;
 			}
@@ -9018,27 +9052,53 @@ class Asset_Manager extends MySource_Object
 			$where = '(('.implode(') OR (', $where_comps).'))';
 
 		} else {
-			// No conditions, just stick the treeids query straight into the main query
-			$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
-
-			$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
-			$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
-
-			if (MatrixDAL::getDbType() === 'oci') {
-				$in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
-			} else {
-				$in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
-			}
-
-			$from .= ', (' . $in_sql . ') tree_linkids';
 
 			/**
-			* end up with
-			* select treeid from
-			* sq_ast_lnk_tree t, ($in_sql) tree_linkids
-			* where t.treeid=tree_linkids.treeid
-			*/
-			$where = 't.treeid=tree_linkids.treeid';
+			 * If there are no conditions, then work out which treeid's to look at.
+			 *
+			 * This is a separate query for performance reasons.
+			 * Previously it was an 'IN' clause in the main query, but because it runs through a function
+			 * the query optimizers can't cope with it efficiently.
+			 * (this affects both oracle and postgres)
+			 *
+			 * So we do a query here to get the treeid's
+			 * which are then put into the main query.
+			 *
+			 * and since we're now looking at static id's basically,
+			 * the optimizers are a lot happier
+			 *
+			 * This is also done with the assumption that you'll never have a lot of parents
+			 * as oracle has a limit on the number of id's you can use in an in clause (999).
+			 *
+			 * Instead of calling the sq_get_parent_treeids database function/stored procedure,
+			 * take the query directly and run it here.
+			 * Then we need to chop the treeid's returned from that into SQ_CONF_ASSET_TREE_SIZE chunks
+			 * and use those in the where clause.
+			 */
+			$tree_sql = 'SELECT treeid FROM ' . SQ_TABLE_RUNNING_PREFIX . 'ast_lnk l INNER JOIN ' . SQ_TABLE_RUNNING_PREFIX .
+				'ast_lnk_tree t ON l.linkid = t.linkid WHERE l.minorid=:' . $bind_prefix . 'treeids_assetid';
+
+			$tree_bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
+			$query = MatrixDAL::preparePdoQuery($tree_sql);
+			foreach ($tree_bind_vars as $tree_bind_var => $tree_bind_value) {
+				MatrixDAL::bindValueToPdo($query, $tree_bind_var, $tree_bind_value);
+			}
+			$tree_result = MatrixDAL::executePdoAll($query);
+
+			$where = '';
+
+			if (!empty($tree_result)) {
+				$where = 't.treeid IN (';
+				foreach ($tree_result as $tree_row) {
+					$treeid = $tree_row['treeid'];
+					while (strlen($treeid) > 0) {
+						$where .= MatrixDAL::Quote($treeid) . ',';
+						$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					}
+				}
+				$where = rtrim($where, ',');
+				$where .= ')';
+			}
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -9167,7 +9227,7 @@ class Asset_Manager extends MySource_Object
 		$from .= $where.') ll ';
 		$outer_where = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = a.assetid)';
+			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid)';
 
 			// Need to regenerate the user conditions because of the need for different bind vars
 			$userid_cond_ll = Array();
