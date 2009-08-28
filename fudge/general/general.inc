@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.47 2009/08/24 01:52:04 ewang Exp $
+* $Id: general.inc,v 1.48 2009/08/28 00:35:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package Fudge
 * @subpackage General
 */
@@ -373,14 +373,16 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 	$upper_letters		= 'DFGHLNQRT';
 
 	$password   = '';
-	global $RANDOM_PASSWORD_SEED;
+
+	//As of PHP 4.2.0, there is no need to seed the random number generator, it is done automatically by rand()
+	//global $RANDOM_PASSWORD_SEED;
 
 	// If we are including uppercase characters, ensure at least one is present
 	$uppercase_indexes = Array();
 	$chosen_default_uppercase_index = rand(0, $length-1);
-	$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+	//$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
 	if (($include_uppercase) && ($length > 1)) {
-		srand($seed);
+		//srand($seed);
 
 		$uppercase_indexes[$chosen_default_uppercase_index] = 1;
 		$num_added = 1;
@@ -397,7 +399,7 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 	// If we are including numbers, ensure at least one is present
 	$number_indexes = Array();
 	if (($include_numbers) && ($length > 2)) {
-		srand($seed);
+		//srand($seed);
 
 		// Ensure that we don't place our initial inserted number over the top of an uppercase letter
 		$chosen_default_number_index = rand(0, $length-1);
@@ -419,9 +421,9 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 	$current_index = 0;
 	while ($length > 0) {
-		$RANDOM_PASSWORD_SEED += $length;
-		$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
-		srand($seed);
+		//$RANDOM_PASSWORD_SEED += $length;
+		//$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+		//srand($seed);
 		$appended_characters = $letters[rand(0,strlen($letters)-1)];
 
 		// Assign either an uppercase letter or a number if we are destined to do so
@@ -435,7 +437,7 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 		$password .= $appended_characters;
 		$length -= 1;
 	}//end while
-	$RANDOM_PASSWORD_SEED++;
+	//$RANDOM_PASSWORD_SEED++;
 
 	return $password;
 
