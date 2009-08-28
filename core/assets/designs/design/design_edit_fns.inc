@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.130.4.1 2009/07/29 00:36:11 wszymanski Exp $
+* $Id: design_edit_fns.inc,v 1.130.4.2 2009/08/28 05:26:12 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130.4.1 $
+* @version $Revision: 1.130.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -215,7 +215,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre; width: 99%; height: 480px"');
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-line; width: 99%; height: 480px"');
 			return TRUE;
 		} else {
 			// FR #2381 - Colour coding the parse file
@@ -275,7 +275,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$return_string .= '<span '.$cmmt_style.'>&lt;!-- ';
 				$white_space = Array("\r\n", "\n", "\r");
 				$return_string .= str_replace($white_space, "</span>\n<span ".$cmmt_style.'>', $matches[1]);
-				$return_string .= '</span>';log_dump($matches);
+				$return_string .= '</span>';
 				return $return_string;
 			}
 			$cmmt_search	= Array(
