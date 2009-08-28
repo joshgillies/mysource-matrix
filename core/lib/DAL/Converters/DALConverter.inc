@@ -1059,33 +1059,36 @@ class DALConverter
 
 
     /**
-     * Converts ORDER BY clause.
+     * Converts ORDER BY clauses.
      *
-     * @param array $orderBy Single ORDER BY clause.
+     * @param array $orderBys Multiple ORDER BY clauses.
      *
      * @since  4.0.0
      * @return string
      */
-    protected function convertOrderBy(array $orderBy)
+    protected function convertOrderBy(array $orderBys)
     {
-        $sql       = 'ORDER BY ';
-        $list      = array();
-        $direction = '';
+        $sql = 'ORDER BY ';
 
-        foreach ($orderBy as $key => $field) {
-            if ($key !== 'direction') {
-                if (is_array($field) === TRUE) {
-                    $list[] = $this->convertSingleField($field);
+        foreach ($orderBys as $orderBy) {
+            $list      = array();
+            $direction = '';
+            foreach ($orderBy as $key => $field) {
+                if ($key !== 'direction') {
+                    if (is_array($field) === TRUE) {
+                        $list[] = $this->convertSingleField($field);
+                    } else {
+                        $list[] = $field;
+                    }
                 } else {
-                    $list[] = $field;
+                    $direction = ' '.$field;
                 }
-            } else {
-                $direction = ' '.$field;
             }
-        }
 
-        $sql .= $this->separateFields($list).' '.$direction;
+            $sql .= $this->separateFields($list).' '.$direction.', ';
+        }//end foreach
 
+        $sql = rtrim($sql, ' ,');
         return $sql;
 
     }//end convertOrderBy()
