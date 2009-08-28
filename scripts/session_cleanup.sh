@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.9 2009/07/09 04:06:21 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.10 2009/08/28 03:22:01 csmith Exp $
 #*
 #*/
 
@@ -153,6 +153,7 @@ SESSION_MATRIXLIFE=`$GREP -E "SQ_CONF_SESSION_GC_MAXLIFETIME',[ ]?[0-9]+" ${SYST
 # we'll just export the bits we need to use.
 #
 php_code="<?php
+require_once '${SYSTEM_ROOT}/core/include/init.inc';
 require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
 
 if (!defined('SQ_CONF_CUSTOM_SESSION_SAVE_PATH')) {
