@@ -183,7 +183,7 @@ class DALWhereParser extends DALQueryParser
             foreach ($joins as $join) {
                 $condition          = array();
                 $condition['ARGS']  = self::parseChildFields($join);
-                $condition['type']  = 'equal';
+                $condition['type']  = $join->getAttribute('type');
                 $joinList['JOIN'][] = $condition;
             }
         }
