@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.39 2008/09/25 02:00:11 ata Exp $
+* $Id: hipo_config.inc,v 1.40 2009/08/30 20:08:13 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -88,8 +88,8 @@ class HIPO_Config extends Config
 					if (strpos($file, '.') == 0) continue;
 
 					if (!is_dir($hipo_job_path.'/'.$file)) {
-						require_once $hipo_job_path.'/'.$file;
 						if (get_file_type($file) != 'inc') continue;
+						require_once $hipo_job_path.'/'.$file;
 						$type_code = substr($file, 0, strpos($file, '.'));
 
 						if ($type_code) {
@@ -270,8 +270,8 @@ class HIPO_Config extends Config
 					if (strpos($file, '.') == 0) continue;
 
 					if (!is_dir($hipo_job_path.'/'.$file)) {
-						require_once $hipo_job_path.'/'.$file;
 						if (get_file_type($file) != 'inc') continue;
+						require_once $hipo_job_path.'/'.$file;
 						$type_code = substr($file, 0, strpos($file, '.'));
 
 						$write_access = $this->writeAccess();
