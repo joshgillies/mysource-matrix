@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.206 2009/09/02 05:48:57 csmith Exp $
+* $Id: search_manager.inc,v 1.207 2009/09/02 23:53:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -184,7 +184,7 @@ class Search_Manager extends Asset
 	{
 		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAsset($broadcaster, $vars);
-		$this->reindexAttributes($broadcaster, $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($broadcaster->type(), Array('name')));
+		$this->reindexAttributes($broadcaster, $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($broadcaster->type(), Array('name')), TRUE);
 
 		return TRUE;
 
@@ -268,11 +268,36 @@ class Search_Manager extends Asset
 	}//end onAssetDeleted()
 
 
+	/**
+	* Event fired when a context gets deleted.
+	*
+	* We want to flush any key data in the index table related to that
+	* context. This is necessary because the values may linger in the table,
+	* and cause key duplication issues.
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								Context deleted is set as $vars['contextid']
+	*
+	* @return void
+	* @access public
+	*/
+	function onContextDelete(&$broadcaster, $vars=Array())
+	{
+		if (!$this->attr('indexing')) return FALSE;
+		MatrixDAL::executeQuery('search_manager', 'deleteDeadContextIndexableContent', $vars);
+
+	}//end onContextDelete()
+
+
 //--        ASSET INDEXING        --//
 
 
 	/**
 	* Reindex this asset and, if specified, the metadata associated with this asset
+	*
+	* No multi-context support is required here, as standard asset fields and metadata
+	* do not vary based on context.
 	*
 	* @param object	&$asset	the asset to reindex
 	* @param array	$vars	the components to reindex - 'asset' to
@@ -309,24 +334,37 @@ class Search_Manager extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
 
-
 	}//end reindexAsset()
 
 
 	/**
 	* Reindex the specified asset's attributes
 	*
-	* @param object	&$asset	the asset to reindex
-	* @param array	$vars	a list of attribute names that have
-	*						changed
+	* With multi-context searching, extra parameters have been added.
+	* The $all_contexts flag will be set to TRUE when a "all contexts reindex"
+	* is necessary. This will be when the Reindex HIPO job is called, or when
+	* the asset is first created.
+	*
+	* @param object		&$asset			the asset to reindex
+	* @param array		$vars			a list of attribute names that have
+	*									changed
+	* @param boolean	$all_contexts	TRUE = attributes are reindexed in
+	*									all contexts. FALSE = only current
+	*									context is reindexed.
 	*
 	* @return void
 	* @access public
 	*/
-	function reindexAttributes(&$asset, $vars=Array())
+	function reindexAttributes(&$asset, $vars=Array(), $all_contexts=FALSE)
 	{
 		// if search manager is reindexed then there is infinite recursion!!!
 		if ($asset->id == $this->id) return FALSE;
+
+		// We can't reindex attributes if this asset does not have any attributes
+		if (empty($asset->vars)) return FALSE;
+
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+		$all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 
 		// only delete the attributes that have changed
 		$flush_vars = Array();
@@ -337,18 +375,48 @@ class Search_Manager extends Asset
 			$flush_vars = array_keys($this->getIndexableAttributes($asset->type()));
 		}
 
-		for (reset($flush_vars); NULL !== ($key = key($flush_vars)); next($flush_vars)) {
-			$flush_vars[$key] = 'attr:'.$flush_vars[$key];
-		}
-		if (!empty($flush_vars)) {
-			$this->flushIndexableContent($asset->id, $flush_vars);
+		if ($all_contexts === TRUE) {
+			$contexts_todo = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		} else {
+			$contexts_todo = Array($contextid);
 		}
 
-		// check that we want to index this asset first
-		if (!$this->isAssetIndexable($asset->id)) return;
+		if (count($flush_vars) > 0) {
+			foreach ($flush_vars as &$flush_var) {
+				$flush_var = 'attr:'.$flush_var;
+			}
+			unset($flush_var);
+		}
 
-		$index_content = $this->getIndexableAttributeContent($asset, $vars);
-		$this->addIndexableContent($asset->id, $index_content);
+		$all_indexable_content = Array();
+
+		if ($this->isAssetIndexable($asset->id) === FALSE) {
+			// Asset is not indexable.
+			// Flush the vars in all passed contexts, plus default
+			$this->flushIndexableContent($asset->id, $flush_vars, array_merge($all_contextids, Array('default')));
+		} else {
+			// Asset is indexable. Yay.
+			$indexable_content = $this->getIndexableAttributeContent($asset, $vars, $all_contexts);
+
+			if ($all_contexts === TRUE) {
+				// If all contexts, we'll consider it a fresh start.
+				$this->flushIndexableContent($asset->id, $flush_vars, array_merge($all_contextids, Array('default')));
+			} else {
+				if ($contextid === 0) {
+					// Flush out all the default values for these
+					$this->flushDefaultIndexableContent($asset->id, $flush_vars);
+				} else {
+					// We only have to flush the indexable content for this context,
+					// because we are only adding values for this context after all,
+					// which won't be defaults
+					$this->flushIndexableContent($asset->id, $flush_vars, Array($contextid));
+				}
+			}
+
+			// Indexable content includes contextid/use default information. Now
+			// we can add it.
+			$this->addIndexableContent($asset->id, $indexable_content);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
@@ -356,33 +424,73 @@ class Search_Manager extends Asset
 
 
 	/**
-	* Reindex the specified asset's attributes
+	* Reindex the specified asset's custom contents
 	*
-	* @param object	&$asset	the asset to reindex
-	* @param array	$vars	a list of attribute names that have
-	*						changed
+	* With multi-context searching, extra parameters have been added.
+	* The $all_contexts flag will be set to TRUE when a "all contexts reindex"
+	* is necessary. This will be when the Reindex HIPO job is called. (Contents
+	* are not reindexed when the asset is first created.)
+	*
+	* @param object		&$asset			the asset to reindex
+	* @param array		$vars			a list of attribute names that have
+	*									changed
+	* @param boolean	$all_contexts	If TRUE, the asset contents wil be
+	*									reindexed from all contexts' perspective.
+	*									FALSE = only current context.
 	*
 	* @return void
 	* @access public
 	*/
-	function reindexContents(&$asset, $vars=Array())
+	function reindexContents(&$asset, $vars=Array(), $all_contexts=FALSE)
 	{
 		// Find the asset that we want to index the content under.
 		// this will be the top most dependant asset above this asset
 		if (!$indexing_assetid = $this->getIndexingAssetid($asset)) {
 			return FALSE;
 		}
-		$indexing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
-		$index_content  = $this->getIndexableContent($indexing_asset);
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
-		$this->flushIndexableContent($indexing_assetid, Array('__contents__'));
+		$indexing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
 
 		// check that we want to index this asset first
 		if (!$this->isAssetIndexable($indexing_assetid)) {
 			return;
 		}
 
-		$this->addIndexableContent($indexing_assetid, $index_content);
+		if ($all_contexts === TRUE) {
+			$contexts_todo = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		} else {
+			$contexts_todo = Array($contextid);
+		}
+
+		$this->flushIndexableContent($indexing_assetid, Array('__contents__'), $contexts_todo);
+
+		foreach ($contexts_todo as $processed_contextid) {
+			$other_context = FALSE;
+			if (((int)$contextid === (int)$processed_contextid)) {
+				// Same context as was passed, OR, asset is being created
+				// and therefore all context values will be the same
+				$contexted_asset =& $indexing_asset;
+			} else {
+				$other_context = TRUE;
+				// Grab the contexted version of the asset
+				$GLOBALS['SQ_SYSTEM']->changeContext($processed_contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}
+
+			$index_content  = $this->getIndexableContent($contexted_asset);
+
+			foreach ($index_content as &$index_content_item) {
+				$index_content_item['contextid'] = $processed_contextid;
+			}
+
+			$this->addIndexableContent($indexing_assetid, $index_content);
+
+			if ($other_context === TRUE) {
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($indexing_asset);
 
@@ -448,7 +556,7 @@ class Search_Manager extends Asset
 			if (!isset($weightings[$name_index])) continue;
 
 			$name = ($name_type == 'name') ? $asset->name : $asset->short_name;
-			$index_content = array_merge($index_content, $plugin->splitIndexableContent($name, $type_code, 'text', $name_index, $weightings[$name_index]));
+			$index_content = array_merge($index_content, $plugin->splitIndexableContent($name, $type_code, 'text', $name_index, $weightings[$name_index], 'default', TRUE));
 		}
 
 		$dates = Array(
@@ -477,6 +585,8 @@ class Search_Manager extends Asset
 								'type'		=> 'datetime',
 								'component'	=> '__'.$type.'__',
 								'score'		=> $weightings['__'.$type.'__'],
+								'contextid'	=> 'default',
+								'use_default'	=> '1',
 							   );
 		}
 
@@ -490,8 +600,14 @@ class Search_Manager extends Asset
 									'type'		=> 'int',
 									'component'	=> '__assetid__',
 									'score'		=> $weightings['__assetid__'],
+									'contextid'	=> 'default',
+									'use_default'	=> '1',
 								   );
 			}
+		}
+
+		foreach ($index_content as &$index_content_item) {
+			$index_content_item['contextid'] = NULL;
 		}
 
 		return $index_content;
@@ -508,13 +624,42 @@ class Search_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getIndexableAttributeContent(&$asset, $changed_vars)
+	function getIndexableAttributeContent(&$asset, $changed_vars, $all_contexts=TRUE)
 	{
 		$plugin        =& $this->_getDBPlugin();
 		$weightings    =  $this->getWeightings($asset->id);
 		$index_content =  Array();
 		$type_code     =  $asset->type();
 		$reindex_all   =  in_array('all', $changed_vars);
+		$contextid     =  $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if ($all_contexts === TRUE) {
+			$context_list = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+			foreach ($context_list as $this_contextid) {
+				if ($this_contextid !== $contextid) {
+					$GLOBALS['SQ_SYSTEM']->changeContext($this_contextid);
+					$context_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				} else {
+					$context_asset = $asset;
+				}
+
+				$asset_vars[$this_contextid] = $context_asset->vars;
+
+				if ($this_contextid !== $contextid) {
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($context_asset->id);
+					unset($context_asset);
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				}
+			}
+		} else {
+			$context_list = Array($contextid);
+			$asset_vars[$contextid] = $asset->vars;
+		}
+
+		// We cannot use isset() because we have to handle the possibility of a
+		// NULL default value, so will try and fudge with an array and
+		// array_key_exists(). Hold onto your hats, folks...
+		$default_value = Array();
 
 		foreach ($asset->vars as $var_name => $var_data) {
 
@@ -526,50 +671,91 @@ class Search_Manager extends Asset
 			// if there is no weightings for this attribute, then its not indexable
 			if (!isset($weightings[$var_name])) continue;
 
-			// don't index attribute that are names or short names as we index these
-			// as part of the asset components
-			if ($var_name == 'name' || $var_name == 'short_name') {
-				// continue;
-			}
-
 			// don't index passwords or serialise attributes
 			if ($var_data['type'] == 'password' || $var_data['type'] == 'serialise') {
 				continue;
 			}
 
-			$attribute = $asset->getAttribute($var_name);
-			$value = $attribute->getContent();
-			//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
-			$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
-			$value = $this->_strip_tags($formatting_tags, $value);
-			// strip tags and replace with whitespace so as to preserve word boundaries
-			$value = preg_replace('/<\/?[^>]+>/i', ' ', $value);
-			if (empty($value)) continue;
-
-			$comp_name = 'attr:'.$var_name;
-
-			// if the type is text and its just a number representation
-			// index the number as a whole (remove spaces so that the number does
-			// not get indexed as two separate entries)
-
-			if ($var_data['type'] == 'text') {
-				$value = $this->_getRawNumberInText($value);
-			}
-
-			if ($var_data['type'] == 'datetime') {
-				// At least there's something we can agree on - datetimes should
-				// never be split apart
-				$index_content[] = Array(
-									'value'		=> $value,
-									'type_code'	=> $type_code,
-									'type'		=> $var_data['type'],
-									'component'	=> $comp_name,
-									'score'		=> $weightings[$var_name],
-								   );
+			$attrid = $var_data['attrid'];
+			$values = Array();
+			if ((int)$var_data['is_contextable'] === 0) {
+				$attr = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
+				$attr->setValue($asset_vars[0][$var_name]['value']);
+				$values['default'] = $attr->getContent();
 			} else {
-				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $var_data['type'], $comp_name, $weightings[$var_name]));
+				foreach (array_keys($asset_vars) as $this_contextid) {
+					$attr = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
+					$attr->setValue($asset_vars[$this_contextid][$var_name]['value']);
+					if ((int)$asset_vars[$this_contextid][$var_name]['use_default'] === 1) {
+						// Is the default value for this attribute found yet?
+						// Otherwise, don't bother reloading the attribute.
+						if (isset($default_value[$var_name]) === FALSE) {
+							$default_value[$var_name] = $attr->getContent();
+						}
+
+					} else {
+						$values[$this_contextid] = $attr->getContent();
+					}
+				}
 			}
+
+			if ((int)$var_data['is_contextable'] === 0) {
+				$list_to_test = Array('default');
+			} else {
+				$list_to_test = $context_list;
+			}
+
+			foreach ($list_to_test as $this_contextid) {
+				if ($this_contextid === 'default') {
+					// Default context = it must be the default!
+					$use_default = TRUE;
+				} else {
+					$use_default = FALSE;
+					if (array_key_exists($this_contextid, $values) === FALSE) {
+						$values[$this_contextid] = $default_value[$var_name];
+						$use_default = TRUE;
+					}
+				}
+
+				$value = $values[$this_contextid];
+
+				//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
+				$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
+				$value = $this->_strip_tags($formatting_tags, $value);
+				// strip tags and replace with whitespace so as to preserve word boundaries
+				$value = preg_replace('/<\/?[^>]+>/i', ' ', $value);
+				if (empty($value)) continue;
+
+				$comp_name = 'attr:'.$var_name;
+
+				// if the type is text and its just a number representation
+				// index the number as a whole (remove spaces so that the number does
+				// not get indexed as two separate entries)
+
+				if ($var_data['type'] == 'text') {
+					$value = $this->_getRawNumberInText($value);
+				}
+
+				if ($var_data['type'] == 'datetime') {
+					// At least there's something we can agree on - datetimes should
+					// never be split apart
+					$index_content[] = Array(
+										'value'			=> $value,
+										'type_code'		=> $type_code,
+										'type'			=> $var_data['type'],
+										'component'		=> $comp_name,
+										'score'			=> $weightings[$var_name],
+										'contextid'		=> $this_contextid,
+										'use_default'	=> $use_default,
+									   );
+				} else {
+					$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $var_data['type'], $comp_name, $weightings[$var_name], $this_contextid, $use_default));
+				}
+			}//end foreach context in value list
+
 		}//end foreach
+
+		unset($default_value);
 
 		return $index_content;
 
@@ -590,6 +776,7 @@ class Search_Manager extends Asset
 		$index_content =  Array();
 		$weightings    =  $this->getWeightings($asset->id);
 		$type_code     =  $asset->type();
+		$contextid     =  $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		// only index this if there is a weighting set
 		if (isset($weightings['__contents__'])) {
@@ -605,7 +792,7 @@ class Search_Manager extends Asset
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
 
 			if (trim($contents) != '') {
-				$index_content = $plugin->splitIndexableContent($contents, $type_code, 'text', '__contents__', $weightings['__contents__']);
+				$index_content = $plugin->splitIndexableContent($contents, $type_code, 'text', '__contents__', $weightings['__contents__'], $contextid, FALSE);
 			}
 		}
 
@@ -615,43 +802,44 @@ class Search_Manager extends Asset
 
 
 	/**
-	* Adds the sepecifed index content for the specified assetid to the indexing system
+	* Adds the specified index content for the specified assetid to the indexing system
 	*
-	* @param string	$assetid		the assetid to index the content under
-	* @param array	&$index_content	the content to index
+	* @param string		$assetid		the assetid to index the content under
+	* @param array		&$index_content	the content to index
 	*
 	* @return boolean
 	* @access public
 	*/
 	function addIndexableContent($assetid, &$index_content)
 	{
+		$q_str = '';
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return FALSE;
 		if (!is_array($index_content)) return FALSE;
 
-		$param_data = Array();
+		$index_content_found = FALSE;
 		$keys = array_keys($index_content);
 
+		// Array to keep track of which context we are using for a certain
+		// assetid/component combination. We must track this separately; to use
+		// $defaults for this would result in only one item of split content
+		// to be indexed.
+		$defaults_context = Array();
+
+		// List of values that will be added at the end using the 'use default'
+		// insert, after all custom values are entered.
+		$defaults = Array();
+
+		// This could be out of a transaction at this point, and in db1 (the
+		// read-only db). Change to db2, and wrap in a transaction so it doesn't
+		// autocommit all over the place
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$sql = 'INSERT INTO
-					sq_sch_idx
-					(
-						value,
-						assetid,
-						type_code,
-						component,
-						type,
-						score
-					)
-					VALUES
-					(
-						:value,
-						:assetid,
-						:type_code,
-						:component,
-						:type,
-						:score
-					)';
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// Pre-pack the custom indexable content query, so it doesn't have to
+		// prepare itself over and over again
+		$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
+		$query = $dal_query->prepare();
 
 		foreach ($keys as $key) {
 			$data =& $index_content[$key];
@@ -665,7 +853,7 @@ class Search_Manager extends Asset
 					if (!is_iso8601($value)) {
 						$value = ts_iso8601(strtotime($value));
 					}
-					break;
+				break;
 
 				//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
 				case 'wysiwyg':
@@ -673,46 +861,83 @@ class Search_Manager extends Asset
 					$value = $this->_getRawNumberInText($value);
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
-					break;
-//DON'T NEED TO CHANGE INDEX WORDS TO LOWERCASE BECAUSE THEY ARE LOWERCASE ALREADY BY strtolower() OR mb_strtolower() FUNCTION IN splitIndexableContent() FUNCTION IN DB PLUGIN
-//				case 'thesaurus':
-//				case 'selection':
-//				case 'select':
-//					$value = strtolower($value);
-//				break;
+				break;
 
-//				default:
-					// nothing yet
+				default:
+					// Selection and thesaurus types do not need massaging.
+					// (splitIndexableContent() in DB plugin lowercases words
+					// already if required)
+				break;
 			}
 
-			$param_data[] = Array(
-								'value'		=> $value,
-								'type_code'	=> $data['type_code'],
-								'type'		=> $data['type'],
-								'component'	=> $data['component'],
-								'score'		=> $data['score'],
-							);
+			// work out whether we've already added the default for this
+			$default_key = $assetid.' '.$data['component'].' '.sha1($value);
 
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'value',     $value,             PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'assetid',   $assetid,           PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'type_code', $data['type_code'], PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'component', $data['component'], PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'type',      $data['type'],      PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'score',     $data['score'],     PDO::PARAM_INT);
-				$result = MatrixDAL::execPdoQuery($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+			$bind_vars = Array(
+							'value'			=> $value,
+							'assetid'		=> $assetid,
+							'type_code'		=> $data['type_code'],
+							'component'		=> $data['component'],
+							'contextid'		=> ($data['contextid'] === NULL) ? 'default' : (string)$data['contextid'],
+							'type'			=> $data['type'],
+							'score'			=> $data['score'],
+							'use_default'	=> $data['use_default'] ? '1' : '0',
+						 );
+
+			// Save up the default values so we can put them in after custom
+			// values... but only if we have not seen them before (lock one
+			// context as the one we saw first, and only accept values from it)
+			if (((int)$bind_vars['use_default'] === 1) && ($bind_vars['contextid'] !== 'default')) {
+				if (array_key_exists($default_key, $defaults_context) === FALSE) {
+					$defaults_context[$default_key] = $bind_vars['contextid'];
+				}
+				if ($bind_vars['contextid'] === $defaults_context[$default_key]) {
+					$defaults[] = $bind_vars;
+				}
+			} else {
+				try {
+					// Non-default value, or non-contextable. Put it in straight away.
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					MatrixDAL::execPdoQuery($query);
+					$index_content_found = TRUE;
+				} catch (Exception $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+				}
 			}
 
 		}//end foreach
 
+		// Okay, shove in the default values, which will be determined by what
+		// context values are not already in there.
+		// Pre-pack the query first though, so it doesn't potentially get
+		// prepared 1000's of times over.
+		$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
+		$query = $dal_query->prepare();
+
+		foreach ($defaults as $bind_vars) {
+			try {
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					if ($bind_var !== 'contextid') {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+				}
+				MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
+				MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
+				MatrixDAL::execPdoQuery($query);
+				$index_content_found = TRUE;
+			} catch (Exception $e) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		if (empty($param_data)) return FALSE;
-
-		return TRUE;
+		return $index_content_found;
 
 	}//end addIndexableContent()
 
@@ -726,18 +951,27 @@ class Search_Manager extends Asset
 	*
 	* @param int	$assetid	ID of the asset
 	* @param array	$components	the components to which the keydata pertains (e.g. metadata or attribute)
+	* @param array	$contextids	Array of context IDs to flush key data.
+	*							If omitted, all contexts (including defaults)
+	*							will be flushed.
 	*
 	* @return void
 	* @access public
 	*/
-	function flushIndexableContent($assetid, $components=Array())
+	function flushIndexableContent($assetid, $components=Array(), $contextids=NULL)
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
 
 		try {
+			if ($contextids === NULL) {
+				$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+				$contextids[] = 'default';
+			}
+
 			$bind_vars = Array(
-							'assetid'	=> $assetid,
+							'assetid'		=> $assetid,
+							'contextids'	=> $contextids,
 						 );
 
 			if (!empty($components)) {
@@ -746,9 +980,53 @@ class Search_Manager extends Asset
 				$bind_vars['components'] = NULL;
 			}
 
-			MatrixDAL::executeQuery('search_manager', 'flushIndexableContent', $bind_vars);
+			$affected_rows = MatrixDAL::executeQuery('search_manager', 'flushIndexableContent', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception('Unable to flush indexable content due to database error: '.$e->getMessage());
+		}
+
+	}//end flushIndexableContent()
+
+
+	/**
+	* Flush all 'default' indexed data for an asset
+	*
+	* Default indexed data are values indexed from a non-contextable attribute,
+	* or a contextable attribute using the default value.
+	*
+	* If the components argument is provided, only those components will be
+	* flushed. Otherwise, all components of that asset will be deleted from
+	* the search index.
+	*
+	* @param int	$assetid	ID of the asset
+	* @param array	$components	the components to which the keydata pertains (e.g. metadata or attribute)
+	* @param array	$contextids	Array of context IDs to flush key data.
+	*							If omitted, all contexts (including defaults)
+	*							will be flushed.
+	*
+	* @return void
+	* @access public
+	*/
+	function flushDefaultIndexableContent($assetid, $components=Array())
+	{
+		// don't run if indexing turned OFF
+		if (!$this->attr('indexing')) return;
+
+		try {
+			$bind_vars = Array(
+							'assetid'		=> $assetid,
+							'use_default'	=> '1',
+						 );
+
+			if (!empty($components)) {
+				$bind_vars['components'] = $components;
+			} else {
+				$bind_vars['components'] = NULL;
+			}
+
+			$affected_rows = MatrixDAL::executeQuery('search_manager', 'flushDefaultIndexableContent', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception('Unable to flush default indexable content due to database error: '.$e->getMessage());
 		}
 
 	}//end flushIndexableContent()
@@ -1195,7 +1473,7 @@ class Search_Manager extends Asset
 						$value = $this->_getRawNumberInText($value);
 				}
 
-				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting));
+				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting, 'default', TRUE));
 			}//end else
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
