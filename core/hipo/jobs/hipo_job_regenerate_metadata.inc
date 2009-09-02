@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.35 2007/12/03 22:09:37 hnguyen Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.36 2009/09/02 04:10:06 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -39,6 +39,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function HIPO_Job_Regenerate_Metadata($code_name='')
 	{
+		$this->uses_trans = FALSE;
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
