@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.64 2009/08/05 07:28:17 wszymanski Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.65 2009/09/02 05:21:41 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -373,7 +373,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nesting_assetid = '<?php echo $asset->id; ?>';
 		$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
-		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($nesting_assetid, 'page' , FALSE));
+		$temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($nesting_assetid, '' , TRUE, FALSE);
         $parents_nesting_asset_id = $temp_parent_array[0];
         $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 
@@ -499,7 +499,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($additional_vars) || empty($additional_vars)) {
 			return $processed_get_vars;
 		}
-		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'page' , FALSE));
+		$temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($nesting_assetid, '' , TRUE, FALSE);
         $parents_nesting_asset_id = $temp_parent_array[0];
         $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 		foreach ($additional_get_vars as $get_var) {
