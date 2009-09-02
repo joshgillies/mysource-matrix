@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.1 2008/10/10 03:40:59 lwright Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.2 2009/09/02 06:15:31 cupreti Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,7 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 		}
 
 		foreach ($assetids as $assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// Need to get the form URL from its parent wrapper page, as the
 			// Form Contents asset (which is the actual form) has no URL
