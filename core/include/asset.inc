@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.1 2009/08/25 04:24:36 lwright Exp $
+* $Id: asset.inc,v 1.696.2.2 2009/09/02 05:06:14 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.1 $
+* @version $Revision: 1.696.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1153,7 +1153,7 @@ class Asset extends MySource_Object
 			} else {
 				$contexted_asset = $this;
 			}
-			
+
 
 			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
 			if (is_file($this->data_path.'/.sq_system/'.$filename)) {
@@ -1198,7 +1198,7 @@ class Asset extends MySource_Object
 
 			// Acquire the "metadata" lock to set values
 			$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'metadata');
-			
+
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			// Set the defaults and any customised values
@@ -3025,6 +3025,7 @@ class Asset extends MySource_Object
 										'contextid'		=> $contextid,
 										'assetid'		=> $this->id,
 									 );
+						$this->vars[$save_vars[$attr_id]['name']]['use_default'] = 0;
 					}
 					if ((boolean)$attribute->uniq === TRUE) {
 						$bind_vars['attrid'] = $save_vars[$attr_id]['owning_attrid'];
@@ -3070,10 +3071,10 @@ class Asset extends MySource_Object
 						if (MatrixDAL::getDbType() === 'oci') {
 							if ((boolean)$attribute->uniq === TRUE) {
 								$lob1 = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);
-								$lob1->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);							
+								$lob1->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);
 							}
 							$lob2 = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);
-							$lob2->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);							
+							$lob2->writeTemporary($bind_vars['custom_val'], OCI_TEMP_CLOB);
 						}
 					} else {
 						// Inseting into an alternate context. (Strange...)
@@ -3085,6 +3086,7 @@ class Asset extends MySource_Object
 										'contextid'		=> $contextid,
 										'assetid'		=> $this->id,
 									 );
+						$this->vars[$save_vars[$attr_id]['name']]['use_default'] = 0;
 					}
 					if ((boolean)$attribute->uniq === TRUE) {
 						if (isset($lob1) === TRUE) $bind_vars['custom_val'] = $lob1;
@@ -3591,8 +3593,8 @@ class Asset extends MySource_Object
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-		
-		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this 
+
+		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this
 		//method through the replace_global_keywords() function (general.inc) with the keyword starts with asset_
 		$possible_func_name = '';
 		if (0 === strpos($keyword, 'asset_')) {
@@ -3602,11 +3604,11 @@ class Asset extends MySource_Object
 				$possible_func_name = 'get'.$possible_tmp_keyword.'KeywordReplacement';
 			}
 		}
-		
+
 		if (method_exists($this, $func_name)) {
 			$replacement = $this->$func_name();
 		} else if (($possible_func_name != '') && method_exists($this, $possible_func_name)) {
-			//allow the use of %globals_asset_<keyword>:<assetid>% if the %<keyword>% is available for 
+			//allow the use of %globals_asset_<keyword>:<assetid>% if the %<keyword>% is available for
 			//the <assetid> asset through the get<Keyword>KeywordReplacement() method
 			$replacement = $this->$possible_func_name();
 		} else if (strcmp('asset_assetid', $keyword) == 0) {
@@ -3656,10 +3658,10 @@ class Asset extends MySource_Object
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
 			return ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
-			
+
 		} else if (0 === strpos($keyword, 'asset_languages')) {
-			return ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;			
-			
+			return ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
+
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
@@ -3678,29 +3680,29 @@ class Asset extends MySource_Object
 
 	/**
 	* Gets replacements for asset_web_path keyword this asset
-	* If the asset has multiple webpath, shortest one (alphabetically) is returned 
+	* If the asset has multiple webpath, shortest one (alphabetically) is returned
 	*
 	* @return null|string
 	* @access public
 	*/
 	public function getAssetWebPathKeywordReplacement()
-	{	
+	{
 		$webpaths = $this->getWebPaths();
 
 		if (empty($webpaths)) {
 			return NULL;
 		}
-		
+
 		$shortest_wp = $webpaths[0];
-		
+
 		foreach($webpaths as $webpath) {
-			
+
 			$wp_len = strlen($webpath);
 			$shortest_wp_len = strlen($shortest_wp);
 
 			if ($wp_len <= $shortest_wp_len) {
 				$shortest_wp = ($wp_len == $shortest_wp_len) ?  min($shortest_wp, $webpath) : $webpath;
-			}					
+			}
 		}
 
 		return $shortest_wp;
@@ -3719,10 +3721,10 @@ class Asset extends MySource_Object
 	public function getCustomKeywordReplacements($keywords=Array())
 	{
 		return Array();
-	
+
 	}//end getCustomKeywordReplacements()
 
-	
+
 	/**
 	* Processes anything that was previously printed for a custom keyword for LIMBO
 	*
@@ -4427,7 +4429,7 @@ class Asset extends MySource_Object
 
 	/**
 	* Called by the design to print the body of this asset, WITH the paint layout applied
-	* 
+	*
 	* @param string	$layout_id	the assetid of the paint layout (leave empty to guess it from URL/Global define)
 	*
 	* @return void
@@ -4449,7 +4451,7 @@ class Asset extends MySource_Object
 				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
 			}
 		}
-		
+
 		if ($layout_id) {
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
@@ -4461,7 +4463,7 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$this;
 				$switched_frontend = TRUE;
 			}
-			
+
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
