@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.63 2009/07/13 03:25:20 cupreti Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.63.2.1 2009/09/02 05:22:31 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -373,8 +373,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nesting_assetid = '<?php echo $asset->id; ?>';
 		$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
-		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($nesting_assetid, 'page' , FALSE));
-        $parents_nesting_asset_id = $temp_parent_array[0];
+        $temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($nesting_assetid, '' , TRUE, FALSE);
+		$parents_nesting_asset_id = $temp_parent_array[0];
         $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 
 		$asset_cache_key = $nested_assetid.'-<?php echo $get_var_cache_key; ?>';
@@ -499,8 +499,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($additional_vars) || empty($additional_vars)) {
 			return $processed_get_vars;
 		}
-		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'page' , FALSE));
-        $parents_nesting_asset_id = $temp_parent_array[0];
+        $temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($nesting_assetid, '' , TRUE, FALSE);
+		$parents_nesting_asset_id = $temp_parent_array[0];
         $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 		foreach ($additional_get_vars as $get_var) {
 			$get_name = $get_var['name'];
