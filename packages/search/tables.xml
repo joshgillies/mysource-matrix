@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.12 2008/11/25 05:03:11 mbrydon Exp $
+* $Id: tables.xml,v 1.13 2009/09/03 01:29:04 lwright Exp $
 *
 */
 -->
@@ -45,6 +45,12 @@
 					<default>''</default>
 					<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
 				</column>
+				<column name="contextid" allow_null="0">
+					<type>VARCHAR(11)</type>
+					<type_variations />
+					<default>'default'</default>
+					<description>The context (or 'default' for non-contextable components)</description>
+				</column>
 				<column name="type" allow_null="0">
 					<type>VARCHAR(255)</type>
 					<type_variations />
@@ -56,16 +62,24 @@
 					<type_variations />
 					<default>0</default>
 				</column>
+				<column name="use_default" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description>'1' indicates that the default value is being used for an attribute.</description>
+				</column>
 			</columns>
 			<keys>
 				<primary_key db="pgsql">
 					<column name="value" />
 					<column name="assetid" />
 					<column name="component" />
+					<column name="contextid" />
 				</primary_key>
 				<primary_key db="oci">
 					<column name="assetid" />
 					<column name="component" />
+					<column name="contextid" />
 				</primary_key>
 			</keys>
 			<indexes>
@@ -83,6 +97,9 @@
 				</index>
 				<index>
 					<column name="component" />
+				</index>
+				<index>
+					<column name="contextid" />
 				</index>
 			</indexes>
 		</table>

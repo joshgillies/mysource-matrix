@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.31 2009/07/22 09:26:16 ata Exp $
+* $Id: hipo_job_reindex.inc,v 1.32 2009/09/03 01:29:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -246,8 +246,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$sm->reindexAsset($asset, Array('all'));
-				$sm->reindexAttributes($asset, Array('all'));
-				$sm->reindexContents($asset, Array('all'));
+				$sm->reindexAttributes($asset, Array('all'), TRUE);
+				$sm->reindexContents($asset, Array('all'), TRUE);
 				$sm->reindexMetadata($asset->id, Array('all'));
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
