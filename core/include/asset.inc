@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.702 2009/09/02 04:49:53 lwright Exp $
+* $Id: asset.inc,v 1.703 2009/09/03 06:58:07 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.702 $
+* @version $Revision: 1.703 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -595,14 +595,13 @@ class Asset extends MySource_Object
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
-		if ($linkid != 0) {
-			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
-		}
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
+		if ($linkid != 0) $link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		if (!empty($link)) $GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($link);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
 		if ($this->id) {
