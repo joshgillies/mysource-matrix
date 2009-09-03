@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.25 2009/07/28 02:12:58 ewang Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.26 2009/09/03 01:15:28 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 			// get the link type
 			$link_type = array_get_index($_POST, $prefix.'_link_type', SQ_LINK_TYPE_1);
-
+			
 			// get the link value
 			$link_value = array_get_index($_POST, $prefix.'_link_value', '');
 
@@ -346,9 +346,12 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 				$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 				$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
-
+				
 				// if we cannot create the link do nothing
-				if ($can_create !== TRUE) return FALSE;
+				if ($can_create !== TRUE) {
+					trigger_error($can_create);
+					return FALSE;
+				}
 
 				$hipo_var = Array(
 								'link_action'		=> 'create',
