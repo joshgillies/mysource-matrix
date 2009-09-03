@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.209 2009/09/03 22:30:49 bpearson Exp $
+* $Id: search_manager.inc,v 1.210 2009/09/03 22:55:45 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -332,7 +332,7 @@ class Search_Manager extends Asset
 		$index_content = $this->getIndexableAssetContent($asset, $vars);
 		$this->addIndexableContent($asset->id, $index_content);
 
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 	}//end reindexAsset()
 
