@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.24 2008/10/24 03:06:00 bpearson Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.24.4.1 2009/09/03 01:14:28 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -348,7 +348,10 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
 
 				// if we cannot create the link do nothing
-				if ($can_create !== TRUE) return FALSE;
+				if ($can_create !== TRUE) {
+					trigger_error($can_create);
+					return FALSE;
+				}
 
 				$hipo_var = Array(
 								'link_action'		=> 'create',
