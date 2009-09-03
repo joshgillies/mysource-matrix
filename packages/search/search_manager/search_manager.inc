@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.210 2009/09/03 22:55:45 bpearson Exp $
+* $Id: search_manager.inc,v 1.211 2009/09/03 23:53:26 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210 $
+* @version $Revision: 1.211 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -838,101 +838,105 @@ class Search_Manager extends Asset
 
 		// Pre-pack the custom indexable content query, so it doesn't have to
 		// prepare itself over and over again
-		$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
-		$query = $dal_query->prepare();
+		if (!empty($keys)) {
+			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
+			$query = $dal_query->prepare();
 
-		foreach ($keys as $key) {
-			$data =& $index_content[$key];
-			$value = $data['value'];
+			foreach ($keys as $key) {
+				$data =& $index_content[$key];
+				$value = $data['value'];
 
-			if (trim($value) == '') continue;
+				if (trim($value) == '') continue;
 
-			switch ($data['type']) {
-				case 'datetime':
-					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					if (!is_iso8601($value)) {
-						$value = ts_iso8601(strtotime($value));
+				switch ($data['type']) {
+					case 'datetime':
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						if (!is_iso8601($value)) {
+							$value = ts_iso8601(strtotime($value));
+						}
+					break;
+
+					//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
+					case 'wysiwyg':
+					case 'text':
+						$value = $this->_getRawNumberInText($value);
+						// filter noise words
+						if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
+					break;
+
+					default:
+						// Selection and thesaurus types do not need massaging.
+						// (splitIndexableContent() in DB plugin lowercases words
+						// already if required)
+					break;
+				}
+
+				// work out whether we've already added the default for this
+				$default_key = $assetid.' '.$data['component'].' '.sha1($value);
+
+				$bind_vars = Array(
+								'value'			=> $value,
+								'assetid'		=> $assetid,
+								'type_code'		=> $data['type_code'],
+								'component'		=> $data['component'],
+								'contextid'		=> ($data['contextid'] === NULL) ? 'default' : (string)$data['contextid'],
+								'type'			=> $data['type'],
+								'score'			=> $data['score'],
+								'use_default'	=> $data['use_default'] ? '1' : '0',
+							 );
+
+				// Save up the default values so we can put them in after custom
+				// values... but only if we have not seen them before (lock one
+				// context as the one we saw first, and only accept values from it)
+				if (((int)$bind_vars['use_default'] === 1) && ($bind_vars['contextid'] !== 'default')) {
+					if (array_key_exists($default_key, $defaults_context) === FALSE) {
+						$defaults_context[$default_key] = $bind_vars['contextid'];
 					}
-				break;
-
-				//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
-				case 'wysiwyg':
-				case 'text':
-					$value = $this->_getRawNumberInText($value);
-					// filter noise words
-					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
-				break;
-
-				default:
-					// Selection and thesaurus types do not need massaging.
-					// (splitIndexableContent() in DB plugin lowercases words
-					// already if required)
-				break;
-			}
-
-			// work out whether we've already added the default for this
-			$default_key = $assetid.' '.$data['component'].' '.sha1($value);
-
-			$bind_vars = Array(
-							'value'			=> $value,
-							'assetid'		=> $assetid,
-							'type_code'		=> $data['type_code'],
-							'component'		=> $data['component'],
-							'contextid'		=> ($data['contextid'] === NULL) ? 'default' : (string)$data['contextid'],
-							'type'			=> $data['type'],
-							'score'			=> $data['score'],
-							'use_default'	=> $data['use_default'] ? '1' : '0',
-						 );
-
-			// Save up the default values so we can put them in after custom
-			// values... but only if we have not seen them before (lock one
-			// context as the one we saw first, and only accept values from it)
-			if (((int)$bind_vars['use_default'] === 1) && ($bind_vars['contextid'] !== 'default')) {
-				if (array_key_exists($default_key, $defaults_context) === FALSE) {
-					$defaults_context[$default_key] = $bind_vars['contextid'];
+					if ($bind_vars['contextid'] === $defaults_context[$default_key]) {
+						$defaults[] = $bind_vars;
+					}
+				} else {
+					try {
+						// Non-default value, or non-contextable. Put it in straight away.
+						foreach ($bind_vars as $bind_var => $bind_value) {
+							MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+						}
+						MatrixDAL::execPdoQuery($query);
+						$index_content_found = TRUE;
+					} catch (Exception $e) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+					}
 				}
-				if ($bind_vars['contextid'] === $defaults_context[$default_key]) {
-					$defaults[] = $bind_vars;
-				}
-			} else {
+
+			}//end foreach
+		}//end if
+
+		// Okay, shove in the default values, which will be determined by what
+		// context values are not already in there.
+		// Pre-pack the query first though, so it doesn't potentially get
+		// prepared 1000's of times over.
+		if (!empty($defaults)) {
+			$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
+			$query = $dal_query->prepare();
+
+			foreach ($defaults as $bind_vars) {
 				try {
-					// Non-default value, or non-contextable. Put it in straight away.
 					foreach ($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+						if ($bind_var !== 'contextid') {
+							MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+						}
 					}
+					MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
+					MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
 					MatrixDAL::execPdoQuery($query);
 					$index_content_found = TRUE;
 				} catch (Exception $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
 				}
-			}
-
-		}//end foreach
-
-		// Okay, shove in the default values, which will be determined by what
-		// context values are not already in there.
-		// Pre-pack the query first though, so it doesn't potentially get
-		// prepared 1000's of times over.
-		$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
-		$query = $dal_query->prepare();
-
-		foreach ($defaults as $bind_vars) {
-			try {
-				foreach ($bind_vars as $bind_var => $bind_value) {
-					if ($bind_var !== 'contextid') {
-						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-					}
-				}
-				MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
-				MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
-				MatrixDAL::execPdoQuery($query);
-				$index_content_found = TRUE;
-			} catch (Exception $e) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
-			}
-		}
+			}//end foreach
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
