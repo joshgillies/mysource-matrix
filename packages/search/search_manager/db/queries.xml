@@ -60,7 +60,7 @@
 						<not-in>
 							<function function="cast">
 								<arg><field table="sq_ctx_def" column="contextid" /></arg>
-								<arg>VARCHAR</arg>
+								<arg>VARCHAR(11)</arg>
 							</function>
 							<select>
 								<fields>
