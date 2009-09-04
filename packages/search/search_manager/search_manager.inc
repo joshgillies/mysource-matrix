@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.214 2009/09/04 00:56:33 lwright Exp $
+* $Id: search_manager.inc,v 1.215 2009/09/04 04:04:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.214 $
+* @version $Revision: 1.215 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2108,6 +2108,7 @@ class Search_Manager extends Asset
 	{
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		  /////////////////////////////
 		 //  CONSTRUCT CACHING KEY  //
@@ -2181,6 +2182,8 @@ class Search_Manager extends Asset
 			$base_query['select'][] = 'ai.component as source';
 			$base_query['group_by'][] = 'ai.component';
 		}
+
+		$base_query['where'][] = '(ai.contextid = '.MatrixDAL::quote($contextid).' OR ai.contextid = '.MatrixDAL::quote('default').')';
 
 		  //////////////////////////
 		 //  PROCESS EACH FIELD  //
