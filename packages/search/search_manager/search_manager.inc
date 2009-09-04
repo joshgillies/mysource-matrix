@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.213 2009/09/04 00:19:51 bpearson Exp $
+* $Id: search_manager.inc,v 1.214 2009/09/04 00:56:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -706,8 +706,9 @@ class Search_Manager extends Asset
 			}
 
 			foreach ($list_to_test as $this_contextid) {
-				if ($this_contextid === 'default') {
+				if (($this_contextid === 'default') || ($this_contextid === 0)) {
 					// Default context = it must be the default!
+					// OR, it's non-contextable.
 					$use_default = TRUE;
 				} else {
 					$use_default = FALSE;
@@ -971,6 +972,11 @@ class Search_Manager extends Asset
 				$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 				$contextids[] = 'default';
 			}
+
+			if (is_array($contextids) === FALSE) {
+				$contextids = Array($contextids);
+			}
+
 
 			$bind_vars = Array(
 							'assetid'		=> $assetid,
