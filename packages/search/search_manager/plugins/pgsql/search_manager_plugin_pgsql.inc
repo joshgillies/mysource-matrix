@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.32 2009/06/24 00:37:55 cupreti Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.32.2.1 2009/09/04 04:38:08 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -377,14 +377,14 @@ class Search_Manager_Plugin_PgSQL
 		$words = array_unique($words);
 		foreach($words as $key => $val) {
 			$words[$key] = strtolower($val);
-		}			
+		}
 
 		$new_base = $base_query;
 		$new_base['where'][] = 'ai.value LIKE \''.($sm->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($sm->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
 		$new_base['select'] = Array('asset_check.assetid');
 		$new_base['group_by'] = Array('asset_check.assetid');
 		$sql = implode_sql($new_base);
-		
+
 		try {
 			$result = MatrixDAL::executeSqlGrouped($sql);
 		} catch (Exception $e) {
@@ -650,16 +650,18 @@ class Search_Manager_Plugin_PgSQL
 	/**
 	* Returns the indexable content for the specified asset's attributes
 	*
-	* @param string	$contents	The contents
-	* @param string	$type_code	The type code
-	* @param string	$data_type	The data type
-	* @param string	$component	The component
-	* @param string	$weighting	The weighting
+	* @param string				$contents		The contents
+	* @param string				$type_code		The type code
+	* @param string				$data_type		The data type
+	* @param string				$component		The component
+	* @param string				$weighting		The weighting
+	* @param mixed (int|string)	$contextid		The contextid (or 'default' if not contextable)
+	* @param boolean			$use_default	TRUE indicates this is a default value
 	*
 	* @return array
 	* @access public
 	*/
-	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
+	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting, $contextid, $use_default)
 	{
 		$index_content = Array();
 
@@ -688,11 +690,13 @@ class Search_Manager_Plugin_PgSQL
 		if (trim($contents) != '') {
 			foreach (get_word_counts($contents) as $word => $count) {
 				$index_content[] = Array(
-									'value'		=> $word,
-									'type_code'	=> $type_code,
-									'type'		=> $data_type,
-									'component'	=> $component,
-									'score'		=> $count * $weighting,
+									'value'			=> $word,
+									'type_code'		=> $type_code,
+									'type'			=> $data_type,
+									'component'		=> $component,
+									'score'			=> $count * $weighting,
+									'contextid'		=> $contextid,
+									'use_default'	=> $use_default,
 								   );
 			}
 		}

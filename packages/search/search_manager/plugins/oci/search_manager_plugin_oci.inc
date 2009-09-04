@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.18 2009/06/24 00:36:16 cupreti Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.18.2.1 2009/09/04 04:38:08 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -338,7 +338,7 @@ class Search_Manager_Plugin_OCI
 		}
 		$words = array_unique($words);
 		foreach($words as $key => $val) {
-	    	$words[$key] = strtolower($val);
+			$words[$key] = strtolower($val);
 		}
 
 		$new_base = $base_query;
@@ -355,10 +355,10 @@ class Search_Manager_Plugin_OCI
 		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Result returned above is in following format:
 		// Array(
-	 	// 	'0' => ASSETID1,....
+		// 	'0' => ASSETID1,....
 		// )
 		//
 		// However, the search manager expects the result in following format:
@@ -615,16 +615,18 @@ class Search_Manager_Plugin_OCI
 	* attribute content is indexed as a whole, rather than being broken up into
 	* separate words.
 	*
-	* @param string	$contents	The contents
-	* @param string	$type_code	The type code
-	* @param string	$data_type	The data type
-	* @param string	$component	The component
-	* @param string	$weighting	The weighting
+	* @param string				$contents		The contents
+	* @param string				$type_code		The type code
+	* @param string				$data_type		The data type
+	* @param string				$component		The component
+	* @param string				$weighting		The weighting
+	* @param mixed (int|string)	$contextid		The contextid (or 'default' if not contextable)
+	* @param boolean			$use_default	TRUE indicates this is a default value
 	*
 	* @return array
 	* @access public
 	*/
-	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
+	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting, $contextid, $use_default)
 	{
 		$index_content = Array();
 
@@ -647,11 +649,13 @@ class Search_Manager_Plugin_OCI
 		}
 
 		$index_content[] = Array(
-							'value'		=> $contents,
-							'type_code'	=> $type_code,
-							'type'		=> $data_type,
-							'component'	=> $component,
-							'score'		=> $weighting,
+							'value'			=> $contents,
+							'type_code'		=> $type_code,
+							'type'			=> $data_type,
+							'component'		=> $component,
+							'score'			=> $weighting,
+							'contextid'		=> $contextid,
+							'use_default'	=> $use_default,
 						   );
 
 		return $index_content;
