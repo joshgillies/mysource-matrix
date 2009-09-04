@@ -58,15 +58,12 @@ class DALOrderByParser extends DALQueryParser
      */
     public static function parse(DomElement $parent)
     {
-        $query    = array();
-        $orderBys = $parent->getElementsByTagName('order-by');
-        for ($i = 0; $i < $orderBys->length; $i++) {
-            $orderBy = $orderBys->item($i);
-            if ($orderBy !== NULL && $orderBy->parentNode === $parent) {
-                $query['ORDER-BY'][$i] = self::parseChildFields($orderBy);
-                if ($orderBy->getAttribute('direction') !== '') {
-                    $query['ORDER-BY'][$i]['direction'] = $orderBy->getAttribute('direction');
-                }
+        $query   = array();
+        $orderBy = $parent->getElementsByTagName('order-by')->item(0);
+        if ($orderBy !== NULL && $orderBy->parentNode === $parent) {
+            $query['ORDER-BY'] = self::parseChildFields($orderBy);
+            if ($orderBy->getAttribute('direction') !== '') {
+                $query['ORDER-BY']['direction'] = $orderBy->getAttribute('direction');
             }
         }
 
