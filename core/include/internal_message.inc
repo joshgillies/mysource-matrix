@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.91.2.3 2009/06/16 04:07:07 wszymanski Exp $
+* $Id: internal_message.inc,v 1.91.2.4 2009/09/04 01:34:08 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91.2.3 $
+* @version $Revision: 1.91.2.4 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -196,8 +196,6 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		// generic prepared statement for inserting
 		$sql = 'INSERT INTO
 					sq_internal_msg
@@ -226,8 +224,6 @@ class Internal_Message extends MySource_Object
 						:sent,
 						:parameters
 					)';
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		  //////////////////////////////
 		 // LOG MESSAGES TO LOG FILE //
