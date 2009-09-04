@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.63.2.1 2009/09/02 05:22:31 cupreti Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.63.2.2 2009/09/04 03:21:02 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63.2.1 $
+* @version $Revision: 1.63.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -499,7 +499,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($additional_vars) || empty($additional_vars)) {
 			return $processed_get_vars;
 		}
-        $temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($nesting_assetid, '' , TRUE, FALSE);
+        $temp_parent_array = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id, '' , TRUE, FALSE);
 		$parents_nesting_asset_id = $temp_parent_array[0];
         $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 		foreach ($additional_get_vars as $get_var) {
