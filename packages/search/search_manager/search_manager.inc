@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200.2.4 2009/09/03 22:59:41 bpearson Exp $
+* $Id: search_manager.inc,v 1.200.2.5 2009/09/04 01:50:19 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200.2.4 $
+* @version $Revision: 1.200.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2607,7 +2607,7 @@ class Search_Manager extends Asset
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
-				$permission_check_query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+				$permission_check_query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON (p.userid = r.roleid)';
 			}
 
 			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
@@ -2750,35 +2750,33 @@ class Search_Manager extends Asset
 		*/
 		if (!empty($permission_check_query['where'])) {
 			/**
+			* Add an extra condition here.
+			* We can push the assetid check (retrieved in the outer query)
+			* into the subquery as well
+			* which speeds up permission checking
+			*/
+
+			$permission_check_query['where'][] = 'a.assetid=p.assetid';
+
+			/**
 			 * put the base permission check query together
-			 * it's used differently depending on the type of db we're talking to.
-			 * if it's oracle, we use it as a subquery:
-			 * .. a.assetid IN ( permission_check_query )
-			 * otherwise we end up with mismatching datatypes because of the intersect
 			 *
-			 * if it's postgres, it's done as an intersect
-			 * .. $prev_query intersect all permission_check_query
+			 * we use it as a subquery:
+			 * .. a.assetid IN ( permission_check_query )
 			 */
 			$permission_check_query_string = 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
 			$permission_check_query_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
 			$permission_check_query_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
 			$permission_check_query_string .= ' HAVING MIN(p.granted) <> \'0\'';
 
-			if ($db_type == 'oci') {
-				if (!empty($subquery['where'])) {
-					$subquery_string .= ' AND ';
-				} else {
-					$subquery_string .= ' WHERE ';
-				}
-				$subquery_string .= ' a.assetid IN (';
-				$subquery_string .= $permission_check_query_string;
-				$subquery_string .= ')';
+			if (!empty($subquery['where'])) {
+				$subquery_string .= ' AND ';
+			} else {
+				$subquery_string .= ' WHERE ';
 			}
-
-			if ($db_type == 'pgsql') {
-				$subquery_string .= ' INTERSECT ALL ';
-				$subquery_string .= $permission_check_query_string;
-			}
+			$subquery_string .= ' a.assetid IN (';
+			$subquery_string .= $permission_check_query_string;
+			$subquery_string .= ')';
 		}
 
 		 /**
