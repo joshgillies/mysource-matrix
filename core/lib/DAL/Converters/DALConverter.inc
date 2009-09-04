@@ -1091,7 +1091,6 @@ class DALConverter
 		}
 
 		$sql .= $this->separateFields($list).' '.$direction;
-		bam($sql);
 
 		return $sql;
 
