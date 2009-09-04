@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.212 2009/09/04 00:18:48 lwright Exp $
+* $Id: search_manager.inc,v 1.213 2009/09/04 00:19:51 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -3021,6 +3021,13 @@ class Search_Manager extends Asset
 		 * No need to include this if we're not checking permissions.
 		*/
 		if (!empty($permission_check_query['where'])) {
+			/**
+			 * Add an extra condition here.
+			 * We can push the assetid check (retrieved in the outer query)
+			 * into the subquery as well
+			 * which speeds up permission checking
+			 */
+			$permission_check_query['where'][] = 'a.assetid=p.assetid';
 
 			/**
 			 * put the base permission check query together
