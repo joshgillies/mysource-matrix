@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.211 2009/09/03 23:53:26 bpearson Exp $
+* $Id: search_manager.inc,v 1.212 2009/09/04 00:18:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.211 $
+* @version $Revision: 1.212 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -812,7 +812,6 @@ class Search_Manager extends Asset
 	*/
 	function addIndexableContent($assetid, &$index_content)
 	{
-		$q_str = '';
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return FALSE;
 		if (!is_array($index_content)) return FALSE;
@@ -1437,6 +1436,8 @@ class Search_Manager extends Asset
 									'type'		=> 'datetime',
 									'component'	=> 'metadata:'.$field->id,
 									'score'		=> $weighting,
+									'contextid'	=> 'default',
+									'use_default'	=> 1,
 								   );
 			} else {
 
