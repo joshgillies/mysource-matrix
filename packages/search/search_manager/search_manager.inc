@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.216 2009/09/06 23:00:44 lwright Exp $
+* $Id: search_manager.inc,v 1.217 2009/09/06 23:09:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -706,7 +706,7 @@ class Search_Manager extends Asset
 			}
 
 			foreach ($list_to_test as $this_contextid) {
-				if (($this_contextid === 'default') || ($this_contextid === 0)) {
+				if ($this_contextid === 'default') {
 					// Non-contextable attribute.
 					$use_default = TRUE;
 				} else if ($this_contextid === 0) {
