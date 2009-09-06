@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_user.inc,v 1.12 2007/06/05 00:41:37 lwright Exp $
+* $Id: backend_user.inc,v 1.13 2009/09/06 23:13:37 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,49 @@ class Backend_User extends User
 
 	}//end canAccessBackend()
 
+	
+	/*
+	* Delete backend user asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
+	*
+	* @param boolean    $release_lock   should we realease the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function delete($release_lock=TRUE)
+	{	
+		$success = FALSE;
+
+		if (parent::delete($release_lock)) {			
+
+			$sql = 'SELECT lockid FROM '.SQ_TABLE_RUNNING_PREFIX.'lock WHERE userid = \''.$this->id.'\'';
+
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lock info for backend user due to database error: '.$e->getMessage());
+			}
+
+			$success = TRUE;
+			
+			// Release all the locks held by this backend user
+			foreach($result as $key => $val) {
+				$lockid = $val['lockid'];
+				
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock($lockid)) !== TRUE) {
+					trigger_localised_error('SYS0109', E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
+					$success = FALSE;
+					continue;
+				}			
+			}// End foreach
+		}
+
+		return $success;
+	
+	}
 
 }//end class
 ?>
