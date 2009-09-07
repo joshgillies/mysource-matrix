@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2009/07/29 11:53:42 ata Exp $
+* $Id: lang_screen_details.xml,v 1.4 2009/09/07 12:44:10 ata Exp $
 *
 */
 -->
@@ -81,11 +81,11 @@
 		</field>
 		<field attribute="addr1_var_name">
 			<display_name>Address 1 Variable Name</display_name>
-			<note>The name of the pass through variable for the first line of address.</note>
+			<note>The prefix of the pass through variables for the first address component. For example, the variable names of Address 1 are address1_1 and address1_2, this value will be address1_</note>
 		</field>
 		<field attribute="addr2_var_name">
 			<display_name>Address 2 Variable Name</display_name>
-			<note>The name of the pass through variable for the second line of address.</note>
+			<note>The prefix of the pass through variables for the second address component. For example, the variable names of Address 2 are address2_1 and address2_2, this value will be address2_</note>
 		</field>
 		<field attribute="city_var_name">
 			<display_name>City Variable Name</display_name>

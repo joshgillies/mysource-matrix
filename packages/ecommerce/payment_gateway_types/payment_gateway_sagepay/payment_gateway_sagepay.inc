@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.5 2009/08/17 15:54:54 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.6 2009/09/07 12:44:10 ata Exp $
 *
 */
 
@@ -18,6 +18,8 @@
 require_once dirname(__FILE__).'/../../payment_gateway/payment_gateway.inc';
 require_once dirname(__FILE__).'/sagepay_processor.inc';
 
+define('MIN_LINE_IN_ADDRESS', 1);
+define('MAX_LINE_IN_ADDRESS', 3);
 
 /**
 * Payment_Gateway_SagePay
@@ -26,7 +28,7 @@ require_once dirname(__FILE__).'/sagepay_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -155,8 +157,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		
 		$keywords['billing_first_names'] = 'Billing First Names';
 		$keywords['billing_surname'] = 'Billing Surname';
-		$keywords['billing_address1'] = 'Billing Address1';
-		$keywords['billing_address2'] = 'Billing Address2';
+		$keywords['billing_address1_X'] = 'Billing Address1 (X: 1 - 3)';
+		$keywords['billing_address2_X'] = 'Billing Address2 (X: 1 - 3)';
 		$keywords['billing_city'] = 'Billing City';
 		$keywords['billing_postcode'] = 'Billing Postcode';
 		$keywords['billing_country'] = 'Billing Country';
@@ -165,8 +167,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		
 		$keywords['delivery_first_names'] = 'Delivery First Names';
 		$keywords['delivery_surname'] = 'Delivery Surname';
-		$keywords['delivery_address1'] = 'Delivery Address1';
-		$keywords['delivery_address2'] = 'Delivery Address2';
+		$keywords['delivery_address1_X'] = 'Delivery Address1 (X: 1 - 3)';
+		$keywords['delivery_address2_X'] = 'Delivery Address2 (X: 1 - 3)';
 		$keywords['delivery_city'] = 'Delivery City';
 		$keywords['delivery_postcode'] = 'Delivery Postcode';
 		$keywords['delivery_country'] = 'Delivery Country';
@@ -229,6 +231,30 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			$period = substr($keyword, 24);
 			if (is_numeric($period)) {
 				$replacement = $this->getCardExpiryYearSelectKeywordReplacement($period);
+			}
+			
+		} else if (0 === strpos($keyword, 'billing_address1_')) {
+			$line = (int)substr($keyword, 17);
+			if (($line >= MIN_LINE_IN_ADDRESS) && ($line <= MAX_LINE_IN_ADDRESS)) {
+				$replacement = $this->getBillingAddress1KeywordReplacement($line);
+			}
+			
+		} else if (0 === strpos($keyword, 'billing_address2_')) {
+			$line = (int)substr($keyword, 17);
+			if (($line >= MIN_LINE_IN_ADDRESS) && ($line <= MAX_LINE_IN_ADDRESS)) {
+				$replacement = $this->getBillingAddress2KeywordReplacement($line);
+			}
+			
+		} else if (0 === strpos($keyword, 'delivery_address1_')) {
+			$line = (int)substr($keyword, 18);
+			if (($line >= MIN_LINE_IN_ADDRESS) && ($line <= MAX_LINE_IN_ADDRESS)) {
+				$replacement = $this->getDeliveryAddress1KeywordReplacement($line);
+			}
+			
+		} else if (0 === strpos($keyword, 'delivery_address2_')) {
+			$line = (int)substr($keyword, 18);
+			if (($line >= MIN_LINE_IN_ADDRESS) && ($line <= MAX_LINE_IN_ADDRESS)) {
+				$replacement = $this->getDeliveryAddress2KeywordReplacement($line);
 			}
 			
 		} else {
@@ -485,14 +511,26 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		
 		$billing_addr = '';
 		//SET BILLING ADDRESS 1
-		$billing_address1 = array_get_index($card_info, 'billing_address1', '');
+		$billing_address1 = trim(array_get_index($card_info, 'billing_address1_'.MIN_LINE_IN_ADDRESS, ''));
+		for ($i = MIN_LINE_IN_ADDRESS + 1; $i <= MAX_LINE_IN_ADDRESS; $i++) {
+			$line = array_get_index($card_info, "billing_address1_$i", '');
+			if (trim($line) != '') {
+				$billing_address1 .= ", $line";
+			}
+		}
 		if ($billing_address1 != '') {
 			$billing_addr .= $billing_address1."\n";
 			$processor->setBillingAddress1($billing_address1);
 		}
 		
 		//SET BILLING ADDRESS 2
-		$billing_address2 = array_get_index($card_info, 'billing_address2', '');
+		$billing_address2 = trim(array_get_index($card_info, 'billing_address2_'.MIN_LINE_IN_ADDRESS, ''));
+		for ($i = MIN_LINE_IN_ADDRESS + 1; $i <= MAX_LINE_IN_ADDRESS; $i++) {
+			$line = array_get_index($card_info, "billing_address2_$i", '');
+			if (trim($line) != '') {
+				$billing_address2 .= ", $line";
+			}
+		}
 		if ($billing_address2 != '') {
 			$billing_addr .= $billing_address2."\n";
 			$processor->setBillingAddress2($billing_address2);
@@ -560,14 +598,26 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		
 		$delivery_addr = '';
 		//SET DELIVERY ADDRESS 1
-		$delivery_address1 = array_get_index($card_info, $delivery_str.'address1', '');
+		$delivery_address1 = trim(array_get_index($card_info, $delivery_str.'address1_'.MIN_LINE_IN_ADDRESS, ''));
+		for ($i = MIN_LINE_IN_ADDRESS + 1; $i <= MAX_LINE_IN_ADDRESS; $i++) {
+			$line = array_get_index($card_info, "{$delivery_str}address1_$i", '');
+			if (trim($line) != '') {
+				$delivery_address1 .= ", $line";
+			}
+		}
 		if ($delivery_address1 != '') {
 			$delivery_addr .= $delivery_address1."\n";
 			$processor->setDeliveryAddress1($delivery_address1);
 		}
 		
 		//SET DELIVERY ADDRESS 2
-		$delivery_address2 = array_get_index($card_info, $delivery_str.'address2', '');
+		$delivery_address2 = trim(array_get_index($card_info, $delivery_str.'address2_'.MIN_LINE_IN_ADDRESS, ''));
+		for ($i = MIN_LINE_IN_ADDRESS + 1; $i <= MAX_LINE_IN_ADDRESS; $i++) {
+			$line = array_get_index($card_info, "{$delivery_str}address2_$i", '');
+			if (trim($line) != '') {
+				$delivery_address2 .= ", $line";
+			}
+		}
 		if ($delivery_address2 != '') {
 			$delivery_addr .= $delivery_address2."\n";
 			$processor->setDeliveryAddress2($delivery_address2);
@@ -1252,14 +1302,16 @@ HEREDOC;
 	/**
 	* Billing Address 1 keyword replacement
 	*
+	* @param string		$line	the line number of the billing address 1
+	* 
 	* @return string
 	* @access private
 	*/
-	function getBillingAddress1KeywordReplacement()
+	function getBillingAddress1KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[billing_address1]', $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name'));
+		text_box($card."[billing_address1_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name', $line));
 		
 		return ob_get_clean();
 
@@ -1269,14 +1321,16 @@ HEREDOC;
 	/**
 	* Billing Address 2 keyword replacement
 	*
+	* @param string		$line	the line number of the billing address 2
+	* 
 	* @return string
 	* @access private
 	*/
-	function getBillingAddress2KeywordReplacement()
+	function getBillingAddress2KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[billing_address2]', $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name'));
+		text_box($card."[billing_address2_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name', $line));
 		
 		return ob_get_clean();
 
@@ -1405,32 +1459,40 @@ HEREDOC;
 	/**
 	* Delivery Address 1 keyword replacement
 	*
+	* @param string		$line	the line number of the delivery address 1
+	* 
 	* @return string
 	* @access private
 	*/
-	function getDeliveryAddress1KeywordReplacement()
+	function getDeliveryAddress1KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
 
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_address1]" />';
-		return $string;
-
+		text_box($card."[delivery_address1_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name', $line));
+		
+		return ob_get_clean();
+		
 	}//end getDeliveryAddress1KeywordReplacement()
 	
 
 	/**
 	* Delivery Address 2 keyword replacement
 	*
+	* @param string		$line	the line number of the delivery address 2
+	* 
 	* @return string
 	* @access private
 	*/
-	function getDeliveryAddress2KeywordReplacement()
+	function getDeliveryAddress2KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
 
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_address2]" />';
-		return $string;
-
+		text_box($card."[delivery_address2_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name', $line));
+		
+		return ob_get_clean();
+		
 	}//end getDeliveryAddress2KeywordReplacement()
 	
 
@@ -1755,14 +1817,16 @@ HEREDOC;
 	/**
 	 * Get pass-through variable with the variable names from attributes 
 	 * 
-	 * @param string $attr_name		the name of the attribute that stores the variable name
+	 * @param string	$attr_name		the name of the attribute that stores the variable name
+	 * @param int		$line			the line number of the address, this parameter is only passed in if the attribute name is addr1_var_name or addr2_var_name
+	 * 
 	 * @return mixed
 	 * @access private
 	 */
-	private function _getDefaultInputFromPassThroughAttribute($attr_name)
+	private function _getDefaultInputFromPassThroughAttribute($attr_name, $line = '')
 	{
 		$result = '';
-		$var_name = $this->attr($attr_name);
+		$var_name = $this->attr($attr_name).$line;
 		if (!empty($var_name)) {
 			$result = $this->_getPassThroughVariable($var_name, '');
 		}
