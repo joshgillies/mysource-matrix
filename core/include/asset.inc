@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669.2.5 2009/07/08 05:47:33 bpearson Exp $
+* $Id: asset.inc,v 1.669.2.6 2009/09/07 04:25:25 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669.2.5 $
+* @version $Revision: 1.669.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -402,11 +402,15 @@ class Asset extends MySource_Object
 				}
 				return $this->_abortCreate($trigger_level_changed);
 			}
+			// bug fix #3877 Matrix will create and retain links in DB if asset fails to get created
+			// by this point ^ we have linkid available since the link has been created.
+			// any further calls to _abortCreate() should include linkid so the we are not left
+			// with unwanted rubissh in sq_ast_lnk and sq_ast_lnk_tree tables
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-					return $this->_abortCreate($trigger_level_changed);
+					return $this->_abortCreate($trigger_level_changed, $linkid);
 				}
 
 				// Get the link so we can find out if it was dependent
@@ -416,7 +420,7 @@ class Asset extends MySource_Object
 				// Release locks, unless the parent was locked before we were created
 				if (!$parent_was_locked) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
-						return $this->_abortCreate($trigger_level_changed);
+						return $this->_abortCreate($trigger_level_changed, $linkid);
 					}
 				} else if ($new_link['is_dependant']) {
 					// The parent was locked before we created this asset and the new asset
@@ -425,13 +429,13 @@ class Asset extends MySource_Object
 					foreach (array_values($parent_lock_info) as $lock_details) {
 						if (empty($lock_details)) continue;
 						if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
-							return $this->_abortCreate($trigger_level_changed);
+							return $this->_abortCreate($trigger_level_changed, $linkid);
 						}
 					}
 				}
 				if (!$new_link['is_dependant']) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
-						return $this->_abortCreate($trigger_level_changed);
+						return $this->_abortCreate($trigger_level_changed, $linkid);
 					}
 				}
 
@@ -458,13 +462,13 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
-		if (!$event_result) return $this->_abortCreate();
+		if (!$event_result) return $this->_abortCreate(FALSE, $linkid);
 
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 			// Perform any additional processing required, such as creating other assets
 			if (!$this->_createAdditional($link)) {
-				return $this->_abortCreate();
+				return $this->_abortCreate(FALSE, $linkid);
 			}
 		}
 
@@ -475,12 +479,12 @@ class Asset extends MySource_Object
 			// note, if the user is unknown (NULL or 0), the permissions WILL NOT BE SET, and the creation will not fail
 			$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (!empty($current_user) && !$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $current_user, SQ_PERMISSION_WRITE, TRUE)) {
-				return $this->_abortCreate();
+				return $this->_abortCreate(FALSE, $linkid);
 			}
 		}
 
 		unset($this->_tmp['__creating__']);
-		if (!$this->_updated()) return $this->_abortCreate();
+		if (!$this->_updated()) return $this->_abortCreate(FALSE, $linkid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -586,15 +590,18 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	protected function _abortCreate($trigger_level_changed=FALSE)
+	protected function _abortCreate($trigger_level_changed=FALSE, $linkid = 0)
 	{
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
+
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
+		if ($linkid != 0) $link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		if (!empty($link)) $GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($link);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
 		if ($this->id) {
