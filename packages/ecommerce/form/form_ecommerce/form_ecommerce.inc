@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.47 2009/07/13 11:06:32 ata Exp $
+* $Id: form_ecommerce.inc,v 1.48 2009/09/07 16:31:40 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -168,6 +168,7 @@ class Form_Ecommerce extends Form_Email
 			case('form_question_type_option_list'):
 			case('form_question_type_tickbox_list'):
 			case('form_question_type_tickbox_table'):
+			case('form_question_type_country'):
 				return TRUE;
 
 			default:
@@ -2084,7 +2085,7 @@ class Form_Ecommerce extends Form_Email
 				}
 				
 				$val = '';
-				if ($question->isSelection()) {
+				if (!($question instanceof Form_Question_Type_Country) && $question->isSelection()) {
 					$options = array_get_index($var_rule, 'value', Array());
 					foreach ($options as $option_id => $option_val) {
 						//if option is selcted and option is not --leave empty--

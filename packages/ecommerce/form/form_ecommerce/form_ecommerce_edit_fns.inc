@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.18 2009/07/13 11:02:38 ata Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.19 2009/09/07 16:31:40 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -274,7 +274,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo '<td>';
 			if ($var_enabled) {
 				$question = $am->getAsset($q_id);
-				if ($question->isSelection()) {
+				if (!($question instanceof Form_Question_Type_Country) && $question->isSelection()) {
 					echo '<table class="sq-backend-table">';
 					$options = $question->getOptions();
 					$var_value = array_get_index($var_rules[$q_id], 'value', Array());
