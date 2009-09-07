@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.6 2009/09/07 12:44:10 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.7 2009/09/07 16:33:29 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_LINE_IN_ADDRESS', 3);
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1005,7 +1005,6 @@ HEREDOC;
 	*/
 	function getCardNameKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 		$string = '<input name="'.$card.'[name]" />';
 		return $string;
@@ -1245,7 +1244,6 @@ HEREDOC;
 	*/
 	function getCardTypeKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 
 		$available_card_types = SagePay_Processor::getCardTypes();
@@ -1384,10 +1382,9 @@ HEREDOC;
 		
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		combo_box($card.'[billing_country]', $standards_lists_countries, FALSE, 'gb');
+		combo_box($card.'[billing_country]', $standards_lists_countries, FALSE, $this->_getDefaultInputFromPassThroughAttribute('country_var_name'));
 
 		return ob_get_clean();
-		
 
 	}//end getBillingCountryKeywordReplacement()
 	
@@ -1400,7 +1397,6 @@ HEREDOC;
 	*/
 	function getBillingStateKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 		$string = '<input name="'.$card.'[billing_state]" />';
 		return $string;
@@ -1416,7 +1412,6 @@ HEREDOC;
 	*/
 	function getBillingPhoneKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 		$string = '<input name="'.$card.'[billing_phone]" />';
 		return $string;
@@ -1432,11 +1427,12 @@ HEREDOC;
 	*/
 	function getDeliveryFirstNamesKeywordReplacement()
 	{
-
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_first_names]" />';
-		return $string;
-
+		text_box($card.'[delivery_first_names]', $this->_getDefaultInputFromPassThroughAttribute('firstname_var_name'));
+		
+		return ob_get_clean();
+		
 	}//end getDeliveryFirstNamesKeywordReplacement()
 	
 
@@ -1448,11 +1444,12 @@ HEREDOC;
 	*/
 	function getDeliverySurnameKeywordReplacement()
 	{
-
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_surname]" />';
-		return $string;
-
+		text_box($card.'[delivery_surname]', $this->_getDefaultInputFromPassThroughAttribute('surname_var_name'));
+		
+		return ob_get_clean();
+		
 	}//end getDeliverySurnameKeywordReplacement()
 
 	
@@ -1466,7 +1463,6 @@ HEREDOC;
 	*/
 	function getDeliveryAddress1KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
-
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card."[delivery_address1_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name', $line));
@@ -1486,7 +1482,6 @@ HEREDOC;
 	*/
 	function getDeliveryAddress2KeywordReplacement($line = MIN_LINE_IN_ADDRESS)
 	{
-
 		ob_start();
 		$card = $this->getPrefix().'_card';
 		text_box($card."[delivery_address2_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name', $line));
@@ -1504,11 +1499,12 @@ HEREDOC;
 	*/
 	function getDeliveryCityKeywordReplacement()
 	{
-
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_city]" />';
-		return $string;
-
+		text_box($card.'[delivery_city]', $this->_getDefaultInputFromPassThroughAttribute('city_var_name'));
+		
+		return ob_get_clean();
+		
 	}//end getDeliveryCityKeywordReplacement()
 	
 
@@ -1520,11 +1516,12 @@ HEREDOC;
 	*/
 	function getDeliveryPostcodeKeywordReplacement()
 	{
-
+		ob_start();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[delivery_postcode]" />';
-		return $string;
-
+		text_box($card.'[delivery_postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
+		
+		return ob_get_clean();
+		
 	}//end getDeliveryPostcodeKeywordReplacement()
 
 	
@@ -1541,11 +1538,10 @@ HEREDOC;
 		
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		combo_box($card.'[delivery_country]', $standards_lists_countries, FALSE, 'gb');
+		combo_box($card.'[delivery_country]', $standards_lists_countries, FALSE, $this->_getDefaultInputFromPassThroughAttribute('country_var_name'));
 
 		return ob_get_clean();
 		
-
 	}//end getDeliveryCountryKeywordReplacement()
 	
 	
@@ -1557,7 +1553,6 @@ HEREDOC;
 	*/
 	function getDeliveryStateKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 		$string = '<input name="'.$card.'[delivery_state]" />';
 		return $string;
@@ -1573,7 +1568,6 @@ HEREDOC;
 	*/
 	function getDeliveryPhoneKeywordReplacement()
 	{
-
 		$card = $this->getPrefix().'_card';
 		$string = '<input name="'.$card.'[delivery_phone]" />';
 		return $string;

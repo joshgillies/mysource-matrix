@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2009/09/07 12:44:10 ata Exp $
+* $Id: lang_screen_details.xml,v 1.5 2009/09/07 16:33:29 ata Exp $
 *
 */
 -->
@@ -94,6 +94,10 @@
 		<field attribute="postcode_var_name">
 			<display_name>Postcode Variable Name</display_name>
 			<note>The name of the pass through variable for Postcode.</note>
+		</field>
+		<field attribute="country_var_name">
+			<display_name>Country Variable Name</display_name>
+			<note>The name of the pass through variable for Country.</note>
 		</field>
 	</section>
 	<section name="Interface Options">

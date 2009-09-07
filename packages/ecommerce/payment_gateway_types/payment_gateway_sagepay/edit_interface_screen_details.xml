@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2009/07/29 11:53:42 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2009/09/07 16:33:29 ata Exp $
 *
 */
 -->
@@ -75,6 +75,9 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="postcode_var_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="country_var_name">
 			<text width="30" height="1" />
 		</field>
 	</section>

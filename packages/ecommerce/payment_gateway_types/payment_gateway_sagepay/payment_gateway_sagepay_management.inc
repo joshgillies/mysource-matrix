@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.4 2009/08/19 05:56:46 lwright Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.5 2009/09/07 16:33:29 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -157,17 +157,23 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'The pass through variable name of Address 2',
 												   ),
-						'city_var_name'		=> Array(
+						'city_var_name'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The pass through variable name of City',
 												   ),
-						'postcode_var_name'	=> Array(
+						'postcode_var_name'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The pass through variable name of Postcode',
+												   ),
+						'country_var_name'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The pass through variable name of Country',
 												   ),
 						'submit_text'			=> Array(
 													'added'			=> '0.1',
