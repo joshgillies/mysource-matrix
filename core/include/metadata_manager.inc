@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.193 2009/08/19 14:10:37 ata Exp $
+* $Id: metadata_manager.inc,v 1.194 2009/09/07 04:29:16 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -885,7 +885,7 @@ class Metadata_Manager extends MySource_Object
 				$bind_vars	= Array (
 								'assetid'	=> $asset->id,
 								'fieldid'	=> $fieldid,
-								'value'		=> $metadata[$fieldid][0]['value'],
+								'value'		=> Metadata_Field::encodeValueString(trim($metadata[$fieldid][0]['value']), Array()), 
 							  );
 				if (!in_array($fieldid, $updates)) {
 					try {
