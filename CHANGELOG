@@ -247,4 +247,21 @@ New Asset Type: "Donation" Product
 
 
 New Asset Type: Link
-	This new asset represents a link to a URL or another asset. Unlike Redirect Page, this will not redirect when its contents are printed, but the link will be displayed instead. An optional Relation ("rel") attribute can be added to the link. 
+	This new asset represents a link to a URL or another asset. Unlike Redirect Page, this will not redirect when its contents are printed, but the link will be displayed instead. An optional Relation ("rel") attribute can be added to the link.
+
+
+Backup Script modifications
+
+	The "scripts/backup.sh" Matrix backup script now prints everything to STDERR (error output stream) instead of STDOUT.
+The backup file generated is now compressed using gzip piping through tar, if supported by the system. The "cache" directory is now included in the backup but not its contents. Support has also been added for Solaris "/bin/sh" syntax.
+
+An option has been added to the Matrix Backup Script - scripts/backup.sh - to allow a backup filename to be specified. For example, running the following command will create a backup file in the filesystem location /path/to/backup/folder/filename.tar.gz:
+
+	./scripts/backup.sh /path/to/matrix /path/to/backup/folder filename.tar.gz
+
+Please note that the backup folder must be included as the second argument otherwise the filename will be mistaken for the folder name. The file extension - either ".tar.gz" or ".tgz" - must be included in the filename otherwise the file will not be assigned an extension.
+
+
+SOAP Server: Workflow operation changes in Workflow Service
+
+	A new operation "SafeEditAsset" has been added to the Workflow Service in SOAP Server. This allows a Live asset to enter Safe Edit. It is also now possible to specify Workflow Messages for assets in Workflow via the "ApproveAssetInWorkflow" and "CompleteWorkflow" operations. 
