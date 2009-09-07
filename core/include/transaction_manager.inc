@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.28 2008/02/18 04:10:09 lwright Exp $
+* $Id: transaction_manager.inc,v 1.28.4.1 2009/09/07 03:54:12 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.4.1 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -84,6 +84,7 @@ class Transaction_Manager extends MySource_Object
 	{
 		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
+		if (isset($dsn_array['userName'])) $dsn .= ';user='.$dsn_array['userName'];
 
 		if (isset($this->_levels[$dsn])) {
 			$this->_levels[$dsn]++;
@@ -118,6 +119,7 @@ class Transaction_Manager extends MySource_Object
 	{
 		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
+		if (isset($dsn_array['userName'])) $dsn .= ';user='.$dsn_array['userName'];
 
 		if (empty($this->_levels[$dsn])) {
 			// TODO: -TOF- put that line back
@@ -165,6 +167,7 @@ class Transaction_Manager extends MySource_Object
 	{
 		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
+		if (isset($dsn_array['userName'])) $dsn .= ';user='.$dsn_array['userName'];
 
 		if (empty($this->_levels[$dsn])) {
 			trigger_localised_error('SYS0231', E_USER_WARNING);
