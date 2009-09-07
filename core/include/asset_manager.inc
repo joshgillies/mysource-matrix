@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.17 2009/09/04 07:29:37 akarelia Exp $
+* $Id: asset_manager.inc,v 1.738.2.18 2009/09/07 04:43:43 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.17 $
+* @version $Revision: 1.738.2.18 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6012,6 +6012,28 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0137', E_USER_WARNING, $linkid);
 			return FALSE;
 		}
+		return $this->deleteAssetLinkByLink($link);
+  	 
+	}//end deleteAssetLink()
+
+ 
+	/**
+	* Remove a link by the link that is passed
+	* This function the initial checking that is done by  deleteAssetLink()
+	* Fix to #3877          Matrix will create and retain links in DB if asset fails to get created
+	* a new function call made to deleteAssetLinkByLink() from _abortCreate() from asset.inc
+	*
+	* @param Array  $link   the link we are supposed to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLinkByLink(Array $link)
+	{
+		if (empty($link)) {
+			return FALSE;
+		}
+		$linkid = $link['linkid'];
 
 		$major = $this->getAsset($link['majorid'], $link['major_type_code']);
 		$minor = $this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -6290,7 +6312,7 @@ class Asset_Manager extends MySource_Object
 
 		return TRUE;
 
-	}//end deleteAssetLink()
+	}//end deleteAssetLinkByLink()
 
 
 	/**
