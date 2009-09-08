@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.28 2009/07/29 00:58:12 akarelia Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.28.2.1 2009/09/08 05:03:29 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,10 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$form_printed = array_get_index($request_data, 'form_printed', 0);
 
 		$fieldid = $fieldid_data['assetid'];
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($fieldid)) {
+			return translate('selected_asset_does_not_exist');
+		}
 
 		if ($fieldid) {
 			$settings['fieldid'] = $fieldid;
