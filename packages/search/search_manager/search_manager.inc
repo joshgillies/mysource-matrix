@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.218 2009/09/06 23:22:36 lwright Exp $
+* $Id: search_manager.inc,v 1.219 2009/09/08 06:38:02 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.218 $
+* @version $Revision: 1.219 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -828,19 +828,11 @@ class Search_Manager extends Asset
 		// List of values that will be added at the end using the 'use default'
 		// insert, after all custom values are entered.
 		$defaults = Array();
-
-		// This could be out of a transaction at this point, and in db1 (the
-		// read-only db). Change to db2, and wrap in a transaction so it doesn't
-		// autocommit all over the place
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$add_content = Array();
 
 		// Pre-pack the custom indexable content query, so it doesn't have to
 		// prepare itself over and over again
 		if (!empty($keys)) {
-			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
-			$query = $dal_query->prepare();
-
 			foreach ($keys as $key) {
 				$data =& $index_content[$key];
 				$value = $data['value'];
@@ -895,21 +887,18 @@ class Search_Manager extends Asset
 						$defaults[] = $bind_vars;
 					}
 				} else {
-					try {
-						// Non-default value, or non-contextable. Put it in straight away.
-						foreach ($bind_vars as $bind_var => $bind_value) {
-							MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-						}
-						MatrixDAL::execPdoQuery($query);
-						$index_content_found = TRUE;
-					} catch (Exception $e) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
-					}
+					// Don't perform database transactions here as it can fail silently here without warning
+					$add_content[] = $bind_vars;
 				}
 
 			}//end foreach
 		}//end if
+
+		// This could be out of a transaction at this point, and in db1 (the
+		// read-only db). Change to db2, and wrap in a transaction so it doesn't
+		// autocommit all over the place
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Okay, shove in the default values, which will be determined by what
 		// context values are not already in there.
@@ -928,6 +917,29 @@ class Search_Manager extends Asset
 					}
 					MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
 					MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
+					MatrixDAL::execPdoQuery($query);
+					$index_content_found = TRUE;
+				} catch (Exception $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+				}
+			}//end foreach
+		}//end if
+
+		// And finally, add the indexable content
+		// This code was moved outside the above loop which creates both the default and now the content.
+		// This was due to a bug in PHP (<5.2) and Postgres 8.1 dropping transactions silently
+		// when a prepared statement is not executed.
+		if (!empty($add_content)) {
+			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
+			$query = $dal_query->prepare();
+
+			foreach ($add_content as $bind_vars) {
+				try {
+					// Non-default value, or non-contextable. Put it in straight away.
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
 					MatrixDAL::execPdoQuery($query);
 					$index_content_found = TRUE;
 				} catch (Exception $e) {
