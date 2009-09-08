@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: default_delivery_method_edit_fns.inc,v 1.7 2009/08/11 09:15:15 ata Exp $
+* $Id: default_delivery_method_edit_fns.inc,v 1.8 2009/09/08 10:55:22 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_me
 * Purpose
 *
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -160,7 +160,7 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 			echo '<td>';
 			if ($var_enabled) {
 				$question = $am->getAsset($q_id);
-				if ($question->isSelection()) {
+				if (!($question instanceof Form_Question_Type_Country) && $question->isSelection()) {
 					echo '<table class="sq-backend-table">';
 					$options = $question->getOptions();
 					$var_value = array_get_index($var_rules[$q_id], 'value', Array());

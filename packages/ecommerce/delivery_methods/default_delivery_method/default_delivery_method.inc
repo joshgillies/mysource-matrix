@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -319,6 +319,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			case('form_question_type_option_list'):
 			case('form_question_type_tickbox_list'):
 			case('form_question_type_tickbox_table'):
+			case('form_question_type_country'):
 				return TRUE;
 
 			default:
@@ -535,7 +536,12 @@ HEREDOC;
 			}
 			$key_parts = split(':', $key);
 			$order_extra_info[$key_parts[1]] = $tmp_value;
+			//if the question is a country question, stores the value for pass-through variables later
+			if ($answers[$key]['type_code'] == 'form_question_type_country') {
+				$order_extra_info[$key] = $answers[$key]['value'];
+			}
 		}
+		
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
 
 		if (!$ok) {
@@ -868,7 +874,9 @@ HEREDOC;
 				
 				$val = '';
 				$question = $am->getAsset($q_id);
-				if ($question->isSelection()) {
+				if ($question instanceof Form_Question_Type_Country) {
+					$val = $current_answers[$q_id];
+				} else if ($question->isSelection()) {
 					$options = array_get_index($var_rule, 'value', Array());
 					foreach ($options as $option_id => $option_val) {
 						//if option is selcted and option is not --leave empty--
