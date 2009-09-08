@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -382,23 +382,15 @@ HEREDOC;
 		ob_start();
 		if ($html) echo '<pre><ul>';
 
-		// get all question names
 		$form =& $this->getForm();
 		$question_values = $form->getQuestions();
-		$question_names = Array();
+		$answers = unserialize($_SESSION['order_extra_information']);
 		foreach ($question_values as $key => $value) {
 			$key_parts = split(':', $key);
-			$question_names[$key_parts[1]] = $value['name'];
-		}
-
-		// get the question values entered by the user
-		$question_value = unserialize($_SESSION['order_extra_information']);
-		foreach ($question_value as $key => $value) {
-			$tmp_name = $question_names[$key];
 			if ($html) {
-				echo '<li>'.$tmp_name.' ('.$key.') : '.$value.'</li>';
+				echo '<li>'.$value['name'].' ('.$key_parts[1].') : '.$answers[$key_parts[1]].'</li>';
 			} else {
-				echo $tmp_name.' ('.$key.') : '.$value."\n";
+				echo $value['name'].' ('.$key_parts[1].') : '.$answers[$key_parts[1]]."\n";
 			}
 		}
 
