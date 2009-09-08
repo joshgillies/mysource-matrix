@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2009/09/07 16:33:29 ata Exp $
+* $Id: lang_screen_details.xml,v 1.6 2009/09/08 14:25:58 ata Exp $
 *
 */
 -->
@@ -50,6 +50,10 @@
 		<field attribute="delivery_addr_is_billing_addr">
 			<display_name>Delivery Address is Billing Address?</display_name>
 			<note>The flag to indicate if delivery address is billing address. If the answer is yes, the card holder will not need to supply delivery address.</note>
+		</field>
+		<field attribute="hide_delivery_addr">
+			<display_name>Hide Delivery Address?</display_name>
+			<note>The flag to indicate if delivery address is hidden. If the answer is yes, the delivery address will get values from the pass-through variables.</note>
 		</field>
 		<field attribute="supported_card_types">
 			<display_name>Supported Card Types</display_name>

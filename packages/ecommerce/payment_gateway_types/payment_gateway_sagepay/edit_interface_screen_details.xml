@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2009/09/07 16:33:29 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2009/09/08 14:25:58 ata Exp $
 *
 */
 -->
@@ -41,6 +41,9 @@
 			<text width="60" height="1" />
 		</field>
 		<field attribute="delivery_addr_is_billing_addr">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="hide_delivery_addr">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="supported_card_types">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.5 2009/09/07 16:33:29 ata Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.6 2009/09/08 14:25:58 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -94,6 +94,15 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 													'type'			=> 'boolean',
 													'default'		=> FALSE,
 													'description'	=> 'The flag to indicate if delivery address is billing address',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'hide_delivery_addr'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'The flag to indicate if delivery address is hidden',
 													'parameters'	=> Array(
 																		'allow_empty'	=> FALSE,
 																	   ),

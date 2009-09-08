@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.7 2009/09/07 16:33:29 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.8 2009/09/08 14:25:58 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_LINE_IN_ADDRESS', 3);
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1429,7 +1429,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[delivery_first_names]', $this->_getDefaultInputFromPassThroughAttribute('firstname_var_name'));
+		$this->_delivery_textbox($card.'[delivery_first_names]', $this->_getDefaultInputFromPassThroughAttribute('firstname_var_name'));
 		
 		return ob_get_clean();
 		
@@ -1446,7 +1446,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[delivery_surname]', $this->_getDefaultInputFromPassThroughAttribute('surname_var_name'));
+		$this->_delivery_textbox($card.'[delivery_surname]', $this->_getDefaultInputFromPassThroughAttribute('surname_var_name'));
 		
 		return ob_get_clean();
 		
@@ -1465,7 +1465,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card."[delivery_address1_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name', $line));
+		$this->_delivery_textbox($card."[delivery_address1_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr1_var_name', $line));
 		
 		return ob_get_clean();
 		
@@ -1484,7 +1484,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card."[delivery_address2_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name', $line));
+		$this->_delivery_textbox($card."[delivery_address2_$line]", $this->_getDefaultInputFromPassThroughAttribute('addr2_var_name', $line));
 		
 		return ob_get_clean();
 		
@@ -1501,7 +1501,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[delivery_city]', $this->_getDefaultInputFromPassThroughAttribute('city_var_name'));
+		$this->_delivery_textbox($card.'[delivery_city]', $this->_getDefaultInputFromPassThroughAttribute('city_var_name'));
 		
 		return ob_get_clean();
 		
@@ -1518,7 +1518,7 @@ HEREDOC;
 	{
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		text_box($card.'[delivery_postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
+		$this->_delivery_textbox($card.'[delivery_postcode]', $this->_getDefaultInputFromPassThroughAttribute('postcode_var_name'));
 		
 		return ob_get_clean();
 		
@@ -1533,12 +1533,18 @@ HEREDOC;
 	*/
 	function getDeliveryCountryKeywordReplacement()
 	{
-		global $standards_lists_countries;
-		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
-		
 		ob_start();
 		$card = $this->getPrefix().'_card';
-		combo_box($card.'[delivery_country]', $standards_lists_countries, FALSE, $this->_getDefaultInputFromPassThroughAttribute('country_var_name'));
+		$name = $card.'[delivery_country]';
+		$value = $this->_getDefaultInputFromPassThroughAttribute('country_var_name');
+		if ($this->attr('hide_delivery_addr')) {
+			hidden_field($name, $value);
+		} else {
+			global $standards_lists_countries;
+			require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+			
+			combo_box($name, $standards_lists_countries, FALSE, $value);
+		}
 
 		return ob_get_clean();
 		
@@ -1846,6 +1852,26 @@ HEREDOC;
 		return str_replace($search, $replace, $text);
 		
 	}//end _getCDATAAllowedString()
+	
+	
+	/**
+	 * Paint a textbox or a hidden field for delivery address components based on the hide_delivery_addr attribute
+	 * 
+	 * @param string	$name	Name of the textbox or hidden field
+	 * @param string	$value	Value of the textbox or hidden field
+	 * 
+	 * @return void
+	 * @access private
+	 */
+	function _delivery_textbox($name, $value)
+	{
+		if ($this->attr('hide_delivery_addr')) {
+			hidden_field($name, $value);
+		} else {
+			text_box($name, $value);
+		}
+		
+	}//end getDeliveryFirstNamesKeywordReplacement()
 	
 	
 	/**
