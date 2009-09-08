@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.58.2.6 2009/09/04 03:22:40 akarelia Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.58.2.7 2009/09/08 23:48:14 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58.2.6 $
+* @version $Revision: 1.58.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -612,7 +612,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		}
 
-		if (($paint_with != $asset->attr('paint_with')) || ($additional_get != $asset->attr('additional_get'))) {
+		if (($paint_with != $asset->attr('paint_with')) || ($additional_get != $asset->attr('additional_get')) || ($paint_with_assetid != $current_apl_assetid)) {
 			$asset->setAttrValue('paint_with', $paint_with);
 			$asset->setAttrValue('additional_get', $additional_get);
 
