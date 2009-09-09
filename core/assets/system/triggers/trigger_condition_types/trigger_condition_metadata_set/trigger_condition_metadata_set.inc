@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_set.inc,v 1.1 2009/09/09 06:16:03 akarelia Exp $
+* $Id: trigger_condition_metadata_set.inc,v 1.2 2009/09/09 23:23:57 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 		$default_value = $GLOBALS['SQ_SYSTEM']->getMetadataManager()->getMetadataFieldDefaultValue($settings['asset_id']);
 
 		//if the metadatavalue is empty or same as default, that means its not set
-		if (empty($metadata_value) || ($metadata_value === $default_value)) return FALSE;
+		if ( $metadata_value == '' || ($metadata_value === $default_value)) return FALSE;
 
 		// if we have metadata set for this field give mission GO!!!
 		return TRUE;
