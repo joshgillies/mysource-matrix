@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.194 2009/09/07 04:29:16 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.195 2009/09/09 00:04:12 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -879,14 +879,15 @@ class Metadata_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata fields ids for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 			}
-
+			
 			foreach ($remaining as $fieldid) {
 				// we need to insert
 				$bind_vars	= Array (
 								'assetid'	=> $asset->id,
 								'fieldid'	=> $fieldid,
-								'value'		=> Metadata_Field::encodeValueString(trim($metadata[$fieldid][0]['value']), Array()), 
+								'value'     => $metadata[$fieldid][0]['value'],
 							  );
+				
 				if (!in_array($fieldid, $updates)) {
 					try {
 						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
