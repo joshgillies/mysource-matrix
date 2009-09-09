@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.339 2009/08/19 14:12:33 ata Exp $
+* $Id: lang_strings.xml,v 1.340 2009/09/09 06:19:44 akarelia Exp $
 *
 */
 
@@ -1215,6 +1215,7 @@
 	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s %3$s %4$s</string>
 	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
 	<string source="trigger_metadata_value">If the metadata value of the %1$s field in the asset has a %2$s with %3$s</string>
+	<string source="trigger_metadata_set">If the metadata value of the %1$s field is Set&lt;br /&gt;Will return FALSE if the field is empty or the value is set to Default value of the Metadata Field</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
