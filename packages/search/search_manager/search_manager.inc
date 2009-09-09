@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.194.2.9 2009/09/04 01:48:20 csmith Exp $
+* $Id: search_manager.inc,v 1.194.2.10 2009/09/09 00:52:16 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.194.2.9 $
+* @version $Revision: 1.194.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -615,7 +615,7 @@ class Search_Manager extends Asset
 
 
 	/**
-	* Adds the sepecifed index content for the specified assetid to the indexing system
+	* Adds the specified index content for the specified assetid to the indexing system
 	*
 	* @param string	$assetid		the assetid to index the content under
 	* @param array	&$index_content	the content to index
@@ -1515,10 +1515,11 @@ class Search_Manager extends Asset
 						$type_hier = Array($type_code);
 					}
 
-					// Search by type code first; that way we will always find the
-					// closest asset type to what we are using
-					foreach ($type_hier as $parent_type_code) {
-						foreach (array_keys($parents) as $parentid) {
+					// Search by parents first; that way we will always find the
+					// closest asset to what we are using, otherwise having a tree weight and global weight,
+					// the tree weight does not get used when using all asset types
+					foreach (array_keys($parents) as $parentid) {
+						foreach ($type_hier as $parent_type_code) {
 							if (in_array($parentid, array_keys($asset_tree_weightings))) {
 								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
 									if (in_array($parent_type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
@@ -1526,12 +1527,12 @@ class Search_Manager extends Asset
 										break;
 									}
 								}
-							}
-						}
+							}//end if
+						}//end foreach
 
 						// If we already have a parent, break out
 						if ($closest_parentid != 0) break;
-					}
+					}//end foreach
 
 					if ($closest_parentid != 0) {
 						return $asset_tree_weightings[$closest_parentid]['type_weights'][$parent_type_code];
