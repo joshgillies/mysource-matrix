@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.285.2.2 2009/08/20 07:05:01 ewang Exp $
+* $Id: listing_engine.inc,v 1.285.2.3 2009/09/10 23:36:29 bpearson Exp $
 *
 */
 
@@ -23,20 +23,20 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * Listing_Engine
 *
 * Purpose
-*     Provides common listing services to a range of CMS and search
-*     related assets, such as Asset Listing and Search Page. This is
-*     a 'base asset' that should not be created directly - rather you
-*     should create its children
+*	  Provides common listing services to a range of CMS and search
+*	  related assets, such as Asset Listing and Search Page. This is
+*	  a 'base asset' that should not be created directly - rather you
+*	  should create its children
 *
 *
-* @author Luke Wright   <lwright@squiz.net>
+* @author Luke Wright	<lwright@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.285.2.2 $
+* @version $Revision: 1.285.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -356,8 +356,8 @@ class Listing_Engine extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['folder']	= Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['asset']	= Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => FALSE);
 		return $page_links;
@@ -469,7 +469,7 @@ class Listing_Engine extends Page
 					// Make a clean URL to submit to
 					$form_method = strtolower($this->_getFormSubmitMethod());
 					$form_url_components = $this->_getFormUrlComponents($used_fields);
-					$form_url            = htmlspecialchars($form_url_components['url']);
+					$form_url			 = htmlspecialchars($form_url_components['url']);
 					?>
 
 					<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $form_method ?>" action="<?php echo $form_url; ?>">
@@ -692,8 +692,8 @@ class Listing_Engine extends Page
 		// this flag can be set if getAssetList() function returns different format of array.
 		// you can find the example in Search List. Also see getAssetList()'s comment
 		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
-			$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
-			$this->_tmp['asset_urls']     = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
+			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
+			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
 		}
 
 		// the list is sorted and positions set, now we can split to groups
@@ -704,7 +704,7 @@ class Listing_Engine extends Page
 
 		$num_per_page = $this->_getNumPerPage();
 
-		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
+		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		// have [assetid]_result_page take precedence over result_page
@@ -815,7 +815,7 @@ class Listing_Engine extends Page
 		// note that we never cache the results of a random asset listing for obvious reasons
 		$cache_key = '';
 
-		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
+		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -971,7 +971,7 @@ class Listing_Engine extends Page
 
 		// check and prepare sorting data
 		$is_sort_by_attribute = ($sort_info['type'] == 'asset_attrib');
-		$is_sort_by_field     = ($sort_info['type'] == 'field');
+		$is_sort_by_field	  = ($sort_info['type'] == 'field');
 		$is_sort_by_metadata  = ($sort_info['type'] == 'metadata');
 		$is_sort_by_keyword   = ($sort_info['type'] == 'keyword');
 
@@ -1513,7 +1513,7 @@ class Listing_Engine extends Page
 
 		$this->_tmp['result_page'] = 1;
 
-		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
+		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -1642,8 +1642,8 @@ class Listing_Engine extends Page
 				$page_list_without_unused = '';
 				foreach ($all_letters as $one_letter => $text_value) {
 					if (isset($todo[$one_letter])) {
-						$letter_link               = ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
-						$page_list                .= $letter_link;
+						$letter_link			   = ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
+						$page_list				  .= $letter_link;
 						$page_list_without_unused .= $letter_link;
 					} else {
 						$page_list .= ' '.$text_value.' ';
@@ -1851,9 +1851,9 @@ class Listing_Engine extends Page
 	{
 		if (empty($todo)) return;
 
-		$this->_tmp['formats']        = Array();
+		$this->_tmp['formats']		  = Array();
 		$this->_tmp['default_format'] = '';
-		$this->_tmp['is_default']     = Array();
+		$this->_tmp['is_default']	  = Array();
 		if (empty($this->_tmp['assets_info'])) {
 			include_once SQ_FUDGE_PATH.'/general/general.inc';
 			$flattened = array_keys(array_flatten($todo, FALSE, TRUE));
@@ -1986,8 +1986,8 @@ class Listing_Engine extends Page
 					ob_end_clean();
 
 					// populate replacements
-					$replacements['group_listing']                 = $group_contents;
-					$replacements['group_name']                    = $group_name;
+					$replacements['group_listing']				   = $group_contents;
+					$replacements['group_name']					   = $group_name;
 
 					// Prints the parent_contents and parent_contents_raw keywords
 					if ((preg_match('|%parent_contents%|is', $format_bodycopy->getRawBodycopyContent())) || (preg_match('|%parent_contents_raw%|is', $format_bodycopy->getRawBodycopyContent()))) {
@@ -2069,7 +2069,7 @@ class Listing_Engine extends Page
 	{
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
-        $column_layout_type = $this->attr('column_layout_type');
+		$column_layout_type = $this->attr('column_layout_type');
 		$using_groups = $this->attr('group_by') == 'grouped';
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 		$num_items = count($todo);
@@ -2114,31 +2114,31 @@ class Listing_Engine extends Page
 
 			echo '</table>';
 		}
-        //if div is used to generate the column
-        else if ($using_columns && $column_layout_type === 'div') {
-            $num_rows = max(array_keys($column_layout)) + 1;
+		//if div is used to generate the column
+		else if ($using_columns && $column_layout_type === 'div') {
+			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
-            $row_class = $this->attr('div_row_class');
+			$row_class = $this->attr('div_row_class');
 			$current_row = 1;
 
-            for (reset($todo); NULL !== ($assetid = key($todo));) {
-                echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
-                $cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+			for (reset($todo); NULL !== ($assetid = key($todo));) {
+				echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
+				$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
 
-                for ($c = 1; $c <= $cols_in_row; $c++) {
-                    if ($assetid != NULL) {
-                        $this->_printAsset($assetid, $list_position, $num_items);
-                        next($todo);
-                        $assetid = key($todo);
-                        $list_position++;
-                    }
-                }
+				for ($c = 1; $c <= $cols_in_row; $c++) {
+					if ($assetid != NULL) {
+						$this->_printAsset($assetid, $list_position, $num_items);
+						next($todo);
+						$assetid = key($todo);
+						$list_position++;
+					}
+				}
 				$current_row++;
-                 echo '</div>';
-                 echo "\n\n";
+				 echo '</div>';
+				 echo "\n\n";
 			}//end for
 
-        } else {
+		} else {
 			foreach ($todo as $assetid => $type_code) {
 				$this->_printAsset($assetid, $list_position, $num_items);
 				$list_position++;
@@ -2191,9 +2191,9 @@ class Listing_Engine extends Page
 		}
 		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $assetid;
 
-		$mm         = NULL;
-		$contents   = '';
-		$keywords   = Array();
+		$mm			= NULL;
+		$contents	= '';
+		$keywords	= Array();
 		$customised = $this->getFormats('type_formats');
 
 		$asset_info_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
@@ -2279,13 +2279,29 @@ class Listing_Engine extends Page
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 
+		// For each keyword starting with 'asset_contents', ensure there is an entry
+		// in $bc_keywords for both the plain keyword and any equivalents with modifiers.
+		//
+		// This way plain replacement works as expected, and the modifiers can be run
+		// later in this method..
+		foreach ($bc_keywords as $kw) {
+				if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
+						$kw = parse_keyword($kw);
+
+						if (in_array($kw, $bc_keywords)) {
+								 array_push($bc_keywords, $kw);
+						}
+				}
+		}
+
+
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 
 			// Body with paint layout applied, if any (inherited from the
 			// listing engine asset, usually)
-			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+			if (array_key_exists('asset_contents', $bc_keywords)) {
 				ob_start();
 					if ($assetid != $this->id) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -2298,7 +2314,7 @@ class Listing_Engine extends Page
 
 			// %asset_contents_raw% will print the asset's body WITHOUT a
 			// paint layout
-			if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+			if (array_key_exists('asset_contents_raw', $bc_keywords)) {
 				ob_start();
 					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2326,7 +2342,7 @@ class Listing_Engine extends Page
 
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
-				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+				if (array_key_exists('asset_contents', $bc_keywords)) {
 					ob_start();
 						if ($asset->id != $this->id) {
 							$asset->printBodyWithPaintLayout();
@@ -2354,7 +2370,7 @@ class Listing_Engine extends Page
 
 				// %asset_contents_raw% will print the asset's body WITHOUT a
 				// paint layout
-				if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+				if (array_key_exists('asset_contents_raw', $keywords)) {
 					ob_start();
 						if ($asset->id != $this->id) $asset->printBody();
 						$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2456,7 +2472,7 @@ class Listing_Engine extends Page
 		}
 
 		// asset selections
-		$selections         = $this->attr('asset_selections');
+		$selections			= $this->attr('asset_selections');
 		$selection_defaults = $this->getAssetSelectionDefaults();
 
 		if (is_array($selections) && !empty($selections)) {
@@ -2568,10 +2584,24 @@ class Listing_Engine extends Page
 		$keywords['asset_assetid'] = $assetid;
 
 		// kept for backwards compatibility
-		$keywords['result_no']  =& $keywords['asset_position'];
+		$keywords['result_no']	=& $keywords['asset_position'];
 		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
+		// For every keyword with modifiers starting with 'asset_contents', apply the modifiers..
+		foreach ($keywords as $kw => $val) {
+			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
+				$plain_keyword = parse_keyword($kw, $modifiers);
+				if (!empty($modifiers)) {
+						// Start the modified keyword off with the plain replaced value
+						$keywords[$kw] = $keywords[$plain_keyword];
+
+						// Apply modifiers
+						apply_keyword_modifiers($keywords[$kw], $modifiers);
+				}//end if
+			}//end if
+		}//end foreach
+
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
@@ -3570,7 +3600,7 @@ class Listing_Engine extends Page
 	}//end _getPositionFormats()
 
 
-//--        KEYWORD DESCRIPTION        --//
+//--		KEYWORD DESCRIPTION		   --//
 
 
 	/**
@@ -3701,7 +3731,7 @@ class Listing_Engine extends Page
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => 'name',
+	*	  'keyword' => 'name',
 	* )
 	* </pre>
 	*
@@ -3722,7 +3752,7 @@ class Listing_Engine extends Page
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => 'name',
+	*	  'keyword' => 'name',
 	* )
 	* </pre>
 	*
@@ -3831,11 +3861,11 @@ class Listing_Engine extends Page
 			$keywords[$key1] = $keywords[$key];
 			unset($keywords[$key]);
 		}
-		$keywords['group_listing']                 = translate('cms_listing_group_listing');
-		$keywords['group_name']                    = translate('cms_listing_group_name');
-		$keywords['group_name_linked']             = translate('cms_listing_group_name_linked');
-		$keywords['parent_contents']               = translate('cms_listing_parent_contents');
-		$keywords['parent_contents_raw']           = translate('cms_listing_parent_contents_raw');
+		$keywords['group_listing']				   = translate('cms_listing_group_listing');
+		$keywords['group_name']					   = translate('cms_listing_group_name');
+		$keywords['group_name_linked']			   = translate('cms_listing_group_name_linked');
+		$keywords['parent_contents']			   = translate('cms_listing_parent_contents');
+		$keywords['parent_contents_raw']		   = translate('cms_listing_parent_contents_raw');
 		$keywords['group_immed_child_group_count'] = translate('cms_listing_group_immed_child_group_count');
 		$keywords['group_total_child_asset_count'] = translate('cms_listing_group_total_child_asset_count');
 
@@ -3852,7 +3882,7 @@ class Listing_Engine extends Page
 	}//end _getGroupFolderKeywords()
 
 
-//--        KEYWORD REPLACEMENT        --//
+//--		KEYWORD REPLACEMENT		   --//
 
 
 	/**
@@ -3881,7 +3911,7 @@ class Listing_Engine extends Page
 		// asset targets
 		if (preg_match('/^(.*)(_asset_target)$/', $keyword, $matches)) {
 			if (isset($matches[1]) && isset($matches[2])) {
-				$args         = $matches[1];
+				$args		  = $matches[1];
 				$keyword_stem = $matches[2];
 			}
 		}
@@ -3908,7 +3938,7 @@ class Listing_Engine extends Page
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => 'name',
+	*	  'keyword' => 'name',
 	* )
 	* </pre>
 	*
@@ -4083,23 +4113,23 @@ class Listing_Engine extends Page
 	*/
 	function getAssetTargetKeywordReplacement($name)
 	{
-		$targets    = $this->attr('asset_targets');
-		$prefix     = $this->getPrefix();
+		$targets	= $this->attr('asset_targets');
+		$prefix		= $this->getPrefix();
 		$field_name = $prefix.'_'.$name.'_asset_target';
 		$this->registerFormField($field_name);
 
 		if (isset($targets[$name])) {
-			$defaults         = $this->getAssetTargetDefaults();
-			$button_text      = array_get_index($targets[$name], 'label',        $defaults['label']);
+			$defaults		  = $this->getAssetTargetDefaults();
+			$button_text	  = array_get_index($targets[$name], 'label',		 $defaults['label']);
 			$target = NULL;
 
 			// determine whether we're using the url or the asset (url takes precedence)
-			$target_url       = array_get_index($targets[$name], 'target_url',   $defaults['target_url']);
+			$target_url		  = array_get_index($targets[$name], 'target_url',	 $defaults['target_url']);
 			if ($target_url) {
 				$target = $target_url;
 			} else {
-				$target_asset     = array_get_index($targets[$name], 'target_asset', $defaults['target_asset']);
-				$target_assetid   = array_get_index($target_asset,   'assetid',      $defaults['target_asset']['assetid']);
+				$target_asset	  = array_get_index($targets[$name], 'target_asset', $defaults['target_asset']);
+				$target_assetid   = array_get_index($target_asset,	 'assetid',		 $defaults['target_asset']['assetid']);
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($target_assetid)) {
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($target_assetid);
 					$target = $asset->getURL();
@@ -4161,7 +4191,7 @@ class Listing_Engine extends Page
 	}//end getSelectAllJSCodeKeywordReplacement()
 
 
-//--        ASSET SELECTION HELPERS        --//
+//--		ASSET SELECTION HELPERS		   --//
 
 
 	/**
@@ -4295,7 +4325,7 @@ class Listing_Engine extends Page
 	}//end _getFormSubmitMethod()
 
 
-//--        NO RESULTS BODYCOPY        --//
+//--		NO RESULTS BODYCOPY		   --//
 
 
 	/**
