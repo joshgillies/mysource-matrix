@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_force_secure.inc,v 1.1 2009/09/10 04:55:38 akarelia Exp $
+* $Id: trigger_action_set_force_secure.inc,v 1.2 2009/09/10 05:54:01 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,6 +64,7 @@ class Trigger_Action_Set_Force_Secure extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 			if (!$state['asset']->setForceSecure($settings['force_secure'])) return FALSE;
+			if (!$state['asset']->updateLookups()) return FALSE;
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		return TRUE;
 
@@ -88,7 +89,7 @@ class Trigger_Action_Set_Force_Secure extends Trigger_Action
 						'1' => 'Force secure protocol (HTTPS)',
 						'-' => 'Force insecure protocol (HTTP)',
 					   );
-			combo_box($prefix.'_force_secure', $options, FALSE,$settings['force_secure']);
+			combo_box($prefix.'_force_secure', $options, FALSE, isset($settings['force_secure']) ? $settings['force_secure'] : '');
 		$basic_part = ob_get_contents();
 		ob_end_clean();
 
