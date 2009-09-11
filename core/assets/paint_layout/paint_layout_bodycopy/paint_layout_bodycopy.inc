@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.41 2009/08/06 02:27:48 bpearson Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.42 2009/09/11 00:21:22 bpearson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -358,7 +358,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$required_keyword = parse_keyword($required_keyword, $modifiers);
 
 			// 1. asset content
-			if ($required_keyword == 'asset_contents') {	
+			if ($required_keyword == 'asset_contents') {
 				if (!isset($ret['asset_contents'])) {
 					ob_start();
 						$asset->printBody();
