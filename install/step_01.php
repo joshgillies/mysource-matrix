@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.46 2008/01/03 22:08:39 hnguyen Exp $
+* $Id: step_01.php,v 1.47 2009/09/11 04:43:31 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -75,6 +75,11 @@ $cfg->save(Array(), TRUE);
 // Only overwrite the file if there is no file exists already
 if (!file_exists(SQ_DATA_PATH.'/private/conf/db.inc')) {
 	copy(dirname(__FILE__).'/db-inc.sample', SQ_DATA_PATH.'/private/conf/db.inc');
+}
+
+// Do the same with the memcache config file
+if (!file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
+	copy(dirname(__FILE__).'/memcache-inc.sample', SQ_DATA_PATH.'/private/conf/memcache.inc');
 }
 
 // reminder for chmod
