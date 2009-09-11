@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.150 2009/07/22 04:27:05 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.151 2009/09/11 01:31:22 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -767,6 +767,9 @@ class Page_Asset_Builder extends Page
 							$success = TRUE;
 							$this->_setCreateStatus($new_asset);
 							$this->_tmp['created_asset'] = $new_asset;
+							// if we have reached so far the asset has been built, even with regards to Account Manager Asset, 
+							// user is created already, so lets celebrate firing (trigger) !!! 
+							$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_asset_built', $new_asset);
 						}
 
 					}//end else
