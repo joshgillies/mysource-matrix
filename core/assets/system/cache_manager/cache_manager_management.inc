@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.13 2009/01/14 00:54:03 bshkara Exp $
+* $Id: cache_manager_management.inc,v 1.14 2009/09/11 03:53:16 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $ - 0.1
+* @version $Revision: 1.14 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,6 +98,12 @@ class Cache_Manager_Management extends Asset_Management
 												'allow_negative'	=> FALSE,
 												'allow_empty'		=> TRUE,
 										   ),
+						'cache_storage_type'    => Array(
+													'added'     => '0.3',
+													'type'      => 'text',
+													'default'   => 'default',
+													'description'	=> 'The method for storing cached data',
+						),
 						'root_nodes'			=> Array(
 													'added'		=> '0.2',
 													'type'		=> 'serialise',

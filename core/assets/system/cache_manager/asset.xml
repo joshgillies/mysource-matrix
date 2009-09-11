@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2009/01/14 00:54:03 bshkara Exp $
+* $Id: asset.xml,v 1.5 2009/09/11 03:53:16 lwright Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>cache_manager</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Cache Manager</name>
 	<description>The Cache Manager handles caching and configuration of asset content</description>
 	<instantiable>yes</instantiable>

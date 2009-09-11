@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.74 2009/02/24 04:23:05 ewang Exp $
+* $Id: cache_manager.inc,v 1.75 2009/09/11 03:53:16 lwright Exp $
 *
 */
 
@@ -24,12 +24,20 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cache_Manager extends Asset
 {
+
+
+	/**
+	* Variable containing the loaded Cache Storage asset
+	*
+	* @var Cache_Storage
+	*/
+	protected $_storage;
 
 
 	/**
@@ -42,6 +50,9 @@ class Cache_Manager extends Asset
 	{
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
+
+		$storage_type = $this->attr('cache_storage_type');
+		$this->_loadCacheStorage($storage_type);
 
 	}//end constructor
 
@@ -165,31 +176,7 @@ class Cache_Manager extends Asset
 		}
 		$cache_key = md5($cache_key.$assetid);
 
-		// check expiry time if entry already exists
-		$cached = $this->_getCache($cache_key, $perm_key, $url);
-		if (!is_null($cached)) {
-			// expired
-			if (time() > strtotime($cached['expires'])) {
-				$this->_deleteCache($cache_key, $perm_key, $url);
-				return FALSE;
-			} else {
-				if (file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
-					$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
-					if ($contents === FALSE) {
-						// if we cannot read from the cache file, remove this cache entry
-						$this->_deleteCache($cache_key, $perm_key, $url);
-						trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
-						return FALSE;
-					}
-					return $contents;
-				} else {
-					// if we cannot find this cache file, remove this cache entry
-					$this->_deleteCache($cache_key, $perm_key, $url);
-					return FALSE;
-				}
-			}
-		}
-		return FALSE;
+		return $this->_storage->read($cache_key, $perm_key, $url, $assetid);
 
 	}//end loadFromCache()
 
@@ -240,65 +227,7 @@ class Cache_Manager extends Asset
 			$expiry = $now + $this->getExpiry($asset_type, $assetid);
 		}
 
-		// replace/update existing cache entry
-		// warning: will NOT cause duplicate primary key db error
-		$cached = $this->_getCache($cache_key, $perm_key, $url);
-		if (!is_null($cached)) {
-			$this->_updateCache($cache_key, $perm_key, $url, $expiry, $file_path, $contents);
-			return TRUE;
-		}
-
-		// cache the content file
-		$old_umask = umask(0);
-		if (!is_dir(SQ_CACHE_PATH.'/'.$group)) {
-			$status = mkdir(SQ_CACHE_PATH.'/'.$group, 0755);
-			clearstatcache();
-			if (!$status) {
-				trigger_localised_error('CORE0245', E_USER_WARNING, SQ_CACHE_PATH.'/'.$group);
-				return FALSE;
-			}
-		}
-		$status = string_to_file($contents, SQ_CACHE_PATH.'/'.$file_path);
-		if (!$status) {
-			trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
-			return FALSE;
-		}
-		umask($old_umask);
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$error = FALSE;
-		// start a transaction to prevent reinsert due to concurrency issues
-		$cached = $this->_getCache($cache_key, $perm_key, $url);
-		if (is_null($cached)) {
-			try {
-				$bind_vars = Array(
-								'cache_key'	=> $cache_key,
-								'perm_key'	=> $perm_key,
-								'url'		=> $url,
-								'assetid'	=> $assetid,
-								'expires'	=> ts_iso8601($expiry),
-								'path'		=> $file_path,
-							 );
-				MatrixDAL::executeQuery('cache_manager', 'insertCacheEntry', $bind_vars);
-			} catch (DALException $e) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				// if there is an error, check if it is already cached
-				$cached = $this->_getCache($cache_key, $perm_key, $url);
-				if (is_null($cached)) {
-					throw new Exception('Unable to cache asset ID # '.$assetid.' due to database error: '.$e->getMessage());
-					return FALSE;
-				}
-			}
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return TRUE;
+		return $this->_storage->store($cache_key, $perm_key, $url, $assetid, $contents, $expiry);
 
 	}//end saveToCache()
 
@@ -354,26 +283,7 @@ class Cache_Manager extends Asset
 	*/
 	function clearCache($assetids)
 	{
-		if (!empty($assetids)) {
-
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			// break up the assets into chunks of 1000 so that oracle does not complain
-			//$in_clauses = Array();
-			try {
-				$result = Array();
-				foreach (array_chunk($assetids, 999) as $chunk) {
-					$bind_vars = Array('assetids' => &$chunk);
-					MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntriesByAsset', $bind_vars);
-				}
-			} catch (DALException $e) {
-				throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
-			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}
+		return $this->_storage->clear($assetids);
 
 	}//end clearCache()
 
@@ -388,23 +298,28 @@ class Cache_Manager extends Asset
 	*/
 	function getFilePaths($assetids)
 	{
-		if (!empty($assetids)) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-
-			// break up the assets into chunks of 1000 so that oracle does not complain
-			// $in_clauses = Array();
-			$result = Array();
-			foreach (array_chunk($assetids, 999) as $chunk) {
-				$bind_vars = Array('assetids' => &$chunk);
-				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars));
-				$result = array_unique($result);
-			}
-
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return $result;
-		}
+		return $this->_storage->getFilePaths($assetids);
 
 	}//end getFilePaths()
+
+
+	/**
+	* Can the set cache storage method clear itself when filtered by asset ID?
+	*
+	* Returns NULL when there is no storage mechanism yet stored. Otherwise
+	* TRUE or FALSE based on the advice provided by the storage method class.
+	*
+	* @return boolean
+	*/
+	public function canClearByAssetid()
+	{
+		if (is_object($this->storage)) {
+			return $this->_storage->canClearByAssetid();
+		} else {
+			return NULL;
+		}
+
+	}//end canClearByAssetid()
 
 
 	/**
@@ -415,17 +330,7 @@ class Cache_Manager extends Asset
 	*/
 	function clearAllCache()
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		try {
-			MatrixDAL::executeQuery('cache_manager', 'clearAllCache');
-		} catch (DALException $e) {
-			throw new Exception ('Unable to purge cache due to database error: '.$e->getMessage());
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$this->_storage->clearAll();
 
 	}//end clearAllCache()
 
@@ -440,21 +345,7 @@ class Cache_Manager extends Asset
 	*/
 	function getAllFilePaths($option='')
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-
-		try {
-			if ($option == 'col') {
-				$result = MatrixDAL::executeAssoc('cache_manager', 'getAllCacheFilePaths', 0);
-			} else {
-				$result = MatrixDAL::executeAll('cache_manager', 'getAllCacheFilePaths');
-			}
-		} catch (DALException $e) {
-			throw new Exception ('Unable to get all cache file paths due to database error: '.$e->getMessage());
-		}
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return $result;
+		return $this->_storage->getAllFilePaths($option);
 
 	}//end getAllFilePaths()
 
@@ -717,117 +608,49 @@ class Cache_Manager extends Asset
 	}//end _specificCacheManagementSettings()
 
 
+	//--        CACHE STORAGE         --//
+
+
 	/**
-	* Returns the expiry time and file path of a cache entry
+	* Get the cache storage object
 	*
-	* @param string	$cache_key	the cache key for this entry
-	* @param string	$perm_key	the permission key for this entry
-	* @param string	$url		the url identifier
-	*
-	* @return mixed array|NULL
-	* @access private
+	* @return Cache_Storage
 	*/
-	function _getCache($cache_key, $perm_key, $url)
+	public function getCacheStorage()
 	{
-		// to get rid of replication lag if the system has multiple db
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+		return $this->_storage;
 
-		try {
-			$bind_vars = Array(
-						'cache_key'	=> $cache_key,
-						'perm_key'	=> $perm_key,
-						'url'		=> $url,
-					 );
-			$result = MatrixDAL::executeAll('cache_manager', 'getCacheExpiryAndFilePath', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to get cache entries due to database error: '.$e->getMessage());
-		}
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return array_shift($result);
-
-	}//end _getCache()
+	}//end getCacheStorage()
 
 
 	/**
-	* Deletes an expired entry from the cache table
+	* Load the cache storage asset for the specified storage type
 	*
-	* @param string	$cache_key	the cache key for this entry
-	* @param string	$perm_key	the permission key for this entry
-	* @param string	$url		the url identifier
+	* @param string	$storage_type	The type of storage requested
 	*
 	* @return void
-	* @access private
 	*/
-	function _deleteCache($cache_key, $perm_key, $url)
+	protected function _loadCacheStorage($storage_type)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$asset_type = 'cache_storage_'.strtolower($storage_type);
 
-		try {
-			$bind_vars = Array(
-						'cache_key'	=> $cache_key,
-						'perm_key'	=> $perm_key,
-						'url'		=> $url,
-					 );
-			MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntry', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
+		if ($GLOBALS['SQ_SYSTEM']->am->installed($asset_type) === FALSE) {
+			trigger_error('Unable to find "'.$storage_type.'" storage type, reverting to default', E_USER_WARNING);
+			$asset_type = 'cache_storage_default';
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
 
-	}//end _deleteCache()
-
-
-	/**
-	* Extends the expiry time (and updates the cache file)
-	*
-	* @param string	$cache_key			the cache key for this entry
-	* @param string	$perm_key			the permission key for this entry
-	* @param string	$url				the url identifier
-	* @param string	$expiry_sql			the updated expiry time
-	* @param string	$file_path			the file path to the cached content
-	* @param array	$updated_content	the updated content
-	*
-	* @return void
-	* @access private
-	*/
-	function _updateCache($cache_key, $perm_key, $url, $expiry, $file_path='', $updated_content='')
-	{
-		// update the expiry time
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		try {
-			$bind_vars = Array(
-						'expires'	=> ts_iso8601($expiry),
-						'cache_key'	=> $cache_key,
-						'perm_key'	=> $perm_key,
-						'url'		=> $url,
-					 );
-			MatrixDAL::executeQuery('cache_manager', 'updateCacheExpiry', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to update cache expiry time due to database error: '.$e->getMessage());
+		if (eval('return '.$asset_type.'::isAvailable();') === FALSE) {
+			trigger_error('The cache storage type "'.$storage_type.'" cannot be used under current conditions, reverting to default', E_USER_WARNING);
+			$asset_type = 'cache_storage_default';
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$this->_storage = new $asset_type();
 
-		// update the content file
-		if ($file_path) {
-			$old_umask = umask(0);
-			$status = string_to_file($updated_content, SQ_CACHE_PATH.'/'.$file_path);
-			if (!$status) {
-				trigger_localised_error('CORE0243', E_USER_WARNING, SQ_CACHE_PATH.'/'.$file_path);
-				return FALSE;
-			}
-			umask($old_umask);
-		}
+	}//end _loadCacheStorage()
 
-	}//end _updateCache()
 
 
 }//end class

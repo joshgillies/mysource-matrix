@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.18 2009/01/14 00:54:03 bshkara Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.19 2009/09/11 03:53:16 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -762,6 +762,12 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			echo translate('cannot_clear_cache');
 			return FALSE;
 		}
+
+		if (!$asset->canClearByAssetid()) {
+			echo translate('cannot_clear_cache_by_assetid');
+			return FALSE;
+		}
+
 		multiple_asset_finder($prefix.'_clear_cache', Array());
 
 		$o->openField(translate('level'));
@@ -823,7 +829,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					$assetids[] = $asset_info['assetid'];
 				}//end if
 			}//end foreach
-			
+
 			$delete_all = $_POST[$prefix.'_delete_all'];
 
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -1016,7 +1022,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (empty($rc_jobs)) {
 			echo translate('cron_manager_refresh_no_job');
 		} else {
-			?>
+?>
 			<table class="sq-backend-table">
 				<tr>
 					<th class="sq-backend-table-header">When</th>
@@ -1204,6 +1210,68 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('non_cachable_urls', $non_cachable);
 
 	}//end processCachableRootURLs()
+
+
+	/**
+	* Paint the interface for choosing the cache storage type
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCacheStorageType(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$current_type = $asset->attr('cache_storage_type');
+
+		$storage_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('cache_storage');
+		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($storage_types, 'name');
+
+		// Eliminate those cache storage types that are not available
+		// based on the current settings
+		foreach ($storage_types as $storage_type) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($storage_type);
+			if (eval('return '.$storage_type.'::isAvailable();') === FALSE) {
+				unset($names[$storage_type]);
+			}
+		}
+
+		// If the current type has been eliminated, revert to the default
+		if (isset($names['cache_storage_'.$current_type]) === FALSE) {
+			$current_type = 'default';
+		}
+
+		if ($wa) {
+			combo_box($prefix.'_cache_storage_type', $names, FALSE, 'cache_storage_'.$current_type);
+		} else {
+			echo $names['cache_storage_'.$current_type];
+		}
+
+	}//end paintCacheStorageType()
+
+
+	/**
+	* Process the interface for choosing the cache storage type
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCacheStorageType(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') === FALSE) return FALSE;
+
+		$type = $_POST[$prefix.'_cache_storage_type'];
+		$type = substr($type, strlen('cache_storage_'));
+		return $asset->setAttrValue('cache_storage_type', $type);
+
+	}//end processCacheStorageType()
 
 
 }//end class
