@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.28 2008/11/20 05:59:19 lwright Exp $
+* $Id: data_source_graph.inc,v 1.29 2009/09/11 04:48:33 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1087,7 +1087,7 @@ class Data_Source_Graph extends Image
 			if (!file_exists($unrestricted)) {
 				// copy the file to the public data directory
 				if (!copy($this->data_path.'/'.$this->name, $unrestricted)) {
-					trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
+					trigger_localised_error('DATA0004', E_USER_WARNING, $this->name);
 				} else {
 					$changed = TRUE;
 				}
@@ -1097,7 +1097,7 @@ class Data_Source_Graph extends Image
 			if (is_file($unrestricted)) {
 				// unlink the file
 				if (!unlink($unrestricted)) {
-					trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
+					trigger_localised_error('DATA0004', E_USER_WARNING, $this->name);
 				} else {
 					$changed = TRUE;
 				}
@@ -1205,7 +1205,7 @@ class Data_Source_Graph extends Image
 		}
 
 		if (!unlink($data_path.'/'.$old_filename)) {
-			trigger_localised_error('DATA0001', E_USER_WARNING, $this->name);
+			trigger_localised_error('DATA0004', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
 
