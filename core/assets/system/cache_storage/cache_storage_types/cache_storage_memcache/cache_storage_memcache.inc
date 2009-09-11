@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.1 2009/09/11 03:24:25 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.2 2009/09/11 03:44:29 lwright Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -92,7 +92,15 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	public static function isAvailable()
 	{
-		return (extension_loaded('memcache') === TRUE) ? TRUE : FALSE;
+		if (extension_loaded('memcache') === TRUE) {
+			if (file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		} else {
+			return FALSE;
+		}
 
 	}//end isAvailable()
 
