@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.32 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: design_area_searchbox.inc,v 1.32.4.1 2009/09/13 23:45:31 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -131,6 +131,7 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'box' :
 				$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
+				$id = isset($args['id']) ? ' id="'.$args['id'].'"' : '';
 				echo '
 				<input type="hidden" name="mode" value="results" />
 				<?php
@@ -150,7 +151,7 @@ class Design_Area_Searchbox extends Design_Area
 						}
 
 						require_once SQ_LIB_PATH."/html_form/html_form.inc";
-						text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.'\');
+						text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.$id.'\');
 					}
 				?>
 				';
