@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.317 2009/08/17 06:50:56 bpearson Exp $
+* $Id: mysource.inc,v 1.318 2009/09/14 00:18:03 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317 $
+* @version $Revision: 1.318 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -251,7 +251,7 @@ class MySource extends MySource_Object
 			// Set up the session handler
 			$session_handler = $this->getSessionHandlerClassName();
 			eval($session_handler.'::init();');
-			
+
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
@@ -262,7 +262,7 @@ class MySource extends MySource_Object
 			}
 
 			session_start();
-			
+
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
 				define('SQ_ROLLBACK_VIEW', '0');
@@ -275,7 +275,7 @@ class MySource extends MySource_Object
 				$log->send();
 				exit();
 			}
-			
+
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 				$this->_processGlobalActions();
@@ -331,7 +331,7 @@ class MySource extends MySource_Object
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-		
+
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -358,17 +358,14 @@ class MySource extends MySource_Object
 					$alternate_context_id = 0;
 				}
 			}
-		} else {
-			$alternate_context_id = 0;
 		}
 
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
 		}
-		
+
 		$this->changeContext($alternate_context_id);
-	
+
 	}//end init()
 
 
@@ -579,17 +576,17 @@ class MySource extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 					}//end if
-					
+
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
-					
+
 					// See if caching is enabled for the asset
 					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
-					
+
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
-					} else { 
+					} else {
 						$asset->printFrontend();
 					}
 				}//end if
@@ -598,7 +595,7 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
-					
+
 					if (isset($_REQUEST['just_logged_out'])) {
 						unset($_REQUEST['just_logged_out']);
 					}
@@ -611,12 +608,12 @@ class MySource extends MySource_Object
 			ob_end_clean();
 
 			$this->_replaceKeyword($content);
-			
+
 			// parse out self links if configured so
-			if (SQ_CONF_NO_ASSET_SELF_LINKS) {				
+			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
 				$content = parse_self_links($content);
 			}
-			
+
 			echo $content;
 
 		}//end else backend/limbo
@@ -1196,7 +1193,7 @@ class MySource extends MySource_Object
 				if (is_null($login_username) || is_null($login_password)) {
 					return;
 				}
-				
+
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
@@ -1248,7 +1245,7 @@ class MySource extends MySource_Object
 					// incorrect login key
 					$this->addMessage(translate('login_key_incorrect'));
 				}
-				
+
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
@@ -1287,7 +1284,7 @@ class MySource extends MySource_Object
 				// clear PHP authentication
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
-				
+
 				// Restore a previous System Administrator account after user switching
 				$invoker_user_id = NULL;
 				if (isset($_SESSION['login_as_invoker_id']) && isset($_SESSION['login_as_invoker_username'])) {
@@ -1303,7 +1300,7 @@ class MySource extends MySource_Object
 					$this->generateLoginKey(TRUE);
 
 					// Flag to know that logout request is made
-					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used 
+					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
 				}
 			break;
@@ -1375,7 +1372,7 @@ class MySource extends MySource_Object
 				exit(1);
 			break;
 			case 'attribute_image' :
-				// grab the details we need to make this work 
+				// grab the details we need to make this work
 				$allowed_attributes = Array('email');
 				if (isset($_GET['attribute']) && !empty($_GET['attribute'])) {
 					$attribute = $_GET['attribute'];
@@ -1762,7 +1759,7 @@ class MySource extends MySource_Object
 		} else {
 			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
 		}
-		
+
 		// Get login context if any. If the value returned is numeric, it's
 		// a context ID. (Otherwise it's something like 'default', ie. don't
 		// change it.) Save it to the session...
@@ -2394,7 +2391,7 @@ class MySource extends MySource_Object
 		$current_contextid = NULL;
 		$stack_height = count($this->_context_stack);
 		if ($stack_height > 0) {
-			$current_contextid = $this->_context_stack[$stack_height - 1];	
+			$current_contextid = $this->_context_stack[$stack_height - 1];
 		}
 		if (is_null($current_contextid) === FALSE) {
 			$current_contextid = (int)$current_contextid;
@@ -2453,7 +2450,7 @@ class MySource extends MySource_Object
 	* @return void
 	*/
 	public function getAllContexts($force_reload=FALSE)
-	{		
+	{
 		if (((boolean)$force_reload === TRUE) || (is_array($this->_tmp) === FALSE) || (array_key_exists('context_cache', $this->_tmp) === FALSE)) {
 			$context_data = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
 			foreach ($context_data as $contextid => &$context_item) {
@@ -2481,10 +2478,10 @@ class MySource extends MySource_Object
 	* @return boolean
 	*/
 	public function insertContextData($contextid)
-	{	
+	{
 		try {
-			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));	
-			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));	
+			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));
+			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));
 		} catch (DALException $e) {
 			throw new Exception('Cannot insert default attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
@@ -2511,10 +2508,10 @@ class MySource extends MySource_Object
 	* @return boolean
 	*/
 	public function deleteContextData($contextid)
-	{	
+	{
 		try {
-			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));	
-			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));	
+			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));
+			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));
 		} catch (DALException $e) {
 			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
@@ -2545,7 +2542,7 @@ class MySource extends MySource_Object
 		// Get all contexts, except the default
 		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
-		
+
 		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
 
 		$use_contextid = 0;
@@ -2718,11 +2715,11 @@ class MySource extends MySource_Object
 
 					case 'url':
 						$current_url = current_url(FALSE, TRUE);
-						
+
 						$matched = FALSE;
 						$match_type  = $condition_options['match_type'];
 						$match_value = $condition_options['match_value'];
-						
+
 						switch ($match_type) {
 							case 'exact':
 								if ($current_url === $match_value) {
@@ -2758,7 +2755,7 @@ class MySource extends MySource_Object
 					break;
 
 					case 'port':
-						// If we do not have a server port, assume port 80 
+						// If we do not have a server port, assume port 80
 						$current_port = (int)array_get_index($_SERVER, 'SERVER_PORT', 80);
 						$match_type = $condition_options['match_type'];
 						$match_value = (int)$condition_options['match_value'];
@@ -3185,7 +3182,7 @@ class MySource extends MySource_Object
 			// from DAL
 			array_pop($this->_db_conns);
 		}
-	
+
 	}//end restoreDatabaseConnection()
 
 
