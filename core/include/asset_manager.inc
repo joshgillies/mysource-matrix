@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.759 2009/09/14 03:57:01 bpearson Exp $
+* $Id: asset_manager.inc,v 1.760 2009/09/14 05:16:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.759 $
+* @version $Revision: 1.760 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -964,9 +964,9 @@ class Asset_Manager extends MySource_Object
 			if (isset($val_info[0]['default_val'])) {
 				$res[$assetid]	= $val_info[0]['default_val'];
 			}// oracle fix, converting null to empty string. in case isset fail on null value for array entry
-            else if (isset($val_info[0]) && is_array($val_info[0]) && array_key_exists('default_val',$val_info[0])){
-                $res[$assetid] = '';
-            }
+			else if (isset($val_info[0]) && is_array($val_info[0]) && array_key_exists('default_val',$val_info[0])){
+				$res[$assetid] = '';
+			}
 		}//end foreach
 
 		// Now get customised values where applicable
@@ -1048,9 +1048,9 @@ class Asset_Manager extends MySource_Object
 			if (isset($rowinfo[0]['custom_val'])) {
 				$res[$assetid] = $rowinfo[0]['custom_val'];
 			} // oracle fix, converting null to empty string. in case isset fail on null value for array entry
-            else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
-                $res[$assetid] = '';
-            }
+			else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
+				$res[$assetid] = '';
+			}
 		}//end foreach
 
 		return $res;
@@ -3231,7 +3231,7 @@ class Asset_Manager extends MySource_Object
 				$value = Array(
 							'link_value' 	=> Array($value),
 							'equal' 		=> TRUE,
-					 	 );
+						 );
 			}
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
@@ -3253,7 +3253,7 @@ class Asset_Manager extends MySource_Object
 			$keys = array_keys($links);
 			$links = $links[$keys[0]];
 		}
-		
+
 		return $links;
 
 	}//end getLinks()
@@ -3331,7 +3331,7 @@ class Asset_Manager extends MySource_Object
 
 			$bind_vars[$bind_prefix.'treeid_like'] = $treeid.'%';
 			$bind_vars[$bind_prefix.'treeid'] = $treeid;
-			
+
 			if (!is_null($access)) {
 				$access = (String)$access;
 				$userid_cond = '';
@@ -3398,7 +3398,7 @@ class Asset_Manager extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 				}
 				$links = MatrixDAL::executePdoGroupedAssoc($query);
-			
+
 				$child_links = Array();
 				foreach ($links as $id => $info) {
 					$child_links[$id] = $info[0];
@@ -3858,7 +3858,7 @@ class Asset_Manager extends MySource_Object
 			$link_value_wanted = Array(
 									'link_value' 	=> Array($link_value_wanted),
 									'equal' 		=> TRUE,
-				 	 			 );
+								 );
 		}
 
 		$ret_val = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted);
@@ -6966,7 +6966,7 @@ class Asset_Manager extends MySource_Object
 			$asset = $this->getAsset($real_assetid);
 
 			if (is_null($asset)) continue;
-			
+
 			$ret_val = FALSE;
 			if (method_exists($asset, 'deletePermission')) {
 				$ret_val = $asset->deletePermission($assetid, $userid, $permission);
@@ -7401,7 +7401,7 @@ class Asset_Manager extends MySource_Object
 		// so much for SQL standards...
 		$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT urlid, assetid, url, http, https
+		$sql = 'SELECT urlid, assetid, url, http, https, base_contextid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 				'.$where.'
 				ORDER BY url DESC';

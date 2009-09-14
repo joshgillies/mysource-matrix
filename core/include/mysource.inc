@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.318 2009/09/14 00:18:03 lwright Exp $
+* $Id: mysource.inc,v 1.319 2009/09/14 05:16:04 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.318 $
+* @version $Revision: 1.319 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2545,7 +2545,15 @@ class MySource extends MySource_Object
 
 		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
 
-		$use_contextid = 0;
+		// Get the base context ID relating to the current URL
+		// However, if it's stale and the context has since been deleted,
+		// use the default context.
+		$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+		if (array_key_exists($root_url_info['base_contextid'], $contexts) === TRUE) {
+			$use_contextid = $root_url_info['base_contextid'];
+		} else {
+			$use_contextid = 0;
+		}
 
 		foreach ($contexts as $contextid => $context) {
 			// If set to "all", change to the number of conditions we have
