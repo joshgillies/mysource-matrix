@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder.inc,v 1.5 2007/12/03 00:15:48 lwright Exp $
+* $Id: web_folder.inc,v 1.6 2009/09/14 23:35:27 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/site/site.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,9 +106,10 @@ class Web_Folder extends Site
 
 		$urls = Array();
 		$urls[] = Array(
-					'url'	=> $root_urls[0].'/'.$url_suffix,
-					'http'	=> 1,
-					'https'	=> 0,
+					'url'				=> $root_urls[0].'/'.$url_suffix,
+					'http'				=> 1,
+					'https'				=> 0,
+					'base_contextid'	=> 0,
 				  );
 
 		if (!$this->saveWebUrls($urls)) return FALSE;
