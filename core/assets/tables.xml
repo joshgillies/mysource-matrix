@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.64 2009/09/14 03:49:00 bpearson Exp $
+* $Id: tables.xml,v 1.65 2009/09/14 23:16:27 lwright Exp $
 *
 */
 -->
@@ -746,6 +746,12 @@
 					<default />
 					<description />
 				</column>
+				<column name="base_contextid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -903,11 +909,11 @@
 					<description>The time when this remap expires. Should be cleaned up after this time.</description>
 				</column>
 				<column name="never_delete" allow_null="0">
-                    <type>CHAR(1)</type>
-                    <type_variations />
-                    <default>'1'</default>
-                    <description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
-                </column>
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
