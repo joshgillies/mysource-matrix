@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.319 2009/09/14 05:16:04 lwright Exp $
+* $Id: mysource.inc,v 1.320 2009/09/14 23:34:17 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.319 $
+* @version $Revision: 1.320 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -358,7 +358,9 @@ class MySource extends MySource_Object
 					$alternate_context_id = 0;
 				}
 			}
-		}
+		} else if (SQ_PHP_CLI) {
+			$alternate_context_id = 0;
+		}//end if
 
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
@@ -522,7 +524,6 @@ class MySource extends MySource_Object
 
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
-
 
 
 			// buffer the content and do keyword replacement
@@ -1415,7 +1416,6 @@ class MySource extends MySource_Object
 					} catch (Exception $e) {
 						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
 					}
-
 					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
