@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.66 2009/04/21 06:13:07 akarelia Exp $
+* $Id: hipo_job_create_links.inc,v 1.67 2009/09/14 04:01:40 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1001,6 +1001,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		} else if ($this->_running_vars['link_action'] == 'move') {
 
+			$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid']);
+			if ($link_info['locked'] == '1') {
+				trigger_localised_error('HIPO0087', E_USER_WARNING, $assetid);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}//end if
+
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
 			// to cascade permissions, metadata, and workflow. We also need to get all the children
 			// so the lookups can be updated later
@@ -1037,7 +1045,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					// we do not delete the link included in the $value array
 					// because it will be deleted later on
 					if ($link['linkid'] !== $value['linkid'] && !$safe_trash) {
-						$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+						$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'], FALSE);
 					}
 				}
 			}//end if moving to trash

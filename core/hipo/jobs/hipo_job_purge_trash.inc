@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.55 2009/08/11 05:22:16 cupreti Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.56 2009/09/14 04:01:40 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -361,11 +361,11 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				// now delete all links in which this asset is the major party
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', TRUE);
 				foreach ($links as $link) {
-					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'], FALSE);
 				}
 
 				// the delete function will remove all links in which the asset is the minor party
-				if (!$asset->delete(FALSE)) {
+				if (!$asset->delete(FALSE, FALSE)) {
 					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
@@ -430,10 +430,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$under_trash = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['trash_id'], $link_info['minorid']);
 				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($link_info['minorid'], TRUE) || !empty($under_trash)) {
 					// we know it has other links so no new trash link will be created
-					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'], FALSE);
 				}//end if
 			} else {
-				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'], FALSE);
 			}//end if
 		}//end foreach
 		$step_data['percent_done'] = 100;

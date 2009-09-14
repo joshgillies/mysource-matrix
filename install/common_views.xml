@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.13 2009/06/11 04:57:39 ewang Exp $
+* $Id: common_views.xml,v 1.14 2009/09/14 03:50:26 bpearson Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 			CREATE OR REPLACE VIEW sq_vw_ast_lnk_minor AS
 			SELECT
 					l.linkid, l.majorid, l.minorid, l.value, l.link_type,
-					l.sort_order, l.is_dependant, l.is_exclusive,
+					l.sort_order, l.is_dependant, l.is_exclusive, l.locked,
 					a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
 					a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
 					a.published, a.published_userid, a.status_changed, a.status_changed_userid
@@ -30,7 +30,7 @@
 					INNER JOIN sq_ast a ON l.minorid  = a.assetid
 			UNION ALL
 				SELECT
-					s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+					s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
 					s.minorid, null, null, null, null, null, null,
 					null, null, null, null, null, null,
 					null, null, null, null
@@ -43,7 +43,7 @@
 			CREATE OR REPLACE VIEW sq_vw_ast_lnk_major AS
 				SELECT
 						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
-						l.sort_order, l.is_dependant, l.is_exclusive,
+						l.sort_order, l.is_dependant, l.is_exclusive, l.locked,
 						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
 						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
 						a.published, a.published_userid, a.status_changed, a.status_changed_userid
@@ -52,7 +52,7 @@
 					INNER JOIN sq_ast a ON l.majorid = a.assetid
 				UNION ALL
 					SELECT
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null
@@ -67,7 +67,7 @@
 						l.sq_eff_from AS lnk_sq_eff_from, l.sq_eff_to AS lnk_sq_eff_to,
 						a.sq_eff_from AS ast_sq_eff_from, a.sq_eff_to AS ast_sq_eff_to,
 						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
-						l.sort_order, l.is_dependant, l.is_exclusive,
+						l.sort_order, l.is_dependant, l.is_exclusive, l.locked,
 						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
 						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
 						a.published, a.published_userid, a.status_changed, a.status_changed_userid
@@ -78,7 +78,7 @@
 					SELECT
 						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
 						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null
@@ -93,7 +93,7 @@
 						l.sq_eff_from AS lnk_sq_eff_from, l.sq_eff_to AS lnk_sq_eff_to,
 						a.sq_eff_from AS ast_sq_eff_from, a.sq_eff_to AS ast_sq_eff_to,
 						l.linkid, l.majorid, l.minorid, l.value, l.link_type,
-						l.sort_order, l.is_dependant, l.is_exclusive,
+						l.sort_order, l.is_dependant, l.is_exclusive, l.locked,
 						a.assetid, a.type_code, a.version, a.name, a.short_name, a.status, a.languages,
 						a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid,
 						a.published, a.published_userid, a.status_changed, a.status_changed_userid
@@ -104,7 +104,7 @@
 					SELECT
 						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
 						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null

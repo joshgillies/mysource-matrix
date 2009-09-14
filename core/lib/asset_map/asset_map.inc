@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.287 2009/08/27 00:54:40 akarelia Exp $
+* $Id: asset_map.inc,v 1.288 2009/09/14 04:00:55 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.287 $
+* @version $Revision: 1.288 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1634,6 +1634,10 @@ class Asset_Map
 			$output->insertChild(Array('responses'), $response_count++, $successTree);
 
 		} else {
+			if ($link['locked'] == '1') {
+				$this->_error('AMAP0046', $link['minorid']);
+				return;
+			}
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
@@ -1897,6 +1901,11 @@ class Asset_Map
 
 			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== TRUE) {
 				$this->_error('AMAP0033', $err_msg);
+				return;
+			}
+
+			if ($link['locked'] == '1') {
+				$this->_error('AMAP0046', $link['minorid']);
 				return;
 			}
 
