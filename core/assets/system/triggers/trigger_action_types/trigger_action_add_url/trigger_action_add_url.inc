@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.16 2008/02/18 04:52:50 lwright Exp $
+* $Id: trigger_action_add_url.inc,v 1.17 2009/09/15 23:39:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,13 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 		$settings['http'] = array_get_index($settings, 'http', 0);
 		$settings['https'] = array_get_index($settings, 'https', 0);
+		$settings['base_contextid'] = array_get_index($settings, 'base_contextid', 0);
+
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		// If the current setting doesn't exist, then revert to the default
+		if (array_key_exists($settings['base_contextid'], $all_contexts) === FALSE) {
+			$settings['base_contextid'] = 0;
+		}
 
 		// protocols not specified
 		if (!$settings['http'] && !$settings['https']) {
@@ -103,6 +110,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 						'url'	=> $settings['url'],
 						'http'	=> $settings['http'],
 						'https'	=> $settings['https'],
+						'base_contextid'	=> $settings['base_contextid'],
 					   );
 
 			// save a new url
@@ -203,6 +211,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 				'url'		=> $settings['url'],
 				'http'		=> $settings['http'],
 				'https'		=> $settings['https'],
+				'base_contextid'	=> $settings['base_contextid'],
 			   );
 
 	}//end execute()
@@ -225,6 +234,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		$url = array_get_index($settings, 'url', '');
 		$http = array_get_index($settings, 'http', '');
 		$https = array_get_index($settings, 'https', '');
+		$base_contextid = array_get_index($settings, 'base_contextid', 0);
+
 		echo translate('add_url').' ';
 		if ($write_access) {
 			text_box($prefix.'[url]', $url, 20);
@@ -235,6 +246,20 @@ class Trigger_Action_Add_Url extends Trigger_Action
 			echo '&nbsp;HTTPS&nbsp;';
 		} else {
 			echo '<b>'.$url.'</b>';
+		}
+
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		if (count($all_contexts) > 1) {
+			// If the current setting doesn't exist, then revert to the default
+			if (array_key_exists($base_contextid, $all_contexts) === FALSE) {
+				$base_contextid = 0;
+			}
+
+			$options = Array();
+			foreach ($all_contexts as $contextid => $context_data) {
+				$options[$contextid] = $context_data['name'];
+			}
+			combo_box($prefix.'[base_contextid]', $options, FALSE, $base_contextid);
 		}
 
 		return ob_get_clean();
@@ -265,6 +290,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 		// process protocol
 		$http = array_get_index($request_data, 'http', 0);
 		$https = array_get_index($request_data, 'https', 0);
+		$base_contextid = (int)array_get_index($request_data, 'base_contextid', 0);
 		if (!$http && !$https) {
 			return translate('protocol_not_specified');
 		}
