@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.760 2009/09/14 05:16:04 lwright Exp $
+* $Id: asset_manager.inc,v 1.761 2009/09/15 02:01:20 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.760 $
+* @version $Revision: 1.761 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9158,7 +9158,15 @@ class Asset_Manager extends MySource_Object
 			}
 			$tree_result = MatrixDAL::executePdoAll($query);
 
-			$where = '';
+			/**
+			 * If we didn't find any tree id's, make a where clause that will return nothing
+			 * which then causes the parent query to return an empty result set.
+			 * If we leave the where clause blank, we actually return every treeid
+			 * which is not what we want.
+			 */
+			if (empty($tree_result)) {
+				$where = '1=0';
+			}
 
 			if (!empty($tree_result)) {
 				$where = 't.treeid IN (';
