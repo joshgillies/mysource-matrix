@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.76 2009/09/16 01:30:11 mbrydon Exp $
+* $Id: ecommerce_checkout.inc,v 1.77 2009/09/16 01:46:50 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -542,7 +542,7 @@ class Ecommerce_Checkout extends Page
 						//
 						// This ensures that disputed orders can be manually reconciled between Matrix and gateway records if required
 
-						$this->_saveOrderSummary($order_asset, $delivery_method, $payment_gateway_xml);
+						$this->_saveOrderSummary($order_asset, $delivery_method);
 						$this->_logOrderAction(translate('ecom_order_history_customer_details_saved'), $order_asset);
 					}
 				}
@@ -2001,7 +2001,7 @@ class Ecommerce_Checkout extends Page
 	* @returns void
 	* @access private
 	*/
-	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method, $payment_gateway_xml)
+	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method, $payment_gateway_xml='')
 	{
 		// set the order summary
 		$order_summary = 'Order ID: '.$order_asset->id;
@@ -2017,14 +2017,12 @@ class Ecommerce_Checkout extends Page
 		$default_char_set = SQ_CONF_DEFAULT_CHARACTER_SET;
 		
 		//create order xml
-		$order_xml = <<<HEREDOC
-<?xml version="1.0" encoding="$default_char_set"?>
-<order>
-	<id>{$order_asset->id}</id>
-$cart_xml
-$delivery_method_xml$payment_gateway_xml
-</order>
-HEREDOC;
+		$order_xml = '<'.'?xml version="1.0" encoding="'.$default_char_set.'"?'.">\n".
+					 "<order>\n".
+					 '	<id>'.$order_asset->id."</id>\n".
+					 $cart_xml."\n".
+					 $delivery_method_xml.$payment_gateway_xml."\n".
+					 "</order>";
 
 		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
 		if (isset($neg_quantity_list)) {
