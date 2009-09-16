@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.75 2009/09/16 01:05:39 mbrydon Exp $
+* $Id: ecommerce_checkout.inc,v 1.76 2009/09/16 01:30:11 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -542,7 +542,7 @@ class Ecommerce_Checkout extends Page
 						//
 						// This ensures that disputed orders can be manually reconciled between Matrix and gateway records if required
 
-						$this->_saveOrderSummary($order_asset, $delivery_method);
+						$this->_saveOrderSummary($order_asset, $delivery_method, $payment_gateway_xml);
 						$this->_logOrderAction(translate('ecom_order_history_customer_details_saved'), $order_asset);
 					}
 				}
@@ -717,7 +717,7 @@ class Ecommerce_Checkout extends Page
 
 		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
-		$this->_saveOrderSummary($order_asset, $delivery_method);
+		$this->_saveOrderSummary($order_asset, $delivery_method, $payment_gateway_xml);
 
 		// delivery failed
 		if (!$delivery_processing_status) {
@@ -1996,11 +1996,12 @@ class Ecommerce_Checkout extends Page
 	*
 	* @param object &$order_asset	The ECommerce_Order asset
 	* @param object &$delivery_method	The Delivery Method asset used
+	* @param string $payment_gateway_xml	An XML-formatted response from the Payment Gateway
 	*
 	* @returns void
 	* @access private
 	*/
-	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method)
+	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method, $payment_gateway_xml)
 	{
 		// set the order summary
 		$order_summary = 'Order ID: '.$order_asset->id;
