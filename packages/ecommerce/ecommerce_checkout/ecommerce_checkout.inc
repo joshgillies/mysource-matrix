@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.66.2.1 2009/08/26 01:36:47 ewang Exp $
+* $Id: ecommerce_checkout.inc,v 1.66.2.2 2009/09/16 01:08:23 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.66.2.1 $
+* @version $Revision: 1.66.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -505,8 +505,18 @@ class Ecommerce_Checkout extends Page
 					if (!(isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order'])) {
 						// create the pending order
 						$order_asset = $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
+
 						// so everyone knows that there is an existing pending order and to ensure that we do not create new ones unnecessarily
 						$_SESSION['sq_local_cart_contents']['pending_order_id'] = $order_asset->id;
+
+						// Save initial order details here so orders can be tracked in case of the following events:
+						// 1. Failure to contact the remote gateway
+						// 2. Failure to return from the remote gateway with "success"
+						//
+						// This ensures that disputed orders can be manually reconciled between Matrix and gateway records if required
+
+						$this->_saveOrderSummary($order_asset, $delivery_method);
+						$this->_logOrderAction(translate('ecom_order_history_customer_details_saved'), $order_asset);
 					}
 				}
 
@@ -623,6 +633,7 @@ class Ecommerce_Checkout extends Page
 
 				$this->_logOrderAction(translate('ecom_order_history_order_moved', $dest_folder_name), $order_asset);
 
+				// Record the reference number returned from the Gateway
 				if (isset($_SESSION['SQ_ECOM_REF_NO']) && !empty($_SESSION['SQ_ECOM_REF_NO'])) {
 					$order_asset->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
 					$this->_logOrderAction(translate('ecom_order_history_ecom_ref_recorded'), $order_asset);
@@ -668,20 +679,7 @@ class Ecommerce_Checkout extends Page
 
 		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
-		// set the order summary
-		$order_summary = 'Order ID: '.$order_asset->id;
-		$order_summary .= $this->_getCartSummary();
-		$order_summary .= $delivery_method->getReceipt();
-
-		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
-		if (isset($neg_quantity_list)) {
-			$order_summary .= '<br />'.$delivery_method->attr('negative_quantity_message');
-			$order_summary .= $neg_quantity_list;
-		}
-
-		$order_asset->setAttrValue('summary',			$order_summary);
-		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
-		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
+		$this->_saveOrderSummary($order_asset, $delivery_method);
 
 		// delivery failed
 		if (!$delivery_processing_status) {
@@ -714,6 +712,35 @@ class Ecommerce_Checkout extends Page
 		}
 
 	}//end _processOrder()
+
+
+	/**
+	* Store initial product and customer information details against the Order
+	*
+	* @param object &$order_asset	The ECommerce_Order asset
+	* @param object &$delivery_method	The Delivery Method asset used
+	*
+	* @returns void
+	* @access private
+	*/
+	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method)
+	{
+		// set the order summary
+		$order_summary = 'Order ID: '.$order_asset->id;
+		$order_summary .= $this->_getCartSummary();
+		$order_summary .= $delivery_method->getReceipt();
+
+		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
+		if (isset($neg_quantity_list)) {
+			$order_summary .= '<br />'.$delivery_method->attr('negative_quantity_message');
+			$order_summary .= $neg_quantity_list;
+		}
+
+		$order_asset->setAttrValue('summary',			$order_summary);
+		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
+		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
+
+	}//end _saveOrderSummary()
 
 
 	/**

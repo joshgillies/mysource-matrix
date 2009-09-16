@@ -748,6 +748,12 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
 
+		$pending_order_id = array_get_index($_SESSION['sq_local_cart_contents'], 'pending_order_id', NULL);
+		$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
+
+		$pending_order->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
+		$pending_order->appendAuditLog(translate('ecom_ref_num_recorded_before_processing'));
+
 		header('Location: '.$gateway_asset_url);
 
 	}//end processPaymentGateway()

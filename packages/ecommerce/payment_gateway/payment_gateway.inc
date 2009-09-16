@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.10 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: payment_gateway.inc,v 1.10.6.1 2009/09/16 01:08:24 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -102,6 +102,24 @@ class Payment_Gateway extends Page
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 
 	}//end _getName()
+
+
+	/**
+	* Append a message to the Audit History Log of the currently-pending Order
+	*
+	* @param $msg	The message to append
+	* @returns void
+	* @access protected
+	*/
+	protected function appendPendingOrderAuditLog($msg)
+	{
+		if (isset($_SESSION['sq_local_cart_contents']['pending_order_id'])) {
+			$pending_order_id = $_SESSION['sq_local_cart_contents']['pending_order_id'];
+			$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($pending_order_id);
+
+			$pending_order->appendAuditLog($msg);
+		}
+	}
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2009/04/20 09:40:28 ata Exp $
+* $Id: lang_strings.xml,v 1.5.2.1 2009/09/16 01:08:24 mbrydon Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -22,6 +22,8 @@
 	<string source="ecom_order_status_processing">Processing</string>
 	<string source="ecom_order_status_failed">Failed</string>
 	<string source="ecom_order_status_success">Completed</string>
+	<string source="ecom_payment_attempted_gateway_contacted">Payment Attempted (gateway contacted)</string>
+	<string source="ecom_payment_declined">Payment Declined</string>
 
 	<!-- Error Strings -->
 	<string source="ecom_checkout_error_unable_to_move_order">Unable to move ecommerce order asset to folder: "%s"</string>
@@ -36,9 +38,10 @@
 	<string source="ecom_order_history_quantities_updated">Product quantities updated</string>
 	<string source="ecom_order_history_ecom_ref_recorded">SecurePay transaction ID recorded</string>
 	<string source="ecom_order_history_ecom_ref_not_recorded">SecurePay transaction ID was NOT recorded</string>
-	<string source="ecom_order_history_payment_gateway">Payment Gateway</string>
+	<string source="ecom_order_history_payment_gateway">Payment Gateway page displayed</string>
 	<string source="ecom_order_history_action">&lt;em&gt;Action: %s&lt;/em&gt;</string>
 	<string source="ecom_order_history_skip_payment_gateway">Edited ecommerce order asset not processed by Payment Gateway</string>
+	<string source="ecom_order_history_customer_details_saved">Order and customer details saved in Pending Order</string>
 
 	<!-- Ecommerce Order History Orders To Review Messages -->
 	<string source="ecom_order_history_review_insufficient_quantities">[Review Order] Insufficient product quantities but processed by Payment Gateway</string>

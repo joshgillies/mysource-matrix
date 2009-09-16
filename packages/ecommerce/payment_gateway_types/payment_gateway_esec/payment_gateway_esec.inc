@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.23 2008/12/01 22:57:37 bshkara Exp $
+* $Id: payment_gateway_esec.inc,v 1.23.4.1 2009/09/16 01:08:24 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -174,7 +174,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	*/
 	function printBody()
 	{
-
 		$amount    = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
 
 		$card_info = array_get_index($_REQUEST, $this->getPrefix().'_card', FALSE);
@@ -187,9 +186,13 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
+			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+
 			if ($this->processPayment($card_info)) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
 				$this->returnToCaller('SUCCESS');
+			} else {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
 			}
 		}
 
