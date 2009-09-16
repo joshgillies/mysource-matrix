@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.65 2009/07/30 04:29:41 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.66 2009/09/16 02:07:46 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content).'</pre></div>';
 				}
 
-				echo $container_content;
+				echo $container_content.'<br />';
 
 
 			} else {

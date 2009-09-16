@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.15 2007/12/03 23:12:50 lwright Exp $
+* $Id: content_type_edit_fns.inc,v 1.16 2009/09/16 02:08:40 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,15 +64,59 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paint(Content_Type $asset, $editing=FALSE, $generating=FALSE)
 	{
-		$output =  $asset->attr('html');
+		$html = $asset->attr('html');
 		if ($generating) {
 			// escape dangerous content
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			escape_php($output);
+			escape_php($html);
+			echo $html;
+			return TRUE;
 		}
-		echo $output;
+
+		if ($editing) {
+			// We are in the edit interface, so print the interface and content
+			$this->_paintInterface($html, $asset);
+		} else {
+			// Just print content
+			echo $html;
+		}//end if
 
 	}//end paint()
+
+
+	/**
+	* Paints raw HTML interface
+	*
+	* @param string			$html		the html source we are painting
+	* @param Content_Type	$asset		the content type we are painting
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintInterface($html, $asset)
+	{
+		$source = htmlspecialchars($html);
+		$source = preg_replace('/&lt;(div|br|p|table|tr|td|th|style|script|blockquote)/i', '<br />&lt;$1', $source);
+		$source = ltrim($source, '<br />');
+		$prefix = $asset->getPrefix();
+		$content_prefix = $prefix.'_'.get_class_lower($asset);
+		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode.png';
+		echo '<table border="0" cellspacing="0" cellpadding="0" class="bodytext">';
+		echo '<tr><td align="left" background="" id="'.$prefix.'_div_'.$asset->id.'" width="4%" style="border: 1px dashed #C0C0C0;">';
+		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };"';
+		echo '<span id="'.$content_prefix.'_control" style="display:none;">View Source</span>';
+		echo '</td></tr>';
+		echo '<tr><td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="'.$content_prefix.'_cell">';
+		echo '<div id="'.$content_prefix.'_html" style="display: block;">';
+		echo $html;
+		echo '</div>';
+		echo '<div id="'.$content_prefix.'_source" style="display: none;">';
+		echo $source;
+		echo '</div>';
+		echo '</td></tr>';
+		echo '</table>';
+
+	}//end _paintInterface()
 
 
 	/**
