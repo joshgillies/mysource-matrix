@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.17 2009/08/14 10:16:48 ata Exp $
+* $Id: ecommerce_order.inc,v 1.18 2009/09/16 01:05:39 mbrydon Exp $
 *
 */
 
@@ -449,6 +449,32 @@ class Ecommerce_Order extends Asset
 		return $method;
 
 	}//end getDeliveryMethod()
+
+
+	/**
+    * Append a message to the Audit History Log of this Order
+    *
+    * @param $msg	The message to be added
+    * @returns void
+    * @access public
+    */
+    function appendAuditLog($msg)
+    {
+        $order_history = $this->attr('order_history');
+        $index = date('r');
+        while (isset($order_history[$index])) {
+            $index .= ' ';
+        }
+        $order_history[$index] = $msg;
+        $this->setAttrValue('order_history', $order_history);
+
+        $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+        	$this->saveAttributes();
+
+        $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+    }//end appendAuditLog()
 
 
 }//end class

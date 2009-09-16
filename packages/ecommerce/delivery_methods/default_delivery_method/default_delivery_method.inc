@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -828,6 +828,12 @@ HEREDOC;
 		if (!empty($pass_through_vars)) {
 			$_SESSION['SQ_ECOM_PASS_THROUGH_VARS'] = $pass_through_vars;
 		}
+
+		$pending_order_id = array_get_index($_SESSION['sq_local_cart_contents'], 'pending_order_id', NULL);
+		$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
+
+		$pending_order->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
+		$pending_order->appendAuditLog(translate('ecom_ref_num_recorded_before_processing'));
 
 		header('Location: '.$gateway_asset_url);
 
