@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.16.6.1 2009/08/20 01:10:16 lwright Exp $
+* $Id: bodycopy_management.inc,v 1.16.6.2 2009/09/16 01:54:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.6.1 $
+* @version $Revision: 1.16.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,6 +70,7 @@ class Bodycopy_Management extends Asset_Management
 				'images/icons/row_properties.png',
 				'images/icons/cell_properties.png',
 				'images/icons/edit_mode.png',
+				'images/icons/source_mode.png',
 				'images/icons/accessibility_pass.png',
 				'images/icons/accessibility_fail.png',
 				'images/icons/htmltidy_disabled.png',
