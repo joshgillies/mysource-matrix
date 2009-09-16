@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.761 2009/09/15 02:01:20 csmith Exp $
+* $Id: asset_manager.inc,v 1.762 2009/09/16 23:14:40 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.761 $
+* @version $Revision: 1.762 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3149,8 +3149,7 @@ class Asset_Manager extends MySource_Object
 								l.minorid,
 								l.value,
 								l.link_type,
-								a.type_code AS major_type_code,
-								l.locked
+								a.type_code AS major_type_code
 							FROM
 								'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
@@ -8494,7 +8493,7 @@ class Asset_Manager extends MySource_Object
 			$access = (String)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
-								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
 
