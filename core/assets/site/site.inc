@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.117 2009/09/14 05:16:04 lwright Exp $
+* $Id: site.inc,v 1.118 2009/09/17 00:23:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,6 +212,8 @@ class Site extends Folder
 		$system_root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
 		for (reset($save_urls); NULL !== ($save_urlid = key($save_urls)); next($save_urls)) {
+			// If for some reason there is no base context ID yet defined, set it to zero (default)
+			$save_urls[$save_urlid]['base_contextid'] = array_get_index($save_urls[$save_urlid], 'base_contextid', 0);
 
 			$curr_urlid = $save_urlid;
 
