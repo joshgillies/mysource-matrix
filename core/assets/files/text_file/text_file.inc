@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.7.2.1 2009/09/17 05:38:48 cupreti Exp $
+* $Id: text_file.inc,v 1.7.2.2 2009/09/17 06:07:46 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * Text_File
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,8 @@ class Text_File extends File
 			// When no file is supplied via uploaded, create a new file
 			if ($info === FALSE || empty($info)) {
 				
-				$file_title = $this->attr('title');				
+				$file_title = trim($this->attr('title'));
+				$file_title = preg_replace('/\s/', '_', $file_title);
 				$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
 								
 				$extension = 'txt';				
