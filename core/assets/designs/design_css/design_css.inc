@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.37 2007/12/13 21:45:12 bshkara Exp $
+* $Id: design_css.inc,v 1.37.6.1 2009/09/17 01:06:52 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,17 +448,18 @@ echo '/*
 	*
 	* @param boolean	$do_customisations	Generate design files for any customisations
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	public function generateDesignFile($do_customisations=TRUE)
 	{
-		parent::generateDesignFile($do_customisations);
+		$success = TRUE;
+		$success &= parent::generateDesignFile($do_customisations);
 
 		if ($this->attr('cache_css')) {
-			$this->_updateCacheFile();
+			$success &= $this->_updateCacheFile();
 		}
-
+		return $success;
 	}//end generateDesignFile()
 
 
