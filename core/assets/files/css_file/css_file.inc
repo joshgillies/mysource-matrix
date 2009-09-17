@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: css_file.inc,v 1.2.4.1 2009/07/06 06:22:22 cupreti Exp $
+* $Id: css_file.inc,v 1.2.4.2 2009/09/17 05:40:44 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * CSS_File
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2.4.1 $
+* @version $Revision: 1.2.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,15 +81,16 @@ class CSS_File extends File
 			if ($info === FALSE || empty($info)) {
 				
 				$file_title = $this->attr('title');
-				$file_title = preg_replace('/[^A-Za-z0-9]/', '_', $file_title);
+				$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
 								
 				// Take first name from the allowed extension names array for this file
 				$extension = $this->allowed_extensions[0];
 				
 				$file_name = $file_title . '.' . $extension;						
-
+				
+				$create_location = SQ_SYSTEM_ROOT.'/'.'data/temp';
 				// Create an temporary empty file
-				if (!fopen(SQ_SYSTEM_ROOT.'/'.$file_name, 'w+')) {
+				if (!fopen($create_location.'/'.$file_name, 'w+')) {
 					trigger_localised_error('SYS0025', E_USER_WARNING, $file_name. " from given title ".$file_title);
 					return FALSE;
 				}
@@ -99,7 +100,7 @@ class CSS_File extends File
 				$info = Array();
 				
 				$info['name'] = $file_name; 
-				$info['tmp_name'] = SQ_SYSTEM_ROOT;
+				$info['tmp_name'] = $create_location;
 				$info['created_file'] = TRUE;																
 			}
 		}

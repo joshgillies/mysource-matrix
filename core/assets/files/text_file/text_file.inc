@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.5.4.2 2009/07/06 23:54:18 cupreti Exp $
+* $Id: text_file.inc,v 1.5.4.3 2009/09/17 05:40:33 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * Text_File
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5.4.2 $
+* @version $Revision: 1.5.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,20 +67,20 @@ class Text_File extends File
 		}
 		
 		$file_name = '';
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
+				if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			
 			// When no file is supplied via uploaded, create a new file
 			if ($info === FALSE || empty($info)) {
 				
-				$file_title = $this->attr('title');
-				$file_title = preg_replace('/[^A-Za-z0-9]/', '_', $file_title);
+				$file_title = $this->attr('title');				
+				$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
 								
-				$extension = 'txt';
-				
-				$file_name = $file_title . '.' . $extension;						
+				$extension = 'txt';				
+				$file_name = $file_title . '.' . $extension;
 
+				$create_location = SQ_SYSTEM_ROOT.'/'.'data/temp';
 				// Create an temporary empty file
-				if (!fopen(SQ_SYSTEM_ROOT.'/'.$file_name, 'w+')) {
+				if (!fopen($create_location.'/'.$file_name, 'w+')) {
 					trigger_localised_error('SYS0025', E_USER_WARNING, $file_name. " from given title ".$file_title);
 					return FALSE;
 				}
@@ -90,10 +90,11 @@ class Text_File extends File
 				$info = Array();
 				
 				$info['name'] = $file_name; 
-				$info['tmp_name'] = SQ_SYSTEM_ROOT;
+				$info['tmp_name'] = $create_location;
 				$info['created_file'] = TRUE;																
 			}
 		}
+
 
 		// Make the info array look like a result from getExistingFile()
 		if (!isset($info['path'])) {
