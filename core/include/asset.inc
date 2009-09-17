@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.704 2009/09/14 03:57:40 bpearson Exp $
+* $Id: asset.inc,v 1.705 2009/09/17 04:19:46 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.704 $
+* @version $Revision: 1.705 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1634,6 +1634,7 @@ class Asset extends MySource_Object
 																'old_force_secure'	=> $this->force_secure,
 															 )
 		);
+	
 		return TRUE;
 
 	}//end setForceSecure()
@@ -5323,7 +5324,7 @@ class Asset extends MySource_Object
 				$web_path_changes[$old_to_new[$i]] = $new_to_old[$i];
 			}
 		}
-
+		
 		if (!empty($current_urls)) {
 			// delete rows which have normal values applied
 			$url_chunks = array_chunk($current_urls, 1000, TRUE);
@@ -5361,7 +5362,6 @@ class Asset extends MySource_Object
 				throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
 			}
 		}//end if
-
 		// if we have paths then do some URL inserting
 		if (!empty($paths)) {
 
@@ -5428,18 +5428,25 @@ class Asset extends MySource_Object
 				$done_parents[] = $parent->id;
 
 				$parent_urls = $parent->getLookups();
+				
+				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {					
+					$valid_protocol_change = FALSE;
 
-				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
-
+						
 						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
 						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
 						// if we have no protocol then we can just ignore this URL
+							
 						if (!$http && !$https) {
 							continue;
 						}
+						
+						// Being passed from above condition means protocol of one of the asset's parent's URL is same as
+						// that of force secure/insecure protocal selected for asset						
+						$valid_protocol_change = TRUE;
 
 						// check if another asset is using the new URL
 						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
@@ -5653,7 +5660,19 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
+					
+					// If the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid, 
+					// the changes needs to be rolled back
+					if (!$valid_protocol_change) {
+						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);					
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+						return FALSE;
+					}
+
 				}//end for parent_urls
+
 			}//end for parents
 
 			// send a message to tell everyone the good news
