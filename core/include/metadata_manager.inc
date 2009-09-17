@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.192.2.2 2009/09/09 00:05:18 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.192.2.3 2009/09/17 04:55:10 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.2 $
+* @version $Revision: 1.192.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -805,6 +805,7 @@ class Metadata_Manager extends MySource_Object
 		}//end foreach
 
 		// log a message for the asset - this wont get logged until we close the queue
+		$metadata_updated = Array();
 		foreach ($metadata as $fieldid => $value) {
 			// Set default
 			$mdata_name = 'Unknown Metadata Field';
@@ -826,6 +827,10 @@ class Metadata_Manager extends MySource_Object
 
 			// By pass if the new and old are the same (we don't need the message saying we made no changes!)
 			if (!($old_value == $value[0]['value'])) {
+				// This is for the trigger metadata updated
+				$metadata_updated[$fieldid] = $value;
+
+				// Message replacements
 				$msg_reps = Array(
 								'asset_name'		=> $asset->name,
 								'metadata_field'	=> $mdata_name,
@@ -887,6 +892,7 @@ class Metadata_Manager extends MySource_Object
 								'fieldid'	=> $fieldid,
 								'value'		=> $metadata[$fieldid][0]['value'],
 							  );
+
 				if (!in_array($fieldid, $updates)) {
 					try {
 						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
@@ -916,8 +922,9 @@ class Metadata_Manager extends MySource_Object
 		$asset->_updated();
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		// broadcasted the assetids of the updated fields
+		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
 		$em->broadcastEvent($asset, 'MetadataUpdate', Array('fieldids' => array_keys($metadata)));
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset, $updated_fields);
 
 		return TRUE;
 
