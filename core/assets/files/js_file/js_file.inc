@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_file.inc,v 1.4 2009/09/17 05:36:36 cupreti Exp $
+* $Id: js_file.inc,v 1.5 2009/09/17 06:07:29 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * JS_File
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,8 @@ class JS_File extends File
 			// When no file is supplied via uploaded, create a new file
 			if ($info === FALSE || empty($info)) {
 				
-				$file_title = $this->attr('title');
+				$file_title = trim($this->attr('title'));
+				$file_title = preg_replace('/\s/', '_', $file_title);
 				$file_title = preg_replace('/[^A-Za-z0-9_\-]/', '', $file_title);
 								
 				// Take first name from the allowed extension names array for this file
