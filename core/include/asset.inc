@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669.2.6 2009/09/07 04:25:25 akarelia Exp $
+* $Id: asset.inc,v 1.669.2.7 2009/09/17 04:21:19 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669.2.6 $
+* @version $Revision: 1.669.2.7 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5288,6 +5288,8 @@ class Asset extends MySource_Object
 				$parent_urls = $parent->getLookups();
 
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					$valid_protocol_change = FALSE;
+
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
@@ -5298,6 +5300,9 @@ class Asset extends MySource_Object
 						if (!$http && !$https) {
 							continue;
 						}
+						// Being passed from above condition means, protocol of one of the asset's parent's URL is same as
+						// that of force secure/insecure protocal selected for asset
+						$valid_protocol_change = TRUE;
 
 						// check if another asset is using the new URL
 						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
@@ -5511,7 +5516,19 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
+
+					// If the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid,
+					// the changes needs to be rolled back
+					if (!$valid_protocol_change) {
+						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						
+						return FALSE;
+					}
+
 				}//end for parent_urls
+
 			}//end for parents
 
 			// send a message to tell everyone the good news
