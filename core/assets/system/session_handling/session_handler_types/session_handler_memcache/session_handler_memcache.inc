@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.2 2008/12/29 04:53:35 lwright Exp $
+* $Id: session_handler_memcache.inc,v 1.3 2009/09/18 05:27:09 lwright Exp $
 *
 */
 
@@ -23,18 +23,18 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *
 * Purpose
 *    Implementation file for the Memcache Session Handler asset.
-*    This handler currently uses the "memcache" session handling pre-defined 
+*    This handler currently uses the "memcache" session handling pre-defined
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.2 $
+* @version    $Revision: 1.3 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
 class Session_Handler_Memcache extends Session_Handler
 {
 
-	
+
 	/**
 	* Constructor
 	*
@@ -48,7 +48,7 @@ class Session_Handler_Memcache extends Session_Handler
 
 	/**
 	* Initialise the functionality of this session handler
-	* 
+	*
 	* This may involve the changing of PHP's internal session save
 	* handler and path, if we are using a built-in handler (like
 	* 'files'), or custom functions if we are creating our own
@@ -60,7 +60,43 @@ class Session_Handler_Memcache extends Session_Handler
 	public static function init()
 	{
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Session Handler; it requires the memcache PECL extension installed within PHP, which is not installed');
-		assert_true(SQ_CONF_CUSTOM_SESSION_SAVE_PATH !== '', 'Cannot use Memcache Session Handler; connection data is not set in the main.inc file');
+		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Session Handler; the Memcache configuration file is not set');
+
+		$memcache_conf = require_once(SQ_DATA_PATH.'/private/conf/memcache.inc');
+		$hosts =& $memcache_conf['hosts'];
+		$services =& $memcache_conf['services'];
+
+		assert_true(count($hosts) > 0, 'Cannot use Memcache Session Handler; no hosts are defined in the Memcache configuration file');
+		assert_true(array_key_exists('session_handling', $services) === TRUE, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
+		assert_true(count($services['session_handling']) > 0, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
+
+		// Convert the host array (or the ones to be used for sessions) to the
+		// URL format expected by the session handler, which requires options to
+		// be specified by GET variables.
+		$host_str = Array();
+		foreach ($services['session_handling'] as $host_key => $weight) {
+			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Session Handler; host key "'.$host_key.'" assigned for use in session handling but not defined as a host');
+			$this_host = $hosts[$host_key];
+			$this_host_str = 'tcp://'.$this_host['host'].':'.$this_host['port'];
+
+			$query_str = Array();
+			$query_str[] = 'weight='.rawurlencode($weight);
+
+			if (array_key_exists('persistent', $this_host) === TRUE) {
+				$query_str[] = 'persistent='.rawurlencode($this_host['persistent'] ? '1' : '0');
+			}
+			if (array_key_exists('timeout', $this_host) === TRUE) {
+				$query_str[] = 'timeout='.rawurlencode($this_host['timeout']);
+			}
+			if (array_key_exists('retry_timeout', $this_host) === TRUE) {
+				$query_str[] = 'retry_timeout='.rawurlencode($this_host['retry_timeout']);
+			}
+			if (array_key_exists('status', $this_host) === TRUE) {
+				$query_str[] = 'status='.rawurlencode($this_host['status'] ? '1' : '0');
+			}
+			$host_str[] = $this_host_str.'?'.implode('&', $query_str);
+		}
+		$host_str = implode(', ', $host_str);
 
 		// Calculate the domain and path for the session cookie.
 		$domain = strip_url(sq_web_path('root_url'), TRUE);
@@ -81,7 +117,8 @@ class Session_Handler_Memcache extends Session_Handler
 		session_name('SQ_SYSTEM_SESSION');
 		session_set_cookie_params(0, $path, $domain);
 		session_module_name('memcache');
-		session_save_path('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
+
+		session_save_path($host_str);
 
 	}//end init()
 
