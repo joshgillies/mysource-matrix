@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash.inc,v 1.4 2009/07/13 11:26:23 ata Exp $
+* $Id: payment_gateway_datacash.inc,v 1.4.2.1 2009/09/18 01:20:15 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/datacash_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -225,6 +225,8 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+
 				$success = $this->processPayment($card_info);
 				//if success = 2, redirect to the Access Control Server (ACS) for Card Holder Verification
 				if ($success === 2) {
@@ -274,6 +276,11 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				}
 			}
 			$this->returnToCaller('SUCCESS', $is_in_frame);
+		} else {
+			// Notify that the payment was declined
+			if ($card_info) {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+			}
 		}
 		
 		//print default bodycopy
