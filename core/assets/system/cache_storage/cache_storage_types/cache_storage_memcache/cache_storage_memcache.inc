@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.3 2009/09/11 03:54:24 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.4 2009/09/18 05:52:45 lwright Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -60,23 +60,27 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	function __construct($assetid=0)
 	{
-		if (self::isAvailable() === TRUE) {
-			// If PHP has the memcache module installed, instantiate it and try to load some config.
-			$this->_memcache = new Memcache;
+		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed');
+		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
 
-			$memcache_conf_file = SQ_DATA_PATH.'/private/conf/memcache.inc';
-			if (file_exists($memcache_conf_file)) {
-				$memcache_conf = require($memcache_conf_file);
-				if ($memcache_conf) {
+		$memcache_conf = require_once(SQ_DATA_PATH.'/private/conf/memcache.inc');
+		$hosts =& $memcache_conf['hosts'];
+		$services =& $memcache_conf['services'];
 
-					foreach ($memcache_conf['hosts'] as $host) {
-						$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $host['weight'], $host['timeout'], $host['retry_interval'], $host['status']);
-					}
+		assert_true(count($hosts) > 0, 'Cannot use Memcache Cache Storage; no hosts are defined in the Memcache configuration file');
+		assert_true(array_key_exists('cache_manager', $services) === TRUE, 'Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager');
+		assert_true(count($services['cache_manager']) > 0, 'Cannot use Memcache Cache Storage; no Memcache hosts are assigned to cache manager');
 
-					$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
-				}
-			}
+		// If PHP has the memcache module installed, instantiate it and try to load some config.
+		$this->_memcache = new Memcache;
+
+		foreach ($services['cache_manager'] as $host_key => $weight) {
+			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Cache Storage; host key "'.$host_key.'" assigned for use for cache manager but not defined as a host');
+			$host = $hosts[$host_key];
+			$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status']);
 		}
+
+		$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
 
 		parent::__construct($assetid);
 
