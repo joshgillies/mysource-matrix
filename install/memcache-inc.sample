@@ -1,5 +1,6 @@
 <?php
 /**
+ *
  * See http://www.php.net/manual/en/function.memcache-addserver.php for explanation.
  */
 $memcache_conf = Array (
@@ -19,7 +20,15 @@ $memcache_conf = Array (
 
 	// If unsure, leave these alone.
 	'compression_threshold' => 20000, // Size before automatically compressing with zlib
-	'compression_min_saving' => 0.2, // Minimum saving before storing compressed 
+	'compression_min_saving' => 0.2, // Minimum saving before storing compressed
+
+	// List of Matrix services utilising the above servers.
+	// Indexed by key => weight.
+	'services'	=> Array(
+					'cache_manager'		=> Array('mc1' => 1),
+					'session_handling'	=> Array(),
+					'locking'			=> Array(),
+				   ),
 );
 
 return $memcache_conf;
