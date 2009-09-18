@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.8 2009/09/08 14:25:58 ata Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.9 2009/09/18 01:16:02 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_LINE_IN_ADDRESS', 3);
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -307,6 +307,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+
 				$success = $this->processPayment($card_info);
 				//if success = 2, redirect to the Access Control Server (ACS) for Card Holder Verification
 				if ($success === 2) {
@@ -338,6 +340,10 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 			}
 		
 			$this->returnToCaller('SUCCESS', $is_in_frame);
+		} else {
+			if ($card_info) {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+			}
 		}
 		
 		//print default bodycopy

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_dps.inc,v 1.1 2009/09/01 06:57:37 ewang Exp $
+* $Id: payment_gateway_dps.inc,v 1.2 2009/09/18 01:16:02 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/dps_processor.inc';
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -216,6 +216,8 @@ class Payment_Gateway_Dps extends Payment_Gateway
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
+			$this->appendPendingOrderAuditLog(translate('ecom_payment_attempted_gateway_contacted'));
+
 			$success = $this->processPayment($card_info);
 		}
 
@@ -245,7 +247,12 @@ class Payment_Gateway_Dps extends Payment_Gateway
 				}
 			}
 			$this->returnToCaller('SUCCESS');
+		} else {
+			if ($card_info) {
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_declined'));
+			}
 		}
+
 		//print default bodycopy
 		$this->printBodycopy('display_format');
 		
