@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.62.2.1 2009/08/17 01:08:10 bpearson Exp $
+* $Id: tables.xml,v 1.62.2.2 2009/09/18 04:25:12 bpearson Exp $
 *
 */
 -->
@@ -249,6 +249,12 @@
 					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
+					<description />
+				</column>
+				<column name="locked" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
 					<description />
 				</column>
 			</columns>
@@ -897,11 +903,11 @@
 					<description>The time when this remap expires. Should be cleaned up after this time.</description>
 				</column>
 				<column name="never_delete" allow_null="0">
-                    <type>CHAR(1)</type>
-                    <type_variations />
-                    <default>'1'</default>
-                    <description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
-                </column>
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
+				</column>
 			</columns>
 			<keys>
 				<primary_key>

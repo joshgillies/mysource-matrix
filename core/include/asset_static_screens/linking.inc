@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.42 2009/07/28 02:11:24 ewang Exp $
+* $Id: linking.inc,v 1.42.2.1 2009/09/18 04:30:08 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix
 */
 
@@ -173,7 +173,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 			</style>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-linking-header-header" colspan="6"><b><?php
+			<td class="sq-linking-header-header" colspan="7"><b><?php
 				hidden_field($prefix.'_link_offset', $link_offset);
 				if ($link_offset > 0) {
 					?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -241,6 +241,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 				<th style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></th>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('assetid'); ?></th>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('value'); ?></th>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo ucwords(strtolower(translate('locked'))); ?></th>
 				<th width="70"><?php echo translate('lineage'); ?></th>
 			</tr>
 			<?php
@@ -392,6 +393,7 @@ function processLinking(&$owner, &$o, &$ei)
 			$new_type = NULL;
 			}
 		}
+
 		// Find out the value
 		if (!isset($_POST[$prefix.'_link_value'][$link['linkid']])) {
 			$new_value = NULL;
@@ -401,8 +403,20 @@ function processLinking(&$owner, &$o, &$ei)
 				$new_value = NULL;
 			}
 		}
+
+		// Find out the value
+		if (!isset($_POST[$prefix.'_link_locked'][$link['linkid']])) {
+			$new_lock_status = '0';
+		} else {
+			$new_lock_status = '1'; // Set the value for testing
+		}//end if
+		$new_lock_status = ($new_lock_status == '1') ? '1' : '0';
+		if ($link['locked'] == $new_lock_status) {
+			$new_lock_status = NULL;
+		}//end if
+
 		// Nothing to do let's continue
-		if (is_null($new_type) && is_null($new_value)) {
+		if (is_null($new_type) && is_null($new_value) && is_null($new_lock_status)) {
 			continue;
 		}
 
@@ -463,8 +477,8 @@ function processLinking(&$owner, &$o, &$ei)
 			continue;
 		}
 
-		// Change from LINK 1 to a LINK 2 (or changing a value only)
-		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type, $new_value)) {
+		// Change from LINK 1 to a LINK 2 (or changing a value/lock status only)
+		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type, $new_value, NULL, $new_lock_status)) {
 			continue;
 		}
 		$done_something = TRUE;
@@ -617,6 +631,7 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 			$link_type = $link_data['link_type'];
 			$linkid = $link_data['linkid'];
 			$link_value = $link_data['value'];
+			$link_locking = array_get_index($link_data, 'locked', '0');
 
 			// work out if the user can change the link types
 			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
@@ -677,6 +692,19 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 						} else {
 							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value), 15, FALSE);
 						}
+						?>
+					</td>
+					<td style="text-align: center;">
+						<?php
+						if ($link_type <= 2) {
+							$lock_status = ($link_locking == '1') ? 'tick' : 'cross';
+							$lock_status_desc = ($link_locking == '1') ? 'locked' : 'unlocked';
+							if ($can_edit) {
+								check_box($prefix.'_link_locked['.$linkid.']', '1', (($link_locking == '1') ? TRUE : FALSE));
+							} else {
+								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$lock_status.'.gif" alt="'.translate($lock_status_desc).'" style="border: 0;" />';
+							}//end if
+						}//end if
 						?>
 					</td>
 					<td><?php echo $asset_lineage; ?></td>

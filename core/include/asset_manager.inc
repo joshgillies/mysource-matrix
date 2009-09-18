@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.19 2009/09/15 02:05:03 csmith Exp $
+* $Id: asset_manager.inc,v 1.738.2.20 2009/09/18 04:28:26 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.19 $
+* @version $Revision: 1.738.2.20 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -964,9 +964,9 @@ class Asset_Manager extends MySource_Object
 			if (isset($val_info[0]['default_val'])) {
 				$res[$assetid]	= $val_info[0]['default_val'];
 			}// oracle fix, converting null to empty string. in case isset fail on null value for array entry
-            else if (isset($val_info[0]) && is_array($val_info[0]) && array_key_exists('default_val',$val_info[0])){
-                $res[$assetid] = '';
-            }
+			else if (isset($val_info[0]) && is_array($val_info[0]) && array_key_exists('default_val',$val_info[0])){
+				$res[$assetid] = '';
+			}
 		}//end foreach
 
 		// Now get customised values where applicable
@@ -1048,9 +1048,9 @@ class Asset_Manager extends MySource_Object
 			if (isset($rowinfo[0]['custom_val'])) {
 				$res[$assetid] = $rowinfo[0]['custom_val'];
 			} // oracle fix, converting null to empty string. in case isset fail on null value for array entry
-            else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
-                $res[$assetid] = '';
-            }
+			else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
+				$res[$assetid] = '';
+			}
 		}//end foreach
 
 		return $res;
@@ -2622,7 +2622,7 @@ class Asset_Manager extends MySource_Object
 
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where = 'l.'.$side_of_link.'id = :assetid';
@@ -2790,7 +2790,7 @@ class Asset_Manager extends MySource_Object
 
 		$db = MatrixDAL::getDb();
 
-		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, ';
+		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, l.locked, ';
 		$where = 'l.linkid = :linkid';
 
 		// if they only want one side of the link, we can do less work
@@ -2976,7 +2976,7 @@ class Asset_Manager extends MySource_Object
 			$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 			$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+						   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 			$where = 'l.'.$side_of_link.'id = :assetid
@@ -3230,7 +3230,7 @@ class Asset_Manager extends MySource_Object
 				$value = Array(
 							'link_value' 	=> Array($value),
 							'equal' 		=> TRUE,
-					 	 );
+						 );
 			}
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
@@ -3252,7 +3252,7 @@ class Asset_Manager extends MySource_Object
 			$keys = array_keys($links);
 			$links = $links[$keys[0]];
 		}
-		
+
 		return $links;
 
 	}//end getLinks()
@@ -3330,7 +3330,7 @@ class Asset_Manager extends MySource_Object
 
 			$bind_vars[$bind_prefix.'treeid_like'] = $treeid.'%';
 			$bind_vars[$bind_prefix.'treeid'] = $treeid;
-			
+
 			if (!is_null($access)) {
 				$access = (String)$access;
 				$userid_cond = '';
@@ -3397,7 +3397,7 @@ class Asset_Manager extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 				}
 				$links = MatrixDAL::executePdoGroupedAssoc($query);
-			
+
 				$child_links = Array();
 				foreach ($links as $id => $info) {
 					$child_links[$id] = $info[0];
@@ -3857,7 +3857,7 @@ class Asset_Manager extends MySource_Object
 			$link_value_wanted = Array(
 									'link_value' 	=> Array($link_value_wanted),
 									'equal' 		=> TRUE,
-				 	 			 );
+								 );
 		}
 
 		$ret_val = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted);
@@ -4476,11 +4476,12 @@ class Asset_Manager extends MySource_Object
 	* @param string		$dependant	'0' / '1' - whether the minor asset is dependant on the major
 	* @param string		$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
 	* @param boolean	$moving		whether or not this asset is being moved
+	* @param string		$locked		whether or not this asset's link is locked
 	*
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(Asset $major, Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	function createAssetLink(Asset $major, Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE, $locked='0')
 	{
 		// Initial Checks
 		if (!$major->id) return 0;
@@ -4490,6 +4491,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant, 'In order for a link to be dependant it must also be a significant link');
+		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && ($locked == '1'), 'In order for a link to be locked it must also be a significant link');
 
 		$original_link_type = $link_type;
 		$link_type = (int) $link_type;
@@ -4691,7 +4693,8 @@ class Asset_Manager extends MySource_Object
 						is_dependant,
 						is_exclusive,
 						updated,
-						updated_userid
+						updated_userid,
+						locked
 					)
 					VALUES
 					(
@@ -4704,7 +4707,8 @@ class Asset_Manager extends MySource_Object
 						:is_dependant,
 						:is_exclusive,
 						:updated,
-						:updated_userid
+						:updated_userid,
+						:link_locked
 					)';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -4721,6 +4725,7 @@ class Asset_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'is_exclusive', (($exclusive) ? '1' : '0'));
 			MatrixDAL::bindValueToPdo($query, 'updated', ts_iso8601(time()));
 			MatrixDAL::bindValueToPdo($query, 'updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
+			MatrixDAL::bindValueToPdo($query, 'link_locked', (($locked == '1' && $link_type <= 2) ? '1' : '0'));
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to add new link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -5251,6 +5256,7 @@ class Asset_Manager extends MySource_Object
 			$link_info['sort_order'] = $sort_order;
 			$link_info['is_dependant'] = $dependant;
 			$link_info['is_exclusive'] = $exclusive;
+			$link_info['locked'] = $locked;
 
 			$event_data = Array('link_info' => $link_info, 'linkid' => $linkid);
 
@@ -5558,6 +5564,11 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
+		if (isset($link['locked']) && $link['locked'] == '1') {
+			trigger_localised_error('SYS0333', E_USER_WARNING, $linkid);
+			return 0;
+		}
+
 		$old_parent = $this->getAsset($link['majorid'], $link['major_type_code']);
 		if (is_null($old_parent)) {
 			trigger_localised_error('SYS0226', E_USER_WARNING, $link['majorid']);
@@ -5667,11 +5678,12 @@ class Asset_Manager extends MySource_Object
 	* @param string	$value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
+	* @param string	$locked		the asset's link lock status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
+	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL, $locked=NULL)
 	{
 		// First, we should try and find the link
 		$link = $this->getLinkById($linkid);
@@ -5696,13 +5708,20 @@ class Asset_Manager extends MySource_Object
 
 		$set_clauses = Array();
 
-		$link_type_changed	= (!is_null($link_type)		&& $link['link_type']	!= $link_type	);
-		$value_changed		= (!is_null($value)			&& $link['value']		!= $value		);
-		$sort_order_changed	= (!is_null($sort_order)	&& $link['sort_order']	!= $sort_order	);
+		// Do not allow link types of type 3 and notice to be locked
+		if ($link_type == SQ_LINK_TYPE_3 || $link_type == SQ_LINK_NOTICE) {
+			if (!is_null($locked)) $locked = '0';
+		}//end if
+
+		$link_type_changed	 = (!is_null($link_type)	&& $link['link_type']	!= $link_type	);
+		$value_changed		 = (!is_null($value)		&& $link['value']		!= $value		);
+		$sort_order_changed	 = (!is_null($sort_order)	&& $link['sort_order']	!= $sort_order	);
+		$link_locked_changed = (!is_null($locked)		&& $link['locked']		!= $locked		);
 
 
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
+		$locked		= ($locked == '1') ? '1' : '0';
 
 		$major = $this->getAsset((int) $link['majorid'], $link['major_type_code']);
 		$minor = $this->getAsset((int) $link['minorid'], $link['minor_type_code']);
@@ -5780,6 +5799,24 @@ class Asset_Manager extends MySource_Object
 			$ms->logMessage($message);
 
 		}//end if value_changed
+
+		if ($link_locked_changed) {
+
+			$set_clauses['locked'] = MatrixDAL::quote($locked);
+
+			$msg_reps = Array(
+							'linkid'			=> $linkid,
+							'major_name'		=> $major->name,
+							'minor_name'		=> $minor->name,
+							'link_locked_value'	=> (($locked == '1') ? translate('locked') : translate('unlocked')),
+						);
+			$message = $ms->newMessage(Array(), 'asset.linking.locked', $msg_reps);
+			$message->parameters['majorid']   = $major->id;
+			$message->parameters['minorid']   = $minor->id;
+			$message->parameters['linkid']    = $linkid;
+			$ms->logMessage($message);
+
+		}//end if link_locked_changed
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		// If the minor is a shadow asset, we need to update the shadow link table instead
@@ -5986,12 +6023,13 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Remove a link by id
 	*
-	* @param int	$linkid	the link id of the link to remove
+	* @param int		$linkid			the link id of the link to remove
+	* @param boolean	$check_locked	Check if the link is locked or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid)
+	function deleteAssetLink($linkid, $check_locked=TRUE)
 	{
 		if ($linkid == 0) return FALSE;
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
@@ -6012,28 +6050,36 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0137', E_USER_WARNING, $linkid);
 			return FALSE;
 		}
-		return $this->deleteAssetLinkByLink($link);
-  	 
+
+		return $this->deleteAssetLinkByLink($link, $check_locked);
+
 	}//end deleteAssetLink()
 
- 
+
 	/**
 	* Remove a link by the link that is passed
 	* This function the initial checking that is done by  deleteAssetLink()
-	* Fix to #3877          Matrix will create and retain links in DB if asset fails to get created
+	* Fix to #3877  	Matrix will create and retain links in DB if asset fails to get created
 	* a new function call made to deleteAssetLinkByLink() from _abortCreate() from asset.inc
 	*
-	* @param Array  $link   the link we are supposed to delete
+	* @param Array		$link			the link we are supposed to delete
+	* @param boolean	$check_locked	Check if the link is locked or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLinkByLink(Array $link)
+	function deleteAssetLinkByLink(Array $link, $check_locked=TRUE)
 	{
 		if (empty($link)) {
 			return FALSE;
 		}
 		$linkid = $link['linkid'];
+
+		// Check if link is locked and cannot be deleted
+		if ($check_locked && $link['locked'] == '1') {
+			trigger_localised_error('SYS0334', E_USER_WARNING, $linkid);
+			return FALSE;
+		}//end if
 
 		$major = $this->getAsset($link['majorid'], $link['major_type_code']);
 		$minor = $this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -6354,7 +6400,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function couldTrashAsset($assetid)
+	function couldTrashAsset($assetid, $check_locked=TRUE)
 	{
 		if (!$assetid) return FALSE;
 		// We can trash the asset if we can delete all the parent links
@@ -6362,7 +6408,8 @@ class Asset_Manager extends MySource_Object
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($parent_links as $id => $link_details) {
 			$asset = $this->getAsset($link_details['majorid']);
-			if (TRUE !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
+			$msg = $asset->canDeleteLink($link_details['linkid']);
+			if (($check_locked && $link_details['locked'] == '1') || TRUE !== $msg) {
 				$msgs[$link_details['linkid']] = $msg;
 			}
 		}
@@ -6918,7 +6965,7 @@ class Asset_Manager extends MySource_Object
 			$asset = $this->getAsset($real_assetid);
 
 			if (is_null($asset)) continue;
-			
+
 			$ret_val = FALSE;
 			if (method_exists($asset, 'deletePermission')) {
 				$ret_val = $asset->deletePermission($assetid, $userid, $permission);
@@ -8387,7 +8434,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$select = 'SELECT  l.'.$side_of_link.'id, l.'.$other_side.'id, l.linkid, l.value, l.link_type,
-						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where  = 'l.'.$side_of_link.'id '.$assetid_cond.'
@@ -8446,7 +8493,7 @@ class Asset_Manager extends MySource_Object
 			$access = (String)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
-								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
 

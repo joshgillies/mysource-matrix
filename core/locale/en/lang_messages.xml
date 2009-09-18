@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.27 2009/04/29 07:00:13 bpearson Exp $
+* $Id: lang_messages.xml,v 1.27.2.1 2009/09/18 04:31:21 bpearson Exp $
 *
 * Core Internal Messages File
 */
@@ -59,6 +59,10 @@
 	<message type="asset.linking.value">
 		<subject>Asset Link Value Updated</subject>
 		<body>'The value on link #%linkid% (between "%major_name%" and "%minor_name%") was successfully changed from %old_link_value% to %new_link_value%</body><!-- linkid, major-name, minor-name, old-link-value, new-link-value -->
+	</message>
+	<message type="asset.linking.locked">
+		<subject>Asset Link Locked Status Updated</subject>
+		<body>'The link #%linkid% (between "%major_name%" and "%minor_name%") is now %link_locked_value%</body><!-- linkid, major-name, minor-name, link-locked-value -->
 	</message>
 	<message type="asset.linking.order">
 		<subject>Asset Link Sort Order Updated</subject>

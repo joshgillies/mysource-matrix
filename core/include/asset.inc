@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.5 2009/09/17 04:22:36 cupreti Exp $
+* $Id: asset.inc,v 1.696.2.6 2009/09/18 04:26:48 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.5 $
+* @version $Revision: 1.696.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -830,11 +830,12 @@ class Asset extends MySource_Object
 	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
 	*
 	* @param boolean	$release_lock	should we realease the lock after deleting
+	* @param boolean	$check_locked	Check if the link is locked or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
@@ -850,7 +851,7 @@ class Asset extends MySource_Object
 		foreach ($links as $link) {
 			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (!is_null($major)) {
-				$major->deleteLink($link['linkid']);
+				$major->deleteLink($link['linkid'], $check_locked);
 			} else {
 				trigger_localised_error('SYS0128', E_USER_WARNING, $link['majorid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1633,6 +1634,7 @@ class Asset extends MySource_Object
 																'old_force_secure'	=> $this->force_secure,
 															 )
 		);
+
 		return TRUE;
 
 	}//end setForceSecure()
@@ -2838,20 +2840,21 @@ class Asset extends MySource_Object
 	/**
 	* Remove a link where this asset is the major player
 	*
-	* @param int	$linkid	the link id of the link to remove
+	* @param int		$linkid			the link id of the link to remove
+	* @param boolean	$check_locked	Check if the link is locked or not
 	*
 	* @return boolean
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	public function deleteLink($linkid)
+	public function deleteLink($linkid, $check_locked=TRUE)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
 			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
 			return FALSE;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
+			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $check_locked);
 		}
 
 	}//end deleteLink()
@@ -5665,7 +5668,7 @@ class Asset extends MySource_Object
 						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						
+
 						return FALSE;
 					}
 

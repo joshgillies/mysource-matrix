@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.110 2009/07/08 00:40:42 lwright Exp $
+* $Id: lang_errors.xml,v 1.110.2.1 2009/09/18 04:31:21 bpearson Exp $
 *
 */
 
@@ -242,6 +242,8 @@
 	<error code="HIPO0084">Unable to clone asset "%1$s", shadow asset can not be cloned.</error>
 	<!--- HIPO0085 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
 	<!--- HIPO0086 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
+
+	<error code="HIPO0087">Unable to move asset #%s, the link is locked</error>
 
 	<!-- CRON MANAGER -->
 
@@ -650,6 +652,7 @@
 	<error code="AMAP0043">Unable to Create New Link, can't create a new link to the trash</error>
 	<error code="AMAP0044">Unable to Clone Asset, %s</error>
 	<error code="AMAP0045">Unable to Change Asset Position, %s</error>
+	<error code="AMAP0046">Unable to Move Asset #%s, asset is locked</error>
 
 	<!-- FILE VERSIONING -->
 
@@ -1420,6 +1423,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0329">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</error>
 
 	<error code="SYS0332">Cannot restore the previous context; the context stack is empty</error>
+	<error code="SYS0333">Link "%1$s" cannot be moved, link is locked</error>
+	<error code="SYS0334">Link "%1$s" cannot be deleted, link is locked</error>
 
 
 
