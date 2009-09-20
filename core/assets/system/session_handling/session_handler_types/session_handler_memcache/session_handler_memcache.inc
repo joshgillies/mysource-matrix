@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.3 2009/09/18 05:27:09 lwright Exp $
+* $Id: session_handler_memcache.inc,v 1.4 2009/09/20 23:23:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.3 $
+* @version    $Revision: 1.4 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Session_Handler_Memcache extends Session_Handler
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Session Handler; it requires the memcache PECL extension installed within PHP, which is not installed');
 		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Session Handler; the Memcache configuration file is not set');
 
-		$memcache_conf = require_once(SQ_DATA_PATH.'/private/conf/memcache.inc');
+		$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
 		$hosts =& $memcache_conf['hosts'];
 		$services =& $memcache_conf['services'];
 
