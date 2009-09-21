@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.118 2009/09/17 00:23:39 lwright Exp $
+* $Id: site.inc,v 1.119 2009/09/21 05:12:36 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -568,7 +568,7 @@ class Site extends Folder
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'url',     $urls[$urlid]['url']);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-				MatrixDAL::bindValueToPdo($query, 'http',    ($this->force_secure) ? '0' : $urls[$urlid]['http']);
+				MatrixDAL::bindValueToPdo($query, 'http',    ($this->force_secure === '1') ? '0' : $urls[$urlid]['http']);
 				MatrixDAL::bindValueToPdo($query, 'https',   $urls[$urlid]['https']);
 				MatrixDAL::bindValueToPdo($query, 'urlid',   $urlid);
 				MatrixDAL::execPdoQuery($query);
