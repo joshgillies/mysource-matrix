@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.75.4.3 2009/09/04 04:44:58 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.75.4.4 2009/09/21 00:41:57 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.4.3 $
+* @version $Revision: 1.75.4.4 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -853,7 +853,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 							// When Focus node and Anchor node are same point and foucs node is at end of some node, add an extra blank node
 							// This is to make sure that paragraphs are created outside the node. See bug #3978
-							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && endNode.parentNode != 1 && endNode.parentNode.parentNode) {
+							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && !this.isElem(endNode.parentNode,'body') && endNode.parentNode.parentNode) {
 								
 								blank_node = document.createTextNode('');
 								endNode.parentNode.parentNode.appendChild(blank_node);								
