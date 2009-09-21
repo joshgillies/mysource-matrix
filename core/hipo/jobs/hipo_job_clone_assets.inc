@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.35 2008/12/23 05:07:14 bpearson Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.35.2.1 2009/09/21 00:21:39 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -595,7 +595,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
 		}
 
-		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $link['link_type'], '', 'minor');
+		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $link['link_type'], NULL, 'minor');
 
 		$this->_running_vars['cloned_asset'][$clone->id]['linkid'] = $link_info['linkid'];
 		$this->_running_vars['cloned_asset'][$clone->id]['parentid'] = $this->_running_vars['to_parent_assetid'];
