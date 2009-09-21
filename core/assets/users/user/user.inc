@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.131 2009/07/01 00:53:49 bpearson Exp $
+* $Id: user.inc,v 1.132 2009/09/21 06:36:04 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,7 +210,7 @@ class User extends Asset
 
 
 	/**
-	* Provides extra checking and disable invalid status change on errors 
+	* Provides extra checking and disable invalid status change on errors
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
@@ -224,7 +224,7 @@ class User extends Asset
 		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user');
 
 		// Do not do this procedure if root user or a shadow asset (LDAP user etc.)
-		if ($this->id != $root_user && strpos($this->id, ':') === FALSE) {	
+		if ($this->id != $root_user && strpos($this->id, ':') === FALSE) {
 			// Ok to proceed
 			switch ($new_status) {
 				case SQ_STATUS_UNDER_CONSTRUCTION:
@@ -327,7 +327,7 @@ class User extends Asset
 
 
 	/**
-	* Returns next available username 
+	* Returns next available username
 	*
 	* @param string	$owning_attrid		The attribute id of the owning attribute
 	* @param string	$current_username	The current username
@@ -983,20 +983,29 @@ class User extends Asset
 	/**
 	* Returns an array of the current locks that this user holds
 	*
-	* @return array
+	* ...or FALSE if there is no support for it in this locking method (requires
+	* ability to get active locks).
+	*
+	* @return array|boolean
 	* @access public
 	*/
 	function getUserLocks()
 	{
 		$db = MatrixDAL::getDb();
 		try {
-			$bind_vars	= Array (
-							'userid'	=> $this->id,
-						  );
+			$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($class_name);
 
-			$result = MatrixDAL::executeAll('user', 'getUserCurrentLocks', $bind_vars);
-		} catch (Exception $o) {
-			throw new Exception('Unable to get all locks for current user (userid #'.$this->id.') due to database error: '.$e->getMessage());
+			if (eval('return '.$class_name.'::supportsGetActiveLocks();') === TRUE) {
+				$result = eval('return '.$class_name.'::getActiveLocks($this->id);');
+			} else {
+				// Unable to get the list of active locks due to lack of support
+				$result = FALSE;
+			}
+
+		} catch (Exception $e) {
+			throw new Exception('Unable to get all locks for current user (userid #'.$this->id.'), '.$e->getMessage());
+
 		}//end try catch
 
 		return $result;
