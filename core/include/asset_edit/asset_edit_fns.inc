@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.77 2008/05/02 04:51:19 bpearson Exp $
+* $Id: asset_edit_fns.inc,v 1.77.6.1 2009/09/21 05:11:18 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.6.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -398,7 +398,7 @@ class Asset_Edit_Fns extends MySource_Object
 			}
 		}
 
-		if ($asset->force_secure) {
+		if ($asset->force_secure === '1') {
 			echo '<br>';
 			$o->note(translate('force_secure_set_on_asset'));
 		}
