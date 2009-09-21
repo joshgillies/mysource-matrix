@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.7 2009/09/21 05:08:27 cupreti Exp $
+* $Id: asset.inc,v 1.696.2.8 2009/09/21 05:18:06 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.7 $
+* @version $Revision: 1.696.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5669,13 +5669,6 @@ class Asset extends MySource_Object
 					// Issue warning, if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid,
 					if (!$valid_protocol_change) {
 						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
-<<<<<<< asset.inc
-=======
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-						return FALSE;
->>>>>>> 1.696.2.6
 					}
 
 				}//end for parent_urls
