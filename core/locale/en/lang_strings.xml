@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.4 2009/09/10 05:46:27 akarelia Exp $
+* $Id: lang_strings.xml,v 1.335.2.5 2009/09/22 03:34:04 lwright Exp $
 *
 */
 
@@ -519,6 +519,8 @@
 	<string source="proxy_configuration">Proxy Configuration</string>
 	<string source="context_configuration">Context Configuration</string>
 
+	<string source="system_config_active_locks_no_support">The current method of storing locks does not support getting of active locks</string>
+
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
 
@@ -696,7 +698,8 @@
 	<string source="customise_asset_selection">Please select an Asset Type above to customise</string>
 	<string source="customise_root_node_selection">Please select a Root Node above to customise</string>
 	<string source="view_root_node_selection">Please select a customised Root Node above to view its settings</string>
-	<string source="cannot_clear_cache">You do not have access to clear the cache'</string>
+	<string source="cannot_clear_cache">You do not have access to clear the cache</string>
+	<string source="cannot_clear_cache_by_assetid">Your chosen cache storage type does not support clearing by asset ID or asset type</string>
 	<string source="clear_cache_threshold">Clear Cache Threshold</string>
 	<string source="delete_all_cache">Delete All System Cache</string>
 	<string source="this_asset">This asset</string>
@@ -899,10 +902,10 @@
 	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
 	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
-	<string source="text_direction">Text direction settings</string>	
+	<string source="text_direction">Text direction settings</string>
 	<string source="bodycopy_direction">Direction:</string>
 	<string source="bodycopy_right_to_left">Right to left</string>
-	<string source="bodycopy_left_to_right">Left to right</string>	
+	<string source="bodycopy_left_to_right">Left to right</string>
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
 	<string source="presentation">Presentation</string>
@@ -1080,7 +1083,7 @@
 	<string source="csv_upload_instructions">You can also upload a CSV file of remap URLs to add to the system. The format for each line must be:&lt;br /&gt; "oldURL, newURL, expiry date (yyyy-mm-dd hh:mm:ss),never delete option (0 or 1)"</string>
 	<string source="csv_upload_instructions_example_1">&lt;b&gt;Example 1 (never delete(OFF)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, 2003-17-12 10:27:00, 0</string>
 	<string source="csv_upload_instructions_example_2">&lt;b&gt;Example 2 (no expiry date and never delete(OFF))):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, , 0</string>
-	<string source="csv_upload_instructions_example_3">&lt;b&gt;Example 3 (no expiry date and never delete(ON)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, , 1</string>	
+	<string source="csv_upload_instructions_example_3">&lt;b&gt;Example 3 (no expiry date and never delete(ON)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, , 1</string>
 	<string source="never_delete">Never Delete</string>
 	<string source="404_remap_description">The page where 404 requests are remapped to</string>
 	<string source="redirecting_you_to">Redirecting you to %s</string>
@@ -1222,7 +1225,7 @@
 	<string source="trigger_set_design_select_design_type">Type of design (Override existing or create new if not existed) </string>
 	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
 	<string source="trigger_set_index_page_basic">Set the index page to: %s</string>
-	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt; 	
+	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt;
 Force that this asset can only be viewed through a Secure (SSL) connection</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
@@ -1300,7 +1303,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<string source="trigger_action_redirect_redirect_url">Redirect URL</string>
 	<string source="trigger_action_redirect_url_instructions">You may use asset based keywords to construct the redirect URL.</string>
-	
+
 	<string source="trigger_action_set_cookie_set_name_value">Set cookie name %1$s to value %2$s</string>
 	<string source="trigger_action_set_cookie_set_expire_time">Expire time %1$s (in seconds)</string>
 	<string source="trigger_action_set_cookie_expire_time_note">Note: How long will the cookie expire since this trigger is fired (The default value 0 means the cookie expires when the client browser is closed)</string>
@@ -2655,7 +2658,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_context_at_least_too_many"><![CDATA[This context requires &quot;at least %1$s&quot; conditions to match, however it only contains %2$s conditions, making this context impossible to select.<br/>Either reduce the minimum number of matches (or set to &quot;all&quot;), or add more conditions, to make this context valid.]]></string>
 	<string source="config_context_not_enough_valid_cond_to_be_valid"><![CDATA[There are not enough valid conditions to satisfy the minimum number required for this context to be selected.<br/>Fixing the invalid condition(s) may make this context eligible for selection.]]></string>
 	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
-	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. This occurs on the first request of a session, or when the context is otherwise reset. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the default context is used.</p>
+	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. Context detection will occur on <strong>every request</strong>, unless a context has been forced through another method, either by user group preference or by global action. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the default context is used.</p>
 	<p>Conditions do not affect a context&apos;s ability to be used through methods outside context detection, such as through global action, or User Group override. If you do not want a context to be selected through context detection, simply leave its conditions blank. The <strong>Valid ?</strong> column states whether a context&apos;s conditions are achievable, based on the number of valid conditions and the set logic (either &quot;All&quot; or &quot;At least&quot;). A context&apos;s conditions may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no valid conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough valid conditions to meet the requirement. (If some conditions are invalid, but not all, the conditions can still be &quot;valid&quot; if there enough valid ones.)</li></ul>]]></string>
 
 	<!-- System Config - Log errors to Syslog -->
