@@ -1096,7 +1096,7 @@
 	<!-- //		ASSET STATIC SCREENS		// -->
 
 
-	
+
 
 	<!-- //		logs.inc		// -->
 	<query id="getLogs">
@@ -1162,10 +1162,64 @@
 					<table>sq_lock</table>
 				</from>
 				<where>
-					<equal-or-greater table="sq_lock" column="expires">:expireTime</equal-or-greater>
+					<equal table="sq_lock" column="userid">:owner_assetid</equal>
+					<equal-or-greater table="sq_lock" column="expires">:expire_time</equal-or-greater>
 				</where>
 			</select>
 		</primary>
+		<alternate>
+			<assert-null data="owner_assetid">
+				<assert-null data="expire_time">
+					<select>
+						<fields>
+							<field table="sq_lock" column="userid" />
+							<field table="sq_lock" column="lockid" />
+							<field table="sq_lock" column="source_lockid" />
+							<field table="sq_lock" column="expires" />
+						</fields>
+						<from>
+							<table>sq_lock</table>
+						</from>
+					</select>
+				</assert-null>
+			</assert-null>
+		</alternate>
+		<alternate>
+			<assert-null data="owner_assetid">
+				<select>
+					<fields>
+						<field table="sq_lock" column="userid" />
+						<field table="sq_lock" column="lockid" />
+						<field table="sq_lock" column="source_lockid" />
+						<field table="sq_lock" column="expires" />
+					</fields>
+					<from>
+						<table>sq_lock</table>
+					</from>
+					<where>
+						<equal-or-greater table="sq_lock" column="expires">:expire_time</equal-or-greater>
+					</where>
+				</select>
+			</assert-null>
+		</alternate>
+		<alternate>
+			<assert-null data="expire_time">
+				<select>
+					<fields>
+						<field table="sq_lock" column="userid" />
+						<field table="sq_lock" column="lockid" />
+						<field table="sq_lock" column="source_lockid" />
+						<field table="sq_lock" column="expires" />
+					</fields>
+					<from>
+						<table>sq_lock</table>
+					</from>
+					<where>
+						<equal table="sq_lock" column="userid">:owner_assetid</equal>
+					</where>
+				</select>
+			</assert-null>
+		</alternate>
 	</query>
 
 
@@ -1491,9 +1545,9 @@
 			</select>
 		</primary>
 	</query>
-	
-		
-	
+
+
+
 
 	<query id="getNbOfTriggerHash">
 		<!-- Return the number of trigger hash -->
@@ -1524,8 +1578,8 @@
 			</delete>
 		</primary>
 	</query>
-	
-	
+
+
 
 
 	<!-- //        ATTRIBUTE UPDATE/INSERT        // -->
@@ -1809,7 +1863,7 @@
 
 	<!-- //        CONTEXT MANAGEMENT        // -->
 
-	
+
 	<query id="getAllContextIds">
 		<primary>
 			<select>
@@ -1884,7 +1938,7 @@
 	</query>
 
 	<!-- Copy existing attribute data for the default context into a new alternate
-	     context. These new values are marked as "using default". -->
+		 context. These new values are marked as "using default". -->
 	<query id="copyContextAttributeData">
 		<primary>
 			<insert>
@@ -1915,7 +1969,7 @@
 	</query>
 
 	<!-- Copy existing UNIQUE attribute data for the default context into a new alternate
-	     context. These new values are marked as "using default". -->
+		 context. These new values are marked as "using default". -->
 	<query id="copyContextUniqueAttributeData">
 		<primary>
 			<insert>
@@ -1981,7 +2035,7 @@
 					<value column="sort_order">:sort_order</value>
 				</values>
 				<where>
-					<equal table="sq_ctx_def" column="contextid">:contextid</equal>	
+					<equal table="sq_ctx_def" column="contextid">:contextid</equal>
 				</where>
 			</update>
 		</primary>
