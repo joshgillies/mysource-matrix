@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.130.2.2 2009/08/21 05:55:57 lwright Exp $
+* $Id: system_config.inc,v 1.130.2.3 2009/09/22 03:39:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130.2.2 $
+* @version $Revision: 1.130.2.3 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -88,6 +88,7 @@ class System_Config extends Config
 						'SQ_CONF_LOG_FILE_SYSTEM'				=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'				=> Array('editable' => 0, 'default' => 'error'),
 						'SQ_CONF_LOG_ERRORS'					=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_LOCKING_METHOD'				=> Array('editable' => 0, 'default' => 'default'),
 						'SQ_CONF_SESSION_HANDLER'				=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'		=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
@@ -741,7 +742,7 @@ class System_Config extends Config
 			}
 			$o->note(translate('log_errors_to_syslog_note'));
 			$o->closeField();
-			
+
 			$o->openField(translate('log_errors_syslog_facility'));
 			// We only provide the common
 			$options = Array(
@@ -828,7 +829,7 @@ class System_Config extends Config
 			} else {
 				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
 			}
-	
+
 			$o->openField(translate('use_lang_character_map'));
 			if ($write_access) {
 				$options = Array(
@@ -1152,8 +1153,8 @@ class System_Config extends Config
 		}
 		$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/'.$db_type.'_'.$relations.'.xml';
 
-	        // if the file does not exist, check to see if there is a common file
-	        // for all database types
+			// if the file does not exist, check to see if there is a common file
+			// for all database types
 		if (!file_exists($fns_file)) {
 			$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/common_'.$relations.'.xml';
 		}
