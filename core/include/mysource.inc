@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.3 2009/08/17 06:53:32 bpearson Exp $
+* $Id: mysource.inc,v 1.313.2.4 2009/09/22 05:58:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.3 $
+* @version $Revision: 1.313.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -251,7 +251,7 @@ class MySource extends MySource_Object
 			// Set up the session handler
 			$session_handler = $this->getSessionHandlerClassName();
 			eval($session_handler.'::init();');
-			
+
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
@@ -262,7 +262,7 @@ class MySource extends MySource_Object
 			}
 
 			session_start();
-			
+
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
 				define('SQ_ROLLBACK_VIEW', '0');
@@ -275,7 +275,7 @@ class MySource extends MySource_Object
 				$log->send();
 				exit();
 			}
-			
+
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 				$this->_processGlobalActions();
@@ -331,7 +331,7 @@ class MySource extends MySource_Object
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-		
+
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -358,17 +358,16 @@ class MySource extends MySource_Object
 					$alternate_context_id = 0;
 				}
 			}
-		} else {
+		} else if (SQ_PHP_CLI) {
 			$alternate_context_id = 0;
-		}
+		}//end if
 
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
 		}
-		
+
 		$this->changeContext($alternate_context_id);
-	
+
 	}//end init()
 
 
@@ -527,7 +526,6 @@ class MySource extends MySource_Object
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
 
-
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -579,17 +577,17 @@ class MySource extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 					}//end if
-					
+
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
-					
+
 					// See if caching is enabled for the asset
 					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
-					
+
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
-					} else { 
+					} else {
 						$asset->printFrontend();
 					}
 				}//end if
@@ -598,7 +596,7 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
-					
+
 					if (isset($_REQUEST['just_logged_out'])) {
 						unset($_REQUEST['just_logged_out']);
 					}
@@ -611,12 +609,12 @@ class MySource extends MySource_Object
 			ob_end_clean();
 
 			$this->_replaceKeyword($content);
-			
+
 			// parse out self links if configured so
-			if (SQ_CONF_NO_ASSET_SELF_LINKS) {				
+			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
 				$content = parse_self_links($content);
 			}
-			
+
 			echo $content;
 
 		}//end else backend/limbo
@@ -1196,7 +1194,7 @@ class MySource extends MySource_Object
 				if (is_null($login_username) || is_null($login_password)) {
 					return;
 				}
-				
+
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
@@ -1248,7 +1246,7 @@ class MySource extends MySource_Object
 					// incorrect login key
 					$this->addMessage(translate('login_key_incorrect'));
 				}
-				
+
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
@@ -1287,7 +1285,7 @@ class MySource extends MySource_Object
 				// clear PHP authentication
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
-				
+
 				// Restore a previous System Administrator account after user switching
 				$invoker_user_id = NULL;
 				if (isset($_SESSION['login_as_invoker_id']) && isset($_SESSION['login_as_invoker_username'])) {
@@ -1303,7 +1301,7 @@ class MySource extends MySource_Object
 					$this->generateLoginKey(TRUE);
 
 					// Flag to know that logout request is made
-					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used 
+					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
 				}
 			break;
@@ -1375,7 +1373,7 @@ class MySource extends MySource_Object
 				exit(1);
 			break;
 			case 'attribute_image' :
-				// grab the details we need to make this work 
+				// grab the details we need to make this work
 				$allowed_attributes = Array('email');
 				if (isset($_GET['attribute']) && !empty($_GET['attribute'])) {
 					$attribute = $_GET['attribute'];
@@ -1418,7 +1416,6 @@ class MySource extends MySource_Object
 					} catch (Exception $e) {
 						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
 					}
-
 					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
@@ -1761,6 +1758,15 @@ class MySource extends MySource_Object
 			$this->_logSecurityMsg('system.security.login');
 		} else {
 			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
+		}
+
+		// Get login context if any. If the value returned is numeric, it's
+		// a context ID. (Otherwise it's something like 'default', ie. don't
+		// change it.) Save it to the session...
+		$login_contextid = $this->getUserPrefs('user', 'SQ_USER_SET_CONTEXT_ON_LOGIN', TRUE);
+		if (is_numeric($login_contextid) === TRUE) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $login_contextid;
+			$this->changeContext($login_contextid);
 		}
 
 		// generate a new login key so that when they try and login next
@@ -2385,7 +2391,7 @@ class MySource extends MySource_Object
 		$current_contextid = NULL;
 		$stack_height = count($this->_context_stack);
 		if ($stack_height > 0) {
-			$current_contextid = $this->_context_stack[$stack_height - 1];	
+			$current_contextid = $this->_context_stack[$stack_height - 1];
 		}
 		if (is_null($current_contextid) === FALSE) {
 			$current_contextid = (int)$current_contextid;
@@ -2444,7 +2450,7 @@ class MySource extends MySource_Object
 	* @return void
 	*/
 	public function getAllContexts($force_reload=FALSE)
-	{		
+	{
 		if (((boolean)$force_reload === TRUE) || (is_array($this->_tmp) === FALSE) || (array_key_exists('context_cache', $this->_tmp) === FALSE)) {
 			$context_data = MatrixDAL::executeGroupedAssoc('core', 'getContexts', Array('contextids' => NULL));
 			foreach ($context_data as $contextid => &$context_item) {
@@ -2472,10 +2478,10 @@ class MySource extends MySource_Object
 	* @return boolean
 	*/
 	public function insertContextData($contextid)
-	{	
+	{
 		try {
-			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));	
-			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));	
+			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));
+			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));
 		} catch (DALException $e) {
 			throw new Exception('Cannot insert default attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
@@ -2502,10 +2508,10 @@ class MySource extends MySource_Object
 	* @return boolean
 	*/
 	public function deleteContextData($contextid)
-	{	
+	{
 		try {
-			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));	
-			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));	
+			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));
+			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));
 		} catch (DALException $e) {
 			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
@@ -2536,10 +2542,18 @@ class MySource extends MySource_Object
 		// Get all contexts, except the default
 		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
-		
+
 		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
 
-		$use_contextid = 0;
+		// Get the base context ID relating to the current URL
+		// However, if it's stale and the context has since been deleted,
+		// use the default context.
+		$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+		if (array_key_exists($root_url_info['base_contextid'], $contexts) === TRUE) {
+			$use_contextid = $root_url_info['base_contextid'];
+		} else {
+			$use_contextid = 0;
+		}
 
 		foreach ($contexts as $contextid => $context) {
 			// If set to "all", change to the number of conditions we have
@@ -2709,11 +2723,11 @@ class MySource extends MySource_Object
 
 					case 'url':
 						$current_url = current_url(FALSE, TRUE);
-						
+
 						$matched = FALSE;
 						$match_type  = $condition_options['match_type'];
 						$match_value = $condition_options['match_value'];
-						
+
 						switch ($match_type) {
 							case 'exact':
 								if ($current_url === $match_value) {
@@ -2749,7 +2763,7 @@ class MySource extends MySource_Object
 					break;
 
 					case 'port':
-						// If we do not have a server port, assume port 80 
+						// If we do not have a server port, assume port 80
 						$current_port = (int)array_get_index($_SERVER, 'SERVER_PORT', 80);
 						$match_type = $condition_options['match_type'];
 						$match_value = (int)$condition_options['match_value'];
@@ -3176,7 +3190,7 @@ class MySource extends MySource_Object
 			// from DAL
 			array_pop($this->_db_conns);
 		}
-	
+
 	}//end restoreDatabaseConnection()
 
 
@@ -3353,59 +3367,16 @@ class MySource extends MySource_Object
 	*/
 	function acquireLock($lockid, $source_lockid='', $expires=0)
 	{
-		$current_lock = $this->getLockInfo($lockid);
-
-		// is this asset already locked
-		if (!empty($current_lock)) {
-			// the user is asking to acquire a lock they already had
-			// so just update the lock expiry date
-			if ($current_lock['userid'] == $this->currentUserid()) {
-				return $this->updateLock($lockid, $expires);
-			} else {
-				$user = $this->am->getAsset($current_lock['userid']);
-				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
-			}
-		}
-
-		// if we have no source, we are the asset aquiring the locks
-		if (empty($source_lockid)) $source_lockid = $lockid;
-
-		if (!is_null($expires)) {
-			$expires = (empty($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
-			$expires = ts_iso8601($expires);
-		}
-
-		$this->changeDatabaseConnection('db3');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
-
-		$sql = 'INSERT INTO sq_lock
-				(lockid, source_lockid, userid, expires)
-				VALUES
-				(:lockid, :source_lockid, :userid, :expires)';
+		$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+		$this->am->includeAsset($class_name);
 
 		try {
-			if (MatrixDAL::getDbType() == 'oci') {
-				$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
-			}
-
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'lockid',        $lockid);
-			MatrixDAL::bindValueToPdo($query, 'source_lockid', $source_lockid);
-			MatrixDAL::bindValueToPdo($query, 'userid',        $this->currentUserId());
-			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
-			MatrixDAL::execPdoQuery($query);
+			$ok = eval('return '.$class_name.'::acquireLock($lockid, $source_lockid, $expires);');
 		} catch (Exception $e) {
-			// Rather than throwing our own exception, keep the previous format
-			// of returning an error message for now
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'due to database error: '.$e->getMessage();
+			return $e->getMessage();
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$this->restoreDatabaseConnection();
-		return TRUE;
+		return $ok;
 
 	}//end acquireLock()
 
@@ -3420,32 +3391,16 @@ class MySource extends MySource_Object
 	*/
 	function releaseLock($lockid)
 	{
-		$current_lock = $this->getLockInfo($lockid, FALSE, FALSE);
-		if (empty($current_lock)) return TRUE;
-
-		$this->changeDatabaseConnection('db3');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
-
-		$sql = 'DELETE FROM sq_lock
-			WHERE source_lockid = :source_lockid';
+		$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+		$this->am->includeAsset($class_name);
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
-			$result = MatrixDAL::execPdoQuery($query);
+			$ok = eval('return '.$class_name.'::releaseLock($lockid);');
 		} catch (Exception $e) {
-			// Rather than throwing our own exception, keep the previous format
-			// of returning an error message for now
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'due to database error: '.$e->getMessage();
+			return $e->getMessage();
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		$this->restoreDatabaseConnection();
-		return TRUE;
+		return $ok;
 
 	}//end releaseLock()
 
@@ -3466,43 +3421,16 @@ class MySource extends MySource_Object
 	*/
 	function updateLock($lockid, $expires=0)
 	{
-		$db = MatrixDAL::getDb();
-
-		$current_lock = $this->getLockInfo($lockid);
-		if (empty($current_lock) || empty($current_lock['expires'])) {
-			return TRUE;
-		}
-
-		if (!is_null($expires)) {
-			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
-			$expires = ts_iso8601($expires);
-		}
-
-		$this->changeDatabaseConnection('db3');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'UPDATE sq_lock
-				   SET expires = :expires
-				   WHERE source_lockid = :source_lockid';
+		$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+		$this->am->includeAsset($class_name);
 
 		try {
-			$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
-
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
-			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
-			MatrixDAL::execPdoQuery($query);
+			$ok = eval('return '.$class_name.'::updateLock($lockid, $expires);');
 		} catch (Exception $e) {
-			// Rather than throwing our own exception, keep the previous format
-			// of returning an error message for now
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'due to database error: '.$e->getMessage();
+			return $e->getMessage();
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$this->restoreDatabaseConnection();
-		return TRUE;
+		return $ok;
 
 	}//end updateLock()
 
@@ -3520,83 +3448,16 @@ class MySource extends MySource_Object
 	*/
 	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE, $allow_only_one=TRUE)
 	{
-		// Did I get a string or an array?
-		$where = '';
-		$multiple = FALSE;
-		$locks_passed = Array();
-		if (is_array($lockid)) {
-			foreach ($lockid as $lock_key => $lock_value) {
-				$lockid[$lock_key] = MatrixDAL::quote($lock_value);
-			}
-			$where = ' WHERE lockid IN ('.implode(', ', $lockid).')';
-			$multiple = TRUE;
-			$locks_passed = $lockid;
-		} else {
-			$where = ' WHERE lockid = :lockid';
-			$multiple = FALSE;
-			$locks_passed[] = $lockid;
-		}
-
-		$this->changeDatabaseConnection('db3');
-		$db = MatrixDAL::getDb();
-
-		$sql = 'SELECT lockid, source_lockid, userid, expires
-				FROM sq_lock'.$where;
+		$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+		$this->am->includeAsset($class_name);
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			if (!$multiple) {
-				MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
-			}
-			$results = MatrixDAL::executePdoAssoc($query);
+			$lock_info = eval('return '.$class_name.'::getLockInfo($lockid, $full_chain, $check_expires, $allow_only_one);');
 		} catch (Exception $e) {
-			$lock_error = (is_array($lockid)) ? ('s '.implode(', ', $lockid)) : (' '.$lockid);
-			throw new Exception('Unable to get lock information for lock ID"'.$lock_error.'" due to database error: '.$e->getMessage());
+			return $e->getMessage();
 		}
 
-		if (!empty($results)) {
-			foreach ($results as $result_key => $result) {
-				$results[$result_key]['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
-				if ($check_expires && !empty($result['expires'])) {
-					if ($results[$result_key]['expires'] < time()) {
-						$this->releaseLock($lockid);
-						$this->restoreDatabaseConnection();
-						// this lock has expired
-						return Array();
-					}
-				}
-
-				if ($full_chain) {
-					$results[$result_key]['chained_assets'] = Array();
-					foreach ($locks_passed as $lock_to_test) {
-						$sql = 'SELECT lockid, source_lockid, userid, expires
-								FROM sq_lock
-								WHERE source_lockid = :source_lockid
-									AND lockid <> :lockid';
-
-						try {
-							$query = MatrixDAL::preparePdoQuery($sql);
-							MatrixDAL::bindValueToPdo($query, 'source_lockid', $result['source_lockid']);
-							MatrixDAL::bindValueToPdo($query, 'lockid', $lock_to_test);
-							$chain = MatrixDAL::executePdoAssoc($query);
-						} catch (Exception $e) {
-							throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
-						}
-
-						foreach ($chain as $lock_row) {
-							$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
-							$results[$result_key]['chained_assets'][$lock_row['lockid']] = $lock_row;
-						}
-					}//end foreach
-				}//end if
-			}//end foreach
-		}//end if
-		if (!empty($results) && $allow_only_one) {
-				$results = $results[0];
-		}
-
-		$this->restoreDatabaseConnection();
-		return $results;
+		return $lock_info;
 
 	}//end getLockInfo()
 
