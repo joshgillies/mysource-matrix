@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.36 2009/06/29 05:24:42 bpearson Exp $
+* $Id: user_edit_fns.inc,v 1.36.2.1 2009/09/22 04:21:54 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,6 +362,14 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function paintLockDetails(&$asset, &$o, $prefix)
 	{
 		$current_locks = $asset->getUserLocks();
+
+		if ($current_locks === FALSE) {
+			$o->openField(translate('current_locks'));
+				echo 'No ability to show active locks in current lock method';
+			$o->closeField();
+			return FALSE;
+		}
+
 		$num_locks = count($current_locks);
 		$write_access = $asset->writeAccess('attributes');
 		$o->openField(translate('current_locks'));
