@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2009/04/02 05:31:27 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5.4.1 2009/09/22 02:02:07 lwright Exp $
 *
 */
 -->
@@ -19,6 +19,14 @@
 		<field attribute="enabled">
 			<display_name>Caching Status</display_name>
 			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintCacheStorageType" />
+				<process_function name="processCacheStorageType" />
+			</function_call>
+			<display_name>Cache Storage Type</display_name>
+			<note>The method used to store and retrieve cache objects.</note>
 		</field>
 		<field attribute="num_cache_dirs">
 			<display_name>Number of Cache Buckets</display_name>
