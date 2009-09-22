@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.15.2.1 2009/09/22 04:17:18 lwright Exp $
+* $Id: user_prefs.inc,v 1.15.2.2 2009/09/22 04:18:46 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -345,6 +345,8 @@ class User_Prefs extends Prefs
 				} else {
 					$asset_map_settings = '';
 				}
+				$this->int_am_frame_width->value = $asset_map_settings;
+				$this->int_am_frame_width->paint($pref.'_am_frame_width', !$have_lock);
 			} else {
 				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
 					echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
