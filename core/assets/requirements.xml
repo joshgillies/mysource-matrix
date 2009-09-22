@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.1 2009/09/22 06:43:59 csmith Exp $
+*
+*/
+-->
+<requirement_info>
+	<package_name>__core__</package_name>
+	<requirement>
+		<!--
+		both of these are suggested so we check both are available
+		(up to the person running the script to decide which one is to be used).
+		//-->
+		<php_extension>pdo_pgsql</php_extension>
+		<suggested>1</suggested>
+		<alternative>
+			<php_extension>oci8</php_extension>
+			<suggested>1</suggested>
+		</alternative>
+	</requirement>
+	<requirement>
+		<php_extension>curl</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>gd</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>mbstring</php_extension>
+		<suggested>1</suggested>
+	</requirement>
+	<requirement>
+		<php_extension>pspell</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>sockets</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>wddx</php_extension>
+	</requirement>
+
+	<requirement>
+		<pear_package>archive_tar</pear_package>
+		<version>1.3.3</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>console_getopt</pear_package>
+		<version>1.2.3</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>http_client</pear_package>
+		<version>1.2.1</version>
+	</requirement>
+	<requirement>
+		<pear_package>http_request</pear_package>
+		<version>1.4.4</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>image_canvas</pear_package>
+		<version>0.3.1</version>
+	</requirement>
+	<requirement>
+		<pear_package>image_color</pear_package>
+		<version>1.0.3</version>
+	</requirement>
+	<requirement>
+		<pear_package>image_graph</pear_package>
+		<version>0.7.2</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>mail</pear_package>
+		<version>1.1.14</version>
+	</requirement>
+	<requirement>
+		<pear_package>mail_mime</pear_package>
+		<version>1.5.2</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>net_url</pear_package>
+		<version>1.0.15</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>text_diff</pear_package>
+		<version>1.1.0</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>xml_htmlsax</pear_package>
+		<version>2.1.2</version>
+	</requirement>
+	<requirement>
+		<pear_package>xml_parser</pear_package>
+		<version>1.2.8</version>
+	</requirement>
+
+	<requirement>
+		<external_program>pdftohtml</external_program>
+		<description>PDF Extraction program</description>
+		<version>0.36</version>
+		<version_arguments>-v</version_arguments>
+		<uses_stderr>1</uses_stderr>
+		<expected_return_code>1</expected_return_code>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<external_program>tidy</external_program>
+		<description>HTML Tidy</description>
+		<version>7 December 2007</version>
+		<version_arguments>-v</version_arguments>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<external_program>antiword</external_program>
+		<description>Word Document extraction</description>
+		<version>0.37</version>
+		<version_arguments>-h</version_arguments>
+		<uses_stderr>1</uses_stderr>
+		<suggested>1</suggested>
+	</requirement>
+</requirement_info>
