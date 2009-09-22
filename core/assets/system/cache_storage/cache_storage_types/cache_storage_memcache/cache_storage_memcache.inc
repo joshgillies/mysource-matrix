@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.5.2.2 2009/09/21 03:47:58 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.5.2.3 2009/09/22 01:36:01 lwright Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.5.2.2 $
+ * @version $Revision: 1.5.2.3 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -59,6 +59,13 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 *
 	 */
 	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
+
+
+	public static function initMemcache()
 	{
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed');
 		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
@@ -82,9 +89,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 
 		$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
 
-		parent::__construct($assetid);
-
-	}//end constructor
+	}//end initMemcache()
 
 
 	/**
@@ -140,6 +145,8 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	function store($cache_key, $perm_key, $url, $assetid, $data, $expiry)
 	{
+		if (!$this->_memcache) $this->initMemcache();
+
 		if ($this->_memcache) {
 			$url = md5($url);
 			$ok = $this->_memcache->set("contentcache:$cache_key|$perm_key|$url|$assetid", $data, FALSE, $expiry - time());
@@ -173,6 +180,8 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	function read($cache_key, $perm_key, $url, $assetid)
 	{
+		if (!$this->_memcache) $this->initMemcache();
+
 		if ($this->_memcache) {
 			$url = md5($url);
 			return $this->_memcache->get("contentcache:$cache_key|$perm_key|$url|$assetid", FALSE);
@@ -191,6 +200,8 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	function clearAll()
 	{
+		if (!$this->_memcache) $this->initMemcache();
+
 		if ($this->_memcache) {
 			return $this->_memcache->flush();
 		} else {
