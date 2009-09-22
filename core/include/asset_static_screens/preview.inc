@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.33 2008/12/03 00:59:31 bshkara Exp $
+* $Id: preview.inc,v 1.33.4.1 2009/09/22 01:51:40 cupreti Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix
 */
 
@@ -155,13 +155,17 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			}//end foreach protocol
 		}//end foreach url
-
+		
 		if (!$has_default_design) {
 			$preview_designs[''] = 'None';
 		}
 
 		$add_nocache = TRUE;
-		if (strpos($primary_url, '/__data/') !== FALSE) {
+
+		$root_url_array = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($owner->getURL(), TRUE));
+		$root_url = trim($root_url_array['url']);
+
+		if (strpos($primary_url, '/__data/') !== FALSE || $root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE) {
 			$add_nocache = FALSE;
 		}
 
@@ -288,11 +292,13 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				} else {
 					echo ($has_default_design) ? 'Default Frontend Design' : 'None';
 				}
-			$o->closeField();
+			$o->closeField();			
+			
 			$o->openField(translate('use_cache'));
 				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
 				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
+			
 			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
 				$o->openField(translate('show_diff'));
 					check_box('show_diff', '1', FALSE, 'if (this.checked) { document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
