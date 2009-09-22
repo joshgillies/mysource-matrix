@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.15 2009/04/08 23:37:40 bpearson Exp $
+* $Id: user_prefs.inc,v 1.15.2.1 2009/09/22 04:17:18 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -77,6 +77,12 @@ class User_Prefs extends Prefs
 														'default'		=> Array('face' => '3', 'size' => '12', 'hpad' => '0', 'vpad' => '0', 'fgcol' => '000000', 'bgcol' => 'FFFFFF'),
 														'protected'		=> FALSE,
 													   ),
+						'SQ_USER_SET_CONTEXT_ON_LOGIN'	=> Array(
+															'name'			=> 'user_prefs_set_context_on_login',
+															'description'	=> 'Set the selected context when a user in this user group logs in.',
+															'default'		=> 'default',
+															'protected'		=> FALSE,
+														   ),
 					 );
 
 	var $int_am_frame_width;
@@ -339,8 +345,6 @@ class User_Prefs extends Prefs
 				} else {
 					$asset_map_settings = '';
 				}
-				$this->int_am_frame_width->value = $asset_map_settings;
-				$this->int_am_frame_width->paint($pref.'_am_frame_width', !$have_lock);
 			} else {
 				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
 					echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
@@ -514,6 +518,51 @@ class User_Prefs extends Prefs
 		}//end if
 
 
+		if (is_null($pref) || $pref == 'SQ_USER_SET_CONTEXT_ON_LOGIN') {
+			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['name']));
+			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			$options = Array(
+						'default'	=> 'Do not change context on login',
+						'sep'		=> '-----------',
+					   );
+			foreach ($contexts as $contextid => $context_data) {
+				$options[$contextid] = $context_data['name'];
+			}
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+
+			if ($have_lock && $is_admin) {
+
+				if (isset($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
+					$set_context_on_login = (int)$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'];
+					if (array_key_exists($set_context_on_login, $contexts) === FALSE) {
+						$set_context_on_login = 'default';
+					}
+				} else {
+					$set_context_on_login = 'default';
+				}
+				
+				$default = $set_context_on_login;
+
+				combo_box('prefs[SQ_USER_SET_CONTEXT_ON_LOGIN]', $options, FALSE, Array($default));
+			} else {
+				if (!empty($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
+					echo $options[$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default']];
+				}
+			}
+			?>
+			<br /><br />
+			<?php
+			echo $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['description'];
+			?>
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -646,6 +695,15 @@ class User_Prefs extends Prefs
 			} else {
 				trigger_localised_error('CORE0270', E_USER_NOTICE);
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
+			}
+		}
+		
+		if (is_null($pref) || $pref == 'SQ_USER_SET_CONTEXT_ON_LOGIN') {
+			// Set user context upon login pref
+			if (isset($_POST['prefs']['SQ_USER_SET_CONTEXT_ON_LOGIN']) && (strpos($_POST['prefs']['SQ_USER_SET_CONTEXT_ON_LOGIN'], 'sep') === FALSE)) {
+				$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'] = $_POST['prefs']['SQ_USER_SET_CONTEXT_ON_LOGIN'];
+			} else {
+				$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'] = 'default';
 			}
 		}
 
