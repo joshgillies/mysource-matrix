@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.5.2.3 2009/09/22 01:36:01 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.5.2.4 2009/09/22 06:09:57 ewang Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.5.2.3 $
+ * @version $Revision: 1.5.2.4 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -65,7 +65,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 	}//end constructor
 
 
-	public static function initMemcache()
+	public function initMemcache()
 	{
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed');
 		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
