@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.116.2.1 2009/09/21 05:10:39 cupreti Exp $
+* $Id: site.inc,v 1.116.2.2 2009/09/22 05:48:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116.2.1 $
+* @version $Revision: 1.116.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ class Site extends Folder
 		$db = MatrixDAL::getDb();
 
 		if (!isset($this->_tmp['urls_info'])) {
-			$sql = 'SELECT urlid, url, http, https
+			$sql = 'SELECT urlid, url, http, https, base_contextid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 					';
 			$where = 'assetid = :assetid';
@@ -212,6 +212,8 @@ class Site extends Folder
 		$system_root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
 		for (reset($save_urls); NULL !== ($save_urlid = key($save_urls)); next($save_urls)) {
+			// If for some reason there is no base context ID yet defined, set it to zero (default)
+			$save_urls[$save_urlid]['base_contextid'] = array_get_index($save_urls[$save_urlid], 'base_contextid', 0);
 
 			$curr_urlid = $save_urlid;
 
@@ -283,14 +285,16 @@ class Site extends Folder
 				// we are an existing one
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
-					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
+					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https'] ||
+					$current_urls[$save_urlid]['base_contextid'] != $save_urls[$save_urlid]['base_contextid']) {
 
 					$sql = 'UPDATE
 								sq_ast_url
 							SET
 								url		= :url,
 								http	= :http,
-								https	= :https
+								https	= :https,
+								base_contextid = :base_contextid
 							WHERE
 									urlid	= :urlid
 								AND	assetid	= :assetid';
@@ -300,6 +304,7 @@ class Site extends Folder
 						MatrixDAL::bindValueToPdo($query, 'url',     $save_urls[$save_urlid]['url']);
 						MatrixDAL::bindValueToPdo($query, 'http',    $save_urls[$save_urlid]['http']);
 						MatrixDAL::bindValueToPdo($query, 'https',   $save_urls[$save_urlid]['https']);
+						MatrixDAL::bindValueToPdo($query, 'base_contextid',   $save_urls[$save_urlid]['base_contextid']);
 						MatrixDAL::bindValueToPdo($query, 'urlid',   $save_urlid);
 						MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 						MatrixDAL::execPdoQuery($query);
@@ -320,7 +325,8 @@ class Site extends Folder
 								assetid,
 								url,
 								http,
-								https
+								https,
+								base_contextid
 							)
 							VALUES
 							(
@@ -328,7 +334,8 @@ class Site extends Folder
 								:assetid,
 								:url,
 								:http,
-								:https
+								:https,
+								:base_contextid
 							)';
 
 				try {
@@ -338,6 +345,7 @@ class Site extends Folder
 					MatrixDAL::bindValueToPdo($query, 'https',   $save_urls[$save_urlid]['https']);
 					MatrixDAL::bindValueToPdo($query, 'urlid',   $curr_urlid);
 					MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+					MatrixDAL::bindValueToPdo($query, 'base_contextid',   $save_urls[$save_urlid]['base_contextid']);
 					MatrixDAL::execPdoQuery($query);
 					$updated = TRUE;
 				} catch (Exception $e) {
@@ -594,13 +602,13 @@ class Site extends Folder
 					}
 				}
 			}
-	
+
 			// insert lookup values
 			foreach ($lookup_values as $url => $data) {
 				// calculate the depth of the url
 				$exploded_url = explode('/', $url);
 				$depth = count($exploded_url)-1;
-	
+
 				if (!empty($data)) {
 					foreach ($data as $layout_name => $value) {
 						$sql = 'INSERT INTO
@@ -618,7 +626,7 @@ class Site extends Folder
 										:value,
 										:depth
 									)';
-	
+
 						try {
 							$query = MatrixDAL::preparePdoQuery($sql);
 							MatrixDAL::bindValueToPdo($query, 'url',   $url);
@@ -629,7 +637,7 @@ class Site extends Folder
 						} catch (Exception $e) {
 							throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 						}
-					}	
+					}
 				}
 			}
 		} // End if empty urls

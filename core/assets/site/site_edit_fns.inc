@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.75 2008/09/22 04:52:58 mbrydon Exp $
+* $Id: site_edit_fns.inc,v 1.75.6.1 2009/09/22 05:48:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,22 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	public function paintURLs(Site $asset, Backend_Outputter $o, $prefix)
 	{
 		?>
-		<table border="0" cellspacing="0" cellpadding="3" id="urls_<?php echo $prefix; ?>-table">
+		<table border="0" cellspacing="0" cellpadding="3" id="urls_<?php echo $prefix; ?>-table" class="sq-backend-table" style="width: auto">
+			<thead>
+				<tr>
+					<th>URL</th>
+					<?php
+						foreach ($this->protos as $protocol) {
+							?><th><?php echo strtoupper($protocol) ?></th><?php
+						}
+
+						$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+						if (count($all_contexts) > 1) {
+							?><th>Base Context</th><?php
+						}
+					?>
+				</tr>
+			</thead>
 			<tbody id="urls_<?php echo $prefix; ?>">
 				<?php
 
@@ -197,21 +212,22 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	protected function _paintURL(Backend_Outputter $o, $prefix, $i, Array $url_info, $write_access)
 	{
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 		?>
 			<tr>
-				<td class="sq-backend-data">
+				<td class="sq-backend-table-cell">
 				<?php
 					if ($write_access) {
 						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, '', FALSE, 'onFocus="expandList(this);"');
 					} else {
-						echo $url_info['url'];
+						echo '<strong>'.$url_info['url'].'</strong>';
 					}
 				?>
 				</td>
 		<?php
 			for ($k = 0; $k < count($this->protos); $k++) {
 			?>
-				<td class="sq-backend-data">
+				<td class="sq-backend-table-cell" style="text-align: center">
 				<?php
 					if ($write_access) {
 						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]));
@@ -222,13 +238,34 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 					}
 				?>
 				</td>
-				<td class="sq-backend-data">
-					<?php echo strtoupper($this->protos[$k]); ?>
-				</td>
 			<?php
 			}//end for
+
+			if (count($all_contexts) > 1) {
+				?><td class="sq-backend-table-cell"><?php
+				// If the base context hasn't been saved yet, use the default
+				if (array_key_exists('base_contextid', $url_info) === FALSE) {
+					$url_info['base_contextid'] = 0;
+				}
+
+				// If the context no longer exists, revert back to default
+				if (array_key_exists($url_info['base_contextid'], $all_contexts) === FALSE) {
+					$url_info['base_contextid'] = 0;
+				}
+
+				if ($write_access === TRUE) {
+					$options = Array();
+					foreach ($all_contexts as $contextid => $context_data) {
+						$options[$contextid] = $context_data['name'];
+					}
+					combo_box($prefix.'_urls['.$i.'][base_contextid]', $options, FALSE, $url_info['base_contextid']);
+				} else {
+					echo $all_contexts[$url_info['base_contextid']]['name'];
+				}
+			?></td><?php
+			}//end if multiple contexts exist
 		?>
-			</tr>
+		</tr>
 		<?php
 
 	}//end _paintURL()
@@ -257,7 +294,10 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
-				$urls[$urlid] = Array('url' => $post[$urlid]['url']);
+				$urls[$urlid] = Array(
+									'url'				=> $post[$urlid]['url'],
+									'base_contextid'	=> array_get_index($post[$urlid], 'base_contextid', 0),
+								);
 				for ($k = 0; $k < count($this->protos); $k++) {
 					$urls[$urlid][$this->protos[$k]] = (int) in_array($this->protos[$k], $post[$urlid]['protocols']);
 				}
