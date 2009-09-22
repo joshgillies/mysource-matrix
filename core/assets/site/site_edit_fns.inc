@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.76 2009/09/14 05:16:04 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.77 2009/09/22 23:17:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,6 +144,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 					newInput.getElementsByTagName('INPUT')[i].id = '<?php echo $prefix; ?>' + '_urls['+lastId+'][protocols]['+prot+']';
 					newInput.getElementsByTagName('INPUT')[i].name = '<?php echo $prefix; ?>' + '_urls['+lastId+'][protocols]['+prot+']';
 					prot++;
+				}
+
+				// Base context, if it's there
+				if (newInput.getElementsByTagName('SELECT').length > 0) {
+					newInput.getElementsByTagName('SELECT')[0].value = 0;
+					newInput.getElementsByTagName('SELECT')[0].id = '<?php echo $prefix; ?>' + '_urls['+lastId+'][base_contextid]';
+					newInput.getElementsByTagName('SELECT')[0].name = '<?php echo $prefix; ?>' + '_urls['+lastId+'][base_contextid]';
 				}
 
 				site_url_urlids.push(lastId);
