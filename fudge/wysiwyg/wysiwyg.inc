@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.76.2.4 2009/09/23 05:43:35 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.76.2.5 2009/09/23 06:41:43 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76.2.4 $
+* @version $Revision: 1.76.2.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -830,7 +830,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							
 							if (sAnchorNode.nodeType == 1) {								
 								tempAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
-								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset - 1] :  sAnchorNode.childNodes[sAnchorOffset];
+								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset + 1] :  sAnchorNode.childNodes[sAnchorOffset];
 								sAnchorOffset = sAnchorNode.childNodes.length;
 							}
 							
