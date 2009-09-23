@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.1 2009/09/22 06:42:08 csmith Exp $
+* $Id: requirements.xml,v 1.2 2009/09/23 02:32:15 csmith Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 	</requirement>
 	<requirement>
 		<pear_package>http_client</pear_package>
-		<version>1.1.1</version>
+		<version>1.2.1</version>
 	</requirement>
 	<requirement>
 		<pear_package>net_url</pear_package>
