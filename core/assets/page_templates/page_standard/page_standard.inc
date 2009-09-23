@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.28 2009/06/23 04:48:07 bpearson Exp $
+* $Id: page_standard.inc,v 1.29 2009/09/23 23:05:08 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,8 +197,15 @@ class Page_Standard extends Page
 	*/
 	public function printBody()
 	{
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		if ($contextid === 0) {
+			$cache_key = 'default';
+		} else {
+			$cache_key = 'default.'.$contextid;
+		}
+
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 
 
 		// if the cache is empty, go ahead and regenerate a new version
@@ -215,7 +222,7 @@ class Page_Standard extends Page
 				$bodycopy->setKeywordReplacements($replacements);
 
 				$bodycopy->printBody();
-				$cm->saveToCache($this->id, $this->type(), 'default', ob_get_contents());
+				$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 			ob_end_flush();
 		} else {
 			echo $cached_contents;
