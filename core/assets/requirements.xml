@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.2 2009/09/23 02:32:42 csmith Exp $
+* $Id: requirements.xml,v 1.3 2009/09/23 03:58:38 csmith Exp $
 *
 */
 -->
@@ -24,9 +24,11 @@
 		//-->
 		<php_extension>pdo_pgsql</php_extension>
 		<suggested>1</suggested>
+		<description> - you only need to install this module if you are going to use a PostgreSQL database.</description>
 		<alternative>
 			<php_extension>oci8</php_extension>
 			<suggested>1</suggested>
+			<description> - you only need to install this module if you are going to use an Oracle database.</description>
 		</alternative>
 	</requirement>
 	<requirement>
@@ -38,6 +40,12 @@
 	<requirement>
 		<php_extension>mbstring</php_extension>
 		<suggested>1</suggested>
+		<description> - you only need to install this module if you are going to use non-English characters in filenames and urls.</description>
+	</requirement>
+	<requirement>
+		<php_extension>memcache</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you plan on using memcache for caching or locking.</description>
 	</requirement>
 	<requirement>
 		<php_extension>pspell</php_extension>
