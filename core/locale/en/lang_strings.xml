@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.343 2009/09/21 05:06:57 lwright Exp $
+* $Id: lang_strings.xml,v 1.344 2009/09/23 07:01:15 akarelia Exp $
 *
 */
 
@@ -519,8 +519,6 @@
 	<string source="apache_configuration">Apache Configuration</string>
 	<string source="proxy_configuration">Proxy Configuration</string>
 	<string source="context_configuration">Context Configuration</string>
-
-	<string source="system_config_active_locks_no_support">The current method of storing locks does not support getting of active locks</string>
 
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
@@ -1226,7 +1224,7 @@
 	<string source="trigger_set_design_select_design_type">Type of design (Override existing or create new if not existed) </string>
 	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
 	<string source="trigger_set_index_page_basic">Set the index page to: %s</string>
-	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt;
+	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt; 	
 Force that this asset can only be viewed through a Secure (SSL) connection</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
@@ -1848,6 +1846,10 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 
 	<!-- strings for javascript -->
+    <string source="javascript_configuration">JavaScript Configuration</string>
+    <string source="path_to_javascript">JavaScript Command</string>
+    <string source="javascript_command_note">To include E4X support in Spidermonkey, use /usr/bin/js -x</string>
+
 	<string source="submission_form_not_found" js="1">Could not find form with ID %s to submit</string>
 	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR:
 %s</string>
@@ -2672,4 +2674,35 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="log_errors_syslog_ident_note">If entered, this string will be used to identify the system within the syslog. If not entered, the long name of the system (&quot;%s&quot;) will be used.</string>
 	<string source="syslog_facility_user">User</string>
 	<string source="syslog_facility_local">Local %s</string>
+
+	<!-- http_request and oauth attribute strings -->
+	<string source="http_request_urls">URL(s)</string>
+	<string source="http_request_method">Method</string>
+	<string source="http_request_timeout">Timeout (seconds)</string>
+	<string source="http_request_follow_redirect">Follow Redirects</string>
+	<string source="http_request_cache_options">Cache Options</string>
+	<string source="http_request_cache_post_requests">Cache Post Requests (use with caution)</string>
+	<string source="http_request_default_cache_expiry">Default Cache Expiry (seconds)</string>
+	<string source="http_request_authentication_type">Authentication Type</string>
+	<string source="http_request_request_body">Request Body</string>
+	<string source="http_request_request_headers">Request Headers</string>
+	<string source="http_request_convert_to_utf8">Convert to UTF-8</string>
+    <string source="http_request_document_encoding">Document Encoding</string>
+	<string source="http_request_run_test">Run Test</string>
+	<string source="oauth_asset">OAuth Asset</string>
+	<string source="oauth_consumer_secret">Consumer Secret</string>
+	<string source="oauth_consumer_key">Consumer Key</string>
+	<string source="oauth_request_token_url">Request Token Request URL</string>
+	<string source="oauth_authorization_url">Authorization Request URL</string>
+	<string source="oauth_access_token_url">Access Token Request URL</string>
+	<string source="oauth_signature_method">Signature Method</string>
+	<string source="oauth_callback_url">Call Back URL</string>
+	<string source="oauth_request_token_failed">A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_request_token_not_found">A user authorization has been request without a request token. URL: %1$s</string>
+	<string source="oauth_authorization_request_failed">A user authorization has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_access_token_missing_params">Missing paramters (authorized request token, token secret and/or verifier) required for an access token request. URL: %1$s</string>
+	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
+	
+
 </strings>
