@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.1 2009/09/22 06:46:09 csmith Exp $
+* $Id: check_requirements.php,v 1.2 2009/09/23 03:57:58 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -314,6 +314,12 @@ function check_requirement($requirement_check, $package_name='core')
 	$check_version = false;
 
 	$extra_info = '';
+
+	$description = '';
+	if ($requirement_check->description) {
+		$description = (string)$requirement_check->description;
+	}
+
 	switch ($check_type)
 	{
 		case 'php_extension':
@@ -518,7 +524,7 @@ function check_requirement($requirement_check, $package_name='core')
 		$version_check = version_compare($version_found, $version_required, '>=');
 		if ($version_check !== true) {
 			$missing_modules[$check_type]['out_of_date'][] = array(
-				'name' => $check_name . $extra_info,
+				'name' => $check_name . $description . $extra_info,
 				'version_found' => $version_found,
 				'version_required' => $version_required,
 				'required_by' => $package_name
@@ -529,12 +535,12 @@ function check_requirement($requirement_check, $package_name='core')
 	if (!$check_ok) {
 		if ($requirement_check->suggested) {
 			$missing_modules[$check_type]['suggested'][] = array(
-				'name' => $check_name . $extra_info,
+				'name' => $check_name . $description . $extra_info,
 				'required_by' => $package_name
 			);
 		} else {
 			$missing_modules[$check_type]['required'][] = array(
-				'name' => $check_name . $extra_info,
+				'name' => $check_name . $description . $extra_info,
 				'required_by' => $package_name
 			);
 		}
