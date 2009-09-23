@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.80 2009/09/23 05:43:01 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.81 2009/09/23 06:40:28 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -827,10 +827,10 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							var sFocusNode = sel.focusNode;							
 							var sAnchorOffset = sel.anchorOffset;
 							var sFocusOffset = sel.focusOffset;							
-							
+								
 							if (sAnchorNode.nodeType == 1 && sAnchorNode.childNodes[sAnchorOffset]) {								
 								tempAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
-								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset - 1] :  sAnchorNode.childNodes[sAnchorOffset];
+								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset + 1] :  sAnchorNode.childNodes[sAnchorOffset];
 								sAnchorOffset = sAnchorNode.childNodes.length;
 							}
 							
@@ -850,7 +850,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							var startOffset = (direct<0) ? sAnchorOffset : sFocusOffset;
 							var endNode = (direct<0) ? sFocusNode : sAnchorNode;
 							var endOffset = (direct<0) ? sFocusOffset : sAnchorOffset;
-							
+								
 							// When Focus node and Anchor node are same point and foucs node is at end of an anchor node, add an extra blank node
 							// This is to make sure that paragraphs are created outside the node. See bug #3978							
 							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && this.isElem(endNode.parentNode,'a') && endNode.parentNode.parentNode) {
