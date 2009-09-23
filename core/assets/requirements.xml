@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.4 2009/09/23 04:27:46 csmith Exp $
+* $Id: requirements.xml,v 1.5 2009/09/23 06:30:32 csmith Exp $
 *
 */
 -->
@@ -118,15 +118,6 @@
 	</requirement>
 
 	<requirement>
-		<external_program>antiword</external_program>
-		<description> - this is used to extract text from word documents uploaded to your system.</description>
-		<version>0.37</version>
-		<version_arguments>-h</version_arguments>
-		<uses_stderr>1</uses_stderr>
-		<suggested>1</suggested>
-	</requirement>
-
-	<requirement>
 		<external_program>clamscan</external_program>
 		<description> - check file uploads for viruses before they are saved to your system.</description>
 		<version>0.94.2</version>
@@ -139,16 +130,6 @@
 			<version_arguments>--version</version_arguments>
 			<suggested>1</suggested>
 		</alternative>
-	</requirement>
-
-	<requirement>
-		<external_program>pdftohtml</external_program>
-		<description> - this is used to extract text from pdfs uploaded to your system.</description>
-		<version>0.36</version>
-		<version_arguments>-v</version_arguments>
-		<uses_stderr>1</uses_stderr>
-		<expected_return_code>1</expected_return_code>
-		<suggested>1</suggested>
 	</requirement>
 
 	<requirement>
