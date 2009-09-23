@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.4 2009/09/23 04:32:16 csmith Exp $
+* $Id: check_requirements.php,v 1.5 2009/09/23 06:29:25 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -358,6 +358,11 @@ function check_requirement($requirement_check, $package_name='core')
 
 			if (isset($requirement_check->uses_stderr)) {
 				$cmd .= ' 2>&1';
+			} else {
+				/**
+				 * redirect stderr to /dev/null in case the program isn't installed.
+				 */
+				$cmd .= ' 2>/dev/null';
 			}
 
 			$cmd_output = array();
