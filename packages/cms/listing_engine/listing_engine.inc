@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.285.2.3 2009/09/10 23:36:29 bpearson Exp $
+* $Id: listing_engine.inc,v 1.285.2.4 2009/09/23 23:53:23 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.285.2.3 $
+* @version $Revision: 1.285.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -650,8 +650,8 @@ class Listing_Engine extends Page
 				$result_url_parts = parse_url($url);
 				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
 					unset($children[$assetid]);
-				}		
-			}		
+				}
+			}
 		}
 
 
@@ -810,6 +810,7 @@ class Listing_Engine extends Page
 	function _getCacheKey()
 	{
 		$group_by = $this->attr('group_by');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
 		// note that we never cache the results of a random asset listing for obvious reasons
@@ -869,6 +870,10 @@ class Listing_Engine extends Page
 			}
 
 			$cache_key .= $this->_getNumPerPage();
+
+			// Add context to the cache key, because all our bodycopies could be
+			// customised and we are caching the entire contents of the page
+			$cache_key .= '-ctx'.$contextid;
 		}
 
 		return $cache_key;
@@ -877,7 +882,7 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get the num of items per page 
+	* Get the num of items per page
 	*
 	* @return int
 	* @access protected
@@ -1773,7 +1778,7 @@ class Listing_Engine extends Page
 	{
 		$current_page_format = $this->attr('current_page_format');
 		$page_link_format = $this->attr('page_link_format');
-		 
+
 		if (is_null($window_size)) {
 			$start_page = 1;
 			$end_page = $total_pages;
@@ -1790,7 +1795,7 @@ class Listing_Engine extends Page
 				$page_list .= str_replace(Array('%page_number%', '%page_link%'), Array($i, replace_query_string_vars(Array($asset_result_page_var => $i))), $page_link_format);
 			}
 		}
-		
+
 		return $page_list;
 
 	}//end _getPageList()
