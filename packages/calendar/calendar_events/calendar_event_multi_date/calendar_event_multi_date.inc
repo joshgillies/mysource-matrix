@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.7 2008/12/01 22:57:18 akarelia Exp $
+* $Id: calendar_event_multi_date.inc,v 1.8 2009/09/23 23:19:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -142,8 +142,15 @@ class Calendar_Event_Multi_Date extends Asset
 	*/
 	function printBody()
 	{
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		if ($contextid === 0) {
+			$cache_key = 'default';
+		} else {
+			$cache_key = 'default.'.$contextid;
+		}
+
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this, 'default');
+		$cached_contents = $cm->loadFromCache($this, $cache_key);
 
 		// if the cache is empty, go ahead and regenrate a new version
 		if ($cached_contents === FALSE) {
@@ -153,7 +160,7 @@ class Calendar_Event_Multi_Date extends Asset
 				// we only want to cache if we actually have a bodycopy
 				if (!is_null($bodycopy)) {
 					$bodycopy->printBody();
-					$cm->saveToCache($this->id, $this->type(), 'default', ob_get_contents());
+					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 				}
 			ob_end_flush();
 		} else {
