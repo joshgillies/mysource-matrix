@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.75.4.4 2009/09/21 00:41:57 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.75.4.5 2009/09/23 05:44:32 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.4.4 $
+* @version $Revision: 1.75.4.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -830,7 +830,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							
 							if (sAnchorNode.nodeType == 1) {								
 								tempAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
-								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset + 1] :  sAnchorNode.childNodes[sAnchorOffset];
+								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset - 1] :  sAnchorNode.childNodes[sAnchorOffset];
 								sAnchorOffset = sAnchorNode.childNodes.length;
 							}
 							
@@ -853,10 +853,10 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 							// When Focus node and Anchor node are same point and foucs node is at end of some node, add an extra blank node
 							// This is to make sure that paragraphs are created outside the node. See bug #3978
-							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && !this.isElem(endNode.parentNode,'body') && endNode.parentNode.parentNode) {
+							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && this.isElem(endNode.parentNode,'a') && endNode.parentNode.parentNode) {
 								
 								blank_node = document.createTextNode('');
-								endNode.parentNode.parentNode.appendChild(blank_node);								
+								endNode.parentNode.parentNode.appendChild(blank_node);	
 								
 								startNode = blank_node;
 								startOffset = 0;
