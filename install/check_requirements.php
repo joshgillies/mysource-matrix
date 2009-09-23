@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.3 2009/09/23 04:27:46 csmith Exp $
+* $Id: check_requirements.php,v 1.4 2009/09/23 04:32:16 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -526,8 +526,7 @@ function check_requirement($requirement_check, $package_name='core')
 				 * FRISK Software International (C) Copyright 1989-2007
 				 *
 				 * Engine version: 4.4.4.56
-				 * Virus signatures: 20090922174870b7cbcfe94821d0361d46523945909c
-				 *                   (/home/csmith/matrix/fp/f-prot/antivir.def)
+				 * ....
 				 *
 				 */
 				case 'fpscan':
