@@ -1,0 +1,63 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2009/09/23 07:25:21 akarelia Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="HTTP Request" write_access="write:attributes">
+		<field attribute="http_request">
+			<display_name>HTTP Request</display_name>
+			<note />
+		</field>
+		<field attribute="allow_multiple_runs">
+			<display_name>Allow Multiple Runs</display_name>
+			<note>If this asset is nested more than once in the same page, then the data will be identicle for each instance. With this option enabled, the requests will be forced to re-run each time. If unsure, leave this turned off.</note>
+		</field>
+	</section>
+	<section name="JavaScript Processing" write_access="write:attributes">
+		<note>
+			Any valid JavaScript can be entered here. 
+			The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure.
+			For example "print(_REST.response.body);" will print the body of the first response.
+			Note, if you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.
+		</note>
+		<field>
+			<display_name>Include Files</display_name>
+			<note>These files will be run sequentially before any code entered below.</note>
+			<function_call>
+				<paint_function   name="paintJavaScriptFiles"   />
+				<process_function name="processJavaScriptFiles" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>JavaScript</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintJavaScript"   />
+				<process_function name="processJavaScript" />
+			</function_call>
+		</field>
+	</section>
+</contents>
