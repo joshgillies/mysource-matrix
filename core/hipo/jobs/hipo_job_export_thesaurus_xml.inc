@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.8 2008/11/19 00:10:31 ata Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.9 2009/09/23 05:52:41 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -206,6 +206,40 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 
 
 	/**
+	* Performs the duties of this hipo, without showing any output on the frontend
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$step_data = Array();
+
+		// skip the confirmation screen, go straight into locking
+		$job_type = '';
+		$running_vars = Array();
+		$options = '';
+		$this->getLockAssetDetails($job_type, $running_vars, $options);
+		$errors = $hh->freestyleHipo($job_type, $running_vars);
+		if (!empty($errors)) {
+			$this->_addError('acquiring locks failed');
+			return FALSE;
+		}
+
+		// generate the xml
+		if (!$this->processCreateXML($step_data, '')) {
+			$this->_addError('generating the xml failed');
+			$success = FALSE;
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end freestyle()
+
+
+	/**
 	* Create an XML representation of the term table and output it to file
 	*
 	* @param array	&$step_data	step data
@@ -279,10 +313,8 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 
 			fwrite($filehandle, "\t".'<term name="'.htmlentities($term).'">'."\n");
 
-			foreach ($term_notes as $note_name => $note_array) {
-				foreach ($note_array as $note) {
-					fwrite($filehandle, "\t\t".'<note name="'.htmlentities($note_name).'">'.$note.'</note>'."\n");
-				}
+			foreach ($term_notes as $note_array) {
+				fwrite($filehandle, "\t\t".'<note name="'.htmlentities($note_array['name']).'">'.$note_array['value'].'</note>'."\n");
 			}
 
 			foreach ($child_relations as $relid => $relname) {
