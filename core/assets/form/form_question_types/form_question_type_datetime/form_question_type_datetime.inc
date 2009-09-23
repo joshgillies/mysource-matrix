@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.20 2009/01/22 21:39:34 bpearson Exp $
+* $Id: form_question_type_datetime.inc,v 1.20.2.1 2009/09/23 01:47:15 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -328,11 +328,21 @@ class Form_Question_Type_Datetime extends Form_Question
 		// If all six date fields is allow blank and they are blank, then return blank string.
 		if ($non_empty_date === TRUE) return '';
 
+		// Flag set when supplied year is out of range 1970 - 2038 range
+		$invalid_year = FALSE;
+		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y']);
+		
+		// If the supplied year doesn't returns the timestamp or date is not within range, use the year 2000
+		if ($temp_date === FALSE || $val['y'] < 1970 || $val['y'] > 2038) {
+			$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], 2000);
+			$invalid_year = TRUE;
+		}
+		
 		// Extra operation is required to handle UNIX Timestamp issues of mktime() function.
-		// Simply we don't want to pass the year to caculate the UNIX timestamp
+		// Simply we don't want to pass the year to calculate the UNIX timestamp when year is not within range
 
 		preg_match_all('/y|Y/', $new_format, $matches, PREG_OFFSET_CAPTURE);
-		if (!empty($matches)) {
+		if (!empty($matches) && $invalid_year) {
 			$matches = array_reverse(array_pop($matches));
 			foreach ($matches as $match) {
 				$pos = $match[1];
@@ -344,7 +354,7 @@ class Form_Question_Type_Datetime extends Form_Question
 				}
 			}
 		}
-		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], 2000);
+		
 		return ($circa ? 'circa ' : '').date($new_format, $temp_date);
 
 	}//end getSummary()
