@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.2 2009/09/23 03:57:58 csmith Exp $
+* $Id: check_requirements.php,v 1.3 2009/09/23 04:27:46 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -500,6 +500,50 @@ function check_requirement($requirement_check, $package_name='core')
 				case 'squidclient':
 					$check_ok = true;
 					$check_version = false;
+				break;
+
+				/**
+				 * clamscan looks like this
+				 * $ clamscan --version
+				 * ClamAV 0.94.2/9824/Wed Sep 23 10:50:20 2009
+				 *
+				 */
+				case 'clamscan':
+					$version_line = $cmd_output[0];
+					$match_found = preg_match('%ClamAV (.*?)/%', $version_line, $matches);
+					if ($match_found) {
+						$check_ok = true;
+						$version_found = $matches[1];
+					} else {
+						$extra_info = " (version checking not working)";
+					}
+				break;
+
+				/**
+				 * $ fpscan --version
+				 *
+				 * F-PROT Antivirus version 6.2.1.4252 (built: 2008-04-28T16-44-10)
+				 * FRISK Software International (C) Copyright 1989-2007
+				 *
+				 * Engine version: 4.4.4.56
+				 * Virus signatures: 20090922174870b7cbcfe94821d0361d46523945909c
+				 *                   (/home/csmith/matrix/fp/f-prot/antivir.def)
+				 *
+				 */
+				case 'fpscan':
+					if (!isset($cmd_output[1])) {
+						$extra_info = " (version checking not working)";
+						break;
+					}
+					$version_line = $cmd_output[1];
+					$match_found = preg_match('/ version (.*?) /', $version_line, $matches);
+					if ($match_found) {
+						$check_ok = true;
+						$version_found = $matches[1];
+					} else {
+						$extra_info = " (version checking not working)";
+					}
+
 				break;
 
 				default:
