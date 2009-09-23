@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.1 2009/09/22 06:43:59 csmith Exp $
+* $Id: requirements.xml,v 1.2 2009/09/23 02:32:42 csmith Exp $
 *
 */
 -->
@@ -122,7 +122,7 @@
 	<requirement>
 		<external_program>tidy</external_program>
 		<description>HTML Tidy</description>
-		<version>7 December 2007</version>
+		<version>6 November 2007</version>
 		<version_arguments>-v</version_arguments>
 		<suggested>1</suggested>
 	</requirement>
