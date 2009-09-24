@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.55 2008/07/09 23:36:14 lwright Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.56 2009/09/24 06:38:25 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -318,14 +318,14 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						switch ($set_data['granted']) {
 							case -1 :
 								// delete a schema
-								$step_data['message'] = htmlentities('Removing "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')');
+								$step_data['message'] = htmlentities('Removing "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 								$mm->deleteSchema($asset->id, $set_data['schemaid']);
 							break;
 
 							case 0  :
 							case 1  :
 								// apply a schema
-								$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing "'.$schema->name.'" (#'.$schema->id.') to "'.$asset->name.'" (#'.$asset->id.')');
+								$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing "'.$schema->name.'" (#'.$schema->id.') to "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted'], $set_data['cascades']);
 							break;
 						}
@@ -334,7 +334,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					// If there are multiple schema changes to make, say we are
 					// (otherwise use more specific message set above)
 					if (count($schema_changes) > 1) {
-						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')');
+						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else if (count($schema_changes) == 0) {
 						$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
 					}

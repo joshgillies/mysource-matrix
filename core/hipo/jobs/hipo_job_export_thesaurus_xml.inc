@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.9 2009/09/23 05:52:41 bpearson Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.10 2009/09/24 06:38:25 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -307,25 +307,25 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 			$child_relations = $thesaurus->getChildRelationsForTerm($termid);
 
 			if (empty($term_notes) && empty($child_relations)) {
-				fwrite($filehandle, "\t".'<term name="'.htmlentities($term).'" />'."\n");
+				fwrite($filehandle, "\t".'<term name="'.htmlentities($term, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" />'."\n");
 				continue;
 			}
 
-			fwrite($filehandle, "\t".'<term name="'.htmlentities($term).'">'."\n");
+			fwrite($filehandle, "\t".'<term name="'.htmlentities($term, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'">'."\n");
 
 			foreach ($term_notes as $note_array) {
-				fwrite($filehandle, "\t\t".'<note name="'.htmlentities($note_array['name']).'">'.$note_array['value'].'</note>'."\n");
+				fwrite($filehandle, "\t\t".'<note name="'.htmlentities($note_array['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'">'.$note_array['value'].'</note>'."\n");
 			}
 
 			foreach ($child_relations as $relid => $relname) {
 				$extra_tab = '';
 				if (!is_null($relname)) {
-					fwrite($filehandle, "\t\t".'<relation name="'.htmlentities($relname).'">'."\n");
+					fwrite($filehandle, "\t\t".'<relation name="'.htmlentities($relname, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'">'."\n");
 					$extra_tab = "\t";
 				}
 				$rel_terms = $thesaurus->getChildTerms($termid, $relid);
 				foreach ($rel_terms as $term) {
-					fwrite($filehandle, $extra_tab."\t\t".'<term name="'.htmlentities($term['term']).'" />'."\n");
+					fwrite($filehandle, $extra_tab."\t\t".'<term name="'.htmlentities($term['term'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" />'."\n");
 				}
 				if (!is_null($relname)) {
 					fwrite($filehandle, "\t\t".'</relation>'."\n");

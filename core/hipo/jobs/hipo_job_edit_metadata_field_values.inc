@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_field_values.inc,v 1.2 2009/04/02 23:42:18 ewang Exp $
+* $Id: hipo_job_edit_metadata_field_values.inc,v 1.3 2009/09/24 06:38:25 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit Metadata Field values
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -262,7 +262,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 
 					}//end foreach
 
-					$step_data['message'] = translate('hipo_editing_metadata_field_values', htmlentities($asset->name));
+					$step_data['message'] = translate('hipo_editing_metadata_field_values', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
