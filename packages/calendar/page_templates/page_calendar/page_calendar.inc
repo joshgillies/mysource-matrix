@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.226.2.3 2009/08/17 04:39:28 akarelia Exp $
+* $Id: page_calendar.inc,v 1.226.2.4 2009/09/24 00:13:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.226.2.3 $
+* @version $Revision: 1.226.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -521,25 +521,36 @@ class Page_Calendar extends Page
 	*/
 	function _getCacheKey()
 	{
+		$cache_key = '';
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
 		if (!isset($this->_tmp['valid_request'])) {
 			$this->_tmp['valid_request'] = $this->_validateRequest();
 		}
-		if (!$this->_tmp['valid_request']) return '';
 
-		// Cache key will be a letter representing the view type (Y, M, W, D)
-		// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
-		list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
-		switch ($_REQUEST['SQ_CALENDAR_VIEW']) {
-			case 'year':
-				return 'Y'.$year;
-			case 'month':
-				return sprintf('M%04d-%02d', $year, $month);
-			case 'week':
-				return sprintf('W%04d-%02d-%02d', $year, $month, $day);
-			case 'day':
-				return sprintf('D%04d-%02d-%02d', $year, $month, $day);
+		if ($this->_tmp['valid_request']) {
+			// Cache key will be a letter representing the view type (Y, M, W, D)
+			// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
+			list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
+			switch ($_REQUEST['SQ_CALENDAR_VIEW']) {
+				case 'year':
+					$cache_key = 'Y'.$year;
+				case 'month':
+					$cache_key = sprintf('M%04d-%02d', $year, $month);
+				case 'week':
+					$cache_key = sprintf('W%04d-%02d-%02d', $year, $month, $day);
+				case 'day':
+					$cache_key = sprintf('D%04d-%02d-%02d', $year, $month, $day);
+			}
 		}
-		return '';
+
+		// Append the context ID to the cache key, but only if we have a
+		// cache key to begin with - otherwise we shouldn't be caching at all
+		if ($cache_key !== '') {
+			$cache_key .= '-ctx'.$contextid;
+		}
+
+		return $cache_key;
 
 	}//end _getCacheKey()
 
@@ -3334,9 +3345,9 @@ class Page_Calendar extends Page
 	*
 	* @param string		$view			the current view
 	* #param string		$date			date to compare (next or prev)
-	* @param string		$direction		the direction - forward or backward 
-	* @param string		$operator		+ or - 	* 
-	* 
+	* @param string		$direction		the direction - forward or backward
+	* @param string		$operator		+ or - 	*
+	*
 	* @return Array
 	* @access public
 	*/
