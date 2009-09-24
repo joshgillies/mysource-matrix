@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.220 2009/09/09 01:06:04 bpearson Exp $
+* $Id: search_manager.inc,v 1.221 2009/09/24 02:04:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.220 $
+* @version $Revision: 1.221 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2144,6 +2144,10 @@ class Search_Manager extends Asset
 		if ($include_context) {
 			$search_cache_key .= 'includeContext';
 		}
+
+		// Add the context to the cache key, because the results will differ
+		// depending on the context we are in (since we only search the current one)
+		$search_cache_key .= '-ctx'.$contextid;
 		$this->_tmp['cache_key'] = $search_cache_key;
 		$this->_tmp['cm'] =& $cm;
 
