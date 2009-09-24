@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_export_files.inc,v 1.3 2008/05/30 00:07:43 bpearson Exp $
+* $Id: hipo_job_tool_export_files.inc,v 1.4 2009/09/24 07:00:21 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *	 keep_structure	-	keep the structure of the assets in the asset tree
 *
 * @author Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -189,7 +189,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 			// Process the node
 			$result_node = $this->processExportNode($step_root_node, $filename, $save_location, $structure);
 			if (!$result_node) {
-				trigger_error("Could not process root node: $root_node");
+				trigger_error("Could not process root node: ".$root_node->id);
 				return FALSE;
 			} else {
 				unset($this->_running_vars['todo_asset_users'][$index]);
@@ -248,7 +248,52 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 
 		// Process the list
 		$filelist = Array();
+		
+		// Replace '/' characters in filenames by '_'
+		foreach($files as $key => $value) {					
+			$filename = $value['name'];
+			$file_path = $value['path'];
+
+			if (strpos($filename, '/') !== FALSE) {
+				$value['name'] = str_replace('/' ,'_', $filename);
+				$value['path'] = substr($file_path, 0, strlen($file_path) - strlen($filename)).$value['name'];
+				
+				$files[$key] = $value;
+			}
+		}
+
+		$files_count = count($files);
+		
+		// Fix asset's name that are in same tree level with same name to prevent duplicate filename error
+		for($file_index = 1; $file_index <= $files_count; $file_index++) {
+			$file_val = $files[$file_index];
+			
+			$recheck_dups = FALSE;
+			for($file_index_check = 1; $file_index_check <= $files_count; $file_index_check++) {
+				if ($file_index == $file_index_check) {
+					continue;
+				}
+				$file_val_check = $files[$file_index_check];
+				
+				if ($file_val['root'] == $file_val_check['root'] && $file_val['name'] == $file_val_check['name']) {
+					// Append asset's webpath to the asset's name make the file name unique
+					$file_val_check['name'] .= '_'.$file_val_check['webpath'];
+					$file_val_check['path'] .= '_'.$file_val_check['webpath'];
+					
+					$files[$file_index_check] = $file_val_check;
+					
+					// Need to check for duplicates all again to see if this new name is conflicting with others previously checked
+					$recheck_dups = TRUE;
+				}
+			}
+			
+			if ($recheck_dups) {
+				$file_index = 1;
+			}
+		}
+		
 		foreach ($files as $key => $value) {
+			
 			// Build file list
 			$path_to = '';
 			if ($structure) {
@@ -258,6 +303,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				$path_to = '/';
 			}
 			$filetmp = SQ_TEMP_PATH.'/export-'.$export_date.$path_to.$value['name'];
+			
 			if ($structure && $value['root'] == 0) {
 				// We only need the root files and folders here, because Archive Tar handles the structure
 				$filelist[] = '.'.$path_to.$value['name'];
@@ -265,18 +311,19 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 				// Here, if there is no structure, we need all files
 				$filelist[] = './'.$value['name'];
 			}
-
 			// Open to the tmp directory
 			if (isset($value['path']) && !empty($value['path']) && !$value['dir']) {
 				$to_tmp = copy($value['path'], $filetmp);
 				if (!$to_tmp) {
 					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_error($filetmp);
 					return FALSE;
 				}//end if
 			} else {
 				$mkdir = mkdir($filetmp, 0777);
 				if (!$mkdir) {
 					trigger_localised_error('CMS0105', E_USER_NOTICE);
+					trigger_error($filetmp);
 					return FALSE;
 				}//end if
 			}//end if
@@ -400,13 +447,17 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 			if (!isset($link['minorid'])) return $files;
 
 			$asset = $am->getAsset($link['minorid']);
+			$asset_webpaths = $asset->getWebPaths();
+			$asset_webpath = $asset_webpaths[0];
+
 			if (!is_null($asset)) {
 				if (is_a($asset, 'folder')) {
 					$depth++;
-					$files[$depth]['name']	= $asset->name;
-					$files[$depth]['path']	= $asset->data_path.'/'.$asset->name;
-					$files[$depth]['root']	= $parent;
-					$files[$depth]['dir']	= 1;
+					$files[$depth]['name']		= $asset->name;
+					$files[$depth]['path']		= $asset->data_path.'/'.$asset->name;
+					$files[$depth]['root']		= $parent;
+					$files[$depth]['dir']		= 1;
+					$files[$depth]['webpath'] 	= $asset_webpath;
 					$files += $this->_getFiles($asset->id, $filetypes, $depth);
 				} else {
 					if (!empty($filetypes)) {
@@ -414,19 +465,21 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 							if ($type != 'folder') {
 								if (is_a($asset, $type)) {
 									$depth++;
-									$files[$depth]['name']	= $asset->name;
-									$files[$depth]['path']	= $asset->data_path.'/'.$asset->name;
-									$files[$depth]['root']	= $parent;
-									$files[$depth]['dir']	= 0;
+									$files[$depth]['name']		= $asset->name;
+									$files[$depth]['path']		= $asset->data_path.'/'.$asset->name;
+									$files[$depth]['root']		= $parent;
+									$files[$depth]['dir']		= 0;
+									$files[$depth]['webpath']   = $asset_webpath;
 								}//end if
 							}//end if
 						}//end foreach
 					} else {
 						$depth++;
-						$files[$depth]['name']	= $asset->name;
-						$files[$depth]['path']	= $asset->data_path.'/'.$asset->name;
-						$files[$depth]['root']	= $parent;
-						$files[$depth]['dir']	= 0;
+						$files[$depth]['name']		= $asset->name;
+						$files[$depth]['path']		= $asset->data_path.'/'.$asset->name;
+						$files[$depth]['root']		= $parent;
+						$files[$depth]['dir']		= 0;
+						$files[$depth]['webpath']   = $asset_webpath;
 					}//end if
 				}//end if
 			}//end if
