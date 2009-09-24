@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.48 2009/08/28 00:35:32 ewang Exp $
+* $Id: general.inc,v 1.49 2009/09/24 06:41:34 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package Fudge
 * @subpackage General
 */
@@ -102,16 +102,16 @@ function htmlentities_array(&$array, $encode_keys=FALSE)
 		return Array();
 	}
 
-	if (is_string($array)) return htmlentities($array);
+	if (is_string($array)) return htmlentities($array, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 	$keys_to_replace = Array();
 	foreach ($array as $key => $value) {
 		if (is_string($value)) {
-			$array[$key] = htmlentities($value);
+			$array[$key] = htmlentities($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		} else if (is_array($value)) {
 			htmlentities_array($array[$key], $encode_keys);
 		}
 
-		if ($encode_keys && $key != ($encoded_key = htmlentities($key))) {
+		if ($encode_keys && $key != ($encoded_key = htmlentities($key, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))) {
 			$keys_to_replace[$key] = $encoded_key;
 		}
 	}
