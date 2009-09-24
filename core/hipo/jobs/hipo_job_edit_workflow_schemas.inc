@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.47 2009/07/09 01:22:46 ewang Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.47.2.1 2009/09/24 07:00:31 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -223,7 +223,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 														'type_code'    => $asset->type(),
 													   ),
 											  );
-					
+
 					$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					// Now assign schema changes to each asset
 					foreach ($child_assets as $child_assetid => $child_asset) {
@@ -314,7 +314,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 						switch ($set_data['granted']) {
 							case -1 :
 								// delete a schema
-								$step_data['message'] = htmlentities('Deleting "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')');
+								$step_data['message'] = htmlentities('Deleting "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 								$wfm->deleteSchema($asset->id, $set_data['schemaid']);
 							break;
 
@@ -322,7 +322,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 							case 1  :
 								// deny a schema
 								// apply a permission
-								$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing "'.$schema->name.'" (#'.$schema->id.') to "'.$asset->name.'" (#'.$asset->id.')');
+								$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing "'.$schema->name.'" (#'.$schema->id.') to "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 								$wfm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted'], $set_data['cascades']);
 							break;
 						}
@@ -331,7 +331,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					// If there are multiple schema changes to make, say we are
 					// (otherwise use more specific message set above)
 					if (count($schema_changes) > 1) {
-						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')');
+						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else if (count($schema_changes) == 0) {
 						$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 					}

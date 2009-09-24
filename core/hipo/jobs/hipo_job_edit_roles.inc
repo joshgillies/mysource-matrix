@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.12 2008/09/26 01:12:12 ata Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.12.6.1 2009/09/24 07:00:31 bpearson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.6.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -282,7 +282,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 								}
 							}
 						}
-						$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name));
+						$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'roles');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);

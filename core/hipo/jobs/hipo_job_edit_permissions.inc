@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.71 2009/02/04 05:09:05 akarelia Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.71.4.1 2009/09/24 07:00:31 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -325,7 +325,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							switch ($set_data['granted']) {
 								case -1 :
 									// delete a permission
-									$step_data['message'] = htmlentities('Removing '.$perm_name.' permission from "'.$asset->name.'" (#'.$asset->id.')');
+									$step_data['message'] = htmlentities('Removing '.$perm_name.' permission from "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 									$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
 								break;
 
@@ -333,7 +333,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 								case 1  :
 									// deny a permission
 									// grant a permission
-									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')');
+									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 									$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted'], $set_data['cascades']);
 								break;
 							}
@@ -342,7 +342,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						// If there are multiple schema changes to make, say we are
 						// (otherwise use more specific message set above)
 						if (count($perm_changes) > 1) {
-							$step_data['message'] = htmlentities('Making '.count($perm_changes).' permission changes to '.$asset->name.' (Id: #'.$asset->id.')');
+							$step_data['message'] = htmlentities('Making '.count($perm_changes).' permission changes to '.$asset->name.' (Id: #'.$asset->id.')', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 						} else if (count($perm_changes) == 0) {
 							$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 						}
