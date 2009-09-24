@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.241 2009/08/20 07:43:22 cupreti Exp $
+* $Id: search_page.inc,v 1.242 2009/09/24 02:25:34 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.241 $
+* @version $Revision: 1.242 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -132,7 +132,7 @@ class Search_Page extends Listing_Engine
 		// Set the Sort Order to "Descending" by default, so the most relevant results are at the top (ref. Feature #2886)
 		$this->setAttrValue('reverse_sort', TRUE);
 		$this->saveAttributes();
-		
+
 		if ($lock_held == 1) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 		}
@@ -463,7 +463,7 @@ class Search_Page extends Listing_Engine
 				if (isset($results[$exclude_assetid])) {
 					unset($results[$exclude_assetid]);
 				}
-			} 
+			}
 		}
 
 		if($this->attr('exclude_current_asset')) {
@@ -475,7 +475,7 @@ class Search_Page extends Listing_Engine
 				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
 					unset($results[$assetid]);
 				}
-			}		
+			}
 		}
 
 		$this->_tmp['initial_results'] = $results;
@@ -1858,7 +1858,7 @@ class Search_Page extends Listing_Engine
 					$replacement = '';
 					$current_page_format = $this->attr('current_page_format');
 					$page_link_format = $this->attr('page_link_format');
-					
+
 					for ($i = 1; $i <= $total_pages; $i++) {
 						if ($i == $current_result_page) {
 							$replacement .= str_replace('%page_number%', $i, $current_page_format);
@@ -2533,11 +2533,11 @@ class Search_Page extends Listing_Engine
 				return Array();
 			}
 
-            $auto_ss_field = $this->attr('auto_synonym_search_field');
+			$auto_ss_field = $this->attr('auto_synonym_search_field');
 
 			$search_results = $sm->processSearch($search_info);
 
-            if (($this->attr('enable_multi_word_synonym_lookups')) && (!empty($auto_ss_field))) {
+			if (($this->attr('enable_multi_word_synonym_lookups')) && (!empty($auto_ss_field))) {
 				$search_results = $this->getMultiWordSynonymSearchResults($search_results, $search_info, $auto_ss_field, $thesaurus);
 			}
 
@@ -2812,7 +2812,7 @@ class Search_Page extends Listing_Engine
 	* @access private
 	*/
 	function populateBaseSearchInfo()
-	{ 	
+	{
 		$prefix = $this->getPrefix();
 
 		// first, see if a category has been supplied
@@ -2870,7 +2870,7 @@ class Search_Page extends Listing_Engine
 		$search_info['search_as_public_user'] = $this->attr('search_as_public_user');
 		$search_info['no_roles_check'] = $this->attr('no_roles_check');
 		$search_info['no_group_access_check'] = $this->attr('no_group_access_check');
-    
+
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
@@ -2969,9 +2969,12 @@ class Search_Page extends Listing_Engine
 	*/
 	function _printAsset($assetid, $list_position, $num_items=0)
 	{
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$cache_key = $assetid.'-ctx'.$contextid;
+
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
+		$element_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 
 		if ($element_contents === FALSE) {
 			// keyword replacements for %result_number% and %score% are now handled
@@ -2982,7 +2985,7 @@ class Search_Page extends Listing_Engine
 
 			$element_contents = ob_get_contents();
 			ob_end_clean();
-			$cm->saveToCache($this->id, $this->type(), $assetid, $element_contents);
+			$cm->saveToCache($this->id, $this->type(), $cache_key, $element_contents);
 		}
 
 		// summon the scores at this point. and work with new DAL result format
