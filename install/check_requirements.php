@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.5 2009/09/23 06:29:25 csmith Exp $
+* $Id: check_requirements.php,v 1.6 2009/09/24 03:23:22 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -74,28 +74,20 @@ $missing_modules = array (
 	),
 );
 
-define('SQ_PACKAGES_PATH', $SYSTEM_ROOT . '/packages');
-require_once $SYSTEM_ROOT.'/install/install.inc';
-
-/**
- * Get a list of packages so we can see
- * if they have any specific requirements.
- */
-$packages = get_package_list();
-
 /**
  * Check the core package
  */
 check_requirement_file($SYSTEM_ROOT.'/core/assets/requirements.xml', 'core');
 
 /**
- * Now check for any specific package requirements.
+ * Look for specific package requirements
+ * The max depth here is 2 - system_root/packages/{package_name}/{sub_package}
+ * Some sub_packages have their own requirements
+ * eg - the REST package is part of web_services and has it's own requirements
  */
-foreach ($packages as $package) {
-	$xml_file = SQ_PACKAGES_PATH.'/'.$package.'/requirements.xml';
-	if (file_exists($xml_file)) {
-		check_requirement_file($xml_file, $package);
-	}
+$xml_files = get_files($SYSTEM_ROOT . '/packages', 'requirements.xml', 2);
+foreach ($xml_files as $xml_file) {
+	check_requirement_file($xml_file);
 }
 
 /**
@@ -602,5 +594,54 @@ function check_requirement($requirement_check, $package_name='core')
 	if ($check_alternative && $requirement_check->alternative) {
 		check_requirement($requirement_check->alternative, $package_name);
 	}
+}
+
+/**
+ * get_files
+ * Recursive function to look for a particular filename
+ * You can specify a max_depth to search through (max number of subfolders)
+ *
+ * @param String $dir The dir to look for a particular filename in
+ * @param String $filename The name of the file to look for
+ * @param Int $max_depth Maximum folder depth to reach. Defaults to 0 (no max)
+ * @param Int $_depth Used by the function to remember the depth it's at
+ *
+ * @return Array Returns an array of full path filenames
+ */
+function get_files($dir='', $filename='', $max_depth=0, $_depth=0)
+{
+	$list = array();
+	if (empty($dir) || empty($filename)) {
+		return $list;
+	}
+
+	if (!is_dir($dir)) {
+		return $list;
+	}
+
+	if ($max_depth > 0 && $_depth > $max_depth) {
+		return $list;
+	}
+
+	$d = dir($dir);
+
+	while (FALSE !== ($entry = $d->read())) {
+		if ($entry == '.' || $entry == '..') {
+			continue;
+		}
+
+		if (is_dir($dir.'/'.$entry)) {
+			$sub_list = get_files($dir.'/'.$entry, $filename, $max_depth, ($_depth+1));
+			$list = array_merge($sub_list, $list);
+			continue;
+		}
+
+		if ($entry == $filename) {
+			$list[] = $dir.'/'.$entry;
+			break;
+		}
+	}
+	$d->close();
+	return $list;
 }
 
