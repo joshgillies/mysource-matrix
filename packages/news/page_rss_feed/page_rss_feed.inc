@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.25 2008/11/20 06:02:23 lwright Exp $
+* $Id: page_rss_feed.inc,v 1.25.6.1 2009/09/24 01:40:37 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -169,6 +169,8 @@ class Page_RSS_Feed extends Page
 	*/
 	function printFrontend()
 	{
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
 		// check http auth if configured to do so
 		if ($this->attr('http_auth') && isset($_SERVER['PHP_AUTH_USER'])) {
 			// spoof normal login
@@ -201,7 +203,7 @@ class Page_RSS_Feed extends Page
 		// try to get the feed from cache
 		$rss = '';
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
+		$rss = $cm->loadFromCache($this->id, $this->type(), 'ctx'.$contextid, FALSE);
 
 		if ($this->charset) {
 			$charset = $this->charset;
@@ -336,7 +338,7 @@ class Page_RSS_Feed extends Page
 				$writer->addItems($new_items);
 				$rss = $writer->getRSSString(FALSE, $charset);
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), FALSE);
+				$r = $cm->saveToCache($this->id, $this->type(), 'ctx'.$contextid, serialize($rss), FALSE);
 			}
 		}
 
