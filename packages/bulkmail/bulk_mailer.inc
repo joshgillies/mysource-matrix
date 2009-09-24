@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.91 2009/07/21 00:43:19 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.92 2009/09/24 16:57:03 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -308,6 +308,15 @@ class Bulk_Mailer
 				foreach ($recipient_chunk as $r_info) {
 					$user_id = $r_info['assetid'];
 					$email = $r_info['custom_val'];
+					
+					//do not add the email to queue if there is no recipient's email address. This will make sure that the sendMailsInQueue() method
+					//of Mail_Queue class does not throw an exception when the first email in the chunk of 100 emails is empty which may leaves 99 valid
+					//email addresses not being sent to
+					if ((is_string($email) && (trim($email) == '')) || (is_array($email) && (trim($email['email']) == ''))) {
+						$this->updateProgress($progress_path, $user_id, FALSE, FALSE);
+						continue;
+					}
+					
 					$this->_reconnectDB();
 
 					// make sure user is not already in mail queue/sent directory
