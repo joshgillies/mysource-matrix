@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.37 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.38 2009/09/24 00:10:51 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -327,6 +327,7 @@ class Page_Calendar_Rolling extends Page
 	function _getCacheKey()
 	{
 		$cache_key = '';
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		// Hmmm, page_calendar_restricted call this function too.
 		// So must make sure, we can tell the difference between the 2 entities
@@ -352,6 +353,10 @@ class Page_Calendar_Rolling extends Page
 			if (!($end_date == '----------')) {
 				$cache_key .= ':'.$to_date;
 			}
+		}
+
+		if ($cache_key !== '') {
+			$cache_key .= '-ctx'.$contextid;
 		}
 
 		return $cache_key;

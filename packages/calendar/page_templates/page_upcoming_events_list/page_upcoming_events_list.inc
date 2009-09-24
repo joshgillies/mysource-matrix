@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.23 2009/07/17 03:51:22 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.24 2009/09/24 00:10:51 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -253,6 +253,7 @@ class Page_Upcoming_Events_List extends Page
 	function _getCacheKey()
 	{
 		$cache_key = '';
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		$num_events = $this->attr('num_events');
 		$horizon = $this->attr('horizon');
@@ -260,6 +261,8 @@ class Page_Upcoming_Events_List extends Page
 		// All attributes will have some contents of no need to check for empty
 		$cache_key .= $num_events; 			// First entry so no colon out front like a little soldier
 		$cache_key .= ':'.$horizon;
+
+		$cache_key .= '-ctx'.$contextid;
 
 		return $cache_key;
 
@@ -418,14 +421,14 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
-		
+
 		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
 		$first_current_date = TRUE;
 
 		foreach ($events as $id => $event) {
 			$id = strtok($id, ':');
 			$replacements = Array();
-			
+
 			// Use the Display Format of the asset type if it has been defined, otherwise use the
 			// Display Format of the parent of the asset type. This means that custom Calendar Event
 			// assets will be displayed using their own format if one is defined
@@ -438,34 +441,34 @@ class Page_Upcoming_Events_List extends Page
 					$format_type = 'calendar_event_recurring';
 				}
 			}
-			
-			$asset = $am->getAsset($id);		
-			
+
+			$asset = $am->getAsset($id);
+
 			if ($asset && $asset->type() == 'calendar_event_recurring') {
-						
+
 				$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
-				
+
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
 				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date)	{
 					$current_date = add_days_to_iso($current_date, 1);
 				}
 
-				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);				
+				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
-				
+
 				$first_current_date = FALSE;
 			}
-						
+
 			// get asset keywords
 			if ($asset && $needs_asset[$format_type] ) {
-		
+
 				foreach ($required_keywords[$format_type] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
 							$asset->printBody();
 							$replacements[$keyword] = ob_get_contents();
 						ob_end_clean();
-					} else {						
+					} else {
 						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 					}
 				}
