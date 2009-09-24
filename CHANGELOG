@@ -30,7 +30,15 @@ Search Manager: Multi-Context Searching
 
 
 Roles query optimisations
-	Some further query optimisations have been accomplished which may increase general performance when Roles are enabled. 
+	Some further query optimisations have been accomplished which may increase general performance when Roles are enabled.
+
+
+Listing Engine: Customisation of pagination links and text
+	Two new attributes, "Page Link Format" and "Current Page Format", are available in assets such as Asset Listing and Search Page to allow the pagination text and links to be customised. The %page_link% and %page_number% keywords can be used in these attributes to customise these links.
+
+For example:
+Page link format: <a href="%page_link%" class="page-link-class">Page %page_number%</a>
+Current page format: <span class="current-page-class">Page %page_number%</span
 
 
 
