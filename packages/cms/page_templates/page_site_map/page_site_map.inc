@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.40 2008/11/20 06:02:13 lwright Exp $
+* $Id: page_site_map.inc,v 1.41 2009/09/24 00:48:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,10 +110,12 @@ class Page_Site_Map extends Page
 	function printBody()
 	{
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$rootid = $this->_getRootNodeId();
+		$cache_key = $rootid.'-ctx'.$contextid;
 
 		// Try to load from cache, with our root node as cache key
-		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $rootid);
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if ($cached_contents === FALSE) {
@@ -166,7 +168,7 @@ class Page_Site_Map extends Page
 				}
 
 				$cached_contents = ob_get_contents();
-				$cm->saveToCache($this->id, $this->type(), $rootid, $cached_contents);
+				$cm->saveToCache($this->id, $this->type(), $cache_key, $cached_contents);
 			ob_end_clean();
 
 		}//end if cached
