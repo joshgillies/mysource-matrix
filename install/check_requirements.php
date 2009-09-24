@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.6 2009/09/24 03:23:22 csmith Exp $
+* $Id: check_requirements.php,v 1.7 2009/09/24 03:49:12 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -72,6 +72,11 @@ $missing_modules = array (
 		'suggested' => array(),
 		'out_of_date' => array(),
 	),
+	'php_file' => array (
+		'required' => array(),
+		'suggested' => array(),
+		'out_of_date' => array(),
+	),
 );
 
 /**
@@ -112,6 +117,9 @@ foreach ($check_types as $check_type) {
 		break;
 		case 'external_program':
 			$prefix = 'These external programs are ';
+		break;
+		case 'php_file':
+			$prefix = 'These external php scripts are ';
 		break;
 	}
 
@@ -217,13 +225,19 @@ function check_requirement_file($file='', $package_name='core')
  * - php_extension
  * - pear_package
  * - external_program
+ * - php_file
  *
  * A php extension is the name of the module to load (eg 'pgsql'), not a common name nor a specific function name.
+ * A php file is a file checked against the current include_path() to see if it's available.
  * A pear package is checked against what is installed with pear.
- * Only 3 external programs are currently supported
+ *
+ * A limited number of external programs are currently supported
  * - tidy
  * - antiword
  * - pdftohtml
+ * - squidclient
+ * - clamscan
+ * - fpscan
  *
  * mainly because each program has it's own way of specifying the 'version' switches and it's own version number
  * so if you add a new program as a requirement, it needs to be added here.
@@ -299,6 +313,10 @@ function check_requirement($requirement_check, $package_name='core')
 
 	if (isset($requirement_check->external_program)) {
 		$check_type = 'external_program';
+	}
+
+	if (isset($requirement_check->php_file)) {
+		$check_type = 'php_file';
 	}
 
 	$check_ok = false;
@@ -550,6 +568,20 @@ function check_requirement($requirement_check, $package_name='core')
 					return;
 				break;
 
+			}
+		break;
+
+		case 'php_file':
+			$check_version = false;
+
+			$php_file = (string)$requirement_check->php_file;
+
+			$check_name = $php_file;
+
+			if (is_file($php_file)) {
+				$check_ok = true;
+			} else {
+				$extra_info = " (only the php include_path was checked, if it is not in one of those paths the file has not been found)";
 			}
 		break;
 

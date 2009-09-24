@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.5 2009/09/23 06:30:32 csmith Exp $
+* $Id: requirements.xml,v 1.6 2009/09/24 03:49:12 csmith Exp $
 *
 */
 -->
@@ -137,6 +137,30 @@
 		<description> - this is used to check html content meets XHTML standards.</description>
 		<version>6 November 2007</version>
 		<version_arguments>-v</version_arguments>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>JFIF.php</php_file>
+		<description> - used to extract metadata from jpeg and other image types. This is provided by the "JPEG Metadata Toolkit".</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>getid3.php</php_file>
+		<description> - used to extract metadata from mp3 and other music files. This is provided by http://www.getid3.org/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>markdown.php</php_file>
+		<description> - allows users to use a simplified mark up language instead of needing to know HTML. This is provided by http://michelf.com/projects/php-markdown/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>markdownify.php</php_file>
+		<description> - allows users to use a simplified mark up language instead of needing to know HTML. This is provided by http://sourceforge.net/projects/markdownify/.</description>
 		<suggested>1</suggested>
 	</requirement>
 
