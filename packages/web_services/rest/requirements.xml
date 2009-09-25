@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.1 2009/09/25 01:17:04 akarelia Exp $
+* $Id: requirements.xml,v 1.2 2009/09/25 01:42:53 akarelia Exp $
 *
 */
 -->
@@ -23,18 +23,11 @@
 		check for SpiderMonkey JS installed on the system
 		if it's not available, check for Rhino JS.
 		//-->
-		<external_program>SpiderMonkey</external_program>
-		<description> - This is used by Page REST Resource JS Asset to perform JS operations on the Response Body.</description>
+		<external_program>js</external_program>
+		<description> - This is used by Page REST Resource JS Asset to perform JS operations on the Response Body. Will use SpiderMonkey or Rhino Package.</description>
 		<version>1.8.0</version>
-		<version_arguments>--version</version_arguments>
+		<version_arguments>-v</version_arguments>
 		<suggested>1</suggested>
-		<alternative>
-			<external_program>Rhino</external_program>
-			<description> - This is used by Page REST Resource JS Asset to perform JS operations on the Response Body.</description>
-			<version>1.6</version>
-			<version_arguments>--version</version_arguments>
-			<suggested>1</suggested>
-		</alternative>
 	</requirement>
 
 </requirement_info>
