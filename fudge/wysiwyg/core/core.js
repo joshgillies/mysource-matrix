@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.35.2.2 2009/06/29 03:47:01 akarelia Exp $
+* $Id: core.js,v 1.35.2.3 2009/09/25 02:20:43 ewang Exp $
 *
 */
 
@@ -288,7 +288,6 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted, range) {
 			break;
 		}
 		sel.addRange(range);
-		this.deleteEmpty();
 	} else {
 		return null; // this function not yet used for IE <FIXME>
 	}
