@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.8 2009/08/07 00:06:30 ewang Exp $
+* $Id: replace_text.inc,v 1.9 2009/09/25 02:19:08 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -168,10 +168,14 @@ class Replace_Text extends WYSIWYG_Plugin
 							}
 						}
 					if (selected_html) {
-						if (types.length>0) editor.insertHTML(curHTML);
+						if (types.length>0) {
+							editor.insertHTML(curHTML);
+							editor.deleteEmpty();
+						}
 					} else {
 						if (types.length>0) editor.setHTML(curHTML);
 					}
+					
 				}, null);
 		break;
 		<?php

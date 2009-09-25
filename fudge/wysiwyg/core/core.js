@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.37 2009/06/29 03:52:06 akarelia Exp $
+* $Id: core.js,v 1.38 2009/09/25 02:18:34 ewang Exp $
 *
 */
 
@@ -288,7 +288,6 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted, range) {
 			break;
 		}
 		sel.addRange(range);
-		this.deleteEmpty();
 	} else {
 		return null; // this function not yet used for IE <FIXME>
 	}
@@ -446,5 +445,6 @@ HTMLArea.prototype.deleteEmpty = function() {
 		replace = new RegExp("<([a-zA-Z][a-zA-Z0-9]*)( [^>]*)?>(&nbsp;| |\n|\t)*<\/\\1>", "gi");
 		this._docContent.innerText = str.replace(replace, "");
 	}
-	
+	 
 };
+
