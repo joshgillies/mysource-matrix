@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2009/07/30 22:56:51 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2009/09/25 00:42:49 bpearson Exp $
 *
 */
 -->
@@ -27,7 +27,19 @@
     <section name="Restrictions" write_access="write:attributes">
         <field attribute="root_node">
             <assetid />
-        </field>	
+        </field>
+		<field>
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
+		<field attribute="create_attributes">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="allow_json">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>	
     <section name="API Settings" write_access="write:attributes">
         <field attribute="api_key">
