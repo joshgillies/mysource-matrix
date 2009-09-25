@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.1.2.3 2009/08/07 05:19:16 bpearson Exp $
+* $Id: js_api_management.inc,v 1.1.2.4 2009/09/25 00:46:23 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -43,6 +43,11 @@ class JS_Api_Management extends Asset_Management
 		$key = rand(1000000000, 9999999999);
 
 		$this->vars	= Array (
+						'types'						=> Array(
+														'added'			=> '0.0.3',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+										   	   			),
 						'name'						=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'text',
@@ -75,157 +80,173 @@ class JS_Api_Management extends Asset_Management
 														'update_fn'		=> '',
 														'is_admin'		=> FALSE,
 											   			),
+						'create_attributes'			=> Array(
+														'added'			=> '0.0.3',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											   			),
+						'allow_json'				=> Array(
+														'added'			=> '0.0.3',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											   			),
 						'get_general'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_attributes'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'set_attribute'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_metadata'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'set_metadata'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'trash_asset'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_parents'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_children'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_permissions'			=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'create_asset'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_asset_types'			=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'acquire_lock'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'release_lock'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'create_link'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'remove_link'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'move_link'					=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'update_link'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_link_id'				=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 						'get_asset_tree'			=> Array(
 														'added'			=> '0.0.2',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
-																   ),
+																			'allow_empty'	=> FALSE,
+																		   ),
 											   			),
 											
 					  );

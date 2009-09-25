@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.1.2.3 2009/08/07 05:19:16 bpearson Exp $
+* $Id: js_api.inc,v 1.1.2.4 2009/09/25 00:46:23 bpearson Exp $
 *
 */
 
@@ -23,26 +23,26 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
 class JS_Api extends Page
 {
 
-    
+	
 	/**
-    * Constructor
-    *
-    * @param int    $assetid    the asset id to be loaded
-    *
-    */
-    function __construct($assetid=0)
-    {
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function __construct($assetid=0)
+	{
 		$this->_ser_attrs = TRUE;
-        parent::__construct($assetid);
+		parent::__construct($assetid);
 
-    }//end constructor
+	}//end constructor
 
 
 	/**
@@ -143,7 +143,7 @@ class JS_Api extends Page
  
 		// Send our data as JSON
 		if (isset($data)) {
-			$this->returnJSON($data);
+			$this->returnJSON($data, $type);
 			// Restore error handler
 			restore_error_handler();
 			return;
@@ -173,12 +173,12 @@ class JS_Api extends Page
 					if ($ra) {
 						// Get general info about asset
 						$data = Array(
-									'name'					=> 	$asset->name,
-									'short_name'			=> 	$asset->short_name,
+									'name'					=>	$asset->name,
+									'short_name'			=>	$asset->short_name,
 									'id'					=>	$asset->id,
 									'type_code'				=>	$asset->type(),
 									'icon_path'				=>	$am->getAssetIconURL($asset->type()),
-									'data_path'				=> 	$asset->data_path,
+									'data_path'				=>	$asset->data_path,
 									'web_path'				=>	$asset->getURL(),
 									'status'				=>	$asset->getStatusDescription(),
 									'created'				=>	$asset->created,
@@ -374,10 +374,15 @@ class JS_Api extends Page
 							isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = '';
 							isset($_REQUEST['is_dependant']) ? $is_dependant = $_REQUEST['is_dependant'] : $is_dependant = 0;
 							isset($_REQUEST['is_exclusive']) ? $is_exclusive = $_REQUEST['is_exclusive'] : $is_exclusive = 0;
+							if (isset($_REQUEST['extra_attributes']) && $_REQUEST['extra_attributes'] == '1') $extra_attributes = TRUE;
 							
 							// Create our asset
-							$data = $this->createAsset($asset->id, $type_code, $asset_name, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
+							$data = $this->createAsset($asset->id, $type_code, $asset_name, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive, $extra_attributes);
 							if (empty($data)) {
+								if (!$data) {
+									$this->returnError('You are not allowed to create this asset type');
+									return;
+								}//end if
 								unset($data);
 								$this->returnError('Unable to create asset');
 							}//end if
@@ -581,7 +586,7 @@ class JS_Api extends Page
  
 		// Send our data as JSON
 		if (isset($data)) {
-			$this->returnJSON($data);
+			$this->returnJSON($data, $type);
 		}//end if
 
 		// Restore error handler
@@ -593,8 +598,8 @@ class JS_Api extends Page
 	/**
 	* Description: This will create a link between two assets
 	*
-    * @param string  	$id		The asset that we are getting
-    *
+	* @param string		$id		The asset that we are getting
+	*
 	* @return object
 	* @access public
 	*/
@@ -646,14 +651,14 @@ class JS_Api extends Page
 	/**
 	* Description: This will create a link between two assets
 	*
-    * @param integer  	$parent			Major asset id we are linking from
-    * @param integer  	$child			Minor asset id we are linking to
-    * @param integer  	$link_type		Type of link to create
-    * @param string  	$link_value		Value of the link
-    * @param integer  	$sort_order		Order in the tree
-    * @param integer  	$is_dependant	Dependant to parent
-    * @param integer  	$is_exclusive	Exclusive to parent
-    *
+	* @param integer	$parent			Major asset id we are linking from
+	* @param integer	$child			Minor asset id we are linking to
+	* @param integer	$link_type		Type of link to create
+	* @param string		$link_value		Value of the link
+	* @param integer	$sort_order		Order in the tree
+	* @param integer	$is_dependant	Dependant to parent
+	* @param integer	$is_exclusive	Exclusive to parent
+	*
 	* @return array
 	* @access public
 	*/
@@ -683,8 +688,8 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will delete a link based on the LinkID
 	*
-    * @param integer  	$parent			Major asset id we are linking from
-    * @param integer  	$child			Minor asset id we are linking to
+	* @param integer	$parent			Major asset id we are linking from
+	* @param integer	$child			Minor asset id we are linking to
 	*
 	* @return void
 	* @access public
@@ -742,11 +747,11 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will move a link under a new parent asset
 	*
-    * @param integer  $old_parent_id		Old parent id
-    * @param integer  $asset_id_to_move		Asset id to move
-    * @param integer  $new_parent_id		New parent id
-    * @param integer  $link_type			Type of the new link
-    * @param integer  $new_position	Position under the new parent
+	* @param integer  $old_parent_id		Old parent id
+	* @param integer  $asset_id_to_move		Asset id to move
+	* @param integer  $new_parent_id		New parent id
+	* @param integer  $link_type			Type of the new link
+	* @param integer  $new_position	Position under the new parent
 	*
 	* @return void
 	* @access public
@@ -776,11 +781,11 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will update an existing link
 	*
-    * @param integer  	$parent			Major asset id we are linking from
-    * @param integer  	$child			Minor asset id we are linking to
-    * @param integer  	$link_type		Type of link to set
-    * @param string  	$link_value		Value of the link
-    * @param integer  	$sort_order		Sort order in the asset tree
+	* @param integer	$parent			Major asset id we are linking from
+	* @param integer	$child			Minor asset id we are linking to
+	* @param integer	$link_type		Type of link to set
+	* @param string		$link_value		Value of the link
+	* @param integer	$sort_order		Sort order in the asset tree
 	*
 	* @return void
 	* @access public
@@ -811,8 +816,8 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will return the permission set for on an asset
 	*
-    * @param integer  	$id				Id of the asset to get permissions for
-    * @param string  	$level			Read, Write, Admin
+	* @param integer	$id				Id of the asset to get permissions for
+	* @param string		$level			Read, Write, Admin
 	*
 	* @return void
 	* @access public
@@ -873,7 +878,7 @@ class JS_Api extends Page
 	/**
 	* Description: Returns arrays of user assets from a parent user group
 	*
-    * @param integer  	$key			Asset id of the user group
+	* @param integer	$key			Asset id of the user group
 	*
 	* @return void
 	* @access public
@@ -887,8 +892,8 @@ class JS_Api extends Page
 		foreach ($group_children as $children => $child_id) {
 			$child = $am->getAsset($children);
 			$children_arr[$child->id] = Array(
-							'id'		=> 	$child->id,
-							'name'		=> 	$child->name,
+							'id'		=>	$child->id,
+							'name'		=>	$child->name,
 							'type'		=>	$child->type(),
 							'username'	=>	$child->attr('username'),
 						);
@@ -902,7 +907,7 @@ class JS_Api extends Page
 	/**
 	* Description: Gets parent asset ids
 	*
-    * @param integer  	$id			Asset id of the child
+	* @param integer	$id			Asset id of the child
 	*
 	* @return void
 	* @access public
@@ -916,9 +921,9 @@ class JS_Api extends Page
 		foreach ($parents as $parent => $type_code) {
 			$asset = $am->getAsset($parent);
 			$parent_arr[$asset->id] = Array(
-							'id'		=> 	$asset->id,
-							'name'		=> 	$asset->name,
-							'type_code'	=> 	$asset->type(),
+							'id'		=>	$asset->id,
+							'name'		=>	$asset->name,
+							'type_code'	=>	$asset->type(),
 							'link_id'	=>	$this->getLinkId($asset->id, $id),
 						);
 		}//end foreach
@@ -931,8 +936,8 @@ class JS_Api extends Page
 	/**
 	* Description: Gets child asset ids
 	*
-    * @param integer  	$id			Asset id of the parent
-    * @param integer  	$level		How deep to go
+	* @param integer	$id			Asset id of the parent
+	* @param integer	$level		How deep to go
 	*
 	* @return void
 	* @access public
@@ -952,9 +957,9 @@ class JS_Api extends Page
 				$show_link_id = $this->getLinkId($id, $child->id);
 			}
 			$children_arr[$child->id] = Array(
-							'id'		=> 	$child->id,
-							'name'		=> 	$child->name,
-							'type_code'	=> 	$child->type(),
+							'id'		=>	$child->id,
+							'name'		=>	$child->name,
+							'type_code'	=>	$child->type(),
 							'link_id'	=>	$show_link_id,
 						);
 		}//end foreach
@@ -967,8 +972,8 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will send an asset to the trash
 	*
-    * @param string  $id  The id of the asset we want to delete
-    *
+	* @param string  $id  The id of the asset we want to delete
+	*
 	*
 	* @return void
 	* @access public
@@ -1001,10 +1006,10 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will return set the attribute value of an asset based on assetid and attribute name
 	*
-	* @param string 	$assetid	The ID of the asset in query
-	* @param string 	$attr_name	The name of the attribute
-	* @param string 	$attr_val	The new value of the attribute
-    *
+	* @param string		$assetid	The ID of the asset in query
+	* @param string		$attr_name	The name of the attribute
+	* @param string		$attr_val	The new value of the attribute
+	*
 	* @return void
 	* @access public
 	*/
@@ -1022,7 +1027,7 @@ class JS_Api extends Page
 			$am->releaseLock($assetid, 'attributes');
 			$am->forgetAsset($asset);
 		} else {
-			$this->returnError('Please make sure to provide AssetID, AttributeName and AttributeValue');
+			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value');
 		}//end else
 
 	}//end setAttributeValue()
@@ -1031,9 +1036,9 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will set the value for a metadata field of an asset
 	*
-	* @param string 	$assetid	The asset to regenerate metadata for
-	* @param string 	$fieldid	The metadata field id
-	* @param string 	$new_value	The new value for the field
+	* @param string		$assetid	The asset to regenerate metadata for
+	* @param string		$fieldid	The metadata field id
+	* @param string		$new_value	The new value for the field
 	*
 	* @return void
 	* @access public
@@ -1083,8 +1088,8 @@ class JS_Api extends Page
 	/**
 	* Description: Returns the link id between a parent and a child
 	*
-    * @param string  	$parent			Parent id
-    * @param string  	$child			Child id
+	* @param string		$parent			Parent id
+	* @param string		$child			Child id
 	*
 	* @return void
 	* @access public
@@ -1112,8 +1117,8 @@ class JS_Api extends Page
 	/**
 	* Description: Check to see if there is a link id between a parent and child
 	*
-    * @param string  	$parent			Parent id
-    * @param string  	$child			Child id
+	* @param string		$parent			Parent id
+	* @param string		$child			Child id
 	*
 	* @return void
 	* @access public
@@ -1137,19 +1142,20 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will create an asset of a specific type under a specific location
 	*
-    * @param integer  	$id				Parentid of the new parent
-    * @param string  	$type_code		Type code of new asset
-    * @param string  	$asset_name		Name for new asset
-    * @param integer  	$link_type		Type of link to create
-    * @param string  	$link_value		Value of the link
-    * @param integer  	$sort_order		Order in the tree
-    * @param integer  	$is_dependant	Dependant to parent
-    * @param integer  	$is_exclusive	Exclusive to parent
+	* @param integer	$id					Parentid of the new parent
+	* @param string		$type_code			Type code of new asset
+	* @param string		$asset_name			Name for new asset
+	* @param integer	$link_type			Type of link to create
+	* @param string		$link_value			Value of the link
+	* @param integer	$sort_order			Order in the tree
+	* @param integer	$is_dependant		Dependant to parent
+	* @param integer	$is_exclusive		Exclusive to parent
+	* @param boolean	$extra_attributes	Any extra attributes to create
 	*
 	* @return void
 	* @access public
 	*/
-	function createAsset($id, $type_code, $asset_name, $link_type=1, $link_value, $sort_order, $is_dependant=0, $is_exclusive=0)
+	function createAsset($id, $type_code, $asset_name, $link_type=1, $link_value, $sort_order, $is_dependant=0, $is_exclusive=0, $extra_attributes=FALSE)
 	{
 		// Shortucts
 		$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -1161,6 +1167,14 @@ class JS_Api extends Page
 		if (!$am->installed($type_code)) {
 			return Array();
 		}//end if
+
+		// Are we allowed to create this?
+		$types = $this->attr('types');
+		if (!empty($types)) {
+			if (!isset($types[$type_code])) {
+				return FALSE;
+			}
+		}
 
 		$am->includeAsset($type_code);
 
@@ -1180,15 +1194,40 @@ class JS_Api extends Page
 					  );
 
 		$link_id = $asset->create($link_info);
+		$new_id = $asset->id;
+
+		// Should we add some attributes to our new asset?
+		if ($extra_attributes && $this->attr('create_attributes')) {
+			$am->forgetAsset($asset);
+	
+			// Change our values
+			$am->acquireLock($new_id, 'attributes');
+			$new_asset = $am->getAsset($new_id);
+			
+			// Check our post values for any correct attibutes
+			$attributes = $am->getAssetTypeAttributes($type_code);
+			foreach($_REQUEST as $name => $value) {
+				if (array_key_exists($name, $attributes) && $name !== $link_info[$name]) {
+					// Set our new values
+					$new_asset->setAttrValue($name, $value);
+					$new_asset->saveAttributes();
+				}//end if
+			}			
+			$am->releaseLock($new_id, 'attributes');
+			// Forget we ever knew this guy
+			$am->forgetAsset($new_asset);
+			// Who?
+		}
+		
 		if ($link_id) {
 			return Array (
 					'name'		=>	$asset_name,
-					'id'		=> 	$asset->id,
-					'link_id'	=> 	$link_id,
+					'id'		=>	$asset->id,
+					'link_id'	=>	$link_id,
 				   );
 		}//end if
 
-		return Array();	
+		return Array();
 
 	}//end createAsset
 
@@ -1222,13 +1261,13 @@ class JS_Api extends Page
 
 
 	/**
-    * Returns an error in JSON format
+	* Returns an error in JSON format
 	*
 	* @param string	 $error	The error to send back as JSON
 	*
-    * @access public
-    */
-    function returnError($error)
+	* @access public
+	*/
+	function returnError($error)
 	{
 		// Set our error
 		trigger_error($error, E_USER_WARNING);
@@ -1245,30 +1284,34 @@ class JS_Api extends Page
 
 
 	/**
-    * Returns the JSON output 
+	* Returns the JSON output 
 	*
 	* @param array	 $data	The array of information to return as JSON	
 	*
-    * @access public
-    */
-    function returnJSON($data)
+	* @access public
+	*/
+	function returnJSON($data, $type='')
 	{
-		// Send our data as JSON
-		if (!empty($data)) {
-			if (!function_exists('json_encode')) {
-				require_once 'Services/JSON.php';
-				$json = new Services_JSON();
-				$output = $json->encode($data);
-			} else {
-				$output = json_encode($data);
-			}//end else
+		// Are we allowed to send JSON? OR return JSON when the function is a 'get' OR on error which will be empty type
+		if ($this->attr('allow_json') || (!empty($type) && (strpos($type, 'get') === 0))) {
+			// Send our data as JSON
+			if (!empty($data)) {
+				if (!function_exists('json_encode')) {
+					require_once 'Services/JSON.php';
+					$json = new Services_JSON();
+					$output = $json->encode($data);
+				} else {
+					$output = json_encode($data);
+				}//end else
 
-			// Send our JSON
-			echo $output;
+				// Send our JSON
+				echo $output;
+
+			}//end if
 
 		}//end if
 
-	}//end returnJSON
+	}//end returnJSON()
 
 
 	/**
@@ -1281,13 +1324,13 @@ class JS_Api extends Page
 	?>
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
 */
@@ -1299,27 +1342,27 @@ class JS_Api extends Page
 */
 function createRequest() 
 {
-    var request;
-    try {
-        request = new XMLHttpRequest();
-    } catch (trymicrosoft) {
-        try {
-            request = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (othermicrosoft) {
-            try {
-                request = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (failed) {
-                request = false;
-            }//end catch
-        }//end catch
-    }//end catch
-    
-    if (!request) {
-        alert('Your browser does not support Ajax');
-    }
-    
-    return request;
-    
+	var request;
+	try {
+		request = new XMLHttpRequest();
+	} catch (trymicrosoft) {
+		try {
+			request = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (othermicrosoft) {
+			try {
+				request = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (failed) {
+				request = false;
+			}//end catch
+		}//end catch
+	}//end catch
+	
+	if (!request) {
+		alert('Your browser does not support Ajax');
+	}
+	
+	return request;
+	
 }//end createRequest
 
 
@@ -1332,8 +1375,8 @@ function createRequest()
 */
 function isset(obj)
 {
-    // Check to see if a variable or array item is set
-    if (typeof(obj) == 'undefined') {
+	// Check to see if a variable or array item is set
+	if (typeof(obj) == 'undefined') {
 		return false;
 	} else {
 		return true;
@@ -1351,14 +1394,14 @@ function isset(obj)
 */
 function jsonToObj(json)
 {
-    // Make the conversion
-    // Don't worry, even the creator of JSON says eval is ok here
-    var jsonObj = eval('(' + json + ')');
-    
-    return jsonObj;
+	// Make the conversion
+	// Don't worry, even the creator of JSON says eval is ok here
+	var jsonObj = eval('(' + json + ')');
+	
+	return jsonObj;
 
 }//end jsonToObj
-    
+	
 
 /**
 * Our default callback
@@ -1370,18 +1413,18 @@ function jsonToObj(json)
 */
 function success(ajaxRequest, dataCallback) 
 {
-    if (ajaxRequest.readyState == 4) {
-        if (ajaxRequest.status == 200) {
-            if (ajaxRequest.responseText !== '' || ajaxRequest.responseText !== 'undefined' || ajaxRequest.responseText !== null) {
-                var response = jsonToObj(ajaxRequest.responseText);
-                // Custom callback
-                dataCallback(response);
-            }//end if
-            
-        }//end if
-        
-    }//end if
-     
+	if (ajaxRequest.readyState == 4) {
+		if (ajaxRequest.status == 200) {
+			if (ajaxRequest.responseText !== '' || ajaxRequest.responseText !== 'undefined' || ajaxRequest.responseText !== null) {
+				var response = jsonToObj(ajaxRequest.responseText);
+				// Custom callback
+				dataCallback(response);
+			}//end if
+			
+		}//end if
+		
+	}//end if
+	 
 }//end success
 
 
@@ -1394,8 +1437,8 @@ function success(ajaxRequest, dataCallback)
 */
 function setApiKey(api_key) 
 {
-    // Make this into a global variable
-    window.api_key = api_key;
+	// Make this into a global variable
+	window.api_key = api_key;
 
 }//end setApiKey
 
@@ -1411,18 +1454,18 @@ function setApiKey(api_key)
 */
 function makeRequest(url, receive, dataCallback)
 {
-    // Create an instance of our ajax object
-    var ajaxRequest = createRequest();
-    // Open request
-    ajaxRequest.open('POST', url, true);
-    // Should we use a callback?
-    if (receive) {
-        // Custom callback
-        ajaxRequest.onreadystatechange = function() {
-            success(ajaxRequest, dataCallback);
-        }
-    }//end if
-    ajaxRequest.send(null);
+	// Create an instance of our ajax object
+	var ajaxRequest = createRequest();
+	// Open request
+	ajaxRequest.open('POST', url, true);
+	// Should we use a callback?
+	if (receive) {
+		// Custom callback
+		ajaxRequest.onreadystatechange = function() {
+			success(ajaxRequest, dataCallback);
+		}
+	}//end if
+	ajaxRequest.send(null);
 
 }//end makeRequest
 
@@ -1473,17 +1516,17 @@ function dumpObj(obj, parent) {
 */
 function getGeneral(asset_id, dataCallback) 
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-    
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
 }//end getGeneral
-    
+	
 
 /**
 * This will return attributes of the specific asset
@@ -1495,15 +1538,15 @@ function getGeneral(asset_id, dataCallback)
 */
 function getAttributes(asset_id, dataCallback) 
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAttributes&id=' + asset_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-    
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAttributes&id=' + asset_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
 }//end getAttributes
 
 
@@ -1519,15 +1562,15 @@ function getAttributes(asset_id, dataCallback)
 */
 function setAttribute(asset_id, attr_name, attr_val, dataCallback) 
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-    
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
 }//end setAttribute
 
 
@@ -1541,15 +1584,15 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 */
 function getMetadata(asset_id, dataCallback) 
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getMetadata&id=' + asset_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-    
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getMetadata&id=' + asset_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
 }//end getMetadata
 
 
@@ -1563,15 +1606,15 @@ function getMetadata(asset_id, dataCallback)
 */
 function setMetadata(asset_id, field_id, field_val, dataCallback) 
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-    
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
 }//end setMetadata
 
 
@@ -1585,15 +1628,15 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 */
 function trashAsset(asset_id, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=trashAsset&id=' + asset_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=trashAsset&id=' + asset_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end trashAsset
 
 
@@ -1608,18 +1651,18 @@ function trashAsset(asset_id, dataCallback)
 */
 function getChildren(asset_id, levels, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set any levels
-    var levels = typeof(levels) != 'undefined' ? levels : 0;
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getChildren&id=' + asset_id + '&depth=' + levels;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set any levels
+	var levels = typeof(levels) != 'undefined' ? levels : 0;
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getChildren&id=' + asset_id + '&depth=' + levels;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getChildren
 
 
@@ -1633,15 +1676,15 @@ function getChildren(asset_id, levels, dataCallback)
 */
 function getParents(asset_id, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getParents
 
 
@@ -1656,58 +1699,64 @@ function getParents(asset_id, dataCallback)
 */
 function getPermissions(asset_id, level, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getPermissions&id=' + asset_id + '&level=' + level;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getPermissions&id=' + asset_id + '&level=' + level;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getPermissions
 
 
 /**
 * Creates an asset
 *
-* @param integer  	parent_id		Parentid of the new parent
-* @param string  	type_code		Type code of new asset
-* @param string  	asset_name		Name for new asset
-* @param integer  	link_type		Type of link to create
-* @param string  	link_value		Value of the link
-* @param integer  	sort_order		Order in the tree
-* @param integer  	is_dependant	Dependant to parent
-* @param integer  	is_exclusive	Exclusive to parent
+* @param integer	parent_id			Parentid of the new parent
+* @param string		type_code			Type code of new asset
+* @param string		asset_name			Name for new asset
+* @param integer	link_type			Type of link to create
+* @param string		link_value			Value of the link
+* @param integer	sort_order			Order in the tree
+* @param integer	is_dependant		Dependant to parent
+* @param integer	is_exclusive		Exclusive to parent
+* @param integer	extra_attributes	Allows additional attributes
+* @param string		attributes			String of additional query string containing key/pair values
 *
 * @version $Revision: 0.2
 */
-function createAsset(parent_id, type_code, asset_name, link_type, link_value, sort_order, is_dependant, is_exclusive, dataCallback)
+function createAsset(parent_id, type_code, asset_name, link_type, link_value, sort_order, is_dependant, is_exclusive, extra_attributes, attributes, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set values
-    if (!isset(link_type)) link_type = '';
-    if (!isset(link_value)) link_value = '';
-    if (!isset(sort_order)) sort_order = '';
-    if (!isset(is_dependant)) is_dependant = '';
-    if (!isset(is_exclusive)) is_exclusive = '';
-    
-    // Build our string
-    var url = 	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
-    			'&id=' + parent_id +
-    			'&type_code=' + type_code +
-    			'&asset_name=' + asset_name +
-    			'&link_type=' + link_type +
-    			'&link_value=' + link_value +
-    			'&sort_order=' + sort_order +
-    			'&is_dependant=' + is_dependant +
-    			'&is_exclusive=' + is_exclusive;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set values
+	if (!isset(link_type)) link_type = '';
+	if (!isset(link_value)) link_value = '';
+	if (!isset(sort_order)) sort_order = '';
+	if (!isset(is_dependant)) is_dependant = '';
+	if (!isset(is_exclusive)) is_exclusive = '';
+	if (!isset(extra_attributes)) extra_attributes = '';
+	if (!isset(attributes)) attributes = '';
+	
+	// Build our string
+	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
+				'&id=' + parent_id +
+				'&type_code=' + type_code +
+				'&asset_name=' + asset_name +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value +
+				'&sort_order=' + sort_order +
+				'&is_dependant=' + is_dependant +
+				'&is_exclusive=' + is_exclusive +
+				'&extra_attributes=' + extra_attributes +
+				'&' + attributes;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end createAsset
 
 
@@ -1720,15 +1769,15 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 */
 function getAssetTypes(dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTypes&id=1';
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTypes&id=1';
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getAssetTypes
 
 
@@ -1743,18 +1792,18 @@ function getAssetTypes(dataCallback)
 */
 function acquireLock(asset_id, screen_name, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // If the user does not set it, we get all locks
-    if (!isset(screen_name) || screen_name == '') screen_name = 'all';
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=acquireLock&id=' + asset_id + '&screen=' + screen_name;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// If the user does not set it, we get all locks
+	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=acquireLock&id=' + asset_id + '&screen=' + screen_name;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end acquireLock
 
 
@@ -1769,59 +1818,59 @@ function acquireLock(asset_id, screen_name, dataCallback)
 */
 function releaseLock(asset_id, screen_name, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // If the user does not set it, we get all locks
-    if (!isset(screen_name) || screen_name == '') screen_name = 'all';
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=releaseLock&id=' + asset_id + '&screen=' + screen_name;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// If the user does not set it, we get all locks
+	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=releaseLock&id=' + asset_id + '&screen=' + screen_name;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end releaseLock
 
 
 /**
 * Creates a link between two assets
 *
-* @param integer  	parent_id		Major asset id we are linking from
-* @param integer  	child_id		Minor asset id we are linking to
-* @param integer  	link_type		Type of link to create
-* @param string  	link_value		Value of the link
-* @param integer  	sort_order		Order in the tree
-* @param integer  	is_dependant	Dependant to parent
-* @param integer  	is_exclusive	Exclusive to parent
+* @param integer	parent_id		Major asset id we are linking from
+* @param integer	child_id		Minor asset id we are linking to
+* @param integer	link_type		Type of link to create
+* @param string		link_value		Value of the link
+* @param integer	sort_order		Order in the tree
+* @param integer	is_dependant	Dependant to parent
+* @param integer	is_exclusive	Exclusive to parent
 *
 * @version $Revision: 0.2
 */
 function createLink(parent_id, child_id, link_type, link_value, sort_order, is_dependant, is_exclusive, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set values
-    if (!isset(link_type)) link_type = '1';
-    if (!isset(link_value)) link_value = '';
-    if (!isset(sort_order)) sort_order = '';
-    if (!isset(is_dependant)) is_dependant = '';
-    if (!isset(is_exclusive)) is_exclusive = '';
-    
-    // Build our string
-    var url = 	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createLink' + 
-    			'&id=' + child_id +
-    			'&parent_id=' + parent_id +
-    			'&link_type=' + link_type +
-    			'&link_value=' + link_value +
-    			'&sort_order=' + sort_order +
-    			'&is_dependant=' + is_dependant +
-    			'&is_exclusive=' + is_exclusive;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set values
+	if (!isset(link_type)) link_type = '1';
+	if (!isset(link_value)) link_value = '';
+	if (!isset(sort_order)) sort_order = '';
+	if (!isset(is_dependant)) is_dependant = '';
+	if (!isset(is_exclusive)) is_exclusive = '';
+	
+	// Build our string
+	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createLink' + 
+				'&id=' + child_id +
+				'&parent_id=' + parent_id +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value +
+				'&sort_order=' + sort_order +
+				'&is_dependant=' + is_dependant +
+				'&is_exclusive=' + is_exclusive;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end createLink
 
 
@@ -1836,15 +1885,15 @@ function createLink(parent_id, child_id, link_type, link_value, sort_order, is_d
 */
 function removeLink(parent_id, child_id, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end removeLink
 
 
@@ -1862,24 +1911,24 @@ function removeLink(parent_id, child_id, dataCallback)
 */
 function moveLink(old_parent_id, child_id, new_parent_id, link_type, new_position, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set values
-    if (!isset(link_type)) link_type = '1';
-    if (!isset(new_position)) new_position = '0';
-    
-    // Build our string
-    var url = 	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=moveLink' + 
-    			'&id=' + child_id +
-    			'&old_parent_id=' + old_parent_id +
-    			'&new_parent_id=' + new_parent_id +
-    			'&link_type=' + link_type +
-    			'&new_position=' + new_position;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set values
+	if (!isset(link_type)) link_type = '1';
+	if (!isset(new_position)) new_position = '0';
+	
+	// Build our string
+	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=moveLink' + 
+				'&id=' + child_id +
+				'&old_parent_id=' + old_parent_id +
+				'&new_parent_id=' + new_parent_id +
+				'&link_type=' + link_type +
+				'&new_position=' + new_position;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end moveLink
 
 
@@ -1897,25 +1946,25 @@ function moveLink(old_parent_id, child_id, new_parent_id, link_type, new_positio
 */
 function updateLink(parent_id, child_id, link_type, link_value, sort_order, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set values
-    if (!isset(link_type)) link_type = '';
-    if (!isset(link_value)) link_value = '';
-    if (!isset(sort_order)) sort_order = '';
-    
-    // Build our string
-    var url = 	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=updateLink' + 
-    			'&id=' + child_id +
-    			'&parent_id=' + parent_id +
-    			'&link_type=' + link_type +
-    			'&link_value=' + link_value +
-    			'&sort_order=' + sort_order;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set values
+	if (!isset(link_type)) link_type = '';
+	if (!isset(link_value)) link_value = '';
+	if (!isset(sort_order)) sort_order = '';
+	
+	// Build our string
+	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=updateLink' + 
+				'&id=' + child_id +
+				'&parent_id=' + parent_id +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value +
+				'&sort_order=' + sort_order;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end updateLink
 
 
@@ -1930,15 +1979,15 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 */
 function getLinkId(parent_id, child_id, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getLinkId
 
 
@@ -1953,18 +2002,18 @@ function getLinkId(parent_id, child_id, dataCallback)
 */
 function getAssetTree(asset_id, levels, dataCallback)
 {
-    // Create blank function
-    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-    
-    // Check to see if we have set any levels
-    var levels = typeof(levels) != 'undefined' ? levels : 0;
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	
+	// Check to see if we have set any levels
+	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
-    // Build our string
-    var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTree&id=' + asset_id + '&depth=' + levels;
-    
-    // Make our request
-    makeRequest(url, true, dataCallback);
-        
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTree&id=' + asset_id + '&depth=' + levels;
+	
+	// Make our request
+	makeRequest(url, true, dataCallback);
+		
 }//end getAssetTree
 
 	<?php

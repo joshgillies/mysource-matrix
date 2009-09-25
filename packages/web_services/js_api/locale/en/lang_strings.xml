@@ -10,13 +10,12 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1.2.4 2009/09/25 00:46:23 bpearson Exp $
+* $Id: lang_strings.xml,v 1.1.4.2 2009/09/25 00:46:23 bpearson Exp $
 *
+*
+* CMS Package Localised Strings File
 */
 -->
-
-<contents screen="details">
-    <section name="Details">
-        <field attribute="name" />
-    </section>
-</contents>
+<strings>
+<string source="js_api_no_asset_types_selected">No asset types have been selected</string>
+</strings>

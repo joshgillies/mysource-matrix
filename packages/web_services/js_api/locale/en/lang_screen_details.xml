@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.2.4 2009/08/07 05:19:16 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.5 2009/09/25 00:46:23 bpearson Exp $
 *
 */
 -->
@@ -30,6 +30,22 @@
         <field attribute="root_node">
             <display_name>Root Node</display_name>
             <note />
+        </field>
+		<field>
+			<display_name>Asset Types to Create</display_name>
+			<note>Asset type restrictions can be set to allow only the selected asset types to be created.</note>
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
+        <field attribute="create_attributes">
+            <display_name>Allow Attributes on Create</display_name>
+            <note>If this option is set to yes, additional attributes can be added when the asset is created.  The attributes must be sent through the attributes parameter of the createAsset() function. Correct attribute names must be used, as well as serialization of data.</note>
+        </field>
+        <field attribute="allow_json">
+            <display_name>Return JSON</display_name>
+            <note>This option can be used to suppress the return of JSON.  Suppressing JSON can be useful to prevent users from knowing asset id's, attribute, etc. from certain functions.</note>
         </field>
     </section>
     <section name="API Settings" write_access="write:attributes">
