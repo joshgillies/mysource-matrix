@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.35 2007/12/03 22:09:37 hnguyen Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.35.6.1 2009/09/25 01:24:20 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.6.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -248,7 +248,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
 				} else {
 					if (!$mm->regenerateMetadata($asset->id)) return FALSE;
-					$step_data['message'] = translate('hipo_generate_metadata', htmlentities($asset->name));
+					$step_data['message'] = translate('hipo_generate_metadata', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				}

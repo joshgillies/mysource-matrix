@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.51.4.4 2009/08/11 05:22:56 cupreti Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.51.4.5 2009/09/25 01:24:20 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.4.4 $
+* @version $Revision: 1.51.4.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -376,7 +376,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 
-				$step_data['message'] = translate('hipo_deleting', htmlentities($asset->name), $assetid);
+				$step_data['message'] = translate('hipo_deleting', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $assetid);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

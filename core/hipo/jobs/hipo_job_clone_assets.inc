@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.35.2.1 2009/09/21 00:21:39 ewang Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.35.2.2 2009/09/25 01:24:19 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -398,13 +398,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$o->openField(translate('confirm'));
 				$o->addHiddenField('form_submitted', 1);
 				?>
-				<p><?php echo translate('hipo_cloning_confirm', htmlentities($to_parent->name)); ?></p>
+				<p><?php echo translate('hipo_cloning_confirm', htmlentities($to_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
 				<ul>
 					<?php
 					$assets = $this->_running_vars['assets'];
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-						?><li>"<?php echo htmlentities($asset_info[$assetid]['short_name']); ?>"</li><?php
+						?><li>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</li><?php
 					}
 					?>
 				</ul>
@@ -437,7 +437,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					?>
 					<tr>
 						<td><li>Change from</li></td>
-						<td>"<?php echo htmlentities($asset_info[$assetid]['short_name']); ?>"</td>
+						<td>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</td>
 						<td> to </td>
 						<td><?php text_box($prefix.'_new_names['.$assetid.']', $asset_info[$assetid]['short_name'], '25'); ?></td>
 					</tr>
@@ -563,7 +563,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 						'roles',
 					  );
 
-		$step_data['message'] = 'Cloning "'.htmlentities($orig->name).'" to "'.htmlentities($parent_asset->name).'".';
+		$step_data['message'] = 'Cloning "'.htmlentities($orig->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" to "'.htmlentities($parent_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'".';
 
 		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 		if (is_null($clone)) {
@@ -659,7 +659,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$map = $this->_running_vars['remap'][$assetid];
 		unset($this->_running_vars['remap'][$assetid]);
 
-		$step_data['message'] = 'Remapping "'.htmlentities($asset->name).'" and its dependant assets.';
+		$step_data['message'] = 'Remapping "'.htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" and its dependant assets.';
 
 		if (!$asset->remapAssetids($map)) {
 			trigger_localised_error('HIPO0027', E_USER_WARNING, $asset->id);
@@ -720,7 +720,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				$o->addHiddenField('link_completed', '0');
 
 				if (count($this->_running_vars['assets']) > 0) {
-					echo '<p><b>'.translate('hipo_asset_cloning_successful', htmlentities($parent->name)).'</b></p>';
+					echo '<p><b>'.translate('hipo_asset_cloning_successful', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b></p>';
 					echo '<ul>';
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
@@ -731,8 +731,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 				?>
 
-				<p><?php echo translate('hipo_permission_workflow_metadata_display', htmlentities($parent->name)); ?></p>
-				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', htmlentities($parent->name)); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_display', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></p>
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
 				$ei = $parent->getEI();

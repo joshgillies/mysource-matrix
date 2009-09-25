@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.15 2007/12/18 05:43:37 hnguyen Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.15.6.1 2009/09/25 01:24:20 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.6.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -544,7 +544,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// we have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
 			$data = fread($fp, $step_data['total_read']);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				return FALSE;
 			}
 		}
@@ -558,7 +558,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// parse blocks from the file
 			$data = fread($fp, $block_size);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				return FALSE;
 			}
 
