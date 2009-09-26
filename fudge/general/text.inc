@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.49 2009/09/26 16:13:03 ata Exp $
+* $Id: text.inc,v 1.50 2009/09/26 17:35:49 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package Fudge
 * @subpackage Text
 */
@@ -305,6 +305,11 @@ function apply_keyword_modifier($text, $modifier)
 		$text = str_replace(']]>', ']]]]><![CDATA[>', $text);
 		return "<![CDATA[$text]]>";
 
+	case "stripdecl":
+		// Strip XML declaration.
+		$text = preg_replace('/^<\?xml\s.*\?>/', '', $text);
+		return $text;
+
 	case "increment":
 		// Increment
 		return ++$text;
@@ -347,6 +352,11 @@ function apply_keyword_modifier($text, $modifier)
 		// Round to specified precision (0 by default).
 		$precision = array_get_index($modifier['args'], 0, 0);
 		return round($text, $precision);
+
+	case "number_format":
+		// Format a number with grouped thousands and round to decimal point (0 by default).
+		$decimals = array_get_index($modifier['args'], 0, 0);
+		return number_format($text, $decimals);
 
 	// Arithmetic modifiers.
 	case "add":
