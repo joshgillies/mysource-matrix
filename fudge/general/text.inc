@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.48 2009/08/06 00:47:22 bpearson Exp $
+* $Id: text.inc,v 1.49 2009/09/26 16:13:03 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package Fudge
 * @subpackage Text
 */
@@ -368,6 +368,13 @@ function apply_keyword_modifier($text, $modifier)
 	case "gte":
 	case "lte":
 		return _run_comparison_keyword_modifier($modifier, $text);
+
+	// Hash generation modifiers.
+	case "md5":
+		return md5($text);
+
+	case "sha1":
+		return sha1($text);
 
 	default:
 		return $text;
