@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.3 2009/09/25 00:42:49 bpearson Exp $
+* $Id: js_api.inc,v 1.4 2009/09/27 23:27:35 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1193,33 +1193,25 @@ class JS_Api extends Page
 						'is_exclusive'	=> $is_exclusive,
 					  );
 
-		$link_id = $asset->create($link_info);
-		$new_id = $asset->id;
-
 		// Should we add some attributes to our new asset?
 		if ($extra_attributes && $this->attr('create_attributes')) {
-			$am->forgetAsset($asset);
-	
-			// Change our values
-			$am->acquireLock($new_id, 'attributes');
-			$new_asset = $am->getAsset($new_id);
-			
 			// Check our post values for any correct attibutes
 			$attributes = $am->getAssetTypeAttributes($type_code);
 			foreach($_REQUEST as $name => $value) {
 				if (array_key_exists($name, $attributes) && $name !== $link_info[$name]) {
 					// Set our new values
-					$new_asset->setAttrValue($name, $value);
-					$new_asset->saveAttributes();
+					$asset->setAttrValue($name, $value);
 				}//end if
-			}			
-			$am->releaseLock($new_id, 'attributes');
-			// Forget we ever knew this guy
-			$am->forgetAsset($new_asset);
-			// Who?
-		}
-		
+			}//end foreach
+		}//end if
+
+		$link_id = $asset->create($link_info);
+
 		if ($link_id) {
+			// Save and quit
+			$am->acquireLock($asset->id, 'attributes');
+			$asset->saveAttributes();
+			$am->releaseLock($asset->id, 'attributes');
 			return Array (
 					'name'		=>	$asset_name,
 					'id'		=>	$asset->id,
