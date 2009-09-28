@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.8 2009/07/12 23:42:01 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.9 2009/09/28 00:46:18 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,9 +88,9 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1', 'value' => '');
-		$this->addRule($req_rule['rule_code'], $req_rule['operator'], $req_rule['value']);
+		array_push($this->vars['rules']['value'],$req_rule);
 		$ok = parent::hasValidValue($answer, $mute_errors);
-		$this->removeRule($req_rule);
+		array_pop($this->vars['rules']['value']);
 		return $ok;
 
 	}//end hasValidValue()
