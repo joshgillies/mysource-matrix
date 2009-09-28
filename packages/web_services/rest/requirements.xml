@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.3 2009/09/28 04:27:55 csmith Exp $
+* $Id: requirements.xml,v 1.4 2009/09/28 05:28:30 csmith Exp $
 *
 */
 -->
@@ -24,7 +24,7 @@
 		//-->
 		<external_program>js</external_program>
 		<description> - This is used by Page REST Resource JS Asset to perform JS operations on the Response Body. Will use SpiderMonkey or Rhino Package.</description>
-		<version>1.8.0</version>
+		<version>1.6.1</version>
 		<version_arguments>-v</version_arguments>
 		<uses_stderr>1</uses_stderr>
 		<expected_return_code>2</expected_return_code>
