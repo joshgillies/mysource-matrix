@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.8 2009/09/28 04:05:06 csmith Exp $
+* $Id: check_requirements.php,v 1.9 2009/09/28 04:14:28 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -92,7 +92,9 @@ check_requirement_file($SYSTEM_ROOT.'/core/assets/requirements.xml', 'core');
  */
 $xml_files = get_files($SYSTEM_ROOT . '/packages', 'requirements.xml', 2);
 foreach ($xml_files as $xml_file) {
-	check_requirement_file($xml_file);
+	$package_path = str_replace($SYSTEM_ROOT.'/packages/', '', $xml_file);
+	list($package_name) = explode('/', $package_path);
+	check_requirement_file($xml_file, $package_name);
 }
 
 /**
