@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.86.2.6 2009/07/21 00:44:50 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.86.2.7 2009/09/28 07:36:02 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.86.2.6 $
+* @version $Revision: 1.86.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -743,6 +743,13 @@ class Bulk_Mailer
 	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		if (isset($job_details['content_id']) && $job_details['content_id']) {
+			$content_asset = $am->getAsset($job_details['content_id']);
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$content_asset;
+			
+			$am->forgetAsset($content_asset);
+		}
 
 		if (!empty($recipient_id)) {
 			if (!is_null($email) && is_array($email)) {
