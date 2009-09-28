@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.1.4.2 2009/09/28 06:16:02 csmith Exp $
+*
+*/
+-->
+<requirement_info>
+	<package_name>web_services</package_name>
+	<requirement>
+		<php_extension>soap</php_extension>
+		<description>PHP Soap Extension</description>
+	</requirement>
+
+	<requirement>
+		<!--
+		check for json in php
+		if it's not available, check for services_json pear package.
+		//-->
+		<php_extension>json</php_extension>
+		<alternative>
+			<pear_package>Services_JSON</pear_package>
+		</alternative>
+	</requirement>
+
+</requirement_info>

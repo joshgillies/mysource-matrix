@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.6.4.2 2009/09/28 06:15:46 csmith Exp $
+*
+*/
+-->
+<requirement_info>
+	<package_name>__core__</package_name>
+	<requirement>
+		<!--
+		both of these are suggested so we check both are available
+		(up to the person running the script to decide which one is to be used).
+		//-->
+		<php_extension>pdo_pgsql</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you are going to use a PostgreSQL database.</description>
+		<alternative>
+			<php_extension>oci8</php_extension>
+			<suggested>1</suggested>
+			<description> - you only need to install this module if you are going to use an Oracle database.</description>
+		</alternative>
+	</requirement>
+	<requirement>
+		<php_extension>curl</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>gd</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>mbstring</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you are going to use non-English characters in filenames and urls.</description>
+	</requirement>
+	<requirement>
+		<php_extension>memcache</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you plan on using memcache for caching or locking.</description>
+	</requirement>
+	<requirement>
+		<php_extension>pspell</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>sockets</php_extension>
+	</requirement>
+	<requirement>
+		<php_extension>wddx</php_extension>
+	</requirement>
+
+	<requirement>
+		<pear_package>archive_tar</pear_package>
+		<version>1.3.3</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>console_getopt</pear_package>
+		<version>1.2.3</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>http_client</pear_package>
+		<version>1.2.1</version>
+	</requirement>
+	<requirement>
+		<pear_package>http_request</pear_package>
+		<version>1.4.4</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>image_canvas</pear_package>
+		<version>0.3.1</version>
+	</requirement>
+	<requirement>
+		<pear_package>image_color</pear_package>
+		<version>1.0.3</version>
+	</requirement>
+	<requirement>
+		<pear_package>image_graph</pear_package>
+		<version>0.7.2</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>mail</pear_package>
+		<version>1.1.14</version>
+	</requirement>
+	<requirement>
+		<pear_package>mail_mime</pear_package>
+		<version>1.5.2</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>net_url</pear_package>
+		<version>1.0.15</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>text_diff</pear_package>
+		<version>1.1.0</version>
+	</requirement>
+
+	<requirement>
+		<pear_package>xml_htmlsax</pear_package>
+		<version>2.1.2</version>
+	</requirement>
+	<requirement>
+		<pear_package>xml_parser</pear_package>
+		<version>1.2.8</version>
+	</requirement>
+
+	<requirement>
+		<external_program>clamscan</external_program>
+		<description> - check file uploads for viruses before they are saved to your system.</description>
+		<version>0.94.2</version>
+		<version_arguments>--version</version_arguments>
+		<suggested>1</suggested>
+		<alternative>
+			<external_program>fpscan</external_program>
+			<description> - check file uploads for viruses before they are saved to your system. Please note that f-prot is a commercial product.</description>
+			<version>4.6.7</version>
+			<version_arguments>--version</version_arguments>
+			<suggested>1</suggested>
+		</alternative>
+	</requirement>
+
+	<requirement>
+		<external_program>tidy</external_program>
+		<description> - this is used to check html content meets XHTML standards.</description>
+		<version>6 November 2007</version>
+		<version_arguments>-v</version_arguments>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>JFIF.php</php_file>
+		<description> - used to extract metadata from jpeg and other image types. This is provided by the "JPEG Metadata Toolkit".</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>getid3.php</php_file>
+		<description> - used to extract metadata from mp3 and other music files. This is provided by http://www.getid3.org/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>markdown.php</php_file>
+		<description> - allows users to use a simplified mark up language instead of needing to know HTML. This is provided by http://michelf.com/projects/php-markdown/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>markdownify.php</php_file>
+		<description> - allows users to use a simplified mark up language instead of needing to know HTML. This is provided by http://sourceforge.net/projects/markdownify/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+</requirement_info>
