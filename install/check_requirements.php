@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.10 2009/09/28 04:26:45 csmith Exp $
+* $Id: check_requirements.php,v 1.11 2009/09/28 04:32:10 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -573,6 +573,16 @@ function check_requirement($requirement_check, $package_name='core')
 						$extra_info = " (version checking not working)";
 					}
 
+				break;
+
+				/**
+				 * $ js -v
+				 * JavaScript-C 1.6.1 2008-03-01
+				 * usage: js [-PswWxC] [-b branchlimit] [-c stackchunksize] [-v version] [-f scriptfile] [-e script] [-S maxstacksize] [scriptfile] [scriptarg...]
+				 */
+				case 'js':
+					$version_line = $cmd_output[0];
+					list($junk, $version_found, $date) = explode(' ', $version_line);
 				break;
 
 				default:
