@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.7 2009/09/24 03:49:12 csmith Exp $
+* $Id: check_requirements.php,v 1.8 2009/09/28 04:05:06 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -670,7 +670,6 @@ function get_files($dir='', $filename='', $max_depth=0, $_depth=0)
 
 		if ($entry == $filename) {
 			$list[] = $dir.'/'.$entry;
-			break;
 		}
 	}
 	$d->close();
