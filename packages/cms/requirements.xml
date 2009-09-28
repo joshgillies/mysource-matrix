@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.2.2.2 2009/09/28 05:01:55 csmith Exp $
+*
+*/
+-->
+<requirement_info>
+	<package_name>cms</package_name>
+	<requirement>
+		<pear_package>http_request</pear_package>
+		<version>1.4.4</version>
+	</requirement>
+	<requirement>
+		<pear_package>http_client</pear_package>
+		<version>1.2.1</version>
+	</requirement>
+	<requirement>
+		<pear_package>net_url</pear_package>
+		<version>1.0.15</version>
+	</requirement>
+</requirement_info>
