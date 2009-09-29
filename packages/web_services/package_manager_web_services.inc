@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_web_services.inc,v 1.5 2009/07/06 23:00:59 mbrydon Exp $
+* $Id: package_manager_web_services.inc,v 1.5.2.1 2009/09/29 03:52:55 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -61,6 +61,7 @@ class Package_Manager_Web_Services extends Package_Manager
 	{
 		return Array(
 				'web_folder_web_services',
+				'rest_manager',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -121,6 +122,29 @@ class Package_Manager_Web_Services extends Package_Manager
 
 	}//end createWebFolderWebServices()
 
+
+	/**
+	 * Create the Rest Manager system asset.
+	 *
+	 * @return object
+	 * @access public
+	 */
+    function &createRestManager()
+    {
+        $system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+
+        $GLOBALS['SQ_SYSTEM']->am->includeAsset('rest_manager');
+        $rest_manager = new Rest_Manager();
+        $rest_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+        if (!$rest_manager->create($rest_manager_link)) {
+            trigger_localised_error('CORE0001', E_USER_ERROR, 'REST Manager');
+        }
+        pre_echo('REST Manager Asset Id : '.$rest_manager->id);
+
+        $GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('rest_manager', $rest_manager->id);
+        return $rest_manager;
+
+    }//end createRestManager()
 
 }//end class
 
