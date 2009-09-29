@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.4.2.2 2009/09/29 03:51:43 akarelia Exp $
+*
+*/
+-->
+<requirement_info>
+	<package_name>rest</package_name>
+
+	<requirement>
+		<!--
+		check for SpiderMonkey JS installed on the system
+		if it's not available, check for Rhino JS.
+		//-->
+		<external_program>js</external_program>
+		<description> - This is used by Page REST Resource JS Asset to perform JS operations on the Response Body. Will use SpiderMonkey or Rhino Package.</description>
+		<version>1.8.0</version>
+		<version_arguments>-v</version_arguments>
+		<suggested>1</suggested>
+	</requirement>
+
+</requirement_info>
