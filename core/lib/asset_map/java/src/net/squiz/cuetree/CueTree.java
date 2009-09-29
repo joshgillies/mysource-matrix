@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.17 2006/12/05 05:28:40 bcaldwell Exp $
+* $Id: CueTree.java,v 1.17.14.1 2009/09/29 01:44:05 akarelia Exp $
 *
 */
 
@@ -1072,7 +1072,7 @@ public class CueTree extends JTree {
 					index = 0;
 				} else {
 					// if we are on the same branch...
-					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
+					if ( (currentPath.getParentPath()).equals(sourcePath.getParentPath()) ) {
 
 						newIndex = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
@@ -1104,7 +1104,10 @@ public class CueTree extends JTree {
 						);
 					}
 
-					if (indexModifier==0 && (index < oldIndex)) {
+					// bug fix for #3924 Moving assets - will not sit at bottom of a list
+					// (index < oldIndex) is check if we are moving under same tree, and the (currentPath.getParentPath()).equals(sourcePath.getParentPath())) 
+					// is check if we moving from some other tree.
+					if (indexModifier==0 && (index < oldIndex || !(currentPath.getParentPath()).equals(sourcePath.getParentPath()))) {
 						indexModifier++;
 					}
 
