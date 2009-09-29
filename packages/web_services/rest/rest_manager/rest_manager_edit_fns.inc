@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rest_manager_edit_fns.inc,v 1.1 2009/09/23 07:20:30 akarelia Exp $
+* $Id: rest_manager_edit_fns.inc,v 1.2 2009/09/29 03:40:51 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Squiz_UK_Clients
 * @subpackage rest
 */
@@ -46,6 +46,18 @@ class REST_Manager_Edit_Fns extends Asset_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['web_paths']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['dependants']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
 
 	}//end constructor
 
