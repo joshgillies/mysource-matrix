@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.5 2009/09/22 03:34:04 lwright Exp $
+* $Id: lang_strings.xml,v 1.335.2.6 2009/09/29 03:55:24 akarelia Exp $
 *
 */
 
@@ -1846,6 +1846,9 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 
 	<!-- strings for javascript -->
+	<string source="javascript_configuration">JavaScript Configuration</string>
+    <string source="path_to_javascript">JavaScript Command</string>
+    <string source="javascript_command_note">To include E4X support in Spidermonkey, use /usr/bin/js -x</string>
 	<string source="submission_form_not_found" js="1">Could not find form with ID %s to submit</string>
 	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR:
 %s</string>
@@ -2670,4 +2673,35 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="log_errors_syslog_ident_note">If entered, this string will be used to identify the system within the syslog. If not entered, the long name of the system (&quot;%s&quot;) will be used.</string>
 	<string source="syslog_facility_user">User</string>
 	<string source="syslog_facility_local">Local %s</string>
+
+	<!-- http_request and oauth attribute strings -->
+	<string source="http_request_urls">URL(s)</string>
+	<string source="http_request_method">Method</string>
+	<string source="http_request_timeout">Timeout (seconds)</string>
+	<string source="http_request_follow_redirect">Follow Redirects</string>
+	<string source="http_request_cache_options">Cache Options</string>
+	<string source="http_request_cache_post_requests">Cache Post Requests (use with caution)</string>
+	<string source="http_request_default_cache_expiry">Default Cache Expiry (seconds)</string>
+	<string source="http_request_authentication_type">Authentication Type</string>
+	<string source="http_request_request_body">Request Body</string>
+	<string source="http_request_request_headers">Request Headers</string>
+	<string source="http_request_convert_to_utf8">Convert to UTF-8</string>
+    <string source="http_request_document_encoding">Document Encoding</string>
+	<string source="http_request_run_test">Run Test</string>
+	<string source="oauth_asset">OAuth Asset</string>
+	<string source="oauth_consumer_secret">Consumer Secret</string>
+	<string source="oauth_consumer_key">Consumer Key</string>
+	<string source="oauth_request_token_url">Request Token Request URL</string>
+	<string source="oauth_authorization_url">Authorization Request URL</string>
+	<string source="oauth_access_token_url">Access Token Request URL</string>
+	<string source="oauth_signature_method">Signature Method</string>
+	<string source="oauth_callback_url">Call Back URL</string>
+	<string source="oauth_request_token_failed">A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_request_token_not_found">A user authorization has been request without a request token. URL: %1$s</string>
+	<string source="oauth_authorization_request_failed">A user authorization has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_access_token_missing_params">Missing paramters (authorized request token, token secret and/or verifier) required for an access token request. URL: %1$s</string>
+	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
+
+
 </strings>
