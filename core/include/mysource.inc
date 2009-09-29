@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.321 2009/09/22 00:25:42 lwright Exp $
+* $Id: mysource.inc,v 1.322 2009/09/29 04:22:38 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.321 $
+* @version $Revision: 1.322 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -670,10 +670,15 @@ class MySource extends MySource_Object
 	protected function _sendHTTPHeaders(&$asset)
 	{
 		header('Pragma: cache');
+		$contextid = $this->getContextId();
+		$cache_key = 'cache_info';
+		if ($contextid !== 0) {
+			$cache_key .= '.'.$contextid;
+		}
 
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
+		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), $cache_key);
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
@@ -701,7 +706,7 @@ class MySource extends MySource_Object
 						'last_modified'	=> $last_updated,
 						'expires'		=> (time() + $cache_expiry),
 					);
-			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info));
+			$cache_status = $cm->saveToCache($asset->id, $asset->type(), $cache_key, serialize($info));
 			// if cache_status is FALSE, then caching is probably disabled, expiry time = now
 
 			// Calculate the "Browser Cache Expiry" value for use in HTTP headers
