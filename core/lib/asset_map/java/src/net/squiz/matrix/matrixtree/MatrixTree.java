@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTree.java,v 1.30 2009/01/06 05:07:38 bshkara Exp $
+* $Id: MatrixTree.java,v 1.31 2009/09/29 01:31:16 akarelia Exp $
 *
 */
 
@@ -1289,6 +1289,7 @@ public class MatrixTree extends CueTree
 		final MatrixTreeNode parent,
 		final int index,
 		final int prevIndex) {
+
 			JPopupMenu newLinkMenu = new JPopupMenu();
 
 			final JMenuItem moveMenuItem    = new JMenuItem(Matrix.translate("asset_map_menu_move_here"));

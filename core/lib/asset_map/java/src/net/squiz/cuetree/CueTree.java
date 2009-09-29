@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.17 2006/12/05 05:28:40 bcaldwell Exp $
+* $Id: CueTree.java,v 1.18 2009/09/29 01:31:16 akarelia Exp $
 *
 */
 
@@ -1062,8 +1062,7 @@ public class CueTree extends JTree {
 			int oldIndex = 0;
 			int newIndex = 0;
 
-
-		if (!lastPathWasParent) {
+			if (!lastPathWasParent) {
 				// if the last path wasn't the new parent and the current path
 				// was expanded, then the new position is the first child of
 				// current path
@@ -1072,8 +1071,7 @@ public class CueTree extends JTree {
 					index = 0;
 				} else {
 					// if we are on the same branch...
-					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
-
+					if ( (currentPath.getParentPath()).equals(sourcePath.getParentPath()) ) {
 						newIndex = getModel().getIndexOfChild(
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
@@ -1095,6 +1093,7 @@ public class CueTree extends JTree {
 							currentPath.getLastPathComponent()
 					);
 
+
 					if (sourcePath.getParentPath() == null) {
 						indexModifier++;
 					} else {
@@ -1104,7 +1103,10 @@ public class CueTree extends JTree {
 						);
 					}
 
-					if (indexModifier==0 && (index < oldIndex)) {
+					// bug fix for #3924 Moving assets - will not sit at bottom of a list
+					// (index < oldIndex) is check if we are moving under same tree, and the (currentPath.getParentPath()).equals(sourcePath.getParentPath())) 
+					// is check if we moving from some other tree.
+					if (indexModifier==0 && (index < oldIndex || !(currentPath.getParentPath()).equals(sourcePath.getParentPath()))) {
 						indexModifier++;
 					}
 
