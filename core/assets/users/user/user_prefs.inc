@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.15.2.2 2009/09/22 04:18:46 lwright Exp $
+* $Id: user_prefs.inc,v 1.15.2.3 2009/09/29 05:54:13 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -143,7 +143,7 @@ class User_Prefs extends Prefs
 					margin: 3px;
 				}
 			</style>
-			<?php 
+			<?php
 			foreach ($session_settings as $id => $extra_setting) {
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
@@ -236,7 +236,7 @@ class User_Prefs extends Prefs
 				</ul>
 			</div>
 			<?php
-			}//end foreach 
+			}//end foreach
 			echo '*'.translate('session_timeout_explanation');
 			?>
 			<br />
@@ -438,7 +438,7 @@ class User_Prefs extends Prefs
 						foreach ($font_files as $font_file) {
 							$result = preg_match('/(.*)\.ttf$/i', $font_file, $matches);
 							if (isset($matches[1]) && !empty($matches[1])) {
-								$fonts_installed[$matches[1]] = ucwords($matches[1]);	
+								$fonts_installed[$matches[1]] = ucwords($matches[1]);
 							}//end if
 						}//end foreach
 						if ($have_lock && $is_admin) {
@@ -535,16 +535,17 @@ class User_Prefs extends Prefs
 			<?php
 
 			if ($have_lock && $is_admin) {
-
 				if (isset($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'])) {
-					$set_context_on_login = (int)$this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'];
+					$set_context_on_login = $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['default'];
 					if (array_key_exists($set_context_on_login, $contexts) === FALSE) {
 						$set_context_on_login = 'default';
+					} else {
+						$set_context_on_login = (int)$set_context_on_login;
 					}
 				} else {
 					$set_context_on_login = 'default';
 				}
-				
+
 				$default = $set_context_on_login;
 
 				combo_box('prefs[SQ_USER_SET_CONTEXT_ON_LOGIN]', $options, FALSE, Array($default));
@@ -593,7 +594,7 @@ class User_Prefs extends Prefs
 						'persist'		=> 0,
 						'timeout'		=> 0,
 						'max_length'	=> 0,
-				  	  );
+					  );
 		$new_prefs	= Array( $make_new );
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
 			foreach ($_POST['prefs']['SQ_USER_SESSION_PREFS'] as $id => $submitted_pref) {
@@ -699,7 +700,7 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
 			}
 		}
-		
+
 		if (is_null($pref) || $pref == 'SQ_USER_SET_CONTEXT_ON_LOGIN') {
 			// Set user context upon login pref
 			if (isset($_POST['prefs']['SQ_USER_SET_CONTEXT_ON_LOGIN']) && (strpos($_POST['prefs']['SQ_USER_SET_CONTEXT_ON_LOGIN'], 'sep') === FALSE)) {
