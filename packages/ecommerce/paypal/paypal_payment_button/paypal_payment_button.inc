@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button.inc,v 1.2 2009/03/30 18:11:23 ata Exp $
+* $Id: paypal_payment_button.inc,v 1.3 2009/09/29 11:23:47 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -136,14 +136,16 @@ HEREDOC;
 			$data .= 'item_number='.$this->attr('item_id')."\n";
 		}
 
-		$price = $this->attr('price');
-		//Replace keywords for price
-		replace_global_keywords($price);
-		$data .= 'amount='.$price."\n";
+		$price = trim($this->attr('price'));
+		if ($price != '') {
+			//Replace keywords for price
+			replace_global_keywords($price);
+			$data .= 'amount='.$price."\n";
+		}
 		
 		$data .= 'currency_code='.$this->attr('currency')."\n";
 		
-		if ($this->attr('undefined_quantity')) {
+		if (($this->attr('button_type') == '_xclick') && $this->attr('undefined_quantity')) {
 			$data .= 'undefined_quantity=1'."\n";
 		}
 		

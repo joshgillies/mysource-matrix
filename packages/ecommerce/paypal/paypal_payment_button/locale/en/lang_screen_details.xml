@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2009/04/02 23:35:50 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.4 2009/09/29 11:23:47 ata Exp $
 *
 */
 -->
@@ -27,25 +27,37 @@
 		</field>
 	</section>
 	<section name="Button details">
-		<field attribute="item_name">
-			<display_name>Item name</display_name>
-			<note />
+		<field attribute="button_type">
+			<display_name>Button Type</display_name>
+			<note>The type of button supported by Paypal includes Buy Now and Donate buttons.</note>
 		</field>
-		<field attribute="item_id">
-			<display_name>Item ID</display_name>
-			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value is usually an asset ID and can be viewed by customers. Thus, it should not be used if the asset ID is secret to customers.</note>
+		<field>
+			<function_call>
+				<paint_function name="paintItemName" />
+				<process_function name="processItemName" />
+			</function_call>
 		</field>
-		<field attribute="price">
-			<display_name>Price</display_name>
-			<note />
+		<field>
+			<function_call>
+				<paint_function name="paintItemID" />
+				<process_function name="processItemID" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintPrice" />
+				<process_function name="processPrice" />
+			</function_call>
 		</field>
 		<field attribute="currency">
 			<display_name>Currency</display_name>
 			<note />
 		</field>
-		<field attribute="undefined_quantity">
-			<display_name>Undefined quantity?</display_name>
-			<note>Yes, if buyers can update the item quantity in payment process</note>
+		<field>
+			<function_call>
+				<paint_function name="paintUndefinedQuantity" />
+				<process_function name="processUndefinedQuantity" />
+			</function_call>
 		</field>
 		<field attribute="paypal_account_id">
 			<display_name>Paypal Business Account</display_name>
@@ -73,7 +85,7 @@
 		</field>
 		<field attribute="image_url">
 			<display_name>Image URL</display_name>
-			<note />
+			<note>The URL of the image to use for the payment button. You can use Paypal images such as Buy Now (https://www.paypal.com/en_GB/i/btn/btn_buynowCC_LG.gif), Donate (https://www.paypal.com/en_GB/i/btn/btn_donateCC_LG.gif).</note>
 		</field>
 		<field>
 			<display_name>Extra variables</display_name>
