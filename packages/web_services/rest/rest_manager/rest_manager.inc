@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rest_manager.inc,v 1.1 2009/09/23 07:20:30 akarelia Exp $
+* $Id: rest_manager.inc,v 1.2 2009/09/29 02:02:25 akarelia Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -31,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Squiz_UK_Clients
 * @subpackage rest
 */

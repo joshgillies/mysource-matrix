@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_call_rest_resource.inc,v 1.1 2009/09/23 07:13:30 akarelia Exp $
+* $Id: trigger_action_call_rest_resource.inc,v 1.2 2009/09/29 02:02:25 akarelia Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 
@@ -24,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */

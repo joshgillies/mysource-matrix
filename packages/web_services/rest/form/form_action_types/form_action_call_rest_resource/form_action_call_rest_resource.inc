@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_call_rest_resource.inc,v 1.1 2009/09/23 07:15:50 akarelia Exp $
+* $Id: form_action_call_rest_resource.inc,v 1.2 2009/09/29 02:02:25 akarelia Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */

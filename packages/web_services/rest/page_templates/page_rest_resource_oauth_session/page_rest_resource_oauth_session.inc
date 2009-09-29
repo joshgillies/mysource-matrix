@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.1 2009/09/23 07:29:39 akarelia Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.2 2009/09/29 02:02:25 akarelia Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/web_services/rest/page_templates/page_rest_resource/page_rest_resource.inc';
 
 
