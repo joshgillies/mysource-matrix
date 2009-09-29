@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.33 2009/05/21 23:23:54 ewang Exp $
+* $Id: external_tools_config.inc,v 1.33.2.1 2009/09/29 03:54:14 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -59,6 +59,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_VIRUS_CHECKER_PATH'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_VIRUS_CHECKER_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_VIRUS_CHECKER_TYPE'			=> Array('editable' => 1, 'default' => 'clam'),
+						'SQ_TOOL_JS_PATH'						=> Array('editable' => 1, 'default' => '/usr/bin/js'),
 					   );
 
 
@@ -414,6 +415,21 @@ class External_Tools_Config extends Config
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'Virus Checker'); ?></span><?php
 				}//end if
 
+		$o->closeSection();
+		$o->openSection(translate('javascript_configuration'));
+			$o->openField(translate('path_to_javascript'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_JS_PATH]', SQ_TOOL_JS_PATH, 30);
+				} else {
+					echo SQ_TOOL_JS_PATH;
+				}//end if
+				?><br /><?php
+				echo translate('javascript_command_note');
+				if (!is_file(SQ_TOOL_JS_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'JavaScript'); ?></span><?php
+				} else if (!is_executable(SQ_TOOL_JS_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'JavaScript'); ?></span><?php
+				}//end if
 		$o->closeSection();
 		
 		if ($write_access) $o->commitButton('', TRUE);
