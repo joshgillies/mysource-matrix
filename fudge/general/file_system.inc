@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.45 2009/07/07 06:01:12 akarelia Exp $
+* $Id: file_system.inc,v 1.45.2.1 2009/09/29 00:36:35 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -175,13 +175,13 @@ function array_to_file($value, $var_name, $filename)
 function easy_filesize($size)
 {
 	if ($size < 1024) {
-		return $size.' bytes';
+		return $size.' Bytes';
 	} else if ($size < 1048576) {
-		return sprintf('%.1f kb', $size/1024.0);
+		return sprintf('%.1f KB', $size/1024.0);
 	} else if ($size < 1073741824) {
-		return sprintf('%.1f mb',($size/1024.0)/1024.0);
+		return sprintf('%.1f MB',($size/1024.0)/1024.0);
 	} else {
-		return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
+		return sprintf('%.1f GB',(($size/1024.0)/1024.0)/1024.0);
 	}
 
 }//end easy_filesize()
