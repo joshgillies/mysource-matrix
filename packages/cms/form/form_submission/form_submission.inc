@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.34 2009/04/08 03:28:29 lwright Exp $
+* $Id: form_submission.inc,v 1.35 2009/09/30 11:40:13 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -452,6 +452,19 @@ class Form_Submission extends Asset
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
 			return $elt['answer'];
 		}
+		
+		//do keyword replacement for question types that have both keys and values in the answers such as select or country question types
+		if (preg_match('/question\_answer\_key\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
+			$attrs = $this->attr('attributes');
+			$elt = array_get_index($attrs['answers'], $matches[2].':q'.$matches[3], Array('answer' => ''));
+			//return the summary if the answers key is not a scalar value such as tickbox list question type
+			if (!is_scalar($elt['answer'])) {
+				$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
+			}
+			
+			return $elt['answer'];
+		}
+		
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
@@ -476,6 +489,7 @@ class Form_Submission extends Asset
 		$res = parent::getAvailableKeywords();
 		$res['question_name_X_qY'] = 'The name of the question with ID X:qY';
 		$res['question_answer_X_qY'] = 'The answer to the question with ID X:qY';
+		$res['question_answer_key_X_qY'] = 'The answer key to the question with ID X:qY';
 		$res['submission_ip_address'] = 'IP address that created this submission';
 		return $res;
 
