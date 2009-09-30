@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.75 2009/09/11 03:53:16 lwright Exp $
+* $Id: cache_manager.inc,v 1.76 2009/09/30 00:04:02 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,7 +249,7 @@ class Cache_Manager extends Asset
 		// we don't want this query vars for cache key, e.g. SQ_ACTION=login
 		$query_vars=Array();
 		parse_str($_SERVER['QUERY_STRING'], $query_vars);
-		$mute_list = array_intersect(array_keys($query_vars), Array('SQ_BACKEND_PAGE', 'SQ_ACTION', 'SQ_DESIGN_NAME'));
+		$mute_list = array_intersect(array_keys($query_vars), Array('SQ_BACKEND_PAGE', 'SQ_ACTION', 'SQ_DESIGN_NAME', 'SQ_CONTEXT_NAME'));
 		foreach ($mute_list as $name) {
 			unset($query_vars[$name]);
 		}
