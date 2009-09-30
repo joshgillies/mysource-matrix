@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.8 2008/08/29 00:45:32 hnguyen Exp $
+* $Id: state.js,v 1.9 2009/09/30 00:17:00 akarelia Exp $
 *
 */
 
@@ -51,6 +51,8 @@ function saveState()
 			// Don't save the screen navigation controls
 		} else if (el.type == 'button' || el.type == 'submit' || el.type == 'reset') {
 			// Don't save buttons
+		} else if (el.name == 'sq_context_switcher') {
+			// Don't save Context Switcher
 		} else if (el.type =='checkbox' || el.type == 'radio') {
 			// Save the checkbox/radio
 			if (el.checked) {
