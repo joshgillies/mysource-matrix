@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.165 2009/07/28 05:18:57 lwright Exp $
+* $Id: backend_outputter.inc,v 1.166 2009/09/30 00:13:42 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1657,12 +1657,11 @@ class Backend_Outputter
 		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 		$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if (count($contexts) > 1) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-	
+
 			$context_list = Array();
 			foreach ($contexts as $context_item_id => $context_item) {
-				$url = replace_query_string_vars(Array('SQ_ACTION' => 'set_context', 'SQ_CONTEXT_NAME' => rawurlencode($context_item['name'])), $current_loc_base, $current_loc_query);
-				if ((int)$contextid === (int)$context_item_id) {
+				$url = replace_query_string_vars(Array('SQ_ACTION' => 'set_backend_context', 'SQ_CONTEXT_NAME' => rawurlencode($context_item['name'])), $current_loc_base, $current_loc_query);
+				if ((int)$current_context === (int)$context_item_id) {
 					$default_url = $url;
 				}
 
@@ -1670,7 +1669,7 @@ class Backend_Outputter
 			}
 			combo_box('sq_context_switcher', $context_list, FALSE, Array($default_url), 1, ' onchange="self.location = this.value;"');
 		}
-	
+
 
 	}//end printSimpleContextSwitcher()
 
