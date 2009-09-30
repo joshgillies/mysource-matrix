@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.233 2009/08/25 05:51:54 lwright Exp $
+* $Id: general.inc,v 1.234 2009/09/30 01:46:41 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.233 $
+* @version $Revision: 1.234 $
 * @package MySource_Matrix
 */
 
@@ -1789,34 +1789,43 @@ function replace_global_keywords(&$text)
 
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
-					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
-						$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
-						$protocol_pos = strpos($asset_url, '://');
-						if ($protocol_pos !== FALSE) {
-							$asset_url = substr($asset_url, $protocol_pos + 3);
-						}
+					$site = NULL;
+					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
+						$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
 					} else {
-						$asset_url = current_url(FALSE, TRUE);
-					}
-					$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
-
-					$site_assetid = 0;
-					foreach ($asset_lineage as $asset_link) {
-						$asset_type = $asset_link['type_code'];
-						if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-							$site_assetid = $asset_link['assetid'];
-							break;
+						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+							$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
+							$protocol_pos = strpos($asset_url, '://');
+							if ($protocol_pos !== FALSE) {
+								$asset_url = substr($asset_url, $protocol_pos + 3);
+							}
+						} else {
+							$asset_url = current_url(FALSE, TRUE);
 						}
-					}
-					if (!empty($site_assetid)) {
-						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+						$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+
+						$site_assetid = 0;
+						foreach ($asset_lineage as $asset_link) {
+							$asset_type = $asset_link['type_code'];
+							if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+								$site_assetid = $asset_link['assetid'];
+								break;
+							}
+						}
+						if (!empty($site_assetid)) {
+							$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+						}
+					}//end if
+
+					if (!is_null($site)) {
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						$site_replacement = $site->getKeywordReplacement($site_keyword);
 						if ((string)$site_replacement != "%$site_keyword%") {
 							$replacements[$full_keyword] = $site_replacement;
 						}
-					}
-				}
+					}//end if
+				}//end if
+
 				if (0 === strpos($keyword, 'globals_asset_')) {
 					$asset_keyword = 'asset_'.substr($keyword, 14);
 					preg_match('|(.*):([0-9]+)$|',$asset_keyword,$matches);
