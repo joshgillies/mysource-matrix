@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.6 2009/09/29 03:55:24 akarelia Exp $
+* $Id: lang_strings.xml,v 1.335.2.7 2009/09/30 00:03:01 lwright Exp $
 *
 */
 
@@ -109,6 +109,7 @@
 	<string source="contains">Contains</string>
 	<string source="content_tag">Content Tag</string>
 	<string source="content_tags">Content Tags</string>
+	<string source="context">Context</string>
 	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
 	<string source="csv_upload">CSV Upload</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
@@ -1847,8 +1848,9 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<!-- strings for javascript -->
 	<string source="javascript_configuration">JavaScript Configuration</string>
-    <string source="path_to_javascript">JavaScript Command</string>
-    <string source="javascript_command_note">To include E4X support in Spidermonkey, use /usr/bin/js -x</string>
+	<string source="path_to_javascript">JavaScript Command</string>
+	<string source="javascript_command_note">To include E4X support in Spidermonkey, use /usr/bin/js -x</string>
+
 	<string source="submission_form_not_found" js="1">Could not find form with ID %s to submit</string>
 	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR:
 %s</string>
@@ -1934,6 +1936,7 @@ Are you sure you want to proceed?</string>
 	<string source="enable" js="1">Enable</string>
 	<string source="disable" js="1">Disable</string>
 	<string source="image_editor_disabled" js="1">The Image Editor is not currently supported for Safari on Windows.  As such it has been disabled.</string>
+	<string source="use_normal_context_for_this_url">Use normal context for this URL</string>
 
 	<string source="enabled">Enabled</string>
 	<string source="disabled">Disabled</string>
@@ -2686,7 +2689,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="http_request_request_body">Request Body</string>
 	<string source="http_request_request_headers">Request Headers</string>
 	<string source="http_request_convert_to_utf8">Convert to UTF-8</string>
-    <string source="http_request_document_encoding">Document Encoding</string>
+	<string source="http_request_document_encoding">Document Encoding</string>
 	<string source="http_request_run_test">Run Test</string>
 	<string source="oauth_asset">OAuth Asset</string>
 	<string source="oauth_consumer_secret">Consumer Secret</string>
