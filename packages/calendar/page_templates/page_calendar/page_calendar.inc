@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.222.4.7 2009/08/17 04:36:58 akarelia Exp $
+* $Id: page_calendar.inc,v 1.222.4.8 2009/09/30 04:36:27 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.222.4.7 $
+* @version $Revision: 1.222.4.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1402,6 +1402,7 @@ class Page_Calendar extends Page
 		if (isset($_POST['asset_action'])) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$link = Array();
 			if ($event->processBackend($o, $link)) {
 				// The form has been committed and there are no probs, so go to event view
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -3342,7 +3343,7 @@ class Page_Calendar extends Page
 	*/
 	function formatDatesToCompare($view,$date,$direction, $operator)
 	{
-		if ($view == 'event') {
+		if ($view == 'event' || $view == 'edit') {
 			return Array('','');
 		}
 
