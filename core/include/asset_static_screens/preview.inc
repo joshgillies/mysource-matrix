@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.33.4.2 2009/09/22 02:21:02 cupreti Exp $
+* $Id: preview.inc,v 1.33.4.3 2009/09/30 00:16:56 lwright Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33.4.2 $
+* @version $Revision: 1.33.4.3 $
 * @package MySource_Matrix
 */
 
@@ -201,6 +201,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						query_args.push('SQ_DESIGN_NAME='+pd.value);
 					}
 
+					var pc = document.getElementById('preview_context');
+					if ((pc != null) && (pc.value != '-sep-') && (pc.value != '-default-')) {
+						query_args.push('SQ_CONTEXT_NAME='+pc.value);
+					}
+
 					if (query_args.length != 0) {
 						var query_str = '';
 						for (var i=0; i < query_args.length; i++) {
@@ -232,7 +237,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						catch(e)
 						{
 							alert ("Your browser does not support XMLHTTP!");
-							return;  
+							return;
 						}
 					}
 					document.getElementById("size_button").value = "Calculating ....";
@@ -253,8 +258,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						url_calculate = url_calculate+"&calc=calculate";
 						url_calculate = url_calculate+"&sid="+Math.random();
 					}
-					
-					
+
+
 					if (preview_url.match(/SQ_DESIGN_NAME=/)) {
 						url_calculate = url_calculate+"&SQ_DESIGN_NAME="+design_name[1];
 					}
@@ -262,9 +267,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					xmlHttp.open("GET",url_calculate,true);
 					xmlHttp.send(null);
 				}
-				
-				function stateChanged() 
-				{ 
+
+				function stateChanged()
+				{
 					if (xmlHttp.readyState==4)
 					{
 						document.getElementById("size_elements").innerHTML=xmlHttp.responseText;
@@ -274,7 +279,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 
 			</script>
-		<?php 
+		<?php
 		$o->closeRaw();
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
@@ -294,11 +299,30 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();			
 			
+			$o->openField(translate('context'));
+				$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+				if (count($contexts) > 1) {
+					$context_list = Array(
+										'-default-' => translate('use_normal_context_for_this_url'),
+										'-sep-'		=> '----------------------',
+									);
+					foreach ($contexts as $context_item_id => $context_item) {
+						if ((int)$current_context === (int)$context_item_id) {
+							$context_name = $context_item['name'];
+						}
+
+						$context_list[rawurlencode($context_item['name'])] = $context_item['name'];
+					}
+					combo_box('preview_context', $context_list, FALSE, Array('-default-'), 1, 'onchange="update_preview_url()"');
+				}
+			$o->closeField();
+
 			$o->openField(translate('use_cache'));
 				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
 				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
-			
+
 			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
 				$o->openField(translate('show_diff'));
 					check_box('show_diff', '1', FALSE, 'if (this.checked) { document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
@@ -316,7 +340,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->openRaw();
 				?>
 				<span id="size_elements"></span>
-			<?php 
+			<?php
 			$o->closeRaw();
 			$o->openRaw();
 			?>
@@ -445,7 +469,7 @@ function printSize(&$owner)
 			$basename = split('/',$url);
 			$protocol = split(':',$url);
 			$db = MatrixDAL::getDb();
-			$sql = 'SELECT 
+			$sql = 'SELECT
 							assetid
 					FROM
 							sq_ast_path

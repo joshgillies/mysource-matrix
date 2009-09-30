@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.5 2009/09/29 04:23:49 lwright Exp $
+* $Id: mysource.inc,v 1.313.2.6 2009/09/30 00:16:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.5 $
+* @version $Revision: 1.313.2.6 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -341,7 +341,21 @@ class MySource extends MySource_Object
 		// and store it in the session so it sticks between pages
 		if (isset($_SESSION) === TRUE) {
 			$sandbox = array_get_index($_SESSION, SQ_SESSION_SANDBOX_INDEX, Array());
-			$alternate_context_id = array_get_index($sandbox, 'SQ_ALTERNATE_CONTEXT_ID');
+
+			// Get the backend override first, then if that's not set, then
+			// go to the user preference
+			$alternate_context_id = NULL;
+
+			if ((SQ_IN_BACKEND === TRUE) || (SQ_IN_LIMBO === TRUE)) {
+				if ($this->userPublic() === FALSE) {
+					$alternate_context_id = array_get_index($sandbox, 'SQ_BACKEND_ALTERNATE_CONTEXT_ID');
+				}
+			}
+
+			if ($alternate_context_id === NULL) {
+				$alternate_context_id = array_get_index($sandbox, 'SQ_ALTERNATE_CONTEXT_ID');
+			}
+
 			if ($alternate_context_id !== NULL) {
 				// If the context no longer exists (eg. the current
 				// one was deleted through the backend interface),
@@ -1463,6 +1477,22 @@ class MySource extends MySource_Object
 				}
 			break;
 
+			case 'set_backend_context' :
+				// Only make this take effect while we are in the backend
+				// and we are logged in as some sort of user
+				if ((SQ_IN_BACKEND === TRUE) || (SQ_IN_LIMBO === TRUE)) {
+					if ($this->userPublic() === FALSE) {
+						$context_name = (isset($_GET['SQ_CONTEXT_NAME'])) ? $_GET['SQ_CONTEXT_NAME'] : '';
+						unset($_GET['SQ_CONTEXT_NAME']);
+						$context_data = MatrixDAL::executeAll('core', 'getContextByName', Array('name' => Array($context_name)));
+						if (empty($context_data) === FALSE) {
+							$contextid = $context_data[0]['contextid'];
+							$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $contextid;
+						}
+					}
+				}
+			break;
+
 			case 'clear_context' :
 				if ((isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]) === TRUE) && (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) === TRUE)) {
 					unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']);
@@ -1769,6 +1799,7 @@ class MySource extends MySource_Object
 		// a context ID. (Otherwise it's something like 'default', ie. don't
 		// change it.) Save it to the session...
 		$login_contextid = $this->getUserPrefs('user', 'SQ_USER_SET_CONTEXT_ON_LOGIN', TRUE);
+
 		if (is_numeric($login_contextid) === TRUE) {
 			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $login_contextid;
 			$this->changeContext($login_contextid);
@@ -2544,6 +2575,20 @@ class MySource extends MySource_Object
 	*/
 	public function getAlternateContext()
 	{
+		// Check first to see whether we have an overriding context name set,
+		// that hasn't already been swallowed by either set_context or
+		// set_backend_context global action
+		$override_context_name = array_get_index($_GET, 'SQ_CONTEXT_NAME', NULL);
+		if ($override_context_name !== NULL) {
+			$context_name = (isset($_GET['SQ_CONTEXT_NAME'])) ? $_GET['SQ_CONTEXT_NAME'] : '';
+			unset($_GET['SQ_CONTEXT_NAME']);
+			$context_data = MatrixDAL::executeAll('core', 'getContextByName', Array('name' => Array($context_name)));
+			if (empty($context_data) === FALSE) {
+				$contextid = $context_data[0]['contextid'];
+				return $contextid;
+			}
+		}
+
 		// Get all contexts, except the default
 		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
