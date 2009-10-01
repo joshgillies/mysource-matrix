@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.12 2009/09/28 04:33:40 csmith Exp $
+* $Id: check_requirements.php,v 1.13 2009/10/01 05:12:09 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -63,6 +63,11 @@ $missing_modules = array (
 		'out_of_date' => array(),
 	),
 	'pear_package' => array (
+		'required' => array(),
+		'suggested' => array(),
+		'out_of_date' => array(),
+	),
+	'pecl_package' => array (
 		'required' => array(),
 		'suggested' => array(),
 		'out_of_date' => array(),
@@ -129,6 +134,9 @@ foreach ($check_types as $check_type) {
 		break;
 		case 'pear_package':
 			$prefix = 'These pear packages are ';
+		break;
+		case 'pecl_package':
+			$prefix = 'These pecl packages are ';
 		break;
 		case 'external_program':
 			$prefix = 'These external programs are ';
@@ -239,13 +247,14 @@ function check_requirement_file($file='', $package_name='core')
  * The following check_type's are allowed:
  * - php_extension
  * - pear_package
+ * - pecl_package
  * - external_program
  * - php_file
  *
  * A php extension is the name of the module to load (eg 'pgsql'), not a common name nor a specific function name.
  * A php file is a file checked against the current include_path() to see if it's available.
  * A pear package is checked against what is installed with pear.
- *
+ * A pecl package is checked against what is installed with pecl.
  * A limited number of external programs are currently supported
  * - tidy
  * - antiword
@@ -269,6 +278,7 @@ function check_requirement($requirement_check, $package_name='core')
 	 * Cache the pear package list and also the php extension list.
 	 */
 	static $pear_package_list = array();
+	static $pecl_package_list = array();
 	static $php_extension_list = array();
 
 	if (empty($pear_package_list)) {
@@ -312,6 +322,49 @@ function check_requirement($requirement_check, $package_name='core')
 			$pear_package_list[strtolower($name)] = $version;
 		}
 	}
+	
+	if (empty($pecl_package_list)) {
+		$rc = -1;
+		$pecl_list = array();
+		exec('pecl list 2>/dev/null', $pecl_list, $rc);
+
+		/**
+		 * No 'pear' installed? No point checking anything else really.
+		 */
+		if (empty($pecl_list) || $rc !== 0) {
+			$msg = "Unable to exec the 'pecl list' command.\n";
+			$msg .= "Please check pear is installed and in your path then try again.\n";
+			echo $msg;
+			exit(1);
+		}
+
+		/**
+		 * lines 1-3 from 'pecl list' are always
+		 *
+		 * Installed packages, channel pecl.php.net:
+		 * =========================================
+		 * Package  Version State
+		 *
+		 * so we can unset those.
+		 */
+		unset($pecl_list[0]);
+		unset($pecl_list[1]);
+		unset($pecl_list[2]);
+
+		/**
+		 * Now go through the rest of the list and turn them into an array.
+		 * The lines look like
+		 * PACKAGE           VERSION STATE
+		 *
+		 * and package names never have spaces so we can split on spaces and get the name & version
+		 */
+		foreach ($pecl_list as $line) {
+			$line = preg_replace('/\s+/', ' ', $line);
+			list($name, $version, $state) = explode(' ', $line);
+			$pecl_package_list[strtolower($name)] = $version;
+		}
+	}
+	
 
 	if (empty($php_extension_list)) {
 		$php_extension_list = get_loaded_extensions();
@@ -324,6 +377,10 @@ function check_requirement($requirement_check, $package_name='core')
 
 	if (isset($requirement_check->pear_package)) {
 		$check_type = 'pear_package';
+	}
+	
+	if (isset($requirement_check->pecl_package)) {
+		$check_type = 'pecl_package';
 	}
 
 	if (isset($requirement_check->external_program)) {
@@ -365,6 +422,17 @@ function check_requirement($requirement_check, $package_name='core')
 				$check_version = true;
 				$check_ok = true;
 				$version_found = $pear_package_list[$check_name];
+				$version_required = (string)$requirement_check->version;
+			}
+		break;
+		
+		case 'pecl_package':
+			$check_name = strtolower($requirement_check->pecl_package);
+
+			if (isset($pecl_package_list[$check_name])) {
+				$check_version = true;
+				$check_ok = true;
+				$version_found = $pecl_package_list[$check_name];
 				$version_required = (string)$requirement_check->version;
 			}
 		break;
