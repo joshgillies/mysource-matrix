@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.75.4.6 2009/09/23 06:42:14 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.75.4.7 2009/10/01 02:16:15 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.4.6 $
+* @version $Revision: 1.75.4.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -782,7 +782,7 @@ HTMLArea.prototype.traverseChildrenNodes = function(me, callback) {
 // Sets flag to true if we find actual text or an element that's not usually displayed inline
 HTMLArea.prototype.containsText = function(node) {
 
-	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), HTMLArea.prototype.inline_tags)) return true;
+	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), HTMLArea.prototype.inline_tags) && node.hasChildNodes() && node.firstChild.nodeValue) return true;
 	else if (node.nodeType == 3 && node.nodeValue != '') return true;
 	else return null;
 
@@ -819,26 +819,63 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							// Set the start and end points such that they're going /forward/ through the document
 							var leftRange = this._doc.createRange();
 							var rightRange = this._doc.createRange();
-
+							
 							// While getting anchorNode and focusNode, for some reason Firefox is getting parent node of the 
 							// selected node instead of selected node itself when non-text node is selected
 							// See bug #3826
 							var sAnchorNode = sel.anchorNode;
-							var sFocusNode = sel.focusNode;							
+							var sFocusNode = sel.focusNode;						
 							var sAnchorOffset = sel.anchorOffset;
-							var sFocusOffset = sel.focusOffset;							
+							var sFocusOffset = sel.focusOffset;
+
+							var childAtAnchorOffset = sAnchorNode.childNodes[sAnchorOffset] ? sAnchorNode.childNodes[sAnchorOffset] : '';
+							var childAtFocusOffset = sFocusNode.childNodes[sFocusOffset] ? sFocusNode.childNodes[sFocusOffset] : '';
 							
-							if (sAnchorNode.nodeType == 1) {								
-								tempAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
-								sAnchorNode = tempAnchorNode.previousSibling ? sAnchorNode.childNodes[sAnchorOffset + 1] :  sAnchorNode.childNodes[sAnchorOffset];
-								sAnchorOffset = sAnchorNode.childNodes.length;
+							if (sAnchorNode.nodeName == 'BODY' && childAtAnchorOffset && childAtAnchorOffset.nodeName != '#text') {
+								 if (childAtAnchorOffset.childNodes[sAnchorOffset]) {
+									 sAnchorNode = childAtAnchorOffset.childNodes[sAnchorOffset];
+								 } else {
+									blank_node = document.createTextNode('');
+									sAnchorNode.appendChild(blank_node);
+									sAnchorNode = blank_node;
+									sAnchorOffset = 0;
+								 }							  
+							}
+
+							if (sFocusNode.nodeName == 'BODY' && childAtFocusOffset && childAtFocusOffset.nodeName != '#text') {
+								if (childAtFocusOffset.childNodes[sFocusOffset]) {
+									sFocusNode = childAtFocusOffset.childNodes[sFocusOffset];
+								} else {
+									blank_node = document.createTextNode('');
+									sFocusNode.appendChild(blank_node);
+									sFocusNode = blank_node;
+									sFocusOffset = 0;
+								}
+							}
+
+							if (sAnchorNode.nodeName != 'BODY' && childAtAnchorOffset && childAtAnchorOffset.nodeName != '#text'){
+								blank_node = document.createTextNode('');
+								sAnchorNode.parentNode.appendChild(blank_node);
+								sAnchorNode = blank_node;
+								sAnchorOffset = 0;
+							}
+
+							if (sFocusNode.nodeName != 'BODY' && childAtFocusOffset && childAtFocusOffset.nodeName != '#text') {
+								blank_node = document.createTextNode('');
+								sFocusNode.parentNode.appendChild(blank_node);
+								sFocusNode = blank_node;
+								sFocusOffset = 0;
+
+							}
+
+							if (sAnchorNode.nodeName == 'BODY') {
+								sAnchorNode = sAnchorNode.childNodes[sAnchorOffset] ? sAnchorNode.childNodes[sAnchorOffset] : sAnchorNode.childNodes[sAnchorOffset - 1];								
 							}
 							
-							if (sFocusNode.nodeType == 1) {
-								sFocusNode = sFocusNode.childNodes[sFocusOffset];
-								sFocusOffset = sFocusNode.childNodes.length;
+							if (sFocusNode.nodeName == 'BODY') {
+								sFocusNode = sFocusNode.childNodes[sFocusOffset] ? sFocusNode.childNodes[sFocusOffset] : sFocusNode.childNodes[sFocusOffset - 1];
 							}
-							
+
 							leftRange.setStart(sAnchorNode,sAnchorOffset);
 							rightRange.setStart(sFocusNode,sFocusOffset);
 							leftRange.collapse(true);
@@ -850,17 +887,17 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							var startOffset = (direct<0) ? sAnchorOffset : sFocusOffset;
 							var endNode = (direct<0) ? sFocusNode : sAnchorNode;
 							var endOffset = (direct<0) ? sFocusOffset : sAnchorOffset;
-
-							// When Focus node and Anchor node are same point and foucs node is at end of some node, add an extra blank node
-							// This is to make sure that paragraphs are created outside the node. See bug #3978
+								
+							// When Focus node and Anchor node are same point and foucs node is at end of an anchor node, add an extra blank node
+							// This is to make sure that paragraphs are created outside the node. See bug #3978							
+							
 							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && this.isElem(endNode.parentNode,'a') && endNode.parentNode.parentNode) {
 								
 								blank_node = document.createTextNode('');
-								endNode.parentNode.parentNode.appendChild(blank_node);	
+								endNode.parentNode.parentNode.appendChild(blank_node);
 								
 								startNode = blank_node;
 								startOffset = 0;
-								
 								endNode = blank_node;
 								endOffset = 0;
 							}
@@ -898,11 +935,11 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 							var choppingStart = startNode;
 							var choppingEnd = endNode;
-							
-							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 && choppingStart.parentNode.nodeType != 1) )
+								
+							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 ) )
 								choppingStart = choppingStart.previousSibling ? choppingStart.previousSibling : choppingStart.parentNode;
 
-							while ( ( choppingEnd.nextSibling && !this.isElem(choppingEnd.nextSibling,'p') ) || ( choppingEnd.parentNode && choppingEnd.parentNode != endBlock && choppingEnd.parentNode.nodeType != 9 && choppingEnd.parentNode.nodeType != 1) )
+							while ( ( choppingEnd.nextSibling && !this.isElem(choppingEnd.nextSibling,'p') ) || ( choppingEnd.parentNode && choppingEnd.parentNode != endBlock && choppingEnd.parentNode.nodeType != 9 ) )
 								choppingEnd = choppingEnd.nextSibling ? choppingEnd.nextSibling : choppingEnd.parentNode;
 
 							// Set up new paragraphs
@@ -945,17 +982,18 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							leftRange.setStartBefore(choppingStart);
 							leftRange.setEnd(startNode,startOffset);
 							leftParagraph.appendChild(leftRange.cloneContents());
-
+							
 							//For Right Paragraph
 							rightRange.setEndAfter(choppingEnd);
 							rightRange.setStart(endNode,endOffset);
 							rightParagraph.appendChild(rightRange.cloneContents());
-
+							
 							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
 							var isLeftParagraphEmpty = false;
 							var containsData = false;
 							containsData = this.traverseChildrenNodes(leftParagraph, this.containsText);
+							
 							if ( containsData != true ) {
 								this.insertDeepLeft(leftParagraph, '&nbsp;');
 								isLeftParagraphEmpty = true;
