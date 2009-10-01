@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.27 2009/07/29 02:16:30 csmith Exp $
+#* $Id: backup.sh,v 1.27.2.1 2009/10/01 04:34:29 csmith Exp $
 #*
 #*/
 #
@@ -479,11 +479,16 @@ oracle_dbdump()
 
 	if [ "x$remote_user" = "x" ]; then
 		file_exists "exp"
+		rc=$?
+		if [ $rc -eq 0 ]; then
+			oracle_exp=`which exp`
+		fi
 	else
 		oracle_exp=`ssh "${remote_user}" 'which exp'`
+		rc=$?
 	fi
 
-	if [ $? -gt 0 ]; then
+	if [ $rc -gt 0 ]; then
 		print_verbose ""
 		print_error "Unable to create oracle dump."
 		print_error "Make sure 'exp' is in your path."
