@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.17.2.4 2009/10/01 04:34:49 csmith Exp $
+#* $Id: backup.sh,v 1.17.2.5 2009/10/01 04:55:59 csmith Exp $
 #*
 #*/
 #
@@ -463,7 +463,9 @@ oracle_dbdump()
 	fi
 
 	# Also need the hostname to see if we need to do a remote dump
-	dbhost=`echo $hostspec | awk -F'/' '{ print $1 }'`
+	# since we're not using ' ' as the separator,
+	# the field we want is actually #3.
+	dbhost=`echo $hostspec | awk -F'/' '{ print $3 }'`
 	print_verbose ""
 	print_verbose "Found a dbhost of ${dbhost}"
 	print_verbose ""
