@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.6.2.2 2009/09/28 05:01:52 csmith Exp $
+* $Id: requirements.xml,v 1.6.2.3 2009/10/01 05:22:49 ewang Exp $
 *
 */
 -->
@@ -115,6 +115,11 @@
 	<requirement>
 		<pear_package>xml_parser</pear_package>
 		<version>1.2.8</version>
+	</requirement>
+	
+	<requirement>
+		<pecl_package>memcache</pecl_package>
+		<version>2.0.0</version>
 	</requirement>
 
 	<requirement>
