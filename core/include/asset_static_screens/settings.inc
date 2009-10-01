@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.55 2009/05/03 23:15:24 lwright Exp $
+* $Id: settings.inc,v 1.55.2.1 2009/10/01 04:43:52 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix
 */
 
@@ -178,7 +178,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 								function setCurrentTime(prefix) {
 									for (u in TIME_UNITS) {
-										var id = prefix + 'value[' + u + ']';
+										var id = prefix + 'value_' + u;
 										var unit = document.getElementById(id);
 
 										if (unit.type == 'text') {
