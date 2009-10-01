@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.2.2.2 2009/09/29 03:51:43 akarelia Exp $
+* $Id: page_rest_resource_js.inc,v 1.2.2.3 2009/10/01 06:00:11 akarelia Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/rest/page_templates/page_rest_resou
 * Example:
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package Squiz_UK_Clients
 * @subpackage rest
 */
@@ -86,7 +86,13 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 			foreach ($this->_res['responses'] as &$resp) {
 				$resp['bodyx'] = preg_replace("/^<\?xml\s.*\?>/", "", $resp['body']); 
 			}
-			$js .= '_REST = ' . json_encode($this->_res) . ";\n";
+			if (!function_exists('json_encode')) {
+				require_once 'Services/JSON.php';
+				$json = new Services_JSON();
+				$js .= '_REST = ' . $json->encode($this->_res) . ";\n";
+			} else {
+				$js .= '_REST = ' . json_encode($this->_res) . ";\n";
+			}
 		}
 
 		// Run any include files.
