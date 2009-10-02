@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.12.4.4 2009/10/02 04:44:53 csmith Exp $
+* $Id: check_requirements.php,v 1.12.4.5 2009/10/02 05:09:43 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.12.4.4 $
+ * @version $Revision: 1.12.4.5 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -269,6 +269,10 @@ function check_requirement_file($file='', $package_name='core')
  * As requirements are checked, they are added to the missing_modules array
  * which is later printed out as a report of what is missing or out of date
  * (for external_program's and pear_package's).
+ *
+ * Returns true or false depending on whether the requirement is available.
+ * This is mainly for alternative checking - so if the alternative is available,
+ * we don't mark the main option as a requirement also.
  */
 function check_requirement($requirement_check, $package_name='core')
 {
@@ -322,7 +326,7 @@ function check_requirement($requirement_check, $package_name='core')
 			$pear_package_list[strtolower($name)] = $version;
 		}
 	}
-	
+
 	if (empty($pecl_package_list)) {
 		$rc = -1;
 		$pecl_list = array();
@@ -364,7 +368,6 @@ function check_requirement($requirement_check, $package_name='core')
 			$pecl_package_list[strtolower($name)] = $version;
 		}
 	}
-	
 
 	if (empty($php_extension_list)) {
 		$php_extension_list = get_loaded_extensions();
@@ -703,6 +706,35 @@ function check_requirement($requirement_check, $package_name='core')
 		}
 	}
 
+	$alternative_ok = null;
+	$alternative_suggested = false;
+	/**
+	 * If we should check the alternative requirement
+	 * AND there is one defined..
+	 * do it!
+	 */
+	if ($check_alternative && $requirement_check->alternative) {
+		$alternative_suggested = $requirement_check->alternative->suggested;
+		$alternative_ok = check_requirement($requirement_check->alternative, $package_name);
+	}
+
+	/**
+	 * If the alternative gets a result (whether it's true or false)
+	 * if it's only a suggestion, add it to the list anyway.
+	 */
+	if ($alternative_ok !== null) {
+		/**
+		 * If the alternative is not a suggestion,
+		 * and our current check is also failing
+		 * overwrite the check with the alternative check
+		 * so if the alternative is available,
+		 * we don't say the main requirement is also needed.
+		 */
+		if (!$alternative_suggested && !$check_ok) {
+			$check_ok = $alternative_ok;
+		}
+	}
+
 	if (!$check_ok) {
 		if ($requirement_check->suggested) {
 			$missing_modules[$check_type]['suggested'][] = array(
@@ -717,14 +749,7 @@ function check_requirement($requirement_check, $package_name='core')
 		}
 	}
 
-	/**
-	 * If we should check the alternative requirement
-	 * AND there is one defined..
-	 * do it!
-	 */
-	if ($check_alternative && $requirement_check->alternative) {
-		check_requirement($requirement_check->alternative, $package_name);
-	}
+	return $check_ok;
 }
 
 /**
