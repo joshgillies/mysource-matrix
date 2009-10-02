@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.324 2009/09/30 01:44:21 bpearson Exp $
+* $Id: mysource.inc,v 1.325 2009/10/02 01:06:39 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.324 $
+* @version $Revision: 1.325 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -418,24 +418,6 @@ class MySource extends MySource_Object
 		} else {
 			// we are on the frontend
 
-			// Try and find the current site
-			$site = NULL;
-			$asset_url = current_url(FALSE, TRUE);
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
-			foreach ($asset_lineage as $asset_link) {
-				$asset_type = $asset_link['type_code'];
-				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-					$site_assetid = $asset_link['assetid'];
-					if (!empty($site_assetid)) {
-						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
-						break;
-					}//end if
-				}
-			}
-			if (!is_null($site)) {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
-			}//end if
-
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) {
 				// requested asset is exclusively in the trash - don't display
@@ -532,6 +514,24 @@ class MySource extends MySource_Object
 				exit(1);
 
 			}//end if is_null(asset)
+
+			// Try and find the current site
+			$site = NULL;
+			$asset_url = current_url(FALSE, TRUE);
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+			foreach ($asset_lineage as $asset_link) {
+				$asset_type = $asset_link['type_code'];
+				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+					$site_assetid = $asset_link['assetid'];
+					if (!empty($site_assetid)) {
+						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+						break;
+					}//end if
+				}
+			}
+			if (!is_null($site)) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
+			}//end if
 
 			// Are we an archived asset and we don't have the correct permission?
 			// (We need read permission, which in Archived mode actually means
