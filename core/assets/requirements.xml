@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.6.2.3 2009/10/01 05:22:49 ewang Exp $
+* $Id: requirements.xml,v 1.6.2.4 2009/10/02 04:37:51 csmith Exp $
 *
 */
 -->
@@ -46,6 +46,7 @@
 		<php_extension>memcache</php_extension>
 		<suggested>1</suggested>
 		<description> - you only need to install this module if you plan on using memcache for caching or locking.</description>
+		<version>2.0.0</version>
 	</requirement>
 	<requirement>
 		<php_extension>pspell</php_extension>
@@ -115,11 +116,6 @@
 	<requirement>
 		<pear_package>xml_parser</pear_package>
 		<version>1.2.8</version>
-	</requirement>
-	
-	<requirement>
-		<pecl_package>memcache</pecl_package>
-		<version>2.0.0</version>
 	</requirement>
 
 	<requirement>
