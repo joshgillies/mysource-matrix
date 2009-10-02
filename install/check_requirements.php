@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.13 2009/10/01 05:12:09 ewang Exp $
+* $Id: check_requirements.php,v 1.14 2009/10/02 04:29:59 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -378,7 +378,7 @@ function check_requirement($requirement_check, $package_name='core')
 	if (isset($requirement_check->pear_package)) {
 		$check_type = 'pear_package';
 	}
-	
+
 	if (isset($requirement_check->pecl_package)) {
 		$check_type = 'pecl_package';
 	}
@@ -411,6 +411,11 @@ function check_requirement($requirement_check, $package_name='core')
 				if (!$requirement_check->suggested) {
 					$check_alternative = false;
 				}
+				if ($requirement_check->version) {
+					$check_version = true;
+					$version_found = phpversion($check_name);
+					$version_required = (string)$requirement_check->version;
+				}
 				break;
 			}
 		break;
@@ -425,7 +430,7 @@ function check_requirement($requirement_check, $package_name='core')
 				$version_required = (string)$requirement_check->version;
 			}
 		break;
-		
+
 		case 'pecl_package':
 			$check_name = strtolower($requirement_check->pecl_package);
 

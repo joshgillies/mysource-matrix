@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.7 2009/10/01 05:15:11 ewang Exp $
+* $Id: requirements.xml,v 1.8 2009/10/02 04:29:59 csmith Exp $
 *
 */
 -->
@@ -46,6 +46,7 @@
 		<php_extension>memcache</php_extension>
 		<suggested>1</suggested>
 		<description> - you only need to install this module if you plan on using memcache for caching or locking.</description>
+		<version>2.0.0</version>
 	</requirement>
 	<requirement>
 		<php_extension>pspell</php_extension>
@@ -117,11 +118,6 @@
 		<version>1.2.8</version>
 	</requirement>
 
-	<requirement>
-		<pecl_package>memcache</pecl_package>
-		<version>2.0.0</version>
-	</requirement>
-	
 	<requirement>
 		<external_program>clamscan</external_program>
 		<description> - check file uploads for viruses before they are saved to your system.</description>
