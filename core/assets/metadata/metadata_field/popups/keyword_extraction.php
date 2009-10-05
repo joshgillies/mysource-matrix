@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.7 2007/12/11 03:29:57 rong Exp $
+* $Id: keyword_extraction.php,v 1.7.8.1 2009/10/05 22:04:53 bpearson Exp $
 *
 */
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))))));
@@ -20,6 +20,7 @@
 
 	assert_valid_assetid($_GET['assetid']);
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	if (is_null($asset) || !$asset->writeAccess()) exit();
 ?>
 
 <html>
