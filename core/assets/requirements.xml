@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.6.4.3 2009/10/02 04:41:27 csmith Exp $
+* $Id: requirements.xml,v 1.6.4.4 2009/10/05 22:04:44 csmith Exp $
 *
 */
 -->
@@ -41,6 +41,11 @@
 		<php_extension>mbstring</php_extension>
 		<suggested>1</suggested>
 		<description> - you only need to install this module if you are going to use non-English characters in filenames and urls.</description>
+	</requirement>
+	<requirement>
+		<php_extension>memcache</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you plan on using memcache for session handling.</description>
 	</requirement>
 	<requirement>
 		<php_extension>pspell</php_extension>
