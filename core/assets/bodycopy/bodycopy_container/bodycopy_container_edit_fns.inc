@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.67 2009/10/06 05:48:27 bpearson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.68 2009/10/06 06:55:43 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -292,8 +292,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {
 			foreach ($keywords as $keyword) {
+				// If theres any keyword modifier in the keyword, escape it
+				$keyword = str_replace('^', '\^', $keyword);
+				
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
+			// Once replacement is finished, undo the '^' escaping
+			$output = str_replace('\^', '^', $output);
+
 		} else {
 			// if 'Disable Keywords' is checked, change '%' sign to '&#37;'
 			// so that keywords get printed out correctly on the frontend, and replacements at higher level are not affected
