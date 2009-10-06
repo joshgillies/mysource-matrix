@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.11 2007/11/29 04:32:05 lwright Exp $
+* $Id: data_source_record_set.inc,v 1.11.6.1 2009/10/06 06:59:03 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -167,6 +167,10 @@ class Data_Source_Record_Set extends Asset
 	public function getKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
+		
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
 			$replacement = array_get_index($this->vars, $keyword, '');
@@ -193,6 +197,11 @@ class Data_Source_Record_Set extends Asset
 				default: $replacement = parent::getKeywordReplacement($keyword);
 			}
 		}
+		
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+
 		return $replacement;
 
 	}//end getKeywordReplacement()
