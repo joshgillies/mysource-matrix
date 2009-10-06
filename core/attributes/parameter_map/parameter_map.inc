@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.29 2009/09/30 01:48:25 bpearson Exp $
+* $Id: parameter_map.inc,v 1.30 2009/10/06 05:35:08 bpearson Exp $
 *
 */
 
@@ -48,7 +48,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *		*GLOBALS:	Any Super Global variable like GET, POST, SESSION
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -478,6 +478,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function &_getRelevantAssetid($source)
 	{
+		$default = NULL;
 		switch ($source) {
 			case 'ASSET':
 				// current asset
@@ -514,7 +515,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				return $current_site_id;
 			break;
 		}
-		return NULL;
+		return $default;
 
 	}//end _getRelevantAssetid()
 
