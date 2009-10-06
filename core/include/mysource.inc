@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.325 2009/10/02 01:06:39 bpearson Exp $
+* $Id: mysource.inc,v 1.326 2009/10/06 23:27:19 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.325 $
+* @version $Revision: 1.326 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -518,7 +518,8 @@ class MySource extends MySource_Object
 			// Try and find the current site
 			$site = NULL;
 			$asset_url = current_url(FALSE, TRUE);
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+			// Muting errors by passing in the third parameter
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url, TRUE);
 			foreach ($asset_lineage as $asset_link) {
 				$asset_type = $asset_link['type_code'];
 				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {

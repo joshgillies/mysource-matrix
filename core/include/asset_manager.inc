@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.764 2009/10/06 22:53:32 csmith Exp $
+* $Id: asset_manager.inc,v 1.765 2009/10/06 23:29:12 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.764 $
+* @version $Revision: 1.765 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7447,13 +7447,14 @@ class Asset_Manager extends MySource_Object
 	*
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the urls to check for -> null defaults it to current url
+	* @param string		$protocol		the protocol to match -> null means it is ignored
+	* @param string		$url			the urls to check for -> null defaults it to current url
+	* @param boolean	$mute_errors	Mute errors - to stop errors appearing on a clean system
 	*
 	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($protocol=NULL, $url=NULL)
+	function getLineageFromURL($protocol=NULL, $url=NULL, $mute_errors=FALSE)
 	{
 		if (is_null($url)) $url = current_url(FALSE, TRUE);
 
@@ -7476,7 +7477,9 @@ class Asset_Manager extends MySource_Object
 			$fancy_asset = $this->getAssetFromURL($protocol, $url, TRUE, TRUE);
 			if (empty($fancy_asset)) {
 				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
+				if (!$mute_errors) {
+					trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
+				}//end if
 				return Array();
 			}
 			$lineages = $this->getLinkLineages($fancy_asset->id);
