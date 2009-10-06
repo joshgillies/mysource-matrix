@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.92 2009/07/20 22:59:53 wszymanski Exp $
+* $Id: general_occasional.inc,v 1.93 2009/10/06 22:59:15 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 
@@ -398,7 +398,7 @@ function make_valid_web_paths($paths, $fallback_path='')
 		if (function_exists('mb_convert_encoding')) {
 			$path = mb_convert_encoding($path, 'HTML-ENTITIES', SQ_CONF_DEFAULT_CHARACTER_SET);
 		} else {
-			$path = htmlentities($path);
+			$path = htmlentities($path, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 
 		// replace accented characters
