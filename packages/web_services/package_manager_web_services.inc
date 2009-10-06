@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_web_services.inc,v 1.5.2.1 2009/09/29 03:52:55 akarelia Exp $
+* $Id: package_manager_web_services.inc,v 1.5.2.2 2009/10/06 02:53:20 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -129,6 +129,7 @@ class Package_Manager_Web_Services extends Package_Manager
 	 * @return object
 	 * @access public
 	 */
+/*
     function &createRestManager()
     {
         $system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
@@ -145,6 +146,7 @@ class Package_Manager_Web_Services extends Package_Manager
         return $rest_manager;
 
     }//end createRestManager()
+*/
 
 }//end class
 
