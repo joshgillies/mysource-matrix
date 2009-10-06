@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.20 2009/09/18 04:28:26 bpearson Exp $
+* $Id: asset_manager.inc,v 1.738.2.21 2009/10/06 01:29:49 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.20 $
+* @version $Revision: 1.738.2.21 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7400,7 +7400,7 @@ class Asset_Manager extends MySource_Object
 		// so much for SQL standards...
 		$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT urlid, assetid, url, http, https
+		$sql = 'SELECT urlid, assetid, url, http, https, base_contextid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 				'.$where.'
 				ORDER BY url DESC';
