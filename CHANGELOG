@@ -1,5 +1,164 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.24.1
+
+Featured Changes
+-----------------------------------
+
+Trigger Condition: Metadata Set
+	This Trigger Condition allows selection of a Metadata Field and will evaluate to FALSE if the value is empty or is set to the default value of the field.
+
+
+Trigger Action: Set Force Secure
+	This Trigger Action sets the "Force Secure" setting on the firing asset, analagous to setting this from the "Settings" screen of the asset. The three options - "Force secure protocol (HTTPS)", "Force insecure protocol (HTTP)" and "Allow all protocols" can be selected here.
+
+
+Trigger Event: After Asset Built
+	A new event "After Asset Built" can now be captured via Triggers which signals when an asset has been finalised after creation from an Asset Builder or Account Manager Page.
+
+ Assets which are finalised have in place all required metadata values and paint layouts as appropriate. This differs from the "Asset Created" event, which is fired before the asset is finalised.
+
+
+Trigger Condition: Metadata Field Updated
+	This new Trigger Condition can be used within Triggers to perform actions after a candidate Metadata Field value has been updated. 
+
+
+Link Target keywords for Link Asset
+	Asset based keywords in the format %link_target_xx% have been added which return the keywords of the linked asset. For example, %link_target_name% will return the name of the linked asset.
+
+A new keyword %link_relation% has also been introduced which will return the value of the "Link Relation" attribute of the Link asset.
+
+
+Keyword Modifiers
+	Keyword modifiers, similar to those supported on the MySource Mini, have been added to Matrix. These are represented as extensions to existing keywords and are denoted by the presence of a caret character (^) and modifier keyword.
+
+For example:
+    %[asset_keyword]^[format]%
+
+    %asset_url^urlencode%  : The URL-encoded equivalent of the asset's URL
+    %asset_name^uppercase% : The asset's name in uppercase
+    %asset_name^charcount% : The number of characters in the asset's name
+
+
+Asset Link Locking
+	Checkboxes are provided on the "Linking" screen to prevent asset links from being manipulated.
+When configured on an asset, this can effectively prevent the asset from being moved elsewhere within the system. This only applies to child assets so the related parent asset may still be moved or deleted.
+
+
+Read-only Source View for WYSIWYG, Raw and Markdown Content Types
+	A new button has been added to content type areas to allow the underlying source to be viewed when no locks are acquired on the asset. Clicking the button will toggle between the source and preview content.
+
+
+Tag Listing Page
+	This new asset, similar in operation to Asset Listing Page, provides an easy way to create Tag Clouds from assets tagged with Thesaurus Terms.  A Root Node is selected from which tags will be compiled from its child assets. All asset types are selected which match the "Link Types" selected from the "Details" screen.
+
+The resulting page is a list of applied tags, sorted by the number of assets to which each tag applies. The combined tag weighting across the candidate assets is provided via the Display Format keyword %tag_size%. This can be used in conjunction in an implementation to adjust the size of each tag for a Tag Cloud display.
+
+Tags displayed can be filtered by a particular Thesaurus and limited by a maximum tag weighting, as set from the "Details" screen.
+
+
+JS API: Asset Type Filter and Attributes
+    Assets created by the "createAsset" action can now be restricted by one or more exact asset types. It is also possible to pass in attributes other than the asset name when creating assets.
+
+The attribute names and values are supplied to the JS API "createAsset" action in the following notation:
+eg; (For a News Item)
+    contact_name=Fred&contact_phone=0123
+
+Will set the Contact Name to "Fred" and the Contact Phone to "0123"
+
+The return of result codes via JSON can now be disabled to prevent end users seeing information such as asset IDs. This and the above modifications are controlled from the "Details" screen of the JS API asset.
+
+These modifications have been graciously contributed by JS API author Nic Hubbard.
+
+
+Memcache Storage System
+	Matrix cache entries can now be stored within Memcache rather than the default SQ_CACHE directory specified in main.inc.
+Clearing of Memcache-based Matrix caches cannot be done on an asset basis, due to lack of search support within Memcache.
+
+A memcache.conf file must be defined in the data/private/conf directory to enable Memcache storage. A template file memcache-inc.sample is created in this directory upon running the step_01 installation script.
+
+
+Memcache Asset Locking System
+	Matrix lock entries can now be stored within Memcache rather than the sq_lock database table. The configuration required to enable the Memcache Storage System (detailed above) is a requirement for this functionality.
+
+Forcibly acquiring locks, mass changing of lock ownership and notification of active lock ownership is not available under Memcache Asset Locking due to current Memcache limitations.
+
+
+Base Contexts per URL
+	Site URLs can be configured with a "Base Context" which defines the initial context used for assets created underneath. This is configured from the URLs screen of Site assets.
+
+
+Context Previews
+	Content can now be viewed on the "Preview" screen of an asset under a specific context by selecting the context from a drop-down list. This performs similarly to existing lists which allow previews to be displayed under different designs.
+
+An HTTP GET variable SQ_CONTEXT_NAME can be used similarly to SQ_DESIGN_NAME to show content temporarily in a different context away from the "Preview" screen.
+
+
+Additional "Contextable" Asset Types
+	Elements of assets such as Calendar Events, Site Map and those that list assets via Listing Engine (Search Page, Asset Listing etc.) now have either "contextable" elements or are aware of asset types which may provide alternate contexts.
+
+The most likely implementation of context aware assets would be to provide language varients for some content (eg; bodycopy) and attribute elements.
+These modifications ensure that context-specific data is loaded from cache, where appropriate, or sourced via the Context System.
+
+
+Requirements Checking script
+
+    A requirements checking script, install/check_requirements.php, has been added to verify the program requirements of a Matrix installation against the server configuration. This script is executed from the Matrix system root directory as follows:
+
+    php install/check_requirements.php /path/to/matrix
+
+Required third-party applications, PHP extensions and PEAR packages will be notified, as well as suggested utilities which provide certain optional functionality within Matrix.
+
+
+HTML Tidy: Deprecated Bold and Italic tag conversion
+	Any <b> or <i> elements will be converted to <strong> and <em> respectively when HTML Tidy is enabled in WYSIWYG content containers.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3890: Trigger action set metadata breaks trigger when asset number incorrectly specified
+Fixed Bug #3898: Creating an asset from the backend (in dev) breaks memory limit
+Fixed Bug #3901: Unable to preview files when using static content server
+Fixed Bug #3904: HIPO does not work with UTF8 asset names
+Fixed Bug #3905: Force secure option strips the url if the option is different from parent
+Fixed Bug #3907: Cannot clone CSS Design files
+Fixed Bug #3908: Create empty text file feature does not work due to permissions
+Fixed Bug #3911: Cloning an asset with link value will get error
+Fixed Bug #3913: Custom Form - Day of the week incorrect
+Fixed Bug #3914: Hot key in WYSIWYG moves focus to document to
+Fixed Bug #3915: Export Thesaurus Terms doesn't export Notes properly
+Fixed Bug #3916: Export Files tool won't work with a slash in asset name
+Fixed Bug #3917: Undefined index: never_delete
+Fixed Bug #3919: changed content notice when changing contexts
+Fixed Bug #3922: .dot file asset served as text/plain
+Fixed Bug #3924: Moving assets - will not sit at bottom of a list
+Fixed Bug #3926: WYSIWYG adds invalid markup
+Fixed Bug #3927: Form email address question throws error for public user
+Fixed Bug #3938: backup script broken for local Oracle DB
+Fixed Bug #3939: Settings Screen - Can't click "Now" button to set date
++ File Size suffixes now use uppercase notation
+
+Bulkmail
+Fixed Bug #3925: Asset listing dynamic root node does not work with Bulkmail job send
+
+Calendar
+Fixed Bug #3935: Use %edit_link% in each event page of calendar will get error
+
+CMS
+Fixed Bug #3823: Switching nested arbitrary paint layout
+
+E-Commerce
+Fixed Bug #3893: Order details not saved until Payment Gateway success code received
+
+Search
+Fixed Bug #3863: Search pages do not always XHTML Validate
+Fixed Bug #3887: Global weights not overridden in some situations
+Fixed Bug #3891: Search Manager fails silently when adding indexable content
+
+
+
 VERSION 3.24.0
 
 Featured Changes
