@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.6 2009/09/30 00:16:56 lwright Exp $
+* $Id: mysource.inc,v 1.313.2.7 2009/10/06 21:50:30 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.6 $
+* @version $Revision: 1.313.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -515,26 +515,49 @@ class MySource extends MySource_Object
 
 			}//end if is_null(asset)
 
+			// Try and find the current site
+			$site = NULL;
+			$asset_url = current_url(FALSE, TRUE);
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+			foreach ($asset_lineage as $asset_link) {
+				$asset_type = $asset_link['type_code'];
+				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+					$site_assetid = $asset_link['assetid'];
+					if (!empty($site_assetid)) {
+						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+						break;
+					}//end if
+				}
+			}
+			if (!is_null($site)) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
+			}//end if
+
 			// Are we an archived asset and we don't have the correct permission?
 			// (We need read permission, which in Archived mode actually means
 			// WRITE permission is required)
 			if (($asset->status == SQ_STATUS_ARCHIVED) && !$asset->readAccess()) {
 				// Don't get in the way of backend operations
 				if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
-					$url      = strip_url(current_url(FALSE, TRUE));
-					$root_url = $this->am->getRootURL($url);
-					if (!empty($root_url)) {
-						$site = $this->am->getAsset($root_url['assetid']);
-						if (!is_null($site)) {
-							$page = $site->getSpecialPage('archive');
-							if (!is_null($page)) {
-								$this->_paintNotFoundAsset($page, $site);
-								exit(1);
-							}
+					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
+						$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
+					} else {
+						$url      = strip_url(current_url(FALSE, TRUE));
+						$root_url = $this->am->getRootURL($url);
+						if (!empty($root_url)) {
+							$site = $this->am->getAsset($root_url['assetid']);
+						}//end if
+					}//end if
+
+					if (!is_null($site)) {
+						$page = $site->getSpecialPage('archive');
+						if (!is_null($page)) {
+							$this->_paintNotFoundAsset($page, $site);
+							exit(1);
 						}
 					}
-				}
-			}
+				}//end if
+			}//end if
 
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
