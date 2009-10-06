@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.8 2009/09/21 05:18:06 cupreti Exp $
+* $Id: asset.inc,v 1.696.2.9 2009/10/06 02:16:03 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.8 $
+* @version $Revision: 1.696.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3013,6 +3013,7 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+				$is_contextable = array_get_index($this->vars[$save_vars[$attr_id]['name']], 'is_contextable', FALSE) ? TRUE : FALSE;
 
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp) === TRUE)) {
@@ -3060,6 +3061,7 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+				$is_contextable = array_get_index($this->vars[$save_vars[$attr_id]['name']], 'is_contextable', FALSE) ? TRUE : FALSE;
 
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp)  === TRUE)) {
@@ -5439,7 +5441,7 @@ class Asset extends MySource_Object
 
 						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
 						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
-						
+
 						if (!$http && !$https) {
 							$https = $parent_urls[$j]['https'];
 							$http = $parent_urls[$j]['http'];
@@ -5452,7 +5454,7 @@ class Asset extends MySource_Object
 						if (!$http && !$https) {
 							continue;
 						}
-						
+
 						// check if another asset is using the new URL
 						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
 						$existing_asset_with_url_id = NULL;
@@ -5665,8 +5667,8 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
-					
-					// Issue warning, if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid,
+
+					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid
 					if (!$valid_protocol_change) {
 						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
 					}
