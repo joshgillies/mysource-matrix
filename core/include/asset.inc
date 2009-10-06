@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.706 2009/09/21 05:06:37 cupreti Exp $
+* $Id: asset.inc,v 1.707 2009/10/06 02:13:11 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.706 $
+* @version $Revision: 1.707 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -404,7 +404,7 @@ class Asset extends MySource_Object
 			}
 			// bug fix #3877 Matrix will create and retain links in DB if asset fails to get created
 			// by this point ^ we have linkid available since the link has been created.
-			// any further calls to _abortCreate() should include linkid so the we are not left 
+			// any further calls to _abortCreate() should include linkid so the we are not left
 			// with unwanted rubissh in sq_ast_lnk and sq_ast_lnk_tree tables
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
@@ -1634,7 +1634,7 @@ class Asset extends MySource_Object
 																'old_force_secure'	=> $this->force_secure,
 															 )
 		);
-	
+
 		return TRUE;
 
 	}//end setForceSecure()
@@ -3013,6 +3013,7 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+				$is_contextable = array_get_index($this->vars[$save_vars[$attr_id]['name']], 'is_contextable', FALSE) ? TRUE : FALSE;
 
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp) === TRUE)) {
@@ -3060,6 +3061,7 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
+				$is_contextable = array_get_index($this->vars[$save_vars[$attr_id]['name']], 'is_contextable', FALSE) ? TRUE : FALSE;
 
 				try {
 					if (($contextid === 0) || ($is_contextable === FALSE) || (array_key_exists('__creating__', $this->_tmp)  === TRUE)) {
@@ -5324,7 +5326,7 @@ class Asset extends MySource_Object
 				$web_path_changes[$old_to_new[$i]] = $new_to_old[$i];
 			}
 		}
-		
+
 		if (!empty($current_urls)) {
 			// delete rows which have normal values applied
 			$url_chunks = array_chunk($current_urls, 1000, TRUE);
@@ -5427,17 +5429,17 @@ class Asset extends MySource_Object
 				$done_parents[] = $parent->id;
 
 				$parent_urls = $parent->getLookups();
-				
-				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {					
+
+				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 					$valid_protocol_change = TRUE;
 
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
-						
+
 						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
 						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
-						
+
 						if (!$http && !$https) {
 							 $https = $parent_urls[$j]['https'];
 							 $http = $parent_urls[$j]['http'];
@@ -5450,7 +5452,7 @@ class Asset extends MySource_Object
 						if (!$http && !$https) {
 							continue;
 						}
-						
+
 						// check if another asset is using the new URL
 						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
 						$existing_asset_with_url_id = NULL;
@@ -5663,12 +5665,12 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
-					
-					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid		
+
+					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid
 					if (!$valid_protocol_change) {
-						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);					
+						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
 					}
-					
+
 
 				}//end for parent_urls
 
