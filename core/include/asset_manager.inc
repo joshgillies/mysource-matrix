@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.762 2009/09/16 23:14:40 bpearson Exp $
+* $Id: asset_manager.inc,v 1.763 2009/10/06 05:40:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.762 $
+* @version $Revision: 1.763 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7610,12 +7610,12 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.assetid = a.assetid
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk al ON a.assetid = al.minorid
 				'.$where.'
-				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, '.$group_by_protocol.'
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$group_by_protocol.'
 				ORDER BY l.url ASC';
 
 		try {
@@ -7664,6 +7664,7 @@ class Asset_Manager extends MySource_Object
 									'name'			=> $index_page->name,
 									'short_name'	=> $index_page->short_name,
 									'type_code'		=> $index_page->type(),
+									'status'		=> $index_page->status,
 									'link_type'		=> SQ_LINK_TYPE_3,
 									'protocol'		=> current_protocol(),
 								);
@@ -7674,22 +7675,25 @@ class Asset_Manager extends MySource_Object
 		// Check whether the asset is in Safe edit. If it is, load the save version of asset.
 		// for name and short_name attribute
 		foreach ($result as $key => $entry) {
-			$asset = $this->getAsset($entry['assetid']);
-			if ($asset->useSystemVersion()) {
-				$asset->_loadDataPaths();
-				// make sure our data directory exists
-				if (!file_exists($asset->data_path.'/.object_data')) {
-					trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
-					$this->forgetAsset($asset);
-					return;
-				}
+			// We only need to worry about the safe edit statii, save retrieving all assets
+			if ($entry['status'] & SQ_SC_STATUS_SAFE_EDITING) {
+				$asset = $this->getAsset($entry['assetid']);
+				if ($asset->useSystemVersion()) {
+					$asset->_loadDataPaths();
+					// make sure our data directory exists
+					if (!file_exists($asset->data_path.'/.object_data')) {
+						trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
+						$this->forgetAsset($asset);
+						return;
+					}
 
-				$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
-				$result[$key]['name']			= $data_object['name'];
-				$result[$key]['short_name']	= $data_object['short_name'];
-			}
-			$this->forgetAsset($asset);
-		}
+					$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
+					$result[$key]['name']			= $data_object['name'];
+					$result[$key]['short_name']	= $data_object['short_name'];
+				}
+				$this->forgetAsset($asset);
+			}//end if
+		}//end foreach
 
 		return $result;
 
