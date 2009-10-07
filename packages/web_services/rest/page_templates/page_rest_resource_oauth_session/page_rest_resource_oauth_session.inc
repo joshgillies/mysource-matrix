@@ -1,24 +1,16 @@
 <?php 
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.2 2009/09/29 02:02:25 akarelia Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.3 2009/10/07 23:48:34 akarelia Exp $
 *
 */
 
