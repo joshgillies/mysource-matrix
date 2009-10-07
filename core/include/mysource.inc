@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.326 2009/10/06 23:27:19 bpearson Exp $
+* $Id: mysource.inc,v 1.327 2009/10/07 03:38:48 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.326 $
+* @version $Revision: 1.327 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -563,6 +563,9 @@ class MySource extends MySource_Object
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
+			// See if caching is enabled for the asset
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
 
 			// buffer the content and do keyword replacement
 			ob_start();
@@ -618,10 +621,6 @@ class MySource extends MySource_Object
 
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
-					// See if caching is enabled for the asset
-					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
-
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
@@ -633,11 +632,8 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
-					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
+					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cache_enabled) {
 
-					if (isset($_REQUEST['just_logged_out'])) {
-						unset($_REQUEST['just_logged_out']);
-					}
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
@@ -663,6 +659,7 @@ class MySource extends MySource_Object
 		}
 
 		$this->_setApacheNotes();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
 	}//end start()
 
@@ -707,7 +704,13 @@ class MySource extends MySource_Object
 	*/
 	protected function _sendHTTPHeaders(&$asset)
 	{
-		header('Pragma: cache');
+		$recache = basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX;
+
+		// Don't send cacheable headers when recacheing (see bug #3947)
+		if (!$recache) {
+			header('Pragma: cache');
+		}
+
 		$contextid = $this->getContextId();
 		$cache_key = 'cache_info';
 		if ($contextid !== 0) {
@@ -723,8 +726,9 @@ class MySource extends MySource_Object
 		if (empty($browser_cache_expiry)) {
 			$browser_cache_expiry = $cache_expiry;
 		}
-
-		header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+		if (!$recache) {
+			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+		}
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -749,10 +753,12 @@ class MySource extends MySource_Object
 
 			// Calculate the "Browser Cache Expiry" value for use in HTTP headers
 			$expiry_time = $cache_status ? (time() + $browser_cache_expiry) : time();
-
-			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
-			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
-				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
+			
+			if (!$recache) {
+				header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
+				if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
+					header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
+				}
 			}
 			echo $content;
 
