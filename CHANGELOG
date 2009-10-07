@@ -114,6 +114,12 @@ HTML Tidy: Deprecated Bold and Italic tag conversion
 	Any <b> or <i> elements will be converted to <strong> and <em> respectively when HTML Tidy is enabled in WYSIWYG content containers.
 
 
+REST Assets
+	Assets which allow communication with web services that expose themselves using REST (Representational State Transfer) methods are now available in the Web Services Package. This set of assets include Page assets that display the results of calls to RESTful resources, as well as a Form Action and Trigger Action that can execute such a resource.
+
+A REST Manager caches requests based upon the cache settings configured for these assets as set on the "Details" screen. Clearing the cache of REST Manager will clear cached request and response data.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
