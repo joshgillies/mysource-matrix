@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.111 2009/09/14 03:53:23 bpearson Exp $
+* $Id: lang_errors.xml,v 1.112 2009/10/07 21:53:26 bpearson Exp $
 *
 */
 
@@ -1690,7 +1690,7 @@ Full Node Contents :
 	<error code="CORE0282">Duplicate term note "%1$s" found for the term "%2$s".</error>
 	<error code="CORE0241">This term has multiple parent and child terms. Renaming of this term is not possible.</error>
 	<error code="CORE0242">Cannot Rename Term Link ID#%1$s from "%2$s" to "%3$s". Identical Term Link with ID#%4$s already exists.</error>
-	<error code="CORE0261">Connot Create a Data Directory "%s" for a content xml file.</error>
+	<error code="CORE0261">Cannot Create a Data Directory "%s" for a content xml file.</error>
 
 	<!-- Cache Manager File System -->
 	<error code="CORE0243">Unable to write to cache file "%s"</error>
