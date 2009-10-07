@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.9 2009/10/07 03:40:29 cupreti Exp $
+* $Id: mysource.inc,v 1.313.2.10 2009/10/07 03:55:29 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.9 $
+* @version $Revision: 1.313.2.10 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -563,14 +563,10 @@ class MySource extends MySource_Object
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
-
-<<<<<<< mysource.inc
 			// See if caching is enabled for the asset
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
 
-=======
->>>>>>> 1.313.2.8
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -624,15 +620,7 @@ class MySource extends MySource_Object
 					}//end if
 
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
-<<<<<<< mysource.inc
-					
-=======
 
-					// See if caching is enabled for the asset
-					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
-
->>>>>>> 1.313.2.8
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
@@ -644,16 +632,8 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
-<<<<<<< mysource.inc
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cache_enabled) {
 					
-=======
-					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
-
-					if (isset($_REQUEST['just_logged_out'])) {
-						unset($_REQUEST['just_logged_out']);
-					}
->>>>>>> 1.313.2.8
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
@@ -724,21 +704,17 @@ class MySource extends MySource_Object
 	*/
 	protected function _sendHTTPHeaders(&$asset)
 	{
-<<<<<<< mysource.inc
 		$recache = basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX;
 
 		// Don't send cacheable headers when recacheing (see bug #3947)
 		if (!$recache) {
 			header('Pragma: cache');
 		}
-=======
-		header('Pragma: cache');
 		$contextid = $this->getContextId();
 		$cache_key = 'cache_info';
 		if ($contextid !== 0) {
 			$cache_key .= '.'.$contextid;
 		}
->>>>>>> 1.313.2.8
 
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
