@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.16 2009/06/01 23:28:47 ewang Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.17 2009/10/07 03:15:49 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -855,7 +855,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		// Parse the file
 
 		if (!xml_parse($xml_parser, file_get_contents($report_path), TRUE)) {
-			trigger_localised_error('DCITA0001', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
+			trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 			return FALSE;
 		}
 
