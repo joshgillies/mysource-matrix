@@ -139,6 +139,7 @@ Fixed Bug #3927: Form email address question throws error for public user
 Fixed Bug #3938: backup script broken for local Oracle DB
 Fixed Bug #3939: Settings Screen - Can't click "Now" button to set date
 Fixed Bug #3945: Saving multiple attributes sometimes uses wrong is_contextable value for some attributes
+Fixed Bug #3948: Cannot clear cache by root node in Cache Manager
 + File Size suffixes now use uppercase notation
 
 Bulkmail
