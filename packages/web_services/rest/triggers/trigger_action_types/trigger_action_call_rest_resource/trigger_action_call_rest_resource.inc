@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_call_rest_resource.inc,v 1.2.2.2 2009/09/29 03:51:44 akarelia Exp $
+* $Id: trigger_action_call_rest_resource.inc,v 1.2.2.3 2009/10/07 22:51:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
