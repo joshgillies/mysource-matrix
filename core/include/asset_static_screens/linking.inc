@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.43 2009/09/14 03:59:31 bpearson Exp $
+* $Id: linking.inc,v 1.44 2009/10/07 04:35:36 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -425,7 +425,7 @@ function processLinking(&$owner, &$o, &$ei)
 			$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
 		}
 		// Cleanup any html
-		$new_value = (is_null($new_value)) ? NULL : htmlentities($new_value);
+		$new_value = (is_null($new_value)) ? NULL : htmlentities($new_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 		// Change LINK 1 or 2 to a NOTICE link
 		$link_to_notice = (($link['link_type'] == SQ_LINK_TYPE_1|SQ_LINK_TYPE_2) && $new_type == SQ_LINK_NOTICE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.151 2009/08/04 05:53:56 bpearson Exp $
+* $Id: html_form.inc,v 1.152 2009/10/07 04:37:06 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -846,7 +846,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 	echo '<br />';
 
 	echo '</div>';
@@ -1631,7 +1631,7 @@ function keyword_selector($keywords, $target_id, $self_id=NULL, $prompt=NULL)
 	<?php
 	foreach ($keywords as $kw => $name) {
 		?>
-		<option value="<?php echo htmlentities($kw); ?>"><?php echo htmlentities($name); ?></option>
+		<option value="<?php echo htmlentities($kw, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"><?php echo htmlentities($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?></option>
 		<?php
 	}
 	?>

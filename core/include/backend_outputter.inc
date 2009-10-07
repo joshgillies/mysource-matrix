@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.166 2009/09/30 00:13:42 lwright Exp $
+* $Id: backend_outputter.inc,v 1.167 2009/10/07 04:35:36 bpearson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1022,7 +1022,7 @@ class Backend_Outputter
 						$msgs = new XML_Tree();
 						$msgs_root = $msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
-							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
+							$msg_body = '<p>'.htmlentities(nl2br($data['msg']), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</p>';
 							$msg_body .= '<span style="color: #333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<span>';
 							$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 						}

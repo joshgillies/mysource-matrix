@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.194 2009/08/20 04:03:25 akarelia Exp $
+* $Id: backend.inc,v 1.195 2009/10/07 04:35:36 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -908,7 +908,7 @@ class Backend extends MySource_Object
 									function submit_login_as()
 									{
 										var login_as_user = document.getElementById('user').value;
-										if ((login_as_user.length > 0) && (login_as_user != 'root') && (login_as_user != '<?php htmlentities($GLOBALS['SQ_SYSTEM']->user->attr('username')); ?>')) {
+										if ((login_as_user.length > 0) && (login_as_user != 'root') && (login_as_user != '<?php htmlentities($GLOBALS['SQ_SYSTEM']->user->attr('username'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>')) {
 											top.location = './?SQ_ACTION=login_as&user='+login_as_user;
 										}
 									}
@@ -1002,7 +1002,7 @@ class Backend extends MySource_Object
 
 						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
 						if (isset($_SESSION['login_as_invoker_username'])) {
-							$logout_button_tooltip = translate('logout_and_resume', htmlentities($_SESSION['login_as_invoker_username']));	
+							$logout_button_tooltip = translate('logout_and_resume', htmlentities($_SESSION['login_as_invoker_username'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));	
 							$logout_icon = 'logout_and_resume.png';
 						}
 

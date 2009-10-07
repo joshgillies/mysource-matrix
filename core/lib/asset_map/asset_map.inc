@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.288 2009/09/14 04:00:55 bpearson Exp $
+* $Id: asset_map.inc,v 1.289 2009/10/07 04:37:22 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.288 $
+* @version $Revision: 1.289 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1574,7 +1574,7 @@ class Asset_Map
 
 		$output = simplexml_load_string('<xml></xml>');
 		$responses = $output->addChild('responses');
-		$url_tree = $responses->addChild('url', htmlentities($link));
+		$url_tree = $responses->addChild('url', htmlentities($link, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 		$url_tree->addAttribute('frame', $frame);
 
 		$this->_send($responses);
@@ -2018,7 +2018,7 @@ class Asset_Map
 			$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 			if (!empty($url)) {
-				$hipo_node = $responses->addChild('url', htmlentities($url));
+				$hipo_node = $responses->addChild('url', htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$hipo_node->addAttribute('js_function', 'asset_map_popup');
 			}
 		}
@@ -2143,7 +2143,7 @@ class Asset_Map
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
-			$url_tree = $responses->addChild('url', htmlentities($url));
+			$url_tree = $responses->addChild('url', htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			$url_tree->addAttribute('js_function', 'asset_map_popup');
 		}
 
@@ -2262,7 +2262,7 @@ class Asset_Map
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
-			$url_tree = $responses->addChild('url', htmlentities($url));
+			$url_tree = $responses->addChild('url', htmlentities($url, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			$url_tree->addAttribute('js_function', 'asset_map_popup');
 		}
 

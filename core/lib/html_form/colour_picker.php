@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.php,v 1.10 2009/07/10 00:14:12 bpearson Exp $
+* $Id: colour_picker.php,v 1.11 2009/10/07 04:37:06 bpearson Exp $
 *
 */
 
@@ -18,13 +18,13 @@
 * Pop-Up for the colour picker
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
 // Sanitise data
-$colour = htmlentities($_GET['colour']);
-$pickerid = htmlentities($_GET['pickerid']);
+$colour = htmlentities($_GET['colour'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+$pickerid = htmlentities($_GET['pickerid'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 ?>
 <!-- note: this version of the color picker is optimized for IE 5.5+ only -->
 
