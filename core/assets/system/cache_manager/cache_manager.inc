@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.74.4.2 2009/09/30 00:04:45 lwright Exp $
+* $Id: cache_manager.inc,v 1.74.4.3 2009/10/07 00:31:28 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74.4.2 $
+* @version $Revision: 1.74.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,7 +313,7 @@ class Cache_Manager extends Asset
 	*/
 	public function canClearByAssetid()
 	{
-		if (is_object($this->storage)) {
+		if (is_object($this->_storage)) {
 			return $this->_storage->canClearByAssetid();
 		} else {
 			return NULL;
