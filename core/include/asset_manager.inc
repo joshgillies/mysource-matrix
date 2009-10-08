@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.22 2009/10/06 23:30:02 bpearson Exp $
+* $Id: asset_manager.inc,v 1.738.2.23 2009/10/08 23:54:15 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.22 $
+* @version $Revision: 1.738.2.23 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8688,10 +8688,21 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
+
+			/**
+			 * the first part of the query needs an extra join to the ast table
+			 * the second part (looking for shadow assets) does not
+			 * (doing this is for performance reasons)
+			 */
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-					';
+							 ';
+
+			$union_from_list = $from;
+
+			$from .= '
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
+			';
 
 			// Keep WHERE bind vars in a separate array (then merge in) - as this
 			// segment could well be duplicated by the "direct shadows only" part
@@ -8791,7 +8802,7 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
-				$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $ds_where)))";
+				$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT l.minorid $union_from_list $ds_where)))";
 			}
 
 			$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
@@ -8809,14 +8820,22 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$group_by = '';
-			$having = '';
 			if (!is_null($access)) {
 				$access = (String)$access;
 				$userid_cond = '';
 				$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
+					/**
+					 * Here we generate a query to check permissions
+					 * At the end of this section, it's "joined" to the parent query
+					 * (for performance reasons)
+					 */
+					$permissions_query = 'SELECT
+						pc.assetid
+						FROM ' . SQ_TABLE_RUNNING_PREFIX.'ast_perm pc
+						LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (pc.userid = r.roleid)
+						WHERE
+					';
 
 					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
@@ -8834,14 +8853,14 @@ class Asset_Manager extends MySource_Object
 
 					$p_userids_str = implode(',', $p_userids_str);
 					$r_userids_str = implode(',', $r_userids_str);
-					$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
-					$where .= $userid_cond.'
+					$userid_cond = ' (pc.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
+					$permissions_query_where = $userid_cond.'
 						AND (
-								(p.permission = :'.$bind_prefix.'_access AND (
-										p.userid <> :'.$bind_prefix.'_public_userid
+								(pc.permission = :'.$bind_prefix.'_access AND (
+										pc.userid <> :'.$bind_prefix.'_public_userid
 										OR r.userid <> :'.$bind_prefix.'_public_userid_1
-										OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
-										OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
+										OR (pc.userid = :'.$bind_prefix.'_public_userid_2 AND pc.granted = \'1\')
+										OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND pc.granted = \'1\')
 									)
 								)';
 
@@ -8852,12 +8871,20 @@ class Asset_Manager extends MySource_Object
 					$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
 
 					if ($effective) {
-						$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
+						$permissions_query_where .= ' OR (pc.permission > :'.$bind_prefix.'_access_effective AND pc.granted = \'1\')';
 						$bind_vars[$bind_prefix.'_access_effective'] = $access;
 					}
-					$where .= ') AND ';
-					$having .= 'HAVING MIN(p.granted) <> \'0\'';
-					$group_by .= ', p.assetid';
+					$permissions_query_where .= ')';
+					$permissions_query .= $permissions_query_where . 'GROUP BY pc.assetid HAVING MIN(pc.granted) <> \'0\'';
+
+					$from .= ', (' . $permissions_query . ') p';
+					if (empty($where)) {
+						$where = ' WHERE ';
+					}
+					$where .= ' p.assetid=a.assetid ';
+					if (!empty($type_code)) {
+						$where .= ' AND ';
+					}
 				}
 			}//end if access is not null
 
@@ -8902,7 +8929,6 @@ class Asset_Manager extends MySource_Object
 						'from'			=> $from,
 						'where'			=> $where,
 						'group_by'		=> $group_by,
-						'having'		=> $having,
 						'union_select'	=> $union_select,
 						'union_from'	=> $union_from,
 						'union_where'	=> $union_where,
