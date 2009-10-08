@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.34 2008/12/01 22:32:01 hnguyen Exp $
+* $Id: form_question.inc,v 1.34.2.1 2009/10/08 01:05:55 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -623,6 +623,8 @@ class Form_Question extends Asset
 	{
 		if (isset($_POST['q'.$this->id])) {
 			$this->setValue($_POST['q'.$this->id]);
+		} else {
+			$this->setValue(Array());
 		}
 		return TRUE;
 
