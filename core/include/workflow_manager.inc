@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.140 2009/07/10 04:03:26 ewang Exp $
+* $Id: workflow_manager.inc,v 1.141 2009/10/09 05:13:00 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -603,6 +603,10 @@ class Workflow_Manager extends MySource_Object
 							// the user or group in this condition wants to be notified
 							$notify[] = $condition->attr('userid');
 						}
+					}
+					else {
+						// the user or group in this condition wants to be notified
+						$notify[] = $condition->attr('userid');
 					}
 				}
 			}//end foreach
