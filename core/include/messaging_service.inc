@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.72 2008/10/13 23:43:07 csmith Exp $
+* $Id: messaging_service.inc,v 1.72.4.1 2009/10/09 05:22:58 ewang Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.4.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -714,8 +714,9 @@ class Messaging_Service extends MySource_Object
 			if ($from) {
 				$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
 				if (!is_null($user_from)) {
-					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+					$from_name = preg_replace('/[\[\]\(\)\<\>\@\,\;\:\\\"\.]+/','', $user_from->name);
 					$from_email = $user_from->attr('email');
+					$from_string = $from_name.' <'.$from_email.'>';
 				}
 			}
 			if (empty($from_email)) {
