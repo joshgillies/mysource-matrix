@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.12 2008/12/22 23:53:29 bpearson Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.12.2.1 2009/10/09 02:55:32 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -339,5 +339,20 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	}//end getHtmlLabel()
 
 
+	
+	/**
+	* Populates
+	*
+	* @return boolean
+	* @access public
+	*/
+	function populate()
+	{
+		$prefix = 'q'.$this->id;
+		$this->setValue(array_get_index($_POST, $prefix, Array()));
+		return TRUE;
+
+	}//end populate()
+	
 }//end class
 ?>
