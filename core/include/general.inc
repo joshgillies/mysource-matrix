@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.235 2009/10/06 23:44:12 bpearson Exp $
+* $Id: general.inc,v 1.236 2009/10/11 22:10:39 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.235 $
+* @version $Revision: 1.236 $
 * @package MySource_Matrix
 */
 
@@ -771,7 +771,7 @@ function is_ssl_accelerated()
 	$enabled = FALSE;
 	if (SQ_SSLA_ENABLED) {
 		$enabled = TRUE;
-		
+
 		$match_method = SQ_SSLA_MATCH;
 		if ($match_method !== 'header') {
 			$host = array_get_index($_SERVER, 'REMOTE_ADDR');
@@ -1255,6 +1255,24 @@ function translate($string)
 
 
 /**
+* Provides a 'shorthand' interface to the Locale Manager's getErrorMessage() method
+* for the current locale
+*
+* @param string	$code	the error code (eg. SYS0013)
+*
+* @return string
+* @access public
+*/
+function translate_error($code)
+{
+	$args = array_slice(func_get_args(),1);
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
+	return $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $args);
+
+}//end translate_error()
+
+
+/**
 * Provides a 'shorthand' interface to the Locale Manager's raiseError() method
 * (for the current locale)
 *
@@ -1455,7 +1473,7 @@ function get_asset_tag_line($assetid, $screen='')
 		ob_start();
 		?>
 		<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-		<table style="sq-backend-table"><?php 
+		<table style="sq-backend-table"><?php
 		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 				$lineage_assetids = array_keys($lineage['lineage']);
@@ -1851,7 +1869,7 @@ function replace_global_keywords(&$text)
 						if ($current_asset) {
 							$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
 						}
-								
+
 						if ((string)$asset_replacement != "%$asset_keyword%") {
 							$replacements[$full_keyword] = $asset_replacement;
 						}
@@ -2107,16 +2125,16 @@ the GPL.
 */
 function xml_entity_decode($string)
 {
-    $string = html_entity_decode($string);
-    $string = str_replace('&#124;', '|', $string);
-    $string = str_replace('&apos;', "'", $string);
-    $string = str_replace('&#42;', '*', $string);
-    $string = str_replace('&#92;', '\\', $string);
-    $string = str_replace('&#126;', '~', $string);
-    $string = str_replace('&#96;', '`', $string);
-    $string = str_replace('&#94;', '^', $string);
+	$string = html_entity_decode($string);
+	$string = str_replace('&#124;', '|', $string);
+	$string = str_replace('&apos;', "'", $string);
+	$string = str_replace('&#42;', '*', $string);
+	$string = str_replace('&#92;', '\\', $string);
+	$string = str_replace('&#126;', '~', $string);
+	$string = str_replace('&#96;', '`', $string);
+	$string = str_replace('&#94;', '^', $string);
 
-    return $string;
+	return $string;
 
 }//end xml_entity_decode()
 
