@@ -1386,14 +1386,56 @@
 			<insert>
 				<fields table="sq_ast_mdata_dflt_val">
 					<field>assetid</field>
+					<field>contextid</field>
 					<field>default_val</field>
+					<field>use_default</field>
 				</fields>
 				<values>
 					<value column="assetid">:field_assetid</value>
+					<value column="contextid">:contextid</value>
 					<value column="default_val">:value</value>
+					<value column="use_default">0</value>
 				</values>
 			</insert>
 		</primary>
+		<alternate>
+			<assert-equal data="contextid" value="0">
+				<insert>
+					<fields table="sq_ast_mdata_dflt_val">
+						<field>assetid</field>
+						<field>contextid</field>
+						<field>default_val</field>
+						<field>use_default</field>
+					</fields>
+					<select>
+						<fields>
+							<value>:field_assetid</value>
+							<field table="sq_ctx_def" column="contextid" />
+							<value>:value</value>
+							<value>1</value>
+						</fields>
+						<from>
+							<table>sq_ctx_def</table>
+						</from>
+						<where>
+							<not-in table="sq_ctx_def" column="contextid">
+								<select>
+									<fields>
+										<field table="sq_ast_mdata_dflt_val" column="contextid" />
+									</fields>
+									<from>
+										<table>sq_ast_mdata_dflt_val</table>
+									</from>
+									<where>
+										<equal table="sq_ast_mdata_dflt_val" column="assetid">:field_assetid</equal>
+									</where>
+								</select>
+							</not-in>
+						</where>
+					</select>
+				</insert>
+			</assert-equal>
+		</alternate>
 	</query>
 
 	<query id="updateMetadataFieldDefaultValue">
@@ -1402,14 +1444,74 @@
 			<update>
 				<fields table="sq_ast_mdata_dflt_val">
 					<field>default_val</field>
+					<field>use_default</field>
 				</fields>
 				<values>
 					<value column="default_val">:default_val</value>
+					<value column="use_default">0</value>
 				</values>
 				<where>
 					<equal table="sq_ast_mdata_dflt_val" column="assetid">:field_assetid</equal>
+					<equal table="sq_ast_mdata_dflt_val" column="contextid">:contextid</equal>
 				</where>
 			</update>
+		</primary>
+		<alternate>
+			<assert-equal data="contextid" value="0">
+				<update>
+					<fields table="sq_ast_mdata_dflt_val">
+						<field>default_val</field>
+					</fields>
+					<values>
+						<value column="default_val">:default_val</value>
+					</values>
+					<where>
+						<equal table="sq_ast_mdata_dflt_val" column="assetid">:field_assetid</equal>
+						<equal table="sq_ast_mdata_dflt_val" column="use_default">'1'</equal>
+					</where>
+				</update>
+			</assert-equal>
+		</alternate>
+	</query>
+
+	<!-- Copy existing metadata defaults from the default context into a new
+		 alternate context. These new values are marked as "using default". -->
+	<query id="copyContextMetadataDefaults">
+		<primary>
+			<insert>
+				<fields table="sq_ast_mdata_dflt_val">
+					<field>assetid</field>
+					<field>contextid</field>
+					<field>default_val</field>
+					<field>use_default</field>
+				</fields>
+				<select>
+					<fields>
+						<field table="sq_ast_mdata_dflt_val" column="assetid" />
+						<value>:contextid</value>
+						<field table="sq_ast_mdata_dflt_val" column="default_val" />
+						<value>1</value>
+					</fields>
+					<from>
+						<table>sq_ast_mdata_dflt_val</table>
+					</from>
+					<where>
+						<equal table="sq_ast_mdata_dflt_val" column="contextid">0</equal>
+					</where>
+				</select>
+			</insert>
+		</primary>
+	</query>
+
+	<query id="deleteContextMetadataDefaults">
+		<!-- Deletes data from the metadata defaults table for
+			 a deleted context(s) -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_mdata_dflt_val" column="contextid">:contextids</in>
+				</where>
+			</delete>
 		</primary>
 	</query>
 
@@ -1448,25 +1550,30 @@
 	</query>
 
 	<query id="setMetadataValueForAsset">
-	<!-- Set metadata schema on asset -->
+	<!-- Insert a new single metadata value for a passed asset/metadata
+		 field/context combination, overriding the default. For updating those
+		 already with a custom metadata value, use update query below. -->
 		<primary>
 			<insert>
 				<fields table="sq_ast_mdata_val">
 					<field>assetid</field>
 					<field>fieldid</field>
 					<field>value</field>
+					<field>contextid</field>
 				</fields>
 				<values>
 					<value column="assetid">:assetid</value>
 					<value column="fieldid">:fieldid</value>
 					<value column="value">:value</value>
+					<value column="contextid">:contextid</value>
 				</values>
 			</insert>
 		</primary>
 	</query>
 
 	<query id="updateMetadataValueForAsset">
-	<!-- Update metadata schema of an asset -->
+	<!-- Update a single custom metadata value for a passed asset/metadata
+		 field/context combination. -->
 		<primary>
 			<update>
 				<fields table="sq_ast_mdata_val">
@@ -1478,21 +1585,34 @@
 				<where>
 					<equal table="sq_ast_mdata_val" column="assetid">:assetid</equal>
 					<equal table="sq_ast_mdata_val" column="fieldid">:fieldid</equal>
+					<equal table="sq_ast_mdata_val" column="contextid">:contextid</equal>
 				</where>
 			</update>
 		</primary>
 	</query>
 
 	<query id="deleteMetadataValueForAsset">
-		<!-- Deletes link with specified linkid -->
+		<!-- Deletes a single custom metadata value for a passed asset/metadata
+			 field/context combination, reverting it to the default. -->
 		<primary>
 			<delete>
 				<where>
 					<equal table="sq_ast_mdata_val" column="assetid">:assetid</equal>
 					<in table="sq_ast_mdata_val" column="fieldid">:fieldid</in>
+					<equal table="sq_ast_mdata_val" column="contextid">:contextid</equal>
 				</where>
 			</delete>
 		</primary>
+		<alternate>
+			<assert-null data="contextid">
+				<delete>
+					<where>
+						<equal table="sq_ast_mdata_val" column="assetid">:assetid</equal>
+						<in table="sq_ast_mdata_val" column="fieldid">:fieldid</in>
+					</where>
+				</delete>
+			</assert-null>
+		</alternate>
 	</query>
 
 
