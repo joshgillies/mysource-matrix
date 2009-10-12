@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.25 2009/10/12 22:53:03 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.26 2009/10/12 22:55:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,22 +186,20 @@ class Metadata_Field_Select extends Metadata_Field
 	* This is necessary because the default context is the ultimate authority
 	* on what kets
 	*
-	* These are cached in a _tmp var indexed
+	* These are cached in a _tmp var indexed by context ID, and is cleared when
+	* the select_options attribute is saved.
 	*
-	*
+	* @return array
+	* @see Metadata_Field_Select::_clearContextedSelectOptionsCache()
 	*/
-	public function getContextedSelectOptions($contextid=NULL)
+	public function getContextedSelectOptions()
 	{
 		// Create the cache array if it doesn't exist yet
 		if (array_key_exists('cached_select_options', $this->_tmp) === FALSE) {
 			$this->_tmp['cached_select_options'] = Array();
 		}
 
-		if ($contextid === NULL) {
-			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		}
-
-		$contextid = (int)$contextid;
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		if ($contextid === 0) {
 			// Don't really need to cache the select options in the default
