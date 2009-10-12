@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.26 2009/10/12 22:55:13 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.27 2009/10/12 22:57:45 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ class Metadata_Field_Select extends Metadata_Field
 		}
 
 		$value_str = '';
-		$options = $this->attr('select_options');
+		$options = $this->getContextedSelectOptions();
 
 		foreach ($option_keys as $key) {
 			if (isset($options[$key])) {
