@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.15 2007/12/10 06:20:49 rong Exp $
+* $Id: design_area_metadata.inc,v 1.16 2009/10/12 22:11:45 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,13 @@ class Design_Area_Metadata extends Design_Area
 		if (empty($field_name)) {
 			// printing all metadata
 			echo '
-					if (file_exists($ASSET->data_path.\'/metadata.php\')) {
-						require($ASSET->data_path.\'/metadata.php\');
+					$contextid = $GLOBALS[\'SQ_SYSTEM\']->getContextId();
+					$metadata_default_name = \'metadata.php\';
+					$metadata_basename = ($contextid === 0) ? \'metadata.php\' : \'metadata.\'.$contextid.\'.php\';
+					if (file_exists($ASSET->data_path.\'/\'.$metadata_basename)) {
+						require($ASSET->data_path.\'/\'.$metadata_basename);
+					} else if (file_exists($ASSET->data_path.\'/\'.$metadata_default_name)) {
+						require($ASSET->data_path.\'/\'.$metadata_default_name);
 					}
 				 ';
 		} else {
