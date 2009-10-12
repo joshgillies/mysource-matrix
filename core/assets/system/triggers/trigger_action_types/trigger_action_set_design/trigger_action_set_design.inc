@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.18.8.1 2009/10/12 03:07:36 ewang Exp $
+* $Id: trigger_action_set_design.inc,v 1.18.8.2 2009/10/12 04:32:19 ewang Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
@@ -26,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18.8.1 $
+* @version $Revision: 1.18.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
