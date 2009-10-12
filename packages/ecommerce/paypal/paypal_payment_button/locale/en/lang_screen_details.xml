@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2009/09/29 11:23:47 ata Exp $
+* $Id: lang_screen_details.xml,v 1.5 2009/10/12 11:03:40 ata Exp $
 *
 */
 -->
@@ -49,9 +49,11 @@
 				<process_function name="processPrice" />
 			</function_call>
 		</field>
-		<field attribute="currency">
-			<display_name>Currency</display_name>
-			<note />
+		<field>
+			<function_call>
+				<paint_function name="paintCurrency" />
+				<process_function name="processCurrency" />
+			</function_call>
 		</field>
 		<field>
 			<function_call>
@@ -67,25 +69,45 @@
 			<display_name>Paypal Configuration</display_name>
 			<note>The Paypal Configuration asset that keeps information this button needs to encrypt its data. The Paypal Configuration asset must specify the location of the Paypal Encryption Library Path in order for this button to work.</note>
 		</field>
-		<field attribute="custom_var">
-			<display_name>Custom variable</display_name>
-			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value can be any extra information that Paypal will send back after a customer purchases an item. This value is never presented to customers so it can be used to send secret data under the format var1=value1,var2=value2. These values can be extracted by an IPN Receiver asset later. Globals keywords like %globals_user_assetid% can be used.</note>
+		<field>
+			<function_call>
+				<paint_function name="paintCustomVar" />
+				<process_function name="processCustomVar" />
+			</function_call>
 		</field>
-		<field attribute="notify_url">
-			<display_name>Notify URL</display_name>
-			<note>This is the URL that Paypal will POST an Instant Payment Notification (IPN) to. It must be the URL of an IPN Receiver asset.</note>
+		<field>
+			<function_call>
+				<paint_function name="paintNotifyUrl" />
+				<process_function name="processNotifyUrl" />
+			</function_call>
 		</field>
-		<field attribute="return_url">
-			<display_name>Return URL</display_name>
-			<note>The URL of the page that the user will be returned after completing a payment.</note>
+		<field>
+			<function_call>
+				<paint_function name="paintReturnUrl" />
+				<process_function name="processReturnUrl" />
+			</function_call>
 		</field>
-		<field attribute="cancel_return_url">
-			<display_name>Cancel URL</display_name>
-			<note>The URL of the page that the user will be returned if a payment is cancelled.</note>
+		<field>
+			<function_call>
+				<paint_function name="paintCancelUrl" />
+				<process_function name="processCancelUrl" />
+			</function_call>
 		</field>
 		<field attribute="image_url">
 			<display_name>Image URL</display_name>
-			<note>The URL of the image to use for the payment button. You can use Paypal images such as Buy Now (https://www.paypal.com/en_GB/i/btn/btn_buynowCC_LG.gif), Donate (https://www.paypal.com/en_GB/i/btn/btn_donateCC_LG.gif).</note>
+			<note>The URL of the image to use for the payment button. You can use Paypal images such as Buy Now (https://www.paypal.com/en_GB/i/btn/btn_buynowCC_LG.gif), Donate (https://www.paypal.com/en_GB/i/btn/btn_donateCC_LG.gif), Add to Cart (https://www.paypal.com/en_GB/i/btn/btn_cart_LG.gif), View Cart (https://www.paypal.com/en_GB/i/btn/btn_viewcart_LG.gif).</note>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintCartTargetWindow" />
+				<process_function name="processCartTargetWindow" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintShoppingURL" />
+				<process_function name="processShoppingURL" />
+			</function_call>
 		</field>
 		<field>
 			<display_name>Extra variables</display_name>

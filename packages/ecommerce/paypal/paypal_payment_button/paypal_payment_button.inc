@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button.inc,v 1.3 2009/09/29 11:23:47 ata Exp $
+* $Id: paypal_payment_button.inc,v 1.4 2009/10/12 11:03:40 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -100,8 +100,13 @@ class Paypal_Payment_Button extends Page
 		
 		$post_url = self::$_post_url[$paypal_account->attr('account_type')];
 		
+		$target = '';
+		if (($this->attr('button_type') == '_cart') || ($this->attr('button_type') == '_view_cart')) {
+			$target = 'target="'.$this->attr('cart_target_window').'"';
+		}
+		
 		$content = <<<HEREDOC
-<form action="{$post_url}" method="post">
+<form $target action="{$post_url}" method="post">
 	<input type="hidden" name="cmd" value="_s-xclick">
 	<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----{$encryptedButton['encryptedData']}-----END PKCS7-----">
 	<input type="image" src="{$this->attr('image_url')}" border="0" name="submit" alt="Paypal payment button">
@@ -122,69 +127,89 @@ HEREDOC;
 	private function _concatButtonData($paypal_config, $paypal_business_account)
 	{
 		//concat the content of this payment button
-		$data = 'cmd='.$this->attr('button_type')."\n";
+		$cmd = $this->attr('button_type');
+		if ($cmd == '_view_cart') {
+			$cmd = '_cart';
+		}
+		
+		$data = 'cmd='.$cmd."\n";
+		
+		if ($cmd == '_cart') {
+			if ($this->attr('button_type') == '_cart') {
+				$data .= 'add=1'."\n";
+			} else {
+				$data .= 'display=1'."\n";
+			}
+			//add shopping URL if it exists
+			$shopping_url = trim($this->attr('shopping_url'));
+			if ($shopping_url != '') {
+				$data .= 'shopping_url='.$shopping_url."\n";
+			}
+		}
 		
 		$data .= 'business='.$paypal_business_account->attr('account_id')."\n";
 		$data .= 'cert_id='.$paypal_business_account->attr('public_cert_id')."\n";
 		
-		$item_name = $this->attr('item_name');
-		//Replace keywords for item name
-		replace_global_keywords($item_name);
-		$data .= 'item_name='.$item_name."\n";
-		
-		if ($this->attr('item_id') != '') {
-			$data .= 'item_number='.$this->attr('item_id')."\n";
-		}
-
-		$price = trim($this->attr('price'));
-		if ($price != '') {
-			//Replace keywords for price
-			replace_global_keywords($price);
-			$data .= 'amount='.$price."\n";
-		}
-		
-		$data .= 'currency_code='.$this->attr('currency')."\n";
-		
-		if (($this->attr('button_type') == '_xclick') && $this->attr('undefined_quantity')) {
-			$data .= 'undefined_quantity=1'."\n";
-		}
-		
-		$data .= 'charset='.SQ_CONF_DEFAULT_CHARACTER_SET."\n";
-		
-		//Replace keyword and encode custom variable
-		$custom = $this->attr('custom_var');
-		if ($custom != '') {
-			replace_global_keywords($custom);
-			$custom = urlencode($custom);
-		}
-		
-		//Add this button id to custom variable so that IPN receiver asset will know which button triggered the payment
-		$custom_var = $this->id.self::$CUSTOM_PARAM_SPLIT_STR.$custom;
-		
-		//Get the query string of Notify URL
-		$notify_url_query = parse_url($this->attr('notify_url'), PHP_URL_QUERY);
-		if (is_null($notify_url_query)) {
-			$notify_url_query = '';
-		}
-		
-		//Hash the custom variable string and notify URL's query with our secret string to prevent malicious changes to 
-		//the custom parameter and notify URL in Replay attack.
-		//Actually, the notify URL query should not be checked or used here but we might sometimes want to use the trigger
-		//condition URL matches to trigger an action and we do not want the query string to be changed.
-		$custom_hash = md5($paypal_config->attr('custom_param_secret_str').$custom_var.$paypal_config->attr('custom_param_secret_str').$notify_url_query);
-		
-		$data .= 'custom='.$custom_hash.self::$CUSTOM_PARAM_SPLIT_STR.$custom_var."\n";
-		
-		if ($this->attr('notify_url') != '') {
-			$data .= 'notify_url='.$this->attr('notify_url')."\n";
-		}
-		
-		if ($this->attr('return_url') != '') {
-			$data .= 'return='.$this->attr('return_url')."\n";
-		}
-		
-		if ($this->attr('cancel_return_url') != '') {
-			$data .= 'cancel_return='.$this->attr('cancel_return_url')."\n";
+		if ($this->attr('button_type') != '_view_cart') {
+			$item_name = $this->attr('item_name');
+			//Replace keywords for item name
+			replace_global_keywords($item_name);
+			$data .= 'item_name='.$item_name."\n";
+			
+			if ($this->attr('item_id') != '') {
+				$data .= 'item_number='.$this->attr('item_id')."\n";
+			}
+	
+			$price = trim($this->attr('price'));
+			if ($price != '') {
+				//Replace keywords for price
+				replace_global_keywords($price);
+				$data .= 'amount='.$price."\n";
+			}
+			
+			$data .= 'currency_code='.$this->attr('currency')."\n";
+			
+			if (($this->attr('button_type') == '_xclick') && $this->attr('undefined_quantity')) {
+				$data .= 'undefined_quantity=1'."\n";
+			}
+			
+			$data .= 'charset='.SQ_CONF_DEFAULT_CHARACTER_SET."\n";
+			
+			//Replace keyword and encode custom variable
+			$custom = $this->attr('custom_var');
+			if ($custom != '') {
+				replace_global_keywords($custom);
+				$custom = urlencode($custom);
+			}
+			
+			//Add this button id to custom variable so that IPN receiver asset will know which button triggered the payment
+			$custom_var = $this->id.self::$CUSTOM_PARAM_SPLIT_STR.$custom;
+			
+			//Get the query string of Notify URL
+			$notify_url_query = parse_url($this->attr('notify_url'), PHP_URL_QUERY);
+			if (is_null($notify_url_query)) {
+				$notify_url_query = '';
+			}
+			
+			//Hash the custom variable string and notify URL's query with our secret string to prevent malicious changes to 
+			//the custom parameter and notify URL in Replay attack.
+			//Actually, the notify URL query should not be checked or used here but we might sometimes want to use the trigger
+			//condition URL matches to trigger an action and we do not want the query string to be changed.
+			$custom_hash = md5($paypal_config->attr('custom_param_secret_str').$custom_var.$paypal_config->attr('custom_param_secret_str').$notify_url_query);
+			
+			$data .= 'custom='.$custom_hash.self::$CUSTOM_PARAM_SPLIT_STR.$custom_var."\n";
+			
+			if ($this->attr('notify_url') != '') {
+				$data .= 'notify_url='.$this->attr('notify_url')."\n";
+			}
+			
+			if ($this->attr('return_url') != '') {
+				$data .= 'return='.$this->attr('return_url')."\n";
+			}
+			
+			if ($this->attr('cancel_return_url') != '') {
+				$data .= 'cancel_return='.$this->attr('cancel_return_url')."\n";
+			}
 		}
 		
 		$data .= $this->attr('extra_vars');

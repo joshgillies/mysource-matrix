@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2009/09/29 11:23:47 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2009/10/12 11:03:39 ata Exp $
 *
 */
 -->
@@ -46,8 +46,11 @@
 				<process_function name="processPrice" />
 			</function_call>
 		</field>
-		<field attribute="currency">
-			<selection style="list" />
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintCurrency" />
+				<process_function name="processCurrency" />
+			</function_call>
 		</field>
 		<field format="blank">
 			<function_call>
@@ -61,20 +64,44 @@
 		<field attribute="paypal_config_id">
 			<assetid type_codes="paypal_configuration:I" />
 		</field>
-		<field attribute="custom_var">
-			<text width="60" height="1" />
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintCustomVar" />
+				<process_function name="processCustomVar" />
+			</function_call>
 		</field>
-		<field attribute="notify_url">
-			<text width="60" height="1" />
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintNotifyUrl" />
+				<process_function name="processNotifyUrl" />
+			</function_call>
 		</field>
-		<field attribute="return_url">
-			<text width="60" height="1" />
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintReturnUrl" />
+				<process_function name="processReturnUrl" />
+			</function_call>
 		</field>
-		<field attribute="cancel_return_url">
-			<text width="60" height="1" />
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintCancelUrl" />
+				<process_function name="processCancelUrl" />
+			</function_call>
 		</field>
 		<field attribute="image_url">
 			<text width="60" height="1" />
+		</field>
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintCartTargetWindow" />
+				<process_function name="processCartTargetWindow" />
+			</function_call>
+		</field>
+		<field format="blank">
+			<function_call>
+				<paint_function name="paintShoppingURL" />
+				<process_function name="processShoppingURL" />
+			</function_call>
 		</field>
 		<field>
 			<function_call>

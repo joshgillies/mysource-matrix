@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_ipn_receiver.inc,v 1.2 2009/03/30 18:05:21 ata Exp $
+* $Id: paypal_ipn_receiver.inc,v 1.3 2009/10/12 11:05:48 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('FAIL_LOG_FILE', LOG_FILE_PREFIX.'_failure');
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -77,12 +77,15 @@ class Paypal_IPN_Receiver extends Page
 		
 		//only process if the request method is POST
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$payment_info['txn_type'] = array_get_index($_POST, 'txn_type', '');
 			$payment_info['txn_id'] = array_get_index($_POST, 'txn_id', '');
+			$payment_info['test_ipn'] = array_get_index($_POST, 'test_ipn', '0');
 			$payment_info['payment_status'] = array_get_index($_POST, 'payment_status', '');
+			$payment_info['payment_date'] = array_get_index($_POST, 'payment_date', '');
 			
-			//do not proceed if there is no transaction ID or payment_status
-			if (empty($payment_info['txn_id']) || empty($payment_info['payment_status'])) {
-				$payment_info['error'] = 'THERE IS NO TRANSACTION ID OR PAYMENT STATUS.';
+			//do not proceed if there is no transaction type, transaction ID or payment_status
+			if (empty($payment_info['txn_type']) || empty($payment_info['txn_id']) || empty($payment_info['payment_status'])) {
+				$payment_info['error'] = 'THERE IS NO TRANSACTION TYPE, TRANSACTION ID OR PAYMENT STATUS.';
 				$this->_returnPageNotFound($payment_info);
 			}
 			
@@ -155,12 +158,23 @@ class Paypal_IPN_Receiver extends Page
 			//THE PAYMENT IS VALID 
 			
 			//get other information of this payment to write to the log file
-			$payment_info['item_name'] = array_get_index($_POST, 'item_name', '');
-			$payment_info['item_number'] = array_get_index($_POST, 'item_number', '');
 			$payment_info['mc_currency'] = array_get_index($_POST, 'mc_currency', '');
 			$payment_info['mc_gross'] = array_get_index($_POST, 'mc_gross', 0);
-			$payment_info['quantity'] = array_get_index($_POST, 'quantity', 1);
-			$payment_info['price'] = $payment_info['mc_gross']/$payment_info['quantity'];
+			if ($payment_info['txn_type'] == 'cart') {
+				$payment_info['num_cart_items'] = array_get_index($_POST, 'num_cart_items', 0);
+				for ($i = 1; $i <= $payment_info['num_cart_items']; $i++) {
+					$payment_info['item_name'.$i] = array_get_index($_POST, 'item_name'.$i, '');
+					$payment_info['item_number'.$i] = array_get_index($_POST, 'item_number'.$i, '');
+					$payment_info['quantity'.$i] = array_get_index($_POST, 'quantity'.$i, 1);
+					$payment_info['mc_gross_'.$i] = array_get_index($_POST, 'mc_gross_'.$i, 0);
+					$payment_info['price_'.$i] = $payment_info['mc_gross_'.$i]/$payment_info['quantity'.$i];
+				}
+			} else {
+				$payment_info['item_name'] = array_get_index($_POST, 'item_name', '');
+				$payment_info['item_number'] = array_get_index($_POST, 'item_number', '');
+				$payment_info['quantity'] = array_get_index($_POST, 'quantity', 1);
+				$payment_info['price'] = $payment_info['mc_gross']/$payment_info['quantity'];
+			}
 			
 			//split custom parameters
 			$params = Array();

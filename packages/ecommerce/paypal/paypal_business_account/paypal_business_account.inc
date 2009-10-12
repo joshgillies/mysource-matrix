@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_business_account.inc,v 1.1 2009/03/30 17:58:51 ata Exp $
+* $Id: paypal_business_account.inc,v 1.2 2009/10/12 11:06:29 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/paypal/paypal_order/paypal_order.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -252,14 +252,33 @@ class Paypal_Business_Account extends Asset
 			$paypal_order->setAttrValue('currency', $payment_info['mc_currency']);
 			$paypal_order->setAttrValue('custom_info', $this->_getCustomInfo($payment_info));
 			
-			$product = Array(
-								'name' 		=> $payment_info['item_name'],
-								'number'	=> $payment_info['item_number'],
-								'quantity'	=> $payment_info['quantity'],
-								'price'		=> $payment_info['price'],
-								'subtotal'	=> $payment_info['mc_gross'],
-							 );
-			$paypal_order->setAttrValue('products', Array($product));
+			$products = Array();
+			
+			if ($payment_info['txn_type'] == 'cart') {
+				for ($i = 1; $i <= $payment_info['num_cart_items']; $i++) {
+					$product = Array(
+										'name' 		=> $payment_info['item_name'.$i],
+										'number'	=> $payment_info['item_number'.$i],
+										'quantity'	=> $payment_info['quantity'.$i],
+										'price'		=> $payment_info['price_'.$i],
+										'subtotal'	=> $payment_info['mc_gross_'.$i],
+									 );
+					
+					$products[] = $product;
+				}
+			} else {
+				$product = Array(
+									'name' 		=> $payment_info['item_name'],
+									'number'	=> $payment_info['item_number'],
+									'quantity'	=> $payment_info['quantity'],
+									'price'		=> $payment_info['price'],
+									'subtotal'	=> $payment_info['mc_gross'],
+								 );
+				
+				$products = Array($product);
+			}
+			
+			$paypal_order->setAttrValue('products', $products);
 			
 			if ($paypal_order->saveAttributes()) {
 				//create notice link from this Paypal Account asset to the new Paypal_Order asset
@@ -347,7 +366,7 @@ class Paypal_Business_Account extends Asset
 	 */
 	private function _getCustomInfo($payment_info)
 	{
-		$custom_indexes = Array('custom', 'button_id', 'real_custom_var', 'notify_url_query', 'business', 'item_number', 'target_assetid', 'ipn_event');
+		$custom_indexes = Array('custom', 'button_id', 'real_custom_var', 'notify_url_query', 'business', 'target_assetid', 'ipn_event');
 		$custom_string = '';
 		foreach ($custom_indexes as $index) {
 			$message = empty($payment_info[$index])? '[Empty]' : $payment_info[$index];

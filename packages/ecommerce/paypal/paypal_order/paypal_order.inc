@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_order.inc,v 1.1 2009/03/30 18:08:57 ata Exp $
+* $Id: paypal_order.inc,v 1.2 2009/10/12 11:07:03 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -123,7 +123,8 @@ class Paypal_Order extends Asset
 		
 		foreach ($products as $product) {
 			$product_string = Array();
-			$product_string['name'] = (string)$product['name'];
+			$product_number = ($product['number'] != '') ? ' (#'.$product['number'].')' : '';
+			$product_string['name'] = $product['name'].$product_number;
 			$product_string['quantity'] = sprintf('%d', $product['quantity']);
 			$product_string['price'] = sprintf('%01.2f', $product['price']);
 			$product_string['subtotal'] = sprintf('%01.2f', $product['subtotal']);

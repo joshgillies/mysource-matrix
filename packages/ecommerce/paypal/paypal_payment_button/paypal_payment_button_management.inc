@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button_management.inc,v 1.5 2009/09/29 11:23:47 ata Exp $
+* $Id: paypal_payment_button_management.inc,v 1.6 2009/10/12 11:03:40 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -47,6 +47,8 @@ class Paypal_Payment_Button_Management extends Asset_Management
 																							'options'		=> Array(
 																														'_xclick'		=> 'Buy Now',
 																														'_donations'	=> 'Donate',
+																														'_cart'			=> 'Add to Cart',
+																														'_view_cart'	=> 'View Cart',
 																											   		),
 																					   ),
 															),
@@ -127,6 +129,24 @@ class Paypal_Payment_Button_Management extends Asset_Management
 																'added'		=> '0.1',
 																'type'		=> 'text',
 																'default'	=> 'https://www.paypal.com/en_GB/i/btn/btn_buynowCC_LG.gif',
+															),
+							'cart_target_window'	=> Array(
+																'added'			=> '0.1',
+																'type'			=> 'selection',
+																'default'		=> 'paypal',
+																'parameters'	=> Array(
+																							'multiple'		=> FALSE,
+																							'allow_empty'	=> FALSE,
+																							'options'		=> Array(
+																														'paypal'	=> 'A new window/tab',
+																														'_self'		=> 'The same window/tab',
+																											   		),
+																					   ),
+															),
+							'shopping_url'			=> Array(
+																'added'		=> '0.1',
+																'type'		=> 'text',
+																'default'	=> '',
 															),
 							'extra_vars'			=> Array(
 																'added'		=> '0.1',
