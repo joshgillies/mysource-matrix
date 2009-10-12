@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.43 2009/10/12 04:52:21 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.44 2009/10/12 05:11:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,10 +214,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($is_default_context === FALSE) {
 			// Get the current default keys
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
 			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			$default_options = $asset->attr('select_options');
+			$default_options = $default_asset->attr('select_options');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
 			unset($default_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
 		} else {
 			$default_options = $select_options;
 		}

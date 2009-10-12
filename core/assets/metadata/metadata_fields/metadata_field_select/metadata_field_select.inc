@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.23 2008/06/20 06:21:12 bpearson Exp $
+* $Id: metadata_field_select.inc,v 1.24 2009/10/12 05:11:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,33 @@ class Metadata_Field_Select extends Metadata_Field
 		if (!empty($edit_params)) {
 			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);
 		}
-		$selection->_params['options'] = $this->attr('select_options');
+
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if ($contextid === 0) {
+			// we're in the current context, so we can just get the select
+			// options straight
+			$selection->_params['options'] = $this->attr('select_options');
+		} else {
+			$select_options = $this->attr('select_options');
+
+			// Get the current default keys, and fill up the empty keys in the
+			// current context
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+			$default_options = $default_asset->attr('select_options');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+			unset($default_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+			foreach ($default_options as $default_key => $default_value) {
+				if (array_key_exists($default_key, $select_options) === FALSE) {
+					$select_options[$default_key] = $default_value;
+				}
+			}
+
+			$selection->_params['options'] = $select_options;
+		}
 		$selection->_params['multiple'] = $this->attr('multiple');
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 
