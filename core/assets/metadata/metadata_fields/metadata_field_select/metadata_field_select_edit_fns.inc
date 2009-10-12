@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.42 2008/04/10 05:11:52 ncallahan Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.43 2009/10/12 04:52:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Select	$asset			the asset whose interface we are processing
 	* @param string					&$new_value_str	a string by reference that we can store the new values in
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
@@ -209,6 +209,18 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$select_options = $asset->attr('select_options');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+
+		if ($is_default_context === FALSE) {
+			// Get the current default keys
+			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			$default_options = $asset->attr('select_options');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+			unset($default_asset);
+		} else {
+			$default_options = $select_options;
+		}
 
 		if (!empty($select_options)) {
 			?>
@@ -217,20 +229,29 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
 					<?php
-					if ($write_access) {
+					if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
 						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 					?>
 				</tr>
 				<?php
 				$i = 0;
-				foreach ($select_options as $option_key => $option_value) {
+				// Base this on the default values because then any new
+				// option not already in a modified context can be set to the
+				// default context's value for it
+				foreach ($default_options as $option_key => $default_value) {
+					$option_value = array_get_index($select_options, $option_key, $default_value);
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
 							<?php
-							if ($write_access) {
-								text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+							if ($write_access  === TRUE) {
+								if ($is_default_context === TRUE) {
+									text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+								} else {
+									echo $option_key;
+									hidden_field($prefix.'_options[key]['.$i.']', $option_key);
+								}
 							} else {
 								echo $option_key;
 							}
@@ -246,7 +267,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 							?>
 						</td>
 						<?php
-						if ($write_access) {
+						if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
 							?>
 							<td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
@@ -267,7 +288,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
-		if ($write_access) {
+		if (($write_access === TRUE) && ($is_default_context === TRUE)) {
 			$o->openField(translate('new_option'));
 				echo '<b>'.translate('key').'</b> ';
 				text_box($prefix.'_new_key','');
@@ -314,10 +335,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		// now get the new submitted values (if any) and add them to array
-		if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
-			$new_select_key  = trim($_POST[$prefix.'_new_key']);
-			$new_select_val  = trim($_POST[$prefix.'_new_val']);
-			$select_options[$new_select_key] = $new_select_val;
+		if (array_key_exists($prefix.'_new_key', $_POST) === TRUE) {
+			if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
+				$new_select_key  = trim($_POST[$prefix.'_new_key']);
+				$new_select_val  = trim($_POST[$prefix.'_new_val']);
+				$select_options[$new_select_key] = $new_select_val;
+			}
 		}
 
 		// updating asset attribute value
