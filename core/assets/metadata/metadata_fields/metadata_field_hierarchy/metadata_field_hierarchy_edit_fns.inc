@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.14 2008/11/11 05:31:02 bpearson Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.15 2009/10/12 05:13:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,7 +202,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Hierarchy	$asset					the asset whose interface we are processing
 	* @param string						&$new_value_str			a string by reference that we can store the new values in
-	* @param bool     					&$field_cascade_value	Whether value updates to this field should cascade 
+	* @param bool     					&$field_cascade_value	Whether value updates to this field should cascade
 	*                                       					to children
 	*
 	* @return boolean
@@ -260,6 +260,20 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$hierarchy_options = $asset->attr('hierarchy_options');
 		$hierarchy_sort = $asset->attr('hier_sort');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+
+		if ($is_default_context === FALSE) {
+			// Get the current default keys
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			$default_options = $default_asset->attr('hierarchy_options');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+			unset($default_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		} else {
+			$default_options = $hierarchy_options;
+		}
 
 		if (!empty($hierarchy_options)) {
 			?>
@@ -275,13 +289,19 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				</tr>
 				<?php
 				$i = 0;
-				foreach ($hierarchy_options as $option_key => $option_value) {
+				foreach ($default_options as $option_key => $default_value) {
+					$option_value = array_get_index($hierarchy_options, $option_key, $default_value);
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
 							<?php
-							if ($write_access) {
-								text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+							if ($write_access  === TRUE) {
+								if ($is_default_context === TRUE) {
+									text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+								} else {
+									echo $option_key;
+									hidden_field($prefix.'_options[key]['.$i.']', $option_key);
+								}
 							} else {
 								echo $option_key;
 							}
@@ -297,7 +317,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 							?>
 						</td>
 						<?php
-						if ($write_access) {
+						if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
 							?>
 							<td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
@@ -318,7 +338,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
-		if ($write_access) {
+		if (($write_access === TRUE) && ($is_default_context === TRUE)) {
 			$o->openField(translate('new_option'));
 				echo '<b>'.translate('key').'</b> ';
 				text_box($prefix.'_new_key','');
@@ -515,7 +535,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		echo normal_button($prefix.'_drill_down_button', translate('remove'), $remove_on_click);
 		$remove_all_on_click = 'removeAllFromReceptacle()';
 		echo normal_button($prefix.'_drill_down_button', translate('remove_all'), $remove_all_on_click);
-		
+
 		// close the receptacle row
 		echo '</td></tr>';
 
@@ -528,7 +548,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			var receptacleName = '<?php echo $receptacle_field_name; ?>';
 			var receptacle = document.getElementById(receptacleName);
 			selectAllReceptacleItems(receptacle);
-			
+
 			function swapOptions(select)
 			{
 				// the values to replace with
@@ -748,10 +768,12 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		// now get the new submitted values (if any) and add them to array
-		if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
-			$new_hierarchy_key  = trim($_POST[$prefix.'_new_key']);
-			$new_hierarchy_val  = trim($_POST[$prefix.'_new_val']);
-			$hierarchy_options[$new_hierarchy_key] = $new_hierarchy_val;
+		if (array_key_exists($prefix.'_new_key', $_POST) === TRUE) {
+			if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
+				$new_hierarchy_key  = trim($_POST[$prefix.'_new_key']);
+				$new_hierarchy_val  = trim($_POST[$prefix.'_new_val']);
+				$hierarchy_options[$new_hierarchy_key] = $new_hierarchy_val;
+			}
 		}
 
 		// updating asset attribute value

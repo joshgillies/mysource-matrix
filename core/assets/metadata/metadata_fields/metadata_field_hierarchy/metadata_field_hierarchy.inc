@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.5 2008/07/17 05:18:47 bshkara Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.6 2009/10/12 05:13:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,34 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		if (!empty($edit_params)) {
 			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);
 		}
-		$selection->_params['options'] = $this->attr('hierarchy_options');
+
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if ($contextid === 0) {
+			// we're in the current context, so we can just get the select
+			// options straight
+			$selection->_params['options'] = $this->attr('hierarchy_options');
+		} else {
+			$hierarchy_options = $this->attr('hierarchy_options');
+
+			// Get the current default keys, and fill up the empty keys in the
+			// current context
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+			$default_options = $default_asset->attr('hierarchy_options');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+			unset($default_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+			foreach ($default_options as $default_key => $default_value) {
+				if (array_key_exists($default_key, $select_options) === FALSE) {
+					$hierarchy_options[$default_key] = $default_value;
+				}
+			}
+
+			$selection->_params['options'] = $hierarchy_options;
+		}
+
 		$selection->_params['multiple'] = $this->attr('multiple');
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 		$selection->_params['sort'] = $this->attr('hier_sort');
