@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_field_values.inc,v 1.3 2009/09/24 06:38:25 bpearson Exp $
+* $Id: hipo_job_edit_metadata_field_values.inc,v 1.4 2009/10/12 23:56:15 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit Metadata Field values
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -181,6 +181,13 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 			return FALSE;
 		}
 
+		// Allow an empty context ID, however it should be discouraged because
+		// running it inside a Squiz Server process could have unpredictable
+		// results
+		if (empty($this->_running_vars['contextid'])) {
+			$this->_running_vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
 		$this->_running_vars['done_assetids'] = Array();
 		if (empty($this->_running_vars['metadata_field_value_changes'])) {
 			// no Metadata Field Value changes supplied, so do nothing
@@ -234,6 +241,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 	*/
 	function processFieldValues(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
@@ -247,7 +256,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata')) {
 					foreach ($this->_running_vars['metadata_field_value_changes'] as $set_data) {
 						$schemata = $mm->getSchemas($assetid);
-					
+
 						if (!empty($schemata) && $set_data['field_asset_id']) {
 							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['field_asset_id']);
 							if (is_null($metadata_field)) {
@@ -289,6 +298,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
 			$step_data['complete']     = FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 		return TRUE;
 
