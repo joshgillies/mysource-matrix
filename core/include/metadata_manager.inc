@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.197 2009/10/11 23:46:24 lwright Exp $
+* $Id: metadata_manager.inc,v 1.198 2009/10/12 03:57:03 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.197 $
+* @version $Revision: 1.198 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1169,6 +1169,8 @@ class Metadata_Manager extends MySource_Object
 
 			// print the values, to be referenced by the meta tags later
 			echo '$metadata_values = Array('."\n";
+					log_dump('TAG_VALUES');
+					log_dump($tag_values);
 			foreach ($tag_values as $n => $v) {
 				$n = addslashes($this->escapeMetadata($n, TRUE));
 				Metadata_Field::decodeValueString($v, $v2, $vc);
@@ -1177,7 +1179,9 @@ class Metadata_Manager extends MySource_Object
 
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v2);
+				if (!empty($keywords)) {
+					$v2 = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v2);
+				}
 				echo "'$n' => '$v2',\n";
 			}
 			echo ");\n\n";
