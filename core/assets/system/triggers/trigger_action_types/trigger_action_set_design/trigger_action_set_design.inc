@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.18 2007/12/13 04:11:17 hnguyen Exp $
+* $Id: trigger_action_set_design.inc,v 1.18.8.1 2009/10/12 03:07:36 ewang Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger Action Set Design
@@ -25,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,13 +55,21 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
+		// see if the id is set in the parameter map
+		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
+		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
+		$param_map_value = $param_map_attr->getParameterValue('design_id');
+
 		// check settings, state
-		if (empty($settings['assetid'])) {
+		if (empty($settings['assetid']) && empty($param_map_value)) {
 			// if no settings, fail
 			return FALSE;
 		}
+		
+		// whether we use the parameter map value or the settings value for the target asset
+		$assetid = is_null($param_map_value) ? $settings['assetid'] : $param_map_value;
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 			return FALSE;
 		}
 
@@ -73,13 +82,13 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			}
 		}
-
+		
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-
+		
 		// setting the default frontend design
 		if ($design_type == 'design::system') {
 			$design_final_name = 'design::system::frontend';
@@ -90,7 +99,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		}
 
 		// get all system_design::frontend links attached to the asset
-		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_final_name);
+		$design_links = $am->getLinks($assetid, SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_final_name);
 		$link_already_created = FALSE;
 
 		if (!empty($design_links)) {
@@ -99,7 +108,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			foreach ($design_links as $link) {
 
 				// if the new design is already linked, leave it alone. delete duplicates if found
-				if ($link['minorid'] == $settings['assetid'] && !$link_already_created) {
+				if ($link['minorid'] == $assetid && !$link_already_created) {
 					// so that we don't try and recreate the link later if it already exists
 					$link_already_created = TRUE;
 				} else {
@@ -115,7 +124,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 		// create a link between the asset (major) and the design (minor)
 		if (!$link_already_created) {
-			$design = $am->getAsset($settings['assetid']);
+			$design = $am->getAsset($assetid);
 			$link_create_status = $am->createAssetLink($state['asset'], $design, SQ_LINK_NOTICE, $design_final_name);
 
 			if (!$link_create_status) {
@@ -199,6 +208,16 @@ class Trigger_Action_Set_Design extends Trigger_Action
 					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
 				}
 			}
+			// prints the parameter map to accept dynamic values
+			if ($write_access) {
+				// attribute friendly prefix
+				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				hidden_field($prefix.'[new_prefix]', $new_prefix);
+				$param_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+				$param_map_attr = new Asset_Attribute_Parameter_Map(0, $param_map_value);
+				$param_map_attr->setParameter('design_id', 'Design ID');
+				echo $param_map_attr->paint($new_prefix.'_parameter_map');
+			}
 
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
@@ -221,10 +240,6 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	*/
 	public static function processInterface(&$settings, $request_data)
 	{
-		// make sure the assetid isn't blank
-		if (empty($request_data['assetid']['assetid'])) {
-			return 'Design Asset id is not specified';
-		}
 
 		// check if the status is valid
 		$settings['assetid'] = $request_data['assetid']['assetid'];
@@ -232,7 +247,20 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		if (!empty($request_data['design_name'])) {
 			$settings['design_name'] = $request_data['design_name'];
 		}
-
+		
+		// parameter map to accept dynamic value
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		if ($new_prefix) {
+				$param_map_attr = new Asset_Attribute_Parameter_Map();
+				$param_map_attr->process($new_prefix.'_parameter_map');
+				$settings['value_map'] = $param_map_attr->value;
+		}
+		
+		$value_map = unserialize($settings['value_map']);
+		// make sure the assetid isn't blank
+		if (empty($settings['assetid']) && empty($value_map)) {
+			return 'Design Asset id is not specified';
+		}
 		return FALSE;
 
 	}//end processInterface()
