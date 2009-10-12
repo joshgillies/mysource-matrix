@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.19 2009/10/12 03:08:47 ewang Exp $
+* $Id: trigger_action_set_design.inc,v 1.20 2009/10/12 04:31:26 ewang Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
@@ -26,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,6 +56,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
+	
 		// see if the id is set in the parameter map
 		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
 		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
