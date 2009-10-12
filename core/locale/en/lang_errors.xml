@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.114 2009/10/11 23:57:43 lwright Exp $
+* $Id: lang_errors.xml,v 1.115 2009/10/12 00:09:42 lwright Exp $
 *
 */
 
@@ -1768,9 +1768,9 @@ Full Node Contents :
 	<error code="CORE0285">Unable to create paint layout notice link (%1$s) with value: %2$s for asset: #%3$s</error>
 
 	<error code="CORE0286">More than one default option was set in the CSV file, but the question is not set for multiple selection. Only the first default option found will be used.</error>
-	<error code="CORE0300">Cannot use File. File (%1s) was infected</error>
+	<error code="CORE0300">Cannot use File. File (%1$s) was infected</error>
 
-	<error code="CORE0301">No Index Page Set for %1$s "%2$s" (Id: #%3$s)</error>
+	<error code="CORE0301">Cannot force secure/insecure on URL for asset %1$s; the new asset URL must share at least one protocol with parent's URL</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
