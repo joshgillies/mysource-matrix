@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.64 2009/07/07 00:38:16 akarelia Exp $
+* $Id: db_install.inc,v 1.65 2009/10/12 23:23:27 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -1019,6 +1019,8 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 		$col_string     .= ')';
 		$new_val_string .= ');';
 		$old_val_string .= ');';
+		// If the last column was unique it leaves a nasty comma on the end, remove it
+		$update_string = rtrim($update_string, ',');
 
 		if (DAL::getDbType() == 'oci') {
 			$not_found = 'SQL%NOTFOUND';
