@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.6 2009/10/12 05:13:38 lwright Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.7 2009/10/12 05:14:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 			foreach ($default_options as $default_key => $default_value) {
-				if (array_key_exists($default_key, $select_options) === FALSE) {
+				if (array_key_exists($default_key, $hierarchy_options) === FALSE) {
 					$hierarchy_options[$default_key] = $default_value;
 				}
 			}
