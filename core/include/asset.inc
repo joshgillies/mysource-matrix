@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.707 2009/10/06 02:13:11 lwright Exp $
+* $Id: asset.inc,v 1.708 2009/10/12 21:45:25 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.707 $
+* @version $Revision: 1.708 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1981,6 +1981,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		  //////////////////
 		 /// ATTRIBUTES ///
@@ -1990,7 +1991,6 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
 				// Save the current variables so we can restore them afterwards
 				$current_vars = $this->vars;
-				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 				foreach ($all_contexts as $contextid => $context_data) {
 					// Change the context, then reload the attributes
@@ -2107,17 +2107,37 @@ class Asset extends MySource_Object
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($clone->id)) {
 				if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('metadata')) {
-					$metadata = $mm->getMetadata($this->id);
-					if (!empty($metadata)) {
-						// apply the metadata from $this to the clone - setMetadata() will ignore any values
-						// belonging to fields that don't exist on the clone, so we're fine even if the
-						// schemas weren't cloned
-						if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-							return FALSE;
+					$ok = TRUE;
+
+					foreach ($all_contexts as $contextid => $context_data) {
+						// Change the context, then reload the attributes
+						// (we don't need to change the clone, because saveAttributes()
+						// already works with the current context)
+						$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+
+						$metadata = $mm->getMetadata($this->id);
+						if (!empty($metadata)) {
+							// apply the metadata from $this to the clone - setMetadata() will ignore any values
+							// belonging to fields that don't exist on the clone, so we're fine even if the
+							// schemas weren't cloned
+							if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
+								$ok = FALSE;
+							}
 						}
+
+						$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+						if ($ok === FALSE) break;
+
+					}//end foreach
+
+
+					if ($ok === FALSE) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
 					}
+
 				} else {
 					trigger_localised_error('SYS0327', E_USER_WARNING, $clone->name);
 				}//end if ($clone->writeAccess('metadata'))
