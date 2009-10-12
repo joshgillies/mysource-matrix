@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.7 2009/10/12 05:14:04 lwright Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.8 2009/10/12 23:03:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,33 +61,7 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);
 		}
 
-		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-
-		if ($contextid === 0) {
-			// we're in the current context, so we can just get the select
-			// options straight
-			$selection->_params['options'] = $this->attr('hierarchy_options');
-		} else {
-			$hierarchy_options = $this->attr('hierarchy_options');
-
-			// Get the current default keys, and fill up the empty keys in the
-			// current context
-			$GLOBALS['SQ_SYSTEM']->changeContext(0);
-			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
-			$default_options = $default_asset->attr('hierarchy_options');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
-			unset($default_asset);
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-
-			foreach ($default_options as $default_key => $default_value) {
-				if (array_key_exists($default_key, $hierarchy_options) === FALSE) {
-					$hierarchy_options[$default_key] = $default_value;
-				}
-			}
-
-			$selection->_params['options'] = $hierarchy_options;
-		}
-
+		$selection->_params['options'] = $this->getContextedHierarchyOptions();
 		$selection->_params['multiple'] = $this->attr('multiple');
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 		$selection->_params['sort'] = $this->attr('hier_sort');
@@ -118,7 +92,7 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		// using semi-colons to delimit so remove any escaping done by DAL
 		$default_key = str_replace('\\', '', $default_key);
 
-		$options = $this->attr('hierarchy_options');
+		$options = $this->getContextedHierarchyOptions();
 
 		if (is_array($options)) {
 			$edit_fns = $this->getEditFns();
@@ -164,7 +138,7 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		if (empty($option_keys)) return $option_str;
 
 		$value_str = '';
-		$options = $this->attr('hierarchy_options');
+		$options = $this->getContextedHierarchyOptions();
 
 		foreach ($option_keys as $key) {
 			if (isset($options[$key])) {
@@ -182,6 +156,101 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		return $value_str;
 
 	}//end getValueFromKey()
+
+
+	/**
+	* Get the hierarchy options that apply to this context
+	*
+	* This method gets the current hierarchy options saved to the context, and
+	* augments them with any keys now in the default context (and its values),
+	* and removes the contexts that no longer exist.
+	* This is necessary because the default context is the ultimate authority
+	* on what keys exist.
+	*
+	* These are cached in a _tmp var indexed by context ID, and is cleared when
+	* the hierarchy_options attribute is saved.
+	*
+	* @return array
+	* @see Metadata_Field_Hierarchy::_clearContextedHierarchyOptionsCache()
+	*/
+	public function getContextedHierarchyOptions()
+	{
+		// Create the cache array if it doesn't exist yet
+		if (array_key_exists('cached_hierarchy_options', $this->_tmp) === FALSE) {
+			$this->_tmp['cached_hierarchy_options'] = Array();
+		}
+
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if ($contextid === 0) {
+			// Don't really need to cache the hierarchy options in the default
+			// context, because it is it's our own law to itself
+			return $this->attr('hierarchy_options');
+		} else {
+			// Alternate context
+			if (array_key_exists($contextid, $this->_tmp['cached_hierarchy_options']) === FALSE) {
+				// Get the base
+				$hierarchy_options = $this->attr('hierarchy_options');
+
+				// Get ourselves in default context form, and get the current
+				// default keys and values
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+				$default_options = $default_asset->attr('hierarchy_options');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+				unset($default_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// Banish any keys that don't exist in the default version
+				foreach ($hierarchy_options as $hierarchy_key => $hierarchy_value) {
+					if (array_key_exists($hierarchy_key, $default_options) === FALSE) {
+						unset($hierarchy_options[$hierarchy_key]);
+					}
+				}
+
+				// Add any keys that don't exist in the contexted version,
+				// with the value added from the default context
+				foreach ($default_options as $default_key => &$default_value) {
+					if (array_key_exists($default_key, $hierarchy_options) === FALSE) {
+						$hierarchy_options[$default_key] = $default_value;
+					}
+				}
+
+				$this->_tmp['cached_hierarchy_options'][$contextid] = $hierarchy_options;
+			}
+
+			return $this->_tmp['cached_hierarchy_options'][$contextid];
+		}
+
+	}//end getContextedHierarchyOptions()
+
+
+	/**
+	* Cleans up the contexted hierarchy options cache
+	*
+	* This resets the cache set up by the above function. When the context is
+	* the default, it resets everything (since all contexts depend on it). In
+	* an alternate context, it only resets that context's cache.
+	*
+	* @see Metadata_Field_Hierarchy::getContextedHierarchyOptions()
+	* @return void
+	*/
+	protected function _clearContextedHierarchyOptionsCache()
+	{
+		// Create the cache array if it doesn't exist yet
+		if (array_key_exists('cached_hierarchy_options', $this->_tmp) === TRUE) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+			if ($contextid === 0) {
+				$this->_tmp['cached_hierarchy_options'] = Array();
+			} else {
+				if (array_key_exists($contextid, $this->_tmp['cached_hierarchy_options']) === TRUE) {
+					unset($this->_tmp['cached_hierarchy_options'][$contextid]);
+				}
+			}
+		}
+
+	}//end _clearContextedHierarchyOptionsCache()
 
 
 }//end class

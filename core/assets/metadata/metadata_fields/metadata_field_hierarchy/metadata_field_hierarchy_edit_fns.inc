@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.15 2009/10/12 05:13:38 lwright Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.16 2009/10/12 23:03:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -258,22 +258,10 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	public function paintHierarchy(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$hierarchy_options = $asset->attr('hierarchy_options');
+		$hierarchy_options = $asset->getContextedHierarchyOptions();
 		$hierarchy_sort = $asset->attr('hier_sort');
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
-
-		if ($is_default_context === FALSE) {
-			// Get the current default keys
-			$GLOBALS['SQ_SYSTEM']->changeContext(0);
-			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			$default_options = $default_asset->attr('hierarchy_options');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
-			unset($default_asset);
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-		} else {
-			$default_options = $hierarchy_options;
-		}
 
 		if (!empty($hierarchy_options)) {
 			?>
@@ -282,15 +270,14 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
 					<?php
-					if ($write_access) {
+					if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
 						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 					?>
 				</tr>
 				<?php
 				$i = 0;
-				foreach ($default_options as $option_key => $default_value) {
-					$option_value = array_get_index($hierarchy_options, $option_key, $default_value);
+				foreach ($hierarchy_options as $option_key => $option_value) {
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
