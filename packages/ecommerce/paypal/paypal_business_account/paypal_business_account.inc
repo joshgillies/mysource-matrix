@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_business_account.inc,v 1.2 2009/10/12 11:06:29 ata Exp $
+* $Id: paypal_business_account.inc,v 1.3 2009/10/12 11:39:39 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/paypal/paypal_order/paypal_order.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -366,7 +366,7 @@ class Paypal_Business_Account extends Asset
 	 */
 	private function _getCustomInfo($payment_info)
 	{
-		$custom_indexes = Array('custom', 'button_id', 'real_custom_var', 'notify_url_query', 'business', 'target_assetid', 'ipn_event');
+		$custom_indexes = Array('txn_type', 'test_ipn', 'payment_date', 'custom', 'button_id', 'real_custom_var', 'notify_url_query', 'business', 'target_assetid', 'ipn_event');
 		$custom_string = '';
 		foreach ($custom_indexes as $index) {
 			$message = empty($payment_info[$index])? '[Empty]' : $payment_info[$index];
