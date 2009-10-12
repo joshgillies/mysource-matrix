@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Sets the a metadata field date with the curernt date time plus a variable offset
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,31 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
 
+
+		// If no context ID is set at ALL, then presume it's an old trigger, and
+		// that we use the current context instead.
+		if (array_key_exists('contextid', $settings) === FALSE) {
+			$settings['contextid'] === NULL;
+		}
+
+		if ($settings['contextid'] === NULL) {
+			$settings['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		if (array_key_exists($settings['contextid'], $all_contexts) === FALSE) {
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
+
 		// Format: 2008-02-01 00:00:00
 		$value = date('Y-m-d H:i:s', strtotime('+'.$settings['offset_months'].' month '.$settings['offset_days'].' day '.$settings['offset_hours'].' hour '.$settings['offset_mins'].' min'));
-		
+
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
@@ -68,7 +87,10 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 
 		// verify the fieldid
 		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
-		if (!$success) return FALSE;
+		if (!$success) {
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			return FALSE;
+		}
 
 		// get the asset
 		$asset =& $state['asset'];
@@ -98,6 +120,8 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 
 		// Regenerate Metadata File
 		if ($success) $mm->regenerateMetadata($asset->id);
+
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 		// all done very smoothly like an ice cream
 		if ($success) {
@@ -152,6 +176,45 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 			echo translate('trigger_metadata_date_offset', $text_box_months, $text_box_days, $text_box_mins, $text_box_hours);
 		$output = ob_get_clean();
 
+		ob_start();
+			$current_context = array_get_index($settings, 'context_to_select', NULL);
+
+			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			$context_list = Array(
+								'-default-' => translate('trigger_use_currently_active_context'),
+								'-sep-'		=> '----------------------',
+							);
+			foreach ($contexts as $context_item_id => $context_item) {
+				if ((int)$current_context === (int)$context_item_id) {
+					$context_name = $context_item['name'];
+				}
+
+				$context_list[rawurlencode($context_item['name'])] = $context_item['name'];
+			}
+
+			$default = Array('-default-');
+			if (array_key_exists($current_context, $contexts) === TRUE) {
+				$default = Array($current_context);
+			}
+
+			if ($metadata_field) {
+				label(translate('trigger_set_value_in_this_context'), $prefix.'[context_to_select]');
+				echo ' ';
+				if ($write_access) {
+					combo_box($prefix.'[context_to_select]', $context_list, FALSE, $default);
+				} else {
+					if ($current_context === NULL) {
+						echo translate('trigger_use_currently_active_context');
+					} else if (array_key_exists($current_context, $contexts) === TRUE) {
+						echo $contexts[$current_context]['name'];
+					} else {
+						echo '<span class="sq-backend-warning">'.translate('trigger_context_deleted_fail_until_changed').'</span>';
+					}
+				}
+			}
+		$output_context_select = ob_get_clean();
+		$output .= '<br />'.$output_context_select;
+
 		return $output;
 
 	}//end getInterface()
@@ -190,6 +253,19 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 			}
 
 			$settings['field_name']	= $metadata_field->name;
+
+			$new_context = array_get_index($request_data, 'context_to_select', 0);
+			if (is_numeric($new_context) === TRUE) {
+				$new_context = (int)$new_context;
+				$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				if (array_key_exists($new_context, $contexts) === TRUE) {
+					$settings['contextid'] = $new_context;
+				} else {
+					trigger_localised_error('TRIG0005', E_USER_WARNING, $new_context);
+				}
+			} else if ($new_context === '-default-') {
+				$settings['contextid'] = NULL;
+			}
 		}
 
 		return FALSE;

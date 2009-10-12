@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.30 2009/09/08 05:02:56 cupreti Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.31 2009/10/12 00:55:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,20 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			return FALSE;
 		}
 
+		// If no context ID is set at ALL, then presume it's an old trigger, and
+		// that we use the current context instead.
+		if (array_key_exists('contextid', $settings) === FALSE) {
+			$settings['contextid'] === NULL;
+		}
+
+		if ($settings['contextid'] === NULL) {
+			$settings['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		if (array_key_exists($settings['contextid'], $all_contexts) === FALSE) {
+			return FALSE;
+		}
 
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
@@ -82,9 +96,12 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$value = $settings['value'];
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
+
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return FALSE;
 			} else {
 				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
@@ -93,7 +110,10 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// verify the fieldid
 		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
-		if (!$success) return FALSE;
+		if (!$success) {
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			return FALSE;
+		}
 
 		// get the asset
 		$asset = $state['asset'];
@@ -112,7 +132,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			// replace global keywords
 			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
-			
+
 			replace_global_keywords($value);
 
 			if (is_null($old_current_asset)) {
@@ -120,7 +140,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			} else {
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 			}
-			
+
 			// replace broadcasting asset keywords
 			$keywords = retrieve_keywords_replacements($value);
 			$replacements = Array();
@@ -129,7 +149,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			}
 			replace_keywords($value, $replacements);
 		}
-		
+
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
 											0	=> Array (
@@ -142,12 +162,15 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// Regenerate Metadata File
 		if ($success) $mm->regenerateMetadata($asset->id);
 
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
 		// all done very smoothly like an ice cream
 		if ($success) {
 			return Array(
 					'fieldid'		=> $settings['fieldid'],
 					'field_name'	=> $field_name,
 					'value'			=> $value,
+					'contextid'		=> $settings['contextid'],
 				   );
 		} else {
 			return FALSE;
@@ -174,7 +197,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$metadata_field         = NULL;
 
 		if ($metadata_fieldid) {
-		    $metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
+			$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 		}
 		// asset finder for Metadata Field
 		ob_start();
@@ -182,12 +205,12 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				echo 'Choose Metadata Field&nbsp;&nbsp;&nbsp;';
 				asset_finder($prefix.'[fieldid]', $metadata_fieldid, Array('metadata_field' => 'D'));
 			} else {
-			    if ($metadata_fieldid  && $metadata_field) {
-				    echo get_asset_tag_line($metadata_fieldid);
+				if ($metadata_fieldid  && $metadata_field) {
+					echo get_asset_tag_line($metadata_fieldid);
 				} else if ($metadata_fieldid  && !$metadata_field) {
-				    echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_fieldid.')</span>';
-			    } else {
-				    echo '<b>No metadata field specified</b>';
+					echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_fieldid.')</span>';
+				} else {
+					echo '<b>No metadata field specified</b>';
 				}
 			}
 			$output_part1 = ob_get_contents();
@@ -223,9 +246,48 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
 			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
 		$output_part3 = '<br />'.ob_get_clean();
-		
+
 		$output .= $output_part3;
-		
+
+		ob_start();
+			$current_context = array_get_index($settings, 'context_to_select', NULL);
+
+			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			$context_list = Array(
+								'-default-' => translate('trigger_use_currently_active_context'),
+								'-sep-'		=> '----------------------',
+							);
+			foreach ($contexts as $context_item_id => $context_item) {
+				if ((int)$current_context === (int)$context_item_id) {
+					$context_name = $context_item['name'];
+				}
+
+				$context_list[rawurlencode($context_item['name'])] = $context_item['name'];
+			}
+
+			$default = Array('-default-');
+			if (array_key_exists($current_context, $contexts) === TRUE) {
+				$default = Array($current_context);
+			}
+
+			if ($metadata_field) {
+				label(translate('trigger_set_value_in_this_context'), $prefix.'[context_to_select]');
+				echo ' ';
+				if ($write_access) {
+					combo_box($prefix.'[context_to_select]', $context_list, FALSE, $default);
+				} else {
+					if ($current_context === NULL) {
+						echo translate('trigger_use_currently_active_context');
+					} else if (array_key_exists($current_context, $contexts) === TRUE) {
+						echo $contexts[$current_context]['name'];
+					} else {
+						echo '<span class="sq-backend-warning">'.translate('trigger_context_deleted_fail_until_changed').'</span>';
+					}
+				}
+			}
+		$output_context_select = ob_get_clean();
+		$output .= '<br />'.$output_context_select;
+
 		return $output;
 
 	}//end getInterface()
@@ -249,7 +311,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$form_printed = array_get_index($request_data, 'form_printed', 0);
 
 		$fieldid = $fieldid_data['assetid'];
-		
+
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($fieldid)) {
 			return translate('selected_asset_does_not_exist');
 		}
@@ -283,8 +345,21 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				$atr_parameter_map->process($new_prefix.'_parameter_map');
 				$settings['value_map'] = $atr_parameter_map->value;
 			}
+
+			$new_context = array_get_index($request_data, 'context_to_select', 0);
+			if (is_numeric($new_context) === TRUE) {
+				$new_context = (int)$new_context;
+				$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				if (array_key_exists($new_context, $contexts) === TRUE) {
+					$settings['contextid'] = $new_context;
+				} else {
+					trigger_localised_error('TRIG0005', E_USER_WARNING, $new_context);
+				}
+			} else if ($new_context === '-default-') {
+				$settings['contextid'] = NULL;
+			}
 		}
-		
+
 		$settings['replace_keywords_in_set_value']	= array_get_index($request_data, 'replace_keywords_in_set_value', 0);
 
 		return FALSE;
