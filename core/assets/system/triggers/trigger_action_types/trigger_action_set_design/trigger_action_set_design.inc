@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.21 2009/10/12 04:54:26 ewang Exp $
+* $Id: trigger_action_set_design.inc,v 1.22 2009/10/12 05:40:56 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,7 +141,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		return Array(
 				'assetid'	=> $state['asset']->id,
-				'designid'	=> $settings['assetid'],
+				'designid'	=> $assetid,
 				'code'		=> 'system::frontend',
 			   );
 
