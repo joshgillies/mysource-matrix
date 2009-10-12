@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.136.2.5 2009/10/09 05:14:12 ewang Exp $
+* $Id: workflow_manager.inc,v 1.136.2.6 2009/10/12 02:46:46 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.136.2.5 $
+* @version $Revision: 1.136.2.6 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1928,12 +1928,15 @@ class Workflow_Manager extends MySource_Object
 
 		$log = $ms->newMessage();
 
+		$url_parts = explode('://' , $asset->getURL());
+		$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
+		$root_url = $url_parts[0].'://'.$site_url['url'];
 		$msg_reps = Array(
 						'user_name'				=> $user->name,
 						'workflow_user'			=> $user->name,
 						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'			=> $asset->name,
-						'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
+						'workflow_url'			=> $root_url.'/'.$asset->getBackendHref('workflow', FALSE),
 						'assetid'				=> $assetid,
 						'previous_step_id'		=> implode('.', $step_before_id),
 						'previous_step_name'	=> $step_before['step_name'],
@@ -1978,6 +1981,10 @@ class Workflow_Manager extends MySource_Object
 			$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 			$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
+			$url_parts = explode('://' , $asset->getURL());
+			$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
+			$root_url = $url_parts[0].'://'.$site_url['url'];
+
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
 							'workflow_user'			=> $user->name,
@@ -1987,16 +1994,16 @@ class Workflow_Manager extends MySource_Object
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
 							'current_step_name'		=> $current_step['step_name'],
-							'workflow_url'			=> current_url().$workflow_backend_href,
-							'accept_url'			=> current_url().$accept_url,
-							'reject_url'			=> current_url().$reject_url,
+							'workflow_url'			=> $root_url.'/'.$workflow_backend_href,
+							'accept_url'			=> $root_url.'/'.$accept_url,
+							'reject_url'			=> $root_url.'/'.$reject_url,
 						);
 
 			$asset_edt_fns = $asset->getEditFns();
 			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+				$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('preview', FALSE);
 			} else {
-				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
+				$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
 			}
 
 			$msg->type    = 'asset.workflow.invitation.progress';
