@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.44 2009/10/12 05:11:03 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.45 2009/10/12 22:53:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = '';
 		$value_components = $asset->attr('value_components');
 
-		$select_options = $asset->attr('select_options');
+		$select_options = $asset->getContextedSelectOptions();
 		$is_default = FALSE;
 		if (is_null($value_str)) {
 			$value_str = $asset->getDefaultValue();
@@ -101,6 +101,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
 				$value_output = '';
+
 				foreach ($value as $option) {
 					if (isset($select_options[$option])) {
 						$value_output .= $select_options[$option].'; ';
@@ -208,21 +209,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	public function paintSelection(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$select_options = $asset->attr('select_options');
+		$select_options = $asset->getContextedSelectOptions();
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
-
-		if ($is_default_context === FALSE) {
-			// Get the current default keys
-			$GLOBALS['SQ_SYSTEM']->changeContext(0);
-			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			$default_options = $default_asset->attr('select_options');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
-			unset($default_asset);
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-		} else {
-			$default_options = $select_options;
-		}
 
 		if (!empty($select_options)) {
 			?>
@@ -241,8 +230,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				// Base this on the default values because then any new
 				// option not already in a modified context can be set to the
 				// default context's value for it
-				foreach ($default_options as $option_key => $default_value) {
-					$option_value = array_get_index($select_options, $option_key, $default_value);
+				foreach ($select_options as $option_key => $option_value) {
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
