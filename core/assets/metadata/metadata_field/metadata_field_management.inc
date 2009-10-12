@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.23 2009/08/20 06:39:49 lwright Exp $
+* $Id: metadata_field_management.inc,v 1.24 2009/10/12 01:12:04 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,8 +41,9 @@ class Metadata_Field_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'	=> '0.1',
-												'type'	=> 'text', 'default'	=> '',
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> '',
 											   ),
 						'friendly_name'		=> Array(
 												'added'				=> '0.1',
@@ -52,52 +53,59 @@ class Metadata_Field_Management extends Asset_Management
 											   ),
 						'description'		=> Array(
 												'added'				=> '0.1',
-												'type'				=> 'text', 
+												'type'				=> 'text',
 												'default'			=> '',
 												'is_contextable'	=> TRUE,
 											   ),
 						'default'			=> Array(
-												'added'	=> '0.1',
-												'type'	=> 'text', 'default'	=> '',
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> '',
+												'is_contextable'	=> TRUE,
 											   ),
 						'scheme'			=> Array(
-												'added'	=> '0.1',
-												'type'	=> 'text', 'default'	=> '',
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> '',
 											   ),
 						'language'			=> Array(
-												'added'	=> '0.1',
-												'type'	=> 'text', 'default'	=> '',
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> '',
+												'is_contextable'	=> TRUE,
 											   ),
 						'value_components'	=> Array(
-												'added'	=> '0.0.1',
-												'type'	=> 'serialise', 'default'	=> Array(),
+												'added'				=> '0.0.1',
+												'type'				=> 'serialise',
+												'default'			=> Array(),
+												'is_contextable'	=> TRUE,
 											   ),
 						'editable'			=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'boolean',
-												'default'		=> TRUE,
-												'parameters'	=> Array('allow_empty'	=> FALSE),
+												'added'				=> '0.1',
+												'type'				=> 'boolean',
+												'default'			=> TRUE,
+												'parameters'		=> Array('allow_empty'	=> FALSE),
 											   ),
 						'required'			=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'boolean',
-												'default'		=> FALSE,
-												'parameters'	=> Array('allow_empty' => FALSE),
-												'description'	=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
+												'added'				=> '0.1',
+												'type'				=> 'boolean',
+												'default'			=> FALSE,
+												'parameters'		=> Array('allow_empty' => FALSE),
+												'description'		=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
 											   ),
 						'frontend'			=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'selection',
-												'default'		=> 'show',
-												'parameters'	=> Array(
-																	'options'		=> Array(
-																						'show'	=> 'Always',
-																						'fill'	=> 'Only If Filled',
-																						'hide'	=> 'Never',
-																					   ),
-																	'multiple'		=> FALSE,
-																	'allow_empty'	=> FALSE,
-																   ),
+												'added'				=> '0.1',
+												'type'				=> 'selection',
+												'default'			=> 'show',
+												'parameters'		=> Array(
+																		'options'		=> Array(
+																							'show'	=> 'Always',
+																							'fill'	=> 'Only If Filled',
+																							'hide'	=> 'Never',
+																						   ),
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
+																	   ),
 											   ),
 					  );
 

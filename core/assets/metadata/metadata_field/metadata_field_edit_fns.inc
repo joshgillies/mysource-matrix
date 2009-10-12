@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.60 2008/08/06 07:14:06 akarelia Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.61 2009/10/12 01:12:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,17 +99,48 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintValueComponents(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		$write_access_perm = $asset->writeAccess();
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($write_access) {
-			text_box($prefix.'_new_vc', '', 30);
+		if ($write_access_perm === TRUE) {
+			if ($is_default_context === TRUE) {
+				if ($write_access === TRUE) {
+					text_box($prefix.'_new_vc', '', 30);
+				} else {
+					// Would have permission if we had the asset locked
+					echo '<i>'.translate('core_lock_asset_to_create_value_component').'</i>';
+				}
+			} else {
+				// Can't add/delete components in an alternate context
+				echo '<em>'.translate('core_cannot_create_value_component_in_alternate_context').'</em>';
+			}
 		} else {
+			// Would not have permission to do it even if able to be locked
 			echo '<i>'.translate('core_cannot_create_value_component').'</i>';
 		}
 		$o->closeField();
 
+		// Get the value components for the current context
 		$current_vc = $asset->attr('value_components');
+
+		if ($is_default_context === FALSE) {
+			// Change to the default context for a sec, so the default value
+			// components can be retrieved. This is the master list of the
+			// value components that should exist.
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			$default_vc = $default_asset->attr('value_components');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset->id);
+			unset($default_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		} else {
+			$default_vc = $current_vc;
+		}
+
 		if (!empty($current_vc)) {
 			$o->openField(translate('current'));
 			$num_per_row = 3;
@@ -118,15 +149,25 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			<table class="sq-backend-table">
 				<tr>
 					<?php
-					foreach ($current_vc as $vc_name => $vc_value) {
+					foreach ($default_vc as $vc_name => $default_vc_value) {
+						$vc_value = array_get_index($current_vc, $vc_name, $default_vc_value);
+
 						if ($num_done >= $num_per_row) {
 							$num_done = 0;
 							echo '</tr><tr>';
 						}
 
 						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
-						if ($write_access) {
-							text_box($prefix.'_vc_name['.$vc_name.']', $vc_name, 30);
+						if ($write_access === TRUE) {
+							if ($is_default_context === FALSE) {
+								// If in alternate context, don't let the user edit the field name
+								// but do send it to the process function, because it needs to be
+								// saved to this context on commit
+								echo '<b>'.$vc_name.'</b>';
+								hidden_field($prefix.'_vc_name['.$vc_name.']', $vc_name);
+							} else {
+								text_box($prefix.'_vc_name['.$vc_name.']', $vc_name, 30);
+							}
 						} else {
 							echo '<b>'.$vc_name.'</b>';
 						}
@@ -137,9 +178,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 							echo $vc_value;
 						}
 						if ($write_access) {
-							echo '<br />';
-							check_box($prefix.'_vc_delete['.$vc_name.']');
-							label(translate('delete_question'), $prefix.'_vc_delete['.$vc_name.']');
+							if ($is_default_context === TRUE) {
+								echo '<br />';
+								check_box($prefix.'_vc_delete['.$vc_name.']');
+								label(translate('delete_question'), $prefix.'_vc_delete['.$vc_name.']');
+							}
 						}
 						echo '</td>';
 
@@ -303,7 +346,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @param Metadata_Field	$asset			the asset whose interface we are processing
 	* @param string			&$new_value_str	a string by reference that we can store the new values in
 	*										set to NULL to revert to default
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
