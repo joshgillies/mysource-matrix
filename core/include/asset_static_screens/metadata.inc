@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.48 2009/07/10 01:21:56 wszymanski Exp $
+* $Id: metadata.inc,v 1.49 2009/10/12 22:04:34 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -48,6 +48,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$metadata_warnings = Array();
+	$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 	// If we are in Simple Edit, obtain the "Show Cascade Metadata field" option value so we can determine
 	// whether or not to print the checkbox
@@ -98,13 +99,33 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 							ob_start();
 						}
 
+						if ($contextid === 0) {
+							$metadata_basename = 'metadata.php';
+						} else {
+							$metadata_basename = 'metadata.'.$contextid.'.php';
+						}
+						$metadata_default_name = 'metadata.php';
+						$metadata = NULL;
+
 						if (empty($schemas)) {
 							echo translate('no_metadata_schemas_applied');
-						} else if (file_exists($owner->data_path.'/metadata.php')) {
+						} else if (file_exists($owner->data_path.'/'.$metadata_basename)) {
 							ob_start();
-								require($owner->data_path.'/metadata.php');
+								require($owner->data_path.'/'.$metadata_basename);
 								$metadata = ob_get_contents();
 							ob_end_clean();
+						} else if (file_exists($owner->data_path.'/'.$metadata_default_name)) {
+							// No generated metadata for this context yet. We can assume
+							// that until it is generated, it's using the same defaults
+							ob_start();
+								require($owner->data_path.'/'.$metadata_default_name);
+								$metadata = ob_get_contents();
+							ob_end_clean();
+						}
+
+						// If metadata was filled, clean it and print it
+						// for the user's edification
+						if ($metadata !== NULL) {
 							echo nl2br(htmlspecialchars(trim($metadata)));
 						}
 
@@ -187,14 +208,14 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
-							
+
 							// Paint only if user is not in limbo or if keywords for metadata fields are set
 							if ((!is_null($keywords) && isset($keywords['fields']['metadata_values'])) || !SQ_IN_LIMBO) {
 								if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type())) {
 									$print_commit_button = TRUE;
 								}
 							}
-							else {	
+							else {
 								$print_commit_button = TRUE;
 							}
 						}
