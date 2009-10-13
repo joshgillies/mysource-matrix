@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.708 2009/10/12 21:45:25 lwright Exp $
+* $Id: asset.inc,v 1.709 2009/10/13 23:18:04 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.708 $
+* @version $Revision: 1.709 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5263,6 +5263,13 @@ class Asset extends MySource_Object
 	public function updateLookups($auto_add_remaps = TRUE)
 	{
 		$paths = $this->getWebPaths();
+		
+		// Get root site and its url info
+		$root_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', TRUE));
+		
+		// First entry in the array is the asset's immediate site parent
+		$site_assetid = isset($root_sites[0]) ? $root_sites[0] : 0;
+		$site_urls_info = ($site_assetid > 0) ? $GLOBALS['SQ_SYSTEM']->am->getURLs($site_assetid) : Array();
 
 		// get ready to log what happens
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -5451,21 +5458,28 @@ class Asset extends MySource_Object
 				$parent_urls = $parent->getLookups();
 
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
-					$valid_protocol_change = TRUE;
 
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
-						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
-						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
+						$site_https = '0';
+						$site_http = '0';
+
+						// Get the protocol info for this url
+						foreach($site_urls_info as $site_url_info) {
+							if (strpos($new_url, $site_url_info['url']) !== FALSE) {
+								$site_https = $site_url_info['https'];
+								$site_http = $site_url_info['http'];
+								break;
+							}
+						}
+						$https = ($this->force_secure === '-') ? '0' : $site_https;
+						$http  = ($this->force_secure === '1') ? '0' : $site_http;
 
 						if (!$http && !$https) {
-							 $https = $parent_urls[$j]['https'];
-							 $http = $parent_urls[$j]['http'];
-
-							 // Being here means protocol different from the asset's parent is being forced
-							 $valid_protocol_change = FALSE;
+							$https = $site_https;
+							$http = $site_http;
 						}
 
 						// if we have no protocol then we can just ignore this URL
@@ -5685,12 +5699,6 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
-
-					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid
-					if (!$valid_protocol_change) {
-						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
-					}
-
 
 				}//end for parent_urls
 
