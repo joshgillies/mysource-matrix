@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.36 2008/11/20 05:49:39 lwright Exp $
+* $Id: design_area_body.inc,v 1.37 2009/10/13 05:59:39 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Design_Area_Body extends Design_Area
 
 			// Get the live contents of the asset being displayed
 			ob_start();
-				$ASSET->printBody();
+				$ASSET->printBodyWithPaintLayout();
 				$edited_contents = ob_get_contents();
 			ob_end_clean();
 
@@ -100,7 +100,7 @@ class Design_Area_Body extends Design_Area
 
 				// Get the safe edit contents of the asset being displayed
 				ob_start();
-					$ASSET->printBody();
+					$ASSET->printBodyWithPaintLayout();
 					$system_version_contents = ob_get_contents();
 				ob_end_clean();
 
