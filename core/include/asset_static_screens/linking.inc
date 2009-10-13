@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.44 2009/10/07 04:35:36 bpearson Exp $
+* $Id: linking.inc,v 1.45 2009/10/13 00:47:48 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 
@@ -58,8 +58,9 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 							'display_linked_children'	=> translate('display_linked_children'),
 							);
 	$current_display_type = isset($_POST[$prefix.'_display_type']) ? $_POST[$prefix.'_display_type'] : 'display_linked_parents';
+	echo hidden_field($prefix.'_display_type_changed', '0');
 	$display_reverse = ($current_display_type == 'display_linked_children');
-	combo_box($prefix.'_display_type', $display_types, FALSE, $current_display_type, 0 , 'onChange="submit_form(this.form)"');
+	combo_box($prefix.'_display_type', $display_types, FALSE, $current_display_type, 0 , 'onChange="this.form.'.$prefix.'_display_type_changed.value=1;submit_form(this.form)"');
 
 	$o->closeField();
 	
@@ -411,7 +412,7 @@ function processLinking(&$owner, &$o, &$ei)
 			$new_lock_status = '1'; // Set the value for testing
 		}//end if
 		$new_lock_status = ($new_lock_status == '1') ? '1' : '0';
-		if ($link['locked'] == $new_lock_status) {
+		if ((isset($_POST[$prefix.'_display_type_changed']) && $_POST[$prefix.'_display_type_changed'] == 1) || $link['locked'] == $new_lock_status) {
 			$new_lock_status = NULL;
 		}//end if
 
