@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.42 2009/09/11 00:21:22 bpearson Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.43 2009/10/13 22:16:27 ewang Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,7 +184,12 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		if (!is_dir($this->data_path)) {
 			create_directory($this->data_path);
 		}
-		if (!string_to_file($content_file, $this->data_path.'/content_file.php')) {
+		
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
+		$keyword_name = 'keywords'.(($contextid === 0) ? '' : ('.'.$contextid));
+		
+		if (!string_to_file($content_file, $this->data_path.'/'.$file_name)) {
 			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
@@ -227,6 +232,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		$this->asset_to_paint = $asset;
 
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+		$context_suffix = ($contextid === 0) ? '' : ('.'.$contextid);
+		$content_file_name = 'content_file'.$context_suffix.'.php';
+		$default_content_file_name = 'content_file.php';
+		$content_path = $this->data_path.'/'.$content_file_name;
+		if (file_exists($content_path) === FALSE) {
+			$content_path = $this->data_path.'/'.$default_content_file_name;
+		}
+
 		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
 		if (file_exists($this->data_path.'/.notice_links')) {
 			$linked_assets = unserialize(file_to_string($this->data_path.'/.notice_links'));
@@ -255,9 +269,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		// Read in content file, find keyword replacements, spit out the results
 		$content = '';
-		if (file_exists($this->data_path.'/content_file.php')) {
+		if (file_exists($content_path)) {
 			ob_start();
-				include($this->data_path.'/content_file.php');
+				include($content_path);
 				$content = ob_get_contents();
 				replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
