@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.18 2009/08/04 01:40:32 lwright Exp $
+#* $Id: clean.sh,v 1.19 2009/10/13 05:41:04 csmith Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -129,16 +129,18 @@ esac
 
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
-if [ "$?" = "0" ]; then
-	php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
-	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
-	# if step-3 failed then stop it here
-	if [ "$?" != "0" ]; then
-		exit 1
-	fi
-	# again to ensure that all type descendants are able to be found
-	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+if [ "$?" != "0" ]; then
+	exit 1
 fi
+
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+# if step-3 failed then stop it here
+if [ "$?" != "0" ]; then
+	exit 1
+fi
+# again to ensure that all type descendants are able to be found
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
 
