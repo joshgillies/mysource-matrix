@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.289 2009/09/23 23:51:43 lwright Exp $
+* $Id: listing_engine.inc,v 1.290 2009/10/14 03:53:32 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.289 $
+* @version $Revision: 1.290 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2306,7 +2306,7 @@ class Listing_Engine extends Page
 
 			// Body with paint layout applied, if any (inherited from the
 			// listing engine asset, usually)
-			if (array_key_exists('asset_contents', $bc_keywords)) {
+			if (in_array('asset_contents', $bc_keywords)) {
 				ob_start();
 					if ($assetid != $this->id) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -2319,7 +2319,7 @@ class Listing_Engine extends Page
 
 			// %asset_contents_raw% will print the asset's body WITHOUT a
 			// paint layout
-			if (array_key_exists('asset_contents_raw', $bc_keywords)) {
+			if (in_array('asset_contents_raw', $bc_keywords)) {
 				ob_start();
 					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents_raw'] = ob_get_contents();
@@ -2347,7 +2347,7 @@ class Listing_Engine extends Page
 
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
-				if (array_key_exists('asset_contents', $bc_keywords)) {
+				if (array_key_exists('asset_contents', $keywords)) {
 					ob_start();
 						if ($asset->id != $this->id) {
 							$asset->printBodyWithPaintLayout();
