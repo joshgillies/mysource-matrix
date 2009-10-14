@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.48 2009/06/01 23:41:43 ewang Exp $
+* $Id: report_links_edit_fns.inc,v 1.49 2009/10/14 00:11:51 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -438,8 +438,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$validated_results['valid'] = '0';
 			} else {
 				stream_set_timeout($socket, 5);
-				$response = fread($socket, 128);
-				$headers = fread($socket, 2000);
+				$response = fgets($socket);
+				$headers = fgets($socket);
+				$response = trim($response);
+				$headers = trim($headers);
+				$finished = (empty($headers)) ? TRUE : FALSE;
+				while (!$finished) {
+					$next_header = fgets($socket);
+					$next_header = trim($next_header);
+					if (empty($next_header)) {
+						$finished = TRUE;
+					} else {
+						$headers .= $next_header."\r\n";
+					}//end if
+				}//end while
 				$info = stream_get_meta_data($socket);
 
 				if (preg_match('|405 method not allowed|i', $response) || preg_match('|404 not found|i', $response)) {
@@ -450,8 +462,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					}
 
 					stream_set_timeout($newsocket, 5);
-					$newresponse = fread($newsocket, 128);
-					$newheaders = fread($newsocket, 2000);
+					$newresponse = fgets($newsocket);
+					$newheaders = fgets($newsocket);
+					$newresponse = trim($newresponse);
+					$newheaders = trim($newheaders);
+					$finished = (empty($newheaders)) ? TRUE : FALSE;
+					while (!$finished) {
+						$next_header = fgets($newsocket);
+						$next_header = trim($next_header);
+						if (empty($next_header)) {
+							$finished = TRUE;
+						} else {
+							$newheaders .= $next_header."\r\n";
+						}//end if
+					}//end while
 					$newinfo = stream_get_meta_data($newsocket);
 
 					$validated_results = $this->_checkResponse($newheaders, $newresponse, $newinfo);
@@ -588,7 +612,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$description = translate('cms_report_links_unknown_response', $response);
 			$valid = '0';
 		}
-	
+
 		// Format the results
 		$validated_results['valid'] = $valid;
 		$validated_results['description'] = $description;
