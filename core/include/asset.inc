@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.10 2009/10/13 23:22:31 cupreti Exp $
+* $Id: asset.inc,v 1.696.2.11 2009/10/15 00:21:03 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.10 $
+* @version $Revision: 1.696.2.11 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5247,8 +5247,16 @@ class Asset extends MySource_Object
 		// Get root site and its url info
 		$root_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', TRUE));
 		
-		// First entry in the array is the asset's immediate site parent
-		$site_assetid = isset($root_sites[0]) ? $root_sites[0] : 0;
+		// If asset is not linked to site then perhaps its one of the system folder
+		if (empty($root_sites)) {
+			$parent_folders = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'folder', FALSE));
+			// Get top parent folder (just below the Root Folder) which if is a system folder, can be treated as root Site for this asset
+			$site_assetid = !empty($parent_folders) && count($parent_folders) > 1 ? $parent_folders[count($parent_folders) - 2] : 0;
+		} else {
+			// First entry in the array is the asset's immediate parent site
+			$site_assetid = isset($root_sites[0]) ? $root_sites[0] : 0;
+		}
+		
 		$site_urls_info = ($site_assetid > 0) ? $GLOBALS['SQ_SYSTEM']->am->getURLs($site_assetid) : Array();
 
 		// get ready to log what happens
