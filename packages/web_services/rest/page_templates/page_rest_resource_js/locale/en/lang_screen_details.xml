@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.2.5 2009/10/07 23:19:22 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.6 2009/10/15 23:52:28 mbrydon Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 		</field>
 		<field attribute="allow_multiple_runs">
 			<display_name>Allow Multiple Runs</display_name>
-			<note>If this asset is nested more than once in the same page, then the data will be identicle for each instance. With this option enabled, the requests will be forced to re-run each time. If unsure, leave this turned off.</note>
+			<note>If this asset is nested more than once in the same page, then the data will be identical for each instance. With this option enabled, the requests will be forced to re-run each time. If unsure, leave this turned off.</note>
 		</field>
 	</section>
 	<section name="JavaScript Processing" write_access="write:attributes">
