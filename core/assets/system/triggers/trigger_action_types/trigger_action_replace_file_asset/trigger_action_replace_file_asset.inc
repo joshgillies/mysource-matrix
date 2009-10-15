@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_replace_file_asset.inc,v 1.6 2007/12/13 04:40:40 rong Exp $
+* $Id: trigger_action_replace_file_asset.inc,v 1.7 2009/10/15 05:01:19 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 		// check required settings
 		if (empty($settings['file_path'])) return FALSE;
 		if (!is_readable($settings['file_path'])) {
-			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path']));
+			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			return FALSE;
 		}
 
