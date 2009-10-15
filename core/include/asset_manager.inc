@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.765 2009/10/06 23:29:12 bpearson Exp $
+* $Id: asset_manager.inc,v 1.766 2009/10/15 06:15:47 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.765 $
+* @version $Revision: 1.766 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1110,7 +1110,7 @@ class Asset_Manager extends MySource_Object
 					$asset = NULL;
 					return $asset;
 				} else if (!method_exists($bridge, 'getAsset')) {
-					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0203', E_USER_WARNING, $bridge->name);
 				} else {
 					$asset = $bridge->getAsset($assetid, '', $mute_errors);
 				}
