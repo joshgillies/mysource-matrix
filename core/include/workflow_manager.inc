@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.136.2.6 2009/10/12 02:46:46 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.136.2.7 2009/10/15 01:16:46 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.136.2.6 $
+* @version $Revision: 1.136.2.7 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1111,8 +1111,12 @@ class Workflow_Manager extends MySource_Object
 					$previous_step_name =& $previous_step['step_name'];
 					$current_step =& $this->getCurrentStep($workflow, $step);
 					$current_step_name =& $current_step['step_name'];
-
+					// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
 					$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+					if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
+						$workflow_backend_href  = '/'.$workflow_backend_href;
+					}//end if
+
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
@@ -1429,6 +1433,12 @@ class Workflow_Manager extends MySource_Object
 				if (!$this->recordPublish($asset->id, $current_userid)) {
 					trigger_localised_error('SYS0078', E_USER_WARNING, $current_userid);
 					// dont die here because they can try to approve again later, we just want to warn them
+				} else {
+					// bug fix #3807 Workflow email send to second reviewer contains wrong content and link
+					// we we have sucessfully completed recordPublish() call, then the email to all the
+					// approvers in the following step condition has already been safe. It will be safe
+					// to return from here.
+					return TRUE;
 				}
 			}
 		}
