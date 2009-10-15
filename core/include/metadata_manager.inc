@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.199 2009/10/12 05:03:19 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.200 2009/10/15 04:46:47 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -630,7 +630,7 @@ class Metadata_Manager extends MySource_Object
 		$where = 'WHERE '.$assetid_cond;
 
 		if (!empty($fieldid_conds)) {
-			$where .= ' AND (('.implode("\n\tAND ", $fieldid_conds).') OR (contextid NOT IN ('.implode(', '.array_keys($contextids)).')))';
+			$where .= ' AND (('.implode("\n\tAND ", $fieldid_conds).') OR (contextid NOT IN ('.implode(', ', array_keys($contextids)).')))';
 		}
 
 		$sql .= $where;
