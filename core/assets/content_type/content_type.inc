@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.24 2009/07/22 01:23:53 lwright Exp $
+* $Id: content_type.inc,v 1.24.2.1 2009/10/16 04:31:18 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -166,6 +166,20 @@ class Content_Type extends Asset
 			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
 			if (!empty($bc_container_link)) {
 				$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+				$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+				$datapath = $container->data_path;
+				
+				// if default context attribute value changed
+				// remove all content files for alternate contexts to stay in sync with new attributes #3967
+				if($contextid === 0 && !empty($datapath)) {
+					$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+					foreach ($contextids as $id) {
+						$file = $datapath.'/content_file.'.$id.'.php';
+						if(file_exists($file)) 	unlink($file);
+					}
+					
+				}
+				// generate content file now
 				$edit_fns = $container->getEditFns();
 				$edit_fns->generateContentFile($container);
 			}
