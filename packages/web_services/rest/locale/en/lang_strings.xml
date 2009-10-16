@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2009/10/07 23:48:34 akarelia Exp $
+* $Id: lang_strings.xml,v 1.3 2009/10/16 00:01:49 mbrydon Exp $
 *
 */
 
@@ -18,11 +18,11 @@
 
 <strings>
 
-	<string source="oauth_reset_session_vars">Reset Existing Authorization Data</string>
+	<string source="oauth_reset_session_vars">Reset Existing Authorisation Data</string>
 	<string source="oauth_reset_session_vars_keyword">Submit Button to reset OAuth related session variables</string>
 	<string source="oauth_access_token_available">OAuth Access Token is available to access user data or not</string>
 	
-	<string source="oauth_errors">Error(s) encountered during OAuth authorization</string>
+	<string source="oauth_errors">Error(s) encountered during OAuth authorisation</string>
 	<string source="char_tab">A tab character</string>
 	<string source="char_lf">A line feed character</string>
 	<string source="char_vtab">A vertical tab character</string>
