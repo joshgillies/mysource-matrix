@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.17.12.1 2009/09/29 01:52:51 akarelia Exp $
+* $Id: CueTree.java,v 1.17.12.2 2009/10/16 05:10:44 akarelia Exp $
 *
 */
 
@@ -1105,9 +1105,9 @@ public class CueTree extends JTree {
 					}
 
 					// bug fix for #3924 Moving assets - will not sit at bottom of a list
-					// (index < oldIndex) is check if we are moving under same tree, and the (currentPath.getParentPath()).equals(sourcePath.getParentPath())) 
-					// is check if we moving from some other tree.
-					if (indexModifier==0 && (index < oldIndex || !(currentPath.getParentPath()).equals(sourcePath.getParentPath()))) {
+					// code bit taken out " (index < oldIndex || !(currentPath.getParentPath()).equals(sourcePath.getParentPath())) " 
+					// because it cancels out each other it was like " TRUE || !(FALSE) "
+					if (indexModifier==0 ) {
 						indexModifier++;
 					}
 

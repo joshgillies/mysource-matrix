@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.11.12.1 2009/09/29 01:52:51 akarelia Exp $
+* $Id: MatrixTreeNode.java,v 1.11.12.2 2009/10/16 05:10:44 akarelia Exp $
 *
 */
 
@@ -247,16 +247,6 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 			}
 		}
 		return false;
-	}
-
-	/**
-	* Implement Equals method for tis particular class, part of bug fix for
-	* #3924 Moving assets - will not sit at bottom of a list
-	*
-	*/
-	public boolean equals(Object node) {
-		MatrixTreeNode node1 = (MatrixTreeNode) node;
-		return ((this.getLinkid()).equals(node1.getLinkid()));
 	}
 
 }
