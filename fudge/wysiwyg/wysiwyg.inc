@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.82 2009/10/01 02:15:37 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.83 2009/10/16 03:20:42 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -828,52 +828,34 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							var sAnchorOffset = sel.anchorOffset;
 							var sFocusOffset = sel.focusOffset;
 
-							var childAtAnchorOffset = sAnchorNode.childNodes[sAnchorOffset] ? sAnchorNode.childNodes[sAnchorOffset] : '';
-							var childAtFocusOffset = sFocusNode.childNodes[sFocusOffset] ? sFocusNode.childNodes[sFocusOffset] : '';
+							if (sAnchorNode.nodeName == 'BODY' && sAnchorNode.childNodes[sAnchorOffset]) {
+								sAnchorNode = sAnchorNode.childNodes[sAnchorOffset];									
+								sAnchorOffset = 0;
+								
+								while(sAnchorNode.childNodes[0] && sAnchorNode.nodeName != '#text') 
+									sAnchorNode = sAnchorNode.childNodes[0];
+							}
 							
-							if (sAnchorNode.nodeName == 'BODY' && childAtAnchorOffset && childAtAnchorOffset.nodeName != '#text') {
-								 if (childAtAnchorOffset.childNodes[sAnchorOffset]) {
-									 sAnchorNode = childAtAnchorOffset.childNodes[sAnchorOffset];
-								 } else {
-									blank_node = document.createTextNode('');
-									sAnchorNode.appendChild(blank_node);
-									sAnchorNode = blank_node;
-									sAnchorOffset = 0;
-								 }							  
+							if (sFocusNode.nodeName == 'BODY' && sFocusNode.childNodes[sFocusOffset]) {								
+								sFocusNode = sFocusNode.childNodes[sFocusOffset];
+								sFocusOffset = 0;
+									
+								while(sFocusNode.childNodes[0] && sFocusNode.nodeName != '#text') 
+									sFocusNode = sFocusNode.childNodes[0];
 							}
-
-							if (sFocusNode.nodeName == 'BODY' && childAtFocusOffset && childAtFocusOffset.nodeName != '#text') {
-								if (childAtFocusOffset.childNodes[sFocusOffset]) {
-									sFocusNode = childAtFocusOffset.childNodes[sFocusOffset];
-								} else {
-									blank_node = document.createTextNode('');
-									sFocusNode.appendChild(blank_node);
-									sFocusNode = blank_node;
-									sFocusOffset = 0;
-								}
-							}
-
-							if (sAnchorNode.nodeName != 'BODY' && childAtAnchorOffset && childAtAnchorOffset.nodeName != '#text'){
-								blank_node = document.createTextNode('');
-								sAnchorNode.parentNode.appendChild(blank_node);
-								sAnchorNode = blank_node;
+							
+							if (sFocusNode.nodeName != '#text') {
+								empty_node = document.createTextNode('');
+								sAnchorNode.appendChild(empty_node);
+								sAnchorNode = empty_node;
 								sAnchorOffset = 0;
 							}
 
-							if (sFocusNode.nodeName != 'BODY' && childAtFocusOffset && childAtFocusOffset.nodeName != '#text') {
-								blank_node = document.createTextNode('');
-								sFocusNode.parentNode.appendChild(blank_node);
-								sFocusNode = blank_node;
+							if (sFocusNode.nodeName != '#text') {
+								empty_node = document.createTextNode('');
+								sFocusNode.appendChild(empty_node);
+								sFocusNode = empty_node;
 								sFocusOffset = 0;
-
-							}
-
-							if (sAnchorNode.nodeName == 'BODY') {
-								sAnchorNode = sAnchorNode.childNodes[sAnchorOffset] ? sAnchorNode.childNodes[sAnchorOffset] : sAnchorNode.childNodes[sAnchorOffset - 1];								
-							}
-							
-							if (sFocusNode.nodeName == 'BODY') {
-								sFocusNode = sFocusNode.childNodes[sFocusOffset] ? sFocusNode.childNodes[sFocusOffset] : sFocusNode.childNodes[sFocusOffset - 1];
 							}
 
 							leftRange.setStart(sAnchorNode,sAnchorOffset);
@@ -890,7 +872,6 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								
 							// When Focus node and Anchor node are same point and foucs node is at end of an anchor node, add an extra blank node
 							// This is to make sure that paragraphs are created outside the node. See bug #3978							
-							
 							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && this.isElem(endNode.parentNode,'a') && endNode.parentNode.parentNode) {
 								
 								blank_node = document.createTextNode('');
@@ -901,16 +882,16 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								endNode = blank_node;
 								endOffset = 0;
 							}
-
+							
 							// Find the parent blocks of nodes at either end, and get paragraph attributes
 							var startBlock = this.parentBlock(startNode);
 							var endBlock = this.parentBlock(endNode);
 							var leftParagraphAttributes = new Array();
 							var rightParagraphAttributes = new Array();
-						
+
 							// Inside a list Item, let the browser handle it.
 							if ( this.isElem(startBlock,'li') || this.isElem(endBlock,'li') ) return;
-
+						
 							// if line starts with a header
 							var isInsideHeader = this.isElem(startBlock, 'h1') || this.isElem(startBlock, 'h2') || this.isElem(startBlock, 'h3') || this.isElem(startBlock, 'h4') || this.isElem(startBlock, 'h5') || this.isElem(startBlock, 'h6');
 							var headerType = null;
@@ -935,7 +916,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 							var choppingStart = startNode;
 							var choppingEnd = endNode;
-								
+
 							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 ) )
 								choppingStart = choppingStart.previousSibling ? choppingStart.previousSibling : choppingStart.parentNode;
 
@@ -976,8 +957,8 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								rightParagraph.setAttributeNode(thisAttr);
 							}
 
-							// Split the data into left and right paragraphs
-
+							// Split the data into left and right paragraphs							
+							
 							//For Left paragraph
 							leftRange.setStartBefore(choppingStart);
 							leftRange.setEnd(startNode,startOffset);
@@ -1072,6 +1053,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 									sel.addRange(cursorRange);
 								}
 							}
+
 
 				// Stop event to prevent no IE browsers adding the <br>
 					HTMLArea._stopEvent(ev);
