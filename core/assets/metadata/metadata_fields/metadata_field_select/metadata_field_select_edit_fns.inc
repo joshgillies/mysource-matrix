@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.45 2009/10/12 22:53:03 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.46 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -209,9 +209,17 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	public function paintSelection(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$select_options = $asset->getContextedSelectOptions();
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+
+		if ($is_contextable === TRUE) {
+			$select_options = $asset->getContextedSelectOptions();
+		} else {
+			$select_options = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('select_options', 'metadata_field_select', Array($asset->id), 0);
+			$select_options = unserialize($select_options[$asset->id]);
+		}
 
 		if (!empty($select_options)) {
 			?>
@@ -220,7 +228,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
 					<?php
-					if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
+					if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 					?>
@@ -236,7 +244,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 						<td class="sq-backend-table-cell">
 							<?php
 							if ($write_access  === TRUE) {
-								if ($is_default_context === TRUE) {
+								if (($is_default_context === TRUE) || ($is_contextable === FALSE)) {
 									text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
 								} else {
 									echo $option_key;
@@ -257,7 +265,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 							?>
 						</td>
 						<?php
-						if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
+						if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 							?>
 							<td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
@@ -278,7 +286,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
-		if (($write_access === TRUE) && ($is_default_context === TRUE)) {
+		if (($write_access === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 			$o->openField(translate('new_option'));
 				echo '<b>'.translate('key').'</b> ';
 				text_box($prefix.'_new_key','');
@@ -314,6 +322,16 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+
+		if ($is_contextable === FALSE) {
+			// If we are not contextable, we might as well be in the default
+			// context... so change to it, and reload our asset
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
@@ -350,8 +368,21 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 		$asset->setAttrValue('default', $new_default);
+		if ($asset->saveAttributes() === TRUE) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
-		return TRUE;
+		if ($is_contextable === FALSE) {
+			// If we are not contextable, we might as well be in the default
+			// context... so change to it, and reload our asset
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+		}
+
+		// Don't require our own saving of attributes
+		return FALSE;
 
 	}//end processSelection()
 

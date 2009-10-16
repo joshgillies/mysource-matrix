@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.8 2009/10/12 23:03:03 lwright Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.9 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,12 +194,8 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 
 				// Get ourselves in default context form, and get the current
 				// default keys and values
-				$GLOBALS['SQ_SYSTEM']->changeContext(0);
-				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
-				$default_options = $default_asset->attr('hierarchy_options');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
-				unset($default_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$default_options = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('hierarchy_options', 'metadata_field_hierarchy', Array($this->id), 0);
+				$default_options = unserialize($default_options[$this->id]);
 
 				// Banish any keys that don't exist in the default version
 				foreach ($hierarchy_options as $hierarchy_key => $hierarchy_value) {

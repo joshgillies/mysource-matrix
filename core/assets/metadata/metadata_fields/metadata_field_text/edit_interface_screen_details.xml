@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2008/01/11 00:07:06 colivar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2009/10/16 01:39:28 lwright Exp $
 *
 */
 -->
@@ -32,8 +32,11 @@
 		<field attribute="description">
 			<text width="30" height="5" />
 		</field>
-		<field attribute="default">
-			<text width="30" height="5" />
+		<field>
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
 		<field attribute="scheme">
 			<text width="30" height="1" />
@@ -58,6 +61,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="is_contextable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">

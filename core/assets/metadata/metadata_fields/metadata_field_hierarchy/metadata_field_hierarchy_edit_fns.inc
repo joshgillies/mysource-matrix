@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.16 2009/10/12 23:03:03 lwright Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.17 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -260,8 +260,18 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$hierarchy_options = $asset->getContextedHierarchyOptions();
 		$hierarchy_sort = $asset->attr('hier_sort');
+
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+
+		if ($is_contextable === TRUE) {
+			$hierarchy_options = $asset->getContextedHierarchyOptions();
+		} else {
+			$hierarchy_options = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('hierarchy_options', 'metadata_field_hierarchy', Array($asset->id), 0);
+			$hierarchy_options = unserialize($hierarchy_options[$asset->id]);
+		}
 
 		if (!empty($hierarchy_options)) {
 			?>
@@ -283,7 +293,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 						<td class="sq-backend-table-cell">
 							<?php
 							if ($write_access  === TRUE) {
-								if ($is_default_context === TRUE) {
+								if (($is_default_context === TRUE) || ($is_contextable === FALSE)) {
 									text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
 								} else {
 									echo $option_key;
@@ -304,7 +314,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 							?>
 						</td>
 						<?php
-						if (($write_access  === TRUE) && ($is_default_context === TRUE)) {
+						if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 							?>
 							<td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
@@ -325,7 +335,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
-		if (($write_access === TRUE) && ($is_default_context === TRUE)) {
+		if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 			$o->openField(translate('new_option'));
 				echo '<b>'.translate('key').'</b> ';
 				text_box($prefix.'_new_key','');
@@ -342,7 +352,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// displaying default value if any values were actually saved in the array
 			$o->openField(translate('default_value'));
 				$default_hier = $asset->getHierarchyAttribute();
-				if ($write_access) {
+				if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
 					if ($sort > 0) {
 						$default_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
 						if (isset($default_options) && !is_null($default_options)) {
@@ -744,6 +754,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+
+		if ($is_contextable === FALSE) {
+			// If we are not contextable, we might as well be in the default
+			// context... so change to it, and reload our asset
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$hierarchy_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
@@ -775,8 +795,21 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 		$asset->setAttrValue('default', $new_default);
+		if ($asset->saveAttributes() === TRUE) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
-		return TRUE;
+		if ($is_contextable === FALSE) {
+			// If we are not contextable, we might as well be in the default
+			// context... so change to it, and reload our asset
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+		}
+
+		// Don't require our own saving of attributes
+		return FALSE;
 
 	}//end processHierarchy()
 

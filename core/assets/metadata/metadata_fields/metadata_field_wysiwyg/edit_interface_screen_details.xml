@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/02/10 05:53:04 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/10/16 01:39:28 lwright Exp $
 *
 */
 -->
@@ -46,11 +46,17 @@
 		<field attribute="required">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="is_contextable">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="frontend">
 			<selection style="list" />
 		</field>
-		<field attribute="default_html">
-			<wysiwyg style="div" width="100%" height="100"/>
+		<field>
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
 	</section>
 </contents>

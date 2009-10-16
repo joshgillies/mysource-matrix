@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.36 2008/05/01 23:58:48 lwright Exp $
+* $Id: metadata_field.inc,v 1.37 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,12 +296,16 @@ class Metadata_Field extends Asset
 
 		$default_val = self::encodeValueString($this->attr('default'), $this->attr('value_components'));
 
-		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		// Only re-save the default value in the default metadata table if
+		// the default value has actually changed
+		if ((array_key_exists('vars_set', $this->_tmp) === TRUE) && (array_key_exists('default', $this->_tmp['vars_set']) === TRUE)) {
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		if (!$mm->setMetadataFieldDefaultValue($this->id, $default_val)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
+			if (!$mm->setMetadataFieldDefaultValue($this->id, $default_val)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
 		}
 
 		if (!parent::saveAttributes($dont_run_updated)) {

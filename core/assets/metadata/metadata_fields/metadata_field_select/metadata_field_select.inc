@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.27 2009/10/12 22:57:45 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.28 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,12 +213,8 @@ class Metadata_Field_Select extends Metadata_Field
 
 				// Get ourselves in default context form, and get the current
 				// default keys and values
-				$GLOBALS['SQ_SYSTEM']->changeContext(0);
-				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
-				$default_options = $default_asset->attr('select_options');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
-				unset($default_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$default_options = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('select_options', 'metadata_field_select', Array($this->id), 0);
+				$default_options = unserialize($default_options[$this->id]);
 
 				// Banish any keys that don't exist in the default version
 				foreach ($select_options as $select_key => $select_value) {

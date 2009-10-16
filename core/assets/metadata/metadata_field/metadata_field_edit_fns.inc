@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.61 2009/10/12 01:12:04 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.62 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -101,13 +101,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	{
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$is_default_context = ($contextid === 0) ? TRUE : FALSE;
+		$is_contextable = $asset->attr('is_contextable');
+		$can_change_keys = ($is_contextable === FALSE) || ($is_default_context = TRUE);
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access_perm = $asset->writeAccess();
 		$write_access = $asset->writeAccess('attributes');
 
 		if ($write_access_perm === TRUE) {
-			if ($is_default_context === TRUE) {
+			if ($can_change_keys === TRUE) {
 				if ($write_access === TRUE) {
 					text_box($prefix.'_new_vc', '', 30);
 				} else {
@@ -124,21 +126,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 		$o->closeField();
 
-		// Get the value components for the current context
-		$current_vc = $asset->attr('value_components');
+		// Get the value components for the current context (if contextable)
+		// or the default context (if not)
+		$default_vc = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('value_components', 'metadata_field', Array($asset->id), 0);
+		$default_vc = unserialize($default_vc[$asset->id]);
 
-		if ($is_default_context === FALSE) {
-			// Change to the default context for a sec, so the default value
-			// components can be retrieved. This is the master list of the
-			// value components that should exist.
-			$GLOBALS['SQ_SYSTEM']->changeContext(0);
-			$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			$default_vc = $default_asset->attr('value_components');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset->id);
-			unset($default_asset);
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		if ($can_change_keys === FALSE) {
+			$current_vc = $asset->attr('value_components');
 		} else {
-			$default_vc = $current_vc;
+			$current_vc = $default_vc;
 		}
 
 		if (!empty($current_vc)) {
@@ -159,7 +155,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
 						if ($write_access === TRUE) {
-							if ($is_default_context === FALSE) {
+							if ($can_change_keys === FALSE) {
 								// If in alternate context, don't let the user edit the field name
 								// but do send it to the process function, because it needs to be
 								// saved to this context on commit
@@ -178,7 +174,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 							echo $vc_value;
 						}
 						if ($write_access) {
-							if ($is_default_context === TRUE) {
+							if ($can_change_keys === TRUE) {
 								echo '<br />';
 								check_box($prefix.'_vc_delete['.$vc_name.']');
 								label(translate('delete_question'), $prefix.'_vc_delete['.$vc_name.']');
@@ -218,8 +214,17 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
-		$current_vc = $asset->attr('value_components');
+		if (($is_contextable === FALSE) && ($contextid !== 0)) {
+			$GLOBALS['SQ_SYSTEM']->changeContext(0);
+			$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+		} else {
+			$contexted_asset = $asset;
+		}
+
+		$current_vc = $contexted_asset->attr('value_components');
 		$updated = FALSE;
 
 		// edit the existing value components first
@@ -256,7 +261,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_new_vc']) && trim($_POST[$prefix.'_new_vc']) != '') {
 			$new_vc = trim($_POST[$prefix.'_new_vc']);
 			if (isset($current_vc[$new_vc])) {
-				trigger_localised_error('CORE0206', E_USER_WARNING, $asset->name);
+				trigger_localised_error('CORE0206', E_USER_WARNING, $contexted_asset->name);
 			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
 				// we are not allowing just numbers because we want to use array_merge()
 				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
@@ -268,11 +273,22 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 
 		if ($updated) {
-			$asset->setAttrValue('value_components', $current_vc);
-			return TRUE;
+			$contexted_asset->setAttrValue('value_components', $current_vc);
 		}
 
-		return FALSE;
+		if (($is_contextable === FALSE) && ($contextid !== 0)) {
+			// Commit the contexted asset; we don't need to commit the one
+			// in the current context in this instance
+			if ($updated) {
+				$contexted_asset->saveAttributes();
+				$updated = FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		}
+
+		return $updated;
 
 	}//end processValueComponents()
 
@@ -464,6 +480,43 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 	}//end generateMetadata()
 
+
+	/**
+	* Show-if that returns TRUE if we can get away with the default edit
+	* interface for a field
+	*
+	* @param Metadata_Field	$asset	The asset being painted/processed
+	*
+	* @return boolean
+	*/
+	public function canUsePlainDefault(Metadata_Field $asset)
+	{
+		return !($this->requiresCustomDefault($asset));
+
+	}//end isContextableField()
+
+
+	/**
+	* Show-if that returns TRUE if we may need a custom default field
+	*
+	* We may require a custom default to replace the normal field if it is a
+	* non-contextable field, and we are not in a default context. In this case
+	* we should be redirected to a paint/process which will use the default
+	* value of the default context.
+	*
+	* @param Metadata_Field	$asset	The asset being painted/processed
+	*
+	* @return boolean
+	*/
+	public function requiresCustomDefault(Metadata_Field $asset)
+	{
+		if (($asset->attr('is_contextable') === FALSE) && ($GLOBALS['SQ_SYSTEM']->getContextId() !== 0)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+	}//end isNotContextableField()
 
 }//end class
 

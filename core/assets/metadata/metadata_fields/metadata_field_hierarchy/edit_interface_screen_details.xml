@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2008/07/17 05:18:47 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2009/10/16 01:39:28 lwright Exp $
 *
 */
 -->
@@ -50,6 +50,9 @@
 	<section name="View Options" write_access="write:attributes">
 		<field attribute="display_type">
 			<selection style="list" columns="1" extras="" />
+		</field>
+		<field attribute="is_contextable">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
 			<boolean true_text="yes" false_text="no" />

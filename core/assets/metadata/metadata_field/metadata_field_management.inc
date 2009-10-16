@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.24 2009/10/12 01:12:04 lwright Exp $
+* $Id: metadata_field_management.inc,v 1.25 2009/10/16 01:39:28 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,6 +85,13 @@ class Metadata_Field_Management extends Asset_Management
 												'type'				=> 'boolean',
 												'default'			=> TRUE,
 												'parameters'		=> Array('allow_empty'	=> FALSE),
+											   ),
+						'is_contextable'	=> Array(
+												'added'				=> '0.3',
+												'type'				=> 'boolean',
+												'default'			=> TRUE,
+												'parameters'		=> Array('allow_empty'	=> FALSE),
+												'description'		=> 'If set to "Yes", this metadata field will be allowed to take different values in different contexts. The default value can also change between contexts.',
 											   ),
 						'required'			=> Array(
 												'added'				=> '0.1',
