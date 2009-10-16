@@ -1569,6 +1569,29 @@
 				</values>
 			</insert>
 		</primary>
+		<alternate>
+			<assert-null data="contextid">
+				<insert>
+					<fields table="sq_ast_mdata_val">
+						<field>assetid</field>
+						<field>fieldid</field>
+						<field>value</field>
+						<field>contextid</field>
+					</fields>
+					<select>
+						<fields>
+							<value>:assetid</value>
+							<value>:fieldid</value>
+							<value>:value</value>
+							<field table="sq_ctx_def" column="contextid" />
+						</fields>
+						<from>
+							<table>sq_ctx_def</table>
+						</from>
+					</select>
+				</insert>
+			</assert-null>
+		</alternate>
 	</query>
 
 	<query id="updateMetadataValueForAsset">
@@ -1589,6 +1612,22 @@
 				</where>
 			</update>
 		</primary>
+		<alternate>
+			<assert-null data="contextid">
+				<update>
+					<fields table="sq_ast_mdata_val">
+						<field>value</field>
+					</fields>
+					<values>
+						<value column="value">:value</value>
+					</values>
+					<where>
+						<equal table="sq_ast_mdata_val" column="assetid">:assetid</equal>
+						<equal table="sq_ast_mdata_val" column="fieldid">:fieldid</equal>
+					</where>
+				</update>
+			</assert-null>
+		</alternate>
 	</query>
 
 	<query id="deleteMetadataValueForAsset">
