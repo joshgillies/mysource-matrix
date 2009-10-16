@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.25.4.2 2009/05/26 06:59:57 cupreti Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.25.4.3 2009/10/16 03:05:56 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.25.4.2 $
+* @version $Revision: 1.25.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -445,7 +445,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$from_addr = $this->attr('verify_from_address');
 			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
 			if (empty($from_addr)) {
-				trigger_localised_email('SYS0315', E_USER_WARNING);
+				trigger_localised_error('SYS0315', E_USER_WARNING);
 				trigger_localised_error('BML0016', E_USER_WARNING);
 			} else {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
