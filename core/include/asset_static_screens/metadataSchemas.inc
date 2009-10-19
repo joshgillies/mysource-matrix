@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.29 2008/08/22 01:48:02 ewang Exp $
+* $Id: metadataSchemas.inc,v 1.29.4.1 2009/10/19 01:02:19 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.4.1 $
 * @package MySource_Matrix
 */
 
@@ -319,6 +319,11 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	// Set cascades here
 	$schemas = $mm->getAssetSchemaInfo($owner->id);
 	foreach ($schemas as $schemaid => $schema_info) {
+		// Prevent new schema from getting applied twice
+		if (isset($post_data['new']['schemaid']['assetid']) && $post_data['new']['schemaid']['assetid'] == $schemaid) {
+			continue;
+		}
+
 		$cascades = isset($post_data['cascades'][$schemaid]);
 		if ((boolean)$cascades != (boolean)$schema_info['cascades']) {
 			if (!$mm->setSchema($owner->id, (int)$schemaid, (int)$schema_info['granted'], (int)$cascades)) {
