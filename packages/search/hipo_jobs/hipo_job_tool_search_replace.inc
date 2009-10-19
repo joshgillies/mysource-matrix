@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.15 2008/11/25 05:03:12 mbrydon Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.16 2009/10/19 22:40:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -929,7 +929,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
 
 		$metadata = $mm->getMetadata($assetid);
 		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
