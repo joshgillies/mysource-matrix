@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.23 2008/06/20 06:21:12 bpearson Exp $
+* $Id: metadata_field_select.inc,v 1.23.6.1 2009/10/19 05:15:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +46,30 @@ class Metadata_Field_Select extends Metadata_Field
 
 
 	/**
+	* Queue the setting of the value of an attribute
+	*
+	* Overrides the default only to clean out the cached select options array
+	* when the select options are (re)set, so any future calls to
+	* getContextedSelectOptions() are current.
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	public function setAttrValue($name, $value)
+	{
+		if ($name === 'select_options') {
+			$this->_clearContextedSelectOptionsCache();
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
+
+	/**
 	* Get a selection attribute that can be used to paint and process the values of this field
 	*
 	* @return object
@@ -60,7 +84,8 @@ class Metadata_Field_Select extends Metadata_Field
 		if (!empty($edit_params)) {
 			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);
 		}
-		$selection->_params['options'] = $this->attr('select_options');
+
+		$selection->_params['options'] = $this->getContextedSelectOptions();
 		$selection->_params['multiple'] = $this->attr('multiple');
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 
@@ -132,7 +157,7 @@ class Metadata_Field_Select extends Metadata_Field
 		}
 
 		$value_str = '';
-		$options = $this->attr('select_options');
+		$options = $this->getContextedSelectOptions();
 
 		foreach ($option_keys as $key) {
 			if (isset($options[$key])) {
@@ -151,6 +176,96 @@ class Metadata_Field_Select extends Metadata_Field
 
 	}//end getValueFromKey()
 
+
+	/**
+	* Get the select options that apply to this context
+	*
+	* This method gets the current select options saved to the context, and
+	* augments them with any keys now in the default context (and its values),
+	* and removes the contexts that no longer exist.
+	* This is necessary because the default context is the ultimate authority
+	* on what kets
+	*
+	* These are cached in a _tmp var indexed by context ID, and is cleared when
+	* the select_options attribute is saved.
+	*
+	* @return array
+	* @see Metadata_Field_Select::_clearContextedSelectOptionsCache()
+	*/
+	public function getContextedSelectOptions()
+	{
+		// Create the cache array if it doesn't exist yet
+		if (array_key_exists('cached_select_options', $this->_tmp) === FALSE) {
+			$this->_tmp['cached_select_options'] = Array();
+		}
+
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		if ($contextid === 0) {
+			// Don't really need to cache the select options in the default
+			// context, because it is it's our own law to itself
+			return $this->attr('select_options');
+		} else {
+			// Alternate context
+			if (array_key_exists($contextid, $this->_tmp['cached_select_options']) === FALSE) {
+				// Get the base
+				$select_options = $this->attr('select_options');
+
+				// Get ourselves in default context form, and get the current
+				// default keys and values
+				$default_options = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('select_options', 'metadata_field_select', Array($this->id), 0);
+				$default_options = unserialize($default_options[$this->id]);
+
+				// Banish any keys that don't exist in the default version
+				foreach ($select_options as $select_key => $select_value) {
+					if (array_key_exists($select_key, $default_options) === FALSE) {
+						unset($select_options[$select_key]);
+					}
+				}
+
+				// Add any keys that don't exist in the contexted version,
+				// with the value added from the default context
+				foreach ($default_options as $default_key => &$default_value) {
+					if (array_key_exists($default_key, $select_options) === FALSE) {
+						$select_options[$default_key] = $default_value;
+					}
+				}
+
+				$this->_tmp['cached_select_options'][$contextid] = $select_options;
+			}
+
+			return $this->_tmp['cached_select_options'][$contextid];
+		}
+
+	}//end getContextedSelectOptions()
+
+
+	/**
+	* Cleans up the contexted select options cache
+	*
+	* This resets the cache set up by the above function. When the context is
+	* the default, it resets everything (since all contexts depend on it). In
+	* an alternate context, it only resets that context's cache.
+	*
+	* @see Metadata_Field_Select::getContextedSelectOptions()
+	* @return void
+	*/
+	protected function _clearContextedSelectOptionsCache()
+	{
+		// Create the cache array if it doesn't exist yet
+		if (array_key_exists('cached_select_options', $this->_tmp) === TRUE) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+			if ($contextid === 0) {
+				$this->_tmp['cached_select_options'] = Array();
+			} else {
+				if (array_key_exists($contextid, $this->_tmp['cached_select_options']) === TRUE) {
+					unset($this->_tmp['cached_select_options'][$contextid]);
+				}
+			}
+		}
+
+	}//end _clearContextedSelectOptionsCache()
 
 }//end class
 
