@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.26 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: tool_search_replace.inc,v 1.26.4.1 2009/10/19 22:59:00 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -284,8 +284,8 @@ class Tool_Search_Replace extends Tool
 						$metadata = $mm->getMetadata($assetid);
 
 						foreach ($metadata as $fieldid => $data) {
-							if (preg_match("/$search_string/i", $data['value'])) {
-								$formatted_results[$assetid]['metadata'][$fieldid] = $data;
+							if (preg_match("/$search_string/i", $data[0]['value'])) {
+								$formatted_results[$assetid]['metadata'][$fieldid] = $data[0];
 							}
 						}
 
