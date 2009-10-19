@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.35.8.1 2009/09/24 07:00:31 bpearson Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.35.8.2 2009/10/19 05:38:44 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35.8.1 $
+* @version $Revision: 1.35.8.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -192,6 +192,17 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			return FALSE;
 		}
 
+		// If no context IDs are provided, it will do all of them
+		if (empty($this->_running_vars['contextids']) === TRUE) {
+			$this->_running_vars['contextids'] = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		}
+
+		// If a scalar is given instead of an array, assume a single context
+		// and convert it into an array
+		if (is_array($this->_running_vars['contextids']) === FALSE) {
+			$this->_running_vars['contextids'] = Array($this->_running_vars['contextids']);
+		}
+
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$this->_running_vars['todo_assetids'] = Array();
@@ -203,7 +214,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 		// remove duplicates
 		$this->_running_vars['todo_assetids'] = array_values(array_unique($this->_running_vars['todo_assetids']));
-		
+
 		// if nothing to do, bail out
 		if (empty($this->_running_vars['todo_assetids'])) {
 			return FALSE;
@@ -247,7 +258,9 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
 				} else {
-					if (!$mm->regenerateMetadata($asset->id)) return FALSE;
+					foreach ($this->_running_vars['contextids'] as $contextid) {
+						if (!$mm->regenerateMetadata($asset->id, $contextid)) return FALSE;
+					}
 					$step_data['message'] = translate('hipo_generate_metadata', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
