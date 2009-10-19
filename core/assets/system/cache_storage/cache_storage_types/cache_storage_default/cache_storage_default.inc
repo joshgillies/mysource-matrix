@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.1.2.2 2009/09/21 03:47:58 lwright Exp $
+ * $Id: cache_storage_default.inc,v 1.1.2.3 2009/10/19 03:31:51 cupreti Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.2 $
+ * @version $Revision: 1.1.2.3 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -168,7 +168,7 @@ class Cache_Storage_Default extends Cache_Storage
 					if ($contents === FALSE) {
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
-						// trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+						trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 						return FALSE;
 					}
 					return $contents;
