@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.3 2009/05/28 00:59:43 akarelia Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.3.2.1 2009/10/19 05:46:42 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,6 +188,111 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
 
 	}//end generateMetadata()
+
+
+	/**
+	* Paint the default value
+	*
+	* Needs a custom paint/process now, because for a non-contextable field,
+	* it needs to show the default/zero context's values instead of the current
+	* context's...ie. we need to make a contextable attribute look
+	* not contextable!
+	*
+	* @param Metadata_Field_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDefault(Metadata_Field_WYSIWYG $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ((boolean)$asset->attr('is_contextable') === TRUE) {
+			$value_str = $asset->attr('default_html');
+		} else {
+			$value_str = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default_html', 'metadata_field_wysiwyg', Array($asset->id), 0);
+			$value_str = array_get_index($value_str, $asset->id, '');
+		}
+
+		$value = '';
+		$value_components = Array();
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		$wysiwyg = $asset->getAttribute('default_html');
+		$wysiwyg->_edit_params['height'] = '100';
+		$wysiwyg->value = $value;
+		$wysiwyg->paint($prefix, !$write_access);
+
+		return TRUE;
+
+	}//end paintDefault()
+
+
+	/**
+	* Process the default value
+	*
+	* @param Metadata_Field_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processDefault(Metadata_Field_WYSIWYG $asset, Backend_Outputter $o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') === FALSE) {
+			return FALSE;
+		}
+
+		$wysiwyg = $asset->getAttribute('wysiwyg');
+		$wysiwyg->process($prefix);
+		if ($wysiwyg->processed) {
+			$new_value = Metadata_Field::encodeValueString(trim($wysiwyg->value), Array());
+		} else {
+			return FALSE;
+		}
+
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		$save_attrs = TRUE;
+
+		if ($is_contextable === TRUE) {
+			$value = $asset->attr('default_html');
+		} else {
+			$value = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default_html', 'metadata_field_wysiwyg', Array($asset->id), 0);
+			$value = array_get_index($value, $asset->id, '');
+		}
+
+		if ($value !== $new_value) {
+			if ($is_contextable === TRUE) {
+				// If the metadata value is contextable, just use the contextable
+				// default
+				$asset->setAttrValue('default_html', $new_value);
+			} else {
+				// Not contextable; in this case the default value authority goes
+				// to the default context
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+
+				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				$default_asset->setAttrValue('default_html', $new_value);
+				$default_asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+				unset($default_asset);
+
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// No need to save attributes in THIS context.
+				$save_attrs = FALSE;
+			}
+		} else {
+			// Nothing to save!
+			$save_attrs = FALSE;
+		}
+
+		return $save_attrs;
+
+	}//end processDefault()
 
 
 }//end class

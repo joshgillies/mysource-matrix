@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2009/02/10 05:53:04 bshkara Exp $
+* $Id: lang_screen_details.xml,v 1.1.6.1 2009/10/19 05:46:42 lwright Exp $
 *
 */
 -->
@@ -59,8 +59,13 @@
 			<display_name>Show On Frontend</display_name>
 			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
 		</field>
-		<field attribute="default_html">
+		<field>
 			<display_name>Default Value</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
 	</section>
 </contents>
