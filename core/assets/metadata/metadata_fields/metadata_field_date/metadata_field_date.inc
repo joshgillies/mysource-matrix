@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.19 2007/12/11 02:53:48 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.19.8.1 2009/10/19 05:48:56 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,13 @@ class Metadata_Field_Date extends Metadata_Field
 
 		// only if we are printing the default value
 		if (is_null($value)) {
-			$value = $this->attr('default');
+			if ((boolean)$this->attr('is_contextable') === TRUE) {
+				$value = $this->attr('default');
+			} else {
+				$value = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($this->id), 0);
+				$value = $value[$this->id];
+			}
+
 			if (!empty($value) && $value{0} == '%') {
 				$value = ts_iso8601(time());
 			} else {

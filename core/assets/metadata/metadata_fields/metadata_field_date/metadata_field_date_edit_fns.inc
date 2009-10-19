@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.44 2008/04/10 05:11:52 ncallahan Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.44.6.1 2009/10/19 05:48:56 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
-		$default = $asset->attr('default');
+		if ((boolean)$asset->attr('is_contextable') === TRUE) {
+			$default = $asset->attr('default');
+		} else {
+			$default = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$default = $default[$asset->id];
+		}
 		$wa = $asset->writeAccess('attributes');
 		$this->paintValueInterface($asset, $o, $default, $wa, FALSE);
 		return $wa;
@@ -164,11 +169,33 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	public function processDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$default = $asset->attr('default');
+			$is_contextable = (boolean)$asset->attr('is_contextable');
+			$assetid = $asset->id;
+
+			if ($is_contextable === TRUE) {
+				$default = $asset->attr('default');
+			} else {
+				$default = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($assetid), 0);
+				$default = $default[$assetid];
+			}
+
 			$field_cascade_value=FALSE;
 			$this->processInlineValueInterface($asset, $default, $field_cascade_value);
+
+			if ($is_contextable === FALSE) {
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			}
+
 			$asset->setAttrValue('default', $default);
-			return TRUE;
+			$asset->saveAttributes();
+
+			if ($is_contextable === FALSE) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			}
+
 		}
 		return FALSE;
 
@@ -343,7 +370,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param Metadata_Field_Date	$asset			the asset whose interface we are painting
 	* @param string					&$new_value_str	a string by reference that we can store the new values in
 	*												set to NULL to revert to default
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
