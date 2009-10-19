@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_management.inc,v 1.3 2008/07/17 05:18:47 bshkara Exp $
+* $Id: metadata_field_hierarchy_management.inc,v 1.3.6.1 2009/10/19 05:18:40 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,7 @@ class Metadata_Field_Hierarchy_Management extends Asset_Management
 												'added'		=> '0.1',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+												'is_contextable'	=> TRUE,
 											   ),
 						'multiple'			=> Array(
 												'added'			=> '0.1',
@@ -117,6 +118,7 @@ class Metadata_Field_Hierarchy_Management extends Asset_Management
 												'added'		=> '0.1',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+												'is_contextable'	=> TRUE,
 											   ),
 					  );
 

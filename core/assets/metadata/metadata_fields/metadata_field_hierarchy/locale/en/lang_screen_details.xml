@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2008/07/21 00:45:31 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.4.6.1 2009/10/19 05:18:40 lwright Exp $
 *
 */
 -->
@@ -59,6 +59,10 @@
 	<section name="View Options">
 		<field attribute="display_type">
 			<display_name>Display Type</display_name>
+			<note />
+		</field>
+		<field attribute="is_contextable">
+			<display_name>Contextable?</display_name>
 			<note />
 		</field>
 		<field attribute="allow_empty">
