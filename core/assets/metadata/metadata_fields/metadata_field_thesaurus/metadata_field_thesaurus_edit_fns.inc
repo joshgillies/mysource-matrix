@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.21 2008/08/03 23:41:19 bpearson Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.21.6.1 2009/10/19 05:47:54 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,7 +275,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Thesaurus	$asset			asset being painted
 	* @param string						&$new_value_str	a string by reference that we can store the new values in
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
@@ -347,9 +347,15 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function paintDefault(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $prefix)
 	{
-
 		$write_access = $asset->writeAccess('attributes');
-		$default = $asset->attr('default');
+
+		if ((boolean)$asset->attr('is_contextable') === TRUE) {
+			$default = $asset->attr('default');
+		} else {
+			$default = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$default = $default[$asset->id];
+		}
+
 		if (!$write_access) {
 			echo $default;
 			return TRUE;
@@ -396,6 +402,9 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$prefix = $asset->getPrefix();
 		$thesaurus = $asset->getThesaurusRef();
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$assetid = $asset->id;
 		$value = Array();
 
 		$new_terms = array_get_index($_REQUEST, $prefix.'_default_term', Array());
@@ -420,10 +429,27 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = implode(',', $value);
 
 		$default = Metadata_Field::encodeValueString($value, Array());
+
+		if ($is_contextable === FALSE) {
+			if ($contextid !== 0) {
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			}
+		}
+
 		$asset->setAttrValue('default', $default);
+		$asset->saveAttributes();
 
+		if ($is_contextable === FALSE) {
+			if ($contextid !== 0) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			}
+		}
 
-		return TRUE;
+		// No need to save attrs again
+		return FALSE;
 
 	}//end processDefault()
 
