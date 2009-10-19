@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.29 2008/08/22 01:48:02 ewang Exp $
+* $Id: metadataSchemas.inc,v 1.30 2009/10/19 01:03:09 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -268,14 +268,14 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 
 	$schema_vars = Array();
 	$post_data = $_POST[$prefix.'_metadata'];
-
+	
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
 			// Only cascade changes to lower assets if "cascade to new assets"
-			// is set.
+			// is set.			
 			if ($cascade_changes && isset($post_data['new']['cascades'])) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(
@@ -287,7 +287,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 								 );
 			} else {
 				// lets do this ourselves
-				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'], (isset($post_data['new']['cascades']) ? 1 : 0))) {
+				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'], (int)(isset($post_data['new']['cascades']) ? 1 : 0))) {
 					return FALSE;
 				}
 			}
@@ -319,6 +319,11 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	// Set cascades here
 	$schemas = $mm->getAssetSchemaInfo($owner->id);
 	foreach ($schemas as $schemaid => $schema_info) {
+		// Prevent new schema from getting applied twice
+		if (isset($post_data['new']['schemaid']['assetid']) && $post_data['new']['schemaid']['assetid'] == $schemaid) {
+			continue;
+		}
+
 		$cascades = isset($post_data['cascades'][$schemaid]);
 		if ((boolean)$cascades != (boolean)$schema_info['cascades']) {
 			if (!$mm->setSchema($owner->id, (int)$schemaid, (int)$schema_info['granted'], (int)$cascades)) {
