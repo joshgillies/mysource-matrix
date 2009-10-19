@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15.14.1 2009/10/19 04:35:47 lwright Exp $
 *
 */
 -->
@@ -58,6 +58,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="is_contextable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">
