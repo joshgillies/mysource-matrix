@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.51.2.1 2009/09/16 02:00:02 bpearson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.51.2.2 2009/10/19 06:32:18 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,9 +235,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 				if ($iap || in_array('view_source', $ap)) {
 					$wysiwyg->add_plugin('view_source');
-				}
-				if ($iap || in_array('help', $ap)) {
-					$wysiwyg->add_plugin('help');
 				}
 			$wysiwyg->close_group();
 			
