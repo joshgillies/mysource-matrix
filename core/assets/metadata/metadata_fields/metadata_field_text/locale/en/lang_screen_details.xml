@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2008/01/11 00:07:05 colivar Exp $
+* $Id: lang_screen_details.xml,v 1.4.6.1 2009/10/19 05:45:05 lwright Exp $
 *
 */
 -->
@@ -37,9 +37,13 @@
 			<display_name>Description</display_name>
 			<note />
 		</field>
-		<field attribute="default">
+		<field>
 			<display_name>Default</display_name>
 			<note />
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
 		<field attribute="scheme">
 			<display_name>Scheme</display_name>

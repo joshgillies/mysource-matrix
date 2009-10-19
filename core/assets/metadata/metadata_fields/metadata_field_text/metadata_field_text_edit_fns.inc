@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.38.2.1 2009/10/07 05:10:49 akarelia Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.38.2.2 2009/10/19 05:45:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,7 +175,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Text	$asset			the asset whose interface we are processing
 	* @param string					&$new_value_str	a string by reference that we can store the new values in
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
@@ -217,6 +217,104 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $processed;
 
 	}//end processInlineValueInterface()
+
+
+	/**
+	* Paint the default value
+	*
+	* Needs a custom paint/process now, because for a non-contextable field,
+	* it needs to show the default/zero context's values instead of the current
+	* context's...ie. we need to make a contextable attribute look
+	* not contextable!
+	*
+	* @param Metadata_Field_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDefault(Metadata_Field_Text $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ((boolean)$asset->attr('is_contextable') === TRUE) {
+			$value_str = $asset->attr('default');
+		} else {
+			$value_str = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$value_str = array_get_index($value_str, $asset->id, '');
+		}
+
+		$value_components = Array();
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		if ($write_access === TRUE) {
+			text_area($prefix.'_default', $value, 30, 5);
+		} else {
+			echo $value;
+		}
+
+		return TRUE;
+
+	}//end paintDefault()
+
+
+	/**
+	* Process the default value
+	*
+	* @param Metadata_Field_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processDefault(Metadata_Field_Text $asset, Backend_Outputter $o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') === FALSE) {
+			return FALSE;
+		}
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		$new_value = array_get_index($_POST, $prefix.'_default', '');
+		$new_value = Metadata_Field::encodeValueString($new_value, Array());
+		$save_attrs = TRUE;
+
+		if ($is_contextable === TRUE) {
+			$value = $asset->attr('default');
+		} else {
+			$value = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$value = array_get_index($value, $asset->id, '');
+		}
+
+		if ($value !== $new_value) {
+			if ($is_contextable === TRUE) {
+				// If the metadata value is contextable, just use the contextable
+				// default
+				$asset->setAttrValue('default', $new_value);
+			} else {
+				// Not contextable; in this case the default value authority goes
+				// to the default context
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+
+				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				$default_asset->setAttrValue('default', $new_value);
+				$default_asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+				unset($default_asset);
+
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// No need to save attributes in THIS context.
+				$save_attrs = FALSE;
+			}
+		} else {
+			// Nothing to save!
+			$save_attrs = FALSE;
+		}
+
+		return $save_attrs;
+
+	}//end processDefault()
 
 
 }//end class
