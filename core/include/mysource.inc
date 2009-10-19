@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.10 2009/10/07 03:55:29 cupreti Exp $
+* $Id: mysource.inc,v 1.313.2.11 2009/10/19 05:21:21 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.10 $
+* @version $Revision: 1.313.2.11 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2545,9 +2545,16 @@ class MySource extends MySource_Object
 	public function insertContextData($contextid)
 	{
 		try {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));
 			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));
+			MatrixDAL::executeQuery('core', 'copyContextMetadataDefaults', Array('contextid' => $contextid));
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} catch (DALException $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			throw new Exception('Cannot insert default attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
 
@@ -2575,9 +2582,16 @@ class MySource extends MySource_Object
 	public function deleteContextData($contextid)
 	{
 		try {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			MatrixDAL::executeQuery('core', 'deleteContextAttributeData', Array('contextids' => Array($contextid)));
 			MatrixDAL::executeQuery('core', 'deleteContextUniqueAttributeData', Array('contextids' => Array($contextid)));
+			MatrixDAL::executeQuery('core', 'deleteContextMetadataDefaults', Array('contextids' => Array($contextid)));
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} catch (DALException $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			throw new Exception('Cannot delete attribute data for context #'.$contextid.'; DB returned error "'.$e->getMessage().'"');
 		}
 
