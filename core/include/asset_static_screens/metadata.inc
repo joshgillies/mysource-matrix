@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.48.2.1 2009/10/19 05:24:12 lwright Exp $
+* $Id: metadata.inc,v 1.48.2.2 2009/10/19 05:40:08 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48.2.1 $
+* @version $Revision: 1.48.2.2 $
 * @package MySource_Matrix
 */
 
@@ -405,9 +405,10 @@ function processMetadata(&$owner, &$o, $ei)
 			// Time to feed the HIPO
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
-					'assets'			=> Array($owner->id => Array('type_code' => $owner->type())),
+					'assets'						=> Array($owner->id => Array('type_code' => $owner->type())),
 					'metadata_field_value_changes'	=> $metadata_values_vars,
-					'dependants_only'		=> 1,
+					'dependants_only'				=> 1,
+					'contextid'						=> $GLOBALS['SQ_SYSTEM']->getContextId(),
 				);
 
 			$hh->queueHipo('hipo_job_edit_metadata_field_values', $vars);
