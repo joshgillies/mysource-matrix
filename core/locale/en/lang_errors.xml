@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.110.2.3 2009/10/12 00:11:41 lwright Exp $
+* $Id: lang_errors.xml,v 1.110.2.4 2009/10/19 04:02:54 lwright Exp $
 *
 */
 
@@ -1793,6 +1793,8 @@ Full Node Contents :
 	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
 	<error code="TRIG0004">No tag is specified in trigger condition: 'Asset is tagged'</error>
 
+	<error code="TRIG0005">Unable to select context #%1$s for use in trigger, the context no longer exists</error>
+
 	<!-- CTX = Context/multi-lingual related errors -->
 	<error code="CTX0001">Cannot create context "%1$s" in database: %2$s</error>
 	<error code="CTX0002">Cannot update context "%1$s" in database: %2$s</error>
@@ -1805,4 +1807,14 @@ Full Node Contents :
 	<error code="CTX0009">Accept-language condition: quality value of "%s" is greater than the maximum allowed value of 1.0, value will be saved as 1.0</error>
 	<error code="CTX0010">Accept-language condition: quality value of "%s" is less than the minimum allowed value of 0.0, value will be saved as 0.0</error>
 
+	<!-- Metadata related errors -->
+	<error code="SYS0335">Cannot get default value of metadata field ID #%1$s in context ID #%2$s, DB error while getting: "%3$s"</error>
+	<error code="SYS0336">Cannot set default value of metadata field ID #%1$s in context ID #%2$s, DB error while inserting new defaults: "%3$s"</error>
+	<error code="SYS0337">Cannot update default value of metadata field ID #%1$s in context #%2$s, DB error while updating: "%3$s"</error>
+	<error code="SYS0338">Cannot get current value of metadata for asset ID #%1$s in context #%2$s, DB error while getting: "%3$s"</error>
+	<error code="SYS0339">Cannot set metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while inserting new values: "%5$s"</error>
+	<error code="SYS0340">Cannot update metadata field #%1$s to "%2$s" for asset ID #%3$s in context #%4$s, DB error while updating: "%5$s"</error>
+	<error code="SYS0341">Cannot revert metadata fields (%1$s) to default for asset ID #%2$s in context #%3$s, DB error while deleting current values: "%4$s"</error>
+	<error code="SYS0342">Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"</error>
+	<error code="SYS0343">Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"</error>
 </errors>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.8 2009/10/15 23:52:11 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.335.2.9 2009/10/19 04:02:54 lwright Exp $
 *
 */
 
@@ -979,6 +979,8 @@
 	<string source="core_default_layout_name">Default Layout Name</string>
 	<string source="core_value_name">Value Name</string>
 	<string source="core_cannot_create_value_component">You do not have permission to create a new value component</string>
+	<string source="core_lock_asset_to_create_value_component">Lock this asset to create a new value component</string>
+	<string source="core_cannot_create_value_component_in_alternate_context">Only default values of value components can be changed in an alternate context. Change to the default context to change the names of value components, or to create or delete components.</string>
 	<string source="core_metadata_keyword_replacements_explanation">&lt;b&gt;You can use keyword replacements in place of values for this metadata field.&lt;br /&gt;These values can be used in the main &lt;i&gt;Default&lt;/i&gt; value of the field as well as in the values of any &lt;i&gt;Value Components&lt;/i&gt; the field has defined.&lt;br /&gt;For a complete list of available keyword replacements %1$s%2$s&lt;/a&gt;&lt;/b&gt;</string>
 	<string source="core_error_bodycopy_link_cannot_delete">You can't delete the link between the bodycopy and the standard page</string>
 	<string source="core_report_not_generated">Report not generated because no assets were found matching your criteria</string>
@@ -1190,6 +1192,7 @@
 	<string source="trigger_thumbnail_index_cannot_be_empty">Index cannot be empty</string>
 	<string source="trigger_require_constrain_width_height">must have constrain, height and width set, even if one is zero</string>
 	<string source="trigger_cannot_set_variety_value">Unable to set the variety's "%s" value</string>
+	<string source="trigger_set_value_in_this_context">Set value in this context:</string>
 
 	<string source="trigger_replace_file">Replace the file asset's contents with the file stored on the server at %s</string>
 	<string source="trigger_create_clone_basic">Create a clone of the asset: %1$s, and link it as child of the asset: %2$s using a %3$s link.</string>
@@ -1937,6 +1940,9 @@ Are you sure you want to proceed?</string>
 	<string source="disable" js="1">Disable</string>
 	<string source="image_editor_disabled" js="1">The Image Editor is not currently supported for Safari on Windows.  As such it has been disabled.</string>
 	<string source="use_normal_context_for_this_url">Use normal context for this URL</string>
+	<string source="trigger_use_currently_active_context">Use currently active context at time of firing</string>
+	<string source="set_context_deleted">Set context has been deleted</string>
+	<string source="trigger_context_deleted_fail_until_changed">Set context has been deleted. Trigger will fail until the context is changed to an existing one.</string>
 
 	<string source="enabled">Enabled</string>
 	<string source="disabled">Disabled</string>
@@ -2550,7 +2556,7 @@ Are you sure you want to proceed?</string>
 	<string source="config_context_no_alternate_contexts"><![CDATA[<strong>There are no alternate contexts defined.</strong> The default context will always be used, and context switching of content will not be available.]]></string>
 	<string source="config_context_lock_to_add_alternate">To create an alternate context, you must lock the screen first.</string>
 	<string source="config_context_new_alternate_context">Create a new alternate context...</string>
-	<string source="config_context_default_explanation"><![CDATA[The <em>default context</em> will be used when none of the alternate contexts' conditions can be matched, or when User Group Preferences specify that the default context be explicitly used for a user. You may change the name of the default context as it is displayed in the Administration and Simple Edit interfaces, but there are no conditions to configure, and its order cannot be edited.]]></string>
+	<string source="config_context_default_explanation"><![CDATA[The <em>default context</em> will be used as a fallback when there is no current URL - for instance, as the initial context in a command-line script. It can also be explicitly selected as a User Group preference, or as a base context for a URL. You may change the default context's displayed name, but otherwise there are no conditions to configure, and its order cannot be edited.]]></string>
 	<string source="config_context_default_name_explanation"><![CDATA[Where context names appear <em>italicised</em>, no custom name has been set for that context, and the default name shown will be used. Edit the context to set a different name.]]></string>
 	<string source="config_context_minimum_matches">Minimum Matches</string>
 	<string source="config_context_minimum_matches_interface">%1$s %2$s condition(s) must match before this alternate context can be considered for selection.</string><!-- %1$s = 'at least/all' combo box; %2$s = 'at least number' text box -->
@@ -2664,7 +2670,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_context_at_least_too_many"><![CDATA[This context requires &quot;at least %1$s&quot; conditions to match, however it only contains %2$s conditions, making this context impossible to select.<br/>Either reduce the minimum number of matches (or set to &quot;all&quot;), or add more conditions, to make this context valid.]]></string>
 	<string source="config_context_not_enough_valid_cond_to_be_valid"><![CDATA[There are not enough valid conditions to satisfy the minimum number required for this context to be selected.<br/>Fixing the invalid condition(s) may make this context eligible for selection.]]></string>
 	<string source="config_context_invalid_cond_but_still_valid"><![CDATA[There are conditions above that are not valid. However, there are still enough valid conditions to allow this context to be selected.<br/>Fixing the invalid condition(s) may increase this context&apos;s ability to be selected.]]></string>
-	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. Context detection will occur on <strong>every request</strong>, unless a context has been forced through another method, either by user group preference or by global action. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the default context is used.</p>
+	<string source="config_context_note"><![CDATA[<p>The <strong>Conditions for Context Detection</strong> column states the conditions that must be satisfied for a context to be selected through the context detection process. Context detection will occur on <strong>every request</strong>, unless a context has been forced through another method, either by user group preference or by global action. Alternate contexts are evaluated top to bottom, and the first one that matches is selected. If none match, the base context for the URL of the request is used, as set through the relevant Site asset (or the default context if no current URL exists, eg. in a CLI script).</p>
 	<p>Conditions do not affect a context&apos;s ability to be used through methods outside context detection, such as through global action, or User Group override. If you do not want a context to be selected through context detection, simply leave its conditions blank. The <strong>Valid ?</strong> column states whether a context&apos;s conditions are achievable, based on the number of valid conditions and the set logic (either &quot;All&quot; or &quot;At least&quot;). A context&apos;s conditions may be marked &quot;not valid&quot; if:</p><ul><li>A context contains no valid conditions.</li><li>A context is set to require &quot;at least&quot; a certain number of matches, but does not have enough valid conditions to meet the requirement. (If some conditions are invalid, but not all, the conditions can still be &quot;valid&quot; if there enough valid ones.)</li></ul>]]></string>
 
 	<!-- System Config - Log errors to Syslog -->
