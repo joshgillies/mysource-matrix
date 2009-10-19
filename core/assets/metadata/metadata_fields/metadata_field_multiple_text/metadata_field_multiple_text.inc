@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text.inc,v 1.4 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_multiple_text.inc,v 1.4.8.1 2009/10/19 05:42:36 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,14 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 
 		$attribute = new Asset_Attribute_Option_List();
 
-		$default = implode($attribute->delimiter, explode('; ', $this->attr('default')));
+		if ((boolean)$this->attr('is_contextable') === TRUE) {
+			$default = implode($attribute->delimiter, explode('; ', $this->attr('default')));
+		} else {
+			$default = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($this->id), 0);
+			$default = array_get_index($default, $this->id, '');
+		}
+
+		$default = implode($attribute->delimiter, explode('; ', $default));
 
 		if ($attribute->validateValue($default)) {
 			$attribute->setValue($default);

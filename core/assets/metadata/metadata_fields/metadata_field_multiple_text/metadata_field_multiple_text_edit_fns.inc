@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.10 2008/07/11 05:35:54 bpearson Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.10.6.1 2009/10/19 05:42:36 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Multiple_Text	$asset			the asset whose interface we are processing
 	* @param string							&$new_value_str	a string by reference that we can store the new values in
-	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade
 	*                                       to children
 	*
 	* @return boolean
@@ -241,6 +241,17 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
+		// change to default asset if we have to
+		if ($is_contextable === FALSE) {
+			if ($contextid !== 0) {
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}
+		}
+
 		$attribute = $asset->getOptionListAttribute();
 		$attribute->process($prefix);
 
@@ -248,11 +259,19 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value = $attribute->value;
 			$value_array = explode($attribute->delimiter, $value);
 			$asset->setAttrValue('default', implode('; ', $value_array));
-		} else {
-			return FALSE;
+			$asset->saveAttributes();
 		}
 
-		return $asset->saveAttributes();
+		// restore previous assets
+		if ($is_contextable === FALSE) {
+			if ($contextid !== 0) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}
+		}
+
+		// No need to save attributes in THIS context
+		return FALSE;
 
 	}//end processDefault()
 
