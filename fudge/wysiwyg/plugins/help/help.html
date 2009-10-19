@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: help.html,v 1.7 2006/12/06 05:11:08 bcaldwell Exp $
+* $Id: help.html,v 1.7.12.1 2009/10/19 05:27:00 akarelia Exp $
 *  content updated to be in line with Matrix 3.4 30/6/05 nbell
 *
 */
@@ -85,6 +85,12 @@
 							<td>Removes a link.</td>
 						</tr>
 						<tr>
+							<td class="icon"><img alt="Create A Quick Link" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -260px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Create A Quick Link</td>
+							<td>Allows you to create a hyperlink to an external page without having to use the <b>Insert Link</b> pop up. To do this, type the full URL of the hyperlink within the <b>WYSIWYG Editor</b>, highlight the URL and
+click this icon. The URL will not be a hyperlink. You can also do this with hyperlinks to an email address.</td>
+						</tr>
+						<tr>
 							<td class="icon"><img alt="Insert Anchor" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -120px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
 							<td nowrap="nowrap">Insert Anchor</td>
 							<td>Allows you to insert or remove an anchor.</td>
@@ -98,6 +104,11 @@
 							<td class="icon"><img alt="Embed Movie" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -200px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
 							<td nowrap="nowrap"><a href="#embed_movie">Embed Movie</a></td>
 							<td>Allows you to embed a movie file.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Embed YouTube" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -36px -260px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#embed_youtube">Embed YouTube</a></td>
+							<td>Allows you to embed content that is hosted on YouTube.</td>
 						</tr>
 						<tr>
 							<td class="icon"><img alt="Insert Abbreviation" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
@@ -114,6 +125,11 @@
 							<div class="tip">TIP:
 							For accessibility reasons,&nbsp;it is&nbsp;recommended&nbsp;that you insert&nbsp;an&nbsp;acronym for the first occurrence of the acronym on each page.
 							</div></td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Special Character" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -36px 0px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Insert Special Character</td>
+							<td>Allows you to insert a special character into the content of the page. When you click on the button, the special character pop up appears as shown in the figure to the right. Click on the character you want to insert.</td>
 						</tr>
 						<tr>
 							<td class="icon"><img alt="Check Spelling" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -200px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
@@ -384,6 +400,8 @@
 							<li><b>Border Thickness:</b> enter the width in pixels of the image border.</li>
 							<li><b>Horizontal:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the left and right of&nbsp;the image.</li>
 							<li><b>Vertical:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the top and bottom of&nbsp;the image.</li>
+							<li><b>Name:</b> enter the ID for the image. This ID can then be used in a CSS or Javascript.</li>
+							<li><b>Class:</b> enter the HTML or CSS class for the image.</li>
 						</ul>
 					<h3>Size</h3>
 						<ul>
@@ -422,7 +440,41 @@
 							<li><b>Width:</b> enter the width of&nbsp;the movie in&nbsp;pixels.</li>
 							<li><b>Height:</b> enter the height of&nbsp;the movie in&nbsp;pixels.</li>
 						</ul>
-
+					<h2><a name="embed_youtube"></a>Embed YouTube</h2>
+					<p>If&nbsp;you select the <em>Embed YouTube</em> icon, the following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Embed YouTube" src="../../images/help/youtube.PNG"></div>
+					<p>The options when inserting a&nbsp;YouTube Video are as&nbsp;follows:</p>
+					<h3>General</h3>
+						<ul>
+							<li><b>Video ID:</b>
+							ID of the video you want to Embed.
+							</li>
+							<li><b>URL:</b>
+							Whole URL of the video you want to Embed
+							</li>
+						</ul>
+					<h3>Control</h3>
+					<p>For the YouTube video, you can set the following options:
+						<ul>
+							<li><b>Auto Start:</b> check this box to autostart the movie.</li>
+							<li><b>Loop:</b> check this box to loop the movie.</li>
+							<li><b>Full Screen:</b> check this box to show the movie in full screen.</li>
+							<li><b>Show Related Videos:</b> check this box to show a list of related movies from YouTube.</li>
+							<li><b>Enable Genius Bar:</b> eck this box to enable the genius bar.</li>
+							<li><b>Enable Javascript API:</b> check this box to enable the Javascript API.</li>
+						</ul>
+					<h3>Size</h3>
+						<ul>
+							<li><b>Width:</b> enter the width of&nbsp;the movie in&nbsp;pixels.</li>
+							<li><b>Height:</b> enter the height of&nbsp;the movie in&nbsp;pixels.</li>
+						</ul>
+					<h3>Style</h3>
+						<ul>
+							<li><b>Border:</b> check this box to show a border for the video.</li>
+							<li><b>Primary Border Colour:</b> enter the hex value for the colour to use for the primary border colour.</li>
+							<li><b>Secondary Border Colour:</b> enter the hex value for the colour to use for the secondary border
+colour.</li>
+						</ul>
 				</td>
 			</tr>
 		</tbody></table>
