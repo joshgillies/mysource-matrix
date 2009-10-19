@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.328 2009/10/12 22:01:21 lwright Exp $
+* $Id: mysource.inc,v 1.329 2009/10/19 22:59:16 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.328 $
+* @version $Revision: 1.329 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -227,6 +227,11 @@ class MySource extends MySource_Object
 		$this->lm = new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
+		
+		// Set the internal character encoding 
+		if (SQ_CONF_DEFAULT_CHARACTER_SET && SQ_CONF_DEFAULT_CHARACTER_SET != mb_internal_encoding()) {
+			mb_internal_encoding(SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
 
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			// we are accessing from the web, and the security subsystem is enabled in this run level,
