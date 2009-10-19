@@ -44,7 +44,7 @@
  * @link		http://pear.php.net/package/HTTP_Request/
  */
 // Matrix modifications based on HTTP_Request v.1.4.4
-// $Id: Request.php,v 1.6 2008/12/17 05:49:33 bshkara Exp $
+// $Id: Request.php,v 1.6.2.1 2009/10/19 22:32:04 mbrydon Exp $
 
 /**
  * PEAR and PEAR_Error classes (for error handling)
@@ -709,7 +709,7 @@ class HTTP_Request
 			$host = 'ssl://' . $host;
 		}
 
-		// magic quotes may fuck up file uploads and chunked response processing
+		// magic quotes may break file uploads and chunked response processing
 		$magicQuotes = ini_get('magic_quotes_runtime');
 		ini_set('magic_quotes_runtime', false);
 
