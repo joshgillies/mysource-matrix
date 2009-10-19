@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.81 2009/02/12 15:57:35 ata Exp $
+* $Id: page_remote_content.inc,v 1.81.2.1 2009/10/19 02:52:53 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.81.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1242,10 +1242,10 @@ class Page_Remote_Content extends Page
 		$url = strtolower($url);
 
 		foreach ($this->_tmp['_white_list_'] as $white_url) {
-			$white_url_len = strlen($white_url);
+			$white_url_len = strlen(trim($white_url));
 			if ($white_url_len > strlen($url)) {
 				continue;
-			} else if (strtolower($white_url) == substr($url, 0, $white_url_len)) {
+			} else if (strtolower(trim($white_url)) == substr($url, 0, $white_url_len)) {
 				return TRUE;
 			}
 		}
