@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.22 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_manager_edit_fns.inc,v 1.22.6.1 2009/10/20 02:36:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $ - 1.0
+* @version $Revision: 1.22.6.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1186,13 +1186,23 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$root_assetid = $_POST[$prefix.'_reindexing_root_assetid']['assetid'];
 			if ($root_assetid > 0) {
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
+				$running_vars = Array(
+									'root_assetid'	=> $root_assetid,
+									'contextid'		=> $GLOBALS['SQ_SYSTEM']->getContextId(),
+								);
+				$hh->queueHipo('hipo_job_reindex', $running_vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 				return TRUE;
 			}
 		}
+
 		if (isset($_POST[$prefix.'_reindexing_root_folder'])) {
+			// System-wide reindex.
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => '1'), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
+			$running_vars = Array(
+					'root_assetid'	=> $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder'),
+					'contextid'		=> $GLOBALS['SQ_SYSTEM']->getContextId(),
+				);
+			$hh->queueHipo('hipo_job_reindex', $running_vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 			return TRUE;
 		}
 		return FALSE;

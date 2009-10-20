@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: reindexSearchIndex.php,v 1.2 2008/11/25 05:03:13 mbrydon Exp $
+* $Id: reindexSearchIndex.php,v 1.2.8.1 2009/10/20 02:36:11 lwright Exp $
 *
 */
 
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
-    trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -34,7 +34,7 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 echo 'Enter the #ID of the root node to reindex or press ENTER to reindex the whole system: ';
 $root_node_id = (int)trim(fgets(STDIN, 4094));
 
-// if the user chooses to reindex the whole system 
+// if the user chooses to reindex the whole system
 if (empty($root_node_id)) {
 	$root_node_id = 1;
 }
@@ -51,7 +51,7 @@ if (($root_node_id > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($root_node_id
 
 // THE INDEXING STATUS SHOULD BE TURNED ON
 $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-if (!$sm->attr('indexing')) {	
+if (!$sm->attr('indexing')) {
 	echo "\n\nBEFORE RUNNING THE SCRIPT, PLEASE CHECK THAT THE INDEXING STATUS IS TURNED ON\n";
 	echo 'Note: You can change this option from the backend "System Management" > "Search Manager" > "Details"'."\n\n";
 	exit();
@@ -72,11 +72,17 @@ if (strcmp(strtolower($process), 'yes') !== 0) {
 }
 
 echo 'START REINDEXING'."\n";
+$all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-$vars = Array (
-				'root_assetid'       => $root_node_id,
-			);
-$hh->freestyleHipo('hipo_job_reindex', $vars, SQ_PACKAGES_PATH.'/search/hipo_jobs');
+
+$vars = Array(
+			'root_assetid'       => $root_node_id,
+		);
+
+foreach ($all_contextids as $contextid) {
+	$vars['contextid'] = $contextid;
+	$hh->freestyleHipo('hipo_job_reindex', $vars, SQ_PACKAGES_PATH.'/search/hipo_jobs');
+}
 echo 'FINISHED'."\n";
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();

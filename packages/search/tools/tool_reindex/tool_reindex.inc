@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.11 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: tool_reindex.inc,v 1.11.6.1 2009/10/20 02:36:11 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -95,11 +95,15 @@ class Tool_Reindex extends Tool
 		}
 
 		if ($index_all == 1) {
-			$vars = Array('root_assetid' => '1');
+			// System-wide reindex
+			$vars = Array('root_assetid' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder'));
 		} else {
 			$root_assetid = $_REQUEST[$type_code.'_reindexing_root_assetid']['assetid'];
 			$vars = Array('root_assetid' => $root_assetid);
 		}
+
+		// Save the context we are in
+		$vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
