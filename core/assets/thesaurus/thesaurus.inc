@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.62 2009/05/05 06:32:12 ewang Exp $
+* $Id: thesaurus.inc,v 1.63 2009/10/20 00:35:19 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -1412,7 +1412,13 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function _getName()
 	{
-		return $this->attr('name');
+		// Obtain the attribute value for Name from the Default Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

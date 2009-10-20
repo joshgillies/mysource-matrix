@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.43 2009/07/30 04:29:41 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.44 2009/10/20 00:35:19 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -463,7 +463,13 @@ class Bodycopy_Container extends Asset
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return $this->attr('name');
+		// Obtain the attribute value for Name from the Default Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

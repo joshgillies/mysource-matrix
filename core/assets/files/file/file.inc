@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.180 2009/07/06 23:51:28 cupreti Exp $
+* $Id: file.inc,v 1.181 2009/10/20 00:35:19 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1301,7 +1301,17 @@ class File extends Asset
 	*/
 	public function _getName($short_name=FALSE)
 	{
-		return (($short_name) ? $this->attr('title') : $this->attr('name'));
+		// Obtain the attribute value for Title from the Default Context
+		if ($short_name) {
+			$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('title', $this->type(), Array($this->id), 0);
+			if (empty($values) === TRUE) {
+				return $this->attr('title');
+			} else {
+				return $values[$this->id];
+			}
+		}
+
+		return $this->attr('name');
 
 	}//end _getName()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.36 2008/11/11 23:19:12 lwright Exp $
+* $Id: simple_form.inc,v 1.37 2009/10/20 00:35:19 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -515,7 +515,13 @@ class Simple_Form extends Asset implements Bridge
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return $this->attr('name');
+		// Obtain the attribute value for Name from the Default Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 
