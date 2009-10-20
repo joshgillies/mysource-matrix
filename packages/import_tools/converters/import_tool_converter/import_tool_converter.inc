@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter.inc,v 1.6 2007/05/07 22:27:21 lwright Exp $
+* $Id: import_tool_converter.inc,v 1.7 2009/10/20 04:30:39 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -114,6 +114,27 @@ class Import_Tool_Converter extends Asset
 		return $this->attr('name');
 
 	}//end _getName()
+
+
+	/**
+	* Set the value for the passed variable to the passed value
+	*
+	* @param string $name   the name of the attribute
+	* @param string $value  the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value)
+	{
+		if ($name == 'name') {
+			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return FALSE;
+		}
+
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
 
 
 	/**
