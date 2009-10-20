@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: link.inc,v 1.1.2.2 2009/10/19 04:24:08 mbrydon Exp $
+* $Id: link.inc,v 1.1.2.3 2009/10/20 06:40:33 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,22 +181,33 @@ class Link extends Asset
 	* @access public
 	*/
 	function getKeywordReplacement($keyword)
-	{
+	{	
+		$replacement = NULL;
+
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+		
 		if (preg_match('|^link\_target\_(.*)|', $keyword, $matches)) {
 			$linked_asset = $this->getLinkedAsset();
 			
 			if ($linked_asset) {
-				return $linked_asset->getKeywordReplacement($matches[1]);
+				$replacement = $linked_asset->getKeywordReplacement($matches[1]);
 			} else {
-				return '';
+				$replacement = '';
 			}
 		} else if ($keyword === 'link_url') {
-			return $this->_getLinkURL();
+			$replacement = $this->_getLinkURL();
 		} else if ($keyword === 'link_relation') {
-			return $this->_getLinkRelation();
+			$replacement = $this->_getLinkRelation();
 		} else {
 			return parent::getKeywordReplacement($keyword);
 		}
+
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+		
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
