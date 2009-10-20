@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.76 2009/07/22 01:23:53 lwright Exp $
+* $Id: image.inc,v 1.77 2009/10/20 06:32:06 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -901,6 +901,11 @@ class Image extends File implements Bridge
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$replacement = NULL;
+		
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		if (0 === strpos($keyword, 'image_v_')) {
 			$varieties = $this->attr('varieties');
 			if (empty($varieties)) return '';
@@ -909,34 +914,35 @@ class Image extends File implements Bridge
 			if (substr($variety_name, -4) == '_url') {
 				$variety_name = substr($variety_name, 0, strlen($variety_name) - 4);
 				$url_only = TRUE;
-			}
-			if (substr($variety_name, -6) == '_width') {
+			} else	if (substr($variety_name, -6) == '_width') {
 				$variety_name = substr($variety_name, 0, strlen($variety_name) - 6);
 				$size = $this->_varietyImageSize($variety_name);
-				if (isset($size[0])) return $size[0];
-			}
-			if (substr($variety_name, -7) == '_height') {
+				if (isset($size[0])) $replacement = $size[0];
+			} else if (substr($variety_name, -7) == '_height') {
 				$variety_name = substr($variety_name, 0, strlen($variety_name) - 7);
 				$size = $this->_varietyImageSize($variety_name);
-				if (isset($size[1])) return $size[1];
+				if (isset($size[1])) $replacement = $size[1];
 			}
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
-			if (!empty($variety_id)) {
+			if (!empty($variety_id) && !$replacement) {
 				$variety = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
 				if ($url_only) {
 					$string = $variety->getURL();
 				} else {
 					$string = $variety->printImageTag($this->attr('alt'), $this->attr('title'), TRUE);
 				}
-				return $string;
+				$replacement = $string;
 			}
 		} else if (0 === strpos($keyword, 'image_embedded_')) {
 			$embedded_key = substr($keyword, strlen('image_embedded_'));
 			$replacement = $this->_getEmbeddedKeywordReplacement($embedded_key);
-			return $replacement;
 		}
 
-		return parent::getKeywordReplacement($keyword);
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+
+		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
 

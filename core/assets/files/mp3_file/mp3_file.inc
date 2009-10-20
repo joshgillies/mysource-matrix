@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.3 2009/01/13 04:27:24 ewang Exp $
+* $Id: mp3_file.inc,v 1.4 2009/10/20 06:33:42 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.3 $
+* @version    $Revision: 1.4 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,6 +106,11 @@ class MP3_File extends File
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$replacement = NULL;
+
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		// Static/overriding keywords
 		switch ($keyword)
 		{
@@ -187,6 +192,10 @@ class MP3_File extends File
 			}//end switch
 
 		}//end if dynamic keyword
+
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
 
 		if (isset($replacement)) {
 			return $replacement;
