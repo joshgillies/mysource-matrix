@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.201 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_manager.inc,v 1.202 2009/10/20 23:07:47 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -869,7 +869,7 @@ class Metadata_Manager extends MySource_Object
 				// If the field is still being tested, check whether it's
 				// contextable or not, so it's appropriately handled
 				if (array_key_exists($fieldid, $metadata)) {
-					$contextable_value = $field->attr('is_contextable') === TRUE ? 1 : 0;
+					$contextable_value = ((boolean)$field->attr('is_contextable')) === TRUE ? 1 : 0;
 					$contextable_fields[$contextable_value][] = (string)$fieldid;
 				}
 				continue;
