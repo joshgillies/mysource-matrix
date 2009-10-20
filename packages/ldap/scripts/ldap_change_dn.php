@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.12 2008/02/18 05:12:06 lwright Exp $
+* $Id: ldap_change_dn.php,v 1.13 2009/10/20 01:57:38 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -199,7 +199,14 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		printActionStatus('OK');
 
 	printActionName('Changing locks');
-	MatrixDAL::executeQuery('core', 'changeAllLocksHeldUser', $bind_vars);
+		$class_name = 'locking_method_'.SQ_CONF_LOCKING_METHOD;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($class_name);
+
+		try {
+			eval('return '.$class_name.'::changeLockOwner($old_dn, $new_dn);');
+		} catch (Exception $e) {
+			trigger_error('Unable to change owner of existing locks, '.$e->getMessage(), E_USER_ERROR);
+		}
 
 	// ??? This doesn't look correct...
 		$sql = 'UPDATE sq_lock
