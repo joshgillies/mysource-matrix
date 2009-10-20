@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.150.2.1 2009/09/11 01:35:22 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.150.2.2 2009/10/20 02:31:48 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.150.2.1 $
+* @version $Revision: 1.150.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -126,8 +126,8 @@ class Page_Asset_Builder extends Page
 
 		// Create / remove layouts
 		// Bug Fix : #3360 Cloning asset builder with customised create layout fail
-        // We now check is Asset Exists, because while cloning it is trying to link the layout
-        // to the page_asset_builder Asset when it doesnt exist on the system
+		// We now check is Asset Exists, because while cloning it is trying to link the layout
+		// to the page_asset_builder Asset when it doesnt exist on the system
 		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
 			$custom_types = $this->attr('create_form_customisations');
 			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
@@ -472,7 +472,7 @@ class Page_Asset_Builder extends Page
 				case 'create' :
 
 					$required_error = FALSE;
-					
+
 					// verify captcha
 					if ($this->attr('require_captcha')) {
 						if (!validate_security_key()) {
@@ -712,7 +712,7 @@ class Page_Asset_Builder extends Page
 								}
 							}
 							$mm->setMetadata($new_asset->id, $metadata_values);
-							$mm->regenerateMetadata($new_asset->id);
+							$mm->regenerateMetadata($new_asset->id, 'all');
 							$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'metadata');
 							if ($metadata_run_level_changed) {
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -752,11 +752,11 @@ class Page_Asset_Builder extends Page
 								if (!$new_asset->saveWebPaths($valid_paths, FALSE)) {
 									$this->_errors[] = translate('cms_asset_builder_cannot_save_web_path', $new_asset->name, $link_parent->name);
 								}
-                                // if there is no difference in the arrays
-                                // we have to update lookups mannualy, otherwise it would have be done in saveWebPath already
-                                if (!array_diff_assoc($valid_paths, $current_paths) && !array_diff_assoc($current_paths, $valid_paths)) {
-                                    $new_asset->updateLookups();
-                                }
+								// if there is no difference in the arrays
+								// we have to update lookups mannualy, otherwise it would have be done in saveWebPath already
+								if (!array_diff_assoc($valid_paths, $current_paths) && !array_diff_assoc($current_paths, $valid_paths)) {
+									$new_asset->updateLookups();
+								}
 							}
 						}
 
@@ -1143,7 +1143,7 @@ class Page_Asset_Builder extends Page
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
 				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-				
+
 				//make sure the HIPO error message is in right format for asset builder
 				$message = Array();
 				foreach ($status_errors as $error) {
@@ -1153,8 +1153,8 @@ class Page_Asset_Builder extends Page
 					else {
 						$message = $error;
 					}
-				}		
-				
+				}
+
 				$this->_errors = array_merge($this->_errors, $message);
 				return empty($this->_errors);
 			}
@@ -1208,7 +1208,7 @@ class Page_Asset_Builder extends Page
 		 // CREATE FORM KEYWORD //
 		////////////////////////
 		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
-		
+
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
@@ -1337,12 +1337,12 @@ class Page_Asset_Builder extends Page
 			if(!isset($this->_replacements[$word]) && (strpos($word, 'globals_') === 0 )){
 				$this->_replacements[$word] = $this->getKeywordReplacement($word);
 				// replace them here, it's not good enough to leave it to mysource.inc for replacement
-				// mysource.inc will only do replacement in frontend, account manager will be used in simple edit mode, 
-				// so for global keywords in account manager we have to replace it here	
-				replace_global_keywords($this->_replacements[$word]);	
+				// mysource.inc will only do replacement in frontend, account manager will be used in simple edit mode,
+				// so for global keywords in account manager we have to replace it here
+				replace_global_keywords($this->_replacements[$word]);
 			}
 		}
- 
+
 		$bodycopy->setKeywordReplacements($this->_replacements);
 
 		$bodycopy->printBody();
