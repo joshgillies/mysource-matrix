@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.46.2.1 2009/05/04 00:12:05 lwright Exp $
+* $Id: image_variety.inc,v 1.46.2.2 2009/10/20 06:41:45 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.46.2.1 $
+* @version $Revision: 1.46.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -781,6 +781,11 @@ class Image_Variety extends Asset
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$replacement = NULL;
+		
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		// additional shadow asset keyword replacement
 		$replacement = parent::getKeywordReplacement($keyword);
 		if (empty($replacement)) {
@@ -797,10 +802,14 @@ class Image_Variety extends Asset
 			}
 		}
 
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+
 		return $replacement;
 
 	}//end getKeywordReplacement()
-
+	
 
 //--        PERMISSIONS/ACCESS (DEFERS TO IMAGE)        --//
 

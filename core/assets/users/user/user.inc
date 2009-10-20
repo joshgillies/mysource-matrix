@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.128.4.3 2009/07/01 00:45:47 bpearson Exp $
+* $Id: user.inc,v 1.128.4.4 2009/10/20 06:43:58 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.4.3 $
+* @version $Revision: 1.128.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1052,7 +1052,11 @@ class User extends Asset
 	*/
 	public function getKeywordReplacement($keyword)
 	{
-		$replacement = '';
+		$replacement = NULL;
+
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		if ($keyword == 'asset_attribute_email_image') {
 			$email = $this->attr('email');
 			$email_image_link = '';
@@ -1061,12 +1065,14 @@ class User extends Asset
 				$email_image_link = '<img id="email_'.$this->id.'" src="'.$img_url.'" />';
 			}//end if
 			$replacement = $email_image_link;
-		} else {
-			$replacement = parent::getKeywordReplacement($keyword);
-		}//end if
+		}
 
-		return $replacement;
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
 
+		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+	
 	}//end getKeywordReplacement()
 
 
