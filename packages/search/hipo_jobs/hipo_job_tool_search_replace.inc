@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.16 2009/10/19 22:40:17 lwright Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.17 2009/10/20 00:59:47 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -210,6 +210,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function prepare()
 	{
+		if (array_key_exists('contextid', $this->_running_vars) === FALSE) {
+			trigger_localised_error('SCH0031', E_USER_WARNING);
+			return FALSE;
+		}
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -258,7 +263,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
-							'schemaids'	=> $this->_running_vars['schemaids'],
+							'schemaids'		=> $this->_running_vars['schemaids'],
+							'contextids'	=> Array($this->_running_vars['contextid']);
 						);
 
 	}//end getRegenerateMetadataDetails()
@@ -283,6 +289,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$running_vars = Array(
 							'root_assetid'	=> $this->_running_vars['root_assetid'],
+							'contextid'		=> $this->_running_vars['contextid'],
 						);
 
 		$hipo_vars = Array(
@@ -394,6 +401,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function paintConfirmation(&$step_data, &$o, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 		$search_count = $this->_getSearchCounts();
 		$this->_setupMatches();
 		$this->save();
@@ -478,6 +487,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$o->addHiddenField('form_submitted', 1);
 		$o->closeField();
 		$o->closeSection();
+
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 		return TRUE;
 
@@ -776,6 +787,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function processContent(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
@@ -806,6 +819,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$step_data['complete']     = FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
 		return TRUE;
 
 	}//end processContent()
@@ -822,6 +837,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function processSchemas(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$search_string = $this->_running_vars['search_string'];
@@ -855,6 +872,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$step_data['complete']     = FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
 		return TRUE;
 
 	}//end processSchemas()
@@ -871,6 +890,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function processAttributes(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -903,6 +923,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$step_data['complete']     = FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
 		return TRUE;
 
 	}//end processAttributes()
@@ -919,6 +941,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function processMetadata(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
@@ -951,6 +975,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['metadata_replacements_total']) * 100;
 			$step_data['complete']     = FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 		return TRUE;
 

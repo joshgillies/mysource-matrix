@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.11 2008/11/25 05:03:13 mbrydon Exp $
+* $Id: lang_errors.xml,v 1.12 2009/10/20 00:59:47 lwright Exp $
 *
 */
 
@@ -106,5 +106,8 @@
 	<error code="SCH0029">The Backend Search Page Size must be an integer and at least 1</error>
 
 	<error code="SCH0030">The Backend Search Result Limit must be an integer and at least 0</error>
+
+	<error code="SCH0031">Cannot run Global Search and Replace HIPO, it does not know which context ID to search in</error>
+		<!-- packages/search/hipo_jobs/hipo_job_tool_search_replace.inc : function prepare() -->
 
 </errors>

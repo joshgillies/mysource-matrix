@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.33 2009/09/03 01:30:47 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.34 2009/10/20 00:59:47 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -86,7 +86,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 	}//end getConfigVars()
 
-	
+
 	/**
 	* Returns the current Threshold.
 	*
@@ -102,12 +102,12 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		
+
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_REINDEX_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
-	
-	
+
+
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
@@ -172,6 +172,11 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function freestyle()
 	{
+		// Put the HIPO in some context ;)
+		if (array_get_index('contextid', $this->_running_vars)) {
+			$this->_running_vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processReIndex($this->_steps[0], get_class_lower($this))) {
 				return FALSE;
@@ -197,6 +202,13 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 		if (!is_array($this->_running_vars['root_assetid'])) {
 			$this->_running_vars['root_assetid'] = Array($this->_running_vars['root_assetid']);
+		}
+
+		// If we have not been told which context to re-index, assume we're in
+		// it already (but this is not recommended if not freestyling, since it
+		// could be stuck somewhere where the context you want is not set)
+		if (array_get_index('contextid', $this->_running_vars)) {
+			$this->_running_vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 
 		foreach ($this->_running_vars['root_assetid'] as $assetid) {
@@ -230,6 +242,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function processReIndex(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
+			$GLOBALS['SQ_SYSTEM']->changeContext($this->_running_vars['contextid']);
+
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$sm = $am->getSystemAsset('search_manager');
 			if (is_null($sm)) return FALSE;
@@ -255,6 +269,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 			// add this assetid to the done array
 			$this->_running_vars['done_assetids'][] = $assetid;
+
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
 		}
 
 		if (empty($this->_running_vars['todo_assetids'])) {
