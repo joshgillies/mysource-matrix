@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.1 2009/04/03 00:48:26 hnguyen Exp $
+* $Id: soap_api_metadata_service.inc,v 1.2 2009/10/20 02:20:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -32,54 +32,54 @@ class Soap_Api_Metadata_Service extends Soap_Api
 {
 
 
-    /**
-    * Constructor
-    *
-    * @param int    $assetid    the asset id to be loaded
-    *
-    */
-    function __construct($assetid=0)
-    {
-        parent::__construct($assetid);
+	/**
+	* Constructor
+	*
+	* @param int    $assetid    the asset id to be loaded
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
 
-    }//end constructor
+	}//end constructor
 
 
-    /**
-    * Returns a function list of the asset let the children handle this
-    *
-    * @return string
-    * @access private
-    * @see Asset::_getName()
-    */
-    public function getFunctionList()
-    {
-        return Array(
+	/**
+	* Returns a function list of the asset let the children handle this
+	*
+	* @return string
+	* @access private
+	* @see Asset::_getName()
+	*/
+	public function getFunctionList()
+	{
+		return Array(
 				'SetMetadataSchema'				=> '1',
 				'GetMetadataFieldsOfSchema'		=> '1',
 				'GetMetadataFieldValues'		=> '1',
 				'RegenerateMetadataSchema'		=> '1',
-        		'RegenerateMetadataAsset'		=> '1',
+				'RegenerateMetadataAsset'		=> '1',
 				'GetMetadataValueByIDs'			=> '1',
-       			'SetAssetMetadata'				=> '1',
-        		'SetMetadataFieldDefaultValue'	=> '1',
-        		'GetSchemasOnAsset'				=> '1',
+				'SetAssetMetadata'				=> '1',
+				'SetMetadataFieldDefaultValue'	=> '1',
+				'GetSchemasOnAsset'				=> '1',
 			   );
 
-    }//end getFunctionList()
+	}//end getFunctionList()
 
 
 	/**
 	* Description: This operation will apply or revoke a metadata schema from an asset
 	*
-    * @param array  $request	The request information
-    * <pre>
-    * Array (
+	* @param array  $request	The request information
+	* <pre>
+	* Array (
 	*		 'AssetID'	 	=> [The asset to apply the schema on],
 	*		 'SchemaID'		=> [The metadata scheme being applied],
 	*		 'Grant'		=> [Apply, Deny, Revoke],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -132,12 +132,12 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	/**
 	* Description: This operation will regenerate metadata for all asset which has a metadata schema applied on
 	*
-    * @param array  $request	The request information
-    * <pre>
-    * Array (
+	* @param array  $request	The request information
+	* <pre>
+	* Array (
 	*		 'SchemaID'		=> [The metadata scheme being applied],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -176,12 +176,12 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	/**
 	* Description: This operation will regenerate metadata for the specified asset
 	*
-    * @param array  $request	The request information
-    * <pre>
-    * Array (
+	* @param array  $request	The request information
+	* <pre>
+	* Array (
 	*		 'AssetID'		=> [The asset to regenerate metadata for],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -194,7 +194,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		if (!empty($assetid)) {
 			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata');
-			$result	= $mm->regenerateMetadata($assetid);
+			$result	= $mm->regenerateMetadata($assetid, 'all');
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
 			if ($result) {
 				return Array (
@@ -214,13 +214,13 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will set the value for a metadata field of an asset
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		 'AssetID'		=> [The asset to regenerate metadata for],
 	*		 'FieldID'		=> [The metadata field id],
 	*		 'NewValue'		=> [The new value for the field],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -272,12 +272,12 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will set the default value for a metadata field
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		 'FieldID'			=> [The metadata field id],
 	*		 'NewDefaultValue'	=> [The new default value for the field],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -319,12 +319,12 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will return the metadata value for a metadata field of an asset
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		 'AssetID'			=> [The Asset in query],
 	*		 'FieldID'			=> [The metadata field ID],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -356,11 +356,11 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will return the metadata schemas applied on the asset
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		 'AssetID'			=> [The Asset in query],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -394,11 +394,11 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will return the metadata fields ids which belong to a metadata schema
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		 'SchemaID'			=> [The metadata schema in query],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -429,12 +429,12 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	* Description: This operation will return the values of the field names which belong to an asset
 	*
 	* @param array $request	The request information
-    * <pre>
-    * Array (
+	* <pre>
+	* Array (
 	*		'AssetID'			=> [The asset which has the metadata field],
 	*		'FieldNames'		=> [The metadata field names],
-    *        )
-    * </pre>
+	*        )
+	* </pre>
 	*
 	* @return void
 	* @access public
@@ -488,7 +488,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		$complex_types	= Array (
 							'SetMetadataSchema'					=> Array (
 																	'SetMetadataSchema'						=> Array (
-																		    									'AssetID'								=> self::$string_non_optional,
+																												'AssetID'								=> self::$string_non_optional,
 																												'SchemaID'          					=> self::$string_non_optional,
 																												'Grant'      							=> $grant_type,
 																												'Cascade'								=> self::$boolean_optional,
@@ -516,8 +516,8 @@ class Soap_Api_Metadata_Service extends Soap_Api
 							'SetAssetMetadata'					=> Array(
 																	'SetAssetMetadata'						=> Array (
 																												'AssetID'								=> self::$string_non_optional,
-																		   										'FieldID'								=> self::$string_non_optional,
-																		   										'NewValue'								=> self::$string_non_optional,
+																												'FieldID'								=> self::$string_non_optional,
+																												'NewValue'								=> self::$string_non_optional,
 																											   ),
 																	'SetAssetMetadataResponse'				=> Array (
 																												'SetAssetMetadataResult'				=> self::$boolean_optional,
@@ -525,8 +525,8 @@ class Soap_Api_Metadata_Service extends Soap_Api
 																   ),
 							'SetMetadataFieldDefaultValue'		=> Array(
 																	'SetMetadataFieldDefaultValue'			=> Array (
-														 		  												'FieldID'								=> self::$string_non_optional,
-														 		  												'NewDefaultValue'						=> self::$string_non_optional,
+																												'FieldID'								=> self::$string_non_optional,
+																												'NewDefaultValue'						=> self::$string_non_optional,
 																											   ),
 																	'SetMetadataFieldDefaultValueResponse'	=> Array (
 																												'SetMetadataFieldDefaultValueResult'	=> self::$boolean_optional,
@@ -560,7 +560,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 							'GetMetadataFieldValues'			=> Array (
 																	'GetMetadataFieldValues'				=> Array (
 																												'AssetID'								=> self::$string_non_optional,
-																			   									'FieldNames'							=> self::$string_optional_unbounded,
+																												'FieldNames'							=> self::$string_optional_unbounded,
 																											   ),
 																	'GetMetadataFieldValuesResponse'		=> Array (
 																												'GetMetadataFieldValuesResult'			=> $field_values,
@@ -602,34 +602,34 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	}//end getSimpleRestrictedTypes()
 
 
-    /**
-    * getComplexTypes: return all the complex types used by the API
-    *
-    * @return array
-    * @access public
-    */
-    public static function getComplexTypes($func_list=Array())
-    {
-        $complex_types    = Array (
-                            'GetMetadataFieldValues'    => Array (
+	/**
+	* getComplexTypes: return all the complex types used by the API
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getComplexTypes($func_list=Array())
+	{
+		$complex_types    = Array (
+							'GetMetadataFieldValues'    => Array (
 															'FieldInfo'				=> Array (
-																						   	'FieldName'			=> self::$string_non_optional,
+																							'FieldName'			=> self::$string_non_optional,
 																							'FieldValue'		=> self::$string_non_optional,
 																						   ),
-                                           			       ),
-                            'GetSchemasOnAsset'    => Array (
+														   ),
+							'GetSchemasOnAsset'    => Array (
 															'SchemaSetInfo'				=> Array (
-																						   	'SchemaID'			=> self::$string_non_optional,
+																							'SchemaID'			=> self::$string_non_optional,
 																							'Grant'			=> self::$int_non_optional,
 																						   ),
-                                           			       ),
-                          );
+														   ),
+						  );
 
-        $complex_types_available = parent::getComplexElements($complex_types);
+		$complex_types_available = parent::getComplexElements($complex_types);
 
-        return $complex_types_available;
+		return $complex_types_available;
 
-    }//end getComplexTypes()
+	}//end getComplexTypes()
 
 }//end class
 ?>
