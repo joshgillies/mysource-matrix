@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.133 2009/10/20 06:34:39 cupreti Exp $
+* $Id: user.inc,v 1.134 2009/10/21 23:35:51 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -251,6 +251,13 @@ class User extends Asset
 						$owning_attributeid = $attributes[0]['owning_attrid'];
 						$attributeid = $attributes[0]['attrid'];
 
+						// If username attribute already set in db, no need to do anything here #3994
+						if ($this->_uniqueAttributeExists($owning_attributeid, $this->id)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							break;
+						}
+						
 						// Check if another user has the same username
 						$name = $this->getValidUsername($owning_attributeid, $this->attr('username'));
 
@@ -1085,6 +1092,31 @@ class User extends Asset
 	}//end getKeywordReplacement()
 
 
+	/**
+	* Test if a unique attribute exists in db
+	*
+	* @param string	$owning_attrid		The attribute id of the owning attribute
+	* @param string	$assetid			The asset id
+	*
+	* @return Boolean
+	* @access private
+	*/
+	function _uniqueAttributeExists($owning_attrid, $assetid)
+	{
+
+		try {
+			$prepared = MatrixDAL::preparePdoQuery('SELECT custom_val FROM sq_ast_attr_uniq_val WHERE owning_attrid=:owning_attrid AND assetid=:assetid');
+			MatrixDAL::bindValueToPdo($prepared, 'assetid', $assetid);
+			MatrixDAL::bindValueToPdo($prepared, 'owning_attrid', $owning_attrid);
+			$current_values = MatrixDAL::executePdoAssoc($prepared);
+		} catch (Exception $e) {
+			throw new Exception('Unable to open database due to database error: '.$e->getMessage());
+			return FALSE;
+		}
+
+		return (!empty($current_values));
+	}//end _uniqueAttributeExists()
+	
 }//end class
 
 ?>
