@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.27.2.2 2009/10/01 04:56:19 csmith Exp $
+#* $Id: backup.sh,v 1.27.2.3 2009/10/21 03:02:19 csmith Exp $
 #*
 #*/
 #
@@ -175,7 +175,7 @@ pg_dbdump()
 			args="${args} -h ${host} "
 		fi
 	fi
-	args="${args} -p ${port} -U ${username}"
+	args="${args} -n public -p ${port} -U ${username}"
 
 	dumpfileprefix=${db}
 
