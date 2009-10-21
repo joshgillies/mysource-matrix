@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.93 2009/10/06 22:59:15 bpearson Exp $
+* $Id: general_occasional.inc,v 1.94 2009/10/21 06:05:39 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 
@@ -388,8 +388,9 @@ function make_valid_web_paths($paths, $fallback_path='')
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
+		// Bug Fix #3991 Run time error if SQ_CONF_WEB_PATH_SEPARATOR is empty
 		// replace more than one web path separator with just one
-		$path = preg_replace('/'.SQ_CONF_WEB_PATH_SEPARATOR.'+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
+		if (SQ_CONF_WEB_PATH_SEPARATOR != '') $path = preg_replace('/'.SQ_CONF_WEB_PATH_SEPARATOR.'+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
