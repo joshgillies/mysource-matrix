@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.22 2007/12/10 06:22:41 rong Exp $
+* $Id: tagging.inc,v 1.23 2009/10/21 06:28:34 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -324,11 +324,11 @@ function processTagging(&$owner, &$o, $ei)
 	$prefix = $owner->getPrefix();
 
 	$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
-
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
 	$cascade_changes = FALSE;
 	if (isset($_POST[$prefix.'_tagging']['cascade_changes']) && $_POST[$prefix.'_tagging']['cascade_changes'] ) {
+
 		$cascade_changes = TRUE;
 	}
 

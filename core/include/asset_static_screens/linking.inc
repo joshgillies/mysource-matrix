@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.45 2009/10/13 00:47:48 akarelia Exp $
+* $Id: linking.inc,v 1.46 2009/10/21 06:28:34 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 
@@ -381,8 +381,6 @@ function processLinking(&$owner, &$o, &$ei)
 	$done_something = FALSE;
 
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, $display_reverse ? 'major'  : 'minor');
-
-
 	// process link_type changes
 	foreach ($asset_links as $link) {
 		// Find out the type

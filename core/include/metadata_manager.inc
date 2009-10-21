@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.203 2009/10/21 06:22:41 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.204 2009/10/21 06:28:34 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -630,7 +630,7 @@ class Metadata_Manager extends MySource_Object
 		$where = 'WHERE '.$assetid_cond;
 
 		if (!empty($fieldid_conds)) {
-			$where .= ' AND (('.implode("\n\tAND ", $fieldid_conds).') OR (contextid NOT IN ('.implode(', '.array_keys($contextids)).')))';
+			$where .= ' AND (('.implode("\n\tAND ", $fieldid_conds).') OR (contextid NOT IN ('.implode(', ', array_keys($contextids)).')))';
 		}
 
 		$sql .= $where;
@@ -827,6 +827,11 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$contextable_fields = Array(
+								0 => Array(),
+								1 => Array(),
+							  );
+
 		// Make sure all the fields exist and are editable
 		foreach (array_keys($metadata) as $fieldid) {
 			$flag_match_found = FALSE;
@@ -860,6 +865,13 @@ class Metadata_Manager extends MySource_Object
 						}
 					}
 				}//end foreach
+
+				// If the field is still being tested, check whether it's
+				// contextable or not, so it's appropriately handled
+				if (array_key_exists($fieldid, $metadata)) {
+					$contextable_value = ((boolean)$field->attr('is_contextable') === TRUE) ? 1 : 0;
+					$contextable_fields[$contextable_value][] = (string)$fieldid;
+				}
 				continue;
 			}
 
@@ -919,12 +931,26 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($delete_fieldids)) {
 			try {
-				$bind_vars	= Array (
-								'assetid'	=> $assetid,
-								'fieldid'	=> $delete_fieldids,
-								'contextid'	=> $contextid,
-							  );
-				$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+				// Find the contextable metadata fields in the lot - and delete
+				// only this context for them
+				if (count(array_intersect($delete_fieldids, $contextable_fields[1])) > 0) {
+					$bind_vars	= Array (
+									'assetid'	=> $assetid,
+									'fieldid'	=> array_intersect($delete_fieldids, $contextable_fields[1]),
+									'contextid'	=> $contextid,
+								  );
+					$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+				}
+
+				// Non-contextable metadata fields - delete the whole lot!aa
+				if (count(array_intersect($delete_fieldids, $contextable_fields[0])) > 0) {
+					$bind_vars	= Array (
+									'assetid'	=> $assetid,
+									'fieldid'	=> array_intersect($delete_fieldids, $contextable_fields[0]),
+									'contextid'	=> NULL,
+								  );
+					$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+				}
 			} catch (Exception $e) {
 				// SYS0341 = Unable to revert fields to default due to DB error on delete
 				throw new Exception(translate_error('SYS0341', implode(', ', $delete_fieldids), $asset->id, $contextid, $e->getMessage()));
@@ -950,13 +976,21 @@ class Metadata_Manager extends MySource_Object
 				throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
 			}
 
+			// Insert or update the remaining metadata fields as required
 			foreach ($remaining as $fieldid) {
-				// we need to insert
+				// If the field is not contextable, set the context ID to null,
+				// so it will be copied to all applicable contexts.
+				if (array_search($fieldid, $contextable_fields[0]) !== FALSE) {
+					$do_contextid = NULL;
+				} else {
+					$do_contextid = $contextid;
+				}
+
 				$bind_vars	= Array (
 								'assetid'	=> $asset->id,
 								'fieldid'	=> $fieldid,
 								'value'		=> $metadata[$fieldid][0]['value'],
-								'contextid'	=> $contextid,
+								'contextid'	=> $do_contextid,
 							  );
 
 				if (!in_array($fieldid, $updates)) {
@@ -1958,6 +1992,20 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 
+		// Whoops, the asset ID passed isn't a metadata field
+		if (!$this->isMetadataFieldAssetid($field_assetid)) {
+			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
+		}
+
+		// If this is not a contextable metadata field, then grab the default
+		// value from context zero
+		$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
+		$is_contextable = (boolean)$is_contextable[$field_assetid];
+
+		if ($is_contextable === FALSE) {
+			$contextid = 0;
+		}
+
 		static $cached_defaults = Array();
 		$recache_value = TRUE;
 		if (in_array($contextid, array_keys($cached_defaults)) === TRUE) {
@@ -1968,10 +2016,6 @@ class Metadata_Manager extends MySource_Object
 
 		// We should recache the value
 		if ($recache_value === TRUE) {
-			if (!$this->isMetadataFieldAssetid($field_assetid)) {
-				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
-			}
-
 			$sql = 'SELECT
 						default_val
 					FROM
@@ -2016,6 +2060,15 @@ class Metadata_Manager extends MySource_Object
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
+		}
+
+		// If this is not a contextable metadata field, then set the saved
+		// context ID to zero
+		$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
+		$is_contextable = (boolean)$is_contextable[$field_assetid];
+
+		if ($is_contextable === FALSE) {
+			$contextid = 0;
 		}
 
 		$sql = 'SELECT
@@ -2120,7 +2173,6 @@ class Metadata_Manager extends MySource_Object
 		return $result ? $result : $value;
 
 	}//end escapeMetadata()
-
 
 }//end class
 ?>
