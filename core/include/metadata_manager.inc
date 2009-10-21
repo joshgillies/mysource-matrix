@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.192.2.6 2009/10/20 23:08:09 lwright Exp $
+* $Id: metadata_manager.inc,v 1.192.2.7 2009/10/21 06:23:36 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.6 $
+* @version $Revision: 1.192.2.7 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -2154,19 +2154,23 @@ class Metadata_Manager extends MySource_Object
 
 		// escape everything else (chars > 126)
 		$result = '';
-		for ($i = 0; $i < strlen($value); ++$i) {
-			$ord = ord($value[$i]);
-			// if default character set is utf-8 we dont wanna mess around the characters
-			// we are for now just checking for it not to be utf-8 but can append other encoding
-			// we might want to skip later on
-			if ($ord > 126 && strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
-				$result .= '&#'.$ord.';';
-			} else {
-				$result .= $value[$i];
-			}
+
+		// if default character set is utf-8 we dont wanna mess around the characters
+		// we are for now just checking for it not to be utf-8 but can append other encoding
+		// we might want to skip later on
+		if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+		 	// escape everything else (chars > 126)
+			for ($i = 0; $i < strlen($value); ++$i) {
+				$ord = ord($value[$i]);
+				if ($ord > 126) {
+					$result .= '&#'.$ord.';';
+				} else {
+					$result .= $value[$i];
+				}
+			}// end for
 		}
 
-		return $result;
+		return $result ? $result : $value;
 
 	}//end escapeMetadata()
 
