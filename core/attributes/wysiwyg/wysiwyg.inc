@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.31 2008/10/31 03:50:56 bpearson Exp $
+* $Id: wysiwyg.inc,v 1.31.6.1 2009/10/22 23:08:23 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.6.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -156,7 +156,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
 			if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
 			if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
-			if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
 		$wysiwyg->close_group();
 
 		// html_tidy needs to be last so other plugins can set options
