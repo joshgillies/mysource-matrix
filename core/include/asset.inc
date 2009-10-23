@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.710 2009/10/15 00:20:22 cupreti Exp $
+* $Id: asset.inc,v 1.711 2009/10/23 00:11:05 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.710 $
+* @version $Revision: 1.711 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1257,6 +1257,7 @@ class Asset extends MySource_Object
 	public function _updated($update_parents=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) {
 			return TRUE;
@@ -1264,8 +1265,10 @@ class Asset extends MySource_Object
 
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name            = substr($this->_getName(), 0, 255);
-		$short_name      = substr($this->_getName(TRUE), 0, 255);
+		$name            = check_char_encoding(substr($this->_getName(), 0, 255));
+		$short_name      = check_char_encoding(substr($this->_getName(TRUE), 0, 255));
+
+		
 
 		// if we have an ID hit the DB
 		if ($this->id) {
@@ -2990,6 +2993,7 @@ class Asset extends MySource_Object
 				$msg_reps['new_value'] = ellipsisize($attr_value,30);
 				$msg_type .= '.scalar';
 			}
+			
 			$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 			$sml_message->parameters['assetid'] = $this->id;
 			$ms->logMessage($sml_message);
@@ -3187,7 +3191,7 @@ class Asset extends MySource_Object
 	* @see saveAttributes()
 	*/
 	public function setAttrValue($name, $value)
-	{
+	{		
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
@@ -5925,7 +5929,7 @@ class Asset extends MySource_Object
 		return $string;
 
 	}//end replaceKeywordsInString()
-
+	
 
 }//end class
 
