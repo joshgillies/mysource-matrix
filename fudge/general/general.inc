@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.49 2009/09/24 06:41:34 bpearson Exp $
+* $Id: general.inc,v 1.50 2009/10/23 00:00:10 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package Fudge
 * @subpackage General
 */
@@ -455,7 +455,7 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 * @access public
 */
 function ellipsisize($string, $length)
-{
+{	
 	// type verification
 	if (!is_string($string) || !is_int($length) ) {
 		return '';
@@ -487,6 +487,9 @@ function ellipsisize($string, $length)
 	if ($length < $j) {
 		$string = substr($string, 0, $chophere).'...';
 	}
+	
+	$string = check_char_encoding($string); 
+		
 	return $string;
 
 }//end ellipsisize()
@@ -830,5 +833,33 @@ function add_reverse_ordinal_suffix($num)
 
 }//end add_reverse_ordinal_suffix()
 
+			 
+/**
+* Returns a valid string for specified charset encoding 
+* 
+* Multibyte characters with invalid byte stream is stripped off
+* 
+* @param string	$string				string to check and correct
+* @param string $string_encoding	character encoding to validate with
+*
+* @return string
+* @access public
+*/
+
+function check_char_encoding($string, $string_encoding = NULL)
+{	
+	if (!extension_loaded('mbstring') || !SQ_CONF_DEFAULT_CHARACTER_SET) {
+		return $string;
+	}
+	
+	$string_encoding = $string_encoding ? $string_encoding : SQ_CONF_DEFAULT_CHARACTER_SET;
+
+	if (mb_check_encoding($string, $string_encoding)) {
+		return $string;
+	}
+
+	return mb_convert_encoding($string, $string_encoding, $string_encoding);
+
+}//end check_char_encoding()
 
 ?>
