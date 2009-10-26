@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.26 2008/11/11 22:56:38 lwright Exp $
+* $Id: form_submission_edit_fns.inc,v 1.27 2009/10/26 21:28:15 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -240,9 +240,9 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				if (is_string($value)) {
 					$value = htmlentities($value, ENT_NOQUOTES);
 				}
-				$attributes['answers'][$q->id]['answer'] = $value;
-				$attributes['summary'][$q->id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
-				$attributes['summary'][$q->id]['name'] = $question_asset->getVal('title');
+				$attributes['answers'][$question_asset->id]['answer'] = $value;
+				$attributes['summary'][$question_asset->id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+				$attributes['summary'][$question_asset->id]['name'] = $question_asset->getVal('title');
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset); // make sure that attr change doesn't stick
 		}
