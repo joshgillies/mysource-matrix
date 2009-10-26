@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.60.4.1 2009/09/24 07:00:31 bpearson Exp $
+* $Id: hipo_job_edit_status.inc,v 1.60.4.2 2009/10/26 03:59:23 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.4.1 $
+* @version $Revision: 1.60.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -154,7 +154,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_EDIT_STATUS_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) {
+		if (!isset($this->_running_vars['todo_assetids']) || empty($this->_running_vars['todo_assetids']) ) {
 			return 0;
 		}
 
