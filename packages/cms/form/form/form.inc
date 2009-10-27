@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.11 2009/08/03 04:51:19 akarelia Exp $
+* $Id: form.inc,v 1.219.2.12 2009/10/27 05:02:31 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.11 $
+* @version $Revision: 1.219.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2568,7 +2568,6 @@ class Form extends Asset implements Bridge
 		}
 
 
-
 		// only display this error message if captcha error isn't displayed at current page
 		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {			
 			$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_form_invalid_error_message')));
@@ -2651,16 +2650,18 @@ class Form extends Asset implements Bridge
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
 	*
+	* @param int	$time	The timestamp of the submission, NULL is to use the current time
+	*
 	* @return boolean
 	* @access public
 	*/
-	function getXML()
+	function getXML($time=NULL)
 	{
 		$submission = $this->getSubmissionAsset();
 		$submission_ip = $submission->getIP();
 
 		ob_start();
-		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
+		echo '<submission time="'.ts_iso8601((is_null($time) ? time() : $time)).'"';
 		echo ' ip="'.$submission_ip.'"';
 		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
@@ -3026,6 +3027,7 @@ class Form extends Asset implements Bridge
 
 				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
 				$submission_asset->setAttrValue('complete', TRUE);
+				$submission_asset->setAttrValue('submitted', ts_iso8601(time()));
 				$submission_asset->setAttrValue('xml', $this->getXML());
 				$submission_asset->saveAttributes();
 			} else {

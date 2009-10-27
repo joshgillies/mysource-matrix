@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.97 2009/02/15 23:38:17 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.97.2.1 2009/10/27 05:02:31 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,42 +145,47 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$sql = 'SELECT
-					a.assetid, a.created_userid, a.created
+					a.assetid, a.created_userid, v.custom_val AS submitted
 				FROM
 					('.SQ_TABLE_RUNNING_PREFIX.'ast a
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
-					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					ON l.minorid = a.assetid';
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON l.minorid = a.assetid
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v ON v.assetid = a.assetid
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr n ON n.attrid = v.attrid';
 
 		$count_sql = 'SELECT
 						count(*)
 					  FROM
 						('.SQ_TABLE_RUNNING_PREFIX.'ast a
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
-						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-						ON l.minorid = a.assetid';
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON l.minorid = a.assetid
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v ON v.assetid = a.assetid
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr n ON n.attrid = v.attrid';
 
 		$sub_folder = $asset->getSubmissionsFolder();
 
 		$db = MatrixDAL::getDb();
 		$where = 'l.majorid IN (:assetid, :subfolder_assetid)
 					AND i.inhd_type_code = :inhd_type_code
+					AND n.name = :name
 					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE).'
 					AND '.db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE);
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'n');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 		// grab the number of assets
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($count_sql.$where);
-			MatrixDAL::bindValueToPdo($query, 'assetid',           $asset->id);
-			MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
-			MatrixDAL::bindValueToPdo($query, 'inhd_type_code',   'form_submission');
-			MatrixDAL::bindValueToPdo($query, 'from_date',         $from_value);
-			MatrixDAL::bindValueToPdo($query, 'to_date',           $to_value);
+			MatrixDAL::bindValueToPdo($query, 'assetid',			$asset->id);
+			MatrixDAL::bindValueToPdo($query, 'subfolder_assetid',	$sub_folder->id);
+			MatrixDAL::bindValueToPdo($query, 'inhd_type_code',		'form_submission');
+			MatrixDAL::bindValueToPdo($query, 'name',   			'submitted');
+			MatrixDAL::bindValueToPdo($query, 'from_date',			$from_value);
+			MatrixDAL::bindValueToPdo($query, 'to_date',			$to_value);
 			$asset_count = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get the number of assets due to database error: '.$e->getMessage());
@@ -350,11 +355,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
-				MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
-				MatrixDAL::bindValueToPdo($query, 'inhd_type_code',   'form_submission');
-				MatrixDAL::bindValueToPdo($query, 'from_date',         $from_value);
-				MatrixDAL::bindValueToPdo($query, 'to_date',           $to_value);
+				MatrixDAL::bindValueToPdo($query, 'assetid',			$asset->id);
+				MatrixDAL::bindValueToPdo($query, 'subfolder_assetid',	$sub_folder->id);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code',		'form_submission');
+				MatrixDAL::bindValueToPdo($query, 'name',				'submitted');
+				MatrixDAL::bindValueToPdo($query, 'from_date',			$from_value);
+				MatrixDAL::bindValueToPdo($query, 'to_date',			$to_value);
 				$result = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get submission list due to database error: '.$e->getMessage());
@@ -366,7 +372,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				// time is good, load me up
 				$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sub_user = $asset_info['created_userid'];
-				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
+				$sub_time = date('d M Y H:i:s', strtotime($asset_info['submitted']));
 				$sub_expanded = array_search($assetid, $expand_list) !== FALSE;
 				$num_subs++;
 
@@ -716,6 +722,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'assetids'	=> $assetids,
 							'from_time'	=> $from_time,
 							'to_time'	=> $to_time,
+							'name'		=> 'submitted',
+							'context'	=> $GLOBALS['SQ_SYSTEM']->getContextId(),
 						 );
 			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
 		} catch (Exception $e) {
@@ -726,7 +734,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 
-			$create_time = strtotime($asset_info['created']);
+			$create_time = strtotime($asset_info['submitted']);
 
 			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
@@ -806,6 +814,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'assetids'	=> $assetids,
 							'from_time'	=> $from_time,
 							'to_time'	=> $to_time,
+							'name'		=> 'submitted',
+							'context'	=> $GLOBALS['SQ_SYSTEM']->getContextId(),
 						 );
 			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
 		} catch (Exception $e) {

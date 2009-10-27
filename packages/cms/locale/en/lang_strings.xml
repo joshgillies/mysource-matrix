@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2009/02/25 03:39:14 bpearson Exp $
+* $Id: lang_strings.xml,v 1.18.2.1 2009/10/27 05:02:31 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -119,4 +119,5 @@
 <string source="cms_listing_no_field_selected">No field has been selected</string>
 <string source="cms_content_type_markdown_markdown_tool_not_configured">This markdown content type can not be saved because markdown tool has not been configured properly.</string>
 <string source="cms_content_type_markdown_markdownify_tool_not_configured">HTML content could not be converted to markdown content because markdownify tool has not been configured properly.</string>
+<string source="cms_not_submitted">Not submitted</string>
 </strings>

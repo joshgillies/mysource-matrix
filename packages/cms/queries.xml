@@ -39,19 +39,23 @@
 				<fields>
 					<field table="sq_ast" column="assetid" />
 					<field table="sq_ast" column="type_code" />
-					<field table="sq_ast" column="created" />
+					<field table="sq_ast_attr_val" column="custom_val">submitted</field>
 					<field table="sq_ast" column="created_userid" />
 				</fields>
 				<from>
 					<table>sq_ast</table>
 					<table>sq_ast_typ_inhd</table>
 					<table>sq_ast_lnk</table>
+					<table>sq_ast_attr_val</table>
+					<table>sq_ast_attr</table>
 				</from>
 				<where>
 					<in table="sq_ast_lnk" column="majorid">:assetids</in>
 					<equal table="sq_ast_typ_inhd" column="inhd_type_code"><value>form_submission</value></equal>
 					<greater table="sq_ast" column="created">:from_time</greater>
 					<less table="sq_ast" column="created">:to_time</less>
+					<equal table="sq_ast_attr" column="name">:name</equal>
+					<equal table="sq_ast_attr_val" column="contextid">:context</equal>
 				</where>
 				<joins>
 					<join>
@@ -61,6 +65,14 @@
 					<join>
 						<field table="sq_ast" column="assetid" />
 						<field table="sq_ast_lnk" column="minorid" />
+					</join>
+					<join>
+						<field table="sq_ast" column="assetid" />
+						<field table="sq_ast_attr_val" column="assetid" />
+					</join>
+					<join>
+						<field table="sq_ast_attr" column="attrid" />
+						<field table="sq_ast_attr_val" column="attrid" />
 					</join>
 				</joins>
 			</select>

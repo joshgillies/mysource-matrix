@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.26 2008/11/11 22:56:38 lwright Exp $
+* $Id: form_submission_edit_fns.inc,v 1.26.4.1 2009/10/27 05:02:31 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,11 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSubmissionTime(&$asset, &$o, $prefix)
 	{
-		echo date('d M Y H:i:s',$asset->created);
+		if ($asset->attr('submitted') == '---------- --:--:--') {
+			echo translate('cms_not_submitted');
+		} else {
+			echo date('d M Y H:i:s', strtotime($asset->attr('submitted')));
+		}//end if
 
 	}//end paintSubmissionTime()
 
