@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.26 2009/09/03 01:15:28 cupreti Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.27 2009/10/27 05:50:42 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 			// get the link type
 			$link_type = array_get_index($_POST, $prefix.'_link_type', SQ_LINK_TYPE_1);
-			
+
 			// get the link value
 			$link_value = array_get_index($_POST, $prefix.'_link_value', '');
 
@@ -346,7 +346,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 				$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 				$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
-				
+
 				// if we cannot create the link do nothing
 				if ($can_create !== TRUE) {
 					trigger_error($can_create);
@@ -609,7 +609,13 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// Delete notice links first
 				if ($link_info['link_type'] == SQ_LINK_NOTICE) {
-					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
+					// if type code is not there, assume we are a shadow link
+					if (is_null($link_info['major_type_code'])) {
+						$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($link_info['linkid']);
+					} else {
+						$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
+					}
+
 					// I'm OK! FALSE is needed not to throw an error
 					return FALSE;
 				}
@@ -679,7 +685,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 	}//end processInLineBackendDelete()
 
-	
+
 	/**
 	* Prints the create new link section for linked children
 	*
@@ -890,7 +896,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
-			
+
 				if (!$asset->saveAttributes() || !$asset->setAttrValue('when', $this->_processWhenBox($asset, $o, $prefix))) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -905,8 +911,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		}//end if
 
 	}//end processInLineBackendCreateReverse()
-	
-	
+
+
 	/**
 	* Prints the delete section for linked children
 	*
@@ -935,7 +941,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			// this line has been added to fix a problem when viewing the linking screen of
 			// a LDAP backend User/Shadow assets
 			if (empty($link['linkid'])) continue;
-		
+
 
 			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('child').' : '.$child->name.' (#'.$child->id.')';
 		}//end foreach
@@ -974,8 +980,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		return TRUE;
 
 	}//end paintInLineBackendDeleteReverse()
-	
-	
+
+
 	/**
 	* Process the deletion of links of linked children
 	* we assume that the links id passed are not a link between an shadow asset and another shadow asset
@@ -1029,12 +1035,11 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($major_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major');
 				$link_options = Array();
 
-				
+
 
 				// loop through all the links and add them to the hipo herder
 				foreach ($links as $link) {
 
-					
 					// if the linkid is empty it means that it is a wrong link or a link to and bridge and shadow asset
 					if (empty($link['linkid'])) continue;
 
@@ -1086,7 +1091,13 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// Delete notice links first
 				if ($link_info['link_type'] == SQ_LINK_NOTICE) {
-					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
+					// if type code is not there, assume we are a shadow link
+					if (is_null($link_info['minor_type_code'])) {
+						$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($link_info['linkid']);
+					} else {
+						$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
+					}
+
 					// I'm OK! FALSE is needed not to throw an error
 					return FALSE;
 				}
@@ -1138,7 +1149,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-			
+
 			if (!$asset->setAttrValue('reverse_mode', 1)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1156,8 +1167,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			return TRUE;
 		}
 	}//end processInLineBackendDeleteReverse()
-	
-	
+
+
 	/**
 	* Prints link type
 	*
