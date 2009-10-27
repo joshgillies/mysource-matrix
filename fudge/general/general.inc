@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.50 2009/10/23 00:00:10 cupreti Exp $
+* $Id: general.inc,v 1.51 2009/10/27 00:36:05 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package Fudge
 * @subpackage General
 */
@@ -848,16 +848,12 @@ function add_reverse_ordinal_suffix($num)
 
 function check_char_encoding($string, $string_encoding = NULL)
 {	
+	$string_encoding = $string_encoding ? $string_encoding : SQ_CONF_DEFAULT_CHARACTER_SET;
+
 	if (!extension_loaded('mbstring') || !SQ_CONF_DEFAULT_CHARACTER_SET) {
 		return $string;
 	}
 	
-	$string_encoding = $string_encoding ? $string_encoding : SQ_CONF_DEFAULT_CHARACTER_SET;
-
-	if (mb_check_encoding($string, $string_encoding)) {
-		return $string;
-	}
-
 	return mb_convert_encoding($string, $string_encoding, $string_encoding);
 
 }//end check_char_encoding()
