@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.26.4.1 2009/10/27 05:02:31 bpearson Exp $
+* $Id: form_submission_edit_fns.inc,v 1.26.4.2 2009/10/27 05:30:15 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26.4.1 $
+* @version $Revision: 1.26.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,7 +124,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			}
 			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 			$o->openField($q->getVal('title'), '', $note);
-			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
+			$q_summary = ($q instanceof Form_Question_Type_File_Upload) ? $q->getSummary() : htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
+			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q_summary;
 			$section_questions[$form_id][$q_id]['printed'] = TRUE;
 			$o->closeField();
 		}
