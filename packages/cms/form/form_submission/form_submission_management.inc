@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.21 2008/10/10 03:52:51 lwright Exp $
+* $Id: form_submission_management.inc,v 1.21.6.1 2009/10/27 05:06:45 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,6 +57,16 @@ class Form_Submission_Management extends Asset_Management
 												'default'		=> FALSE,
 												'description'	=> 'TRUE if submission complete, FALSE if incomplete and not yet submitted.',
 											   ),
+						'submitted'			=> Array(
+												'added'			=> '0.8',
+												'type'			=> 'datetime',
+												'default'		=> '---------- --:--:--',
+												'parameters'	=> Array(
+																	'allow_null'	=> TRUE,
+																	'show'			=> Array('d','m','y','h','i'),
+																   ),
+												'description'	=> 'The date the form submission was submitted to Matrix',
+											   ),
 						'captcha_status'	=> Array(
 												'added'			=> '0.2',
 												'type'			=> 'boolean',
@@ -85,6 +95,123 @@ class Form_Submission_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.8', '<')) {
+			echo('UPGRADING FORM SUBMISSION FROM '.$current_version."\n");
+			// Upgrade the form submission
+			// Form submission will now have a new attribute called submitted
+			// This field will be the datetime the submission was completed
+			// This corrects Bug #4000 - 
+			// The submission uses the created attribute on the asset,
+			// which is inaccurate on multipage forms where the user can 
+			// save and return at another time. One shot forms are unaffected
+
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating Form Submissions...');
+
+			// get all submission assets
+			$submission_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_submission', FALSE, TRUE);
+
+			// update them
+			foreach ($submission_ids as $id => $type) {
+				$submission = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$complete = $submission->attr('complete');
+				$submitted = $submission->attr('submitted');
+
+				// Only worry about null submitted dates and completed submissions
+				if ($complete && $submitted == '---------- --:--:--') {
+					// Try and find the form
+					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($submission->id, 'form', FALSE, NULL, NULL, TRUE, 1, 5);
+					if (empty($parents)) {
+						// No parent found, try and find the form based on the questions/answers
+						$answers = $submission->getAnswers();
+						$question_id = key($answers);
+						$matches = explode(':', $question_id);
+						$form_id = $matches[0];
+					} else {
+						$form_id = key($parents);
+					}//end if
+
+					// No form found cannot proceed 
+					if (!empty($form_id)) { 
+						$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id, '');
+						$sub_folder = $form->getSubmissionsFolder('submissions_folder');
+
+						// On upgrading, the best we can do is look for update time for the link.
+						// Failing that, we will just have to use the created date again.
+						$sql = 'SELECT updated FROM sq_ast_lnk WHERE link_type=:type AND minorid=:minorid AND majorid=:majorid';
+						try {
+							$query = MatrixDAL::preparePdoQuery($sql);
+							MatrixDAL::bindValueToPdo($query, 'type', SQ_LINK_TYPE_3);
+							MatrixDAL::bindValueToPdo($query, 'minorid', $submission->id);
+							MatrixDAL::bindValueToPdo($query, 'majorid', $sub_folder->id);
+							$result = MatrixDAL::executePdoOne($query);
+						} catch (Exception $e) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+							pre_echo('UPGRADE FAILED - Database Error: '.$e->getMessage());
+							return FALSE;
+						}
+
+						// Set the default
+						$date = $submission->created;
+						if (!empty($result)) {
+							$date = strtotime($result);
+						}//end if
+
+						// Save the date and regenerate the xml
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						// Point the POST var to the current submission id
+						$_POST['SQ_FORM_'.$form->id.'_SUBMISSION'] = $submission->id;
+						$submission->setAttrValue('submitted', ts_iso8601($date));
+						$submission->setAttrValue('xml', $form->getXML($date)); 
+						if (!$submission->saveAttributes()) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+							pre_echo('UPGRADE FAILED - Could not save attributes');
+							return FALSE;
+						}//end if
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+						$count++;
+
+					}//end if
+				}//end if
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($submission);
+				unset($submission);
+			}//end foreach
+
+			pre_echo('Updated - '.$count.' form submission(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo('FORM SUBMISSIONS SUCCESSFULLY UPGRADED TO VERSION 0.8');
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.231 2009/08/03 04:54:17 akarelia Exp $
+* $Id: form.inc,v 1.231.2.1 2009/10/27 05:06:45 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.231.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2528,16 +2528,14 @@ class Form extends Asset implements Bridge
 		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
-		
+
 		if (is_null($this->submission_errors)) $this->submission_errors = Array();
 		
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
 		// Only when we're going forward, though.
 		$submission = $this->getSubmissionAsset();
-		
-		
-		
+
 		if ($validate_page && isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
 			if (validate_security_key()) {
 				$submission = $this->getSubmissionAsset();
@@ -2552,7 +2550,7 @@ class Form extends Asset implements Bridge
 					$one_page_captcha_status = TRUE;
 				}
 
-			} else {			
+			} else {
 				$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_invalid_error_message')));
 				$ok = FALSE;
 			}
@@ -2571,7 +2569,7 @@ class Form extends Asset implements Bridge
 			$captcha_status = FALSE;
 		}
 
-		
+
 		// only display this error message if captcha error isn't displayed at current page
 		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {			
 			$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_form_invalid_error_message')));
@@ -2653,16 +2651,18 @@ class Form extends Asset implements Bridge
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
 	*
+	* @param int	$time	The timestamp of the submission, NULL is to use the current time
+	*
 	* @return boolean
 	* @access public
 	*/
-	function getXML()
+	function getXML($time=NULL)
 	{
 		$submission = $this->getSubmissionAsset();
 		$submission_ip = $submission->getIP();
 
 		ob_start();
-		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
+		echo '<submission time="'.ts_iso8601((is_null($time) ? time() : $time)).'"';
 		echo ' ip="'.$submission_ip.'"';
 		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
@@ -3028,6 +3028,7 @@ class Form extends Asset implements Bridge
 
 				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
 				$submission_asset->setAttrValue('complete', TRUE);
+				$submission_asset->setAttrValue('submitted', ts_iso8601(time()));
 				$submission_asset->setAttrValue('xml', $this->getXML());
 				$submission_asset->saveAttributes();
 			} else {
@@ -3240,10 +3241,10 @@ class Form extends Asset implements Bridge
 				// couldn't deny it - we can't just return the folder with write permission to a public user
 				$ok = FALSE;
 			}
-			
+
 			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_READ, 0, TRUE, TRUE)) {
 				$ok = FALSE;
-	        }
+			}
 			
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
