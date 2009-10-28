@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.14 2009/07/21 06:37:57 ewang Exp $
+* $Id: design_area_access_history.inc,v 1.15 2009/10/28 22:56:16 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,18 +202,23 @@ class Design_Area_Access_History extends Design_Area
 					echo '<img name="'.$area_id.'_remove_from_history_button" src="<?php echo $img_url ?>" onclick="document.getElementById(\''.$area_id.'_form\').submit();" onmouseover="this.style.cursor=\'pointer\'" />';
 				}
 			break;
-			
+
 			//looking for asset keyword
 			case (preg_match('/keyword_/',$var, $matches)? $var : !$var) :
 				$keyword = substr($var, 8);
+				// Get keyword replacement only if the asset still exists
 				echo '<?php
 					$assetid = array_get_index($asset_info, "assetid");
 					if (!empty($assetid)) {
-					$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset($assetid);
-					$replacement = $asset->getKeywordReplacement("'.$keyword.'");
+						$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset($assetid, "", TRUE);
+						if (empty($asset) === FALSE) {
+							$replacement = $asset->getKeywordReplacement("'.$keyword.'");
+						} else {
+							$replacement = "";
+						}
 					echo $replacement;
 					}
-				?>';	
+				?>';
 			break;
 
 			default :
@@ -300,7 +305,7 @@ class Design_Area_Access_History extends Design_Area
 		$time_format = $this->attr('time_format');
 		$auto_access_history = $this->attr('auto_access_history');
 		$store_permanent = $this->attr('store_permanent');
-		
+
 		echo '
 			<?php
 				$exclude_assets = '.var_export($exclude_assets,TRUE).';
@@ -310,14 +315,14 @@ class Design_Area_Access_History extends Design_Area
 				//// Access History Design Area
 
 				';
-				
+
 				// if it is stored permanently, we will try to fetch it from db for the first access
 				if ($store_permanent) {
 						echo '
 						// if current user is logged in and the access history has not been fetched yet
 						if(!isset($_SESSION["design_areas"]["'.$area_id.'"]["fetched"]) &&  $current_user && !($current_user instanceof Public_User)) {
 							$_SESSION["design_areas"]["'.$area_id.'"] = _getPermanentAccessHistory("'.$area_id.'");
-						}								
+						}
 						';
 					}
 				echo '
@@ -432,7 +437,7 @@ class Design_Area_Access_History extends Design_Area
 
 					$_SESSION["design_areas"]["'.$area_id.'"]["history"] = $history;
 					$_SESSION["design_areas"]["'.$area_id.'"]["history_hash"] = $new_history_hash;
-					
+
 					';
 					// if store permanently, we have to save the access history data to db
 					if ($store_permanent) {
@@ -440,10 +445,10 @@ class Design_Area_Access_History extends Design_Area
 						// if current user logged in
 						if ($current_user && !($current_user instanceof Public_User)) {
 							_savePermanentAccessHistory("'.$area_id.'",$_SESSION["design_areas"]["'.$area_id.'"]);
-						}		
+						}
 						';
 					}
-		
+
 					if ($auto_access_history) {
 						echo '
 						// now that the session is saved, we want to remove the first item because
@@ -454,8 +459,8 @@ class Design_Area_Access_History extends Design_Area
 					echo '
 				$history = array_slice($history, 0, $max_asset_count);
 				$history_count = count($history);
-				
-				
+
+
 				/**
 				* Get the access history data from database, if required
 				* This is only for logged in user
@@ -465,11 +470,11 @@ class Design_Area_Access_History extends Design_Area
 				* @access private
 				*/
 				function _getPermanentAccessHistory ($area_id){
-				
+
 					$user_id = $GLOBALS["SQ_SYSTEM"]->user->id;
 					$db = MatrixDAL::getDb();
 					$sql = "SELECT history, history_hash FROM sq_design_area_access_history where userid = :userid AND areaid = :areaid";
-					
+
 					try {
 						$query = MatrixDAL::preparePdoQuery($sql);
 						MatrixDAL::bindValueToPdo($query, "userid", $user_id, PDO::PARAM_STR);
@@ -479,7 +484,7 @@ class Design_Area_Access_History extends Design_Area
 						throw new Exception("Unable to retrieve access history data from database, due to database error: ".$e->getMessage());
 					}
 					if (!isset($results[0])) return Array();
-					
+
 					$history = unserialize($results[0]["history"]);
 					$history_hash = unserialize($results[0]["history_hash"]);
 					$access_data = Array (
@@ -487,12 +492,12 @@ class Design_Area_Access_History extends Design_Area
 										"history_hash"	=>	$history_hash,
 										"fetched"	=>	TRUE,
 									);
-					
+
 					return ($access_data);
-					
+
 				}
-				
-				
+
+
 				/**
 				* Save the access history data to database, if required
 				* This is only for logged in user
@@ -503,26 +508,26 @@ class Design_Area_Access_History extends Design_Area
 				* @access private
 				*/
 				function _savePermanentAccessHistory ($area_id, $access_data){
-					
-					
+
+
 					$user_id = $GLOBALS["SQ_SYSTEM"]->user->id;
 					$history = serialize($access_data["history"]);
 					$history_hash = serialize($access_data["history_hash"]);
-					
-					
+
+
 					$db = MatrixDAL::getDb();
-					
-					
+
+
 					if(!isset($access_data["fetched"])){
 						$db_action = "insert";
 					}
 					else {
 						$db_action = "update";
 					}
-					
+
 					$GLOBALS["SQ_SYSTEM"]->changeDatabaseConnection("db2");
 					$GLOBALS["SQ_SYSTEM"]->doTransaction("BEGIN");
-					
+
 					switch ($db_action) {
 						case "insert":
 							$sql = "INSERT INTO
@@ -540,7 +545,7 @@ class Design_Area_Access_History extends Design_Area
 											:history,
 											:history_hash
 										)";
-			
+
 						break;
 						case "update":
 							$sql = "UPDATE
@@ -551,10 +556,10 @@ class Design_Area_Access_History extends Design_Area
 									WHERE
 										userid        = :userid
 										AND areaid = :areaid";
-			
+
 						break;
-					}//end switch				
-			
+					}//end switch
+
 					try {
 						$query = MatrixDAL::preparePdoQuery($sql);
 						MatrixDAL::bindValueToPdo($query, "userid", $user_id);
@@ -565,10 +570,10 @@ class Design_Area_Access_History extends Design_Area
 					} catch (Exception $e) {
 						throw new Exception("Unable to save access history to database, due to the following database error:".$e->getMessage());
 					}//end try catch
-			
+
 					$GLOBALS["SQ_SYSTEM"]->doTransaction("COMMIT");
 					$GLOBALS["SQ_SYSTEM"]->restoreDatabaseConnection();
-				
+
 				}
 			?>
 		';
@@ -593,11 +598,11 @@ class Design_Area_Access_History extends Design_Area
 
 	}//end getProtectedAttrs()
 
-        
-        
-        
-        
-    /**
+
+
+
+
+	/**
 	* Queue the setting of the value of an attribute
 	*
 	* This function sets the value of the attribute locally, but does not database updating.
@@ -612,10 +617,10 @@ class Design_Area_Access_History extends Design_Area
 	*/
 	public function setAttrValue($name, $value)
 	{
-		 
-		//parse attr such as asset_types, add_history_types 
-		// For asset_types, e.g folder[1]  means asset type is foler, parameters must exists.  
-		//The digit means the parameters requirements , 0=> ignore, 1=> must exists,2=>must not exists 
+
+		//parse attr such as asset_types, add_history_types
+		// For asset_types, e.g folder[1]  means asset type is foler, parameters must exists.
+		//The digit means the parameters requirements , 0=> ignore, 1=> must exists,2=>must not exists
 		//For add_history_asset_types , e.g trigger_action_add_url[0] means Add URL, not inherit.
 		//Digit means inherit or not
 
@@ -633,7 +638,7 @@ class Design_Area_Access_History extends Design_Area
 				if (empty($matches['parameters'])){
 					$matches['parameters'] = 0;
 				}
-				$processed_value[$matches['type_code']] = $matches['parameters'];	
+				$processed_value[$matches['type_code']] = $matches['parameters'];
 			}
 			$value = $processed_value;
 		}
