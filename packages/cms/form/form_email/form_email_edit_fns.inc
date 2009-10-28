@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.97.2.1 2009/10/27 05:02:31 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.97.2.2 2009/10/28 00:34:53 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97.2.1 $
+* @version $Revision: 1.97.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -723,7 +723,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'from_time'	=> $from_time,
 							'to_time'	=> $to_time,
 							'name'		=> 'submitted',
-							'context'	=> $GLOBALS['SQ_SYSTEM']->getContextId(),
 						 );
 			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
 		} catch (Exception $e) {
@@ -815,7 +814,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'from_time'	=> $from_time,
 							'to_time'	=> $to_time,
 							'name'		=> 'submitted',
-							'context'	=> $GLOBALS['SQ_SYSTEM']->getContextId(),
 						 );
 			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
 		} catch (Exception $e) {
