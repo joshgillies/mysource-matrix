@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.15 2009/10/02 05:08:50 csmith Exp $
+* $Id: check_requirements.php,v 1.16 2009/10/28 03:42:16 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -50,6 +50,23 @@ if ((php_sapi_name() == 'cli')) {
 
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
+}
+
+/**
+ * Before doing anything else, make sure safe-mode is disabled.
+ * Matrix doesn't work with safe-mode on - so if it's on,
+ * just comment and leave. We couldn't exec commands anyway.
+ */
+if (ini_get('safe_mode') == 1) {
+	echo "MySource Matrix is not compatible with safe-mode.\n";
+	echo "You will need to disable safe_mode in your php.ini file(s).\n";
+	echo "\n";
+	echo "If your web server uses a different php.ini file to command line,\n";
+	echo " (this is the case if you're running a debian based system),\n";
+	echo " make sure you disable it in all php.ini files.\n";
+	echo "\n";
+	echo "Once you have done that, run this script again.\n";
+	exit(1);
 }
 
 /**
