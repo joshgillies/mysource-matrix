@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.12 2009/10/27 05:02:31 bpearson Exp $
+* $Id: form.inc,v 1.219.2.13 2009/10/28 03:19:25 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.12 $
+* @version $Revision: 1.219.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2661,7 +2661,7 @@ class Form extends Asset implements Bridge
 		$submission_ip = $submission->getIP();
 
 		ob_start();
-		echo '<submission time="'.ts_iso8601((is_null($time) ? time() : $time)).'"';
+		echo '<submission time="'.str_replace(' ', 'T', ts_iso8601((is_null($time) ? time() : $time))).'"';
 		echo ' ip="'.$submission_ip.'"';
 		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
