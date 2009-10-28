@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.14.2.1 2009/10/28 22:57:57 lwright Exp $
+* $Id: design_area_access_history.inc,v 1.14.2.2 2009/10/28 23:01:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,6 +205,7 @@ class Design_Area_Access_History extends Design_Area
 
 			//looking for asset keyword
 			case (preg_match('/keyword_/',$var, $matches)? $var : !$var) :
+				$keyword = substr($var, 8);
 				// Get keyword replacement only if the asset still exists
 				echo '<?php
 					$assetid = array_get_index($asset_info, "assetid");
