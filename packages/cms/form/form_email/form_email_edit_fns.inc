@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.97.2.2 2009/10/28 00:34:53 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.97.2.3 2009/10/28 05:51:37 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97.2.2 $
+* @version $Revision: 1.97.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -168,8 +168,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$where = 'l.majorid IN (:assetid, :subfolder_assetid)
 					AND i.inhd_type_code = :inhd_type_code
 					AND n.name = :name
-					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE).'
-					AND '.db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE);
+					AND v.custom_val BETWEEN :from_date AND :to_date';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
