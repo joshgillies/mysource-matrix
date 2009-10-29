@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.35.2.5 2009/07/14 22:59:01 cupreti Exp $
+* $Id: form_question_type_file_upload.inc,v 1.35.2.6 2009/10/29 00:14:00 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.5 $
+* @version $Revision: 1.35.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -441,7 +441,26 @@ class Form_Question_Type_File_Upload extends Form_Question
 			} catch (Exception $e) {
 				throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
 			}
-
+			
+			//check possible orphaned asset
+			if(empty($existing_assetid) && ($this->attr('overwrite_rule') == 'O' || $this->attr('overwrite_rule') == 'R')) {
+				$orphaned = NULL;
+				$parent_urls = $create_location->getLookups();
+				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					$new_url = $parent_urls[$j]['url'].'/'.$name;
+					// check if another asset is using the new URL
+					$orphaned = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $new_url, TRUE, TRUE);
+				}
+				// if there is an asset using new url and it was not found previously by checking links
+				// we will treat it as an orphaned asset
+				 if(!empty($orphaned)) {
+					// create the link for the orphaned asset
+					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($create_location, $orphaned, SQ_LINK_TYPE_2, '');
+					$existing_assetid = $orphaned->id;	
+				}
+			}
+			
+			
 			$existing_asset = NULL;
 			if (!empty($existing_assetid)) {
 				switch ($this->attr('overwrite_rule')) {
