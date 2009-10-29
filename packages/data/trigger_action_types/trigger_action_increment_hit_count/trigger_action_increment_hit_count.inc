@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Christophe Olivar <colivar@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,9 @@ class Trigger_Action_Increment_Hit_Count extends Trigger_Action
 			} catch (Exception $e) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				throw new Exception('Unable to increment hit count due to database error: '.$e->getMessage());
+				// Bug Fix  #3995 race condition in hit count
+				// Fail silently if we cannot add a new entry to the database
+				return TRUE;
 			}
 		}
 
