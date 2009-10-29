@@ -52,8 +52,8 @@
 				<where>
 					<in table="sq_ast_lnk" column="majorid">:assetids</in>
 					<equal table="sq_ast_typ_inhd" column="inhd_type_code"><value>form_submission</value></equal>
-					<greater table="sq_ast" column="created">:from_time</greater>
-					<less table="sq_ast" column="created">:to_time</less>
+					<greater table="sq_ast_attr_val" column="custom_val">:from_time</greater>
+					<less table="sq_ast_attr_val" column="custom_val">:to_time</less>
 					<equal table="sq_ast_attr" column="name">:name</equal>
 					<equal table="sq_ast_attr_val" column="contextid">:context</equal>
 				</where>
