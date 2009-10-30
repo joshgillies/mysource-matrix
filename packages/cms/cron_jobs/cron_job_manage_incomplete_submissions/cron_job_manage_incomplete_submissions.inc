@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.1.4.1 2009/09/02 06:14:13 cupreti Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.1.4.2 2009/10/30 05:32:37 bpearson Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.4.1 $
+* @version $Revision: 1.1.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,6 +235,12 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($submission_assetid);
 						$submission_asset->delete(FALSE);
+
+						// Don't need the incomplete attachments anymore, cleanup....
+						$path = $asset->data_path.'/incomplete_attachments/s'.$submission_assetid;
+						if (is_dir($path)) {
+							delete_directory($path);	
+						}//end if
 
 						unset($submission_asset);
 					}
