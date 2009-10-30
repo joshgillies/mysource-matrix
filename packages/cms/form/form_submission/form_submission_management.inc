@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.22 2009/10/27 05:08:12 bpearson Exp $
+* $Id: form_submission_management.inc,v 1.23 2009/10/30 02:18:57 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -139,16 +139,9 @@ class Form_Submission_Management extends Asset_Management
 				// Only worry about null submitted dates and completed submissions
 				if ($complete && $submitted == '---------- --:--:--') {
 					// Try and find the form
-					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($submission->id, 'form', FALSE, NULL, NULL, TRUE, 1, 5);
-					if (empty($parents)) {
-						// No parent found, try and find the form based on the questions/answers
-						$answers = $submission->getAnswers();
-						$question_id = key($answers);
-						$matches = explode(':', $question_id);
-						$form_id = $matches[0];
-					} else {
-						$form_id = key($parents);
-					}//end if
+					$answers = $submission->attr('attributes');
+					reset($answers['answers']);
+					$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
 
 					// No form found cannot proceed 
 					if (!empty($form_id)) { 
