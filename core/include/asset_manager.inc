@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.767 2009/10/30 06:27:07 cupreti Exp $
+* $Id: asset_manager.inc,v 1.768 2009/10/30 06:34:14 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.767 $
+* @version $Revision: 1.768 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4985,6 +4985,7 @@ class Asset_Manager extends MySource_Object
 					// its quite safe and resonable now to update db with this treeid
 					// However if conflict happends, no big deal, just try different treeid 
 					// We have got 50 tries afterall
+					
 					if ($aff_rows != 0) {
 								
 						$sql = 'UPDATE
