@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.768 2009/10/30 06:34:14 cupreti Exp $
+* $Id: asset_manager.inc,v 1.769 2009/11/01 23:41:30 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.768 $
+* @version $Revision: 1.769 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4770,6 +4770,7 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$i = 0;
+			$requires_update = FALSE;
 
 			// Yes, this is a do-while loop. Live with it. The following code is to stop
 			// constraint violations which may occur if two processes are trying to
@@ -4895,7 +4896,7 @@ class Asset_Manager extends MySource_Object
 								:treeid,
 								:linkid,
 								:num_kids
-							) ';
+							)';
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -4935,7 +4936,7 @@ class Asset_Manager extends MySource_Object
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
-				
+
 				if ($found_treeid == $treeid.$free_treeid.':'.$linkid) {
 
 					// if the found treeid was like the one that we just inserted, then
@@ -4977,50 +4978,16 @@ class Asset_Manager extends MySource_Object
 					}
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						
+
 					// Get the number of affected rows - if the update to our
-					// link ID worked, then probably we've won this tree ID,
-					// but can't be too sure yet, someone else might have thought same
-					// Since we have narrowed down the possibility of conflicting treedid, 
-					// its quite safe and resonable now to update db with this treeid
-					// However if conflict happends, no big deal, just try different treeid 
-					// We have got 50 tries afterall
-					
+					// link ID worked, then we've won this tree ID
 					if ($aff_rows != 0) {
-								
-						$sql = 'UPDATE
-									sq_ast_lnk_tree t1
-								SET
-									treeid = :treeid,
-									linkid = :linkid
-								WHERE
-								 treeid = :old_treeid';
-
-						// Flag to know if db exception occured while trying to update the db with this treeid
-						$treeid_db_expection = FALSE;
-						
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-						try {
-							$query = MatrixDAL::preparePdoQuery($sql);
-							MatrixDAL::bindValueToPdo($query, 'treeid',     $treeid.$free_treeid);
-							MatrixDAL::bindValueToPdo($query, 'linkid',     $linkid);
-							MatrixDAL::bindValueToPdo($query, 'old_treeid', $treeid.$free_treeid.':'.$linkid);
-							$aff_rows = MatrixDAL::execPdoQuery($query);
-						} catch (Exception $e) {							
-							$treeid_db_expection = TRUE;
-						}
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						
-						// If no db exception occured then we can be now 100% sure of winning this treeid
-						if (!$treeid_db_expection) {
-							break;
-						}
+						$requires_update = TRUE;
+						break;
 					}
-					
-				}//end if found_treeid
+				}//end if
 
-				// being here means we lost this treeid and will have to do another
+				// otherwise we lost this treeid and will have to do another
 				// iterator to try and win a different one
 				$sql = 'DELETE FROM
 							sq_ast_lnk_tree
@@ -5048,7 +5015,34 @@ class Asset_Manager extends MySource_Object
 			if ($i >= 50) {
 				trigger_localised_error('SYS0310', E_USER_ERROR);
 			}
-			
+
+			if ($requires_update) {
+
+				$sql = 'UPDATE
+							sq_ast_lnk_tree
+						SET
+							treeid = :treeid,
+							linkid = :linkid
+						WHERE
+						treeid = :old_treeid';
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					// The negative link ID is correct; we will replace with
+					// a positive version if we've drawn a winning tree ID
+					MatrixDAL::bindValueToPdo($query, 'treeid',     $treeid.$free_treeid);
+					MatrixDAL::bindValueToPdo($query, 'linkid',     $linkid);
+					MatrixDAL::bindValueToPdo($query, 'old_treeid', $treeid.$free_treeid.':'.$linkid);
+					MatrixDAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to attempt to update won tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
+
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
 			if ((string) $existing_treeid == '-') {
