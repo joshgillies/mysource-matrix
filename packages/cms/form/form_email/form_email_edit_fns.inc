@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.97.2.3 2009/10/28 05:51:37 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.97.2.4 2009/11/02 04:27:07 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97.2.3 $
+* @version $Revision: 1.97.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,8 +167,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$db = MatrixDAL::getDb();
 		$where = 'l.majorid IN (:assetid, :subfolder_assetid)
 					AND i.inhd_type_code = :inhd_type_code
-					AND n.name = :name
-					AND v.custom_val BETWEEN :from_date AND :to_date';
+					AND n.name = :name';
+		if (MatrixDAL::getDbType() == 'oci') {
+			$where .= ' AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_date AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :to_date';
+		} else {
+			$where .= ' AND v.custom_val BETWEEN :from_date AND :to_date';
+		}//end if
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
@@ -203,7 +207,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submission_offset = ($num_pages - 1) * $num_per_page;
 		}
 
-		$sql = $sql.$where.' ORDER BY a.created DESC';
+		$sql = $sql.$where.' ORDER BY v.custom_val DESC';
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $num_per_page, $submission_offset);
 
@@ -723,7 +727,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'to_time'	=> $to_time,
 							'name'		=> 'submitted',
 						 );
-			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
+			$result = $this->_getSubmissionLog($bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
 		}
@@ -814,7 +818,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							'to_time'	=> $to_time,
 							'name'		=> 'submitted',
 						 );
-			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
+			$result = $this->_getSubmissionLog($bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
 		}
@@ -836,6 +840,61 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return TRUE;
 
 	}//end processExportXML()
+
+
+	/**
+	* Get the submission log from the database 
+	*
+	* @param array	$bind_vars	the bind vars to process
+	*
+	* @return array
+	* @access private
+	*/
+	function _getSubmissionLog($bind_vars)
+	{
+		$result = Array();
+
+		// No assetids passed in ... no results for you!
+		if (isset($bind_vars['assetids']) && empty($bind_vars['assetids'])) {
+			return $result;
+		}//end if
+
+		try {
+			if (MatrixDAL::getDbType() === 'oci') {
+				$sql = "SELECT a.assetid, a.type_code, v.custom_val AS submitted, a.created_userid 
+						 FROM sq_ast a 
+						 INNER JOIN sq_ast_typ_inhd t ON a.type_code=t.type_code 
+						 INNER JOIN sq_ast_lnk l ON l.minorid=a.assetid 
+						 INNER JOIN sq_ast_attr_val v ON v.assetid=a.assetid 
+						 INNER JOIN sq_ast_attr n ON n.attrid=v.attrid";
+				$where = " WHERE";
+				$assetids = array_get_index($bind_vars, 'assetids', Array());
+				if (!empty($assetids)) {
+					foreach ($assetids as $index => $assetid) {
+						$assetids[$index] = MatrixDAL::quote($assetid);
+					}//end foreach
+					$where .= " l.majorid IN (".implode(',', $assetids).") AND";
+				}//end if
+				$where .= " t.inhd_type_code='form_submission'
+						    AND n.name=:name 
+						    AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_time 
+						    AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) < :to_time";
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'name', array_get_index($bind_vars, 'name', ''));
+				MatrixDAL::bindValueToPdo($query, 'from_time', array_get_index($bind_vars, 'from_time', date('Y-m-d').' 00:00:00'));
+				MatrixDAL::bindValueToPdo($query, 'to_time', array_get_index($bind_vars, 'to_time', date('Y-m-d').' 23:59:59'));
+				$result = MatrixDAL::executePdoAssoc($query);
+			} else {
+				$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
+			}//end if
+		} catch (Exception $e) {
+			$result = Array();
+			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
+		}
+
+		return $result;
+
+	}//end _getSubmissionLog()
 
 
 	/**
