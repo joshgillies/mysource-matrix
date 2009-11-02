@@ -78,6 +78,7 @@ Fixed Bug #3992: Custom Form fails upon file upload
 Fixed Bug #3994: User changed status from Archived to Under construction will throw error 
 Fixed Bug #4006: Workflow will send Approval required and Asset Approved email at same time
 Fixed Bug #4009: Access History - keyword_* print vars cause fatal error with purged assets
+Fixed Bug #4013: Shadow assets can not be moved to trash (deleted)
 
 Bulkmail
 Fixed Bug #3982: Possible typo in triggering error on Bulkmail subscribe page 
