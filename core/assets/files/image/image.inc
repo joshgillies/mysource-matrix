@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.77 2009/10/20 06:32:06 cupreti Exp $
+* $Id: image.inc,v 1.78 2009/11/02 04:46:21 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,7 @@ class Image extends File implements Bridge
 				$output['width']  = $this->attr('width');
 				$output['height'] = $this->attr('height');
 				$output['name']   = $this->name;
+				
 				echo var_serialise($output);
 				exit();
 			default :
@@ -617,6 +618,7 @@ class Image extends File implements Bridge
 										'is_dependant'		=> TRUE,
 										'is_exclusive'		=> TRUE,
 										'sort_order'		=> $i,
+										'locked'			=> 0,
 									   );
 							$i++;
 						}// end foreach
@@ -646,6 +648,7 @@ class Image extends File implements Bridge
 										'is_dependant'		=> TRUE,
 										'is_exclusive'		=> TRUE,
 										'sort_order'		=> array_search($assetid, array_keys($varieties['data'])),
+										'locked'			=> 0,
 									   );
 						}//endif
 

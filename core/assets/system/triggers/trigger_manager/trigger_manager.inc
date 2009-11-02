@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.66 2009/07/22 01:23:53 lwright Exp $
+* $Id: trigger_manager.inc,v 1.67 2009/11/02 04:45:36 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -358,7 +358,8 @@ class Trigger_Manager extends Asset implements Bridge
 						$link['status'] = $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 						$link['sort_order'] = NULL;
 						$link['link_type'] = SQ_LINK_TYPE_1;
-	
+						$link['locked'] = 0;
+						
 						$sort_index ['trigger'][] = $link['name'];
 						$links_unsorted['trigger'][] = $link;	
 				}
@@ -384,6 +385,7 @@ class Trigger_Manager extends Asset implements Bridge
 						$link['status'] = SQ_STATUS_UNDER_CONSTRUCTION;
 						$link['sort_order'] = NULL;
 						$link['link_type'] = SQ_LINK_TYPE_1;
+						$link['locked'] = 0;
 						
 						$sort_index ['folder'][] = $link['name'];
 						$links_unsorted ['folder'][] = $link;
@@ -816,6 +818,7 @@ class Trigger_Manager extends Asset implements Bridge
 					'sort_order'		=> $trigger_info['id'],
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
+					'locked'			=> 0,
 				);
 				
 		}
@@ -838,6 +841,7 @@ class Trigger_Manager extends Asset implements Bridge
 					'sort_order'		=> NULL,
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
+					'locked'			=> 0,
 				);
 		
 
