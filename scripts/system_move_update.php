@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.14 2009/10/30 03:50:21 akarelia Exp $
+* $Id: system_move_update.php,v 1.15 2009/11/02 06:19:37 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -151,6 +151,8 @@ function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root
                         if ($str) {
 							echo "File : $sq_system_file\n";
 	                        $str = str_replace($old_rep_root, $new_rep_root, $str);
+							// after changing the string, we have to make sure it reflects correct length as we have it all serialized :)
+							$str = preg_replace_callback('!(?<=^|;)s:(\d+)(?=:"(.*?)";(?:}|a:|s:|b:|i:|o:|N;))!s','serialize_fix_callback', $str);
                             string_to_file($str, $sq_system_file);
                         }
                     }
@@ -166,5 +168,11 @@ function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root
     $d->close();
 
 }// end recurse_data_dir_for_safe_edit_files()
+
+
+function serialize_fix_callback($match) {
+    return 's:' . strlen($match[2]);
+}
+
 
 ?>
