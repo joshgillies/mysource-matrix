@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.17 2007/12/15 01:34:09 gsherwood Exp $
+* $Id: report_incomplete_metadata.inc,v 1.18 2009/11/02 04:58:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,6 +164,7 @@ class Report_Incomplete_Metadata extends Report implements Bridge
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
 							'is_exclusive'		=> '0',
+							'locked'			=> 0,
 						   );
 
 				$sort_order++;
