@@ -1,5 +1,53 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.22.6
+
+Complete changelog
+-----------------------------------
+
+Core
+Fixed Bug #3807: Workflow email send to second reviewer contains wrong content and links
+Fixed Bug #3826: WYSIWYG in Firefox JavaScript error
+Fixed Bug #3918: PHP notices from invalid apparent keywords in metadata
+Fixed Bug #3932: Keywords for Data Source Record Set asset don't get replaced when using a keyword modifier
+Fixed Bug #3943: Trigger Name HTML Entities changing on Commit
+Fixed Bug #3946: Metadata "Use default" checkbox does not disable value components
+Fixed Bug #3947: _recache sends cacheable headers
+Fixed Bug #3949: Error when cloning a design
+Fixed Bug #3951: Workflow emails not sent out with users that have special characters in the name field
+Fixed Bug #3952: Cannot unselect checkbox questions in multipage form
+Fixed Bug #3953: Workflow escalation step email directs user to incorrect site
+Fixed Bug #3955: Workflow notify on live feature doesn't work when role system is disabled
+Fixed Bug #3957: Missing error message
+Fixed Bug #3959: Lookups HIPO cascades force secure option
+Fixed Bug #3976: Metadata Schemas screen: "Cascade to new" setting not using correct cascade box
+Fixed Bug #3991: Run time error if SQ_CONF_WEB_PATH_SEPARATOR is empty
+Fixed Bug #3992: Custom Form fails upon file upload
+Fixed Bug #3994: User changed status from Archived to Under construction will throw error 
+Fixed Bug #4006: Workflow will send Approval required and Asset Approved email at same time
+Fixed Bug #4009: Access History - keyword_* print vars cause fatal error with purged assets
+
+Bulkmail
+Fixed Bug #3982: Possible typo in triggering error on Bulkmail subscribe page 
+
+CMS
+Fixed Bug #3973: Last url in white list only url being tunnelled in Remote Content
+Fixed Bug #3975: Nested Asset Listing doesn't respect passed GET paramater for A-Z list
+Fixed Bug #4000: Form submission logs show the wrong date
+Fixed Bug #4007: File Upload Question Type does not paint correctly
+Fixed Bug #4012: Remove Incomplete Submissions does not remove any attachments 
+
+Data
+Fixed Bug #3995: Race condition in hit count
+
+Import Tools
+Fixed Bug #3990: Asset name of "Word Import Tool Converter" can be changed
+
+Search
+Fixed Bug #3988: Issues with metadata matching in Global Search/Replace Tool
+
+
+
 VERSION 3.22.5
 
 Featured Changes
