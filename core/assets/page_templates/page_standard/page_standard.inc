@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.29 2009/09/23 23:05:08 lwright Exp $
+* $Id: page_standard.inc,v 1.30 2009/11/02 16:28:30 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,6 +146,8 @@ class Page_Standard extends Page
 		$page_links[SQ_LINK_TYPE_2]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
+		$page_links[SQ_LINK_NOTICE]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
