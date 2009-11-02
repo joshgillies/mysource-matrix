@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.97.4.3 2009/11/02 04:30:37 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.97.4.4 2009/11/02 04:47:07 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97.4.3 $
+* @version $Revision: 1.97.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -169,9 +169,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					AND i.inhd_type_code = :inhd_type_code
 					AND n.name = :name AND v.contextid = :context';
 		if (MatrixDAL::getDbType() == 'oci') {
-			$where .= ' AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_date AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :to_date';
+			$where .= ' AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_date AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) < :to_date';
+			$order  = ' ORDER BY TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) DESC';
 		} else {
 			$where .= ' AND v.custom_val BETWEEN :from_date AND :to_date';
+			$order  = ' ORDER BY v.custom_val DESC';
 		}//end if
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -209,7 +211,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submission_offset = ($num_pages - 1) * $num_per_page;
 		}
 
-		$sql = $sql.$where.' ORDER BY v.custom_val DESC';
+		$sql = $sql.$where.$order;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $num_per_page, $submission_offset);
 
