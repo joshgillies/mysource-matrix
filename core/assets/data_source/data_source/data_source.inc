@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.26 2009/01/09 06:22:39 lwright Exp $
+* $Id: data_source.inc,v 1.26.4.1 2009/11/02 05:17:43 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -554,6 +554,7 @@ class Data_Source extends Asset implements Bridge
 										'is_dependant'		=> FALSE,
 										'is_exclusive'		=> FALSE,
 										'sort_order'		=> $index,
+										'locked'			=> 0,
 									   );
 							$index++;
 							$identity++;

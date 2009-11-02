@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.36.6.2 2009/10/20 00:28:28 mbrydon Exp $
+* $Id: simple_form.inc,v 1.36.6.3 2009/11/02 05:16:12 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36.6.2 $
+* @version $Revision: 1.36.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,6 +176,7 @@ class Simple_Form extends Asset implements Bridge
 								'is_dependant'		=> TRUE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
+								'locked'			=> 0,
 							   );
 				}
 			}
@@ -264,6 +265,7 @@ class Simple_Form extends Asset implements Bridge
 								'is_dependant'		=> TRUE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> $new_sort_order,
+								'locked'			=> 0,
 							   );
 				}
 				$new_sort_order++;

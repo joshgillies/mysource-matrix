@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.33 2008/11/25 05:03:13 mbrydon Exp $
+* $Id: search_folder.inc,v 1.33.6.1 2009/11/02 05:21:05 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -189,6 +189,7 @@ class Search_Folder extends Asset implements Bridge
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
 							'is_exclusive'		=> '0',
+							'locked'			=> 0,
 						   );
 
 				$sort_order++;

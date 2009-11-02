@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.231.2.2 2009/10/28 03:18:46 bpearson Exp $
+* $Id: form.inc,v 1.231.2.3 2009/11/02 05:15:20 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.231.2.2 $
+* @version $Revision: 1.231.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -522,6 +522,7 @@ class Form extends Asset implements Bridge
 								'is_dependant'		=> TRUE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
+								'locked'			=> 0,
 							   );
 				}
 			}
@@ -608,6 +609,7 @@ class Form extends Asset implements Bridge
 								'is_dependant'		=> TRUE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> $new_sort_order,
+								'locked'			=> 0,
 							   );
 				}
 				$new_sort_order++;
