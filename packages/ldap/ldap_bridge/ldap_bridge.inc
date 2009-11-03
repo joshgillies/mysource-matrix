@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.77 2009/07/22 04:09:55 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.77.2.1 2009/11/03 05:33:38 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1355,7 +1355,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// field not defined
 				continue;
 			} else {
-				$value = $info[$field_name]['value'][0];
+				$value = $info[$field_name]['value'];
 				$count = 0;
 				$multi = '';
 				if (is_array($value)) {
