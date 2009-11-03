@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.13 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_move_update.php,v 1.13.12.1 2009/11/03 00:16:29 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.12.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -122,5 +122,57 @@ pre_echo("OLD : $old_rep_path\nNEW : $new_rep_path");
 
 recurse_find_ffv_files(SQ_DATA_PATH.'/private', $old_rep_path, $new_rep_path);
 recurse_find_ffv_files(SQ_DATA_PATH.'/public', $old_rep_path, $new_rep_path);
+
+$old_data_private_path = preg_replace('|/+$|', '', $old_system_root).'/data/';
+$new_data_private_path = preg_replace('|/+$|', '', $new_system_root).'/data/';
+
+recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/private', $old_data_private_path, $new_data_private_path);
+recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $old_data_private_path, $new_data_private_path);
+
+
+function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root)
+{
+    $d = dir($dir);
+    while (false !== ($entry = $d->read())) {
+        if ($entry == '.' || $entry == '..') continue;
+
+        // if this is a directory
+        if (is_dir($dir.'/'.$entry)) {
+            // we have found a .FFV dir
+            if ($entry == '.sq_system') {
+                $sq_system_dir = $dir.'/'.$entry;
+                $sq_system_d = dir($sq_system_dir);
+                while (false !== ($sq_system_entry = $sq_system_d->read())) {
+                    if ($sq_system_entry == '.' || $sq_system_entry == '..') continue;
+                    // if this is a directory
+                    if (is_file($sq_system_dir.'/'.$sq_system_entry)) {
+                        $sq_system_file = $sq_system_dir.'/'.$sq_system_entry;
+                        $str = file_to_string($sq_system_file);
+                        if ($str) {
+							echo "File : $sq_system_file\n";
+							$str = str_replace($old_rep_root, $new_rep_root, $str);
+							// after changing the string, we have to make sure it reflects correct length as we have it all serialized :)
+							$str = preg_replace_callback('!(?<=^|;)s:(\d+)(?=:"(.*?)";(?:}|a:|s:|b:|i:|o:|N;))!s','serialize_fix_callback', $str);
+							string_to_file($str, $sq_system_file);
+                        }
+                    }
+                }//end while
+                $sq_system_d->close();
+            // just a normal dir, recurse
+            } else {
+                recurse_data_dir_for_safe_edit_files($dir.'/'.$entry, $old_rep_root, $new_rep_root);
+
+            }//end if
+        }//end if
+    }//end while
+    $d->close();
+
+}// end recurse_data_dir_for_safe_edit_files()
+
+
+function serialize_fix_callback($match) {
+    return 's:' . strlen($match[2]);
+}
+
 
 ?>
