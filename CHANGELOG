@@ -15,7 +15,7 @@ These Trigger Actions now have a option to set the Context in which the value is
 When cloning an asset, Metadata is regenerated in any Context where the parent asset may have Metadata set.
 
 - Edit and Regenerate Metadata HIPO modifications
-Metadata can not be edited and regenerated in batches for one or more selected Contexts. This is performed from the "Metadata" screen of the target asset.
+Metadata can now be edited and regenerated in batches for one or more selected Contexts. This is performed from the "Metadata" screen of the target asset.
 
 - Search Re-index and Replace Tool HIPO modifications
 Modifications have been made to ensure that the destination Context is acknowledged when run either from the browser or Squiz Server.
