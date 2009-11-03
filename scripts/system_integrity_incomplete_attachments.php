@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.1.2.2 2009/10/30 05:31:41 bpearson Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.1.2.3 2009/11/03 03:01:32 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -47,9 +47,11 @@ if ($ACTION == 'fix') {
 }//end if
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+ini_set('memory_limit', '-1');
 
+$count = 0;
+$count_rm = 0;
 $form_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds('form', FALSE);
-
 foreach ($form_assetids as $assetid) {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	$path  = $asset->data_path;
@@ -63,10 +65,12 @@ foreach ($form_assetids as $assetid) {
 			if (is_null($incomplete_submission)) {
 				// Report only
 				echo 'Form #'.$assetid.' still has some incomplete attachments for Submission #'.$incomplete_submission_assetid.'.';
+				$count++;
 				if ($CORRECT) {
 					// Remove the dir, not needed
 					echo ' Removing.';
 					delete_directory($path.'/'.$file);
+					$count_rm++;
 					echo ' Done.';
 				}//end if
 				echo "\n";
@@ -74,5 +78,9 @@ foreach ($form_assetids as $assetid) {
 		}//end if
 	}//end foreach
 }//end foreach
+
+echo "Incomplete attachments found:    ".$count."\n";
+echo "Incomplete attachments deleted:  ".$count_rm."\n";
+echo "All done!\n";
 
 ?>
