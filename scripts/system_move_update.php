@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.13.14.1 2009/11/03 00:19:09 akarelia Exp $
+* $Id: system_move_update.php,v 1.13.14.2 2009/11/03 03:14:26 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13.14.1 $
+* @version $Revision: 1.13.14.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -133,26 +133,30 @@ recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $old_data_private_p
 function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root)
 {
     $d = dir($dir);
+	$index_to_look = Array ('data_path', 'data_path_public');
     while (false !== ($entry = $d->read())) {
         if ($entry == '.' || $entry == '..') continue;
-
         // if this is a directory
         if (is_dir($dir.'/'.$entry)) {
-            // we have found a .FFV dir
+            // we have found a .sq_system dir
             if ($entry == '.sq_system') {
                 $sq_system_dir = $dir.'/'.$entry;
                 $sq_system_d = dir($sq_system_dir);
                 while (false !== ($sq_system_entry = $sq_system_d->read())) {
-                    if ($sq_system_entry == '.' || $sq_system_entry == '..') continue;
+                    if ($sq_system_entry == '.' || $sq_system_entry == '..' || $sq_system_entry != ".object_data") continue;
                     // if this is a directory
                     if (is_file($sq_system_dir.'/'.$sq_system_entry)) {
                         $sq_system_file = $sq_system_dir.'/'.$sq_system_entry;
                         $str = file_to_string($sq_system_file);
                         if ($str) {
 							echo "File : $sq_system_file\n";
-							$str = str_replace($old_rep_root, $new_rep_root, $str);
-							// after changing the string, we have to make sure it reflects correct length as we have it all serialized :)
-							$str = preg_replace_callback('!(?<=^|;)s:(\d+)(?=:"(.*?)";(?:}|a:|s:|b:|i:|o:|N;))!s','serialize_fix_callback', $str);
+							preg_match ("/\"[A-Za-z_]+\"/" ,$str , $asset_type);
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset(str_replace('"', '', $asset_type[0]));
+							$content_array = unserialize($str);
+							foreach ($index_to_look as $value) {
+								$content_array->$value = str_replace($old_rep_root, $new_rep_root, $content_array->$value);
+							}
+							$str = serialize($content_array);
 							string_to_file($str, $sq_system_file);
                         }
                     }
@@ -168,11 +172,6 @@ function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root
     $d->close();
 
 }// end recurse_data_dir_for_safe_edit_files()
-
-
-function serialize_fix_callback($match) {
-    return 's:' . strlen($match[2]);
-}
 
 
 ?>
