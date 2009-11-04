@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.23 2009/10/30 02:18:57 bpearson Exp $
+* $Id: form_submission_management.inc,v 1.24 2009/11/04 22:07:16 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -136,12 +136,19 @@ class Form_Submission_Management extends Asset_Management
 				$complete = $submission->attr('complete');
 				$submitted = $submission->attr('submitted');
 
+				// Set the default
+				$date = $submission->created;
+
 				// Only worry about null submitted dates and completed submissions
 				if ($complete && $submitted == '---------- --:--:--') {
 					// Try and find the form
 					$answers = $submission->attr('attributes');
-					reset($answers['answers']);
-					$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
+					if (!isset($answers['answers'])) {
+						$form_id = 0;
+					} else {
+						reset($answers['answers']);
+						$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
+					}//end if
 
 					// No form found cannot proceed 
 					if (!empty($form_id)) { 
@@ -165,33 +172,29 @@ class Form_Submission_Management extends Asset_Management
 							return FALSE;
 						}
 
-						// Set the default
-						$date = $submission->created;
 						if (!empty($result)) {
 							$date = strtotime($result);
 						}//end if
-
-						// Save the date and regenerate the xml
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 						// Point the POST var to the current submission id
 						$_POST['SQ_FORM_'.$form->id.'_SUBMISSION'] = $submission->id;
-						$submission->setAttrValue('submitted', ts_iso8601($date));
 						$submission->setAttrValue('xml', $form->getXML($date)); 
-						if (!$submission->saveAttributes()) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-							pre_echo('UPGRADE FAILED - Could not save attributes');
-							return FALSE;
-						}//end if
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-						$count++;
-
 					}//end if
+
+					// Save the date
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$submission->setAttrValue('submitted', ts_iso8601($date));
+					$count++;
+					if (!$submission->saveAttributes()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+						pre_echo('UPGRADE FAILED - Could not save attributes');
+						return FALSE;
+					}//end if
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}//end if
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($submission);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($submission, TRUE);
 				unset($submission);
 			}//end foreach
 
