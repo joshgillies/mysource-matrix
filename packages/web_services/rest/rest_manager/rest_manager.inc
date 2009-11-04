@@ -9,13 +9,11 @@
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
-
 *
-* $Id: rest_manager.inc,v 1.4 2009/10/07 23:48:34 akarelia Exp $
+* $Id: rest_manager.inc,v 1.5 2009/11/04 03:27:24 mbrydon Exp $
 *
 */
 
-check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -25,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Squiz_UK_Clients
 * @subpackage rest
 */
