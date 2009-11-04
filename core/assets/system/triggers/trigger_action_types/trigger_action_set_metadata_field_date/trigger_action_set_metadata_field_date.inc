@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Sets the a metadata field date with the curernt date time plus a variable offset
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1.8.1 $
+* @version $Revision: 1.1.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,7 +197,7 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 				$default = Array($current_context);
 			}
 
-			if ($metadata_field) {
+			if ($metadata_fieldid) {
 				label(translate('trigger_set_value_in_this_context'), $prefix.'[context_to_select]');
 				echo ' ';
 				if ($write_access) {
