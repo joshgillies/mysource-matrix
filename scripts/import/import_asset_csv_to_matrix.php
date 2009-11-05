@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.7 2009/07/03 08:15:01 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.7.2.1 2009/11/05 22:02:55 cupreti Exp $
 *
 */
 
@@ -130,6 +130,8 @@ function printStdErr($string)
 */
 function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, Array $metadata_mapping, Array $attribute_mapping, $new_assets_live = FALSE, $unique_record_field = '', $record_modification_field = '', Array $ignore_fields = Array())
 {
+	$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 	$num_assets_imported = 0;
 	$num_assets_modified = 0;
 	$num_assets_deleted  = 0;
@@ -153,6 +155,10 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 	$headers = Array();
 
 	$trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+	$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+	
+	// Set to true if temporary trash folder is created, where all the assets to be deleted are moved to
+	$temp_trash_folder = FALSE;
 
 	while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 		$num_fields = count($data);
@@ -239,67 +245,52 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 				}
 
 				if ($record_handling == IMPORT_DELETE_RECORD) {
+					
 					// Deletify
 					printStdErr('- Deleting asset');
-					$asset_ready_for_deletion = TRUE;
-
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_asset_id);
 
-					// Remove web paths, workflow and metadata and sweep the floor before purging as this isn't done there... yet
 					if ($asset) {
-						// Transactify
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-						$asset_ready_for_deletion = FALSE;
+											
+						// Create temporary trash folder, if not already created
+						if (!$temp_trash_folder) {
+							
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+							$temp_trash_folder = new Folder();
 
-						// remove web paths
-						if ($asset->saveWebPaths(Array())) {
-							if ($asset->updateLookups()) {
-								$bind_vars['assetid'] = $asset->id;
-								$success = TRUE;
-								try {
-									// delete related asset data from the DB tables
-									$result = MatrixDAL::executeQuery('core', 'assetDeleteAsset', $bind_vars);
-									$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetAttrVal', $bind_vars);
-									$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetAttrUniqVal', $bind_vars);
-									$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetPerm', $bind_vars);
-									$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetRole', $bind_vars);
-								} catch (Exception $e) {
-									$success = FALSE;
-								}
-
-								// Tidy code :-)
-								if ($success) {
-									$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-									if ($mm->purgeMetadata($asset->id)) {
-										$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-										if ($wm->purgeWorkflow($asset->id)) {
-											$asset_ready_for_deletion = TRUE;
-										} else {
-											$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										}
-									} else {
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									}
-								}
-							} else {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$temp_trash_folder->setAttrValue('name','temp_trash_folder');
+							$link_array = Array (
+								'asset'		=> $root_folder,
+								'value'		=> '',
+								'link_type'	=> SQ_LINK_TYPE_1,
+							);
+							$linkid = $temp_trash_folder->create($link_array);
+							
+							// If cannot create the temporary trash folder then we cannot delete any asset
+							if (!$linkid) {
+								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to create temporary trash folder. Continuing to the next record.\n");
+								
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+								continue;
 							}
-						} else {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						}
-
-						if ($asset_ready_for_deletion) {
-							// Ok let's commit the above modifications then purge the asset
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-							$GLOBALS['SQ_SYSTEM']->am->purgeAsset($asset->id);
-							echo $search_value.','.$existing_asset_id.",D\n";
-							$num_assets_deleted++;
-						} else {
-							// Ah - fowget about iiit!
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						
+						// Move the asset to the temporary trash folder
+						$asset_linkid_old = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent_id, $asset->id);
+						$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($asset_linkid_old['linkid'], $temp_trash_folder->id, SQ_LINK_TYPE_1, -1);
+						
+						// If cannot move the asset to temporary trash folder then it cannot be deleted
+						if (!$linkid) {
+								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to move this asset to temporary trash folder. Continuing to the next record.\n");
+								
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+								continue;
 						}
-					}
+						
+						echo $search_value.','.$existing_asset_id.",D\n";
+						$num_assets_deleted++;
+						
+					} // End if asset
 				} else if ($record_handling == IMPORT_EDIT_RECORD) {
 					// Editise
 
@@ -339,10 +330,37 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 
 		}
-	}
+	}// End while
 
 	fclose($csv_fd);
+	
+	$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
+	// Now actually delete all the assets moved to "temporary purge folder" by purging this folder	
+	if ($temp_trash_folder && $GLOBALS['SQ_SYSTEM']->am->trashAsset($temp_trash_folder->id)) {
+	
+		$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+		$trash_linkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $temp_trash_folder->id);
+		
+		if (isset($trash_linkid['linkid']) && $trash_linkid['linkid'] > 0) {
+			
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();		
+			
+			$vars = Array(
+				'purge_root_linkid' => $trash_linkid['linkid'],
+			);
+			
+			$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
+
+			if (!empty($errors)) {
+				$error_msg = '';
+				foreach($errors as $error) $error_msg .= ' * '.$error['message'];
+				echo "Following errors occured while deleting asset(s):\n$error_msg\n";
+			}
+		}
+	
+	}
+	
 	$status_report = Array(
 						'num_added'		=> $num_assets_imported,
 						'num_modified'	=> $num_assets_modified,
@@ -723,11 +741,12 @@ if ($ignore_csv_filename != '') {
 	fclose($csv_fd);
 }
 
-$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 $status_report = importAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, $metadata_mapping, $attribute_mapping, $new_assets_live, $unique_record_field, $record_modification_field, $ignore_fields);
 
-$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 printStdErr("\n- All done\n");
 printStdErr("\tAssets added    : ".$status_report['num_added']."\n");
