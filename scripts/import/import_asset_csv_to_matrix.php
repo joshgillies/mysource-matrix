@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.8 2009/11/05 06:51:28 cupreti Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.9 2009/11/05 21:55:01 cupreti Exp $
 *
 */
 
@@ -341,7 +341,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 	
 		$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		$trash_linkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $temp_trash_folder->id);
-		bam($trash_linkid);
+		
 		if (isset($trash_linkid['linkid']) && $trash_linkid['linkid'] > 0) {
 			
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();		
@@ -746,6 +746,7 @@ $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 $status_report = importAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, $metadata_mapping, $attribute_mapping, $new_assets_live, $unique_record_field, $record_modification_field, $ignore_fields);
 
+$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 printStdErr("\n- All done\n");
 printStdErr("\tAssets added    : ".$status_report['num_added']."\n");
