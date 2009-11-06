@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.1.2.1 2009/10/20 06:43:18 cupreti Exp $
+* $Id: flv_file.inc,v 1.1.2.2 2009/11/06 03:39:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,16 +141,11 @@ class FLV_File extends File
 	*/
 	public function getKeywordReplacement($keyword)
 	{
-		$replacement = NULL;
-
-		// Remove any modifiers from keyword
-		$keyword = parse_keyword($keyword, $modifiers);
-
 		//only process keywords that start with asset_attribute_
 		if ('asset_attribute_' == substr($keyword, 0, 16)) {
 			if ($keyword == 'asset_attribute_duration_string') {
 				//want a duration string Minutes:Seconds
-				$replacement =  self::convertTimeToString($this->attr('duration'));
+				return self::convertTimeToString($this->attr('duration'));
 				
 			} else {
 				$is_int = FALSE;
@@ -171,14 +166,12 @@ class FLV_File extends File
 					//replace HTML special characters so that malicious users can not use FLV metadata to make a XSS attack
 					$replacement = nl2br(htmlspecialchars($replacement));
 				}
+				
+				return $replacement;
 			}
 		}
-
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
-		}
 		
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+		return parent::getKeywordReplacement($keyword);
 		
 	}//end getKeywordReplacement()
 	
