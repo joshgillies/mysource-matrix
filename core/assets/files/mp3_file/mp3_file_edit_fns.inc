@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.1 $
+* @version    $Revision: 1.1.4.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,10 +36,10 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 	{
 		$this->File_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = 1;
-		
+
 	}// end constructor
-	
-	
+
+
 	/**
 	* Processes the interface for uploading a file
 	*
@@ -51,17 +51,20 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
-	* @param array	$info	info about the uploaded file
+	* @param File				$asset				the file asset
+	* @param Backend_Outputter	$o					the Backend Outputter object
+	* @param string				$prefix				prefix for form elements
+	* @param array				$info				info about the uploaded file
+	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param boolean			$asset_cloned		to check if we creating a new asset or just cloning
 	*
+	* @see File_Edit_Fns::processFileUpload()
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
+		if (!parent::processFileUpload($asset, $o, $prefix, $info, $redirect_in_limbo, $asset_cloned)) {
 			return FALSE;
 		}
 
@@ -69,7 +72,7 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 		if (!$asset->id) return TRUE;
 
 		$info = $asset->getExistingFile();
-		
+
 		// Check to see if our getID3 System Tool is enabled
 		// If so, flag the asset for ID3 extraction on save
 		if (SQ_TOOL_GETID3_ENABLED) {
@@ -79,8 +82,8 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 		return TRUE;
 
 	}// end processFileUpload()
-	
-	
+
+
 	/**
 	* Paint the interface for the "extract ID3 metadata" field
 	*
@@ -94,7 +97,7 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 	{
 		// Write attributes
 		$wa = $asset->writeAccess('attributes');
-		
+
 		if ($wa) {
 			check_box($prefix.'_extract_id3', 1, FALSE);
 		} else {
@@ -109,8 +112,8 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 		return $wa;
 
 	}// end paintExtractID3()
-	
-	
+
+
 	/**
 	* Process the interface for the "extract ID3 metadata" field
 	*
@@ -128,15 +131,15 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$extract = isset($_POST[$prefix.'_extract_id3']);
-		
+
 		if ($extract) {
 			$asset->setAttrValue('extract_id3', TRUE);
 		}
-			
-		return TRUE;	
-		
+
+		return TRUE;
+
 	}// end processExtractID3()
-	
+
 
 }// end class
 ?>
