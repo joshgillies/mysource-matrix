@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file_edit_fns.inc,v 1.1 2009/03/18 18:31:24 ata Exp $
+* $Id: flv_file_edit_fns.inc,v 1.2 2009/11/08 23:37:02 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,10 +40,10 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 	{
 		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = 1;
-		
+
 	}//end constructor
 
-	
+
 	/**
 	* Processes the interface for uploading a file
 	*
@@ -55,17 +55,19 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
-	* @param array	$info	info about the uploaded file
+	* @param File				$asset				the file asset
+	* @param Backend_Outputter	$o					the Backend Outputter object
+	* @param string				$prefix				prefix for form elements
+	* @param array				$info				info about the uploaded file
+	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param boolean			$asset_cloned		to check if we creating a new asset or just cloning
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
+		if (!parent::processFileUpload($asset, $o, $prefix, $info, $redirect_in_limbo, $asset_cloned)) {
 			return FALSE;
 		}
 
@@ -78,8 +80,8 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 		return TRUE;
 
 	}// end processFileUpload()
-	
-	
+
+
 	/**
 	* Paint the interface for metadata extraction
 	*
@@ -92,7 +94,7 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 	function paintExtractMetadata(FLV_File $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		if ($write_access) {
 			check_box($prefix.'_extract_metadata', 1, FALSE);
 		} else {
@@ -109,8 +111,8 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 		return $write_access;
 
 	}// end paintExtractMetadata()
-	
-	
+
+
 	/**
 	* Process the interface for metadata extraction
 	*
@@ -126,16 +128,16 @@ class FLV_File_Edit_Fns extends File_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$extract = array_get_index($_POST, $prefix.'_extract_metadata', FALSE);
-		
+
 		if ($extract) {
 			//tell the FLV asset that it needs to extract basic metadata and store them in its attributes
 			$asset->setAttrValue('extract_metadata', TRUE);
 		}
-			
-		return TRUE;	
-		
+
+		return TRUE;
+
 	}// end processExtractMetadata()
-	
+
 
 }//end class
 
