@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.9 2009/03/19 04:11:59 ewang Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.10 2009/11/09 00:41:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,23 +300,22 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				// abort if we and the second-last input are both empty
 				var lastInput = input.previousSibling;
 				var last2Input = lastInput.previousSibling;
-				if (input.value == '') {
-					while (lastInput !== null) {
-						if (lastInput.tagName == 'INPUT') {
-							last2Input = lastInput.previousSibling;
-							while (last2Input !== null) {
-								if (last2Input.tagName == 'INPUT') {
-									if (last2Input.value == '') {
-										return;
-									}
-									break;
+				
+				while (lastInput !== null) {
+					if (lastInput.tagName == 'INPUT') {
+						last2Input = lastInput.previousSibling;
+						while (last2Input !== null) {
+							if (last2Input.tagName == 'INPUT') {
+								if (last2Input.value == '') {
+									return;
 								}
-								last2Input = last2Input.previousSibling;
+								break;
 							}
-							break;
+							last2Input = last2Input.previousSibling;
 						}
-						lastInput = lastInput.previousSibling;
+						break;
 					}
+					lastInput = lastInput.previousSibling;
 				}
 
 				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
