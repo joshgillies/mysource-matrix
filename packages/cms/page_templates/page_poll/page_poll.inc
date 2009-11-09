@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.23 2008/10/08 17:01:21 gnoel Exp $
+* $Id: page_poll.inc,v 1.24 2009/11/09 00:12:36 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -762,7 +762,7 @@ class Page_Poll extends Page
 		$xtras = '';
 
 		if ($new_window) $xtras .= $this->_newWindowOption();
-		submit_button($this->getPrefix().'_poll', $this->attr('vote_button_text'), $xtras);
+		submit_button($this->getPrefix().'_poll_vote', $this->attr('vote_button_text'), $xtras);
 
 		return ob_get_clean();
 
@@ -771,7 +771,7 @@ class Page_Poll extends Page
 
 	/**
 	* Returns the onClick javascript that submits the vote selected from _componentOptionList()
-	* eg. &lt;img src="Foo.jpg onClick="%vote_button_javascript%" /&gt;
+	* eg. &lt;img src="Foo.jpg" onClick="%vote_button_javascript%" /&gt;
 	*
 	* @param boolean	$new_window	Open poll results in a new window
 	*
@@ -784,7 +784,7 @@ class Page_Poll extends Page
 
 		if ($new_window) $xtras .= $this->_newWindowOption();
 
-		return $xtras.' document.getElementById("'.$this->getPrefix().'_poll").submit();';
+		return $xtras.' document.getElementById(\''.$this->getPrefix().'_poll\').submit();';
 
 	}//end _componentVoteButtonJavascript()
 
