@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.29 2009/10/27 05:30:56 cupreti Exp $
+* $Id: form_submission_edit_fns.inc,v 1.30 2009/11/09 05:18:16 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,8 +124,22 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			}
 			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 			$o->openField($q->getVal('title'), '', $note);
-			$q_summary = ($q instanceof Form_Question_Type_File_Upload) ? $q->getSummary() : htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
+			
+			if ($q instanceof Form_Question_Type_File_Upload) {				
+				$q->setValue(array_get_index($section_questions[$form_id][$q_id], 'answer', ''));
+				$q->setExtraData(array_get_index($section_questions[$form_id][$q_id], 'extra_data', Array()));
+
+				$q_summary = $q->getSummary();
+				$filepath = $q->getExtraData('filesystem_path');
+
+				if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !empty($filepath)) {
+					$q_summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
+				}
+			} else {
+				$q_summary = htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
+			}			
 			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q_summary;
+			
 			$section_questions[$form_id][$q_id]['printed'] = TRUE;
 			$o->closeField();
 		}
