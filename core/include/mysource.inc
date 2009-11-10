@@ -10,7 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.11 2009/10/19 05:21:21 lwright Exp $
+<<<<<<< mysource.inc
+* $Id: mysource.inc,v 1.313.2.12 2009/11/10 03:28:10 lwright Exp $
+=======
+* $Id: mysource.inc,v 1.313.2.12 2009/11/10 03:28:10 lwright Exp $
+>>>>>>> 1.332
 *
 */
 
@@ -31,7 +35,11 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.11 $
+<<<<<<< mysource.inc
+* @version $Revision: 1.313.2.12 $
+=======
+* @version $Revision: 1.313.2.12 $
+>>>>>>> 1.332
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -648,6 +656,10 @@ class MySource extends MySource_Object
 			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
 				$content = parse_self_links($content);
 			}
+
+			// remove any sq_wysiwyg_* tags used as placeholders for plugins
+			// such as Embed Movie/Youtube
+			$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
 
 			echo $content;
 
