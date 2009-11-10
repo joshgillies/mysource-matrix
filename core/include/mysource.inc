@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.331 2009/10/22 03:52:47 mbrydon Exp $
+* $Id: mysource.inc,v 1.332 2009/11/10 03:21:19 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.331 $
+* @version $Revision: 1.332 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -227,7 +227,7 @@ class MySource extends MySource_Object
 		$this->lm = new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
-		
+
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			// we are accessing from the web, and the security subsystem is enabled in this run level,
 			// so we use cookies for security
@@ -648,6 +648,10 @@ class MySource extends MySource_Object
 			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
 				$content = parse_self_links($content);
 			}
+
+			// remove any sq_wysiwyg_* tags used as placeholders for plugins
+			// such as Embed Movie/Youtube
+			$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
 
 			echo $content;
 
