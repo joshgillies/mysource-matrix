@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.15 2009/08/19 05:56:46 lwright Exp $
+* $Id: form_ecommerce_management.inc,v 1.16 2009/11/10 06:08:32 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -69,11 +69,9 @@ class Form_Ecommerce_Management extends Asset_Management
 													   ),
 						'tax_value'					=> Array(
 														'added'			=> '0.2',
-														'type'			=> 'int',
+														'type'			=> 'float',
 														'default'		=> 0,
 														'parameters'	=> Array(
-																			'allow_empty'		=> FALSE,
-																			'allow_negative'	=> FALSE,
 																			'range_lower'		=> 0,
 																			'range_upper'		=> 100,
 																		   ),

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2009/11/10 06:06:56 ewang Exp $
 *
 */
 -->
@@ -31,7 +31,7 @@
 			<text width="10" height="1" />
 		</field>
 		<field attribute="tax_value">
-			<int width="3" />
+			<float width="3" />
 		</field>
 	</section>
 	<section name="Asset Purchase" write_access="write:attributes" >
