@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.11.6.1 2009/08/20 01:10:29 lwright Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.11.6.2 2009/11/10 23:49:38 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.6.1 $
+* @version $Revision: 1.11.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -73,11 +73,9 @@ class Ecommerce_Checkout_Management extends Asset_Management
 
 		$this->vars['taxation_rate'] = Array(
 										'added'			=> '0.2',
-										'type'			=> 'int',
+										'type'			=> 'float',
 										'default'		=> 10,
 										'parameters'	=> Array(
-															'allow_empty'		=> FALSE,
-															'allow_negative'	=> FALSE,
 															'range_lower'		=> 0,
 															'range_upper'		=> 100,
 														   ),

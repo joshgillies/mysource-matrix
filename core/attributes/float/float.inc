@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.24 2007/11/29 00:45:22 colivar Exp $
+* $Id: float.inc,v 1.24.8.1 2009/11/10 23:47:44 ewang Exp $
 *
 */
 
@@ -20,14 +20,17 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Floar/Real/Double Asset Attribute
 *
-*
+* parameters => Array(
+* 					'range_lower'		=> [int|float],				// optional
+* 					'range_upper'		=> [int|float],				// optional
+*               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
 *    <float width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.8.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -62,10 +65,10 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*/
 	function setEditParams(&$node)
 	{
-		if (!parent::setEditParams($node)) return false;
+		if (!parent::setEditParams($node)) return FALSE;
 		$this->_edit_params['width'] = (int) $node->attributes()->width;
 
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -78,7 +81,7 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$v = number_format($this->value, $this->_params['decimal_places'], '.', '');
 
@@ -86,9 +89,17 @@ class Asset_Attribute_Float extends Asset_Attribute
 			echo $v;
 			return;
 		}
+		
+		$js_validate = '';
+		if (isset($this->_params['range_upper'])){
+			$js_validate = ' else if (parseFloat(this.value) > parseFloat('.(float)$this->_params['range_upper'].')) { this.value = this.__sq_init_value;}';
+		}
+		if (isset($this->_params['range_lower'])){
+			$js_validate .= ' else if (parseFloat(this.value) < parseFloat('.(float)$this->_params['range_lower'].')) { this.value = this.__sq_init_value;}';
+		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix, $v, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(js_translate(\'cannot_accept_non_digit_characters\')); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
+		text_box($prefix, $v, $this->_edit_params['width'], 0, FALSE, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(js_translate(\'cannot_accept_non_digit_characters\')); } '.$js_validate.' else {this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
 
 	}//end paint()
 
@@ -103,12 +114,12 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix])) return false;
+		if (!isset($_REQUEST[$prefix])) return FALSE;
 		$value = (float) $_REQUEST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
-			$this->processed = true;
+			$this->processed = TRUE;
 		} else {
-			$this->processed = false;
+			$this->processed = FALSE;
 		}
 
 	}//end process()
@@ -131,8 +142,25 @@ class Asset_Attribute_Float extends Asset_Attribute
 		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
 		// it with a string '0', which is FALSE and what we want for it to invalidate.
 		// Only genuine ints will pass through.
-		if ((string)$new_value != $value) return false;
-		return true;
+		if ((string)$new_value != $value) return FALSE;
+		
+		if(isset($this->_params['range_upper'])) {
+			(float)$range_upper = $this->_params['range_upper'];
+			if ($new_value > $range_upper) {
+				return FALSE;
+			}	
+		}
+				
+
+		if(isset($this->_params['range_lower'])) {
+			(float)$range_lower = $this->_params['range_lower'];
+			if ($new_value < $range_lower) {
+				return FALSE;
+			}	
+		}
+			
+		
+		return TRUE;
 
 	}//end validateValue()
 
