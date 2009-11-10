@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.3.2.4 2009/06/01 01:47:12 lwright Exp $
+* $Id: form_action_save_xml.inc,v 1.3.2.5 2009/11/10 03:13:30 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.2.4 $
+* @version $Revision: 1.3.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -249,6 +249,7 @@ class Form_Action_Save_Xml extends Form_Action
 						break;
 						case 'select':
 						case 'tickbox_list':
+						case 'option_list':
 							if (is_array($value)) {
 								if (isset($questions[$question_id]['attributes']['options']) && !$use_keys) {
 									$list_options = @unserialize($questions[$question_id]['attributes']['options']);
@@ -281,14 +282,6 @@ class Form_Action_Save_Xml extends Form_Action
 							} else {
 								if (isset($standards_lists_countries[$value]) && !$use_keys) {
 									$value = htmlspecialchars($standards_lists_countries[$value]);
-								}//end if
-							}//end if
-						break;
-						case 'option_list':
-							if (isset($questions[$question_id]['attributes']['options']) && !$use_keys) {
-								$list_options = @unserialize($questions[$question_id]['attributes']['options']);
-								if (isset($list_options[$value])) {
-									$value = htmlspecialchars($list_options[$value]);
 								}//end if
 							}//end if
 						break;
