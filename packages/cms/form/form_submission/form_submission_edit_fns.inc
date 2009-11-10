@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.26.6.3 2009/11/09 05:18:59 cupreti Exp $
+* $Id: form_submission_edit_fns.inc,v 1.26.6.4 2009/11/10 03:51:04 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26.6.3 $
+* @version $Revision: 1.26.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -125,15 +125,20 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 			$o->openField($q->getVal('title'), '', $note);
 			
-			if ($q instanceof Form_Question_Type_File_Upload) {				
+			if ($q instanceof Form_Question_Type_File_Upload) {
 				$q->setValue(array_get_index($section_questions[$form_id][$q_id], 'answer', ''));
 				$q->setExtraData(array_get_index($section_questions[$form_id][$q_id], 'extra_data', Array()));
 
 				$q_summary = $q->getSummary();
 				$filepath = $q->getExtraData('filesystem_path');
 
-				if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !empty($filepath)) {
+				// Bug fix #4018 Download link On submission logs screen doesnt work. When we have create location specified
+				// on the upload question, we can directly get the assetid of file asset created from $filepath and create a working link
+				if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (!isset($filepath['existing_file_assetid']) && !isset($filepath['new_file_assetid'])) ) ) {
 					$q_summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
+				} else if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (isset($filepath['existing_file_assetid']) || isset($filepath['new_file_assetid']) ) ) ) {
+					$uploade_file_id = array_key_exists('existing_file_assetid', $filepath) ? $filepath['existing_file_assetid'] : $filepath['new_file_assetid'];
+					$q_summary .= ' [ <a href="./?a='.$uploade_file_id.'" target="_blank" >'.'Click to download'.'</a> ]';
 				}
 			} else {
 				$q_summary = htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
@@ -179,8 +184,14 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 
 					if ($q instanceof Form_Question_Type_File_Upload) {
 						$filepath = $q->getExtraData('filesystem_path');
-						if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !empty($filepath)) {
+
+						// Bug fix #4018 Download link On submission logs screen doesnt work. When we have create location specified
+						// on the upload question, we can directly get the assetid of file asset created from $filepath and create a working link
+						if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (!isset($filepath['existing_file_assetid']) && !isset($filepath['new_file_assetid'])) ) ) {
 							$summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
+						} else if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (isset($filepath['existing_file_assetid']) || isset($filepath['new_file_assetid']) ) ) ) {
+							$uploade_file_id = array_key_exists('existing_file_assetid', $filepath) ? $filepath['existing_file_assetid'] : $filepath['new_file_assetid'];
+							$summary .= ' [ <a href="./?a='.$uploade_file_id.'" target="_blank" >'.'Click to download'.'</a> ]';
 						}
 					}
 
