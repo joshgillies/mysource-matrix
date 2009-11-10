@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.9 2009/10/07 03:41:13 cupreti Exp $
+* $Id: mysource.inc,v 1.290.2.10 2009/11/10 03:42:22 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.9 $
+* @version $Revision: 1.290.2.10 $
 * @package MySource_Matrix
 */
 class MySource
@@ -564,6 +564,11 @@ class MySource
 			ob_end_clean();
 
 			$this->_replaceKeyword($content);
+
+			// remove any sq_wysiwyg_* tags used as placeholders for plugins
+			// such as Embed Movie/Youtube
+			$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
+
 			echo $content;
 
 		}//end else backend/limbo
