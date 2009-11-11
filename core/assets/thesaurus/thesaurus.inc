@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.61.4.1 2009/05/05 06:31:36 ewang Exp $
+* $Id: thesaurus.inc,v 1.61.4.2 2009/11/11 02:37:46 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.61.4.1 $
+* @version $Revision: 1.61.4.2 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -2018,7 +2018,7 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		if (strpos(':', $assetid) !== FALSE) {
+		if (strpos($assetid, ':') !== FALSE) {
 			list($realid, $shadowid) = explode(':', $assetid);
 			$parents = Array($realid => $this->type());
 			$parents += $GLOBALS['SQ_SYSTEM']->am->getParents($realid, $type_code, $strict_type_code);
