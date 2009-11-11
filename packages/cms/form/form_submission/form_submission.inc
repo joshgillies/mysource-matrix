@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.36 2009/09/30 14:41:31 ata Exp $
+* $Id: form_submission.inc,v 1.37 2009/11/11 22:32:57 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -281,7 +281,7 @@ class Form_Submission extends Asset
 	function getSummary($q_id=NULL, $value='answer')
 	{
 		$a = $this->attr('attributes');
-		if (!$a) return FALSE;
+		if (!$a || !isset($a['summary'])) return FALSE;
 
 		if (is_null($q_id)) {
 			return $a['summary'];
