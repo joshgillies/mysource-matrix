@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.769 2009/11/01 23:41:30 cupreti Exp $
+* $Id: asset_manager.inc,v 1.770 2009/11/11 02:26:58 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.769 $
+* @version $Revision: 1.770 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3699,14 +3699,12 @@ class Asset_Manager extends MySource_Object
 			if (!$ignore_bridge) {
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
-
-			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						sl.majorid
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 
-			$where = 'sl.minorid = '.MatrixDAL::quote($assetid);
+			$where = 'sl.minorid = '.MatrixDAL::quote($assetid).' AND sl.link_type = '.MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT);
 
 			if (!empty($type_code)) {
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
@@ -3748,7 +3746,7 @@ class Asset_Manager extends MySource_Object
 			foreach ($shdw_parentids as $parentid) {
 				$real_parents += $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
 			}
-
+			
 			$parents = $parents + $shdw_parents + $real_parents;
 
 			$this->forgetAsset($asset);
@@ -3772,7 +3770,6 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$result = MatrixDAL::executePdoGroupedAssoc($query);
-
 		$parents = Array();
 		foreach ($result as $assetid => $row) {
 			$parents[$assetid] = $row[0]['type_code'];
