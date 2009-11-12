@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.332 2009/11/10 03:21:19 lwright Exp $
+* $Id: mysource.inc,v 1.333 2009/11/12 23:45:18 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.332 $
+* @version $Revision: 1.333 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -227,7 +227,7 @@ class MySource extends MySource_Object
 		$this->lm = new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
-
+		
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			// we are accessing from the web, and the security subsystem is enabled in this run level,
 			// so we use cookies for security
@@ -407,7 +407,9 @@ class MySource extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$this->backend = &$backend;
-				$backend->paint();
+				ob_start();
+					$backend->paint();
+				ob_end_flush();
 			} else {
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 			}
