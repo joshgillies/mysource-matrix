@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.2 2009/09/27 23:27:15 bpearson Exp $
+* $Id: js_api.inc,v 1.2.2.3 2009/11/12 04:44:37 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -64,6 +64,22 @@ class JS_Api extends Page
 	}//end _createAdditional()
 
 
+    /**
+    * Returns an array of all the permitted links type, the type asset and the cardinality
+    *
+    * @return array
+    * @access private
+    * @see Asset::_getAllowLinks()
+    */
+    public function _getAllowedLinks()
+    {
+		$links = parent::_getAllowedLinks();
+		$links[SQ_LINK_NOTICE] = Array('asset' => Array('card' => 'M', 'exclusive' => FALSE));
+		return $links;
+
+    }//end _getAllowedLinks()
+
+
 	/**
 	* Print the frontend of the asset without the design
 	*
@@ -97,6 +113,7 @@ class JS_Api extends Page
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$ignore = $this->attr('ignore_permissions');
 
 		// Set our API Key
 		$check_key = $this->attr('api_key');
@@ -154,12 +171,10 @@ class JS_Api extends Page
 		if (!$asset) return;
 
 		// Check to see if passed ID is under our root node, or, if we are using a root node
-		if ($this->attr('root_node') != 0) {
-			if (!$this->checkRoot($asset)) {
-				$this->returnError('You do not have permissions to access this asset');
-				restore_error_handler();
-				return;
-			}
+		if (!$this->checkRoot($asset)) {
+			$this->returnError('You do not have permissions to access this asset');
+			restore_error_handler();
+			return;
 		}
 
 		// Set some shortcuts
@@ -364,7 +379,7 @@ class JS_Api extends Page
 
 			case	'createAsset':
 				if ($this->attr('create_asset')) {
-					if ($wa) {
+					if ($wa || $ignore) {
 						// These must be set, so we don't need to check these
 						if (isset($_REQUEST['type_code']) && isset($_REQUEST['asset_name'])) {
 							isset($_REQUEST['type_code']) ? $type_code = $_REQUEST['type_code'] : $type_code = '';
@@ -377,7 +392,9 @@ class JS_Api extends Page
 							if (isset($_REQUEST['extra_attributes']) && $_REQUEST['extra_attributes'] == '1') $extra_attributes = TRUE;
 							
 							// Create our asset
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 							$data = $this->createAsset($asset->id, $type_code, $asset_name, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive, $extra_attributes);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 							if (empty($data)) {
 								if (!$data) {
 									$this->returnError('You are not allowed to create this asset type');
@@ -539,6 +556,7 @@ class JS_Api extends Page
 
 			case	'getLinkId':
 				if ($this->attr('get_link_id')) {
+					if ($ra) {
 						if (isset($_REQUEST['parent_id'])) {
 							// Check to see if we are using an id or a URL
 							$parent = $this->setAsset($_REQUEST['parent_id']);
@@ -550,7 +568,9 @@ class JS_Api extends Page
 						// Get our link id
 						$data['link_id'] = $this->getLinkId($parent->id, $asset->id);
 						if (!$data['link_id']) return;
-						
+					} else {
+						$this->returnError('You do not have permissions to access this asset');
+					}//end if
 				} else {
 					$this->returnError('The getLinkId function must be activated');
 				}//end else
@@ -1176,6 +1196,14 @@ class JS_Api extends Page
 			}
 		}
 
+		// Are we allowed to create this asset under this parent type?
+		$restrict = $this->attr('types_restriction');
+		if (!empty($restrict)) {
+			if (!$this->checkParentType($pa)) {
+				return FALSE;
+			}
+		}
+		
 		$am->includeAsset($type_code);
 
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
@@ -1225,6 +1253,24 @@ class JS_Api extends Page
 
 
 	/**
+	* Description: Check out see if the parent passed matches the allowed types
+	*
+	* @param object	 $parent	The asset to check
+	*
+	* @return TRUE
+	* @access public
+	*/
+	function checkParentType($parent)
+	{
+		// Are we allowed to create this asset under this parent type?
+		if (array_key_exists($parent->type(), $this->attr('types_restriction'))) {
+			return TRUE;
+		}
+
+	}//end checkParentType
+	
+	
+	/**
 	* Description: Check out see if the passed asset is under the root restriction
 	*
 	* @param object	 &$asset	The asset to check
@@ -1235,7 +1281,8 @@ class JS_Api extends Page
 	function checkRoot(&$asset)
 	{
 		// This is the root node, will allow it
-		if ($asset->id == $this->attr('root_node')) return TRUE;
+		$root_nodes = $this->getRootNodes();
+		if (in_array($asset->id, $root_nodes)) return TRUE;
 
 		// If a shadow link test the bridge instead
 		if (strpos($asset->id, ':') !== FALSE) {
@@ -1247,9 +1294,38 @@ class JS_Api extends Page
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($test_asset->id);
 		unset($test_asset);
-		return isset($parents[$this->attr('root_node')]);
+		// Compare our arrays
+		$parent_nodes = array_keys($parents);
+		$result = array_intersect($root_nodes, $parent_nodes);
+
+		// Check to see if we have matching array keys
+		if (!empty($result)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}//end if
 
 	}//end checkRoot
+
+
+	/**
+	 * Return a list of the root nodes
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public function getRootNodes()
+	{
+		$root_nodes   = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', TRUE, 'major', 'root');
+		$nodes = Array();
+		foreach ($root_nodes as $node) {
+			$node_id = array_get_index($node, 'minorid', 0);
+			if (!empty($node_id)) $nodes[] = $node_id;
+		}//end foreach
+
+		return $nodes;
+
+	}//end getRootNodes()
 
 
 	/**
