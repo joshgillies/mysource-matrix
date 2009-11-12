@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.24 2009/11/04 22:07:16 bpearson Exp $
+* $Id: form_submission_management.inc,v 1.25 2009/11/12 03:04:36 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -115,9 +115,9 @@ class Form_Submission_Management extends Asset_Management
 			// Upgrade the form submission
 			// Form submission will now have a new attribute called submitted
 			// This field will be the datetime the submission was completed
-			// This corrects Bug #4000 - 
+			// This corrects Bug #4000 -
 			// The submission uses the created attribute on the asset,
-			// which is inaccurate on multipage forms where the user can 
+			// which is inaccurate on multipage forms where the user can
 			// save and return at another time. One shot forms are unaffected
 
 			$count = 0;
@@ -146,12 +146,31 @@ class Form_Submission_Management extends Asset_Management
 					if (!isset($answers['answers'])) {
 						$form_id = 0;
 					} else {
-						reset($answers['answers']);
-						$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
+						// Default to nothing unless something is found
+						$form_id = 0;
+
+						$section_assetids = Array();
+						foreach ($answers['answers'] as $assetid => &$data) {
+							$assetid_bits = explode(':', $assetid, 2);
+							$real_assetid = $assetid_bits[0];
+
+							// Only use this asset ID if we haven't seen it before
+							if (array_search($real_assetid, $section_assetids) === FALSE) {
+								$section_assetids[] = $real_assetid;
+
+								// check that the real asset ID actually exists before sending to getParents
+								$real_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($real_assetid), 'asset', FALSE, 'name');
+								if (empty($real_asset_info) === FALSE) {
+									$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents($real_assetid, 'form', FALSE));
+									break;
+								}
+							}
+						}
+
 					}//end if
 
-					// No form found cannot proceed 
-					if (!empty($form_id)) { 
+					// No form found cannot proceed
+					if (!empty($form_id)) {
 						$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id, '');
 						$sub_folder = $form->getSubmissionsFolder('submissions_folder');
 
@@ -177,7 +196,7 @@ class Form_Submission_Management extends Asset_Management
 						}//end if
 						// Point the POST var to the current submission id
 						$_POST['SQ_FORM_'.$form->id.'_SUBMISSION'] = $submission->id;
-						$submission->setAttrValue('xml', $form->getXML($date)); 
+						$submission->setAttrValue('xml', $form->getXML($date));
 					}//end if
 
 					// Save the date
