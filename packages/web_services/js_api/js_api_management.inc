@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.3 2009/09/25 00:42:49 bpearson Exp $
+* $Id: js_api_management.inc,v 1.4 2009/11/12 04:25:11 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -44,12 +44,17 @@ class JS_Api_Management extends Asset_Management
 
 		$this->vars	= Array (
 						'types'						=> Array(
-														'added'			=> '0.0.3',
+														'added'			=> '0.1',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+										   	   			),
+						'types_restriction'			=> Array(
+														'added'			=> '0.1',
 														'type'			=> 'serialise',
 														'default'		=> Array(),
 										   	   			),
 						'name'						=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'text',
 														'default'		=> '',
 														'description'	=> 'The full name of the page',
@@ -57,7 +62,7 @@ class JS_Api_Management extends Asset_Management
 														'is_admin'		=> FALSE,
 										   	   			),
 						'short_name'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'text',
 														'default'		=> '',
 														'description'	=> 'The short name of the page',
@@ -65,15 +70,15 @@ class JS_Api_Management extends Asset_Management
 														'is_admin'		=> FALSE,
 										       			),
 						'root_node'					=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.2',
 														'type'			=> 'assetid',
 														'default'		=> '',
-														'description'	=> 'The root node to restrict to',
+														'description'	=> 'The root node to restrict to. DEPRECIATED in v0.2 and up',
 														'update_fn'		=> '',
 														'is_admin'		=> FALSE,
 											   			),
 						'api_key'					=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'text',
 														'default'		=> $key,
 														'description'	=> 'The API Key',
@@ -81,7 +86,7 @@ class JS_Api_Management extends Asset_Management
 														'is_admin'		=> FALSE,
 											   			),
 						'create_attributes'			=> Array(
-														'added'			=> '0.0.3',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -89,15 +94,23 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'allow_json'				=> Array(
-														'added'			=> '0.0.3',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> TRUE,
 														'parameters'	=> Array(
 																			'allow_empty'	=> FALSE,
 																		   ),
 											   			),
+						'ignore_permissions'		=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											   			),
 						'get_general'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -105,7 +118,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_attributes'			=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -113,7 +126,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'set_attribute'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -121,7 +134,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_metadata'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -129,7 +142,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'set_metadata'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -137,7 +150,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'trash_asset'				=> Array(
-														'added'			=> '0.0.1',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -145,7 +158,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_parents'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -153,7 +166,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_children'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -161,7 +174,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_permissions'			=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -169,7 +182,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'create_asset'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -177,7 +190,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_asset_types'			=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -185,7 +198,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'acquire_lock'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -193,7 +206,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'release_lock'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -201,7 +214,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'create_link'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -209,7 +222,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'remove_link'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -217,7 +230,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'move_link'					=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -225,7 +238,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'update_link'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -233,7 +246,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_link_id'				=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -241,7 +254,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_asset_tree'			=> Array(
-														'added'			=> '0.0.2',
+														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -252,6 +265,68 @@ class JS_Api_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.2', '<')) {
+			// version 0.1 -> 0.2
+			// Root nodes changed from assetid to links 
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
+			$apis = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('js_api', FALSE, TRUE);
+			$count = 0;
+			foreach ($apis as $assetid => $type_code) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'js_api');
+				if (is_null($asset)) continue;
+
+				// Current links if applicable
+				$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+				$current_root_node_id = $asset->attr('root_node');
+
+				// Set a new notice link for the current root node if not already
+				if (!empty($current_root_node_id)) {
+					$exists = FALSE;
+					foreach ($root_links as $root_link) {
+						if ($root_link['minorid'] == $current_root_node_id) {
+							$exists = TRUE;
+						}//end if
+					}//end foreach
+
+					if (!$exists) {
+						$current_root_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_root_node_id);
+						if (!is_null($current_root_node)) {
+							$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links');
+							$new_link = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $current_root_node, SQ_LINK_NOTICE, 'root');
+							if (!empty($new_link)) $count++;
+							$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
+						}//end if
+					}//end if
+				}//end if
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			pre_echo('Updated - '.$count.' Javascript Api(s)...');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
+
+		}//end if - upgrade to version 0.2
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class

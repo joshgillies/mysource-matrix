@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2009/09/25 00:42:49 bpearson Exp $
+* $Id: lang_strings.xml,v 1.2 2009/11/12 04:25:11 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -18,4 +18,6 @@
 -->
 <strings>
 <string source="js_api_no_asset_types_selected">No asset types have been selected</string>
+<string source="js_api_no_root_nodes_selected">No root nodes have been selected</string>
+<string source="js_api_api_key_lock">Locks must be aquired to see the api key</string>
 </strings>

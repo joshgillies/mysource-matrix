@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2009/09/25 00:42:49 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.5 2009/11/12 04:25:11 bpearson Exp $
 *
 */
 -->
@@ -27,10 +27,14 @@
         </field>
 	</section>
     <section name="Restrictions" write_access="write:attributes">
-        <field attribute="root_node">
-            <display_name>Root Node</display_name>
-            <note />
-        </field>
+		<field>
+			<display_name>Root Nodes</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
 		<field>
 			<display_name>Asset Types to Create</display_name>
 			<note>Asset type restrictions can be set to allow only the selected asset types to be created.</note>
@@ -39,19 +43,35 @@
 				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
+		<field>
+			<display_name>Parent Types</display_name>
+			<note>If set, these asset types will be checked when a parent asset is needed, such as creating, linking and moving.  If the parent types do not match, the function will fail.</note>
+			<function_call>
+				<paint_function   name="paintParentTypes"   />
+				<process_function name="processParentTypes" />
+			</function_call>
+		</field>
         <field attribute="create_attributes">
             <display_name>Allow Attributes on Create</display_name>
             <note>If this option is set to yes, additional attributes can be added when the asset is created.  The attributes must be sent through the attributes parameter of the createAsset() function. Correct attribute names must be used, as well as serialization of data.</note>
         </field>
         <field attribute="allow_json">
             <display_name>Return JSON</display_name>
-            <note>This option can be used to suppress the return of JSON.  Suppressing JSON can be useful to prevent users from knowing asset id's, attribute, etc. from certain functions.</note>
+            <note>This option can be used to suppress the return of JSON.  Suppressing JSON can be useful to prevent users from knowing asset id's, attributes, etc. from certain functions.</note>
+        </field>
+        <field attribute="ignore_permissions">
+            <display_name>Ignore Permissions</display_name>
+            <note>If this option is set to yes, permissions will not be checked when creating assets.</note>
         </field>
     </section>
     <section name="API Settings" write_access="write:attributes">
-        <field attribute="api_key">
+        <field>
             <display_name>API Key</display_name>
             <note />
+			<function_call>
+				<paint_function   name="paintApiKey"  />
+				<process_function name="processApiKey" />
+			</function_call>
         </field>
     </section>
     <section name="Core" write_access="write:attributes">

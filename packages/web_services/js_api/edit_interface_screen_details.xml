@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2009/09/25 00:42:49 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2009/11/12 04:25:11 bpearson Exp $
 *
 */
 -->
@@ -25,13 +25,22 @@
         </field>	
 	</section>
     <section name="Restrictions" write_access="write:attributes">
-        <field attribute="root_node">
-            <assetid />
-        </field>
+		<field>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintParentTypes"   />
+				<process_function name="processParentTypes" />
 			</function_call>
 		</field>
 		<field attribute="create_attributes">
@@ -40,10 +49,16 @@
 		<field attribute="allow_json">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="ignore_permissions">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>	
     <section name="API Settings" write_access="write:attributes">
-        <field attribute="api_key">
-            <text width="35" height="1" />
+        <field>
+			<function_call>
+				<paint_function   name="paintApiKey"  />
+				<process_function name="processApiKey" />
+			</function_call>
         </field>	
 	</section>	
     <section name="Core" write_access="write:attributes">
