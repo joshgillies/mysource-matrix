@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.7.2.1 2009/11/10 03:11:47 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.7.2.2 2009/11/13 06:04:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,6 +302,7 @@ class Form_Action_Save_Xml extends Form_Action
 								if (!is_null($asset)) {
 									$file_details = $asset->getExistingFile();
 									$file_to_process = $file_details['path'];
+									$filename = $file_details['filename'];
 									if (file_exists($file_to_process)) {
 										$fhandle = fopen($file_to_process, 'r');
 										$file_content = fread($fhandle, filesize($file_to_process));
