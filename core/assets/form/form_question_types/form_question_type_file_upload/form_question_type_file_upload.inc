@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.40.2.1 2009/10/29 00:13:13 ewang Exp $
+* $Id: form_question_type_file_upload.inc,v 1.40.2.2 2009/11/13 03:13:37 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -355,7 +355,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 				$temp_path = $this->extra_data['temp_filesystem_path'];
 				delete_directory(dirname($temp_path));
 
-				//$this->setValue('');
+				$this->setValue('');
+				unset($this->_tmp['file_info']);
+				unset($this->extra_data['mime_type']);
 				unset($this->extra_data['temp_filesystem_path']);
 			}
 		}
@@ -490,7 +492,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			// We are all good, so create the file
 			if ($ok) {
-				
+
 				if ($existing_asset) {
 					// update the existing file asset
 					$edit_fns = $existing_asset->getEditFns();
@@ -512,7 +514,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$this->extra_data = Array(
 											'existing_file_assetid'	=> $existing_asset->id,
 											'mime_type'				=> $mime_type,
-											'temp_filesystem_path'  => $temp_path,
+											'temp_filesystem_path' 	=> $temp_path,
 										);
 
 				} else {
@@ -585,7 +587,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$this->extra_data = Array(
 											'new_file_assetid'		=> $file_asset->id,
 											'mime_type'				=> $mime_type,
-											'temp_filesystem_path'  => $temp_path,
+											'temp_filesystem_path'	=> $temp_path,
 										);
 
 				}//end if existing file
@@ -633,7 +635,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$file_info = $this->_tmp['file_info'];
 
 		if ($file_info['error'] === UPLOAD_ERR_OK) {
-
 			$submission_path = $this->getTempFileUploadPath($parent);
 			create_directory($submission_path);
 
