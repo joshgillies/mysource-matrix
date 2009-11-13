@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.35.2.6 2009/10/29 00:14:00 ewang Exp $
+* $Id: form_question_type_file_upload.inc,v 1.35.2.7 2009/11/13 03:00:15 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.6 $
+* @version $Revision: 1.35.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -280,7 +280,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 				// Check that we are not going to have web path conflicts
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				
 				$valid_names = make_valid_web_paths(Array($this->getValue()));
 				$name = array_shift($valid_names);
 
@@ -356,7 +355,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 				$temp_path = $this->extra_data['temp_filesystem_path'];
 				delete_directory(dirname($temp_path));
 
-				//$this->setValue('');
+				$this->setValue('');
+				unset($this->_tmp['file_info']);
+				unset($this->extra_data['mime_type']);
 				unset($this->extra_data['temp_filesystem_path']);
 			}
 		}
@@ -441,7 +442,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			} catch (Exception $e) {
 				throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
 			}
-			
+
 			//check possible orphaned asset
 			if(empty($existing_assetid) && ($this->attr('overwrite_rule') == 'O' || $this->attr('overwrite_rule') == 'R')) {
 				$orphaned = NULL;
@@ -459,7 +460,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$existing_assetid = $orphaned->id;	
 				}
 			}
-			
 			
 			$existing_asset = NULL;
 			if (!empty($existing_assetid)) {
@@ -492,6 +492,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			// We are all good, so create the file
 			if ($ok) {
+
 				if ($existing_asset) {
 					// update the existing file asset
 					$edit_fns = $existing_asset->getEditFns();
@@ -513,7 +514,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$this->extra_data = Array(
 											'existing_file_assetid'	=> $existing_asset->id,
 											'mime_type'				=> $mime_type,
-											'temp_filesystem_path' => $temp_path,
+											'temp_filesystem_path' 	=> $temp_path,
 										);
 
 				} else {
@@ -647,7 +648,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 
 			$submission_file_name = $submission_path.'/'.$file_info['name'];
-
 			move_uploaded_file($file_info['tmp_name'], $submission_file_name);
 			$this->setValue(basename($submission_file_name));
 		}
