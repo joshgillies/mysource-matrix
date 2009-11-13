@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.78 2009/11/02 04:46:21 ewang Exp $
+* $Id: image.inc,v 1.79 2009/11/13 00:44:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,12 +212,13 @@ class Image extends File implements Bridge
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'image_info' :
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
-				$ouput = Array();
+				$output = Array();
 				$output['alt']    = $this->attr('alt');
 				$output['width']  = $this->attr('width');
 				$output['height'] = $this->attr('height');
+				$output['caption'] = $this->attr('caption');
 				$output['name']   = $this->name;
-				
+
 				echo var_serialise($output);
 				exit();
 			default :
@@ -905,7 +906,7 @@ class Image extends File implements Bridge
 	function getKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
-		
+
 		// Remove any modifiers from keyword
 		$keyword = parse_keyword($keyword, $modifiers);
 
