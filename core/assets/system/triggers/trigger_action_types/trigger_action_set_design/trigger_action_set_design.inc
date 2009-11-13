@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.18.8.4 2009/10/12 05:41:48 ewang Exp $
+* $Id: trigger_action_set_design.inc,v 1.18.8.5 2009/11/13 00:45:15 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18.8.4 $
+* @version $Revision: 1.18.8.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['asset']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 		
@@ -100,7 +100,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		}
 
 		// get all system_design::frontend links attached to the asset
-		$design_links = $am->getLinks($state['asset'], SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_final_name);
+		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_final_name);
 		$link_already_created = FALSE;
 
 		if (!empty($design_links)) {
