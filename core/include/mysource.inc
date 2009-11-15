@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.10 2009/11/10 03:42:22 lwright Exp $
+* $Id: mysource.inc,v 1.290.2.11 2009/11/15 23:10:53 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.10 $
+* @version $Revision: 1.290.2.11 $
 * @package MySource_Matrix
 */
 class MySource
@@ -351,7 +351,9 @@ class MySource
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$this->backend = &$backend;
-				$backend->paint();
+				ob_start();
+					$backend->paint();
+				ob_end_flush();
 			} else {
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 			}
