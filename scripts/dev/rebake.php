@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rebake.php,v 1.1 2007/11/30 00:12:27 lwright Exp $
+* $Id: rebake.php,v 1.1.8.1 2009/11/16 05:18:23 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *    php install_queries.php /system/root
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.8.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,7 +80,7 @@ if ($cli) {
 }
 
 if (!defined('SQ_SYSTEM_ROOT')) {
-    define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -123,7 +123,7 @@ if (count($packages) === 0) {
 	print_status_name('Installing queries for installed packages ('.count($packages).' packages)...');
 	try {
 		foreach	($packages as $package) {
-			$package_name = $package['name'];
+			$package_name = $package['code_name'];
 			if ($package_name == '__core__') {
 				$package_name = 'core';
 			}
