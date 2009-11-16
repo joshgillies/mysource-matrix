@@ -55,7 +55,6 @@
 					<greater table="sq_ast_attr_val" column="custom_val">:from_time</greater>
 					<less table="sq_ast_attr_val" column="custom_val">:to_time</less>
 					<equal table="sq_ast_attr" column="name">:name</equal>
-					<equal table="sq_ast_attr_val" column="contextid">:context</equal>
 				</where>
 				<joins>
 					<join>
