@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.1.2.2 2009/09/21 03:54:35 lwright Exp $
+* $Id: locking_method_default.inc,v 1.1.2.3 2009/11/17 04:59:29 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.1.2.2 $
+* @version		$Revision: 1.1.2.3 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -306,11 +306,18 @@ class Locking_Method_Default extends Locking_Method
 				if ($check_expires && !empty($result['expires'])) {
 					if ($results[$result_key]['expires'] < time()) {
 						self::releaseLock($lockid);
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						// this lock has expired
-						return Array();
-					}
-				}
+						if (count($results) > 1) {
+							// More locks to check
+							unset($results[$result_key]);
+							continue;
+						} else {
+							// All done fin
+							$results = Array();
+							break;
+						}//end if
+					}//end if
+				}//end if
 
 				if ($full_chain) {
 					$results[$result_key]['chained_assets'] = Array();
