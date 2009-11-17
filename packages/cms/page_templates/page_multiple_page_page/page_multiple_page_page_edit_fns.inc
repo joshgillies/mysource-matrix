@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page_edit_fns.inc,v 1.5 2007/12/05 00:21:36 bshkara Exp $
+* $Id: page_multiple_page_page_edit_fns.inc,v 1.6 2009/11/17 23:53:30 cupreti Exp $
 *
 */
 
@@ -24,14 +24,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
 class Page_Multiple_Page_Page_Edit_Fns extends Bodycopy_Edit_Fns
-{
-
-
+{ 		
 	/**
 	* Constructor
 	*
@@ -39,6 +37,12 @@ class Page_Multiple_Page_Page_Edit_Fns extends Bodycopy_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		
+		$this->static_screens['tagging'] = Array(
+												'name'          => 'Tagging',
+												'force_unlock'  => TRUE,
+												'lock_type'     => 'menu',
+											);
 
 	}//end constructor
 
