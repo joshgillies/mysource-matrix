@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.11 2009/11/15 23:10:53 cupreti Exp $
+* $Id: mysource.inc,v 1.290.2.12 2009/11/17 05:01:29 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.11 $
+* @version $Revision: 1.290.2.12 $
 * @package MySource_Matrix
 */
 class MySource
@@ -3072,11 +3072,18 @@ class MySource
 				if ($check_expires && !empty($result['expires'])) {
 					if ($results[$result_key]['expires'] < time()) {
 						$this->releaseLock($lockid);
-						$this->restoreDatabaseConnection();
 						// this lock has expired
-						return Array();
-					}
-				}
+						if (count($results) > 1) {
+							// More locks to check
+							unset($results[$result_key]);
+							continue;
+						} else {
+							// All done fin
+							$results = Array();
+							break;
+						}//end if
+					}//end if
+				}//end if
 
 				if ($full_chain) {
 					$results[$result_key]['chained_assets'] = Array();
