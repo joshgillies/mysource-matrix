@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2009/05/28 00:33:46 akarelia Exp $
+* $Id: edit_interface_screens.xml,v 1.5.2.1 2009/11/17 23:55:20 cupreti Exp $
 *
 */
 -->
@@ -18,5 +18,4 @@
 <screens>
 	<screen code_name="contents" display_name="Edit Contents"     icon="create" lock_type="content" force_unlock="0" />
 	<screen code_name="paths"    display_name="Web Paths"         icon="web"    lock_type="lookups" />
-	<screen code_name="tagging"  display_name="Tagging"			  		        lock_type="menu"/>
 </screens>
