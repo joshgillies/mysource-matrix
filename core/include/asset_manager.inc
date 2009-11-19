@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.773 2009/11/19 02:58:22 cupreti Exp $
+* $Id: asset_manager.inc,v 1.774 2009/11/19 03:46:30 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.773 $
+* @version $Revision: 1.774 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9136,7 +9136,7 @@ class Asset_Manager extends MySource_Object
 				* Get exact treeid's by taking off SQ_CONF_ASSET_TREE_SIZE chunks from the end
 				* until we end up with the length we're looking for (i.e. between temp_min_height and temp_max_height)
 				*/
-				while (strlen($temp_treeid) <= $temp_min_height && strlen($temp_treeid) >= $temp_max_height) {
+				while (strlen($temp_treeid) && strlen($temp_treeid) <= $temp_min_height && strlen($temp_treeid) >= $temp_max_height) {
 					$tree_var_name = $bind_prefix . 'treeid_' . $i . '_' . $treeid_counter;
 					$bind_vars[$tree_var_name] = $temp_treeid;
 					$where_comp .= ':' . $tree_var_name.',';
