@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.34.2.1 2009/11/11 22:33:49 ewang Exp $
+* $Id: form_submission.inc,v 1.34.2.2 2009/11/19 00:04:23 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -427,31 +427,37 @@ class Form_Submission extends Asset
 		if (preg_match('/question\_name\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			foreach ($attrs['summary'] as $name => $value) {
-				if (substr($name, -3) == ':q'.$matches[1]) {
+				$q_ids = split(':q', $name);
+				if ($q_ids[1] == $matches[1]) {
 					return $value['name'];
 				}
 			}
 			return '';
 		}
+
 		if (preg_match('/question\_name\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
 			return $elt['name'];
 		}
+
 		if (preg_match('/question\_answer\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			foreach ($attrs['summary'] as $name => $value) {
-				if (substr($name, -3) == ':q'.$matches[1]) {
+				$q_ids = split(':q', $name);
+				if ($q_ids[1] == $matches[1]) {
 					return $value['answer'];
 				}
 			}
 			return '';
 		}
+
 		if (preg_match('/question\_answer\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
 			return $elt['answer'];
 		}
+
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
