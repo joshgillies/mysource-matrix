@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.37 2009/11/11 22:32:57 ewang Exp $
+* $Id: form_submission.inc,v 1.38 2009/11/19 00:01:28 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -434,13 +434,13 @@ class Form_Submission extends Asset
 			}
 			return '';
 		}
-		
+
 		if (preg_match('/question\_name\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
 			return $elt['name'];
 		}
-		
+
 		if (preg_match('/question\_answer\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			foreach ($attrs['summary'] as $name => $value) {
@@ -451,7 +451,7 @@ class Form_Submission extends Asset
 			}
 			return '';
 		}
-		
+
 		if (preg_match('/question\_answer\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
@@ -471,7 +471,7 @@ class Form_Submission extends Asset
 			}
 			return '';
 		}
-		
+
 		//do keyword replacement for question types that have both keys and values in the answers such as select or country question types
 		if (preg_match('/question\_answer\_key\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
@@ -483,7 +483,7 @@ class Form_Submission extends Asset
 			
 			return $elt['answer'];
 		}
-		
+
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
