@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.9 2008/07/21 04:59:13 ewang Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.9.6.1 2009/11/19 22:36:52 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,12 +75,13 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	{
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$value = array_get_index($rule_data, 'value', '');
-
+		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1) ? '' : 'i';
+		
 		ob_start();			// buffer this please
 
 			// JavaScript only accepts forward slashes for their regexs
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>form.elements["q<?php echo $q_asset->id; ?>"].value.match(/<?php echo str_replace('/', '\/', $value) ?>/)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>form.elements["q<?php echo $q_asset->id; ?>"].value.match(/<?php echo str_replace('/', '\/', $value) ?>/<?php echo $case_sensitive; ?>)) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));
