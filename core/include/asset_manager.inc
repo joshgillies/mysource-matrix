@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.775 2009/11/19 03:59:16 bpearson Exp $
+* $Id: asset_manager.inc,v 1.776 2009/11/19 22:01:55 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.775 $
+* @version $Revision: 1.776 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7398,11 +7398,18 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		// so much for SQL standards...
-		$url_parts = explode('/', $url);
-		$waste = array_pop($url_parts);
-		$parent_url = implode('/', $url_parts);
-		$where = MatrixDAL::quote($parent_url.'/').' LIKE (url || \'/%\') OR url ='.MatrixDAL::quote($url);
-//		$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
+		if (strpos($url, '/') === FALSE) {
+			$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
+		} else {
+			$url_parts = explode('/', $url);
+			$waste = array_pop($url_parts);
+			if (count($url_parts) > 1) {
+				$parent_url = implode('/', $url_parts);
+			} else {
+				$parent_url = array_pop($url_parts);
+			}//end if
+			$where = MatrixDAL::quote($parent_url.'/').' LIKE (url || \'/%\') OR url ='.MatrixDAL::quote($url);
+		}//end if
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT urlid, assetid, url, http, https, base_contextid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
