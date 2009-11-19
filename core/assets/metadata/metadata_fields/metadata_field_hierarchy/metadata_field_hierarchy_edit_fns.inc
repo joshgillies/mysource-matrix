@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.17 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.18 2009/11/19 23:51:40 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -513,7 +513,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			// print the 'add' button
 			// $field_name contains the name of the last box
-			$add_on_click = 'addToReceptacle(\''.$field_name.'\')';
+			$add_on_click = 'addToReceptacle_for_'.$prefix.'(\''.$field_name.'\')';
 			// new column for 'add' buttons
 			echo '</td><td valign="top">';
 			echo normal_button($prefix.'_drill_down_button', translate('add'), $add_on_click).'</td></tr>';
@@ -528,9 +528,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// print the remove buttons
 		echo '<br />';
-		$remove_on_click = 'removeFromReceptacle()';
+		$remove_on_click = 'removeFromReceptacle_for_'.$prefix.'()';
 		echo normal_button($prefix.'_drill_down_button', translate('remove'), $remove_on_click);
-		$remove_all_on_click = 'removeAllFromReceptacle()';
+		$remove_all_on_click = 'removeAllFromReceptacle_for_'.$prefix.'()';
 		echo normal_button($prefix.'_drill_down_button', translate('remove_all'), $remove_all_on_click);
 
 		// close the receptacle row
@@ -542,9 +542,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			<script type="text/javascript">
 			var prefix = '<?php echo $prefix; ?>';
 			// select all options in the receptacle box otherwise on commit we will lose our values
-			var receptacleName = '<?php echo $receptacle_field_name; ?>';
-			var receptacle = document.getElementById(receptacleName);
-			selectAllReceptacleItems(receptacle);
+			var receptacleName_for_<?php echo $prefix ?> = '<?php echo $receptacle_field_name; ?>';
+			var receptacle_for_<?php echo $prefix ?> = document.getElementById(receptacleName_for_<?php echo $prefix ?>);
+			selectAllReceptacleItems_for_<?php echo $prefix ?>(receptacle_for_<?php echo $prefix ?>);
 
 			function swapOptions(select)
 			{
@@ -579,10 +579,10 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			}
 
-			function addToReceptacle(selectName)
+			function addToReceptacle_for_<?php echo $prefix ?>(selectName_for_<?php echo $prefix ?>)
 			{
 				// get the box which holds the values we want to add
-				var select = document.getElementById(selectName);
+				var select = document.getElementById(selectName_for_<?php echo $prefix ?>);
 
 				var options = select.options;
 				for (var i=0; i<options.length; i++) {
@@ -590,41 +590,41 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 						// we have the selected options, now add them to the receptacle if not currently present
 						var found = false;
-						for (var j=0; j<receptacle.options.length; j++) {
-							if (receptacle.options[j].value == options[i].value) {
+						for (var j=0; j<receptacle_for_<?php echo $prefix ?>.options.length; j++) {
+							if (receptacle_for_<?php echo $prefix ?>.options[j].value == options[i].value) {
 								found = true;
 							}
 						}
 
 						if (!found) {
 							// didn't find it, so append it to the receptacle
-							receptacle.options[receptacle.options.length] = new Option(options[i].value + '. ' + options[i].text, options[i].value);
+							receptacle_for_<?php echo $prefix ?>.options[receptacle_for_<?php echo $prefix ?>.options.length] = new Option(options[i].value + '. ' + options[i].text, options[i].value);
 						}
 					}
 				}
 
-				selectAllReceptacleItems(receptacle);
+				selectAllReceptacleItems_for_<?php echo $prefix ?>(receptacle_for_<?php echo $prefix ?>);
 			}
 
-			function removeFromReceptacle()
+			function removeFromReceptacle_for_<?php echo $prefix ?>()
 			{
 				// remove all selected items from the receptacle
-				var receptacle = document.getElementById(receptacleName);
-				var options = receptacle.options;
+				var receptacle_for_<?php echo $prefix ?> = document.getElementById(receptacleName_for_<?php echo $prefix ?>);
+				var options = receptacle_for_<?php echo $prefix ?>.options;
 				for (var i=0; i<options.length; i++) {
 					if (options[i].selected) {
-						receptacle.remove(i);
+						receptacle_for_<?php echo $prefix ?>.remove(i);
 					}
 				}
 
-				selectAllReceptacleItems(receptacle);
+				selectAllReceptacleItems_for_<?php echo $prefix ?>(receptacle_for_<?php echo $prefix ?>);
 			}
 
-			function removeAllFromReceptacle()
+			function removeAllFromReceptacle_for_<?php echo $prefix ?>()
 			{
 				// remove all items from the receptacle
-				var receptacle = document.getElementById(receptacleName);
-				receptacle.options.length = 0;
+				var receptacle_for_<?php echo $prefix ?> = document.getElementById(receptacleName_for_<?php echo $prefix ?>);
+				receptacle_for_<?php echo $prefix ?>.options.length = 0;
 			}
 
 			function isset(v)
@@ -636,9 +636,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				return false;
 			}
 
-			function selectAllReceptacleItems(receptacle)
+			function selectAllReceptacleItems_for_<?php echo $prefix ?>(receptacle_for_<?php echo $prefix ?>)
 			{
-				var options = receptacle.options;
+				var options = receptacle_for_<?php echo $prefix ?>.options;
 				for (var i=0; i<options.length; i++) {
 					if (!options[i].selected) {
 						options[i].selected = true;
