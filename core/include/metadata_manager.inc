@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.192.2.7 2009/10/21 06:23:36 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.192.2.8 2009/11/20 05:16:14 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.7 $
+* @version $Revision: 1.192.2.8 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -803,7 +803,7 @@ class Metadata_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setMetadata($assetid, $metadata, $contextid=NULL)
+	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE)
 	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -1021,7 +1021,7 @@ class Metadata_Manager extends MySource_Object
 		$ms->closeLog();
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		$asset->_updated();
+		if ($update_asset) $asset->_updated();
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		// broadcasted the assetids of the updated fields
 		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
@@ -1043,14 +1043,15 @@ class Metadata_Manager extends MySource_Object
 	* The generated file contains PHP code to do any keyword replacing based on
 	* current values instead of the ones at the time of caching.
 	*
-	* @param string		$assetid	the ID of the asset to generate the file for
-	* @param boolean	$regenerate	regenerate the DB information as well
-	* @param int		$contextid	Context to generate the content file for
+	* @param string		$assetid		the ID of the asset to generate the file for
+	* @param boolean	$regenerate		regenerate the DB information as well
+	* @param int		$contextid		Context to generate the content file for
+	* @param boolean	$update_asset	Update the asset?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateContentFile($assetid, $regenerate=FALSE, $contextid=NULL)
+	function generateContentFile($assetid, $regenerate=FALSE, $contextid=NULL, $update_asset=TRUE)
 	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -1288,7 +1289,7 @@ class Metadata_Manager extends MySource_Object
 		if (!$regenerate) {
 			$result = TRUE;
 		} else {
-			$result = $this->setMetadata($assetid, $metadata);
+			$result = $this->setMetadata($assetid, $metadata, $contextid, $update_asset);
 		}
 
 		if ($result) {
@@ -1721,13 +1722,14 @@ class Metadata_Manager extends MySource_Object
 	* However, if $contextid is "all", ALL content files will be generated. This
 	* is intended for regenerate metadata HIPOs, or first creation.
 	*
-	* @param string	$assetid	the ID of the asset to regenerate metadata for
-	* @param mixed	$contextid	the context to regenerate
+	* @param string		$assetid		the ID of the asset to regenerate metadata for
+	* @param mixed		$contextid		the context to regenerate
+	* @param boolean	$update_asset	update the asset?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function regenerateMetadata($assetid, $contextid=NULL)
+	function regenerateMetadata($assetid, $contextid=NULL, $update_asset=TRUE)
 	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -1737,10 +1739,10 @@ class Metadata_Manager extends MySource_Object
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			$ok = TRUE;
 			foreach ($all_contexts as $contextid => $context_data) {
-				$ok = $ok && $this->generateContentFile($assetid, TRUE, $contextid);
+				$ok = $ok && $this->generateContentFile($assetid, TRUE, $contextid, $update_asset);
 			}
 		} else {
-			$ok = $this->generateContentFile($assetid, TRUE, $contextid);
+			$ok = $this->generateContentFile($assetid, TRUE, $contextid, $update_asset);
 		}
 
 		return $ok;
