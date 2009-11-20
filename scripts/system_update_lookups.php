@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.9 2009/07/29 01:57:44 ewang Exp $
+* $Id: system_update_lookups.php,v 1.10 2009/11/20 00:34:12 bpearson Exp $
 *
 */
 
@@ -24,9 +24,10 @@
 * 
 * First argument specifies system root path
 * Following arguments specifies root asset ids (sites) 
+* also you can specify verbose eg. php scripts/system_update_lookups.php . 46 70 --verbose
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -41,11 +42,19 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 $ROOT_ASSETID = 1;
 $ROOT_ASSETID_ARG = Array();
+$VERBOSE = FALSE;
 
 //Read in the asset id for those assets to be updated
 for($i=2; $i<count($_SERVER['argv']); $i++) {
-	$ROOT_ASSETID_ARG[] = $_SERVER['argv'][$i]; 
-}
+	$arg = $_SERVER['argv'][$i];
+	$arg = ltrim($arg, '-');
+	$arg = strtolower($arg);
+	if ($arg == 'verbose') {
+		$VERBOSE = TRUE;
+	} else {
+		$ROOT_ASSETID_ARG[] = $_SERVER['argv'][$i];
+	}//end if
+}//end for
 
 if (count($ROOT_ASSETID_ARG) == 0) {
 	echo "\nWARNING: You are running this update lookup on the whole system.\nThis is fine but it may take a long time\n\nYOU HAVE 5 SECONDS TO CANCEL THIS SCRIPT... ";
@@ -112,6 +121,7 @@ foreach ($sites as $key => $site) {
 				printUpdateStatus('OK');
 			} else {
 				printUpdateStatus('!!!');
+				printVerboseErrors($status_errors, $VERBOSE);
 			}
 
 		_disconnectDB();
@@ -158,6 +168,27 @@ function printUpdateStatus($status)
 	echo "[ $status ]\n";
 
 }//end printUpdateStatus()
+
+
+/**
+* Print the list of errors if verbose was selected 
+*
+* @param array		$errors		the list of errors to print
+* @param boolean	$verbose	was verbose selected?
+*
+* @return void
+* @access public
+*/
+function printVerboseErrors($errors, $verbose=FALSE)
+{
+	foreach ($errors as $error) {
+		$line = array_get_index($error, 'message', '');
+		if (!empty($line) && $verbose) {
+			echo "\t".$line."\n";
+		}//end if
+	}//end foreach
+
+}//end printVerboseErrors()
 
 
 /**
