@@ -17,13 +17,18 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
     trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}//end if
+
+if (count($argv) < 3) {
+    echo "Usage: php scripts/regen_metadata_by_root_nodes.php <SYSTEM_ROOT> <ASSETID[, ASSETID]> <MAX_THREAD_NUM> <BATCH_SIZE> <--skip-asset-update> \n";
+    exit();
 }//end if
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -42,9 +47,10 @@ if (empty($max_thread_num) || ($max_thread_num > 5)) $max_thread_num = 3;
 $batch_size = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
 if (empty($batch_size)) $batch_size = 50;
 
-if (count($argv) < 3) {
-    echo "Usage: php scripts/regen_metadata_by_root_nodes.php <SYSTEM_ROOT> <ASSETID[, ASSETID]> <MAX_THREAD_NUM> <BATCH_SIZE>  \n";
-    exit();
+$skip_assets = (isset($_SERVER['argv'][5])) ? $_SERVER['argv'][5] : '';
+$update_assets = TRUE;
+if ($skip_assets == '--skip-asset-update') {
+	$update_assets = FALSE;
 }//end if
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -171,7 +177,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                             continue;
                         }//end if
                         
-                        if (!$mm->regenerateMetadata($child_assetid)) {
+                        if (!$mm->regenerateMetadata($child_assetid, NULL, $update_assets)) {
                             log_to_file('Failed regenerating metadata for assetid ' .$child_assetid .'.', LOG_FILE);
                             continue;
                         }//end if
