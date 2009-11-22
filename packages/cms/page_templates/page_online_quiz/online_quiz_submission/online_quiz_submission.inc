@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission.inc,v 1.1 2007/05/31 06:47:48 mbrydon Exp $
+* $Id: online_quiz_submission.inc,v 1.2 2009/11/22 22:51:32 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Online Quiz Submission
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -325,6 +325,270 @@ class Online_Quiz_Submission extends Asset
 
 	}//end getQuizQuestions()
 
+	
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	* The return value is in the form:
+	* <PRE>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$res = parent::getAvailableKeywords();
+		$res['quiz_qX_name'] = 'The name of the question with ID X';
+		$res['quiz_qX_answer_value'] = 'The answer to the question with ID X';
+		$res['quiz_qX_answer_summary'] = 'The summary of the question with ID X';
+		$res['quiz_qX_answer_awarded'] = 'The points awarded of the question with ID X';
+		$res['quiz_qX_answer_available'] = 'The points available of the question with ID X';
+		$res['user_details_X:qY_question'] = 'The user deatil form question with asset ID X:qY';
+		$res['user_details_X:qY_answer'] = 'The user deatil form answer with question asset ID X:qY';
+		$res['quiz_qX_answer_available'] = 'The points available of the question with ID X';
+		$res['user_ip_address'] = 'IP address that created this submission';
+		$res['user_details'] = 'User details summary, blank if User Details form not used';
+		$res['user_asset_id'] = 'The User who created the Submission,';
+		$res['quiz_responses'] = 'Summary of responses nad points awarded and maximum points per answer';
+		$res['quiz_total'] = 'Total points awarded and available';
+		return $res;
 
+	}//end getAvailableKeywords()
+
+	
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+
+		$matches = Array();
+		if (preg_match('/quiz\_q([0-9]+)\_name/', $keyword, $matches)) {
+			$attrs = $this->attr('quiz_questions');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value;
+				}
+			}
+			return '';
+		}
+		
+		if (preg_match('/quiz\_q([0-9]+)\_answer_value/', $keyword, $matches)) {
+			$attrs = $this->attr('quiz_answers');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value['value'];
+				}
+			}
+			return '';
+		}
+		
+		if (preg_match('/quiz\_q([0-9]+)\_answer_summary/', $keyword, $matches)) {
+			$attrs = $this->attr('quiz_answers');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value['summary'];
+				}
+			}
+			return '';
+		}
+		
+		if (preg_match('/quiz\_q([0-9]+)\_points_awarded/', $keyword, $matches)) {
+			$attrs = $this->attr('quiz_answers');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value['points'];
+				}
+			}
+			return '';
+		}
+
+		if (preg_match('/quiz\_q([0-9]+)\_points_available/', $keyword, $matches)) {
+			$attrs = $this->attr('quiz_answers');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value['available_points'];
+				}
+			}
+			return '';
+		}
+		
+		if (preg_match('/user_details\_([0-9]+:q[0-9]+)\_question/', $keyword, $matches)) {
+			
+			$attrs = $this->attr('user_details_questions');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value;
+				}
+			}
+			return '';
+		}
+		
+	
+		if (preg_match('/user_details\_([0-9]+:q[0-9]+)\_answer/', $keyword, $matches)) {
+			$attrs = $this->attr('user_details_answers');
+			foreach ($attrs as $id => $value) {			
+				if ($id == $matches[1]) {
+					return $value['answer'];
+				}
+			}
+			return '';
+		}
+		
+		if (preg_match('/user_ip_address/', $keyword, $matches)) {
+			return $this->getIP();
+		}
+		
+	
+		if (preg_match('/user_asset_id/', $keyword, $matches)) {
+			return $this->updated_userid;
+		}
+		
+		if (preg_match('/user_details/', $keyword, $matches)) {
+			$string = '<table border="0" cellspacing="2" cellpadding="2">'."\n";
+			$string .= $this->getSummaryUserDetails();
+			$string .="</table>\n";
+			return $string;
+		}
+		
+		if (preg_match('/quiz_responses/', $keyword, $matches)) {
+			$string = '<table border="0" cellspacing="2" cellpadding="2">'."\n";
+			$string .= $this->getSummaryQuizResponse();
+			$string .="</table>\n";
+			return $string;
+		}
+		
+		if (preg_match('/quiz_total/', $keyword, $matches)) {
+			$string = '<table border="0" cellspacing="2" cellpadding="2">'."\n";
+			$string .= $this->getSummaryPoints();
+			$string .="</table>\n";
+			return $string;
+		}
+		
+				
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+	
+	
+	
+	/**
+	* Print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody() {
+		echo '<table border="0" cellspacing="2" cellpadding="2">'."\n";
+		echo ($this->getSummaryUserDetails());
+		echo '<tr><td><strong>User IP Address</strong></td><td>'.$this->getIP().'</td></tr>';
+		echo ($this->getSummaryQuizResponse());
+		echo ($this->getSummaryPoints());
+		echo "</table>\n";
+	
+	}//end printBody()
+	
+	
+	/**
+	* Get summary of user details form in html format
+	*
+	* @return string
+	* @access public
+	*/
+	function getSummaryUserDetails()
+	{
+		$user_details_questions = $this->getUserDetailsQuestions();
+		$user_details_answers = $this->getUserDetailsAnswers();
+		
+		$string = '';
+		foreach ($user_details_questions as $id => $value) {
+			$string .= "<tr>\n<td><strong>$value</strong></td>\n";
+			if(isset($user_details_answers[$id]['answer'])) {
+				$string .= "<td>".$user_details_answers[$id]['answer']."</td>";
+			}
+			$string .= "\n</tr>\n";
+		}
+		
+		if (empty($string)) {
+			return "<tr>\n<td><strong>User Asset ID</strong></td>\n<td>$this->updated_userid</td>\n</tr>\n";
+		}
+		else {
+			return $string;
+		}
+			
+	}//end getSummaryUserDetails()
+	
+
+	/**
+	* Get summary of quiz question in html format
+	*
+	* @return string
+	* @access public
+	*/
+	function getSummaryQuizResponse()
+	{
+		$quiz_questions = $this->getQuizQuestions();
+		$quiz_answers = $this->getQuizAnswers();
+		
+		$string = '';
+		foreach ($quiz_questions as $id => $value) {
+			$string .= "<tr>\n<td><strong>$value</strong></td>\n<td>";
+			if(isset($quiz_answers[$id]['summary'])) {
+				$string .= $quiz_answers[$id]['summary'].", ";
+			}
+			if(isset($quiz_answers[$id]['points']) && isset($quiz_answers[$id]['available_points'])) {
+				$string .= " ".$quiz_answers[$id]['points']." of ".$quiz_answers[$id]['available_points']." points";
+			}
+			
+			$string .= "</td>\n</tr>\n";
+		}
+	
+		return $string;
+					
+	}//end getSummaryQuizResponse()
+	
+	
+	/**
+	* Get summary of points in html format
+	*
+	* @return string
+	* @access public
+	*/
+	function getSummaryPoints()
+	{
+
+		$quiz_answers = $this->getQuizAnswers();
+		$total_points_available = 0;
+		$total_points_awarded = 0;
+		
+		foreach ($quiz_answers as $id => $value) {
+			if(isset($value['available_points']))
+				$total_points_available += $value['available_points'];
+			if(isset($value['points']))
+				$total_points_awarded += $value['points'];
+		}
+	
+		$string =  "<tr>\n<td><strong>Total points awarded</strong></td>\n<td>$total_points_awarded</td>\n</tr>\n";
+		$string .="<tr>\n<td><strong>Total points available</strong></td>\n<td>$total_points_available</td>\n</tr>\n";
+		return $string;
+					
+	}//end getSummaryPoints()
+	
 }//end class
 ?>
