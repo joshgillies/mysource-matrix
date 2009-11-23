@@ -978,6 +978,7 @@
 					<function function="length">
 						<arg><field table="sq_ast_lnk_tree" column="treeid" /></arg>
 					</function>
+					<field table="sq_ast_lnk" column="sort_order" />
 				</order-by>
 			</select>
 		</primary>
