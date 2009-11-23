@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.14 2009/11/23 06:56:17 cupreti Exp $
+* $Id: form.inc,v 1.219.2.15 2009/11/23 22:13:48 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.14 $
+* @version $Revision: 1.219.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3403,19 +3403,11 @@ class Form extends Asset implements Bridge
 	*/
 	public function updateSubmission(Form_Submission $submission_asset)
 	{
-		$this->submission_errors = Array();
-
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			
 			// Save and stick the value - but only if the question still exists
 			if ($question instanceof Form_Question) {				
-				
-				if (!$question->hasValidValue($response)) {
-					$this->submission_errors = array_merge($question->getErrors(), $this->submission_errors);
-					continue;
-				}
-
 				$question->saveValue($this);
 			
 				// If the question is sticky, stick the value then
@@ -3426,7 +3418,7 @@ class Form extends Asset implements Bridge
 				// only re-set the answer if it has changed
 				$value = $question->getValue();
 				if (is_string($value)) {
-					$value = htmlspecialchars($value, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$value = htmlentities($value, ENT_NOQUOTES);
 				}
 				if ($value !== $submission_asset->getAnswer($assetid)) {
 					$submission_asset->setAnswer($assetid, $value);
@@ -3612,10 +3604,6 @@ class Form extends Asset implements Bridge
 
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
-			if (!$question->hasValidValue($response)) {	
-				continue;
-			}
 
 			// Save and stick the value
 			$question->saveValue($this);
