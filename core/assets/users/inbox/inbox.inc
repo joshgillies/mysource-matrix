@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.33 2007/11/29 22:48:55 bshkara Exp $
+* $Id: inbox.inc,v 1.33.8.1 2009/11/23 02:54:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,7 +191,7 @@ class Inbox extends Asset
 			}
 
 			$null = '';
-			$edit->paintMail($this, $null, 'inbox');
+			$edit->paintInbox($this, $null, 'inbox');
 
 			if (!SQ_IN_BACKEND) {
 				?>
@@ -217,6 +217,25 @@ class Inbox extends Asset
 		return 'Inbox';
 
 	}//end _getName()
+
+
+	/**
+	* Returns an attribute of the asset
+	*
+	* @param string	$name	The name of the attribute to return
+	*
+	* @return string
+	* @access public
+	*/
+	public function attr($name)
+	{
+		if ($name == 'name') {
+			return $this->_getName();
+		} else {
+			return parent::attr($name);
+		}//end if
+
+	}//end attr()
 
 
 }//end class
