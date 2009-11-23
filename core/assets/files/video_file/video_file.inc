@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.2 2009/10/20 06:34:00 cupreti Exp $
+* $Id: video_file.inc,v 1.3 2009/11/23 02:56:54 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.2 $
+* @version    $Revision: 1.3 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -373,7 +373,7 @@ class Video_File extends File
 		$audio_data = Array(
 						'length'		=> $id3->info['playtime_seconds'],
 						'bitrate'		=> $id3->info['bitrate'],
-						'sample_rate'	=> $id3->info['audio']['sample_rate'],
+						'sample_rate'	=> isset($id3->info['audio']['sample_rate']) ? $id3->info['audio']['sample_rate'] : 0,
 						'file_format'	=> $id3->info['fileformat'],
 					  );
 
