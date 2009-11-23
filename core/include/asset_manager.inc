@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.776 2009/11/19 22:01:55 bpearson Exp $
+* $Id: asset_manager.inc,v 1.777 2009/11/23 00:06:09 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.776 $
+* @version $Revision: 1.777 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5560,7 +5560,7 @@ class Asset_Manager extends MySource_Object
 		$link = $this->getLinkById($linkid);
 
 		if (empty($link)) {
-			trigger_localised_error('SYS1038', E_USER_WARNING, $linkid);
+			trigger_localised_error('SYS0138', E_USER_WARNING, $linkid);
 			return 0;
 		}
 
