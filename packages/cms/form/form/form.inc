@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.231.2.3 2009/11/02 05:15:20 ewang Exp $
+* $Id: form.inc,v 1.231.2.4 2009/11/23 06:59:45 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.231.2.3 $
+* @version $Revision: 1.231.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3406,11 +3406,19 @@ class Form extends Asset implements Bridge
 	*/
 	public function updateSubmission(Form_Submission $submission_asset)
 	{
+		$this->submission_errors = Array();
+
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
+			
 			// Save and stick the value - but only if the question still exists
-			if ($question instanceof Form_Question) {
+			if ($question instanceof Form_Question) {				
+				
+				if (!$question->hasValidValue($response)) {
+					$this->submission_errors = array_merge($question->getErrors(), $this->submission_errors);
+					continue;
+				}
+
 				$question->saveValue($this);
 			
 				// If the question is sticky, stick the value then
@@ -3607,6 +3615,10 @@ class Form extends Asset implements Bridge
 
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			if (!$question->hasValidValue($response)) {	
+				continue;
+			}
 
 			// Save and stick the value
 			$question->saveValue($this);
