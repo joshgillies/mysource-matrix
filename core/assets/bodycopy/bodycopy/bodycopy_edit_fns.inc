@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.66 2009/07/20 03:52:07 bpearson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.67 2009/11/24 23:55:04 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -581,7 +581,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	public static function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 	{
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/'.$icon.'.png';
-		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
+		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'\', \''.addslashes(htmlentities($heading, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'\')"';
 		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
 		$extra .= ' onclick="'.$onclick.'"';
 		$extra .= ' align="absmiddle" ';

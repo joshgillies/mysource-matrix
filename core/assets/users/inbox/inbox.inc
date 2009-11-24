@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.34 2009/11/23 02:51:47 bpearson Exp $
+* $Id: inbox.inc,v 1.35 2009/11/24 23:55:05 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,7 +186,7 @@ class Inbox extends Asset
 				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
 				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"></script>
 				<h2 style="margin-bottom: 2px">Inbox for <?php echo $user->attr('first_name').' '.$user->attr('last_name'); ?></h2>
-				<form method="POST" action="<?php echo htmlentities($_SERVER['REQUEST_URI']); ?>" name="main_form" id="main_form">
+				<form method="POST" action="<?php echo htmlentities($_SERVER['REQUEST_URI'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" name="main_form" id="main_form">
 				<?php
 			}
 

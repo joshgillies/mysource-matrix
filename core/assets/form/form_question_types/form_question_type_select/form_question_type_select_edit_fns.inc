@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.10 2009/11/09 00:41:53 cupreti Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.11 2009/11/24 23:55:04 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -507,7 +507,7 @@ function processOptions(&$asset, &$o, $prefix)
 	if (!isset($_REQUEST[$prefix.'_options'])) return;
 	$value = $_REQUEST[$prefix.'_options'];
 	foreach ($value as $i => $v) {
-		$value[$i] = htmlentities($v);
+		$value[$i] = htmlentities($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		if ($v == '') unset($value[$i]);
 	}
 
@@ -515,7 +515,7 @@ function processOptions(&$asset, &$o, $prefix)
 	if (!isset($_REQUEST[$prefix.'_options_keys'])) return;
 	$key_value = $_REQUEST[$prefix.'_options_keys'];
 	foreach ($key_value as $j => $k) {
-		$key_value[$j] = htmlentities($k);
+		$key_value[$j] = htmlentities($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		if (($k == '') && (isset($value[$j]) && !($value[$j] == ''))) {
 			$key_value[$j] = $value[$j];
 		} else if (($k == '') && (!isset($value[$j]) || ($value[$j] == ''))) {
@@ -533,9 +533,9 @@ function processOptions(&$asset, &$o, $prefix)
 	if ($asset->writeAccess('attributes')) {
 		$asset->setAttrValue('options', $processed_value);
 		$asset->saveAttributes();
-		}
+	}
 
-	}//end processOptions()
+}//end processOptions()
 
 
 	/**

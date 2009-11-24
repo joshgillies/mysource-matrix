@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.53 2009/10/19 05:58:42 akarelia Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.54 2009/11/24 23:55:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -330,11 +330,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Do not remove the line below, they are 'new line' seperated for a reason, that is how htmltidy_errors need to be seperated so it does not break the javascript underneath in printBodycopyIcon() call.
 			$res = (str_replace('
-', '<br />', htmlentities($asset->attr('htmltidy_errors'))));
-			$jvscript = 'alert(\''.htmlentities($res).'\');';
+', '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
 			$htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
-            $accessibility_msg  = var_export($asset->attr('htmltidy_errors'),TRUE);
             Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
 
 		}

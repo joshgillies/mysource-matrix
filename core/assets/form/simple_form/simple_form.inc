@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.38 2009/11/02 04:51:14 ewang Exp $
+* $Id: simple_form.inc,v 1.39 2009/11/24 23:55:04 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1155,8 +1155,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		foreach ($questions as $shadowid => $question) {
 			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
-			$keywords[$prefix.$this->id.'_q'.$shadowid] = htmlentities($q->getSummary(), ENT_NOQUOTES);
-			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = htmlentities($q->getValue(), ENT_NOQUOTES);
+			$keywords[$prefix.$this->id.'_q'.$shadowid] = htmlentities($q->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = htmlentities($q->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
 		}

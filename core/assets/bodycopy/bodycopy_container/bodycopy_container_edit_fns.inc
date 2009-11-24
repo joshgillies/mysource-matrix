@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.68 2009/10/06 06:55:43 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.69 2009/11/24 23:55:04 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					ob_start();
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
-					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content).'</pre></div>';
+					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre></div>';
 				}
 
 				echo $container_content.'<br />';
