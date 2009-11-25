@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.6 2009/11/25 03:38:01 ewang Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.7 2009/11/25 03:52:54 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
 		//get all data we need from either current submission or incomplete submission
-		if (!empty($_FILES['q'.$q_asset->id]['tmp_name'])) {
+		if (!empty($_FILES['q'.$q_asset->id]['size'])) {
 			$filesize = $_FILES['q'.$q_asset->id]['size'];		
 		}
 		else {
