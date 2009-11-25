@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.18 2009/11/19 23:51:40 akarelia Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.19 2009/11/25 07:24:40 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -508,7 +508,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			// deepest level box allows multiple selections
 			// also give the deepest level box a maximum height
-			$extras = $is_default ? 'disabled="disabled"; onChange="swapOptions(this)";' : 'onChange="swapOptions(this)";';
+			$extras = $is_default ? 'disabled="disabled"; onChange="swapOptions_for_'.$prefix.'(this)";' : 'onChange="swapOptions_for_'.$prefix.'(this)";';
 			echo combo_box($field_name, $the_options, ($i === $count_levels-1) ? TRUE : FALSE, '', ($i === $count_levels-1) ? 5 : '', $extras);
 
 			// print the 'add' button
@@ -540,21 +540,21 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		?>
 			<script type="text/javascript">
-			var prefix = '<?php echo $prefix; ?>';
+			var prefix_for_<?php echo $prefix ?> = '<?php echo $prefix; ?>';
 			// select all options in the receptacle box otherwise on commit we will lose our values
 			var receptacleName_for_<?php echo $prefix ?> = '<?php echo $receptacle_field_name; ?>';
 			var receptacle_for_<?php echo $prefix ?> = document.getElementById(receptacleName_for_<?php echo $prefix ?>);
 			selectAllReceptacleItems_for_<?php echo $prefix ?>(receptacle_for_<?php echo $prefix ?>);
 
-			function swapOptions(select)
+			function swapOptions_for_<?php echo $prefix ?>(select)
 			{
 				// the values to replace with
-				var replaceWith = data[select.value];
+				var replaceWith = data_for_<?php echo $prefix ?>[select.value];
 
 				// get the next box which is the box we will populate
 				var stationaryDrillNum = select.name.match(/.+_stationary_drill_(.+)/);
 				stationaryDrillNum = parseInt(stationaryDrillNum[1]) + 1;
-				var nextBoxName = prefix + '_stationary_drill_' + stationaryDrillNum;
+				var nextBoxName = prefix_for_<?php echo $prefix ?> + '_stationary_drill_' + stationaryDrillNum;
 				var nextBox = document.getElementById(nextBoxName);
 
 				// does it exist or are we at the end of the line?
@@ -574,7 +574,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 				// recurse until there are no more boxes to populate
 				if (nextBox) {
-					swapOptions(nextBox);
+					swapOptions_for_<?php echo $prefix ?>(nextBox);
 				}
 
 			}
@@ -665,18 +665,18 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	function _printJSObjects($options, $prefix)
 	{
 		echo '<script type="text/javascript">';
-		echo 'var data = {};';
+		echo 'var data_for_'.$prefix.' = {};';
 		foreach ($options as $key => $value) {
 			$children = $this->_getImmediateChildren($options, $key);
 
 			if (!empty($children)) {
-				echo 'var options = {};';
+				echo 'var options_for_'.$prefix.' = {};';
 				// create a JS object holding the values of the children
 				foreach ($children as $child_key => $child_value) {
-					echo 'options[\''.$child_key.'\'] = \''.$child_value.'\';';
+					echo 'options_for_'.$prefix.'[\''.$child_key.'\'] = \''.$child_value.'\';';
 				}
 				?>
-					data.<?php echo $key; ?> = options;
+					data_for_<?php echo $prefix ?>.<?php echo $key; ?> = options_for_<?php echo $prefix ?>;
 				<?php
 			}
 		}
