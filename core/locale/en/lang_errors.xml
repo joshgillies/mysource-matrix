@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.115 2009/10/12 00:09:42 lwright Exp $
+* $Id: lang_errors.xml,v 1.116 2009/11/25 03:52:19 cupreti Exp $
 *
 */
 
@@ -1428,7 +1428,7 @@ Full Node Contents %3$s</error>
 
 
 
-	<!-- CORE ASSETS -->
+<!-- CORE ASSETS -->
 
 	<error code="CORE0001">%s NOT CREATED</error>
 	<error code="CORE0002">"%1$s" is not a valid file size</error>
@@ -1817,4 +1817,5 @@ Full Node Contents :
 	<error code="SYS0341">Cannot revert metadata fields (%1$s) to default for asset ID #%2$s in context #%3$s, DB error while deleting current values: "%4$s"</error>
 	<error code="SYS0342">Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"</error>
 	<error code="SYS0343">Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"</error>
+	<error code="SYS0344">Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX</error>
 </errors>
