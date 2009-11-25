@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.231.2.5 2009/11/23 22:05:49 mbrydon Exp $
+* $Id: form.inc,v 1.231.2.6 2009/11/25 04:07:37 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.231.2.5 $
+* @version $Revision: 1.231.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2980,6 +2980,19 @@ class Form extends Asset implements Bridge
 
 		$ok = TRUE;
 
+		// if it's a multi page form, we have to revalidate all questions to prevent hacky behaviour
+		if($this->attr('multi_page')) {
+			foreach ($all_questions as $assetid => $question_info) {
+				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if(!$question_asset->hasValidValue()) {
+					$this->submission_errors = array_merge($this->submission_errors, $question_asset->failed_rules);
+					$ok = FALSE;
+				}
+			}
+		}
+		// don't bother going further, we don't want gunky file assets
+		if(!$ok) return FALSE;
+		
 		foreach ($all_questions as $assetid => $question_info) {
 			$type_code = $question_info['question_type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
