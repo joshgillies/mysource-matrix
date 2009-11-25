@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.28 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.29 2009/11/25 04:41:16 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,6 +266,44 @@ class Metadata_Field_Select extends Metadata_Field
 		}
 
 	}//end _clearContextedSelectOptionsCache()
+
+
+	/**
+	* Returns the option key(s) corresponding to the given option value(s)
+	* If no corresponding key is found, the option_str is returned
+	*
+	* @param string	$option_str	an string of one or more option keys
+	*
+	* @return string
+	* @access public
+	*/
+	public function getKeyFromValue($option_str)
+	{
+		$option_keys = explode('\\; ', $option_str);
+		if (empty($option_keys)) return $option_keys;
+
+		$value_str = '';
+		$options = $this->attr('select_options');
+
+		foreach ($option_keys as $key) {
+			foreach($options as $index => $element) {
+				if ($index === $key) {
+					$value_str .= $element.'\\; ';
+				}
+			}
+		}
+		if (strlen($value_str) == 0) {
+			// no corresponding values found
+			return $option_str;
+		}
+
+		// trim the last separator
+		$value_str = substr($value_str, 0, -3);
+
+		return $value_str;
+
+	}//end getValueFromKey()
+
 
 }//end class
 
