@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.42 2009/11/13 03:14:30 bpearson Exp $
+* $Id: form_question_type_file_upload.inc,v 1.43 2009/11/25 03:36:13 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,7 +138,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if ($this->_tmp['file_info'] === FALSE) {
+		
+		if (isset($this->_tmp['file_info']) && $this->_tmp['file_info'] === FALSE) {
 			// there was an upload error
 			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
 			return FALSE;
@@ -146,7 +147,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		$ok = TRUE;
 
-		$none_uploaded = is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']);
+		$none_uploaded = !isset($this->_tmp['file_info']) || (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']));
 		$previously_uploaded = !empty($this->extra_data['temp_filesystem_path']);
 
 		if ($none_uploaded && !$previously_uploaded && $this->attr('is_required')) {

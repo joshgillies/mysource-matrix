@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.236 2009/11/23 22:03:38 mbrydon Exp $
+* $Id: form.inc,v 1.237 2009/11/25 03:33:28 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2980,6 +2980,19 @@ class Form extends Asset implements Bridge
 
 		$ok = TRUE;
 
+		// if it's a multi page form, we have to revalidate all questions to prevent hacky behaviour
+		if($this->attr('multi_page')) {
+			foreach ($all_questions as $assetid => $question_info) {
+				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if(!$question_asset->hasValidValue()) {
+					$this->submission_errors = array_merge($this->submission_errors, $question_asset->failed_rules);
+					$ok = FALSE;
+				}
+			}
+		}
+		// don't bother going further, we don't want gunky file assets
+		if(!$ok) return FALSE;
+		
 		foreach ($all_questions as $assetid => $question_info) {
 			$type_code = $question_info['question_type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -3408,9 +3421,9 @@ class Form extends Asset implements Bridge
 	{
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			
+
 			// Save and stick the value - but only if the question still exists
-			if ($question instanceof Form_Question) {				
+			if ($question instanceof Form_Question) {
 				$question->saveValue($this);
 			
 				// If the question is sticky, stick the value then
@@ -3436,7 +3449,7 @@ class Form extends Asset implements Bridge
 			}
 		}
 
-		$submission_asset->saveAttributes();		
+		$submission_asset->saveAttributes();
 
 	}//end updateSubmission()
 
