@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.277.2.7 2009/10/14 21:52:42 cupreti Exp $
+* $Id: listing_engine.inc,v 1.277.2.8 2009/11/25 04:35:33 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.277.2.7 $
+* @version $Revision: 1.277.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -651,8 +651,8 @@ class Listing_Engine extends Page
 				$result_url_parts = parse_url($url);
 				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
 					unset($children[$assetid]);
-				}		
-			}		
+				}
+			}
 		}
 
 		$children =& $this->convertProxyAssetTypes($children);
@@ -882,7 +882,7 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get the num of items per page 
+	* Get the num of items per page
 	*
 	* @return int
 	* @access protected
@@ -3375,10 +3375,42 @@ class Listing_Engine extends Page
 				}
 				$results = $group_results;
 
-
 			break;
 
 			case 'metadata':
+				$group_order = Array();
+				if (!empty($group_type['metadata_field'])) {
+					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($group_type['metadata_field']);
+					if(!is_null($metadata_field)) {
+						if (!isset($mm)) {
+							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						}//end if
+
+						$presentation_value = FALSE;
+						if (!empty($group_type['metadata_sort_type'])) {
+							if ($group_type['metadata_sort_type'] === 'presentation') {
+								$presentation_value = TRUE;
+							}
+						}
+
+						foreach ($results as $key => $arrayInfo) {
+							// if the metadata field types are of Metadata_Field_Hierarchy OR Metadata_Field_Select
+							// for other metadata fields the key is the value
+							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && ( $metadata_field instanceof Metadata_Field_Hierarchy || $metadata_field->attr('visible_part') === 'key' )) {
+								//we are sure its a metadata select field lets see whats been printed on frontend key OR value
+								$raw_value = $metadata_field->getKeyFromValue($key);
+								$group_order[$raw_value] = $arrayInfo;
+								unset($results[$key]);
+							}
+						}//end foreach
+					}
+				} else {
+					$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE,array_get_index($group_type, 'sort_by', 'assetid'));
+
+				}//end else
+
+				if (!empty($group_order) )$results = $group_order;
+				//dont break here, just go with the flow ;)
 			case 'standard_asset':
 				// metadata and standard asset field groups are sorted just on
 				// the key's value, because the key IS the value
