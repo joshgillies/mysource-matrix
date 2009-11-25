@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.5 2007/12/20 22:06:04 bshkara Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.5.6.1 2009/11/25 04:22:01 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,14 +82,22 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		$answer = $_FILES['q'.$q_asset->id];
+		//get all data we need from either current submission or incomplete submission
+		if (!empty($_FILES['q'.$q_asset->id]['size'])) {
+			$filesize = $_FILES['q'.$q_asset->id]['size'];		
+		}
+		else {
+			$extra_data = $q_asset->getExtraData();
+			$temp_file = array_get_index($extra_data, 'temp_filesystem_path','');
+			$filesize = (int) filesize ($temp_file);
+		}
+		
 		$operator = array_get_index($rule_data, 'operator', '<=');
 
 		// comparison value will be the concatenation of the value and the
 		// multiplier
 		$comparison = array_get_index($rule_data, 'value', '').array_get_index($rule_data, 'multiplier', '');
 
-		$filesize = $answer['size'];
 		$comparison = strtolower(trim($comparison));
 		$comp_value = floatval($comparison);
 

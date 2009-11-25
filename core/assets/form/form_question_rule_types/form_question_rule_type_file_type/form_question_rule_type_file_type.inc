@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.7.6.3 2009/06/09 00:56:11 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.7.6.4 2009/11/25 04:22:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7.6.3 $
+* @version $Revision: 1.7.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,10 +119,17 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
 		include (SQ_FUDGE_PATH.'/standards_lists/mime_types.inc');
-		//get all data we need
-		$answer = $_FILES['q'.$q_asset->id];
-		$temp_file = $answer['tmp_name'];
-		$answer_name = $answer['name'];
+		//get all data we need from either current submission or incomplete submission
+		if (!empty($_FILES['q'.$q_asset->id]['tmp_name'])) {
+			$temp_file = $_FILES['q'.$q_asset->id]['tmp_name'];
+			$answer_name = $_FILES['q'.$q_asset->id]['name'];
+		}
+		else {
+			$extra_data = $q_asset->getExtraData();
+			$temp_file = array_get_index($extra_data, 'temp_filesystem_path','');
+			$answer_name = basename($temp_file);
+		}
+		
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
 		$check_mime = array_get_index($rule_data, 'check_mime', TRUE);

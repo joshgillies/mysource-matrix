@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_virus_check.inc,v 1.1.2.2 2009/05/15 06:49:50 ewang Exp $
+* $Id: form_question_rule_type_file_virus_check.inc,v 1.1.2.3 2009/11/25 04:22:01 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/antivirus/antivirus.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,9 +64,16 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		$answer = $_FILES['q'.$q_asset->id];
-		$temp_file = $answer['tmp_name'];
-		$answer_name = $answer['name'];
+		//get all data we need from either current submission or incomplete submission
+		if (!empty($_FILES['q'.$q_asset->id]['tmp_name'])) {
+			$temp_file = $_FILES['q'.$q_asset->id]['tmp_name'];
+			$answer_name = $_FILES['q'.$q_asset->id]['name'];			
+		}
+		else {
+			$extra_data = $q_asset->getExtraData();
+			$temp_file = array_get_index($extra_data, 'temp_filesystem_path','');
+			$answer_name = basename($temp_file);
+		}
 		
 		// if no file uploaded, no need to scan virus
 		if ((empty($answer_name) || $answer_name == 'No file uploaded') && !isset($temp_file)) return TRUE;
