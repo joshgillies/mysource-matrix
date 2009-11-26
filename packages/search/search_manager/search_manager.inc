@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.223 2009/11/26 18:13:53 ata Exp $
+* $Id: search_manager.inc,v 1.224 2009/11/26 18:36:23 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1176,18 +1176,19 @@ class Search_Manager extends Asset
 	*/
 	function isAssetIndexable($assetid)
 	{
+		//check asset weight first because it has highest priority (asset weight > asset tree weight > global weight)
 		$weights = $this->getAssetWeightings($assetid);
 
 		if (empty($weights)) {
-			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-			if (!isset($info[$assetid])) return FALSE;
-
-			if (!$this->isTypeIndexable(array_get_index($info, $assetid, 0))) {
-				return FALSE;
-			}
-
+			//check asset tree weight
+			$weights = $this->getAssetTreeWeightings($assetid, FALSE);
+			
 			if (empty($weights)) {
-				$weights = $this->getAssetTreeWeightings($assetid, FALSE);
+				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
+				if (!isset($info[$assetid])) return FALSE;
+				
+				//check global weight
+				$weights = $this->getAssetTypeWeightings(array_get_index($info, $assetid, 0));
 			}
 		}
 
@@ -1196,22 +1197,6 @@ class Search_Manager extends Asset
 		return (!isset($weights['indexed']) || $weights['indexed']);
 
 	}//end isAssetIndexable()
-
-
-	/**
-	* Returns TRUE if the specified asset type is indexable
-	*
-	* @param string	$type_code	the type_code to check
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isTypeIndexable($type_code)
-	{
-		$weights = $this->getAssetTypeWeightings($type_code);
-		return (!isset($weights['indexed']) || $weights['indexed']);
-
-	}//end isTypeIndexable()
 
 
 	/**
