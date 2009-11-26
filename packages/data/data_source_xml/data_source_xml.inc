@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.9 2009/08/05 07:36:28 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.10 2009/11/26 02:30:41 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -278,7 +278,7 @@ class Data_Source_Xml extends Data_Source
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 			if (!xml_parse($xml_parser, $content, TRUE)) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				return FALSE;
 			}
 			xml_parser_free($xml_parser);
