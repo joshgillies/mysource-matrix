@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.222 2009/11/18 02:31:19 akarelia Exp $
+* $Id: search_manager.inc,v 1.223 2009/11/26 18:13:53 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1750,8 +1750,8 @@ class Search_Manager extends Asset
 		if (is_null($type_code)) return $type_weights;
 
 		if (!$strict_type_code) {
-			$type_hier = Array($type_code);
-			$type_hier += $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
+			$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
+			array_unshift($type_hier, $type_code);
 		} else {
 			$type_hier = Array($type_code);
 		}
