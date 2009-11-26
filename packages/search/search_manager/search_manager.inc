@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.224 2009/11/26 18:36:23 ata Exp $
+* $Id: search_manager.inc,v 1.225 2009/11/26 18:56:56 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1180,16 +1180,8 @@ class Search_Manager extends Asset
 		$weights = $this->getAssetWeightings($assetid);
 
 		if (empty($weights)) {
-			//check asset tree weight
+			//check asset tree weight and global weight (because global weight is also a type of tree weight with the treeid is root id (usually has assetid 1))
 			$weights = $this->getAssetTreeWeightings($assetid, FALSE);
-			
-			if (empty($weights)) {
-				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-				if (!isset($info[$assetid])) return FALSE;
-				
-				//check global weight
-				$weights = $this->getAssetTypeWeightings(array_get_index($info, $assetid, 0));
-			}
 		}
 
 		// if there is no indexed value in the array then we can assume
