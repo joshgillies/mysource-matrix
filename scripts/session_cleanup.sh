@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.9.2.1 2009/08/28 03:21:42 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.9.2.2 2009/11/26 05:20:00 csmith Exp $
 #*
 #*/
 
@@ -67,7 +67,7 @@ file_exists()
 }
 
 SYSTEM_TAG=`echo $1 | sed -e 's/\//_/g'`
-TMPFILE="/tmp/${SYSTEM_TAG}-sessionclean.filelist"
+TMPFILE="/tmp/${SYSTEM_TAG}-sessionclean.filelist.$$"
 OS=`uname`
 HEAD=`which head`
 XARGS=`which xargs`
