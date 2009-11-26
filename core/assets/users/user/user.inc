@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.128.4.6 2009/11/06 03:32:22 lwright Exp $
+* $Id: user.inc,v 1.128.4.7 2009/11/26 00:01:11 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.4.6 $
+* @version $Revision: 1.128.4.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,8 @@ class User extends Asset
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
 				if (!$this->validatePassword($value)) return FALSE;
 			}
-			$value = crypt($value); // let salt be generated
+			// Make sure password doesn't get re-hashed while reverting to system version
+			$value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : crypt($value); // let salt be generated
 		} else if ($name == 'username') {
 			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
