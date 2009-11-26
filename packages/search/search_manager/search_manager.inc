@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.225 2009/11/26 18:56:56 ata Exp $
+* $Id: search_manager.inc,v 1.226 2009/11/26 19:33:49 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.225 $
+* @version $Revision: 1.226 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1733,8 +1733,9 @@ class Search_Manager extends Asset
 			$type_hier = Array($type_code);
 		}
 
+		$customised_type_codes = array_keys($type_weights);
 		foreach ($type_hier as $type_code) {
-			if (in_array($type_code, array_keys($type_weights))) {
+			if (in_array($type_code, $customised_type_codes)) {
 				return $type_weights[$type_code];
 			}
 		}
@@ -1794,7 +1795,6 @@ class Search_Manager extends Asset
 					// so do a tree lookup for the closest one. getParents ORDER's by treeid
 					// by default so we can be garunteed that the closest assetids are at the top of the array
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
-					$closest_parentid = 0;
 
 					// find the parent asset types of this type code
 					if (!$strict_type_code) {
@@ -1809,25 +1809,20 @@ class Search_Manager extends Asset
 					// Search by parents first; that way we will always find the
 					// closest asset to what we are using, otherwise having a tree weight and global weight,
 					// the tree weight does not get used when using all asset types
+					$customised_assetids = array_keys($asset_tree_weightings);
 					foreach (array_keys($parents) as $parentid) {
-						foreach ($type_hier as $parent_type_code) {
-							if (in_array($parentid, array_keys($asset_tree_weightings))) {
-								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
-									if (in_array($parent_type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
-										$closest_parentid = $parentid;
-										break;
+						if (in_array($parentid, $customised_assetids)) {
+							if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
+								$customised_type_codes = array_keys($asset_tree_weightings[$parentid]['type_weights']);
+								foreach ($type_hier as $parent_type_code) {
+									if (in_array($parent_type_code, $customised_type_codes)) {
+										return $asset_tree_weightings[$parentid]['type_weights'][$parent_type_code];
 									}
-								}
-							}//end if
-						}//end foreach
-
-						// If we already have a parent, break out
-						if ($closest_parentid != 0) break;
+								}//end foreach
+							}
+						}//end if
 					}//end foreach
-
-					if ($closest_parentid != 0) {
-						return $asset_tree_weightings[$closest_parentid]['type_weights'][$parent_type_code];
-					}
+					
 				}//end else strict_assetid
 			} else {
 				return $asset_tree_weightings;
