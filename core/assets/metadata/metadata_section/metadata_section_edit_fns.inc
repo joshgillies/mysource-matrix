@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.51.4.2 2009/07/10 01:19:41 wszymanski Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.51.4.3 2009/11/26 06:15:16 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.4.2 $
+* @version $Revision: 1.51.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -391,6 +391,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			if ($edit_fns->processInlineValueInterface($field, $new_value, $field_cascade_value)) {
 				// the process fn returned true, meaning something was submitted
 				// $new_value may be NULL, however, which signifies that we are reverting to default
+
+				// Evaluating %asset_metadata_% keywords in metadata field will create loop
+				if (strpos($new_value, '%asset_metadata_') !== FALSE) {
+					trigger_localised_error('SYS0344', E_USER_WARNING);
+					$new_value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_value);
+				}
+				
 				$new_values[$field->id] = Array	(
 											0	=> Array (
 													'name'	=> $field->name,

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.107.2.4 2009/10/12 00:12:14 lwright Exp $
+* $Id: lang_errors.xml,v 1.107.2.5 2009/11/26 06:15:46 cupreti Exp $
 *
 */
 
@@ -1781,5 +1781,8 @@ Full Node Contents :
 
 	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
 	<error code="TRIG0004">No tag is specified in trigger condition: 'Asset is tagged'</error>
+
+	<!-- Metadata related errors -->
+	<error code="SYS0344">Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX</error>
 
 </errors>
