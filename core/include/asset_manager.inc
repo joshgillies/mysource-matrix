@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.777 2009/11/23 00:06:09 lwright Exp $
+* $Id: asset_manager.inc,v 1.778 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.777 $
+* @version $Revision: 1.778 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3749,7 +3749,7 @@ class Asset_Manager extends MySource_Object
 			foreach ($shdw_parentids as $parentid) {
 				$real_parents += $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
 			}
-			
+
 			$parents = $parents + $shdw_parents + $real_parents;
 
 			$this->forgetAsset($asset);

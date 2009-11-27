@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.18 2009/08/19 05:56:57 lwright Exp $
+* $Id: search_folder_management.inc,v 1.19 2009/11/27 05:50:21 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,10 +41,11 @@ class Search_Folder_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'		=> Array(
-										'added'		=> '0.2',
-										'type'		=> 'text',
-										'default'	=> '',
-										'is_contextable'	=> TRUE,
+										'added'			=> '0.2',
+										'type'			=> 'text',
+										'default'		=> '',
+										'is_admin'		=> FALSE,
+										'is_contextable'=> TRUE,
 									   ),
 						'settings'	=> Array(
 										'added'		=> '0.1',

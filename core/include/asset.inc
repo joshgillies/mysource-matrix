@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.711 2009/10/23 00:11:05 cupreti Exp $
+* $Id: asset.inc,v 1.712 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711 $
+* @version $Revision: 1.712 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1265,8 +1265,9 @@ class Asset extends MySource_Object
 
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name            = check_char_encoding(substr($this->_getName(), 0, 255));
-		$short_name      = check_char_encoding(substr($this->_getName(TRUE), 0, 255));
+		$default_context = 0;
+		$name            = check_char_encoding(substr($this->_getName(FALSE, $default_context), 0, 255));
+		$short_name      = check_char_encoding(substr($this->_getName(TRUE, $default_context), 0, 255));
 
 		
 
@@ -1367,12 +1368,13 @@ class Asset extends MySource_Object
 	* values for this asset when updating.
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to get the name in (override in kiddies)
 	*
 	* @return string
 	* @access private
 	* @see _updated
 	*/
-	protected function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
 

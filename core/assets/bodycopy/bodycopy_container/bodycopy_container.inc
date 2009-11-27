@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.44 2009/10/20 00:35:19 mbrydon Exp $
+* $Id: bodycopy_container.inc,v 1.45 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -456,17 +456,23 @@ class Bodycopy_Container extends Asset
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		// Obtain the attribute value for Name from the Default Context
-		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
 		if (empty($values) === TRUE) {
-			return parent::_getName($short_name);
+			return parent::_getName($short_name, $contextid);
 		} else {
 			return $values[$this->id];
 		}

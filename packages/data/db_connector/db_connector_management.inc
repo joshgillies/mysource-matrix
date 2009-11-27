@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector_management.inc,v 1.3 2009/08/19 05:56:43 lwright Exp $
+* $Id: db_connector_management.inc,v 1.4 2009/11/27 05:43:18 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -46,10 +46,11 @@ class Db_Connector_Management extends Asset_Management
 										'default'	=> '',
 									   ),
 						'name'		=> Array(
-										'added'		=> '0.1',
-										'type'		=> 'text',
-										'default'	=> '',
-										'is_contextable'	=> TRUE,
+										'added'			=> '0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+										'is_admin'		=> FALSE,
+										'is_contextable'=> TRUE,
 									   ),
 						'database'	=> Array(
 										'added'		=> '0.1',

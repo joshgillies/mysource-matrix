@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.17 2007/08/08 02:04:13 colivar Exp $
+* $Id: comment.inc,v 1.18 2009/11/27 05:49:22 bpearson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -44,20 +44,29 @@ class Comment extends Page
 
 
 	/**
-	* Return a name to use to describe this instance of the asset
-	*
-	* This function should be overridden by children as it is used to set the <i>name</i> and <i>short_name</i>
-	* values for this asset when updating.
+	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
-	* @see _updated
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return strip_tags($this->attr('name_raw'));
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return strip_tags(parent::_getName($short_name, $contextid));
+		} else {
+			return strip_tags($values[$this->id]);
+		}
 
 	}//end _getName()
 

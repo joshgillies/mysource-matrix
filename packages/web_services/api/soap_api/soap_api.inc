@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.8 2009/04/02 22:23:49 hnguyen Exp $
+* $Id: soap_api.inc,v 1.9 2009/11/27 05:51:08 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -121,20 +121,33 @@ class SOAP_Api extends Asset
 	}//end _preCreateCheck()
 
 
-    /**
-    * Returns name of the asset
-    *
-    * @param boolean    $short_name whether or not we are after the short name or the full name
-    *
-    * @return string
-    * @access private
-    * @see Asset::_getName()
-    */
-    protected function _getName($short_name=FALSE)
-    {
-        return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+	/**
+	* Returns name of the asset
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
+	*
+	* @return string
+	* @access private
+	* @see Asset::_getName()
+	*/
+	protected function _getName($short_name=FALSE, $contextid=NULL)
+	{
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
 
-    }//end _getName()
+		// Obtain the attribute value for Name from the specified Context
+		$attr = ($short_name) ? 'short_name' : 'name';
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr, $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
+
+	}//end _getName()
 
 
     /**

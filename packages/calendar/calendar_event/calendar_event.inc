@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.87 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event.inc,v 1.88 2009/11/27 05:39:40 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -141,14 +141,26 @@ class Calendar_Event extends Asset
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
-	* @access protected
+	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return $this->attr('name');
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

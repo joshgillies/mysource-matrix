@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_business_account_management.inc,v 1.2 2009/08/20 06:39:57 lwright Exp $
+* $Id: paypal_business_account_management.inc,v 1.3 2009/11/27 05:46:06 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,10 +41,11 @@ class Paypal_Business_Account_Management extends Asset_Management
 
 		$this->vars = Array(
 							'name'					=> Array(
-																'added'		=> '0.1',
-																'type'		=> 'text',
-																'default'	=> '',
-																'is_contextable'	=> TRUE,
+																'added'			=> '0.1',
+																'type'			=> 'text',
+																'default'		=> '',
+																'is_admin'		=> FALSE,
+																'is_contextable'=> TRUE,
 														    ),
 							'account_type'			=> Array(
 																'added'			=> '0.1',

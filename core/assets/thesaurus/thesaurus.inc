@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.65 2009/11/11 02:35:07 cupreti Exp $
+* $Id: thesaurus.inc,v 1.66 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -1406,16 +1406,24 @@ class Thesaurus extends Asset implements Bridge
 	/**
 	* Get asset name
 	*
+	* @param boolean	$short_name	Return the short_name or name?
+	* @param int		$contextid	What context to return the name from
+	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName()
+	function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		// Obtain the attribute value for Name from the Default Context
-		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
 		if (empty($values) === TRUE) {
-			return parent::_getName($short_name);
+			return parent::_getName($short_name, $contextid);
 		} else {
 			return $values[$this->id];
 		}

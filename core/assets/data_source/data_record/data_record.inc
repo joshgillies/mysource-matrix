@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record.inc,v 1.4 2009/10/20 00:35:19 mbrydon Exp $
+* $Id: data_record.inc,v 1.5 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Data_Record extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
 	* @access private
@@ -81,13 +81,7 @@ class Data_Record extends Asset
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		// Obtain the attribute value for Name from the Default Context
-		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
-		if (empty($values) === TRUE) {
-			return parent::_getName($short_name);
-		} else {
-			return $values[$this->id];
-		}
+		return $this->attr('name');
 
 	}//end _getName()
 

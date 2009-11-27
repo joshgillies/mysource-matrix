@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: link_management.inc,v 1.2 2009/08/19 05:56:34 lwright Exp $
+* $Id: link_management.inc,v 1.3 2009/11/27 05:37:14 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,10 +43,11 @@ class Link_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-												'is_contextable'	=> TRUE,
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'is_admin'		=> FALSE,
+												'is_contextable'=> TRUE,
 											   ),
 						'link_url'			=> Array(
 												'added'		=> '0.1',

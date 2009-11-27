@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.47 2009/08/26 00:55:59 ewang Exp $
+* $Id: ecommerce_cart.inc,v 1.48 2009/11/27 05:46:06 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -190,15 +190,28 @@ class Ecommerce_Cart extends Listing_Engine
 	/**
 	* Returns name of the asset
 	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$attr = ($short_name) ? 'short_name' : 'name';
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr, $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge_management.inc,v 1.4 2009/08/19 05:56:43 lwright Exp $
+* $Id: xml_user_bridge_management.inc,v 1.5 2009/11/27 05:43:18 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -44,10 +44,11 @@ class XML_User_Bridge_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'			=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> '',
-											'is_contextable'	=> TRUE,
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> FALSE,
+											'is_contextable'=> TRUE,
 										   ),
 						'data_url'		=> Array(
 											'added'		=> '0.1',
