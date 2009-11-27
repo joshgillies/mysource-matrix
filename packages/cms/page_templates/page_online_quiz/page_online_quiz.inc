@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.34 2009/04/20 03:41:44 bpearson Exp $
+* $Id: page_online_quiz.inc,v 1.35 2009/11/27 03:09:50 akarelia Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -754,7 +754,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function printFrontend()
 	{
-	
+
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -1028,16 +1028,30 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				// Randomize the order
 				// array_rand(array, 1) will produce a string instead of an array - compensate
 				$random_asset_list = Array();
+
+				// Fix for #4058 Online quiz with specific questions asked first and random number of questions
+				// now before we randomly drop out the questions we need to make sure we do not drop out the compulsory ones
+				// viz-a-viz the ones in Asset Positions under List Position Settings
+				$mandatory_listing_assets = $this->attr('asset_positions');
+				foreach ($mandatory_listing_assets as $index => $info) {
+					if (isset($assets_to_list[$info['id']])) unset ($assets_to_list[$info['id']]);
+				}
+				// while we are at it, lets make space for the assets from asset_positions. and from here we can pick number of questions apart from compulsory listing ones
+				$num_questions = $num_questions - count($mandatory_listing_assets);
+
 				$random_asset_list_keys = array_rand($assets_to_list, $num_questions);
 				if ($num_questions == 1) {
 					$random_asset_list_keys = Array($random_asset_list_keys);
+				}
+
+				foreach($mandatory_listing_assets as $index => $info) {
+					$random_asset_list[$info['id']] = Array ( '0' => Array ( 'type_code' => $info['type'] ));
 				}
 
 				foreach ($random_asset_list_keys as $key) {
 					$random_asset_list[$key] = $assets_to_list[$key];
 				}
 			}
-
 
 			// modify the asset list to conform to the question format
 			foreach ($random_asset_list as $assetid => $type) {
