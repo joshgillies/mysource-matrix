@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.26 2009/11/26 05:26:15 cupreti Exp $
+* $Id: asset_manager.inc,v 1.738.2.27 2009/11/27 02:38:30 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.26 $
+* @version $Revision: 1.738.2.27 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1110,7 +1110,7 @@ class Asset_Manager extends MySource_Object
 					$asset = NULL;
 					return $asset;
 				} else if (!method_exists($bridge, 'getAsset')) {
-					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0203', E_USER_WARNING, $bridge->name);
 				} else {
 					$asset = $bridge->getAsset($assetid, '', $mute_errors);
 				}
@@ -2518,7 +2518,8 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 			unset($lock);
-		}//end foreach
+		}//end if
+
 		if (!$force_array && count($locks) == 1) {
 			return reset($locks);
 		} else {
@@ -3772,7 +3773,6 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$result = MatrixDAL::executePdoGroupedAssoc($query);
-
 		$parents = Array();
 		foreach ($result as $assetid => $row) {
 			$parents[$assetid] = $row[0]['type_code'];
@@ -7398,7 +7398,18 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		// so much for SQL standards...
-		$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
+		if (strpos($url, '/') === FALSE) {
+			$where = MatrixDAL::quote($url).' LIKE (url || \'%\')';
+		} else {
+			$url_parts = explode('/', $url);
+			$waste = array_pop($url_parts);
+			if (count($url_parts) > 1) {
+				$parent_url = implode('/', $url_parts);
+			} else {
+				$parent_url = array_pop($url_parts);
+			}//end if
+			$where = MatrixDAL::quote($parent_url.'/').' LIKE (url || \'/%\') OR url ='.MatrixDAL::quote($url);
+		}//end if
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT urlid, assetid, url, http, https, base_contextid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
