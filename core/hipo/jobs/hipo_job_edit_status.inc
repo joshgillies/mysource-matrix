@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.64 2009/11/05 06:31:48 cupreti Exp $
+* $Id: hipo_job_edit_status.inc,v 1.65 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -366,11 +366,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		// create a queue to store the messages
 		$ms->openQueue();
 
+
 		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
 			if (empty($this->_running_vars['done_assetids']) && !$this->_running_vars['done_root']) {
+
 				// make sure we process the root asset first
 				$assetid = $this->_running_vars['assetid'];
 				$this->_running_vars['done_root'] = TRUE;
+
 			} else {
 				$tmp_keys = array_keys($this->_running_vars['todo_assetids']);
 				$assetid = $tmp_keys[0];
@@ -388,6 +391,15 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					// after we have processed them. _updated is run after the execution of the
 					// sub-sub-hipo thingy has completed
 					$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+
+					// If we are moving into a "pending approval" state and we have been sent
+					// a workflow stream name, then set that as the stream to use before changing status
+					if ((($current_status & SQ_SC_STATUS_CAN_APPROVE) > 0) && (($new_status & SQ_SC_STATUS_PENDING) > 0)) {
+						if (array_get_index($this->_running_vars, 'workflow_stream') !== NULL) {
+							$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+							$wfm->setStartingStream($assetid, $this->_running_vars['workflow_stream']);
+						}
+					}
 					if (empty($dependants) || !empty($this->_running_vars['process_dependants'])) {
 						$asset->processStatusChange($new_status, FALSE);
 					} else {
@@ -418,29 +430,29 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		//new bit of coded added
 		//feature bazar Workflow email not sent for dependant asset if it is not linked
-		// here we check the assetid  for which linking, if the asset is linked at more then 
+		// here we check the assetid  for which linking, if the asset is linked at more then
 		// 2 places only then we will add the message to the queue to be sent as an email.
 		if(empty($this->_running_vars['process_dependants']) && isset($assetid)) {
-            $this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
-        } else {
-            foreach($ms->queueContents() as $internal_message) {
-                $asset_id = $internal_message->parameters['assetid'];
-                $parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset_id,'',TRUE,FALSE);
-                if(count($parents) > 1 ) {
-                    $depedent_asset_message = Array ( 0 => $internal_message);
-                    $ms->send($depedent_asset_message);
-                }
-            }
-        }
+			$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+		} else {
+			foreach($ms->queueContents() as $internal_message) {
+				$asset_id = $internal_message->parameters['assetid'];
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset_id,'',TRUE,FALSE);
+				if(count($parents) > 1 ) {
+					$depedent_asset_message = Array ( 0 => $internal_message);
+					$ms->send($depedent_asset_message);
+				}
+			}
+		}
 
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			if (empty($this->_running_vars['process_dependants']) && isset($assetid)) {
-                // send workflow email at this point
-                // there might still be a dependant job waiting to be processed
-                $ms->send($this->_running_vars['messages']);
-            }
+				// send workflow email at this point
+				// there might still be a dependant job waiting to be processed
+				$ms->send($this->_running_vars['messages']);
+			}
 			if (empty($this->_running_vars['dependant_hipo_job'])) {
 				// todo array is empty, and no dependant job left
 				$step_data['percent_done'] = 100;

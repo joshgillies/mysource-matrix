@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.347 2009/10/16 00:01:45 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.348 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -321,6 +321,7 @@
 	<string source="step_logic">Step Logic</string>
 	<string source="step_name">Step Name</string>
 	<string source="edit_step">Edit Step</string>
+	<string source="stream_name">Stream Name</string>
 	<string source="submissions">Submissions</string>
 	<string source="system_backend_suffix">System Backend Suffix</string>
 	<string source="system">System</string>
@@ -1126,6 +1127,7 @@
 	<string source="preference_not_customised">This preference is currently not customised. The global preference setting is currently being used for this user group.</string>
 	<string source="customise_this_preference">Customise this preference</string>
 	<string source="create_new_step_called">Create a new step called</string>
+	<string source="create_new_stream_called">Create a new stream called: </string>
 	<string source="delete_step_and_conditions_question">Delete this step and all its conditions?</string>
 	<string source="conditions_must_be_met_in_this_step">condition(s) must be met in this step</string>
 	<string source="notify_when_live">Notify When Live</string>
@@ -2712,5 +2714,14 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
 
+	<!-- Workflow stream -->
+	<string source="workflow_stream_add">Add new workflow stream</string>
+	<string source="workflow_stream_reminder_sent_msg">Reminder sent after %1$s</string>
+	<string source="workflow_stream_escalation_msg"><![CDATA[<span class="sq-backend-warning">Escalates</span> after %1$s, %2$s escalation step(s)]]></string>
+	<string source="workflow_stream_no_alternate_unlocked"><![CDATA[<strong>There are no alternate streams defined.</strong> Lock the Workflow Schema to create a new alternate stream.]]></string>
+	<string source="workflow_stream_no_alternate_locked"><![CDATA[<strong>There are no alternate streams defined.</strong> You can create a new alternate stream using the interface below.]]></string>
+	<string source="default_stream">Default Stream</string>
+	<string source="alternate_streams">Alternate Streams</string>
+	<string source="workflow_stream_using_workflow_stream">using workflow stream: %1$s</string>
 
 </strings>

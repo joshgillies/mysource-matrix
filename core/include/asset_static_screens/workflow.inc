@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.58 2009/07/09 00:33:45 ewang Exp $
+* $Id: workflow.inc,v 1.59 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 
@@ -430,7 +430,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 							if (!in_array($schemaid, $running_schemas)) continue;
 
-							$schema_title = translate('running_workflow').' - '.$workflow['schema_name'];
+							$schema_title = translate('running_workflow').' - '.$workflow['schema_name'].' - '.$workflow['stream_name'];
 							if (isset($workflow['complete']) && $workflow['complete']) {
 								$schema_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
 							} else {

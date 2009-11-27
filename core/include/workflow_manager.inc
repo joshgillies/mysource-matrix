@@ -10,9 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.143 2009/10/15 01:13:26 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.144 2009/11/27 05:39:53 lwright Exp $
 *
 */
+
+
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 
 /**
@@ -22,7 +25,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -74,8 +77,8 @@ class Workflow_Manager extends MySource_Object
 		return TRUE;
 
 	}//end allowsWorkflow()
-	
-	
+
+
 	/**
 	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	* Can also optionally get running workflows only.
@@ -94,7 +97,6 @@ class Workflow_Manager extends MySource_Object
 	{
 		$storage_access = ((is_null($granted)) ? 2 : (int) $granted);
 		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
-			$db = MatrixDAL::getDb();
 
 			$sql = '  SELECT DISTINCT schemaid, granted, cascades
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
@@ -113,7 +115,7 @@ class Workflow_Manager extends MySource_Object
 				$where .= ' AND cascades = :cascades';
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			
+
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
@@ -286,7 +288,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($db_action == 'insert') {
@@ -350,7 +351,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
@@ -378,7 +378,7 @@ class Workflow_Manager extends MySource_Object
 	* Return value: Array( schemaid => workflow_array )
 	*
 	* @param int	$assetid	the ID of the asset to get workflow for
-	* @param int	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
+	* @param int	$schemaid	the ID of the schema to get workflow for ('all' or omit for all workflows)
 	*
 	* @return array
 	* @access public
@@ -473,7 +473,6 @@ class Workflow_Manager extends MySource_Object
 		if (empty($schemas)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($schemas as $schemaid) {
@@ -1004,7 +1003,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
@@ -1058,7 +1056,7 @@ class Workflow_Manager extends MySource_Object
 			$base_msg->type    = 'asset.workflow.announce.approve';
 			$base_msg->parameters['assetid'] = $asset->id;
 			$base_msg->replacements = $msg_reps;
-		
+
 			// Send custom messages to anything that the publisher is in the workflow of
 			$generic_publishers_before = Array();
 			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
@@ -1086,7 +1084,7 @@ class Workflow_Manager extends MySource_Object
 			if (count($generic_publishers_before) > 0) {
 				$msg = clone $base_msg;
 				$msg->to = $generic_publishers_before;
-				
+
 				$ms->enqueueMessage($msg);
 			}
 
@@ -1183,42 +1181,88 @@ class Workflow_Manager extends MySource_Object
 	*
 	* Use this to find out if the user is allowed to live edit.
 	*
-	* @param int	$assetid	the ID of the asset to set the approval for
-	* @param int	$publisher	the ID of the user who we are testing approval for
+	* If workflow has not started, it will test whether a user can approve a
+	* workflow simply by starting it. In this case, usually workflow can be
+	* bypassed completely (notwithstanding other roadblocks, such as incomplete
+	* metadata).
+	*
+	* If a workflow schema contains multiple streams, it can test either a single
+	* stream or ALL of them (again, presuming workflow has not started). By
+	* default, it will test the default stream. If all streams are tested, it
+	* will only return TRUE if ALL of them are able to be completed.
+	*
+	* @param int	$assetid		the ID of the asset to set the approval for
+	* @param int	$publisher		the ID of the user who we are testing approval for
+	* @param string	$stream_name	the name of the stream to test. NULL to test ALL streams.
+	*								'' to test default stream. Only applicable when workflow has not started.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function testPublish($assetid, $publisher)
+	function testPublish($assetid, $publisher, $stream_name='')
 	{
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
+
 		if (empty($running_schemas)) {
 			// we dont actually have any running workflows, so lets pretend we do
 			$schemas = $this->getSchemas($assetid, TRUE);
+			$streamids = Array();
+
+			if ($stream_name === NULL) {
+				// ALL Streams
+				foreach ($schemas as $schemaid) {
+					$streamids[$schemaid] = $this->getStreams($schemaid);
+				}
+			} else if ($stream_name === '') {
+				// Default Stream
+				$default_streamids = $this->getDefaultStream($schemas);
+				// Make it an array to fit it with the all-schemas option
+				// (name doesn't even matter)
+				foreach ($default_streamids as $schemaid => $streamid) {
+					$streamids[$schemaid] = Array($streamid => 'Default Stream');
+				}
+			} else {
+				// Named Stream
+				$named_streamids = $this->getStreamByName($schemas, $stream_name);
+				// Make it an array to fit it with the all-schemas option
+				// (name doesn't even matter)
+				foreach ($named_streamids as $schemaid => $streamid) {
+					$streamids[$schemaid] = Array($streamid => $stream_name);
+				}
+			}
+
 			foreach ($schemas as $schemaid) {
-				$schema_workflows[$schemaid] = $this->generateWorkflowArray($assetid, $schemaid);
+				foreach ($streamids[$schemaid] as $streamid => &$stream_name) {
+					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid);
+				}
 				$running_schemas[] = $schemaid;
+			}
+		} else {
+			// Keep the schema workflow format consistent
+			foreach($schema_workflows as $schemaid => &$schema_workflow) {
+				$schema_workflow = Array($schema_workflow['stream_assetid'] => $schema_workflow);
 			}
 		}
 
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
-			$workflow =& $schema_workflows[$schemaid];
 
-			// already finished the workflow?
-			if ($workflow['complete']) continue;
+			foreach ($schema_workflows[$schemaid] as $streamid => &$workflow) {
+				// already finished the workflow?
+				if ($workflow['complete']) continue;
 
-			// Try to push workflow forward until we can't publish no more -
-			// either our effort is not enough, or we've completed it
-			while (!$workflow['complete']) {
-				if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
-					break;
+				// Try to push workflow forward until we can't publish no more -
+				// either our effort is not enough, or we've completed it
+				while (!$workflow['complete']) {
+					if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
+						break;
+					}
 				}
-			}
 
-			// We haven't finished the workflow?
-			if (!$workflow['complete']) return FALSE;
+				// We haven't finished the workflow?
+				if (!$workflow['complete']) return FALSE;
+			}
 		}
 
 		return TRUE;
@@ -1332,21 +1376,21 @@ class Workflow_Manager extends MySource_Object
 
 
 	/**
-	* Generate an array representing the workflow structure for a schema at this point in time
+	* Generate an array representing the workflow structure for a STREAM at this point in time
 	*
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
 	* @param int	$assetid	the ID of the asset to generate the file for
-	* @param int	$schemaid	the ID of the schema
+	* @param int	$streamid	the ID of the stream
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateWorkflowArray($assetid, $schemaid)
+	function generateWorkflowArray($assetid, $streamid)
 	{
 		$assetid  = (int) $assetid;
-		$schemaid = (int) $schemaid;
+		$streamid = (int) $streamid;
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -1354,23 +1398,27 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-		if (is_null($schema)) {
-			trigger_localised_error('SYS0156', E_USER_WARNING, $schemaid);
+		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
+		if (is_null($stream)) {
+			trigger_localised_error('SYS0156', E_USER_WARNING, $streamid);
 			return FALSE;
 		}
 
-		if (!($schema instanceof Workflow_Schema)) {
-			trigger_localised_error('SYS0154', E_USER_WARNING, $schema->name, $schemaid);
+		if (!($stream instanceof Workflow_Stream)) {
+			trigger_localised_error('SYS0154', E_USER_WARNING, $stream->name, $streamid);
 			return FALSE;
 		}
 
 		// check that the schema we are generating an array for is actually set
-		$schemas = $this->getSchemas($assetid, TRUE);
-		if (!in_array($schemaid, $schemas)) return Array();
+		$asset_schemas = $this->getSchemas($assetid, TRUE);
+		$stream_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($streamid, 'workflow_schema', TRUE);
 
-		$edit_fns = $schema->getEditFns();
-		return $edit_fns->generateWorkflowArray($schema);
+		if (count(array_intersect($asset_schemas, $stream_parents)) === 0) {
+			return Array();
+		}
+
+		$edit_fns = $stream->getEditFns();
+		return $edit_fns->generateWorkflowArray($stream);
 
 	}//end generateWorkflowArray()
 
@@ -1385,7 +1433,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function startWorkflow($assetid, $auto_approve=TRUE, $base_msg=NULL)
+	function startWorkflow($assetid, $auto_approve=TRUE, $base_msg=NULL, $stream_name=NULL)
 	{
 		$assetid  = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1397,13 +1445,32 @@ class Workflow_Manager extends MySource_Object
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
 		if (empty($schemas)) return FALSE;
+		if ($stream_name === NULL) {
+			$stream_name = $this->getStartingStream($assetid);
+			$this->setStartingStream($assetid, NULL);
+		}
+
+		if ($stream_name === NULL) {
+			$streams = $this->getDefaultStream($schemas);
+			$stream_name = 'Default Stream';
+		} else {
+			$streams = $this->getStreamByName($schemas, $stream_name);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$workflow_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($schemas);
+
 		foreach ($schemas as $schemaid) {
-			$workflow = $this->generateWorkflowArray($assetid, $schemaid);
+			// Grab the workflow array from the appropriate stream, and then
+			// make that our workflow for this
+			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid]);
+			$workflow['schema_name'] = $workflow_names[$schemaid]['name'];
+
+			$stream_names = $this->getStreams($schemaid);
+			$workflow['stream_assetid'] = $streams[$schemaid];
+			$workflow['stream_name'] = $stream_names[$streams[$schemaid]];
 			if (empty($workflow['steps'])) continue;
 			$workflow = serialize($workflow);
 
@@ -1436,7 +1503,7 @@ class Workflow_Manager extends MySource_Object
 					// dont die here because they can try to approve again later, we just want to warn them
 				} else {
 					// bug fix #3807 Workflow email send to second reviewer contains wrong content and link
-					// we we have sucessfully completed recordPublish() call, then the email to all the 
+					// we we have sucessfully completed recordPublish() call, then the email to all the
 					// approvers in the following step condition has already been safe. It will be safe
 					// to return from here.
 					return TRUE;
@@ -1481,10 +1548,10 @@ class Workflow_Manager extends MySource_Object
 					if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
 						$workflow_backend_href  = '/'.$workflow_backend_href;
 					}//end if
-	
+
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
-	
+
 					$msg_reps = Array(
 									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
@@ -1497,6 +1564,7 @@ class Workflow_Manager extends MySource_Object
 									'previous_step_name'	=> '',
 									'current_step_id'		=> implode('.', $schema_workflow['current_step']),
 									'current_step_name'		=> $current_step['step_name'],
+									'stream'				=> $schema_workflow['stream_name'],
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1525,7 +1593,7 @@ class Workflow_Manager extends MySource_Object
 						if ($generic_msg === NULL) {
 							$generic_msg = $msg;
 						} else {
-							$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 							continue;
 						}
 					}
@@ -1676,7 +1744,7 @@ class Workflow_Manager extends MySource_Object
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.announce.reject';
 				}
-				
+
 				// Does this step have a custom message?
 				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
 				$custom_message = trim($current_step['message_reject']);
@@ -1688,7 +1756,7 @@ class Workflow_Manager extends MySource_Object
 					if ($generic_msg === NULL) {
 						$generic_msg = $msg;
 					} else {
-						$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+						$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 						continue;
 					}
 				}
@@ -1697,9 +1765,9 @@ class Workflow_Manager extends MySource_Object
 				$ms->enqueueMessage($msg);
 
 			}//end foreach
-	
+
 		}//end if
-	
+
 		return TRUE;
 
 	}//end cancelWorkflow()
@@ -1738,7 +1806,6 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE
@@ -1778,7 +1845,6 @@ class Workflow_Manager extends MySource_Object
 	function purgeWorkflow($assetid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
@@ -1882,6 +1948,7 @@ class Workflow_Manager extends MySource_Object
 							'step_id'		=> implode('.', $step_before_id),
 							'step_name'		=> $current_step['step_name'],
 							'schema'		=> $workflow['schema_name'],
+							'stream'		=> $workflow['stream_name'],
 							'started_time'	=> easy_datetime($current_step['started']),
 							'expiry_time'	=> easy_time_total($current_step['expiry_time']),
 							'workflow_url'	=> $url,
@@ -1912,7 +1979,6 @@ class Workflow_Manager extends MySource_Object
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$new_workflow = serialize($workflow);
@@ -1954,6 +2020,7 @@ class Workflow_Manager extends MySource_Object
 						'current_step_id'		=> implode('.', $workflow['current_step']),
 						'current_step_name'		=> $current_step['step_name'],
 						'schema'				=> $workflow['schema_name'],
+						'stream'				=> $workflow['stream_name'],
 						'started_time'			=> easy_datetime($step_before['started']),
 						'expiry_time'			=> easy_time_total($step_before['expiry_time']),
 					);
@@ -2005,6 +2072,7 @@ class Workflow_Manager extends MySource_Object
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
 							'current_step_name'		=> $current_step['step_name'],
+							'stream'				=> $workflow['stream_name'],
 							'workflow_url'			=> $root_url.'/'.$workflow_backend_href,
 							'accept_url'			=> $root_url.'/'.$accept_url,
 							'reject_url'			=> $root_url.'/'.$reject_url,
@@ -2019,7 +2087,7 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->type    = 'asset.workflow.invitation.progress';
 			$msg->parameters['assetid'] = $asset->id;
-					
+
 			// Does this step have a custom message (for inviting users to the next step)?
 			$custom_message = trim($current_step['message_invitation']);
 			if ($custom_message !== '') {
@@ -2085,6 +2153,162 @@ class Workflow_Manager extends MySource_Object
 		return $steps[end($current_step)];
 
 	}//end getCurrentStep()
+
+
+	/**
+	* Returns a list of streams attached to a certain schema
+	*
+	* Returned array is in format (streamid => stream name)
+	*
+	* @param string	$schemaid	Schema ID to search
+	*
+	* @return array
+	*/
+	public function getStreams($schemaid)
+	{
+		$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', FALSE);
+		$streamids = Array();
+
+		foreach ($stream_links as $stream_link) {
+			$streamids[] = $stream_link['minorid'];
+		}
+
+		$stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids, 'workflow_stream', TRUE, 'name');
+		return $stream_names;
+
+	}//end getStreams()
+
+
+	/**
+	* Returns the default stream for a certain schema or set of schemas
+	*
+	* If sent an array of schema IDs, the return value will be an array of
+	* (schema ID => stream ID). If a single schema ID, the return will be a
+	* scalar asset ID (string) value.
+	*
+	* @param mixed array|string	$schemaids	Schema ID(s) to search
+	*
+	* @return mixed array|string
+	*/
+	public function getDefaultStream($schemaids)
+	{
+		// Did we receive a single schema?
+		$return_array = TRUE;
+		if (is_array($schemaids) === FALSE) {
+			$return_array = FALSE;
+			$schemaids = Array($schemaids);
+		}
+
+		$return_value = Array();
+		foreach ($schemaids as $schemaid) {
+			$stream_link = $GLOBALS['SQ_SYSTEM']->am->getLink($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', FALSE, 'default_stream');
+
+			if (empty($stream_link) === FALSE) {
+				$return_value[$schemaid] = $stream_link['minorid'];
+			}
+		}
+
+		if ($return_array === FALSE) {
+			$return_value = reset($return_value);
+		}
+
+		return $return_value;
+
+	}//end getDefaultStream()
+
+
+	/**
+	* Returns the list of streams matching a defined stream name
+	*
+	* If a stream name does not exist for a passed schema, it will use the
+	* default stream for these.
+	*
+	* If sent an array of schema IDs, the return value will be an array of
+	* (schema ID => stream ID). If a single schema ID, the return will be a
+	* scalar asset ID (string) value.
+	*
+	* @param mixed array|string	$schemaids		Schema ID(s) to search
+	* @param string				$stream_name	Stream name to search for
+	*
+	* @return mixed array|string
+	*/
+	public function getStreamByName($schemaids, $stream_name)
+	{
+		// Did we receive a single schema?
+		$return_array = TRUE;
+		if (is_array($schemaids) === FALSE) {
+			$return_array = FALSE;
+			$schemaids = Array($schemaids);
+		}
+
+		// Find the stream name if it exists
+		$return_value = Array();
+		foreach ($schemaids as $schemaid) {
+			$schema_stream_names = $this->getStreams($schemaid);
+			$found_streamid = array_search($stream_name, $schema_stream_names);
+			if ($found_streamid !== FALSE) {
+				$return_value[$schemaid] = $found_streamid;
+			}
+		}
+
+		// Now add the default stream for these
+		$unfound_streams = array_diff($schemaids, array_keys($return_value));
+		if (count($unfound_streams) > 0) {
+			$unfound_streamids = $this->getDefaultStream($unfound_streams);
+			$return_value += $unfound_streamids;
+		}
+
+		if ($return_array === FALSE) {
+			$return_value1 = reset($return_value);
+		}
+
+		return $return_value;
+
+	}//end getStreamByName()
+
+
+	/**
+	* Set an stream to use when starting the workflow for a certain asset
+	*
+	* This is to get around coupling issues - since the POST var handling should
+	* be at the Details static screen level, but the starting of workflow
+	* happens at status change level - and there is no way to pass extra data to
+	* a status change.
+	*
+	* It is intended to be called immediately before starting workflow. This
+	* only has effect for the request, and is cleared when workflow is
+	* actually started.
+	*
+	* It can still be overridden by sending a stream ID to startWorkflow().
+	*
+	* If streamid is NULL, the set stream will be cleared, and the default
+	* stream will be used instead.
+	*
+	* @param string	$assetid		The asset to set a starting stream for
+	* @param string	$stream_name	The stream to set as "active". NULL to clear.
+	*
+	* @return void
+	*/
+	public function setStartingStream($assetid, $stream_name)
+	{
+		$this->_tmp['starting_streams'][$assetid] = $stream_name;
+
+	}//end setStartingStream()
+
+
+	/**
+	* Return a set starting stream name
+	*
+	* @param string	$schemaid	The asset to get the starting stream name for
+	*
+	* @return string
+	*/
+	public function getStartingStream($assetid)
+	{
+		$starting_streams = array_get_index($this->_tmp, 'starting_streams', Array());
+		return array_get_index($starting_streams, $assetid, NULL);
+
+	}//end getStartingStream()
 
 
 }//end class

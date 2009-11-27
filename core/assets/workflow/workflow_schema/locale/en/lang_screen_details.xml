@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2009/03/26 22:36:01 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.6 2009/11/27 05:39:53 lwright Exp $
 *
 */
 -->
@@ -22,19 +22,29 @@
 			<note />
 		</field>
 	</section>
-	<section name="Workflow Summary">
+	<section name="Workflow Streams">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintWorkflowStreams"   />
+				<process_function name="processWorkflowStreams" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Workflow Stream Summary">
 		<field>
 			<display_name></display_name>
 			<note><![CDATA[When you have the lock for this schema, you can change the order of the workflow by dragging the drag handle (the double-headed arrow button) of a workflow step up and down.<br/>
 			You may only move a step up and down within the same level - ie. you cannot change a top-level workflow step into an escalation step, or vice versa.  Available drop points will be highlighted when you start dragging.<br/>
 			If a drag handle does not appear for a step, there is nothing that can be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
 			<function_call>
-				<paint_function   name="paintWorkflowSummary"   />	
+				<paint_function   name="paintWorkflowSummary"   />
 				<process_function name="processWorkflowSummary" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Steps Defined For This Workflow">
+	<section name="Steps Defined For This Workflow Stream">
 		<field>
 			<display_name></display_name>
 			<note />

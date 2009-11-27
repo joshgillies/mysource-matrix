@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.43 2008/01/21 03:04:24 hnguyen Exp $
+* $Id: details.inc,v 1.44 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -427,9 +427,80 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
 		combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
+
+		// Test whether we have a status that may need the stream
+		$has_pending_status = FALSE;
+		foreach ($statii as $status_code => $status_text) {
+			if (($status_code & SQ_SC_STATUS_PENDING) > 0) {
+				$has_pending_status = TRUE;
+				break;
+			}
+		}
+
+		// Workflow streams activate to those with admin permission where:
+		// - one of the options is a Pending status (either a Apply for Approval,
+		//   or Place Up for Review);
+		// - the current status is either a "can approve" state (Safe Edit or
+		//   U/C), or Live (otherwise we couldn't run Up for Review on a stream).
+		if (($owner->adminAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && ($has_pending_status === TRUE)) {
+			echo '&nbsp;';
+			// If it is possible that we will have a "apply for approval" in the
+			// drop-down, paint the streams box and enable/disable when required.
+			$workflow_stream_names = Array();
+
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($owner->id);
+			foreach ($schemas as $schemaid => $granted) {
+				$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', TRUE);
+				$streamids = Array();
+				foreach ($stream_links as $stream_link) {
+					$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($stream_link['minorid'], SQ_LINK_TYPE_2, 'workflow_step', TRUE);
+					if (($stream_link['value'] !== 'default_stream') && (count($step_links) > 0)) {
+						$streamids[] = $stream_link['minorid'];
+					}
+				}
+				$stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids, 'workflow_stream', TRUE, 'name');
+				$workflow_stream_names = array_merge($workflow_stream_names, $stream_names);
+			}
+
+			$workflow_stream_names = array_unique($workflow_stream_names);
+
+			$options = Array('SQ_USE_DEFAULT' => 'Default Stream');
+			foreach ($workflow_stream_names as $workflow_stream_name) {
+				$options[$workflow_stream_name] = $workflow_stream_name;
+			}
+
+			if (count($options) > 1) {
+				ob_start();
+					combo_box($prefix.'_change_status_stream', $options, FALSE, Array());
+				$cb = ob_get_clean();
+				echo translate('workflow_stream_using_workflow_stream', $cb);
+			} else {
+				// Only one option; hide the stream field and chuck it into a hidden field
+				reset($options);
+				hidden_field($prefix.'_change_status_stream', key($options));
+			}
+			?>
+			<script type="text/javascript">
+			//<![CDATA[
+				var status_cb = document.getElementById("<?php echo $prefix ?>_change_status");
+				var stream_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream");
+
+				stream_cb.disabled = true;
+				status_cb.onchange = function() {
+					if ((this.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0) {
+						stream_cb.disabled = false;
+					} else {
+						stream_cb.disabled = true;
+					}
+				}
+			// ]]></script>
+			<?php
+		}
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
+
 	}
 
 }//end _paintStatusChange()
@@ -459,6 +530,11 @@ function _processStatusChange(&$owner, &$o, $prefix)
 
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'new_status' => $new_status, 'dependants_only' => $dependants_only);
+			if (isset($_POST[$prefix.'_change_status_stream'])) {
+				if ($_POST[$prefix.'_change_status_stream'] !== 'SQ_USE_DEFAULT') {
+					$vars['workflow_stream'] = $_POST[$prefix.'_change_status_stream'];
+				}
+			}
 			$hh->queueHipo('hipo_job_edit_status', $vars);
 		}
 	}

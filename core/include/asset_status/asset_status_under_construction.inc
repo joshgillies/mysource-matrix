@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.50 2009/05/25 05:16:12 akarelia Exp $
+* $Id: asset_status_under_construction.inc,v 1.51 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -110,7 +110,15 @@ class Asset_Status_Under_Construction extends Asset_Status
 			} else {
 				// so we have workflows, but none of them are running so lets see what will happen
 				// if this user approves to determine if they can live edit
-				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+				if ($this->owner->adminAccess('')) {
+					// If we are an admin, we should test all the streams
+					$stream = NULL;
+				} else {
+					// If we are a normal user, we can only use the default
+					// stream, so only test that instead
+					$stream = '';
+				}
+				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream);
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -150,12 +158,12 @@ class Asset_Status_Under_Construction extends Asset_Status
 			$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
 		}
 		if (!$this->_tmp['metadata_complete']) {
-            $replace_string_vars    = Array (
-                                        'asset_ei_screen'   => 'metadata',
-                                        'am_section'        => 'edit_asset',
-                                        'assetid'           => $this->owner->id,
-                                      );
-            $metadata_screen_url = replace_query_string_vars($replace_string_vars);
+			$replace_string_vars    = Array (
+										'asset_ei_screen'   => 'metadata',
+										'am_section'        => 'edit_asset',
+										'assetid'           => $this->owner->id,
+									  );
+			$metadata_screen_url = replace_query_string_vars($replace_string_vars);
 			return translate('cannot_make_live_metadata_incomplete', '<a href="'.$metadata_screen_url.'">'.strtolower(translate('metadata')).'</a>');
 
 		}

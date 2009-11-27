@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.43 2009/05/25 05:16:11 akarelia Exp $
+* $Id: asset_status_editing.inc,v 1.44 2009/11/27 05:39:53 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -103,7 +103,16 @@ class Asset_Status_Editing extends Asset_Status
 					} else {
 						// workflow applied but not running;
 						// see whether the current user could publish if we started workflow
-						if ($wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId())) {
+						if ($this->owner->adminAccess('')) {
+							// If we are an admin, we should test all the streams
+							$stream = NULL;
+						} else {
+							// If we are a normal user, we can only use the default
+							// stream, so only test that instead
+							$stream = '';
+						}
+
+						if ($wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream)) {
 							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
 						} else {
 							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
