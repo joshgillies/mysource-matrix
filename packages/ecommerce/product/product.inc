@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.16.6.1 2009/08/26 01:37:37 ewang Exp $
+* $Id: product.inc,v 1.16.6.2 2009/11/29 22:24:16 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16.6.1 $
+* @version $Revision: 1.16.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -70,16 +70,27 @@ class Product extends Page implements Buyable
 	/**
 	* Returns name of the asset
 	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @see Asset::_getName()
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return $this->attr('name');
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

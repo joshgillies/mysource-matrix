@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_management.inc,v 1.6.14.1 2009/08/20 01:10:24 lwright Exp $
+* $Id: poll_question_management.inc,v 1.6.14.2 2009/11/29 22:22:49 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6.14.1 $
+* @version $Revision: 1.6.14.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,10 +41,11 @@ class Poll_Question_Management extends Asset_Management
 		$this->Asset_Management($pm);
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-												'is_contextable'	=> TRUE,
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'is_admin'		=> FALSE,
+												'is_contextable'=> TRUE,
 											   ),
 						'options'			=> Array(
 												'added'		=> '0.1',

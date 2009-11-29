@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_location.inc,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: google_map_location.inc,v 1.1.1.1.8.1 2009/11/29 22:24:58 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -48,20 +48,33 @@ class Google_Map_Location extends Asset
     }//end constructor
 
 
-    /**
-    * Returns name of the asset
-    *
-    * @param boolean    $short_name whether or not we are after the short name or the full name
-    *
-    * @return string
-    * @access private
-    * @see Asset::_getName()
-    */
-    function _getName($short_name=FALSE)
-    {
-        return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+	/**
+	* Returns name of the asset
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
+	*
+	* @return string
+	* @access private
+	* @see Asset::_getName()
+	*/
+	protected function _getName($short_name=FALSE, $contextid=NULL)
+	{
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
 
-    }//end _getName()
+		// Obtain the attribute value for Name from the specified Context
+		$attr = ($short_name) ? 'short_name' : 'name';
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr, $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
+
+	}//end _getName()
 
 
     /**

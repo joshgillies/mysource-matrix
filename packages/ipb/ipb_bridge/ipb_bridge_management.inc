@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge_management.inc,v 1.5.12.2 2009/08/27 03:58:29 bpearson Exp $
+* $Id: ipb_bridge_management.inc,v 1.5.12.3 2009/11/29 22:25:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5.12.2 $
+* @version $Revision: 1.5.12.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -41,10 +41,11 @@ class IPB_Bridge_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'				=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-												'is_contextable'	=> TRUE,
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'is_admin'		=> FALSE,
+												'is_contextable'=> TRUE,
 											   ),
 						'version'			=> Array(
 												'added'			=> '0.1',

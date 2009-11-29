@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder_management.inc,v 1.15.8.1 2009/08/20 01:10:17 lwright Exp $
+* $Id: folder_management.inc,v 1.15.8.2 2009/11/29 22:21:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15.8.1 $
+* @version $Revision: 1.15.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,10 +43,11 @@ class Folder_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'	=> Array(
-									'added'		=> '0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-									'is_contextable'	=> TRUE,
+									'added'			=> '0.1',
+									'type'			=> 'text',
+									'default'		=> '',
+									'is_admin'		=> FALSE,
+									'is_contextable'=> TRUE,
 								   ),
 					  );
 

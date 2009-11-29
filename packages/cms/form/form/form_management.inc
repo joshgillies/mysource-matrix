@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.62.2.1 2009/08/20 01:10:23 lwright Exp $
+* $Id: form_management.inc,v 1.62.2.2 2009/11/29 22:22:48 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62.2.1 $
+* @version $Revision: 1.62.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,11 +43,12 @@ class Form_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'						=> Array(
-														'added'		=> '0.0.1',
-														'type'		=> 'text',
-														'default'	=> '',
-														'update_fn'	=> '',
-														'is_contextable'	=> TRUE,
+														'added'			=> '0.0.1',
+														'type'			=> 'text',
+														'default'		=> '',
+														'update_fn'		=> '',
+														'is_admin'		=> FALSE,
+														'is_contextable'=> TRUE,
 													   ),
 						'log_submissions'			=> Array(
 														'added'			=> '0.0.1',

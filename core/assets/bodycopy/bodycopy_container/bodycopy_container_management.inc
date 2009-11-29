@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.13.2.1 2009/08/20 01:10:16 lwright Exp $
+* $Id: bodycopy_container_management.inc,v 1.13.2.2 2009/11/29 22:21:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,10 +41,11 @@ class Bodycopy_Container_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'			=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'text',
-											'default'	=> '',
-											'is_contextable'	=> TRUE,
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> FALSE,
+											'is_contextable'=> TRUE,
 										   ),
 						'description'	=> Array(
 											'added'			=> '0.6',

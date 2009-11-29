@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.16.6.2 2009/09/16 01:54:32 bpearson Exp $
+* $Id: bodycopy_management.inc,v 1.16.6.3 2009/11/29 22:21:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.6.2 $
+* @version $Revision: 1.16.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,8 @@ class Bodycopy_Management extends Asset_Management
 									'default'		=> 'BodyCopy',
 									'update_fn'		=> '',
 									'description'	=> 'the name of the bodycopy asset',
-									'is_contextable'	=> TRUE,
+									'is_admin'		=> FALSE,
+									'is_contextable'=> TRUE,
 								   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.180.2.1 2009/10/19 04:24:08 mbrydon Exp $
+* $Id: file.inc,v 1.180.2.2 2009/11/29 22:21:00 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.180.2.1 $
+* @version $Revision: 1.180.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1294,17 +1294,23 @@ class File extends Asset
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	* @param int		$contextid	What context to return the name from
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	public function _getName($short_name=FALSE)
+	public function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		// Obtain the attribute value for Title from the Default Context
-        if ($short_name) {
-			$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('title', $this->type(), Array($this->id), 0);
-	        if (empty($values) === TRUE) {
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Title from the specified context
+		if ($short_name) {
+			$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('title', $this->type(), Array($this->id), $contextid);
+			if (empty($values) === TRUE) {
 				return $this->attr('title');
 			} else {
 				return $values[$this->id];

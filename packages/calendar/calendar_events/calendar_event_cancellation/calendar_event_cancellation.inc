@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.31 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event_cancellation.inc,v 1.31.6.1 2009/11/29 22:21:59 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -84,14 +84,30 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
-	* @access protected
+	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return $short_name ? translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))) : $this->attr('name');
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		if ($short_name) {
+			return translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 

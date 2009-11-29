@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.43.6.1 2009/10/19 04:24:08 mbrydon Exp $
+* $Id: folder.inc,v 1.43.6.2 2009/11/29 22:21:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43.6.1 $
+* @version $Revision: 1.43.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,17 +97,23 @@ class Folder extends Asset
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		// Obtain the attribute value for Name from the Default Context
-		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), 0);
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('name', $this->type(), Array($this->id), $contextid);
 		if (empty($values) === TRUE) {
-			return parent::_getName($short_name);
+			return parent::_getName($short_name, $contextid);
 		} else {
 			return $values[$this->id];
 		}

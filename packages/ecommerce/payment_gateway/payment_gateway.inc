@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.10.6.1 2009/09/16 01:08:24 mbrydon Exp $
+* $Id: payment_gateway.inc,v 1.10.6.2 2009/11/29 22:24:15 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10.6.1 $
+* @version $Revision: 1.10.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -91,15 +91,28 @@ class Payment_Gateway extends Page
 	/**
 	* Returns name of the asset
 	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* @param int		$contextid	what context to return the name from
 	*
 	* @return string
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
-		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+		// No context specified, using the current context
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}//end if
+
+		// Obtain the attribute value for Name from the specified Context
+		$attr = ($short_name) ? 'short_name' : 'name';
+		$values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr, $this->type(), Array($this->id), $contextid);
+		if (empty($values) === TRUE) {
+			return parent::_getName($short_name, $contextid);
+		} else {
+			return $values[$this->id];
+		}
 
 	}//end _getName()
 
