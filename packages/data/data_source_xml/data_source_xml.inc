@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.5.2.1 2009/07/07 01:03:23 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.5.2.2 2009/11/30 04:25:30 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -248,6 +248,9 @@ class Data_Source_Xml extends Data_Source
 			xml_set_character_data_handler ($xml_parser, Array(&$this,'characterData') );
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
+			$content = htmlentities($content, ENT_NOQUOTES);
+			$content = str_replace('&lt;' , '<' , $content);
+			$content = str_replace('&gt;' , '>' , $content);
 			if (!xml_parse($xml_parser, $content, TRUE)) {
 				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content));
 				return FALSE;
@@ -313,7 +316,7 @@ class Data_Source_Xml extends Data_Source
 			if ($this->_inside_root_tag) {
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
-					if ($name === $required_tags[$i]) {
+					if ($required_tags === FALSE || $name === $required_tags[$i]) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
 						$this->_passes++;
