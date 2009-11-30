@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.194.2.10 2009/09/09 00:52:16 bpearson Exp $
+* $Id: search_manager.inc,v 1.194.2.11 2009/11/30 04:55:22 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.194.2.10 $
+* @version $Revision: 1.194.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2109,9 +2109,14 @@ class Search_Manager extends Asset
 			// Multiple selections are passed in as an array, so filter those out to a string
 			$word_list = '';
 			if (is_array($field_details['words'])) {
+				$count = 0;
 				foreach ($field_details['words'] as $selected_word) {
+					$count++ ;
 					$word_list .= $selected_word;
-					$word_list .= ' ';
+					// bug fix #4047 Oracle search fails multiple word keys search with select/multiselect
+					// if OR logic is used we will need to make sure there is a OR in between the search terms or else oracle will consider it to be AND
+					// i.e - "search something like this" is considered to be "search AND something AND like AND this"
+					$word_list .= ( DAL::getDbType() === 'oci' && $field_details['word_logic'] === 'OR' && count($field_details['words']) > $count ) ? ' OR '  : ' ';
 				}//end foreach
 				$word_list = trim($word_list);
 			} else {
@@ -2127,6 +2132,13 @@ class Search_Manager extends Asset
 					$word = strtolower($word);
 					$word = html_entity_decode($word, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$words[] = $word;
+				}
+			}
+
+			// our OR's have been strtolower'd :( oracle wont like it, get it back to OR
+			if (DAL::getDbType() === 'oci' && $field_details['word_logic'] === 'OR' ) {
+				foreach ($words as $index => $word) {
+					$words[$index] = str_replace(' or ', ' OR ' , $word);
 				}
 			}
 			$field_details['words'] = $words;
