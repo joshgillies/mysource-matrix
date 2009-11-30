@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_execute_database_query.inc,v 1.3 2009/02/13 03:06:48 bpearson Exp $
+* $Id: trigger_action_execute_database_query.inc,v 1.3.4.1 2009/11/30 01:30:47 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -181,6 +181,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 				require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 				$GLOBALS['SQ_SYSTEM']->tm = new Transaction_Manager();
 			}
+			MatrixDAL::changeDb('trigger_action_db');
 			$GLOBALS['SQ_SYSTEM']->tm->begin('trigger_action_db');
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach ($bind_vars as $bind_var => $bind_value) {
