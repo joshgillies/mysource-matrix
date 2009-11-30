@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.238 2009/11/27 05:42:14 bpearson Exp $
+* $Id: form.inc,v 1.239 2009/11/30 04:27:09 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2673,11 +2673,13 @@ class Form extends Asset implements Bridge
 	function getXML($time=NULL)
 	{
 		$submission = $this->getSubmissionAsset();
+		$submission_id = $submission->id;
 		$submission_ip = $submission->getIP();
 
 		ob_start();
 		echo '<submission time="'.str_replace(' ', 'T', ts_iso8601((is_null($time) ? time() : $time))).'"';
 		echo ' ip="'.$submission_ip.'"';
+		echo ' assetid="'.$submission_id.'"';
 		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
 		}

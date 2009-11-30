@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.101 2009/11/02 04:46:42 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.102 2009/11/30 04:27:09 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -765,6 +765,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				$logs[$assetid][$id] = $element['answer'];
 			}
+			$logs[$assetid]['__assetid__'] = $assetid;
+
+			// Finally, add the header row for assetid in
+			if (!isset($headers['__assetid__'])) {
+				$headers['__assetid__'] = translate('assetid');
+			}//end if
 		}//end foreach
 
 		if ($header_row) $csv->setFieldHeaders($headers);
