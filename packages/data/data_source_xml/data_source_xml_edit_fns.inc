@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_edit_fns.inc,v 1.5 2009/07/28 06:48:36 cupreti Exp $
+* $Id: data_source_xml_edit_fns.inc,v 1.5.2.1 2009/11/30 04:10:38 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -32,15 +32,15 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 {
 
 
-    /**
-    * Constructor
-    *
-    */
-    function __construct()
-    {
-        parent::__construct();
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
 
-    }//end constructor
+	}//end constructor
 
 
 	/**
@@ -85,9 +85,6 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 			$link = htmlentities(trim($_POST[$prefix.'feed_url']));
 			if (strcasecmp($url, $link) != 0) {
 				$asset->setAttrValue('url', $link);
-				// overwrite the cache with this new XML feed url
-				$asset->setResultSet(Array(), $link);
-				$asset->getResultSet($link);
 				return TRUE;
 			}
 		}
@@ -352,7 +349,6 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processDynamicData(&$asset, &$o, $prefix)
 	{
-
 		$var_name_pattern = '/^[a-zA-Z_\-0-9\.]+$/';
 
 
@@ -472,8 +468,8 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		return TRUE;
 
 	}//end processDynamicData()
-	
-	
+
+
 	/**
 	* Paints the interface for entering comma-separated tag names to be enlosed in CDATA
 	*
@@ -514,12 +510,15 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		$current_tags = htmlentities($asset->attr('cdata_tags'));
 		if (isset($_POST[$prefix.'cdata_tag_names'])) {
 			$posted_tags = htmlentities($_POST[$prefix.'cdata_tag_names']);
-			
+
 			if (strcasecmp($current_tags, $posted_tags) != 0) {
 				$exploded = explode(',', $posted_tags);
 				// trim excess whitespace for accuracy
 				array_walk($exploded, Array(&$this, '_trimValue'));
 				$asset->setAttrValue('cdata_tags', serialize($exploded));
+				// overwrite the cache with this new XML feed url
+				$asset->setResultSet(Array(), $asset->attr('url'));
+				$asset->getResultSet($asset->attr('url'));
 				return TRUE;
 			}
 		}
@@ -529,4 +528,5 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 
 
 }//end class
+
 ?>

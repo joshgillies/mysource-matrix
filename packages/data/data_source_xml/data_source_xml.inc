@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.8.2.1 2009/08/07 07:07:03 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.8.2.2 2009/11/30 04:10:38 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -125,23 +125,23 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function getResultSet()
-	{	
+	{
 		// use feed url as the cache key
 		$url = $this->_getFeedURL();
-		
+
 		if (!empty($url)) {
 			$hash = md5($url);
-			
+
 			// Check the local cache
-			if (!isset($this->_tmp[$hash])) {				
+			if (!isset($this->_tmp[$hash])) {
 				// Try from the system cache
 				$result = parent::getResultSet($hash);
-								
-				if ($result !== FALSE) {	
-					$this->_tmp[$hash] = $result;					
+
+				if ($result !== FALSE) {
+					$this->_tmp[$hash] = $result;
 				} else {
-					 $this->_tmp[$hash] = $this->getItems();
-					 parent::setResultSet($this->_tmp[$hash], $hash);
+					$this->_tmp[$hash] = $this->getItems();
+					parent::setResultSet($this->_tmp[$hash], $hash);
 				}
 			}
 		}
@@ -179,7 +179,7 @@ class Data_Source_Xml extends Data_Source
 		// check whether or not the HTTP_Client object has already been
 		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
 		$HTTP_Client = NULL;
-		
+
 		if (isset($_SESSION)) {
 			$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
 			if (!empty($HTTP_Client)) {
@@ -257,7 +257,7 @@ class Data_Source_Xml extends Data_Source
 		$content = $this->openFeed($url);
 
 		return $this->_addCDATA($content);
-	
+
 	}//end getXMLContent()
 
 
@@ -270,7 +270,8 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function _createParser($content)
-	{	if (!empty($content)) {
+	{
+		if (!empty($content)) {
 			$xml_parser = xml_parser_create();
 			// stop the parser upper-casing everything
 			xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
@@ -334,9 +335,10 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function startElement($parser, $name, $attributes=FALSE)
-	{	// Increment the XML tree level tracker one level up
+	{
+		// Increment the XML tree level tracker one level up
 		$this->_tree_level++; 
-			
+
 		if (!empty($name)) {
 			// check that we are inside the root tag
 			$this->_checkRootTag($name);
@@ -344,12 +346,12 @@ class Data_Source_Xml extends Data_Source
 			if ($this->_inside_root_tag) {
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
-					if ($name === $required_tags[$i]) {
+					if ($required_tags === FALSE || $name === $required_tags[$i]) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
-								
+
 						// Set record tree level to where required elemets are
-						$this->_record_tree_level = $this->_tree_level;						
+						$this->_record_tree_level = $this->_tree_level;
 						
 						// As far as required tags are concerned current record is non empty for sure
 						$this->_non_empty_record = TRUE;
@@ -361,7 +363,7 @@ class Data_Source_Xml extends Data_Source
 						}
 					}
 				}
-				
+
 				// If the current tree level is less than tree level where records are then we are finished with the current record
 				if ($this->_non_empty_record && ($this->_tree_level < $this->_record_tree_level)) {
 					$this->_record_set_index++;
@@ -386,9 +388,9 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function characterData($parser, $data)
-	{   
+	{
 		if ($this->_inside_relevant_tag) {
-			
+
 			// if there are multiple tags with same name in the record, merge the values using the given delimiter
 			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
@@ -412,9 +414,9 @@ class Data_Source_Xml extends Data_Source
 				}
 			}
 		}
-		
+
 		$this->_inside_relevant_tag = FALSE;
-			
+
 	}//end characterData()
 
 
@@ -428,7 +430,7 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function endElement($parser, $name)
-	{	
+	{
 		// check that we are outside of the root tag
 		$this->_checkRootTag($name);
 
@@ -462,8 +464,8 @@ class Data_Source_Xml extends Data_Source
 		return unserialize(html_entity_decode($this->attr('tag_attributes')));
 
 	}//end _getRequiredAttributes()
-	
-	
+
+
 	/**
 	* Processes and returns the XML Feed URL for the XML datasource
 	*
@@ -471,7 +473,7 @@ class Data_Source_Xml extends Data_Source
 	* @access private
 	*/
 	function _getFeedURL()
-	{	
+	{
 		$url = $this->attr('url');
 		$keyword_wrapper = '%%';
 		$keyword_pattern = '('.$keyword_wrapper.'([a-zA-Z_\-0-9\.]+)'.$keyword_wrapper.')';
@@ -499,7 +501,7 @@ class Data_Source_Xml extends Data_Source
 
 	}//end _getFeedURL()
 
-	
+
 	/**
 	* Returns the XML Feed URL for the XML datasource
 	*
@@ -522,12 +524,12 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function getDynamicVariableValue($variable_name)
-	{	
+	{
 		$dynamic_vars = $this->attr('dynamic_vars');
 		if (!isset($dynamic_vars[$variable_name])) return '';
 		$parameter_map = $this->getAttribute('parameter_map');
 		$value = $parameter_map->getParameterValue($variable_name);
-		
+
 		if (empty($value)) {
 			$value = array_get_index($dynamic_vars, $variable_name, '');
 		}
@@ -536,7 +538,7 @@ class Data_Source_Xml extends Data_Source
 
 	}//end getDynamicVariableValue()
 
-	
+
 	/**
 	* Encloses the selected XML elements with CDATA term
 	*
@@ -546,20 +548,22 @@ class Data_Source_Xml extends Data_Source
 	* @access private
 	*/
 	function _addCDATA($content)
-	{	
-		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));		
+	{
+		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));
 		if (empty($cdata_tags)) return $content;
 
-		foreach($cdata_tags as $cdata_tag) {			
+		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
-			
+
 			// Replace only if the element data is not already wrapped with CDATA
 			$replace_pattern = "/(\<$cdata_tag\s*.*?>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag>)/";
-			$replacement = "$1<![CDATA[$2]]>$3";			
-			$content = preg_replace($replace_pattern, $replacement, $content);			
-		}		
+			$replacement = "$1<![CDATA[$2]]>$3";
+			$content = preg_replace($replace_pattern, $replacement, $content);
+		}
 		return $content;
 	}
 
- }//end class
+
+}//end class
+
 ?>
