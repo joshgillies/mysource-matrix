@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.14.6.1 2009/11/26 00:34:35 cupreti Exp $
+* $Id: csv.inc,v 1.14.6.2 2009/12/01 05:28:09 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14.6.1 $
+* @version $Revision: 1.14.6.2 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -274,7 +274,7 @@ class CSV
 			}
 		}
 	 	
-		fclose($fp);
+		if (isset($fp)) fclose($fp);
 
 	}//end export()
 
