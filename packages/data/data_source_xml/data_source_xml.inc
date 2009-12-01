@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.11 2009/11/30 04:15:21 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.12 2009/12/01 23:31:11 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -551,6 +551,7 @@ class Data_Source_Xml extends Data_Source
 	{
 		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));
 		if (empty($cdata_tags)) return $content;
+		$cdata_tags = array_unique($cdata_tags);
 
 		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
