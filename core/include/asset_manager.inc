@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.27 2009/11/27 02:38:30 bpearson Exp $
+* $Id: asset_manager.inc,v 1.738.2.28 2009/12/01 23:58:32 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.27 $
+* @version $Revision: 1.738.2.28 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8713,7 +8713,15 @@ class Asset_Manager extends MySource_Object
 
 			$from .= '
 				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-			';
+				';
+
+			/**
+			 * We do need the ast table if we're in rollback mode though
+			 * so shadow assets can check dates/times
+			 */
+			if (SQ_ROLLBACK_VIEW) {
+				$union_from_list = $from;
+			}
 
 			// Keep WHERE bind vars in a separate array (then merge in) - as this
 			// segment could well be duplicated by the "direct shadows only" part
