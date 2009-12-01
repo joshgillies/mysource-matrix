@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.51 2009/06/18 07:05:55 akarelia Exp $
+* $Id: datetime_field.inc,v 1.52 2009/12/01 04:30:40 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -787,7 +787,7 @@ class DateTime_Field
 		// We need to strip certain elements out of the format if we don't have enough
 		// information about our datetime.
 		// A mapping of which format elements are dependant on which time elements.
-		$dep=Array('h' => 'aABgGhHrU', 'd' => 'dDIjlOrSUwWzZ', 'm' => 'DFIlmMnOrtUwWzZ', 'y' => 'DlLrtUwWYyz', 'i' => 'irU', 's' => 'rsU');
+		$dep=Array('h' => 'aABcgGhHrU', 'd' => 'cdDIjlOrSUwWzZ', 'm' => 'cDFIlmMnOrtUwWzZ', 'y' => 'cDlLrtUwWYyz', 'i' => 'cirU', 's' => 'crsU');
 		$es = '';
 		foreach ($v = $this->strToUnitsArray($this->value) as $u => $n) {
 			if ($n < 0) {
@@ -804,7 +804,9 @@ class DateTime_Field
 
 		// Certain things we can't work out if the year is before 1970
 		$real_y = 0;
-		$c = 0;
+		if (!isset($c)) {
+			$c = $this->getParam('allow_circa');
+		}//end if
 		if ($y < 1970 && !stristr($es,'y')) {
 			$es .= 'DIlLrUwWzZ';
 			$real_y = $y;
@@ -822,7 +824,7 @@ class DateTime_Field
 		}
 
 		// Circa
-		$format = str_replace('c', ($c ? '|' : ''), $format);
+		$format = str_replace('\c', ($c ? '|' : ''), $format);
 		$format = str_replace('C', ($c ? '~' : ''), $format);
 
 		$format = date($format,mktime($h, $i, $s, $m, $d, $y));
@@ -950,7 +952,7 @@ class DateTime_Field
 			<tr><td>
 				<?php
 					if (in_array('c', $show)) {
-						combo_box($this->prefix.'_allow_circa', Array(''=>'','1'=>'Allow "circa."'), $c, 'class="smallprint"');
+						combo_box($this->prefix.'_allow_circa', Array(''=>'','1'=>'Allow "circa."'), FALSE, $c, 'class="smallprint"');
 						echo '<br />';
 					}
 					if (in_array('t', $show)) {

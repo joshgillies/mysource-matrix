@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.js,v 1.4 2007/02/15 06:44:48 tbarrett Exp $
+* $Id: metadata_field_date.js,v 1.5 2009/12/01 04:30:20 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ function setInputsEnabled(parent, enabled)
 
 function handleMetadataDatetimeDefaultClick(defaultCheckbox, prefix, defaultDateTime, defaultKeyword)
 {
-	var dateComps = ['d', 'm', 'y', 'h', 'i', 's'];
+	var dateComps = ['c', 'd', 'm', 'y', 'h', 'i', 's'];
 	if (defaultCheckbox.checked) {
 		if (defaultKeyword !== null) {
 			for (i in dateComps) {
