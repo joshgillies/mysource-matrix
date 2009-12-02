@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.5 2009/08/27 03:13:34 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.6 2009/12/02 02:04:37 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -88,15 +88,20 @@ $skip_definition_checks = array (
 /**
  * Keep this here so we can reference the index definition if necessary
  */
-$full_index_list = getIndexes();
+
+$dbtype = _getDbType();
+
+$index_info = getIndexes();
+$full_index_list = $index_info['index_list'];
+$parallel_list = $index_info['parallel_list'];
 
 bam('Checking Indexes');
 
 $sql_commands = array();
 $bad_indexes = array();
+$parallel_warnings = array();
 
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-
 foreach ($packages as $_pkgid => $pkg_details) {
 	$pkg_name = $pkg_details['code_name'];
 	if ($pkg_name == '__core__') {
@@ -115,7 +120,6 @@ foreach ($packages as $_pkgid => $pkg_details) {
 	$info = parse_tables_xml($file, $db_conf['db']['type']);
 
 	foreach($info['tables'] as $tablename => $table_info) {
-
 		$tables = array ($tablename);
 		if ($table_info['rollback']) {
 			$tables[] = 'rb_' . $tablename;
@@ -167,6 +171,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					$temp_idx_cols = implode(',', $idx_columns);
 					if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
 						$idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
+
 						$error = false;
 					}
 				}
@@ -177,6 +182,9 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					printUpdateStatus('Missing');
 					$sql_commands[] = $create_index_statement;
 				} else {
+
+					check_index_parallel($tablename, $idx_name);
+
 					$index_definition = $full_index_list[$tablename][$idx_name];
 					$found_index_columns = explode(',', $index_definition);
 					if ($found_index_columns === $idx_columns) {
@@ -219,7 +227,8 @@ foreach ($packages as $_pkgid => $pkg_details) {
 						 */
 						$temp_idx_cols = implode(',', $index_info['columns']);
 						if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
-							$idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
+							$full_idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
+
 							$error = false;
 						}
 					}
@@ -227,10 +236,13 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					if ($error) {
 						printUpdateStatus('Missing');
 					} else {
+
 						if (in_array($full_idx_name, $skip_definition_checks)) {
 							printUpdateStatus('OK');
 							continue;
 						}
+
+						check_index_parallel($tablename, $full_idx_name);
 
 						$index_definition = $full_index_list[$tablename][$full_idx_name];
 						$found_index_columns = explode(',', $index_definition);
@@ -239,20 +251,6 @@ foreach ($packages as $_pkgid => $pkg_details) {
 							printUpdateStatus('OK');
 							continue;
 						} else {
-							/**
-							* Some fieldnames automatically have quotes put around them by postgres
-							* So see if that's the case.
-							* If it is, take them out and re-check the definition.
-							*/
-							if (preg_match('/"/', $index_definition)) {
-								$index_definition = str_replace('"', '', $index_definition);
-								$found_index_columns = explode(',', $index_definition);
-								if ($found_index_columns === $index_info['columns']) {
-									printUpdateStatus('OK');
-									continue;
-								}
-							}
-
 							printUpdateStatus('Incorrect');
 							$bad_indexes[] = array('index_name' => $full_idx_name, 'expected' => implode(',', $index_info['columns']), 'found' => $index_definition);
 							continue;
@@ -311,6 +309,8 @@ foreach ($packages as $_pkgid => $pkg_details) {
 						continue;
 					}
 
+					check_index_parallel($tablename, $full_idx_name);
+
 					$index_definition = $full_index_list[$tablename][$full_idx_name];
 					$found_index_columns = explode(',', $index_definition);
 
@@ -330,8 +330,9 @@ foreach ($packages as $_pkgid => $pkg_details) {
 }
 
 bam('Check complete');
-
+$extra_message_shown = false;
 if (!empty($bad_indexes)) {
+	$extra_message_shown = true;
 	$msg = "Some indexes had incorrect definitions.\n";
 	$msg .= "To fix these, you will need to drop the old indexes before re-adding them:\n\n";
 	foreach ($bad_indexes as $details) {
@@ -350,9 +351,35 @@ if (!empty($bad_indexes)) {
 }
 
 if (!empty($sql_commands)) {
+	$extra_message_shown = true;
 	$msg = "Some expected indexes were missing or incorrect.\n";
 	$msg .= "To fix the database, please run the following queries:\n\n" . implode("\n", $sql_commands);
 	bam($msg);
+}
+
+if (!empty($parallel_warnings)) {
+	$extra_message_shown = true;
+	$msg = "Some indexes may have issues.\n";
+	$msg .= "If these changes have been made deliberately, ignore this warning.\n\n";
+	$msg .= "The following indexes have been made to run in parallel:\n";
+	foreach ($parallel_warnings as $row) {
+		foreach ($row as $idx_name => $parallel_setting) {
+			$msg .= $idx_name . " (" . $parallel_setting . ")\n";
+		}
+	}
+	$msg .= "This can lead to performance loss.\n\n";
+
+	$msg .= "To reset these, run the following command(s):\n";
+	foreach ($parallel_warnings as $row) {
+		foreach ($row as $idx_name => $parallel_setting) {
+			$msg .= "ALTER INDEX " . $idx_name . " REBUILD PARALLEL 1;\n";
+		}
+	}
+	bam($msg);
+}
+
+if (!$extra_message_shown) {
+	bam('Everything has been checked and no problems were found.');
 }
 
 
@@ -367,6 +394,9 @@ if (!empty($sql_commands)) {
  */
 function parse_tables_xml($xml_file, $db_type)
 {
+
+	$dbtype = _getDbType();
+
 	try {
 		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
 	} catch (Exception $e) {
@@ -415,7 +445,7 @@ function parse_tables_xml($xml_file, $db_type)
 					case 'type_variations' :
 						// check for varitions of the column type for his database
 						foreach ($column_var->children() as $variation) {
-							if ($variation->getName() == _getDbType(false, $db_type)) {
+							if ($variation->getName() == $dbtype) {
 								$type = (string)$variation;
 								break;
 							}
@@ -442,7 +472,7 @@ function parse_tables_xml($xml_file, $db_type)
 			if (isset($table->keys) && (count($table->keys->children()) > 0)) {
 				foreach ($table->keys->children() as $table_key) {
 					$index_db_type = $table_key->attributes()->db;
-					if (!is_null($index_db_type) && ((string)$index_db_type != _getDbType(false, $db_type))) {
+					if (!is_null($index_db_type) && ((string)$index_db_type != $dbtype)) {
 						continue;
 					}
 
@@ -580,7 +610,7 @@ function getIndexes()
 
 	switch ($dbtype) {
 		case 'oci':
-			$sql = "SELECT u.table_name as tablename, u.index_name as indexname, DBMS_METADATA.GET_DDL('INDEX',u.index_name) AS indexdef FROM USER_INDEXES u WHERE TABLE_NAME LIKE 'SQ_%' ORDER BY table_name";
+			$sql = "SELECT u.table_name as tablename, u.index_name as indexname, DBMS_METADATA.GET_DDL('INDEX',u.index_name) AS indexdef, TRIM(degree) AS parallel FROM USER_INDEXES u WHERE TABLE_NAME LIKE 'SQ_%' ORDER BY table_name";
 		break;
 		case 'pgsql':
 			$sql = 'SELECT tablename, indexname, indexdef from pg_indexes where tablename like \'sq_%\'';
@@ -588,6 +618,9 @@ function getIndexes()
 	}
 
 	$idx_list = array();
+
+	$parallel_list = array();
+
 	if ($sql !== false) {
 		$indexes = MatrixDAL::executeSqlAll($sql);
 		foreach($indexes as $key => $value) {
@@ -612,7 +645,11 @@ function getIndexes()
 						$idx_columns = str_replace(array(' ', '"'), '', strtolower($matches[2]));
 					}
 
-					$idx_list[$tablename][strtolower($idx_name)] = $idx_columns;
+					$idx_name = strtolower($idx_name);
+
+					$idx_list[$tablename][$idx_name] = $idx_columns;
+
+					$parallel_list[$tablename][$idx_name] = $value['parallel'];
 				break;
 
 				case 'pgsql':
@@ -636,7 +673,10 @@ function getIndexes()
 			}
 		}
 	}
-	return $idx_list;
+	return array (
+		'index_list' => $idx_list,
+		'parallel_list' => $parallel_list,
+	);
 }
 
 /**
@@ -656,5 +696,25 @@ function _getDbType()
 		$dbtype = $dbtype->getAttribute(PDO::ATTR_DRIVER_NAME);
 	}
 	return strtolower($dbtype);
+}
+
+function check_index_parallel($tablename=null, $idx_name=null)
+{
+
+	if ($tablename === null || $idx_name === null) {
+		return;
+	}
+
+	$dbtype = _getDbType();
+
+	global $parallel_list;
+	global $parallel_warnings;
+
+	if ($dbtype == 'oci') {
+		$parallel_check = $parallel_list[$tablename][$idx_name];
+		if ($parallel_check > 1) {
+			$parallel_warnings[] = array($idx_name => $parallel_check);
+		}
+	}
 }
 
