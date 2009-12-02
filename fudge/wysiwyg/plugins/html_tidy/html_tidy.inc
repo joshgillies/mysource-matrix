@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.69 2009/09/28 06:52:47 bpearson Exp $
+* $Id: html_tidy.inc,v 1.70 2009/12/02 03:17:20 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -123,6 +123,19 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			$search  = Array('%u2018',  '%u2019',  '%u2013',  '%u2014',  '%u2026',   '%u201C',  '%u201D');
 			$replace = Array('&lsquo;', '&rsquo;', '&ndash;', '&mdash;', '&hellip;', '&ldquo;', '&rdquo;');
 			$html = str_replace($search, $replace, $html);
+
+			// If the page is on a character set other than UTF-8,
+			// change these MS Word common characters, otherwise HTML Tidy throws errors
+			// because the UTF8 characters do not exist on other character sets like Western Euro ISO
+			if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
+				$html = str_replace(chr(145), '&lsquo;', $html);	// left single quote
+				$html = str_replace(chr(146), '&rsquo;', $html);	// right single quote
+				$html = str_replace(chr(147), '&ldquo;', $html);	// left double quote
+				$html = str_replace(chr(148), '&rdquo;', $html);	// right double quote
+				$html = str_replace(chr(149), '&ndash;', $html);	// bullet
+				$html = str_replace(chr(150), '&ndash;', $html);	// endash
+				$html = str_replace(chr(151), '&mdash;', $html);	// emdash
+			}//end if
 
 			// replace unicode's URL '%u' character entities with their HTML entity equivs
 			$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
