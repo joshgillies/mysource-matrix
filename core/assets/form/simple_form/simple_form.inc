@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.36.6.4 2009/11/29 22:21:00 bpearson Exp $
+* $Id: simple_form.inc,v 1.36.6.5 2009/12/03 00:11:10 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36.6.4 $
+* @version $Revision: 1.36.6.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -688,7 +688,7 @@ class Simple_Form extends Asset implements Bridge
 				if (isset($_POST[$name])) $q->setValue($_POST[$name]);
 				$valid = $q->hasValidValue();
 
-				if (!$valid) $this->_errors += $q->getErrors();
+				if (!$valid) $this->_errors = array_merge($this->_errors, $q->getErrors());
 
 				$this->_answers[$assetid] = Array(
 												'name'			=> $data['name'],
@@ -949,7 +949,7 @@ class Simple_Form extends Asset implements Bridge
 		ob_start();
 			?>
 <script type="text/javascript">
-function beforeSubmit_<?php echo $this->getPrefix() ?>() {
+function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	<?php echo $code; ?>
 
 	if (submission_errors.length > 0) {
@@ -1327,14 +1327,14 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	/**
 	* Paint the form
 	*
-	* @param boolean	$print_form_tags	also print out the form tags and client-side
-	*										validation function (if any)
+	* @param boolean	$print_form_tags	print out the form tags
 	* @param boolean	$submit_buttons		whether to paint the submit and cancel buttons
+	* @param boolean	$print_js			print the client-side validation function (if any)
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='')
+	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='', $print_js=TRUE)
 	{
 		// return custom bodycopy but ONLY if enabled
 		$format_bodycopy = $this->getFormatBodycopy(TRUE);
@@ -1344,14 +1344,18 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$form_action = $_SERVER['PHP_SELF'];
 		}
 
+		// We need to print js function even if we are not printing the form here, as another form in higher level (if any) might wanna use it
+		if ($print_js && $this->attr('client_side')) {
+			$client_side = $this->getClientSideFunction('beforeSubmit_'.$this->getPrefix());
+			$onsubmit = ' onSubmit="return beforeSubmit_'.$this->getPrefix().'(this)"';
+		} else {
+			$client_side = '';
+			$onsubmit = '';
+		}
+		echo $client_side;
+		
 		if ($print_form_tags) {
-			if ($this->attr('client_side')) {
-				$client_side = $this->getClientSideFunction('beforeSubmit_'.$this->getPrefix());
-			} else {
-				$client_side = '';
-			}
-			echo $client_side;
-			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php echo $form_action; ?>" method="post"<?php echo empty($client_side) ? '' : ' onSubmit="return beforeSubmit_'.$this->getPrefix().'()"' ?>><?php
+			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php echo $form_action; ?>" method="post"<?php echo $onsubmit;  ?>><?php
 		}
 
 		// if format bodycopy enabled, print with that, otherwise print default

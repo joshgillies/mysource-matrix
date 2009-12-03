@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.66.2.3 2009/11/29 22:24:15 bpearson Exp $
+* $Id: ecommerce_checkout.inc,v 1.66.2.4 2009/12/03 00:13:46 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.66.2.3 $
+* @version $Revision: 1.66.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -871,8 +871,26 @@ class Ecommerce_Checkout extends Page
 		$form_req = $this->_isFormRequired();
 
 		if ($form_req) {
-			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">';
+			
+			$active_delivery_method_id = $this->_getActiveDeliveryMethodId();
+
+			if (is_null($active_delivery_method_id )) {
+				$delivery_ids = $this->_getDeliveryAssetIds();
+				$active_delivery_method_id = array_shift($delivery_ids);
+			}
+			
+			if ($active_delivery_method_id) {
+				$delivery_method = $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method_id);
+				$delivery_form = $delivery_method ? $delivery_method->getForm() : NULL;
+
+				$onsubmit = $delivery_form && $delivery_form->attr('client_side') ? 'onSubmit="return beforeSubmit_'.$delivery_form->getPrefix().'(this)"' : '';
+			} else {
+				$onsubmit = '';
+			}
+			
+			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post" '.$onsubmit.'>';
 		}
+		
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
 
