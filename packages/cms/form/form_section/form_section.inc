@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.73.2.2 2009/11/29 22:22:49 bpearson Exp $
+* $Id: form_section.inc,v 1.73.2.3 2009/12/03 03:35:33 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.73.2.2 $
+* @version $Revision: 1.73.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -276,7 +276,7 @@ class Form_Section extends Asset implements Bridge
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE, $contextid=NULL)
+	function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		// No context specified, using the current context
 		if ($contextid === NULL) {
