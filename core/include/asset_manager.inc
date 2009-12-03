@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.723.2.14 2009/11/27 03:17:41 bpearson Exp $
+* $Id: asset_manager.inc,v 1.723.2.15 2009/12/03 05:49:52 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.723.2.14 $
+* @version $Revision: 1.723.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8741,7 +8741,7 @@ class Asset_Manager extends MySource_Object
 
 		$from = 'FROM
 					(
-					SELECT a.assetid, l.majorid, t.treeid, a.type_code, a.name ';
+					SELECT l.majorid, t.treeid, a.type_code, a.name ';
 
 		$perm_join = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
