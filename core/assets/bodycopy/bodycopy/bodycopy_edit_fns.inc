@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.67 2009/11/24 23:55:04 bpearson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.68 2009/12/03 04:24:20 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,6 +179,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_data"   value="">
 
 		<script type="text/javascript">
+		
 			// php vars
 			var backendHref = "<?php echo $asset->getBackendHref('show_popup');?>";
 			var init_layer_width = <?php echo $init_layer_width?>;
@@ -299,6 +300,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<tr>
 			<td><?php
+		
 			if ($container_edit->paintContainer($container, $o, $prefix) == TRUE) {
 				$print_commit_button = TRUE;
 			}
@@ -349,10 +351,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		?>
 		</table>
-		<!-- Begin Tooltip -->
-		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>
-		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;z-index:1000;visibility:hidden;"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
-		<!-- End Tooltip -->
+
 		<?php
 
 		return $print_commit_button;

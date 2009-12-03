@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.19 2008/08/28 02:10:06 mbrydon Exp $
+* $Id: tooltip.js,v 1.20 2009/12/03 04:25:51 ewang Exp $
 *
 */
 
@@ -52,18 +52,15 @@ function tt_print()
 {
 	if (!document.getElementById("ToolBox"))
 	{
-		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
+		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
 		output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="border:' + this.border +
 				 ';color:' + this.normal_color +
 				 ';background:' + this.normal_bg +
-				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
+				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden; text-align:left; "><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);
-		} else if (document.documentElement) {
-			var div = document.createElement('div');
-			div.innerHTML = output;
-			document.documentElement.appendChild(div);
-		} else {
+		}
+		else {
 			document.body.innerHTML = output + document.body.innerHTML;
 		}
 	}
