@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.66 2009/07/20 03:52:07 bpearson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.66.2.1 2009/12/03 04:28:39 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -349,10 +349,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		?>
 		</table>
-		<!-- Begin Tooltip -->
-		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>
-		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;z-index:1000;visibility:hidden;"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
-		<!-- End Tooltip -->
 		<?php
 
 		return $print_commit_button;
