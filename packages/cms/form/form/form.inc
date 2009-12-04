@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.16 2009/11/25 04:15:15 ewang Exp $
+* $Id: form.inc,v 1.219.2.17 2009/12/04 03:37:14 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.16 $
+* @version $Revision: 1.219.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2580,7 +2580,8 @@ class Form extends Asset implements Bridge
 
 			$question->populate($this);
 			// Only fail the page if we are moving forward
-			if (!$question->hasValidValue() && $validate_page) {
+			$question_type = strtolower($question->type());
+			if (!$question->hasValidValue() && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
 				if (is_null($this->submission_errors)) $this->submission_errors = Array();
 				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 				$ok = FALSE;
