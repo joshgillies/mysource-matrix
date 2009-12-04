@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.71 2009/11/27 05:42:14 bpearson Exp $
+* $Id: form_email.inc,v 1.72 2009/12/04 03:20:21 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Form_Email extends Form
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE, $contextid=NULL)
+	function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		// No context specified, using the current context
 		if ($contextid === NULL) {
