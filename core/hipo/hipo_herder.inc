@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.105 2009/08/13 06:48:27 lwright Exp $
+* $Id: hipo_herder.inc,v 1.106 2009/12/06 23:27:32 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -536,6 +536,11 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function processServer()
 	{
+		// oracle + fork has some problems with commiting changes, have to force it
+		if (MatrixDAL::getDbType() === 'oci') {
+			MatrixDAL::setOciCommitOnSuccess(TRUE);
+		}
+		
 		if (empty($this->_tmp['prepared_server'])) {
 			return FALSE;
 		}
@@ -573,8 +578,12 @@ class HIPO_Herder extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
+		if (MatrixDAL::getDbType() === 'oci') {
+			MatrixDAL::setOciCommitOnSuccess(FALSE);
+		}
+		
 		return $ret_val;
-
+		
 	}//end processServer()
 
 
