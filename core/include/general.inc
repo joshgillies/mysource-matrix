@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.237 2009/11/04 23:27:02 lwright Exp $
+* $Id: general.inc,v 1.238 2009/12/07 21:32:07 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.237 $
+* @version $Revision: 1.238 $
 * @package MySource_Matrix
 */
 
@@ -2118,14 +2118,17 @@ the GPL.
 /**
 * Replaces elements that are considered XML elements, but not html elements.
 *
-* @param string $string the string that needs cleaning
+* @param string 	$string the 			string that needs cleaning
+* @param boolean 	$decode_html_enities	decodes html entities if set to true
 *
 * @return string
 * @access public
 */
-function xml_entity_decode($string)
+function xml_entity_decode($string, $decode_html_entities = TRUE)
 {
-	$string = html_entity_decode($string);
+	if ($decode_html_entities) {
+		$string = html_entity_decode($string);
+	}
 	$string = str_replace('&#124;', '|', $string);
 	$string = str_replace('&apos;', "'", $string);
 	$string = str_replace('&#42;', '*', $string);

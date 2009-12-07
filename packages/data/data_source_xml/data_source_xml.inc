@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.13 2009/12/07 21:09:51 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.14 2009/12/07 21:32:28 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -223,7 +223,7 @@ class Data_Source_Xml extends Data_Source
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 		unset($HTTP_Client);
 
-		return xml_entity_decode($response['body']);
+		return xml_entity_decode($response['body'], FALSE);
 
 	}//end openFeed()
 
