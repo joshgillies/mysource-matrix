@@ -1,5 +1,131 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.24.3
+
+Featured Changes
+-----------------------------------
+
+"FEED:" URL support for RSS Feeds
+	URLs with the "feed:" prefix are now handled by the RSS core component which drives RSS Data Source assets. The list of prefixes recognised are (with optional slashes in square brackets), are:
+
+	- feed:[/]
+	- feed://[/]
+	- feed:http://[/]
+	- feed://http://[/]
+
+Such URLs are converted to http:// prefixes prior to the request being made.
+
+
+Reporting added to Incomplete Attachments System Integrity script
+	A list of Incomplete Attachments found and/or deleted is shown at the end of this script. 
+
+
+JS API Enhancements
+	Further code graciously contributed by Nic Hubbard has been included within the JS API asset. The new functionality includes:
+
+	- Multiple Root Nodes to define the assets exposed through the JS API
+	- Parent Type Restriction, which restricts the use of asset creation, linking and moving operations to assets underneath one or more selected asset types
+	- The ability to Ignore Permissions when using the createAsset function
+	- Hiding the API key on the "Details" screen when locks are not held on the JS API asset 
+
+
+Regenerate Metadata Script: Skip Asset Update option
+	The regen_metadata_by_root_nodes.php script now supports an optional fifth argument "--skip-asset-update" to prevent the regeneration process from firing an "Asset Updated" event on regenerated assets. The asset's "updated date" is also not changed when this is used.
+
+
+Online Quiz Submission keywords
+	Keywords are now available for Online Quiz Submission assets to allow values such as question-based and total scores, answers and User Details to be exposed via Asset Listings or Paint Layouts. A fixed tabular layout is also provided when the default %asset_contents% keyword is used.
+
+The keywords available are as follows:
+
+Quiz Questions and Answers
+(X = Question ID)
+	- %quiz_qX_name%
+	- %quiz_qX_answer_value%
+	- %quiz_qX_answer_summary%
+	- %quiz_qX_answer_points_awarded%
+	- %quiz_qX_answer_points_available%
+
+User Details Form Questions and Answers
+(X:qY - X = User Details Form ID; Y = Question ID)
+	- %user_details_X:qY_question%
+	- %user_details_X:qY_answer%
+	- %user_ip_address%
+	- %user_asset_id%
+
+Fixed tabular format keywords
+	- %user_details% (User Details Form questions and answers)
+	- %quiz_responses% (questions, answers and points)
+	- %quiz_total% (total points awarded and available) 
+
+
+Form Submissions: Asset ID available in exported data
+	The asset ID of Form Submission records is included within the Form Submission export data, in both CSV and XML formats.
+This is represented by a separate column in the CSV file and an "assetid" attribute in XML output
+
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3273: Unable to find lineage error on webpaths screen
+Fixed Bug #3675: Tagging screen for Multiple Page Pages
+Fixed Bug #3776: New Divs cant create
+Fixed Bug #3860: htmlentities without character encoding
+Fixed Bug #3965: Asset map displays most recently updated context name
+Fixed Bug #4002: data_path problems after upgrade
+Fixed Bug #4016: Metadata field undefined for Set Metadata Field Date trigger action
+Fixed Bug #4022: replace_url.php script fails on systems using Oracle database
+Fixed Bug #4023: No webpath set when cloning a MP3 asset
+Fixed Bug #4024: Delete funtionality of import_asset_csv_to_matrix.php script doesn't deletes dependent assets
+Fixed Bug #4029: Form Question Select sometimes omit the keys
+Fixed Bug #4030: Remote Content nested into Account Manager
+Fixed Bug #4034: getParents() for a shadow asset returns non-significantly linked assets
+Fixed Bug #4035: Thesaurus->getParents always returns an empty array
+Fixed Bug #4038: Visual Aid in WYSIWYG toolbar does not turn off in IE
+Fixed Bug #4039: Issue with sorting Asset Metadata group
+Fixed Bug #4041: Custom Form emails a file that has been cleared
+Fixed Bug #4042: Setting design trigger fail on 3.24.2
+Fixed Bug #4048: Hierarchy metadata applies incorrectly if more than 1
+Fixed Bug #4050: getParents() not returning expected result when min_height and/or max_height parameters supplied
+Fixed Bug #4051: Customise Form: Client-Side Validation is always Case sensitive
+Fixed Bug #4052: Incorrect %asset_metadata_*% keyword causes segfault
+Fixed Bug #4054: Video File Asset: Upload without audio gives errors
+Fixed Bug #4055: Inbox produces a PHP Fatal Error
+Fixed Bug #4057: Form validation rules are ignored when form is saved
+Fixed Bug #4061: Cancelling Safe Edit on a Backend User breaks their password
+Fixed Bug #4062: Function export in csv.inc does not close file stream
+Fixed Bug #4066: Metadata date field formated 'c' not displaying with keywords
+Fixed Bug #4077: Squiz server + oracle will freeze on hipo jobs with warning messages
+
+Calendar
++ Single and Recurring Calendar Event assets may now be referenced as Notice Links from Standard Page assets
+
+CMS
+Fixed Bug #3937: Form Submission's keywords "question_name_qY" and "question_answer_qY" fail to work
+Fixed Bug #4017: Submission logs doesnt show link to download uploaded file
+Fixed Bug #4018: Download link On submission logs screen doesnt work
+Fixed Bug #4028: Online poll asset vote button has same element id as form itself
+Fixed Bug #4031: Youtube video embed inserts invalid HTML
+Fixed Bug #4033: Form Action Save As XML throws an isset notice
+Fixed Bug #4036: Custom form with no question will display errors when trying to download submissions
+Fixed Bug #4043: Form Save XML Action Type doesn't escape the name properly
+
+Data
+Fixed Bug #4063: Asset status change fails after db query trigger executed
+
+E-Commerce
+Fixed Bug #4068: Form validation does not work completely on Delivery Method forms for E-Comm
+
+LDAP
+Fixed Bug #4015: LDAP User Bridge truncates user details
+
+Search
+Fixed Bug #4047: Oracle search fails multiple word keys search with select/multiselect
+
+
+
 VERSION 3.24.2
 
 Featured Changes
