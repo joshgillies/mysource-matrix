@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.12 2009/12/01 23:31:11 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.13 2009/12/07 21:09:51 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -557,7 +557,7 @@ class Data_Source_Xml extends Data_Source
 			if (!$cdata_tag) continue;
 
 			// Replace only if the element data is not already wrapped with CDATA
-			$replace_pattern = "/(\<$cdata_tag\s*.*?>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag>)/";
+			$replace_pattern = "/(\<$cdata_tag\s*.*?>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag>)/ms";
 			$replacement = "$1<![CDATA[$2]]>$3";
 			$content = preg_replace($replace_pattern, $replacement, $content);
 		}
