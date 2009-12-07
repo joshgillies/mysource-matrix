@@ -1,164 +1,76 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.24.0 RC1
+VERSION 3.26.0 RC1
 
 Featured Changes
 -----------------------------------
 
-Global Keywords for cookie values
-	A set of dynamic Global Keywords in the format %globals_cookie_XX% can now be used to return the value stored in the corresponding cookie variable. 
+Workflow Streams
+	This functionality allows multiple sets of Workflow Steps per Workflow Schema, and allows Administrators to select which of these sets is to be used for any given Workflow process.
 
+Please note that new and existing Workflow Schema steps will be moved under a "Default Stream" which resides under the related Workflow Schema. This Default Stream cannot be moved or deleted. 
 
-DataCash and SagePay Payment Gateways
-	Support has been added for payments made via the DataCash and SagePay payment gateways.
 
-The configuration of each gateway is similar to PayPal in that each requires PHP code from the respective gateway provider to be sourced independently and referenced in each Gateway asset.
+Replace Keywords option in Set Value Trigger Action
+	A checkbox "Replace keywords in the set value" is provided in the Set Metadata Value and Set Attribute Value Trigger Actions to indicate whether keywords supplied in these fields are to be replaced upon evaluation rather than being treated as literal text. This can be used with both asset-level and Global Keywords.
 
-A "Test Mode" switch and specification of card types which require 3DS authentication are among some of the options available in these Gateway assets.
 
-These Gateway assets include support for the Address Verification Service (AVS) and Card Verification Value (CVV or CV2) security layers.
-For the Sage Pay gateway, the "3-D Secure" layer of security is now optional.
+User Group System Preference for Context ID for session
+	The "Preferences" screen of User Group assets now provides the ability to assign a Context ID to be used for User Group members for a Matrix session.
 
-Also, the "Pass-through Variables" features mentioned below are now handled by these two gateways. The supported pass-through variables are shown on the Details screen. Enter the variable names to be used on this screen, then match them with the variable keys entered on the E-Commerce Form Page's Ecommerce Rules screen.
 
+Public User Trigger Condition
+	A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
 
-DataCash Payment Gateway: Specification of Currency Type
-	A currency type (eg; Australian Dollars) can now be specified on the "Details" screen of the DataCash Payment Gateway, as the currency used for transactions.
 
+Asset Lineage Design Area: Negative Start Level definition
+	The attribute value for "start_at_level" can now be specified as a negative number to refer to direct parent assets of the current asset.
+For example, -1 would refer to the direct parent, -n to the nth direct parent. Other positive numbers (0 = current asset, 1 direct child etc.) still continue to function as previously defined. 
 
-SagePay Gateway: Month/Year drop-downs
-	New keywords have been added to show a drop-down to select card start and expiry dates. One keyword for month and one for year is available for each.
 
-The year dropdown keywords support a modifier to set the number of years before the current date the start year drop-down should show, or after the current date the expiry year drop-down should show. By default, years are shown from the current year to 5 years backward or forward.
+Additional Asset Keyword Modifiers
+	New Keyword Modifiers have been added, which are:
 
+	- md5 (return the computed MD5 hash of the value)
+	- sha1 (return the computed SHA1 hash of the value)
+	- stripdecl (strips an XML declaration <?xml ... > from the value)
+	- number_format (formats a number with grouped thousands and rounded to x significant digits, defaulting to 0)
 
-Design Area Condition: Asset Type
-	A Design Area Condition "Asset Type" has been added to control content in a Design parse file depending on the exact type of an asset. Multiple asset types may be specified and this can be configured further or overridden under Design Customisations.
+Some examples:
+	%asset_name^md5% (eg; fred becomes 08b622ddf7eb7c8e44cdb3bd6362f966)
+	%asset_attribute_price^number_format:2% (eg; takes 1.235 and shows it as 1.24) 
 
 
-Support for class and ID attributes in WYSIWYG Anchor Links
-	The "Status Text" item in the anchor pop-up has been replaced with two fields to control the CSS class and ID attributes for the link. 
+PayPal Payment Gateway modifications
+	The PayPal Payment Button asset now supports "Donate", "Add to Cart" and "View Cart" button types, in addition to "Buy Now". The options for each Button Type are available by toggling the Button Type from the "Details" screen and clicking "Commit".
 
+	- Donate Button
+	This button allows the name of the Organisation or purpose of the donation to be supplied, as well as the ability to specify a fixed amount.
 
-Additional Asset Keywords in Metadata Fields
-	The Asset-level keywords %asset_name_linked% and %asset_short_name_linked% are replaced in Metadata Field values where encountered. 
+    - Add To Cart and View Cart buttons
+	This allows for cart-based transactions to be maintained by the PayPal environment. The "View Cart" button provides an option to open the cart contents either within the current browser window/tab or in a new window/tab.
 
+	- PayPal IPN Receiver modifications
+	This asset has been modified to accept the "Cart" transaction type and to populate the receipt of the generated PayPal Order. 
 
-Asset Map Icon Keyword
-	A Global and Asset-level keyword, %asset_type_icon% and %globals_icon_xx%, have been added which when used print the Asset Map icon of the current asset type, or that of a certain type (eg; %globals_icon_page_standard% for the Standard Page icon). 
 
+Move Assets Script enhancements
+	The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation. 
 
-User Locks Details
-	The first 100 locks held by a user can now be determined from the "Details" screen of Matrix User asset types. 
 
+System Update Lookups Script: Increased Verbosity
+	The system_update_lookups.php script now supports an optional "--verbose" argument to display any errors which may occur as a result of updating lookups. The script can now be executed from the Matrix System Root directory as follows:
 
-Delete Bulkmail Users Tool: Enhancements and new related Trigger Action
-	A new Trigger Action "Delete Bulkmail User" has been added. This is similar to the existing Delete Bulkmail Users Tool however accepts a comma-separated string of email addresses from which to operate.
+	php scripts/system_update_lookups.php . 123 --verbose
 
-An option to move Bulkmail Users that would have been deleted into a specified Folder or User Group is included in the new Trigger Action and added to the existing Delete Bulkmail Users Tool. 
 
+Globals Site Keywords performance enhancement
+	Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map. 
 
-E-Commerce Payment Completed Trigger Event
-	A generic E-Commerce Payment Completed Trigger Event has been added to provide Trigger functionality for transaction postbacks. This has been implemented for transactions originating from a DataCash Payment Gateway. 
 
+Get Lineage performance enhancement
+	Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit. 
 
-HIPO Job Optimisations on Squiz Server
-	HIPO Jobs have been modified to save status information every 3% of the job's length. Progress information is now saved every 1%. These optimisations are only applicable when run on Squiz Server.
 
-These changes reduce database queries performed during processing and should therefore increase performance of job processing for large jobs.
-
-
-Negated Link Value Filtering for Asset Listings
-	New attribute added that specifies if assets returned should match or be different to the supplied link value.
-
-
-Keyword Replacements in Regular Expression Keyword Condition
-	Asset-level keywords such as %asset_name% can now be used in the Regular Expression Keyword Condition. A new option, "Replace keywords in pattern", is provided to enable this functionality.
-
-
-Send Email Trigger Action: Support for Global Keywords
-	Global Keywords such as %globals_asset_xx% and %globals_site_xx% can now be used in the "From", "To", "Subject" and "Body" fields on the Send Email Trigger Action.
-
-
-Modifications to Create Clone and Link to Asset Trigger Action
-	It is now possible to link to and clone underneath the Broadcasting asset in this Trigger Action. 
-
-
-System Config Option: Remove Self Links
-	This new System Config setting allows you to remove links that point to the currently-displayed asset, when this config setting is enabled.
-
-This is done at a global level, and also includes links with query strings, or special URL suffixes recognised by Matrix (such as the admin or simple edit interface suffixes).
-
-
-Create Bodycopy Containers in Safe Edit
-	Creation of Bodycopy DIVs and Tables in Safe Edit is now supported again. If the Safe Edit is cancelled, the containers created during Safe Edit are moved to the Trash.
-
-
-New Trigger Action: Set Special Page
-	This new trigger action allows you to set the firing asset as the specified "special page" - ie. Index Page, Not Found, or Archived Asset - of either the passed site asset, or all of the sites the firing asset is located.
-
-
-Public User Session Created Trigger Event
-	This new trigger event fires when the Public User session is first created. This allows trigger actions to be fired when a user first visits the site.
-
-
-Send Email Action: New Dynamic Parameter
-	The Send Email trigger action allows you to override the Asset to Send option with either the firing asset, or a value set from a Parameter Map. 
-
-
-E-Commerce Form: Pass-through Variables
-	The concept of "pass-through variables" has been added to the E-Commerce Rules screen of the E-Commerce Form asset. These variables are defined by the Payment Gateway, and the values of the questions can be passed to the gateway for use in processing, such as providing an address for Address Verification Service (AVS).
-
-The following attributes have also been added to the Order asset.
-They will be filled in if the Payment Gateway returns them:
-	- Transaction ID
-	- Billing Name
-	- Billing Address
-	- Delivery Name
-	- Delivery Address
-
-
-Manage Child Links on Linking Screen
-	The Linking screen now contains a drop-down that allows you to switch between showing the parents of the current asset (as was previous functionality), and the children.
-
-When the view is set to "Linked Children", the options allowing you to create and delete links also change, allowing you to manage an asset's child links instead of its parent links.
-
-This change of setting is not saved, so the Linking screen will always default to showing an asset's parents.
-
-
-XML Data Source improvements
-	The following additions were made to the XML Data Source asset:
-
-	- The concept of Dynamic Inputs, currently available in DB Data
-	  Source, is now available. The Dynamic Inputs screen allows users
-	  to create variables whose values are set through Parameter Map
-	  settings. These can then be embedded into the XML Feed URL using
-	  the format "%%VariableName%%".
-
-	- You may now enclose selected tags in a CDATA section, if the
-	  XML returned from the feed does not do that for you. The Details
-	  screen accepts a comma-separated list of tags whose contents will
-	  be wrapped in a CDATA section. These tags must already be defined
-	  in the "Tag Names" list above it.
-
-	- Feeds with multiple copies of a tag in a record are now supported.
-	  The asset merges the copies together with a delimiter, which can
-	  be specified on the Details screen. 
-
-
-JS API Asset updates
-	The JS API asset now supports a much larger range of actions, including asset creation, linking functions, locking, permissions and getting of parent/children. An asset can now be sent to the API using either asset ID or URL. The "General Info" function now includes an attribute for an asset's Web Path.
-
-These further modifications were again graciously contributed by Nic Hubbard.
-
-
-Delete Permission through Trigger Actions
-	The Set Permission Trigger Action now allows you to remove a permission from an asset, alongside adding an "apply" or "deny" permission.
-
-
-New Asset Type: "Donation" Product
-	This new asset is a generic product-type asset that can be added to carts to represent a generic donation.
-
-
-New Asset Type: Link
-	This new asset represents a link to a URL or another asset. Unlike Redirect Page, this will not redirect when its contents are printed, but the link will be displayed instead. An optional Relation ("rel") attribute can be added to the link. 
+Purge Trash HIPO performance enhancement
+	A query has been optimised in the Purge Trash HIPO to return assets in "sort order". This modification removes the need to update the sort order of nearby assets, which may result in a performance increase when running this HIPO.
