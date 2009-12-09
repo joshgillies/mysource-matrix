@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_trash_age.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
+* $Id: report_trash_age.inc,v 1.3.8.1 2009/12/09 05:18:21 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of the top twenty assets in the trash which have not been updated recently
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,10 +154,11 @@ class Report_Trash_Age extends Simple_Report
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT a.assetid, a.type_code, a.name, a.updated '.
 			'FROM sq_ast_lnk l, sq_ast_lnk_tree t, sq_ast a, sq_ast_typ p '.
-			'WHERE a.type_code = p.type_code AND p.allowed_access != \'system\' AND p.instantiable = 1 AND t.treeid LIKE '.
+			'WHERE a.type_code = p.type_code AND p.allowed_access != '.MatrixDAL::quote('system').' AND p.instantiable = '.MatrixDAL::quote('1').' '.
+			'AND t.treeid LIKE '.
 			'(SELECT t.treeid FROM sq_ast_lnk_tree t, sq_ast_lnk l, sq_ast a '.
-			'WHERE l.minorid = a.assetid AND t.linkid = l.minorid AND a.type_code = \'trash_folder\')||\'%\' '.
-			'AND l.linkid = t.linkid AND a.assetid = l.minorid AND a.type_code != \'trash_folder\' '.
+			'WHERE l.minorid = a.assetid AND t.linkid = l.linkid AND a.type_code = '.MatrixDAL::quote('trash_folder').')||'.MatrixDAL::quote('%').' '.
+			'AND l.linkid = t.linkid AND a.assetid = l.minorid AND a.type_code != '.MatrixDAL::quote('trash_folder').' '.
 			'ORDER BY updated';
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 20);
 

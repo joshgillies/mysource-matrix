@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_most_used_asset_types.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
+* $Id: report_most_used_asset_types.inc,v 1.3.8.1 2009/12/09 05:18:21 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of the top ten asset types in use on the system
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,14 +171,14 @@ class Report_Most_Used_Asset_Types extends Simple_Report
 
 		if (($asset_access_type == 'system') || ($asset_access_type == 'user')) {
 			if ($asset_access_type == 'system') {
-				$access_type_query = "t.allowed_access = 'system' ";
+				$access_type_query = 't.allowed_access = '.MatrixDAL::quote('system').' ';
 			} else if ($asset_access_type == 'user') {
-				$access_type_query = "t.allowed_access != 'system' ";
+				$access_type_query = 't.allowed_access != '.MatrixDAL::quote('system').' ';
 			}
 
 			$sql = 'SELECT a.type_code, count(*) AS total '.
 				'FROM sq_ast a, sq_ast_typ t '.
-				'WHERE a.type_code = t.type_code AND t.instantiable = 1 AND '.$access_type_query.
+				'WHERE a.type_code = t.type_code AND t.instantiable = '.MatrixDAL::quote('1').' AND '.$access_type_query.
 				'GROUP BY a.type_code '.
 				'ORDER BY total DESC';
 			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 10);
