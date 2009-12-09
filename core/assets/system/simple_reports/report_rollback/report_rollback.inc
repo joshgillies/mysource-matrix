@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_rollback.inc,v 1.4 2008/10/12 21:41:03 mbrydon Exp $
+* $Id: report_rollback.inc,v 1.4.6.1 2009/12/09 05:17:16 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of assets with rollback data
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -344,7 +344,7 @@ class Report_Rollback extends Simple_Report
 	{
 		$after_date_query = '';
 		if ($after_date != '') {
-			$after_date_query = " WHERE sq_eff_from >= '".$after_date."'";
+			$after_date_query = ' WHERE sq_eff_from >= '.MatrixDAL::quote($after_date);
 		}
 
 		$db = MatrixDAL::getDb();
@@ -369,7 +369,7 @@ class Report_Rollback extends Simple_Report
 	{
 		$after_date_query = '';
 		if ($after_date != '') {
-			$after_date_query = " WHERE sq_eff_from >= '".$after_date."'";
+			$after_date_query = ' WHERE sq_eff_from >= '.MatrixDAL::quote($after_date);
 		}
 
 		$db = MatrixDAL::getDb();

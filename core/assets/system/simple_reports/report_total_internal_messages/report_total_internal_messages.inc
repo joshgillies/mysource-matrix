@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_internal_messages.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
+* $Id: report_total_internal_messages.inc,v 1.3.6.1 2009/12/09 05:17:16 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of Internal Message types and totals for each type
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,9 +216,9 @@ class Report_Total_Internal_Messages extends Simple_Report
 
 		$where_clause = '';
 		if ($message_type == 'system') {
-			$where_clause = "WHERE type LIKE 'system.%'";
+			$where_clause = 'WHERE type LIKE '.MatrixDAL::quote('system.%');
 		} else if ($message_type == 'user') {
-			$where_clause = "WHERE type NOT LIKE 'system.%'";
+			$where_clause = 'WHERE type NOT LIKE '.MatrixDAL::quote('system.%');
 		}
 
                 $sql = 'SELECT type, COUNT(*) AS total '.

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_assets.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
+* $Id: report_total_assets.inc,v 1.3.6.1 2009/12/09 05:17:16 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a total asset count for seven points in time, from today to one year ago
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,7 @@ class Report_Total_Assets extends Simple_Report
 	{
 		$after_date_query = '';
 		if ($after_date != '') {
-			$after_date_query = " WHERE created >= '".$after_date."'";
+			$after_date_query = ' WHERE created >= '.MatrixDAL::quote($after_date);
 		}
 
 		$db = MatrixDAL::getDb();
@@ -260,8 +260,7 @@ class Report_Total_Assets extends Simple_Report
 	private static function _getSystemInstallDate()
 	{
 		$db = MatrixDAL::getDb();
-		$sql = 'SELECT MIN(created) '.
-			'FROM sq_ast';
+		$sql = 'SELECT MIN(created)FROM sq_ast';
 
 		$first_asset_date = MatrixDAL::executeSqlOne($sql);
 
