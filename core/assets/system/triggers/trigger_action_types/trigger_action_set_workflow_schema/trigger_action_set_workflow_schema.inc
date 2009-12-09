@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.11 2008/11/13 02:38:20 lwright Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.12 2009/12/09 22:38:54 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,6 +210,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 		} else {
 			$settings['cascade_to_dependents'] = array_get_index($request_data, 'cascade_to_dependents', FALSE);
 		}
+		$settings['cascade_to_new'] = array_get_index($request_data, 'cascade_to_new', FALSE);
 		return FALSE;
 
 	}//end processInterface()
