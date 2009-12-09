@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.88 2009/11/27 05:39:40 bpearson Exp $
+* $Id: calendar_event.inc,v 1.88.2.1 2009/12/09 23:54:15 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.88.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -853,6 +853,10 @@ class Calendar_Event extends Asset
 			case 'event_start_time_24h':
 				return date('H:i', iso8601_ts($this->attr('start_date')));
 			case 'event_start_time_ical':
+				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
+				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
+					return date('Ymd', iso8601_ts($this->attr('start_date')));
+				}
 				return date('Ymd\THis', iso8601_ts($this->attr('start_date')));
 			case 'event_end_date':
 				// In the case of 'end_date' of the first instance is not set
@@ -876,7 +880,16 @@ class Calendar_Event extends Asset
 					return date('g:ia', iso8601_ts($this->attr('end_date')));
 				}
 			case 'event_end_time_ical':
-				return $end_date_not_set ? '' : date('Ymd\THis', iso8601_ts($this->attr('end_date')));
+				if ($end_date_not_set) return '';
+				
+				// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
+				$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
+				$replacement = "'$1-$2-'.($3+1)";
+				$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
+
+				// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
+				return preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
+
 			case 'event_start_datetime':
 				return $this->getFriendlyStart();
 			case 'event_end_datetime':
