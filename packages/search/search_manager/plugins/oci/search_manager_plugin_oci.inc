@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.19 2009/09/02 23:36:25 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.19.2.1 2009/12/10 04:49:46 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -600,7 +600,7 @@ class Search_Manager_Plugin_OCI
 			$words = strtr($words, '*?', '%_');
 
 			//invoke remove_silent_chars in text.inc
-			$words = remove_silent_chars($words, TRUE);
+			$words = remove_silent_chars($words, TRUE, TRUE);
 
 			return Array($words);
 		}
