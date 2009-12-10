@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.285.2.7 2009/11/25 04:51:59 akarelia Exp $
+* $Id: listing_engine.inc,v 1.285.2.8 2009/12/10 04:21:59 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.285.2.7 $
+* @version $Revision: 1.285.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -631,7 +631,7 @@ class Listing_Engine extends Page
 		$exclude_root_nodes = $this->attr('exclude_root_nodes');
 		foreach($exclude_root_nodes as $key =>$value) {
 			$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
-			$exclude_assets += array_keys($exclude_children);
+			$exclude_assets = array_merge($exclude_assets, array_keys($exclude_children));
 		}
 
 		if (!empty($exclude_assets)) {
