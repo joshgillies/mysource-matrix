@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.7 2009/12/10 00:45:06 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.8 2009/12/10 01:02:51 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -409,7 +409,7 @@ if (!empty($postgres_primary_key_warnings)) {
 	$msg .= "They can take a while depending on the size of the table.\n\n";
 	$msg .= "BEGIN;\n";
 	foreach ($postgres_primary_key_warnings as $tablename => $details) {
-		$msg .= "ALTER TABLE " . $tablename . " DROP CONSTRAINT " . $details['current'] . ";\n";
+		$msg .= "ALTER TABLE ONLY " . $tablename . " DROP CONSTRAINT " . $details['current'] . ";\n";
 		$msg .= "ALTER TABLE " . $tablename . " ADD CONSTRAINT " . $details['expected'] . " PRIMARY KEY (" . implode(',', $details['fields']) . ");\n";
 	}
 	$msg .= "COMMIT;\n";
