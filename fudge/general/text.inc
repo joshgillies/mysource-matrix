@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.47.2.1 2009/09/10 23:36:21 bpearson Exp $
+* $Id: text.inc,v 1.47.2.2 2009/12/10 04:47:11 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47.2.1 $
+* @version $Revision: 1.47.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -563,23 +563,27 @@ function get_word_counts($text, $split_regexp="/\s+/", $word_match_regexp="/\S+/
 *
 * @param string		$text			text
 * @param boolean	$not_indexing	default is FALSE, when TRUE this function does not remove a number of certain characters.
+* @param boolean	$oracle_keyword when TRUE, apostrophes and email address pattern are not altered in given string. This is relevent when
+*									search plugin for Oracle db calls this function to filter the silent chars in search keyword
 *
 * @return string
 * @access public
 */
-function remove_silent_chars($text, $not_indexing=FALSE)
+function remove_silent_chars($text, $not_indexing=FALSE, $oracle_keyword=FALSE)
 {
 	// Replace period (.) and comma (,) in number, e.g. 1,234.5 => 12345
 	$number_pattern = '/(\d{1})[,.](\d{1})/'; // use that pattern instead of /(\d+)[,.](\d+)/ because this pattern can not replace both period and comma in one number. For example, 1,234.5 => 1234.5
 	$text = preg_replace($number_pattern, '$1$2', $text);
 
-	// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
-	// The following pattern matches most email addresses, but it will need to be review to match all email addresses
-	$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
-	$text = preg_replace($email_pattern, '"$1".str_replace(".", "", "$2")', $text);
+	if (!$oracle_keyword) {
+		// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
+		// The following pattern matches most email addresses, but it will need to be review to match all email addresses
+		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
+		$text = preg_replace($email_pattern, '"$1".str_replace(".", "", "$2")', $text);
 
-	// Remove apostrophe ('), e.g. you've => youve
-	$text = str_replace('\'', '', $text);
+		// Remove apostrophe ('), e.g. you've => youve
+		$text = str_replace('\'', '', $text);
+	}
 
 	$silent_chars = Array('.', ':', ';', ',', '!', '?', '`', '!', '@', '#', '$', '^', '*', '-', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
 	if ($not_indexing == FALSE) {
