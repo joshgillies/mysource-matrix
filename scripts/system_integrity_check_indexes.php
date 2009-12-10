@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.8 2009/12/10 01:02:51 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.9 2009/12/10 01:34:11 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -606,7 +606,16 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 	}
 
 	if ($primary_key) {
-		return 'ALTER TABLE ' . $tablename . ' ADD CONSTRAINT ' . $tablename . '_pk PRIMARY KEY (' . $column . ');';
+		/**
+		 * the constraint name should be $tablename_pk
+		 * without the 'sq_' at the start.
+		 */
+		$constraint_name = $tablename . '_pk';
+		if (substr($constraint_name, 0, 3) == 'sq_') {
+			$constraint_name = substr($constraint_name, 3);
+		}
+
+		return 'ALTER TABLE ' . $tablename . ' ADD CONSTRAINT ' . $constraint_name . ' PRIMARY KEY (' . $column . ');';
 	}
 
 	if ($unique_key) {
