@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.33 2009/11/03 23:03:03 akarelia Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.34 2009/12/10 05:19:36 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,7 +250,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$output .= $output_part3;
 
 		ob_start();
-			$current_context = array_get_index($settings, 'context_to_select', NULL);
+			$current_context = array_get_index($settings, 'contextid', NULL);
 
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			$context_list = Array(
@@ -262,7 +262,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 					$context_name = $context_item['name'];
 				}
 
-				$context_list[rawurlencode($context_item['name'])] = $context_item['name'];
+				$context_list[$context_item_id] = $context_item['name'];
 			}
 
 			$default = Array('-default-');
