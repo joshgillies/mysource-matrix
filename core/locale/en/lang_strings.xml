@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.348 2009/11/27 05:39:53 lwright Exp $
+* $Id: lang_strings.xml,v 1.349 2009/12/11 00:36:57 lwright Exp $
 *
 */
 
@@ -2257,6 +2257,17 @@ Are you sure you want to proceed?</string>
 	<string source="search_engine_optimizations">Search Engine Optimizations</string>
 	<string source="remove_self_links">Remove self links</string>
 	<string source="remove_self_links_note">Select 'Yes' if you want all links directing to currently viewed asset removed from content</string>
+
+	<!-- Current Statuses - named with the bit field name -->
+	<string source="status_archived">Archived</string>
+	<string source="status_under_construction">Under Construction</string>
+	<string source="status_pending_approval">Pending Approval</string>
+	<string source="status_approved">Approved To Go Live</string>
+	<string source="status_live">Live</string>
+	<string source="status_live_approval">Up For Review</string>
+	<string source="status_editing">Safe Editing</string>
+	<string source="status_editing_approval">Safe Editing Pending Approval</string>
+	<string source="status_editing_approved">Safe Edit Approved To Go Live</string>
 
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.49 2009/05/25 05:16:11 akarelia Exp $
+* $Id: asset_status_live_approval.inc,v 1.50 2009/12/11 00:36:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -61,7 +61,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return 'Up For Review';
+		return translate('status_live_approval');
 
 	}//end getDescription()
 

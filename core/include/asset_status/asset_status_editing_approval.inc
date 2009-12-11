@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.17 2007/11/30 01:24:52 bshkara Exp $
+* $Id: asset_status_editing_approval.inc,v 1.18 2009/12/11 00:36:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
 *                                         there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
@@ -61,7 +61,7 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 	*/
 	public static function getDescription()
 	{
-		return 'Safe Editing Pending Approval';
+		return translate('status_editing_approval');
 
 	}//end getDescription()
 

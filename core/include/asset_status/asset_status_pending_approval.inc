@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.46 2009/05/25 05:16:11 akarelia Exp $
+* $Id: asset_status_pending_approval.inc,v 1.47 2009/12/11 00:36:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -61,7 +61,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return 'Pending Approval';
+		return translate('status_pending_approval');
 
 	}//end getDescription()
 
@@ -215,7 +215,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					}
 				}
 
-                // Since asset_status_editing_approval inherit from this object, it inherits this function, so when the asset go either from pending approval to approved, or editing approval to approved, lets send the asset workflow complete log message.
+				// Since asset_status_editing_approval inherit from this object, it inherits this function, so when the asset go either from pending approval to approved, or editing approval to approved, lets send the asset workflow complete log message.
 				if ($new_status == SQ_STATUS_APPROVED || $new_status == SQ_STATUS_EDITING_APPROVED) {
 
 					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();

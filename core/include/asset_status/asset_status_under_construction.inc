@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.51 2009/11/27 05:39:53 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.52 2009/12/11 00:36:57 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -58,7 +58,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return 'Under Construction';
+		return translate('status_under_construction');
 
 	}//end getDescription()
 
