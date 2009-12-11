@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.6 2009/12/02 02:04:37 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.6.2.1 2009/12/11 01:06:20 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -100,6 +100,7 @@ bam('Checking Indexes');
 $sql_commands = array();
 $bad_indexes = array();
 $parallel_warnings = array();
+$postgres_primary_key_warnings = array();
 
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 foreach ($packages as $_pkgid => $pkg_details) {
@@ -134,12 +135,16 @@ foreach ($packages as $_pkgid => $pkg_details) {
 				 * 'sq_' . $tablename . '_pkey',
 				 * 'sq_' . $tablename . '_pk',
 				 *
-				 * (seems to be a postgres thing,
-				 * maybe different versions name things differently)
+				 * we expect the name to be
+				 * $tablename . '_pk'
+				 * if it's not, throw a warning
+				 * as upgrade guides and possibly other scripts
+				 * expect it to be named this way
 				 */
+				$expected_idx_name = $tablename . '_pk';
 				$full_idx_names = array (
+					$expected_idx_name,
 					$tablename . '_pkey',
-					$tablename . '_pk',
 					'sq_' . $tablename . '_pkey',
 					'sq_' . $tablename . '_pk',
 				);
@@ -150,7 +155,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 				$error = true;
 				$idx_name = null;
 				foreach ($full_idx_names as $_idx_pos => $idx_name) {
-					if (in_array($idx_name, $full_index_list[$tablename])) {
+					if (in_array($idx_name, array_keys($full_index_list[$tablename]))) {
 						$error = false;
 						break;
 					}
@@ -176,7 +181,24 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					}
 				}
 
-				$create_index_statement = create_index_sql($tablename, $idx_columns, $tablename . '_pkey', NULL, true);
+				/**
+				 * if we found an index,
+				 * make sure it's the one we expect to find.
+				 * otherwise keep it for fixing later.
+				 */
+				if (!$error) {
+					if ($db_conf['db']['type'] == 'pgsql') {
+						if ($idx_name !== $expected_idx_name) {
+							$postgres_primary_key_warnings[$tablename] = array (
+								'current' => $idx_name,
+								'expected' => $expected_idx_name,
+								'fields' => $idx_columns,
+							);
+						}
+					}
+				}
+
+				$create_index_statement = create_index_sql($tablename, $idx_columns, $tablename . '_pk', NULL, true);
 
 				if ($error) {
 					printUpdateStatus('Missing');
@@ -378,6 +400,21 @@ if (!empty($parallel_warnings)) {
 	bam($msg);
 }
 
+if (!empty($postgres_primary_key_warnings)) {
+	$extra_message_shown = true;
+	$msg = "Some tables have incorrect names for primary keys.\n";
+	$msg .= "This won't cause any problems, but upgrade guides may be harder to follow\n";
+	$msg .= "as they expect the names to be a certain way.\n";
+	$msg .= "To fix these tables, run the following commands\n";
+	$msg .= "They can take a while depending on the size of the table.\n\n";
+	$msg .= "BEGIN;\n";
+	foreach ($postgres_primary_key_warnings as $tablename => $details) {
+		$msg .= "ALTER TABLE ONLY " . $tablename . " DROP CONSTRAINT " . $details['current'] . ";\n";
+		$msg .= "ALTER TABLE " . $tablename . " ADD CONSTRAINT " . $details['expected'] . " PRIMARY KEY (" . implode(',', $details['fields']) . ");\n";
+	}
+	$msg .= "COMMIT;\n";
+	bam($msg);
+}
 if (!$extra_message_shown) {
 	bam('Everything has been checked and no problems were found.');
 }
@@ -569,7 +606,16 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 	}
 
 	if ($primary_key) {
-		return 'ALTER TABLE ' . $tablename . ' ADD CONSTRAINT ' . $tablename . '_pk PRIMARY KEY (' . $column . ');';
+		/**
+		 * the constraint name should be $tablename_pk
+		 * without the 'sq_' at the start.
+		 */
+		$constraint_name = $tablename . '_pk';
+		if (substr($constraint_name, 0, 3) == 'sq_') {
+			$constraint_name = substr($constraint_name, 3);
+		}
+
+		return 'ALTER TABLE ' . $tablename . ' ADD CONSTRAINT ' . $constraint_name . ' PRIMARY KEY (' . $column . ');';
 	}
 
 	if ($unique_key) {
