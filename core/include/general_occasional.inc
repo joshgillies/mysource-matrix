@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.92.2.1 2009/10/21 06:03:26 akarelia Exp $
+* $Id: general_occasional.inc,v 1.92.2.2 2009/12/11 02:27:46 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92.2.1 $
+* @version $Revision: 1.92.2.2 $
 * @package MySource_Matrix
 */
 
@@ -692,11 +692,11 @@ function parse_self_links($content)
 	// get the current frontend asset url
 	$url = str_replace("/", "\/", $GLOBALS['SQ_SYSTEM']->frontend_asset->getURL());
 	$web_path = substr($url, strrpos($url, "/") + 1);
-
+	
 	// preg for every occurence of full url or just web path
-    $href_pattern = "/<a href=\"".$url."\">.*?<\/a>/";
-    $web_path_pattern = "/<a href=\"(\.{0,2}\/{1})?".$web_path."\">.*?<\/a>/";
-    $content = preg_replace(Array($href_pattern, $web_path_pattern), '', $content);
+    $href_pattern = "/<a [^<]*href=\"(".$url.")\/?\"[^>]*>(.*?)<\/a>/msi";
+    $web_path_pattern = "/<a [^<]*href=\"(\.{0,2}\/{1})?".$web_path."\/?\"[^>]*>(.*?)<\/a>/msi";
+    $content = preg_replace(Array($href_pattern, $web_path_pattern), '$2', $content);
 
 	return $content;
 
