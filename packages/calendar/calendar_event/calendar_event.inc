@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.89 2009/12/09 23:53:17 cupreti Exp $
+* $Id: calendar_event.inc,v 1.90 2009/12/11 03:39:16 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -885,9 +885,9 @@ class Calendar_Event extends Asset
 				
 				// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
 				$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
-				$replacement = "'$1-$2-'.($3+1)";
+				$replacement = "'$1-$2-'.str_pad(($3+1),2,\"0\",STR_PAD_LEFT)";
 				$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
-
+				
 				// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
 				return preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
 
