@@ -15,10 +15,6 @@ Replace Keywords option in Set Value Trigger Action
 	A checkbox "Replace keywords in the set value" is provided in the Set Metadata Value and Set Attribute Value Trigger Actions to indicate whether keywords supplied in these fields are to be replaced upon evaluation rather than being treated as literal text. This can be used with both asset-level and Global Keywords.
 
 
-User Group System Preference for Context ID for session
-	The "Preferences" screen of User Group assets now provides the ability to assign a Context ID to be used for User Group members for a Matrix session.
-
-
 Public User Trigger Condition
 	A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
 
