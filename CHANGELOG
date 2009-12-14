@@ -348,6 +348,10 @@ REST Assets
 A REST Manager caches requests based upon the cache settings configured for these assets as set on the "Details" screen. Clearing the cache of REST Manager will clear cached request and response data.
 
 
+User Group System Preference for Context ID for session
+	The "Preferences" screen of User Group assets now provides the ability to assign a Context ID to be used for User Group members for a Matrix session.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
