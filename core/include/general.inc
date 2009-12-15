@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.238 2009/12/07 21:32:07 cupreti Exp $
+* $Id: general.inc,v 1.239 2009/12/15 03:23:15 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix
 */
 
@@ -825,14 +825,15 @@ function strip_url($url, $strip_protocol=FALSE)
 * it is appended. If the value of the get variable is null and it does exist,
 * it will be removed
 *
-* @param array	$replacements	the variable replacements array ($var => $value)
-* @param string	$base_url		the base url
-* @param string	$query_string	the query string
+* @param array		$replacements	the variable replacements array ($var => $value)
+* @param string		$base_url		the base url
+* @param string		$query_string	the query string
+* @param boolean	$remove_sq_vars	remove HTTP GET variables with an "SQ_" upper or lowercase prefix
 *
 * @return string
 * @access public
 */
-function replace_query_string_vars($replacements, $base_url=NULL, $query_string=NULL)
+function replace_query_string_vars($replacements, $base_url=NULL, $query_string=NULL, $remove_sq_vars=FALSE)
 {
 	if (is_null($base_url)) $base_url = current_url();
 	if (is_null($query_string)) {
@@ -846,6 +847,8 @@ function replace_query_string_vars($replacements, $base_url=NULL, $query_string=
 	$matches = Array();
 	preg_match_all('|&([^=]+)=([^&]+)?|', '&'.$query_string, $matches);
 	foreach ($matches[1] as $num => $var) {
+		if ($remove_sq_vars && (strlen($var) > 3) && (substr(strtoupper($var), 0, 3) == 'SQ_')) continue;
+
 		if (!in_array($var, $replaced_vars)) {
 			// there is no replacement required
 			$new_query_string .= '&'.$var.'='.$matches[2][$num];
