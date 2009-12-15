@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.46 2009/07/13 10:10:42 ata Exp $
+* $Id: email_format.inc,v 1.47 2009/12/15 04:16:07 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -65,11 +65,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{// TODO TOF TEST
+	{
 		if (!parent::setEditParams($node)) return FALSE;
 		foreach ($this->_edit_params as $field => $val) {
 			if (isset($node->attributes()->$field)) {
-				$this->_edit_params[$field] = (bool)$node->attributes()->$field;
+				// Cannot convert directly to boolean, since (bool) of any non-empty
+				// object is TRUE. Convert to int first, then to bool. (Bug #4095)
+				$this->_edit_params[$field] = (bool)(int)$node->attributes()->$field;
 			}
 		}
 		return TRUE;
@@ -462,23 +464,23 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						'content_layout'	=> $current_value['layout_to_apply'],
 					   );
 			$html_body = $GLOBALS['SQ_SYSTEM']->am->generateRawContent($details);
-			
+
 			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $GLOBALS['SQ_SYSTEM']->am->getAsset($current_value['asset_to_send']));
-			
+
 			foreach ($to as &$to_str) {
 				replace_global_keywords($to_str);
 			}
 			replace_global_keywords($from);
 			replace_global_keywords($subject);
 			replace_global_keywords($html_body);
-			
+
 			if (is_null($old_current_asset)) {
 				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
 			} else {
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
 			}
-			
+
 		} else {
 			// replace internal links to pages and images with their full URLs
 			$matches = Array();
@@ -487,7 +489,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			foreach ($urls as $assetid => $url) {
 				$html_body = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $html_body);
 			}
-			
+
 			foreach ($to as &$to_str) {
 				replace_global_keywords($to_str);
 			}
@@ -495,7 +497,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			replace_global_keywords($subject);
 			replace_global_keywords($text_body);
 			replace_global_keywords($html_body);
-			
+
 		}
 
 		$to =  array_unique(array_merge($to, $assetid_emails));
