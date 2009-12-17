@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.12 2009/05/29 06:33:29 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.13 2009/12/17 23:26:00 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -232,14 +232,14 @@ class TRIM_Saved_Search extends Data_Source
 			foreach ($result as $index	=> $record_info) {
 				foreach ($new_object_list as $new_index	=> $new_record_info) {
 					// Comparing the same record based on the URI
-					if ($record_info['Uri'] == $new_record_info['Uri']) {
+					if ($record_info['Uri'] == $new_record_info['Uri']) {					
 						// If Forced, dont even care about version number, update anyway.
 						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
-							// UPDATE Check
-							$ordered_result[$new_index]	= $new_record_info;
-							if ($this->attr('download_files')) {
+							// UPDATE Check						
+							if ($this->attr('download_files')) {				
 								$this->storeDocumentList($connection, $new_record_info);
-							}//end if
+							}//end if							
+							$ordered_result[$new_index]	= $new_record_info;
 						} else {
 							// If this is the same version
 							$ordered_result[$new_index]	= $new_record_info;
@@ -252,8 +252,10 @@ class TRIM_Saved_Search extends Data_Source
 
 								// If there is no file in there
 								if (empty($files_stored)) {
+					
 									$this->storeDocumentList($connection, $new_record_info);
 								} else if (!isset($record_info['download_url'])) {
+	
 									$ordered_result[$new_index]['document_url']		= $this->getURL().'?Uri='.$new_record_info['Uri'];
 								}//end else if
 							}//end if
@@ -468,6 +470,11 @@ class TRIM_Saved_Search extends Data_Source
 											'trace'		=> TRUE,
 											'exception'	=> TRUE,
 										  );
+		// add proxy 
+		if(method_exists($connector, 'getProxy')) {
+			$proxy = $connector->getProxy();
+			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
+		}
 
 		return $connection;
 
@@ -505,9 +512,11 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	function storeDocumentList($connection, &$record_info)
 	{
+	
 		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
 			$record_info['document_url']	= '';
-			if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
+		
+			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']	!= 'Record has no document attached.') {
 				// We got a file here.
 				$operations = Array (
 								'Download'					=> TRIM_Common::constructDownload(),
@@ -520,6 +529,7 @@ class TRIM_Saved_Search extends Data_Source
 				create_directory($final_file_path);
 
 				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
+
 				$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
 			}//end if
 		}//end if

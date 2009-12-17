@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector_edit_fns.inc,v 1.2 2008/10/07 22:00:26 hnguyen Exp $
+* $Id: trim_connector_edit_fns.inc,v 1.3 2009/12/17 23:26:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -63,9 +63,16 @@ class Trim_Connector_Edit_Fns extends Asset_Edit_Fns
 							'authentication'	=> Array (
 													'login'		=> $asset->attr('username'),
 													'password'	=> $asset->attr('password'),
+													'trace'		=> TRUE,
+													'exception'	=> TRUE,
 												   ),
 						  );
 
+			// add proxy 
+			$proxy = $asset->getProxy();
+			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
+						  
+		
 			$valid = FALSE;
 			if (!empty($connection['wsdl'])) {
 				$valid = TRIM_Common::test_trim_connection($connection);
