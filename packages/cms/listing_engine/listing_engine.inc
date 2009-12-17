@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.292.2.1 2009/12/10 04:21:29 cupreti Exp $
+* $Id: listing_engine.inc,v 1.292.2.2 2009/12/17 04:29:49 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.292.2.1 $
+* @version $Revision: 1.292.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1546,8 +1546,8 @@ class Listing_Engine extends Page
 					$replacements['previous_page_href'] = '';
 				} else {
 					// blank out the 'result_page' query - we can understand it if it's given to us, but we don't want to give it to anyone else
-					$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
-					$replacements['previous_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page-1));
+					$replacements['previous_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page-1), NULL, NULL, TRUE);
+					$replacements['previous_page'] = '<a href="'.$replacements['previous_page_href'].'">'.$this->attr('prev_page_text').'</a>';
 				}
 
 				// next page link
@@ -1555,8 +1555,8 @@ class Listing_Engine extends Page
 					$replacements['next_page'] = $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
-					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
-					$replacements['next_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page+1));
+					$replacements['next_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE);
+					$replacements['next_page'] = '<a href="'.$replacements['next_page_href'].'">'.$this->attr('next_page_text').'</a>';
 				}
 
 				$this->_tmp['result_page'] = (int)$result_page;
@@ -1628,8 +1628,8 @@ class Listing_Engine extends Page
 				$prev_page_text = $this->attr('prev_page_text');
 				$prev_page_link = '';
 				if ($this_letter_key > 0) {
-					$prev_page_text = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key - 1])).'">'.$prev_page_text.'</a>';
-					$prev_page_link = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key - 1]));
+					$prev_page_link = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key - 1]), NULL, NULL, TRUE);
+					$prev_page_text = '<a href="'.$prev_page_link.'">'.$prev_page_text.'</a>';
 				}
 				$replacements['previous_page'] = $prev_page_text;
 				$replacements['previous_page_href'] = $prev_page_link;
@@ -1638,8 +1638,8 @@ class Listing_Engine extends Page
 				$next_page_text = $this->attr('next_page_text');
 				$next_page_href = '';
 				if ($this_letter_key < (sizeof($letters) - 1)) {
-					$next_page_text = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key + 1])).'">'.$next_page_text.'</a>';
-					$next_page_href = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key + 1]));
+					$next_page_href = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key + 1]), NULL, NULL, TRUE);
+					$next_page_text = '<a href="'.$next_page_href.'">'.$next_page_text.'</a>';
 				}
 				$replacements['next_page'] = $next_page_text;
 				$replacements['next_page_href'] = $next_page_href;
@@ -1730,8 +1730,8 @@ class Listing_Engine extends Page
 					$replacements['previous_page'] = $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
-					$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
-					$replacements['previous_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page-1));
+					$replacements['previous_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page-1), NULL, NULL, TRUE);
+					$replacements['previous_page'] = '<a href="'.$replacements['previous_page_href'].'">'.$this->attr('prev_page_text').'</a>';
 				}
 
 				// next page link
@@ -1739,8 +1739,8 @@ class Listing_Engine extends Page
 					$replacements['next_page'] = $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
-					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array($asset_result_page_var => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
-					$replacements['next_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page+1));
+					$replacements['next_page_href'] = replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE);
+					$replacements['next_page'] = '<a href="'.$replacements['next_page_href'].'">'.$this->attr('next_page_text').'</a>';
 				}
 
 				$this->_tmp['result_page'] = (int)$result_page;
@@ -2611,7 +2611,6 @@ class Listing_Engine extends Page
 				}//end if
 			}//end if
 		}//end foreach
-
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
