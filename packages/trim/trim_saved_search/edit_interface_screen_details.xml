@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/12/18 00:26:18 ewang Exp $
 *
 */
 -->
@@ -35,6 +35,14 @@
             <password width="35" height="1" />
         </field>
     </section>
+    <section name="Use a Connector Asset" write_access="write:attributes">
+        <field>
+            <function_call>
+                <paint_function   name="paintConnectorLink"   />
+                <process_function name="processConnectorLink" />
+            </function_call>
+        </field>
+    </section>
     <section name="Synchronize Options" write_access="write:attributes">
     	<field attribute="download_files">
     		<boolean true_text="yes" false_text="no" />
@@ -45,14 +53,6 @@
     			<process_function name="processSynchCheck"	/>
     		</function_call>
     	</field>
-    </section>
-    <section name="Use a Connector Asset" write_access="write:attributes">
-        <field>
-            <function_call>
-                <paint_function   name="paintConnectorLink"   />
-                <process_function name="processConnectorLink" />
-            </function_call>
-        </field>
     </section>
     <section name="Record Set Asset Names" write_access="write:attributes">
         <field>
