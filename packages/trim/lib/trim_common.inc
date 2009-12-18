@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.8 2009/12/18 00:26:18 ewang Exp $
+* $Id: trim_common.inc,v 1.9 2009/12/18 00:28:33 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -236,7 +236,7 @@ class TRIM_Common
 
 		return $upload;
 
-	}//end constructUploadconstructUpload()
+	}//end constructUpload()
 
 
 	/**
