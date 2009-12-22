@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.78 2009/09/21 05:11:39 cupreti Exp $
+* $Id: asset_edit_fns.inc,v 1.79 2009/12/22 06:00:26 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -354,6 +354,17 @@ class Asset_Edit_Fns extends MySource_Object
 
 		if (isset($_POST[$prefix.'_delete_remap'])) {
 			$urls = array_keys($_POST[$prefix.'_delete_remap']);
+
+			$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+			$remap_urls = $remap_manager->getRemapURLs($asset);
+
+			foreach ($remap_urls as $url_info) {
+				foreach ($urls as $index => $url_to_delete) {
+					if ($url_info['url'] === $url_to_delete && $url_info['never_delete']) {
+						unset($urls[$index]);
+					}					
+				}
+			}
 
 			try {
 				$bind_vars = Array('urls' => $urls);

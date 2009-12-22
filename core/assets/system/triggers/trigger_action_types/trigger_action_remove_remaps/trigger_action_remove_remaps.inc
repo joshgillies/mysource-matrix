@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_remaps.inc,v 1.1 2008/11/12 22:57:57 bpearson Exp $
+* $Id: trigger_action_remove_remaps.inc,v 1.2 2009/12/22 06:00:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that removes all the assets remaps
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,37 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 		// Grab the URLS for this asset
 		$urls = $state['asset']->getURLs();
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		try {
+			$results = MatrixDAL::executeAssoc('core', 'getRemapUrls');
+		} catch (DALException $e) {
+			throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		foreach ($results as $index => $result) {
+			foreach ($urls as $index => $url_to_delete) {
+
+				// lets first get decided on the protocol
+				if ($url_to_delete['http'] == '1') {
+					$protocol = 'http://';
+				}else if ($url_to_delete['https'] == '1') {
+					$protocol = 'https://';
+				}
+				// Process removing remaps (from-to) ie. remapping to this address (remap_url is this address)
+				if ($remove_from_to) {
+					if ($protocol.$url_to_delete['url'] === $result['remap_url'] && $result['never_delete']) unset($urls[$index]);
+				}
+
+				// Process removing remaps (to-from) ie. remapping from this address (url is this address)
+				if ($remove_to_from) {
+					if ($protocol.$url_to_delete['url'] === $result['url'] && $result['never_delete'] ) unset($urls[$index]);
+				}
+			}// end foreach - inner
+		}// end foreach - outter
+
 		foreach ($urls as $url) {
 			$address = Array();
 			if ($url['http'] == '1') {
@@ -80,7 +111,7 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 			if ($url['https'] == '1') {
 				$address[] = 'https://'.$url['url'];
 			}
-			
+
 			if (!empty($address)) {
 				// Process removing remaps (from-to) ie. remapping to this address (remap_url is this address)
 				if ($remove_from_to) {
