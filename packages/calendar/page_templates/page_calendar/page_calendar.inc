@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.231 2009/09/30 04:20:59 ewang Exp $
+* $Id: page_calendar.inc,v 1.231.2.1 2009/12/22 21:51:57 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.231.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -985,6 +985,9 @@ class Page_Calendar extends Page
 				}
 			}
 		} else if ($format == 'list_with_headings') {
+			// Dates in month view with 'Listing with day Headings' option should always have url with 'day' view
+			 $drill_down_view = $enabled_views['day'] ? 'day' : '';
+			
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
 			$events_array = $raw_events;
