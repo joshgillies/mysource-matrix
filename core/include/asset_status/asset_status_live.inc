@@ -1,4 +1,3 @@
-
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -11,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.37 2009/12/11 00:36:57 lwright Exp $
+* $Id: asset_status_live.inc,v 1.38 2009/12/23 23:20:56 lwright Exp $
 *
 */
 
@@ -30,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
