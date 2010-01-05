@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.9 2009/11/27 05:39:41 bpearson Exp $
+* $Id: calendar_event_multi_date.inc,v 1.9.2.1 2010/01/05 01:11:21 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,6 +113,43 @@ class Calendar_Event_Multi_Date extends Asset
 	}//end _createAdditional()
 
 
+		
+	/**
+	* Perform any additional processing required during the cloning of components of this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function cloneDependantAdditional(Asset $clone)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$return_value = TRUE;
+		$value = TRUE;
+
+		// Load the web paths for the design's components
+		$components = $GLOBALS['SQ_SYSTEM']->am->getChildren($clone->id);
+		foreach ($components as $componentid => $component) {
+			// set web path for components
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($componentid);
+
+			$initial_path = strtolower($asset->name);
+			$valid_paths = make_valid_web_paths(Array($initial_path));
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($clone, $valid_paths, $asset->id, TRUE);
+			$GLOBALS['SQ_SYSTEM']->acquireLock($asset->id, 'all');
+			$return_value = $asset->saveWebPaths($good_paths);
+			$value = (!$return_value) ? FALSE : TRUE;
+
+			$return_value = $asset->updateLookups(FALSE);
+			$value = (!$return_value) ? FALSE : TRUE;
+			$GLOBALS['SQ_SYSTEM']->releaseLock($asset->id, 'all');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		}//end foreach
+
+		return $value;
+
+	}//end cloneDependantAdditional()
+	
+	
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	* @see Asset::_getAllowLinks()
