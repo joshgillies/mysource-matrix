@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.228 2009/12/14 00:04:45 akarelia Exp $
+* $Id: search_manager.inc,v 1.229 2010/01/05 22:11:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.228 $
+* @version $Revision: 1.229 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -634,6 +634,7 @@ class Search_Manager extends Asset
 		$contextid     =  $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		if ($all_contexts === TRUE) {
+			$asset_vars = Array();
 			$context_list = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 			foreach ($context_list as $this_contextid) {
 				if ($this_contextid !== $contextid) {
