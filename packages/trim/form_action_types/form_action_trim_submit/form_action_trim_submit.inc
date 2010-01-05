@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_trim_submit.inc,v 1.4 2008/12/17 22:35:40 hnguyen Exp $
+* $Id: form_action_trim_submit.inc,v 1.4.6.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -74,6 +74,9 @@ class Form_Action_TRIM_Submit extends Form_Action
 				<tr>
 					<td><?php echo translate('password'); ?></td>
 					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35); ?></p></td>
+				</tr>
+				<tr>
+					<td colspan="2"><?php echo translate('use_proxy_connector'); ?></td>
 				</tr>
 			</table>
 		</div>
@@ -386,6 +389,9 @@ class Form_Action_TRIM_Submit extends Form_Action
 												'login'		=> $trim_connector->attr('username'),
 												'password'	=> $trim_connector->attr('password'),
 											  );
+			// add proxy
+			$proxy = $trim_connector->getProxy();
+			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
 		} else {
 			$connection['wsdl']				= $settings['wsdl'];
 			$connection['authentication']	= Array (

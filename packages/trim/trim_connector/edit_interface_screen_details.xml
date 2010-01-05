@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1.10.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 -->
@@ -32,6 +32,23 @@
 			<text width="35" height="1"/>
 		</field>
 		<field attribute="password">
+			<password width="35" height="1"/>
+		</field>
+	</section>
+	<section name="Proxy" write_access="write:attributes" limbo_access="1">
+		<field attribute="use_proxy">
+			<selection width="35" />
+		</field>
+		<field attribute="proxy_host">
+			<text width="35" height="1"/>
+		</field>
+		<field attribute="proxy_port">
+			<int width="35" height="1"/>
+		</field>
+		<field attribute="proxy_login">
+			<text width="35" height="1"/>
+		</field>
+		<field attribute="proxy_password">
 			<password width="35" height="1"/>
 		</field>
 	</section>

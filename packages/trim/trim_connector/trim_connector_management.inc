@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector_management.inc,v 1.2 2009/08/19 05:56:59 lwright Exp $
+* $Id: trim_connector_management.inc,v 1.2.2.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -80,10 +80,70 @@ class Trim_Connector_Management extends Asset_Management
 															'allow_empty'	=> TRUE,
 															   ),
 										   ),
+						'use_proxy'		=> Array(
+													'added'         => '0.1',
+													'type'          => 'selection',
+													'default'       => 'No',
+													'description'	=> 'Whether to use proxy',
+													'is_admin'      => FALSE,
+													'parameters'    => Array(
+																		'allow_empty'   => FALSE,
+																		'multiple'      => FALSE,
+																		'options'		=> Array (
+																							'Yes'	=> 'Yes',
+																							'No'	=> 'No',
+										   													'Use Matrix Primary Proxy'	=> 'Use Matrix Primary Proxy',
+																						   ),
+																	   ),
+												   ),
+						'proxy_host'	=> Array (
+										'added'			=> '0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'Proxy Host',
+										'is_admin'		=> '1',
+										'parameters'	=> Array (
+															'multiple'		=> FALSE,
+															'allow_empty'	=> TRUE,
+															   ),
+										   ),
+						'proxy_port'	=> Array (
+										'added'			=> '0.1',
+										'type'			=> 'int',
+										'default'		=> '',
+										'description'	=> 'Proxy Port',
+										'is_admin'		=> '1',
+										'parameters'	=> Array (
+															'multiple'		=> FALSE,
+															'allow_empty'	=> TRUE,
+															   ),
+										   ),
+						'proxy_login'	=> Array (
+										'added'			=> '0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'Proxy Login',
+										'is_admin'		=> '1',
+										'parameters'	=> Array (
+															'multiple'		=> FALSE,
+															'allow_empty'	=> TRUE,
+															   ),
+										   ),
+						'proxy_password'	=> Array (
+										'added'			=> '0.1',
+										'type'			=> 'password',
+										'default'		=> '',
+										'description'	=> 'Proxy Password',
+										'is_admin'		=> '1',
+										'parameters'	=> Array (
+															'multiple'		=> FALSE,
+															'allow_empty'	=> TRUE,
+															   ),
+										   ),
+						
 					  );
 
 	}//end constructor
-
 
 }//end class
 ?>

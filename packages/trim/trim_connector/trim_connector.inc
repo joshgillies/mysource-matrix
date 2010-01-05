@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_connector.inc,v 1.1.1.1.10.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -63,6 +63,44 @@ class Trim_Connector extends Asset
 
     }//end _getName()
 
+    
+    /**
+    * Returns the proxy details, if diabled, return empty array
+    *
+    *
+    * @return array
+    * @access public
+    */
+    function getProxy()
+    {
+    	// proxy disabled
+        if ($this->attr('use_proxy') == 'No') return Array();
+      	$proxy = Array();
+        if ($this->attr('use_proxy') == 'Yes') {
+        	 //use proxy specified 
+        	$proxy = Array (
+        					'proxy_host' 		=> $this->attr('proxy_host'),
+        					'proxy_port' 		=> (int) $this->attr('proxy_port'),
+        					'proxy_login' 		=> $this->attr('proxy_login'),
+        					'proxy_password' 	=> $this->attr('proxy_password'),
+        			);
+        }
+        else {
+        	//use matrix proxy
+	        require_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
+			if (SQ_PA_ENABLED) {
+				$proxy = Array (
+        					'proxy_host' 		=> SQ_PA_HOSTNAME,
+        					'proxy_port' 		=> (int) SQ_PA_PORT,
+        					'proxy_login' 		=> SQ_PA_USERNAME,
+        					'proxy_password' 	=> base64_decode(SQ_PA_PASSWORD),
+        				);
+			}
+        }
+        
+        return $proxy;
 
+    }//end getProxy()
+  
 }//end class
 ?>

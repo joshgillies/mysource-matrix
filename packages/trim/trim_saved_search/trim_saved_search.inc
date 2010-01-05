@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.12 2009/05/29 06:33:29 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.12.4.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -236,10 +236,10 @@ class TRIM_Saved_Search extends Data_Source
 						// If Forced, dont even care about version number, update anyway.
 						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
 							// UPDATE Check
-							$ordered_result[$new_index]	= $new_record_info;
 							if ($this->attr('download_files')) {
 								$this->storeDocumentList($connection, $new_record_info);
 							}//end if
+							$ordered_result[$new_index]	= $new_record_info;
 						} else {
 							// If this is the same version
 							$ordered_result[$new_index]	= $new_record_info;
@@ -468,7 +468,11 @@ class TRIM_Saved_Search extends Data_Source
 											'trace'		=> TRUE,
 											'exception'	=> TRUE,
 										  );
-
+		// add proxy
+		if(method_exists($connector, 'getProxy')) {
+			$proxy = $connector->getProxy();
+			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
+		}
 		return $connection;
 
 	}//end getConnection()
@@ -507,7 +511,7 @@ class TRIM_Saved_Search extends Data_Source
 	{
 		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
 			$record_info['document_url']	= '';
-			if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
+			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']   != 'Record has no document attached.') {
 				// We got a file here.
 				$operations = Array (
 								'Download'					=> TRIM_Common::constructDownload(),

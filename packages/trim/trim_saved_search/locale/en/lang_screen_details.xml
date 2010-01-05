@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.10.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 -->
@@ -50,18 +50,7 @@
 			<display_name>Password</display_name>
 			<note />
         </field>
-    </section>
-    <section name="Synchronize Options" write_access="write:attributes">
-    	<field attribute="download_files">
-    		<display_name>Download Files</display_name>
-    		<note>Enable downloading of attachments which comes with TRIM documents.</note>
-    	</field>
-    	<field>
-    		<function_call>
-    			<paint_function   name="paintSynchCheck"	/>
-    			<process_function name="processSynchCheck"	/>
-    		</function_call>
-    	</field>
+        <note>Proxy setting is only available using a connector asset</note>
     </section>
     <section name="Use a Connector Asset" write_access="write:attributes">
         <field>
@@ -71,6 +60,18 @@
             </function_call>
     		<display_name>TRIM Connector Asset</display_name>
     		<note>If a TRIM connector is selected, the settings in the 'Connection Setup' section (above) have no effect. TRIM Connector allows the TRIM settings to be reused on other TRIM assets.</note>
+    	</field>
+    </section>
+      <section name="Synchronize Options" write_access="write:attributes">
+    	<field attribute="download_files">
+    		<display_name>Download Files</display_name>
+    		<note>Enable downloading of attachments which comes with TRIM documents.</note>
+    	</field>
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintSynchCheck"	/>
+    			<process_function name="processSynchCheck"	/>
+    		</function_call>
     	</field>
     </section>
     <section name ="Record Set Asset Names">

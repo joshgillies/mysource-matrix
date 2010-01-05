@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.7 2009/05/06 06:56:16 hnguyen Exp $
+* $Id: trim_common.inc,v 1.7.4.1 2010/01/05 23:32:34 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -139,6 +139,7 @@ class TRIM_Common
 							'FilterFileTypes' 					=> $record_search_options['file_types'],
 							'FilterFinalizedState' 				=> "Both",
 							'Uri' 								=> '',
+							'IgnoreOnError'						=> FALSE,
 						);
 
 		$recordSearch	= array_merge($recordSearch, $search_clauses);
@@ -738,17 +739,18 @@ class TRIM_Common
 	*/
 	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $hash_key='', &$final_file_path='')
 	{
-		$Execute		= Array (
+
+			$Execute		= Array (
 							'req'	=> self::constructTrimRequest(),
-						  );
-		$Execute['req']		= array_merge($Execute['req'], $operations);
+						 	 );
+			$Execute['req']		= array_merge($Execute['req'], $operations);
 
-		$object_list = Array();		// Result List
-
-		// Get the soapclient object.
+			$object_list = Array();		// Result List
+			// Get the soapclient object.
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
 			// We need to convert the TRIM Execute object to XML, so we can swap the elements.
+
 			$xml = $client->ConvertToXml($Execute);
 
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
@@ -765,16 +767,17 @@ class TRIM_Common
 				if ($result_count == 0) {
 					return $object_list;
 				}//end if
-				$xml = self::SwapElement($xml->ConvertToXmlResult, 'Fetch', 'RecordSearch');
+				$xml = self::SwapElement($xml->ConvertToXmlResult, 'RecordSearch', 'Fetch');
 			} else if (isset($operations['Download']) && isset($operations['ShortcutRecordUri'])) {
-				$xml = self::SwapElement($xml->ConvertToXmlResult, 'Download', 'ShortcutRecordUri');
+				$xml = self::SwapElement($xml->ConvertToXmlResult, 'ShortcutRecordUri', 'Download');
 			} else {
 				$xml = $xml->ConvertToXmlResult;
 			}
 
 			// Now its time to get the data
+			log_dump($xml);
 			$data = $client->ExecuteXml(Array('xml'	=> $xml));
-
+			log_dump($data);
 		// The data returned is in XML format, so we have to parse it.
 		$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
 
@@ -829,7 +832,8 @@ class TRIM_Common
         $client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
         $xml = $client->ConvertToXml($Execute);
-        $xml = self::SwapElement($xml->ConvertToXmlResult, 'FetchInjectionUri', 'LocationStringSelect');
+        $xml = self::SwapElement($xml->ConvertToXmlResult, 'LocationStringSelect', 'FetchInjectionUri');
+    
         $data = $client->ExecuteXml(Array('xml' => $xml));
 
         $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
@@ -863,12 +867,13 @@ class TRIM_Common
 	public static function executeCreateRequest($connection, $username, $new_record_info)
 	{
 		// Check Whether the username exists in TRIM
-		$trim_userid = self::executeGetAssigneeRequest($connection, $username);
+		//$trim_userid = self::executeGetAssigneeRequest($connection, $username);
+		$trim_userid = 1;
 		if (!$trim_userid) {
 			trigger_error('There is no such user with username "'.$username.'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
 		}//end if
-
+//$new_record_info['record_type'] = 'product';
 
 		// BEGIN GET RECORD TYPE "document" URI
 		$RecordTypeStringSelect			= Array (
@@ -887,7 +892,8 @@ class TRIM_Common
 										  );
 		// END GET RECORD TYPE "document" URI
 
-		$parent_record_uri	= self::getURIFromRecordNumber($connection, $new_record_info['parent_record_number']);
+		//$parent_record_uri	= self::getURIFromRecordNumber($connection, $new_record_info['parent_record_number']);
+		$parent_record_uri ='38';
 		if (!$parent_record_uri) {
 			trigger_error('There is no URI correspond to record number "'.$new_record_info['parent_record_number'].'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
@@ -908,11 +914,14 @@ class TRIM_Common
 			$Execute['req']['FetchInjectionUri']		= $FetchInjectionUriRecordType;
 
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
-
+			$Execute['req']['Create']['Items']['InputProperty'][] = Array('Name'=>'udf:barcode', 'Val'=>'x');
+log_dump($Execute);
 			$xml = $client->ConvertToXml($Execute);
-			$xml = self::SwapElement($xml->ConvertToXmlResult, 'Create', 'RecordTypeStringSelect');
-
+			$xml = self::SwapElement($xml->ConvertToXmlResult, 'RecordTypeStringSelect', 'Create');
+			$xml = self::SwapElement($xml, 'FetchInjectionUri', 'Create');
+log_dump($xml);
 			$data = $client->ExecuteXml(Array('xml'	=> $xml));
+log_dump($data);
 
 		} catch (SoapFault $e) {
 			print 'The request failed due to the following error: '. $e->faultstring;
@@ -979,7 +988,7 @@ class TRIM_Common
 
 
 	/**
-	* swap the two XML element that are adjacent to each other
+	* swap the two XML element that are adjacent to each other if ele_1 occurs after to ele_2
 	* The reason why we need this function is because sometimes RecordSearch need to be sent before Fetch, so Fetch know
 	* where to fetch results from.
 	*
@@ -992,11 +1001,9 @@ class TRIM_Common
 	*/
 	public static function SwapElement($xml, $ele_1, $ele_2)
 	{
-		$ele_1b = '<'.$ele_1.'>';
-		$ele_1e = '</'.$ele_1.'>';
-		$ele_2b = '<'.$ele_2.'>';
-		$ele_2e = '</'.$ele_2.'>';
-
+		// if element 1 comes prior to element 2, there is no need to swap
+		if(strpos($xml, '<'.$ele_1) < strpos($xml, '<'.$ele_2)) return $xml;
+		
 		$match_1	= Array();
 		preg_match('/\<'.$ele_1.'\>([^"]*)\<\/'.$ele_1.'\>/', $xml, $match_1);
 		$part_1 = $match_1[0];
@@ -1101,27 +1108,16 @@ class TRIM_Common
 	*/
 	public static function test_trim_connection($connection)
 	{
+
+		//check if recTitle property is set
 		try {
-			// Try searching for a record instead.
-			$record_properties	= Array ('recTitle');
-			$operations	= Array (
-							'ShortcutRecordUris'	=> TRIM_Common::constructShortcutRecordUris(Array ('1', '2', '3')),
-							'Fetch'					=> TRIM_Common::constructFetch($record_properties, '10'),
-						  );
-
-			$Execute		= Array (
-								'req'	=> TRIM_Common::constructTrimRequest(),
-							  );
-			$Execute['req']		= array_merge($Execute['req'], $operations);
-
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
-			$xml = $client->ConvertToXml($Execute);
-			$xml = TRIM_Common::SwapElement($xml->ConvertToXmlResult, 'Fetch', 'ShortcutRecordUris');
-			$data = $client->ExecuteXml(Array('xml'	=> $xml));
+			$data = $client->ListProperty(Array('PropertyName'	=> 'recTitle'));
 
-	        $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
-	        if ((int) $return_xml->SearchResult->FoundCount > 0) {
+	        $name = (string) $data->ListPropertyResult->Name;
+
+	        if ($name == 'recTitle') {
 	        	return TRUE;
 	        } else {
 	        	return FALSE;
