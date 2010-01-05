@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.333 2009/11/12 23:45:18 cupreti Exp $
+* $Id: mysource.inc,v 1.334 2010/01/05 01:13:02 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.333 $
+* @version $Revision: 1.334 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3413,8 +3413,6 @@ class MySource extends MySource_Object
 	*/
 	function constructRollbackWhereClause($where='', $table_alias=NULL, $prefix='WHERE', $is_table_alias=TRUE)
 	{
-		$db = MatrixDAL::getDb();
-
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
 		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) {
