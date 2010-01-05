@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.14 2009/12/07 21:32:28 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.15 2010/01/05 00:01:23 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -346,7 +346,7 @@ class Data_Source_Xml extends Data_Source
 			if ($this->_inside_root_tag) {
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
-					if ($required_tags === FALSE || $name === $required_tags[$i]) {
+					if ($name === $required_tags[$i]) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
 
@@ -552,15 +552,16 @@ class Data_Source_Xml extends Data_Source
 		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));
 		if (empty($cdata_tags)) return $content;
 		$cdata_tags = array_unique($cdata_tags);
-
+		
 		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
 
 			// Replace only if the element data is not already wrapped with CDATA
-			$replace_pattern = "/(\<$cdata_tag\s*.*?>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag>)/ms";
-			$replacement = "$1<![CDATA[$2]]>$3";
+			$replace_pattern = "/(\<$cdata_tag(\s[^>]*?)*?(?<!\/)>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag\s*>)/ms";
+			$replacement = "$1<![CDATA[$3]]>$4";
 			$content = preg_replace($replace_pattern, $replacement, $content);
 		}
+		
 		return $content;
 	}
 
