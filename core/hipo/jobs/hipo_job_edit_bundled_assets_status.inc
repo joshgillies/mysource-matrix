@@ -424,7 +424,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 							// filter the invite ones out
 					if ((string)$running_vars['assetid'] !== (string)$this->_running_vars['bundle_assetid']) {
 						$job_messages = array_get_index($running_vars, 'messages', Array());
-						$this->_filterInviteMessages($running_vars['assetid'], $job_messages, $used_filters);
+						$this->_filterMessages($running_vars['assetid'], $job_messages, $used_filters);
 					} else {
 						$job_messages = Array();
 					}
@@ -1064,6 +1064,15 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	}//end _filterInviteMessages()
 
 
+	/**
+	* Return an array of the messages we should be filtering and bundling
+	* (either 'start', 'progress', 'approve' or 'invite').
+	*
+	* @param int	$old_status	The old bundle status
+	* @param int	$new_status	The new bundle status
+	*
+	* @return array
+	*/
 	protected function _getRequiredBundleMessages($old_status, $new_status)
 	{
 		$msg_types = Array();
@@ -1114,6 +1123,14 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	}//end _getRequiredBundleMessages()
 
 
+	/**
+	* Returns a URL for the specified asset's passed screen
+	*
+	* @param string	$assetid		The specified asset ID
+	* @param string	$screen_name	The screen we want the URL of
+	*
+	* @return string
+	*/
 	protected function _getBackendScreenKeywordReplacement($assetid, $screen_name)
 	{
 		$replacement = '';
@@ -1140,6 +1157,13 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	}//end _getBackendScreenKeywordReplacement()
 
 
+	/**
+	* Encapsulate the sending of user log messages for each asset
+	*
+	* @param string	$assetid		The asset ID being logged
+	* @param string	$message_body	The user log message to send
+	*
+	*/
 	protected function _sendUserLogMessage($assetid, $message_body)
 	{
 		$version = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), 'asset', FALSE, 'version');
@@ -1158,6 +1182,6 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 	}//end _sendUserLogMessage()
 
-}//end class
 
+}//end class
 ?>
