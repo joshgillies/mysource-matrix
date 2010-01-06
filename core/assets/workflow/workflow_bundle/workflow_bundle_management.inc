@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_management.inc,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: workflow_bundle_management.inc,v 1.2 2010/01/06 21:56:51 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,6 +110,7 @@ class Workflow_Bundle_Management extends Asset_Management
 					'options'						=> Array(
 														'side_of_link'	=> 'minor',
 														'indirect'		=> FALSE,
+														'global'		=> FALSE,
 														'is_exclusive'	=> NULL,
 														'is_dependant'	=> NULL,
 														'value'			=> '',
