@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.40 2009/09/21 04:55:16 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.40.2.1 2010/01/06 05:05:47 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -389,7 +389,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				$o->openSection();
 				return TRUE;
 			} else {
-				$db_locks = eval('return '.$class_name.'::getActiveLocks(NULL, $current_time);');
+				$db_locks = eval('return '.$class_name.'::getActiveLocks(NULL);');
 			}
 		} catch (Exception $e) {
 			return 'Unable to get active locks, '.$e->getMessage();
