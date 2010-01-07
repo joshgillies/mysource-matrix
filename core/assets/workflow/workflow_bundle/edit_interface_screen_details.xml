@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2010/01/07 03:35:38 lwright Exp $
 *
 */
 -->
@@ -28,14 +28,6 @@
 			</function_call>
 		</field>
 	</section>
-	<!-- Must include Future Status too since it's "below" Status in the
-		 static screen, and to keep it in static screen would place it out of order-->
-	<!-- <section name="Future Status" write_access="all:">
-		<function_call>
-			<paint_function   name="paintFutureStatus" />
-			<process_function name="processFutureStatus" />
-		</function_call>
-	</section>-->
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<text width="20" height="1" />
