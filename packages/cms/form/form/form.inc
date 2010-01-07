@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.240 2009/12/03 04:59:43 bpearson Exp $
+* $Id: form.inc,v 1.240.2.1 2010/01/07 22:48:03 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.240.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1710,6 +1710,7 @@ class Form extends Asset implements Bridge
 		// Process the current page, if any - process if:
 		// - we are moving to the next or previous page (save submission), OR
 		// - we are jumping to an arbitrary page (do NOT save submission).
+		
 		if (!is_null($current_page) || !is_null($jump_to_page) || (!is_null($action) && ($action !== 'reset'))) {
 			// Are we jumping to another page? If not, then we do NOT save the
 			// submission at this point.
@@ -1721,9 +1722,12 @@ class Form extends Asset implements Bridge
 				// aren't actually progressing in the form; we will get sto it
 				// when we go forward from this page (whenever that happens).
 				$validate_page = ($action === 'submit') ? TRUE : FALSE;
-
+				// Mute validation errors if there is no action, such as a public user refreshs file upload question form
+				$mute_errors = (empty($action)) ? TRUE : FALSE;
+				
 				if (is_null($current_page)) $current_page = 1;
-				$success = $this->processPage($current_page, $validate_page);
+				
+				$success = $this->processPage($current_page, $validate_page, $mute_errors);
 
 				if ($success) {
 					// If the submission has not yet been created, create the submission
@@ -2533,10 +2537,11 @@ class Form extends Asset implements Bridge
 	*									the CAPTCHA is incorrectly entered. This
 	*									is usually only set TRUE when moving
 	*									forward in the form
-	*
+	* @param boolean	$mute_errors	Mute validation error
+	* 
 	* @return boolean
 	*/
-	public function processPage($page_number, $validate_page=TRUE)
+	public function processPage($page_number, $validate_page=TRUE, $mute_errors=FALSE)
 	{
 		$ok = TRUE;
 		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
@@ -2596,11 +2601,15 @@ class Form extends Asset implements Bridge
 
 			$question->populate($this);
 			// Only fail the page if we are moving forward
-			$question_type = strtolower($question->type());
-			if (!$question->hasValidValue() && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
-				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
-				$ok = FALSE;
-			}
+			// File upload question should always get validated
+			$question_type = strtolower($question->type());	
+		    if (!$question->hasValidValue() && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
+		    	//mute error if there is no action, such as a public user refreshs page when there is a file upload question
+		    	if (!$mute_errors) {
+                	$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+		    	}
+                $ok = FALSE;
+            }
 
 			$this->current_answers[$question->id] = $question->getValue();
 			$this->extra_data[$question->id]      = $question->getExtraData();
