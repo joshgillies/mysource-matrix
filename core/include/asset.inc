@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.712.2.1 2009/12/16 03:30:49 mbrydon Exp $
+* $Id: asset.inc,v 1.712.2.2 2010/01/07 04:11:50 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.712.2.1 $
+* @version $Revision: 1.712.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5457,21 +5457,23 @@ class Asset extends MySource_Object
 				$parent_urls = $parent->getLookups();
 
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
-					$valid_protocol_change = TRUE;
 
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
-						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
-						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
+						// Get the protocol info for this new url
+						$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($new_url);
+						
+						$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
+						$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
+
+						$https = ($this->force_secure === '-') ? '0' : $site_https;
+						$http  = ($this->force_secure === '1') ? '0' : $site_http;
 
 						if (!$http && !$https) {
-							$https = $parent_urls[$j]['https'];
-							$http = $parent_urls[$j]['http'];
-
-							// Being here means protocol different from the asset's parent is being forced
-							$valid_protocol_change = FALSE;
+							$https = $site_https;
+							$http = $site_http;
 						}
 
 						// if we have no protocol then we can just ignore this URL
@@ -5691,12 +5693,6 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
-
-					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid
-					if (!$valid_protocol_change) {
-						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id);
-					}
-
 
 				}//end for parent_urls
 
