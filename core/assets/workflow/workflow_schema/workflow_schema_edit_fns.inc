@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.33 2009/11/27 05:39:53 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.34 2010/01/07 03:06:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,8 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			<?php
 			// The default stream is the first one on the list
 			$alt_stream_num = 0;
-			foreach ($streams_info as $streamid => $stream_info) {
+			foreach ($streamids as $streamid) {
+				$stream_info = $streams_info[$streamid];
 				$streamid = (string)$streamid;
 
 				// Get an abbreviated summary of steps - less full than that
