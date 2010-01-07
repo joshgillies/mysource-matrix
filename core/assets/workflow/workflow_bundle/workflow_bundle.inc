@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.2 2010/01/07 03:34:24 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,28 +132,6 @@ class Workflow_Bundle extends Asset implements Bridge
 	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		return Array();
-		/*if ($assetid !== $this->id) return Array();
-
-		$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, SQ_LINK_NOTICE, 'asset', FALSE);
-		if (empty($links_query)) return Array();
-
-		$links = Array();
-
-		try {
-			$query = MatrixDAL::preparePdoQuery(implode(' ', $links_query['sql_array']));
-			foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-			}
-			$links = MatrixDAL::executePdoGroupedAssoc($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get links for asset: '.$assetid.' due to database error: '.$e->getMessage());
-		}
-
-		foreach ($links as $linkid => &$link_data) {
-			$link_data[0]['link_type'] = SQ_LINK_TYPE_2;
-		}
-
-		return $link_data;*/
 
 	}//end getLinks()
 
