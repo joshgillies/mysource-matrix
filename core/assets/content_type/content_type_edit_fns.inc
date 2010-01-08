@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.15.8.1 2009/09/16 01:59:18 bpearson Exp $
+* $Id: content_type_edit_fns.inc,v 1.15.8.2 2010/01/08 01:12:09 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15.8.1 $
+* @version $Revision: 1.15.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode.png';
 		echo '<table border="0" cellspacing="0" cellpadding="0" class="bodytext">';
 		echo '<tr><td align="left" background="" id="'.$prefix.'_div_'.$asset->id.'" width="4%" style="border: 1px dashed #C0C0C0;">';
-		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };"';
+		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };" />';
 		echo '<span id="'.$content_prefix.'_control" style="display:none;">View Source</span>';
 		echo '</td></tr>';
 		echo '<tr><td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="'.$content_prefix.'_cell">';
