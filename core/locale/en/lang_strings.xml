@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.348 2009/11/27 05:39:53 lwright Exp $
+* $Id: lang_strings.xml,v 1.348.2.1 2010/01/10 23:10:03 lwright Exp $
 *
 */
 
@@ -422,6 +422,8 @@
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
+	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level</string>
+	<string source="workflow_bundle_not_current_step">To be able to approve or reject workflow at a bundle level, you must be able to approve or reject at least one bundled asset.</string>
 	<string source="workflow_email_link_updated">You have %s the changes successfully</string>
 	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
@@ -592,6 +594,7 @@
 	<string source="cannot_approve_or_reject">&lt;i&gt;You cannot approve or reject changes at this time&lt;/i&gt;</string>
 	<string source="workflow_may_enter_reason_for_decision">You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
 	<string source="workflow_must_enter_reason_for_decision">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
+	<string source="workflow_must_enter_reason_for_decision_bundle">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes. At least one bundled asset requires you do this.</string>
 
 	<string source="logged_by">Logged By</string>
 	<string source="log_time">Log Time</string>
@@ -831,7 +834,7 @@
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
 	<string source="hipo_skipping_role">Could not edit roles for asset #%s, asset does not exist</string>
 	<string source="hipo_cannot_edit_schema">Could not edit schemas for asset #%s, asset does not exist</string>
-	<string source="hipo_edit_status">Editing status of "%s"</string>
+	<string source="hipo_edit_status">Editing status of "%1$s" (Id: #%2$s)</string>
 	<string source="hipo_cannot_edit_status">Could not Edit Status for asset #%s, asset does not exist</string>
 	<string source="hipo_edit_workflow_schema">Editing Workflow Schemas for "%s"</string>
 	<string source="hipo_skipping">Skipping "%1$s" %2$s</string>
@@ -1985,6 +1988,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_name_edit_metadata_field_values">Edit Metadata Field Values</string>
 	<string source="hipo_name_edit_permissions">Edit Permissions</string>
 	<string source="hipo_name_edit_status">Edit Status</string>
+	<string source="hipo_name_edit_bundled_assets_status">Edit Bundle Status</string>
 	<string source="hipo_name_edit_workflow_schemas">Edit Workflow Schemas</string>
 	<string source="hipo_name_generate_report">Generate Report</string>
 	<string source="hipo_name_install_patch">Install Patch</string>
@@ -2019,6 +2023,15 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_aligning_rb_entries_in">Aligning rollback entries in %s</string>
 
 	<string source="hipo_job_regen_simple_reports_name">Regenerate Simple Reports</string>
+
+	<string source="hipo_job_edit_bundled_assets_status_status">Editing Status of Bundled Assets</string>
+	<string source="hipo_job_edit_bundled_assets_status_send">Sending Bundle Workflow Message</string>
+	<string source="hipo_job_edit_bundled_assets_status_status_warning"><![CDATA[<p>The following bundled assets will not follow the change of status expected from this bundle status change, and will instead change to the status(es) listed below. This may be due to a lack of workflow on the affected assets, or due to your ability to complete any workflow on them straight away.<br/><br/>
+
+Please check that these intended statuses are correct, and if desired, manually change the affected assets' status and/or workflow before continuing.<br/><br/>
+
+If you are ready to continue, please click <strong>Next</strong> to proceed with the bundle status change.</p>]]></string>
+	<string source="hipo_job_edit_bundled_assets_status_status_line">New Status: %1$s %2$s</string> <!-- 1: status colour, 2: status description -->
 
 	<string source="hipo_refreshing_asset_map">Refreshing Asset Map</string>
 	<string source="hipo_releasing_locks">Releasing Locks</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.116 2009/11/25 03:52:19 cupreti Exp $
+* $Id: lang_errors.xml,v 1.116.2.1 2010/01/10 23:10:03 lwright Exp $
 *
 */
 
@@ -244,6 +244,18 @@
 	<!--- HIPO0086 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
 
 	<error code="HIPO0087">Unable to move asset #%s, the link is locked</error>
+
+	<error code="HIPO0088">Unable to change status of asset #%s, the asset ID is invalid or does not exist</error>
+		<!-- core/hipo/jobs/hipo_job_edit_status.inc: -->
+
+	<error code="HIPO0089">Unable to change status of asset #%s, no new status was provided</error>
+		<!-- core/hipo/jobs/hipo_job_edit_status.inc: -->
+
+	<error code="HIPO0090">Unable to change status of asset #%1$s, status code provided (%2$s) is not recognised</error>
+		<!-- core/hipo/jobs/hipo_job_edit_status.inc: -->
+
+	<error code="HIPO0092">Unable to run HIPO job; this job requires a bundle asset ID</error>
+		<!-- core/hipo/jobs/hipo_job_edit_bundled_assets_status.inc: -->
 
 	<!-- CRON MANAGER -->
 
