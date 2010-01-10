@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_messages.xml,v 1.1.2.2 2010/01/10 23:13:48 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Start Workflow Message" write_access="admin:attributes">
+		<field attribute="start_workflow_subject">
+			<text height="1" width="80" />
+		</field>
+		<field attribute="start_workflow_msg">
+			<wysiwyg height="10em" width="80%" />
+		</field>
+	</section>
+	<section name="Progress Workflow Message" write_access="admin:attributes">
+		<field attribute="progress_workflow_subject">
+			<text height="1" width="80" />
+		</field>
+		<field attribute="progress_workflow_msg">
+			<wysiwyg height="10em" width="80%" />
+		</field>
+	</section>
+	<section name="Reject Workflow Message" write_access="admin:attributes">
+		<field attribute="reject_workflow_subject">
+			<text height="1" width="80" />
+		</field>
+		<field attribute="reject_workflow_msg">
+			<wysiwyg height="10em" width="80%" />
+		</field>
+	</section>
+	<section name="Approve Workflow Message" write_access="admin:attributes">
+		<field attribute="approve_workflow_subject">
+			<text height="1" width="80" />
+		</field>
+		<field attribute="approve_workflow_msg">
+			<wysiwyg height="10em" width="80%" />
+		</field>
+	</section>
+</contents>
