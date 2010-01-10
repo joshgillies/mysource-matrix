@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.44 2009/11/27 05:39:53 lwright Exp $
+* $Id: details.inc,v 1.44.2.1 2010/01/10 23:20:38 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix
 */
 
@@ -66,24 +66,24 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
-			ob_start();
-		}
+		$section_keyword_name = strtolower(str_replace(' ', '_', $section->attributes()->name));
 
 		if (!$ei->_getAccess($owner, $section, $prefix)) {
 			continue;
 		}
 
-		//
-		$safe_trash_job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
+		if (!($num_fields = count($section->children()))) {
+			continue;
+		}
 
+		ob_start();
+
+		// If this is the Safe Trash section, hide the section if the asset is
+		// not attached to the Safe Trash cron job
+		$safe_trash_job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
 		$avoiding_safe_trash_section = ($section->attributes()->name == 'Safe Trash Status') && !$safe_trash_job_link;
 		if (!$avoiding_safe_trash_section) {
 			$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
-		}
-
-		if (!($num_fields = count($section->children()))) {
-			continue;
 		}
 
 		foreach ($section->field as $field) {
@@ -154,18 +154,20 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						// If we dont have a display name node then we dont have anything to say
 						$display_name = '';
 					}
-					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
-						ob_start();
-					}
-					echo get_asset_status_icon($owner->status);
-					echo ' <i>'.$owner->getStatusDescription().'</i>';
 
-					// if there is a keyword replacement for this, add it to the replacements
-					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_current']] = ob_get_contents();
-						ob_end_flush();
-					}
+					$o->openField($display_name);
+
+						ob_start();
+							$need_commit = _paintDetailsCurrentStatus($owner, $o, $prefix);
+							$print_commit_button = $print_commit_button || $need_commit;
+						$contents = ob_get_clean();
+
+						// If unable to save as a keyword replacement, echo it
+						if (_paintDetailsRegisterKeyword($ei, $keywords, 'field', 'status_current', $contents) === FALSE) {
+							echo $contents;
+						}
+
+					$o->closeField();
 
 				break;
 
@@ -178,46 +180,31 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						break;
 					}
 
-					// only print this field if the status can be changed
-					$statii = $owner->getAvailableStatii();
-					if (empty($statii)) break;
-
 					if (!empty($field->display_name)) {
 						$display_name = translate('change_question');
 					} else {
 						// If we dont have a display name node then we dont have anything to say
 						$display_name = '';
 					}
-					$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
-							ob_start();
-						}
 
-						// if this asset is in workflow we do not let the change the status here
-						// because they need to go off to the workflow screen
-						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
-						if (!empty($running_schemas)) {
-							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
-						} else {
-							_paintStatusChange($owner, $o, $prefix, $statii);
-							$print_commit_button = TRUE;
-							$status = $owner->getStatus();
-							$note = $status->getStatusChangeMessage();
-							if ($note) {
-								$o->note($note);
-							}
-						}
-						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_change']] = ob_get_contents();
-							ob_end_flush();
+
+					$o->openField($display_name);
+
+						ob_start();
+							$need_commit = _paintDetailsChangeStatus($owner, $o, $prefix);
+							$print_commit_button = $print_commit_button || $need_commit;
+						$contents = ob_get_clean();
+
+						// If unable to save as a keyword replacement, echo it
+						if (_paintDetailsRegisterKeyword($ei, $keywords, 'field', 'status_change', $contents) === FALSE) {
+							echo $contents;
 						}
 
 					$o->closeField();
+
 				break;
 
 				case 'status_future_status' :
-
 					if (!$display_status_sections) {
 						$o->openField('');
 							echo translate('asset_future_status_change_from_parent',$parent_asset_href[$parent_asset_link[0]['majorid']]);
@@ -225,103 +212,35 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						break;
 					}
 
-					// this makes assumptions about how to get the future status jobs for a particular asset, which is the domain of the cron manager.
-					// The problem is that when we ask the future status job to get a list of jobs it, in turn, asks the cron manager to get a list of
-					// jobs, which is turn asks the asset manager to get a list of links under the cron manager that are future status jobs.
-					// In a system with a large number of future status jobs, the details screen will become very slow to load.
-					$fs_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'cron_job_future_status', TRUE, 'minor');
+					// One simple edit keyword covers TWO sections here, so
+					// a little more maneuvering is required
+					ob_start();
+						$need_commit = _paintDetailsFutureStatusCurrent($owner, $o, $prefix);
+						$print_commit_button = $print_commit_button || $need_commit;
+					$current_fs_contents = ob_get_clean();
 
-					if (!empty($fs_links)) {
-						$o->openField(translate('scheduled_future_status_change'), 'new_line');
+					ob_start();
+						$need_commit = _paintDetailsFutureStatusNew($owner, $o, $prefix);
+						$print_commit_button = $print_commit_button || $need_commit;
+					$new_fs_contents = ob_get_clean();
 
-						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
-							ob_start();
-						}
-						?>
-						<table class="sq-backend-table">
-							<tr>
-								<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
-								<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
-								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
-							</tr>
-							<?php
-							for ($k = 0; $k < count($fs_links); $k++) {
-								$fs_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($fs_links[$k]['majorid'], 'cron_job_future_status');
-								?>
-								<tr>
-									<td class="sq-backend-table-cell">
-										<?php echo $fs_job->statusName(); ?>
-									</td>
-									<td class="sq-backend-table-cell">
-										<?php echo $fs_job->readableWhen(); ?>
-									</td>
-									<td align="center" class="sq-backend-table-cell">
-									<?php
-										if ($fs_job->attr('dependants_only')) {
-											echo translate('no');
-										} else {
-											echo translate('yes');
-										}
-									?>
-									</td>
-									<td align="center" class="sq-backend-table-cell">
-									<?php
-										if ($fs_job->canDelete()) {
-											check_box($prefix.'_remove_fs[]', $fs_job->id);
-										} else {
-											echo '&nbsp;';
-										}
-									?>
-									</td>
-								</tr>
-								<?php
-							}//end for
-							?>
-						</table>
-						<?php
-
-						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = ob_get_contents();
-							ob_end_flush();
+					// If unable to save the lot as a keyword replacement...
+					if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_future_status', $current_fs_contents.$new_fs_contents) === FALSE) {
+						// Only show current contents if there are set FS jobs
+						if (empty($current_fs_contents) === FALSE) {
+							$o->openField(translate('scheduled_future_status_change'), 'new_line');
+								echo $current_fs_contents;
+							$o->closeField();
 						}
 
-					}//end if
+						// Only show Add FS section if write access allowed
+						if ($owner->writeAccess()) {
+							$o->openField(translate('add_new_future_status'), 'new_line');
+								echo $new_fs_contents;
+							$o->closeField();
+						}//end if
 
-					if ($owner->writeAccess()) {
-						$o->openField(translate('add_new_future_status'), 'new_line');
-							$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-							$cron_epoc = (int)$cron_mgr->attr('epoch');
-							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
-							if ($cron_epoc > 0 && $cron_refresh > 0) {
-								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-								$fs = new Cron_Job_Future_Status();
-								$edit_fns = $fs->getEditFns();
-
-								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
-									ob_start();
-								}
-								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
-
-								$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
-
-								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
-									// check to see if we added anything to the keyword replacements above
-									if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
-										$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = '';
-									}
-									// append to the end of the replacement
-									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
-									ob_end_flush();
-								}
-								$print_commit_button = TRUE;
-							} else {
-								echo translate('cron_manager_not_configured');
-							}
-						$o->closeField();
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
-					}//end if
+					}
 
 				break;
 
@@ -336,17 +255,17 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						$o->openField($display_name);
-							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
-								ob_start();
+
+							ob_start();
+								$need_commit = _paintDetailsThumbnailChange($owner, $o, $prefix);
+								$print_commit_button = $print_commit_button || $need_commit;
+							$contents = ob_get_clean();
+
+							// If unable to save as a keyword replacement, echo it
+							if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'thumbnail_change', $contents) === FALSE) {
+								echo $contents;
 							}
 
-							$edit_fns = $owner->getEditFns();
-							$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('image' => 'D'));
-
-							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
-								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_change']] = ob_get_contents();
-								ob_end_flush();
-							}
 						$o->closeField();
 					}
 
@@ -361,24 +280,17 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
-							ob_start();
+
+						ob_start();
+							$need_commit = _paintDetailsThumbnailCurrent($owner, $o, $prefix);
+							$print_commit_button = $print_commit_button || $need_commit;
+						$contents = ob_get_clean();
+
+						// If unable to save as a keyword replacement, echo it
+						if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'thumbnail_current', $contents) === FALSE) {
+							echo $contents;
 						}
 
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
-						if (!empty($link)) {
-							$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-							$edit_fns = $thumbnail->getEditFns();
-							$edit_fns->printExistingFileInfo($thumbnail);
-
-						} else {
-							echo translate('no_thumbnail_attatched');
-						}
-
-						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_current']] = ob_get_contents();
-							ob_end_flush();
-						}
 					$o->closeField();
 
 				break;
@@ -396,9 +308,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeSection();
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))]] = ob_get_contents();
-			ob_end_flush();
+		$section_contents = ob_get_clean();
+
+		if (_paintDetailsRegisterKeyword($ei, $keywords, 'sections', $section_keyword_name, $section_contents) === FALSE) {
+			echo $section_contents;
 		}
 
 	}//end for
@@ -555,76 +468,465 @@ function _processStatusChange(&$owner, &$o, $prefix)
 */
 function processDetails(&$owner, &$o, &$ei)
 {
+	// no static details screen fields relevant to an uncreated asset
+	if (empty($owner->id)) return FALSE;
+
+	$root = $ei->findScreen('static_screen_details');
+	if (is_null($root)) return FALSE;
+
 	$prefix = $owner->getPrefix();
 
 	$is_updated = FALSE;
 
-	///// IMMEDIATE STATUS CHANGES ////
+	foreach ($root->section as $section) {
 
-	// process a status change on this screen if workflow is NOT running
+		if (!$ei->_getAccess($owner, $section, $prefix)) {
+			continue;
+		}
+
+		if (!($num_fields = count($section->children()))) {
+			continue;
+		}
+
+		foreach ($section->field as $field) {
+
+			switch (strtolower($field->attributes()->code)) {
+
+				case 'status_change' :
+					///// IMMEDIATE STATUS CHANGES ////
+					$is_updated = $is_updated || _processDetailsStatusChange($owner, $o, $prefix);
+				break;
+
+				case 'status_future_status' :
+					///// FUTURE STATUS CHANGES ////
+					$is_updated = $is_updated || _processDetailsFutureStatusCurrent($owner, $o, $prefix);
+					$is_updated = $is_updated || _processDetailsFutureStatusNew($owner, $o, $prefix);
+				break;
+
+				case 'thumbnail_change' :
+					///// THUMBNAIL CHANGES ////
+					$is_updated = $is_updated || _processDetailsThumbnailChange($owner, $o, $prefix);
+				break;
+
+			}//end switch on code
+
+		}//end foreach field
+
+	}//end foreach section
+
+	return ($is_updated);
+
+}//end processDetails()
+
+
+/**
+* Register a Simple Edit interface keyword
+*
+* Return TRUE if the keyword replacements list was changed
+*
+* @param Asset_Edit_Interface	$ei			Asset edit interface to add the keywords to
+* @param array					$keywords	List of keywords
+* @param string					$type		Keyword type (eg. 'fields', 'sections')
+* @param string					$name		Keyword name
+* @param string					$content	Content to make a keyword
+*
+* @return boolean
+*/
+function _paintDetailsRegisterKeyword(Asset_Edit_Interface $ei, $keywords, $type, $name, $content)
+{
+	// We are not searching for keywords at all
+	if ($keywords === NULL) return FALSE;
+
+	// We are not searching for this keyword
+	if (isset($keywords[$type][$name]) === FALSE) {
+		return FALSE;
+	}
+
+	$ei->_tmp['layout_keyword_replacements'][$keywords[$type][$name]] = $content;
+	return TRUE;
+
+}//end _paintDetailsRegisterKeyword()
+
+
+//--        PAINTING FUNCTIONS        --//
+
+
+/**
+* Paint the "Current Status" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsCurrentStatus(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	echo get_asset_status_icon($owner->status);
+	echo ' <i>'.$owner->getStatusDescription().'</i>';
+
+	return FALSE;
+
+}//end _paintDetailsCurrentStatus()
+
+
+
+/**
+* Paint the "Change Status" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	// only print this field if the status can be changed
+	$statii = $owner->getAvailableStatii();
+	$needs_commit = FALSE;
+
+	if (empty($statii) === FALSE) {
+		// if this asset is in workflow we do not let the change the status here
+		// because they need to go off to the workflow screen
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
+		if (!empty($running_schemas)) {
+			$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
+		} else {
+			_paintStatusChange($owner, $o, $prefix, $statii);
+			$needs_commit = TRUE;
+			$status = $owner->getStatus();
+			$note = $status->getStatusChangeMessage();
+			if ($note) {
+				$o->note($note);
+			}
+		}
+
+	}
+
+	return $needs_commit;
+
+}//end _paintDetailsChangeStatus()
+
+
+/**
+* Paint the "Current Future Statuses" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsFutureStatusCurrent(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	// this makes assumptions about how to get the future status jobs for a particular asset, which is the domain of the cron manager.
+	// The problem is that when we ask the future status job to get a list of jobs it, in turn, asks the cron manager to get a list of
+	// jobs, which is turn asks the asset manager to get a list of links under the cron manager that are future status jobs.
+	// In a system with a large number of future status jobs, the details screen will become very slow to load.
+	$fs_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'cron_job_future_status', TRUE, 'minor');
+
+	if (!empty($fs_links)) {
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
+				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
+				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+			</tr>
+			<?php
+			for ($k = 0; $k < count($fs_links); $k++) {
+				$fs_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($fs_links[$k]['majorid'], 'cron_job_future_status');
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php echo $fs_job->statusName(); ?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php echo $fs_job->readableWhen(); ?>
+					</td>
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if ($fs_job->attr('dependants_only')) {
+							echo translate('no');
+						} else {
+							echo translate('yes');
+						}
+					?>
+					</td>
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if ($fs_job->canDelete()) {
+							check_box($prefix.'_remove_fs[]', $fs_job->id);
+						} else {
+							echo '&nbsp;';
+						}
+					?>
+					</td>
+				</tr>
+				<?php
+			}//end for
+			?>
+		</table>
+		<?php
+
+	}//end if
+
+	return FALSE;
+
+}//end _paintDetailsFutureStatusCurrent()
+
+
+/**
+* Paint the "New Future Status" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsFutureStatusNew(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	if ($owner->writeAccess() === FALSE) return FALSE;
+
+	$needs_commit = FALSE;
+
+	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+
+	$cron_epoc = (int)$cron_mgr->attr('epoch');
+	$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+
+	if ($cron_epoc > 0 && $cron_refresh > 0) {
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+		$fs = new Cron_Job_Future_Status();
+		$edit_fns = $fs->getEditFns();
+
+		$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
+
+		$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+		$needs_commit = TRUE;
+	} else {
+		echo translate('cron_manager_not_configured');
+	}
+
+	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
+
+	return $needs_commit;
+
+}//end _paintDetailsFutureStatusNew()
+
+
+/**
+* Paint the "Change Thumbnail" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsThumbnailChange(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$edit_fns = $owner->getEditFns();
+	$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('image' => 'D'));
+
+	return TRUE;
+
+}//end _paintDetailsThumbnailChange()
+
+
+/**
+* Paint the "Current Thumbnail" section of the Details screen.
+*
+* Return TRUE if the commit button should be activated.
+*
+* @param Asset				$owner	The asset being painted
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _paintDetailsThumbnailCurrent(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
+	if (!empty($link)) {
+		$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$edit_fns = $thumbnail->getEditFns();
+		$edit_fns->printExistingFileInfo($thumbnail);
+
+	} else {
+		echo translate('no_thumbnail_attatched');
+	}
+
+	return FALSE;
+
+}//end _paintDetailsThumbnailCurrent()
+
+
+//--        PROCESSING FUNCTIONS        --//
+
+
+/**
+* Process the "Status Change" section of the Details screen.
+*
+* In this case, the status change should only be performed on this screen if
+* there is no workflow running on the asset. (Belongs on the Workflow screen
+* otherwise.)
+*
+* Return TRUE if this was completed successfully
+*
+* @param Asset				$owner	The asset being processed
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _processDetailsStatusChange(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$is_updated = FALSE;
+
 	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	if (empty($running_schemas)) {
 		_processStatusChange($owner, $o, $prefix);
+		$is_updated = TRUE;
 	}
 
-	///// FUTURE STATUS CHANGES ////
+	return $is_updated;
+
+}//end _processDetailsStatusChange()
+
+
+/**
+* Process the "*" section of the Details screen.
+*
+* Return TRUE if this was completed successfully
+*
+* @param Asset				$owner	The asset being processed
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _processDetailsFutureStatusCurrent(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$is_updated = FALSE;
 
 	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-	if (!is_null($cron_mgr)) {
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+	if ($cron_mgr === NULL) return FALSE;
 
-		if (!empty($_POST[$prefix.'_remove_fs'])) {
-			$fs_jobs = Cron_Job_Future_Status::getActiveJobs($owner);
-			if (!empty($fs_jobs)) {
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
-				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
-					for ($i = 0; $i < count($fs_jobs); $i++) {
-						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
-							if ($cron_mgr->removeJob($fs_jobs[$i])) {
-								$is_updated = TRUE;
-							}
-						}// end if
-					}// end for
+	if (!empty($_POST[$prefix.'_remove_fs'])) {
+		$fs_jobs = Cron_Job_Future_Status::getActiveJobs($owner);
+		if (!empty($fs_jobs)) {
 
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
+				for ($i = 0; $i < count($fs_jobs); $i++) {
+					if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
+						if ($cron_mgr->removeJob($fs_jobs[$i])) {
+							$is_updated = TRUE;
+						}
+					}// end if
+				}// end for
 
-				} else {
-					trigger_localised_error('SYS0232', E_USER_NOTICE);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
-				}// end if
+			} else {
+				trigger_localised_error('SYS0232', E_USER_NOTICE);
 
 			}// end if
-		}// end if
-
-
-		if ($owner->writeAccess('')) {
-			$fs = new Cron_Job_Future_Status();
-			$edit_fns = $fs->getEditFns();
-			if ($fs->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$is_updated = TRUE;
-				} else {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				}
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			}
 
 		}// end if
+	}// end if
 
-	}//end if is NULL cron mgr
+	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
-	///// THUMBNAIL CHANGES ////
+	return $is_updated;
+
+}//end _processDetailsFutureStatusCurrent()
+
+
+/**
+* Process the "*" section of the Details screen.
+*
+* Return TRUE if this was completed successfully and there were changes
+*
+* @param Asset				$owner	The asset being processed
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _processDetailsFutureStatusNew(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$is_updated = FALSE;
+
+	if ($owner->writeAccess('') === FALSE) return FALSE;
+
+	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	if ($cron_mgr === NULL) return FALSE;
+
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+
+	$fs = new Cron_Job_Future_Status();
+	$edit_fns = $fs->getEditFns();
+	if ($fs->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$is_updated = TRUE;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	}
+
+	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
+
+	return $is_updated;
+
+}//end _processDetailsFutureStatusNew()
+
+
+/**
+* Process the "*" section of the Details screen.
+*
+* Return TRUE if this was completed successfully and there were changes
+*
+* @param Asset				$owner	The asset being processed
+* @param Backend_Outputter	$o		Outputter class used for managing this screen
+* @param string				$prefix	Prefix for form elements
+*
+* @return boolean
+*/
+function _processDetailsThumbnailChange(Asset $owner, Backend_Outputter $o, $prefix)
+{
+	$is_updated = FALSE;
 
 	$edit_fns = $owner->getEditFns();
 	if ($edit_fns->processNoticeLinkedAsset($owner, 'thumbnail')) {
 		$is_updated = TRUE;
 	}
 
-	return ($is_updated);
+	return $is_updated;
 
-}//end processDetails()
+}//end _processDetailsThumbnailChange()
+
+
 ?>
