@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.2 2010/01/07 03:34:24 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.3 2010/01/10 21:29:19 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,7 +296,7 @@ class Workflow_Bundle extends Asset implements Bridge
 						'minorid'			=> $bundled_assetid,
 						'assetid'			=> $bundled_assetid,
 						'type_code'			=> $info['type_code'],
-						'linkid'			=> $db_link['linkid'],
+						'linkid'			=> $linkids[$bundled_assetid],
 
 						'name'				=> $info['name'],
 						'short_name'		=> $info['short_name'],
