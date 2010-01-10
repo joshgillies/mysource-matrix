@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.3 2010/01/10 21:29:19 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.4 2010/01/10 22:37:54 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -467,10 +467,11 @@ class Workflow_Bundle extends Asset implements Bridge
 				if (count($db_links) === 0) {
 					$this->_tmp['completing_workflow'] = 1;
 					$vars = Array(
-								'bundle_assetid'	=> $this->id,
+								'assetid'			=> $this->id,
 								'new_status'		=> SQ_STATUS_APPROVED,
+								'dependants_only'	=> TRUE,
 							);
-					$hipo_herder->freestyleHipo('hipo_job_edit_bundled_assets_status', $vars);
+					$hipo_herder->freestyleHipo('hipo_job_edit_status', $vars);
 				}
 
 				unset($this->_tmp['completing_workflow']);
@@ -485,15 +486,51 @@ class Workflow_Bundle extends Asset implements Bridge
 
 			$hipo_herder = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
-			if (array_key_exists('cancelling_workflow', $this->_tmp) === FALSE) {
-				$this->_tmp['cancelling_workflow'] = 1;
-				$vars = Array(
-							'bundle_assetid'	=> $this->id,
-							'new_status'		=> SQ_STATUS_UNDER_CONSTRUCTION,
-						);
-				$hipo_herder->freestyleHipo('hipo_job_edit_bundled_assets_status', $vars);
+			$vars = Array(
+						'bundle_assetid'	=> $this->id,
+						'new_status'		=> SQ_STATUS_UNDER_CONSTRUCTION,
+					);
+			$hipo_herder->freestyleHipo('hipo_job_edit_bundled_assets_status', $vars);
 
-				unset($this->_tmp['cancelling_workflow']);
+		} else if (((int)$new_status === SQ_STATUS_LIVE) && ((int)$old_status !== SQ_STATUS_EDITING)) {
+			// Transition to Live (but not cancelling a Safe Edit)
+			// Cannot transition from Approving straight to Live...we can go from
+			// Approved, or without workflow we can go from Editing
+			if ((int)$this->status === SQ_STATUS_PENDING_APPROVAL) return;
+
+			$hipo_herder = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+
+			if (array_key_exists('completing_workflow', $this->_tmp) === FALSE) {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_NOTICE, 'asset', FALSE);
+				if (empty($links_query)) return Array();
+
+				// Modify the links query so that it only selects bundled assets
+				// NOT in Live status
+				$links_query['sql_array']['where'] .= ' AND minorid IN (SELECT assetid FROM sq_ast WHERE '.db_extras_bitand(MatrixDAL::getDbType(), 'status', ':all_status').' = 0)';
+				$links_query['bind_vars']['all_status'] = SQ_STATUS_LIVE;
+
+				try {
+					$query = MatrixDAL::preparePdoQuery(implode(' ', $links_query['sql_array']));
+					foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					$db_links = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get links for asset: '.$assetid.' due to database error: '.$e->getMessage());
+				}
+
+				// If we have no assets NOT in Live status, so we should go live
+				if (count($db_links) === 0) {
+					$vars = Array(
+								'assetid'			=> $this->id,
+								'new_status'		=> SQ_STATUS_LIVE,
+								'dependants_only'	=> TRUE,
+							);
+					$hipo_herder->freestyleHipo('hipo_job_edit_status', $vars);
+				}
+
 			}
 
 		}
