@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.117 2010/01/06 02:37:29 lwright Exp $
+* $Id: lang_errors.xml,v 1.118 2010/01/10 22:30:34 lwright Exp $
 *
 */
 
@@ -253,6 +253,9 @@
 
 	<error code="HIPO0090">Unable to change status of asset #%1$s, status code provided (%2$s) is not recognised</error>
 		<!-- core/hipo/jobs/hipo_job_edit_status.inc: -->
+
+	<error code="HIPO0092">Unable to run HIPO job; this job requires a bundle asset ID</error>
+		<!-- core/hipo/jobs/hipo_job_edit_bundled_assets_status.inc: -->
 
 	<!-- CRON MANAGER -->
 
