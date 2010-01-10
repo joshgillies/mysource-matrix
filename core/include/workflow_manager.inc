@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144 2009/11/27 05:39:53 lwright Exp $
+* $Id: workflow_manager.inc,v 1.144.2.1 2010/01/10 23:09:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.144.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -397,7 +397,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
-
+			$workflows = Array();
 			$bind_vars = Array();
 
 			$sql = 'SELECT
@@ -2160,17 +2160,21 @@ class Workflow_Manager extends MySource_Object
 	*
 	* Returned array is in format (streamid => stream name)
 	*
-	* @param string	$schemaid	Schema ID to search
+	* @param string		$schemaid		Schema ID to search
+	* @param boolean	$ignore_default	TRUE = ignore the default stream: only
+	*									alternate streams are returned
 	*
 	* @return array
 	*/
-	public function getStreams($schemaid)
+	public function getStreams($schemaid, $ignore_default=FALSE)
 	{
 		$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', FALSE);
 		$streamids = Array();
 
 		foreach ($stream_links as $stream_link) {
-			$streamids[] = $stream_link['minorid'];
+			if (($ignore_default === FALSE) || ($stream_link['value'] !== 'default_stream')) {
+				$streamids[] = $stream_link['minorid'];
+			}
 		}
 
 		$stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids, 'workflow_stream', TRUE, 'name');
