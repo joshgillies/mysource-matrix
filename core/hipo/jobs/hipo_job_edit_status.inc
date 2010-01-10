@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.65 2009/11/27 05:39:53 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.65.2.1 2010/01/10 23:19:08 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.65.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -336,6 +336,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function processStatus(&$step_data, $prefix, $freestyle=FALSE)
 	{
+		$send_messages = array_get_index($this->_running_vars, 'send_messages', TRUE);
+
 		// process dependant hipo_job_edit_status if necessary
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -347,6 +349,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if ($freestyle && $hipo->freestyle()) {
 				// we're freestylin' and that it, done
 				unset($this->_running_vars['dependant_hipo_job']);
+
+				// Add the messages saved from the sub-job into our list of messages
+				$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], array_get_index($hipo->_running_vars, 'messages', Array()));
+
 				$hipo->save();
 				$hh->uncacheJob($hipo->code_name);
 			} else if ($hipo->process() && $hipo->complete()) {
@@ -356,6 +362,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
 					$asset->_updated(FALSE);
 				}
+
+				// Add the messages saved from the sub-job into our list of messages
+				$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], array_get_index($hipo->_running_vars, 'messages', Array()));
+
 				unset($this->_running_vars['dependant_hipo_job']);
 			}
 			return TRUE;
@@ -405,7 +415,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					} else {
 						$asset->processStatusChange($new_status, FALSE, FALSE);
 					}
-					$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $asset->id);
 
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
@@ -428,10 +438,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}//end if empty done ids and not done root
 
-		//new bit of coded added
-		//feature bazar Workflow email not sent for dependant asset if it is not linked
-		// here we check the assetid  for which linking, if the asset is linked at more then
-		// 2 places only then we will add the message to the queue to be sent as an email.
+		// (FB'08: "Workflow email not sent for dependant asset if it is not linked".)
+		// If a dependant asset is not linked elsewhere than where it is now,
+		// assume that its workflow messages would be duplicated by the parent,
+		// and not send it. Otherwise, add it to the queue.
 		if(empty($this->_running_vars['process_dependants']) && isset($assetid)) {
 			$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
 		} else {
@@ -439,16 +449,18 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$asset_id = $internal_message->parameters['assetid'];
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset_id,'',TRUE,FALSE);
 				if(count($parents) > 1 ) {
-					$depedent_asset_message = Array ( 0 => $internal_message);
-					$ms->send($depedent_asset_message);
+					$this->_running_vars['messages'][] = $internal_message;
 				}
 			}
 		}
 
-		$ms->abortQueue();	// we don't need the messages anymore, dump them
+		// We've plucked out the messages we want, now dump the rest
+		$ms->abortQueue();
 
 		if (empty($this->_running_vars['todo_assetids'])) {
-			if (empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+			// We only send or messages if we are not a dependant job, and
+			// we are not asked to not send our messages (send_messages === FALSE)
+			if (empty($this->_running_vars['process_dependants']) && ($send_messages === TRUE) && isset($assetid)) {
 				// send workflow email at this point
 				// there might still be a dependant job waiting to be processed
 				$ms->send($this->_running_vars['messages']);
