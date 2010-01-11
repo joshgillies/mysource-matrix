@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_assets.inc,v 1.4 2009/12/09 05:18:53 mbrydon Exp $
+* $Id: report_total_assets.inc,v 1.5 2010/01/11 00:59:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a total asset count for seven points in time, from today to one year ago
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,10 +129,10 @@ class Report_Total_Assets extends Simple_Report
 
 		$date_yesterday = date('Y-m-d', $today - (24*3600));
 		$last_week_date = date('Y-m-d', $today - (24*3600*7));
-		$last_month_date = date('Y-m-d', $today - (30*24*3600*7));
-		$last_quarter_date = date('Y-m-d', $today - (90*24*3600*7));
-		$last_semester_date = date('Y-m-d', $today - (180*24*3600*7));
-		$last_year_date = date('Y-m-d', $today - (365*24*3600*7));
+		$last_month_date = date('Y-m-d', $today - (30*24*3600));
+		$last_quarter_date = date('Y-m-d', $today - (90*24*3600));
+		$last_semester_date = date('Y-m-d', $today - (180*24*3600));
+		$last_year_date = date('Y-m-d', $today - (365*24*3600));
 
 		$date_report = Array(
 				'Yesterday'		=> Array(
