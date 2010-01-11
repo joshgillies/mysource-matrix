@@ -39,6 +39,7 @@ Fixed Bug #4078: Using non-default xml entities like &nbsp; &copy; in xml feed i
 
 Search
 Fixed Bug #4074: Search keywords with silent characters doesn't returns result in Oracle
+Fixed Bug #4090: Search Manager does not respect Asset Weight priority when indexing
 
 
 
