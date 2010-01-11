@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_rollback.inc,v 1.5 2009/12/09 05:18:53 mbrydon Exp $
+* $Id: report_rollback.inc,v 1.6 2010/01/11 01:08:17 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of assets with rollback data
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,10 +198,10 @@ class Report_Rollback extends Simple_Report
 
 		$date_yesterday = date('Y-m-d', $today - (24*3600));
 		$last_week_date = date('Y-m-d', $today - (24*3600*7));
-		$last_month_date = date('Y-m-d', $today - (30*24*3600*7));
-		$last_quarter_date = date('Y-m-d', $today - (90*24*3600*7));
-		$last_semester_date = date('Y-m-d', $today - (180*24*3600*7));
-		$last_year_date = date('Y-m-d', $today - (365*24*3600*7));
+		$last_month_date = date('Y-m-d', $today - (30*24*3600));
+		$last_quarter_date = date('Y-m-d', $today - (90*24*3600));
+		$last_semester_date = date('Y-m-d', $today - (180*24*3600));
+		$last_year_date = date('Y-m-d', $today - (365*24*3600));
 
 		$asset_date_report = Array(
                                                 'Yesterday'                           => Array(
