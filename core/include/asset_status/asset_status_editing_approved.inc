@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.20 2007/11/30 01:24:52 bshkara Exp $
+* $Id: asset_status_editing_approved.inc,v 1.20.10.1 2010/01/11 07:09:34 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.10.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
@@ -56,7 +56,7 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 	*/
 	public static function getDescription()
 	{
-		return 'Safe Edit Approved To Go Live';
+		return translate('status_editing_approved');
 
 	}//end getDescription()
 

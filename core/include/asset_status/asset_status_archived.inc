@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_archived.inc,v 1.17 2007/11/30 01:24:52 bshkara Exp $
+* $Id: asset_status_archived.inc,v 1.17.10.1 2010/01/11 07:09:34 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    ARCHIVED -> UNDER_CONSTRUCTION if user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.10.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Archived extends Asset_Status
@@ -55,7 +55,7 @@ class Asset_Status_Archived extends Asset_Status
 	*/
 	public static function getDescription()
 	{
-		return 'Archived';
+		return translate('status_archived');
 
 	}//end getDescription()
 
