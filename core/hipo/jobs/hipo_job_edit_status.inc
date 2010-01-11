@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.65.2.1 2010/01/10 23:19:08 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.65.2.2 2010/01/11 22:38:30 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65.2.1 $
+* @version $Revision: 1.65.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -510,6 +510,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 							'process_dependants'	=> TRUE,
 							'messages'				=> $messages,
 						);
+
+		if (array_key_exists('workflow_stream', $this->_running_vars) === TRUE) {
+			$running_vars['workflow_stream'] = $this->_running_vars['workflow_stream'];
+		}
 
 		$init_hipo->setRunningVars($running_vars);
 		foreach ($options as $k => $v) {
