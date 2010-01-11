@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.3 2010/01/11 02:59:55 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.4 2010/01/11 23:37:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,6 +103,18 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 			ob_start();
 				$need_commit = _paintDetailsChangeStatus($asset, $o, $prefix);
 			$status_output = ob_get_clean();
+
+			$filter_output = '';
+			$found = preg_match('/\<select.*"'.$prefix.'_change_status"[^>]*\>.*\<\/select\>/', $status_output, $select_matches);
+			if ($found === 1) {
+				$filter_output .= $select_matches[0].' ';
+				$found = preg_match('/\<input.*"'.$prefix.'_change_status_all_children"[^>]*\>\<label [^>]*\>.*\<\/label\>/', $status_output, $cb_matches);
+				if ($found === 1) {
+					$filter_output .= $cb_matches[0].' ';
+				}
+
+				$status_output = $filter_output;
+			}
 
 			// Do we need to add the streams?
 			// (Do so if we're Editing, we can go to Approving, and there's at
