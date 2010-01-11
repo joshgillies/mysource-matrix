@@ -1,5 +1,71 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.0
+
+Featured Changes
+-----------------------------------
+
+Workflow Bundles
+	Workflow Bundles allows a group of assets to be taken into Workflow and approved in batches. Assets without an associated Workflow Schema are placed "Up for Review". This asset can be found under the "Schemas" sub-menu in the Asset Map. Workflow Streams can be assigned to a Bundle by an Administrator, in order to control the Workflow path taken.
+
+
+TRIM 6.2 compatibility
+	All functionality provided by the TRIM Package is now compatible with TRIM 6.2. In addition to this, Search and Form posting access can now be provided to non-admin TRIM users who have the appropriate grants. The TRIM Connector supports connections over proxies, determined either from the Matrix Proxy Configuration, or an alternate one specified in the Connector itself.
+
+
+Matrix System Check script
+	A test suite to identify system integrity issues on a Matrix System has been added to the "scripts" directory. The script "system_check.php" will run tests which will report on any known inconsistencies in the system. This script will not resolve any issues, so the results must be interpreted and the appropriate action taken.
+
+The script is executed as follows:
+
+	php scripts/system_check.php [ARGS]
+
+	Where [ARGS] can be:
+		--system=[MATRIX_ROOT] The path to the matrix system
+		--verbose Show more detailed errors
+		--colours Use colours
+		--stats Show statistics for this process
+		--help Show this help screen
+
+
+Check Indexes System Integrity script: Alter Table for incorrect primary keys
+	Additional checking has been added to this script to verify that primary key constraints are named as expected. For example, "ast_pk" for the sq_ast table. Corrective database queries will be displayed during the script run which must be applied manually.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #4075: System Maintenance: Trash Age Report JS Error
+Fixed Bug #4082: Set Workflow Schema' Trigger Action 'Automatically cascade this schema to newly-linked children' setting won't update
+Fixed Bug #4084: Remove self links functionality not working correctly
+Fixed Bug #4086: Set value in this context always defaults
+Fixed Bug #4091: Remap Manager: Remaps have no apparent sort order
+Fixed Bug #4095: Email format: attribute edit params have no effect
+Fixed Bug #4103: Keyword Modifiers: Not working within paint layouts
+Fixed Bug #4108: "Active Locks" show all locks in the system
+Fixed Bug #4111: Public user refreshes custom form with a file upload question will get form error
+Fixed Bug #4115: Source code preview syntax error
+
+Calendar
+Fixed Bug #4073: Wrong time / date for the end date of an event
+Fixed Bug #4101: Month view displaying wrong URLs for days
+Fixed Bug #4104: Cloning multi-date calendar event assets removes the webpath of each event instance
+
+CMS
+Fixed Bug #3956: SQ_ prefixed HTTP GET variables cached as pagination links in Asset Listings
+Fixed Bug #4088: Multiple exclude root nodes on an asset listing only applies first selection
+
+Data
+Fixed Bug #4065: Commit XML data source gives error "Fatal error: Argument 1 passed to Data_Source::setResultSet() must be an array..."
+Fixed Bug #4078: Using non-default xml entities like &nbsp; &copy; in xml feed in XML Datasource throws error
+
+Search
+Fixed Bug #4074: Search keywords with silent characters doesn't returns result in Oracle
+Fixed Bug #4090: Search Manager does not respect Asset Weight priority when indexing
+
+
+
 VERSION 3.26.0 RC1
 
 Featured Changes
