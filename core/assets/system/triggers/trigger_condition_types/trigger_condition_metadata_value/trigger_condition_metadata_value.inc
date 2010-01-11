@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.4.6.1 2010/01/11 03:23:11 cupreti Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.4.6.2 2010/01/11 03:34:02 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4.6.1 $
+* @version $Revision: 1.4.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,16 +60,17 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 		$metadata_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['asset_id']);
 		$metadata_value = $settings['value'];
 
-		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();		
-		$object_metadata_value = $mm->getMetadataValueByAssetid($state['assetid'], $settings['asset_id'], TRUE);
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		
+		$object_value = $mm->getMetadataFieldValues($state['assetid']);
 
-		if (!is_null($object_metadata_value)) {
+		if (array_key_exists($metadata_asset->name, $object_value)) {
 			if ($settings['match'] == 'exact') {
-				if ($metadata_value == $object_metadata_value) {
+				if ($metadata_value == $object_value[$metadata_asset->name]) {
 					return TRUE;
 				}
 			} else {
-				if (strpos($object_metadata_value, $metadata_value) !== FALSE) {
+				if (strpos($object_value[$metadata_asset->name], $metadata_value) !== FALSE) {
 					return TRUE;
 				}
 			}
