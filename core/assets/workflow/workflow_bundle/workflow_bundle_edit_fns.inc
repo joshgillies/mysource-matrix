@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.2 2010/01/11 00:20:46 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -490,8 +490,13 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		$all_schemas = Array();
 		foreach ($bundled_asset_links as $linkid => $bundled_asset_link) {
 			$bundled_assetid = $bundled_asset_link['minorid'];
+			$bundled_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bundled_assetid);
 
-			$all_schemas = array_merge($all_schemas, $wfm->getSchemas($bundled_assetid, TRUE));
+			if ($bundled_asset->adminAccess() === TRUE) {
+				$all_schemas = array_merge($all_schemas, $wfm->getSchemas($bundled_assetid, TRUE));
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bundled_asset);
+			unset($bundled_asset);
 		}
 
 		$all_schemas = array_unique($all_schemas);
