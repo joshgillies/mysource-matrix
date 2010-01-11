@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.1.2.3 2010/01/11 00:21:24 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.1.2.4 2010/01/11 02:59:01 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,6 +154,8 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 						<?php
 					$stream_box = ob_get_clean();
 					echo str_replace($cascade_box, $stream_box.$cascade_box, $status_output);
+				} else {
+					echo $status_output;
 				}
 			} else {
 				echo $status_output;
