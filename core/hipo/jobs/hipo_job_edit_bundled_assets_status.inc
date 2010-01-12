@@ -563,7 +563,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						$replacements['bundle_approve_url'] = $this->_getBackendScreenKeywordReplacement($bundle->id, 'workflow').'&asset_version='.$bundle->version.'&workflow_link_action=approve';
 						$replacements['bundle_workflow_url'] = $this->_getBackendScreenKeywordReplacement($bundle->id, 'workflow');
 						$replacements['bundle_name'] = $bundle->name;
-
+						$replacements['bundle_assetid'] = $bundle->id;
 						$replacements['new_status'] = $bundle->getStatus()->getDescription();
 
 						// Asset list
