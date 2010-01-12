@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.5 2010/01/11 23:38:53 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.6 2010/01/12 00:21:35 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 			$status_output = ob_get_clean();
 
 			$filter_output = '';
-			$found = preg_match('/\<select.*"'.$prefix.'_change_status"[^>]*\>.*\<\/select\>/', $status_output, $select_matches);
+			$found = preg_match('/\<select.*"'.$prefix.'_change_status"[^>]*\>.*\<\/select\>/U', $status_output, $select_matches);
 			if ($found === 1) {
 				$filter_output .= $select_matches[0].' ';
 				$found = preg_match('/\<input.*"'.$prefix.'_change_status_all_children"[^>]*\>\<label [^>]*\>.*\<\/label\>/', $status_output, $cb_matches);
