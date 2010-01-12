@@ -185,6 +185,10 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			return FALSE;
 		}
 
+		if (array_key_exists('workflow_stream', $this->_running_vars) === FALSE) {
+			$this->_running_vars['workflow_stream'] = '';
+		}
+
 		$todo_assetids = $this->_getBundledAssets($bundle_assetid);
 
 		$this->_running_vars['todo_assetids'] = Array();
@@ -194,7 +198,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 		$this->_running_vars['bundle_current_status'] = (int)$bundle_status[$bundle_assetid];
 
 		foreach ($todo_assetids as $todo_assetid) {
-			$new_asset_status = $this->_getNewAssetStatus($todo_assetid, (int)$this->_running_vars['bundle_current_status'], (int)$this->_running_vars['new_status']);
+			$new_asset_status = $this->_getNewAssetStatus($todo_assetid, (int)$this->_running_vars['bundle_current_status'], (int)$this->_running_vars['new_status'], $this->_running_vars['workflow_stream']);
 			$this->_running_vars['todo_assetids'][$todo_assetid] = $new_asset_status;
 
 			// Is this is not an asset status that we expect?
