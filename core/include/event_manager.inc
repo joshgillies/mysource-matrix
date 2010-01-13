@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.31 2008/03/12 01:38:57 bshkara Exp $
+* $Id: event_manager.inc,v 1.32 2010/01/13 05:35:34 csmith Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -70,7 +70,6 @@ class Event_Manager extends MySource_Object
 	* The listener objects
 	*/
 	var $_runtime_listener_objects = Array();
-
 
 	/**
 	* Constructor
@@ -170,6 +169,7 @@ class Event_Manager extends MySource_Object
 	*/
 	function broadcastEvent(&$broadcaster, $event_name='', $vars=Array())
 	{
+
 		// note: event names should be cammel topped (first letter of each word is a capital, excluding the first word).
 		// the listener needs to have a function of the event name prepended with 'on'
 		// eg. for an event name contentsUpdated the listener needs a function called onContentsUpdated()
@@ -198,6 +198,15 @@ class Event_Manager extends MySource_Object
 			$listener_codes += $this->_tmp['event_listeners'][get_class_lower($broadcaster)][$event_name];
 		}
 
+		/**
+		 * These will get filled in as necessary
+		 * (once per broadcast event)
+		 * Only need to fill them in if we need the data,
+		 * otherwise we could do it at the top here.
+		 */
+		$possible_listeners_parents = array();
+		$possible_listeners_children = array();
+
 		foreach ($listener_codes as $listener_type_code => $options) {
 			// these $options never seem to be set, force them to be set to avoid notices from PHP
 			if (empty($options['type_code'])) {
@@ -210,13 +219,11 @@ class Event_Manager extends MySource_Object
 				$options['global'] = false;
 			}
 
-
 			$side_of_link = (isset($options['side_of_link']) && ($options['side_of_link'] == 'minor')) ? 'major' : 'minor';
 
 			if ($options['global']) {
 				// Global: all global events should be heard even if outside the chain
 				$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($listener_type_code, true);
-
 			} else if ($options['indirect']) {
 
 				// no point continuing if this object does not inherit from asset
@@ -225,23 +232,30 @@ class Event_Manager extends MySource_Object
 
 				// let's not query the tree unless we have to
 				if ($options['is_dependant'] && !$options['is_exclusive']) {
+					if (isset($found_listener)) {
+						continue;
+					}
+
 					// do this until one of the returned assets matches a listener type code
-					if (!isset($found_listener)) {
-						if ($side_of_link === 'minor') {
-							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
-						} else {
-							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
+					if ($side_of_link === 'minor') {
+						if (empty($possible_listeners_parents)) {
+							$possible_listeners_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
 						}
-
-						// get type codes of our assetids (only need to do it once)
-						if (!isset($types)) {
-							for ($i=0; $i<count($possible_listeners); $i++) {
-								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($possible_listeners[$i]);
-								$types[$possible_listeners[$i]] = $asset->type();
-							}
+						$possible_listeners = $possible_listeners_parents;
+					} else {
+						if (empty($possible_listeners_children)) {
+							$possible_listeners_children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
 						}
+						$possible_listeners = $possible_listeners_children;
+					}
 
-					} else continue;
+					// get type codes of our assetids (only need to do it once)
+					if (!isset($types)) {
+						for ($i=0; $i<count($possible_listeners); $i++) {
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($possible_listeners[$i]);
+							$types[$possible_listeners[$i]] = $asset->type();
+						}
+					}
 
 				} else if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
