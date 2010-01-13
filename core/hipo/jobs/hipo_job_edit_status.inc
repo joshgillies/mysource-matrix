@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.65.2.2 2010/01/11 22:38:30 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.65.2.3 2010/01/13 23:31:13 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65.2.2 $
+* @version $Revision: 1.65.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -367,7 +367,16 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], array_get_index($hipo->_running_vars, 'messages', Array()));
 
 				unset($this->_running_vars['dependant_hipo_job']);
+
 			}
+
+			// HIPO job completed, and there are no assets left to process
+			// => we are done
+			if ((empty($this->_running_vars['dependant_hipo_job']) === TRUE) && (empty($this->_running_vars['todo_assetids']) === TRUE)) {
+				$step_data['percent_done'] = 100;
+				$step_data['complete'] = TRUE;
+			}
+
 			return TRUE;
 
 		}
@@ -465,6 +474,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				// there might still be a dependant job waiting to be processed
 				$ms->send($this->_running_vars['messages']);
 			}
+
 			if (empty($this->_running_vars['dependant_hipo_job'])) {
 				// todo array is empty, and no dependant job left
 				$step_data['percent_done'] = 100;
@@ -476,7 +486,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			}
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
+			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $total) * 100;
 			$step_data['complete']     = FALSE;
 		}
 
