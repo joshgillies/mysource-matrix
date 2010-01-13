@@ -1103,6 +1103,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 					case SQ_STATUS_PENDING_APPROVAL:
 						$msg_types = Array('approve', 'progress');
+					break;
 
 					case SQ_STATUS_APPROVED:
 						$msg_types = Array('approve');
