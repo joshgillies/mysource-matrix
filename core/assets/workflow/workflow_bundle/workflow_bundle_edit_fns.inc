@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.6 2010/01/12 00:21:35 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.7 2010/01/13 02:41:40 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,9 +120,16 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 			// (Do so if we're Editing, we can go to Approving, and there's at
 			// least one alternate stream available.)
 			$available_statuses = $asset->getAvailableStatii();
-			if (((int)$asset->status === SQ_STATUS_UNDER_CONSTRUCTION) && (array_key_exists(SQ_STATUS_PENDING_APPROVAL, $available_statuses) === TRUE)) {
-				$streams = $this->_getAllBundleStreams($asset);
+			if (((int)$asset->status === SQ_STATUS_UNDER_CONSTRUCTION) && ((array_key_exists(SQ_STATUS_PENDING_APPROVAL, $available_statuses) === TRUE) || (array_key_exists(SQ_STATUS_APPROVED, $available_statuses) === TRUE))) {
+				$streams['workflow'] = $asset->getAllBundleStreams();
+
 				if (count($streams) > 0) {
+					$bypass_streams = $asset->getAllBypassableBundleStreams();
+					foreach ($bypass_streams as $bypass_streamid) {
+						$streams['bypass'][$bypass_streamid] = $streams['workflow'][$bypass_streamid];
+						unset($streams['workflow'][$bypass_streamid]);
+					}
+
 					// Get what the status change check-box looks like
 					// so we can use it to inject the stream drop-down
 					ob_start();
@@ -131,35 +138,66 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 
 					// Buffer the stream drop-down
 					ob_start();
-						$options = Array('SQ_USE_DEFAULT' => 'Default Stream');
+						$options = Array(
+									'bypass'	=> Array(),
+									'workflow'	=> Array(),
+								   );
 
-						$streams = array_unique($streams);
-						foreach ($streams as $workflow_stream_name) {
-							$options[$workflow_stream_name] = $workflow_stream_name;
+						if ($asset->isDefaultStreamBypassable() === TRUE) {
+							$options['bypass'] = Array('SQ_USE_DEFAULT' => 'Default Stream');
+						} else {
+							$options['workflow'] = Array('SQ_USE_DEFAULT' => 'Default Stream');
 						}
 
-						if (count($options) > 1) {
+						$total_options = 1;
+						foreach (array_keys($streams) as $stream_type) {
+							$streams[$stream_type] = array_unique($streams[$stream_type]);
+							foreach ($streams[$stream_type] as $workflow_stream_name) {
+								$options[$stream_type][$workflow_stream_name] = $workflow_stream_name;
+								$total_options++;
+							}
+						}
+
+						if ($total_options > 1) {
 							ob_start();
-								combo_box($prefix.'_change_status_stream', $options, FALSE, Array());
+								combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
+								combo_box($prefix.'_change_status_stream', $options['bypass'],   FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_bypass"');
 							$cb = ob_get_clean();
 							echo translate('workflow_stream_using_workflow_stream', $cb);
 						} else {
 							// Only one option; hide the stream field and chuck it into a hidden field
-							reset($options);
-							hidden_field($prefix.'_change_status_stream', key($options));
+							$all_options = $options['bypass'] + $options['workflow'];
+							reset($all_options);
+							hidden_field($prefix.'_change_status_stream', key($all_options));
 						}
 						?>
 						<script type="text/javascript">
 						//<![CDATA[
 							var status_cb = document.getElementById("<?php echo $prefix ?>_change_status");
-							var stream_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream");
+							var stream_wf_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_workflow");
+							var stream_byp_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_bypass");
 
-							stream_cb.disabled = true;
+							if (stream_wf_cb.options.length == 0) {
+								stream_wf_cb.style.display = 'none';
+							} else {
+								stream_byp_cb.style.display = 'none';
+							}
+
 							status_cb.onchange = function() {
 								if ((this.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0) {
-									stream_cb.disabled = false;
+									stream_wf_cb.disabled = false;
+									stream_wf_cb.style.display = 'inline';
+									stream_byp_cb.style.display = 'none';
 								} else {
-									stream_cb.disabled = true;
+									stream_wf_cb.disabled = true;
+								}
+
+								if ((this.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?>) > 0) {
+									stream_byp_cb.disabled = false;
+									stream_byp_cb.style.display = 'inline';
+									stream_wf_cb.style.display = 'none';
+								} else {
+									stream_byp_cb.disabled = true;
 								}
 							}
 						// ]]></script>
@@ -485,44 +523,6 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end showIfCanApprove()
-
-
-	/**
-	* Returns all available workflow streams in bundled assets, EXCEPT default streams
-	*
-	* Array is of (stream_assetid => stream name)
-	*
-	* @param Workflow_Bundle	$asset	The bundle to test
-	*
-	* @return boolean
-	*/
-	protected function _getAllBundleStreams(Workflow_Bundle $asset)
-	{
-		$bundled_asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
-		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-
-		$all_schemas = Array();
-		foreach ($bundled_asset_links as $linkid => $bundled_asset_link) {
-			$bundled_assetid = $bundled_asset_link['minorid'];
-			$bundled_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bundled_assetid);
-
-			if ($bundled_asset->adminAccess() === TRUE) {
-				$all_schemas = array_merge($all_schemas, $wfm->getSchemas($bundled_assetid, TRUE));
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bundled_asset);
-			unset($bundled_asset);
-		}
-
-		$all_schemas = array_unique($all_schemas);
-		$all_streams = Array();
-
-		foreach ($all_schemas as $schemaid) {
-			$all_streams += $wfm->getStreams($schemaid, TRUE);
-		}
-
-		return $all_streams;
-
-	}
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.4 2010/01/10 22:37:54 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.5 2010/01/13 02:41:40 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -430,6 +430,15 @@ class Workflow_Bundle extends Asset implements Bridge
 	* If any asset is rejected, any other bundled asset in workflow should be
 	* rolled back, as well as the bundle itself.
 	*
+	* Note: status changes to the bundle are done with status integrity turned
+	* off because a normal user could not actually do these changes. Once the
+	* last asset with workflow is completed, the user then has no access to
+	* status changes.
+	*
+	* @param Asset	$broadcaster	The broadcasting asset
+	* @param array	$event_vars		Any event variables sent by the broadcaster
+	*
+	* @return void
 	*/
 	public function onAssetStatusUpdate(Asset $broadcaster, $event_vars)
 	{
@@ -466,19 +475,21 @@ class Workflow_Bundle extends Asset implements Bridge
 				// nothing left with a workflow. Proceed.
 				if (count($db_links) === 0) {
 					$this->_tmp['completing_workflow'] = 1;
+
+					$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+					$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level ^ SQ_SECURITY_STATUS_INTEGRITY);
 					$vars = Array(
 								'assetid'			=> $this->id,
 								'new_status'		=> SQ_STATUS_APPROVED,
 								'dependants_only'	=> TRUE,
 							);
-					$hipo_herder->freestyleHipo('hipo_job_edit_status', $vars);
+					$errors = $hipo_herder->freestyleHipo('hipo_job_edit_status', $vars);
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
-
-				unset($this->_tmp['completing_workflow']);
 
 			}
 
-		} else if ((($old_status & SQ_SC_STATUS_PENDING) !== 0) && (($new_status & SQ_SC_STATUS_CAN_APPROVE) !== 0)) {
+		} else if ((($old_status & (SQ_SC_STATUS_PENDING | SQ_SC_STATUS_ALL_APPROVED)) !== 0) && (($new_status & SQ_SC_STATUS_CAN_APPROVE) !== 0)) {
 
 			if ((($this->status & (SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_APPROVED)) === 0)) {
 				return;
@@ -486,11 +497,15 @@ class Workflow_Bundle extends Asset implements Bridge
 
 			$hipo_herder = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
+			$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level ^ SQ_SECURITY_STATUS_INTEGRITY);
 			$vars = Array(
 						'bundle_assetid'	=> $this->id,
 						'new_status'		=> SQ_STATUS_UNDER_CONSTRUCTION,
+						'except_assets'		=> Array($broadcaster->id),
 					);
 			$hipo_herder->freestyleHipo('hipo_job_edit_bundled_assets_status', $vars);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		} else if (((int)$new_status === SQ_STATUS_LIVE) && ((int)$old_status !== SQ_STATUS_EDITING)) {
 			// Transition to Live (but not cancelling a Safe Edit)
@@ -523,12 +538,15 @@ class Workflow_Bundle extends Asset implements Bridge
 
 				// If we have no assets NOT in Live status, so we should go live
 				if (count($db_links) === 0) {
+					$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+					$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level ^ SQ_SECURITY_STATUS_INTEGRITY);
 					$vars = Array(
 								'assetid'			=> $this->id,
 								'new_status'		=> SQ_STATUS_LIVE,
 								'dependants_only'	=> TRUE,
 							);
 					$hipo_herder->freestyleHipo('hipo_job_edit_status', $vars);
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
 
 			}
@@ -538,6 +556,90 @@ class Workflow_Bundle extends Asset implements Bridge
 		return;
 
 	}//end onAssetStatusUpdate()
+
+
+
+	/**
+	* Returns all available workflow streams in bundled assets, EXCEPT default streams
+	*
+	* Array is of (stream_assetid => stream name)
+	*
+	* @return boolean
+	*/
+	public function getAllBundleStreams()
+	{
+		$bundled_asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+
+		$all_schemas = Array();
+		foreach ($bundled_asset_links as $linkid => $bundled_asset_link) {
+			$bundled_assetid = $bundled_asset_link['minorid'];
+			$bundled_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bundled_assetid);
+
+			if ($bundled_asset->adminAccess() === TRUE) {
+				$all_schemas = array_merge($all_schemas, $wfm->getSchemas($bundled_assetid, TRUE));
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bundled_asset);
+			unset($bundled_asset);
+		}
+
+		$all_schemas = array_unique($all_schemas);
+		$all_streams = Array();
+
+		foreach ($all_schemas as $schemaid) {
+			$all_streams += $wfm->getStreams($schemaid, TRUE);
+		}
+
+		return $all_streams;
+
+	}//end getAllBundleStreams()
+
+
+	/**
+	* Returns all available workflow streams in bundled assets that would be
+	* bypassable in ALL of our bundled assets
+	*
+	* @return array
+	*/
+	public function getAllBypassableBundleStreams()
+	{
+		$bundled_asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+
+		$all_streams = array_keys($this->getAllBundleStreams());
+		foreach ($bundled_asset_links as $linkid => $bundled_asset_link) {
+			$bundled_assetid = $bundled_asset_link['minorid'];
+			$schemas = $wfm->getSchemas($bundled_assetid, TRUE);
+			foreach ($schemas as $schemaid) {
+				$all_streams = array_intersect($all_streams, $wfm->getBypassableStreams($bundled_assetid, $schemaid));
+			}
+		}
+
+		return $all_streams;
+
+	}//end getAllBypassableBundleStreams()
+
+
+	/**
+	* Is the default stream of all bundled assets bypassable?
+	*
+	* @return boolean
+	*/
+	public function isDefaultStreamBypassable()
+	{
+		$bundled_asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+
+		foreach ($bundled_asset_links as $linkid => $bundled_asset_link) {
+			$bundled_assetid = $bundled_asset_link['minorid'];
+			if ($wfm->testPublish($bundled_assetid, $GLOBALS['SQ_SYSTEM']->user->id, '') === FALSE) {
+				return FALSE;
+			}
+		}
+
+		return TRUE;
+
+	}//end isDefaultStreamBypassable()
 
 
 }//end class
