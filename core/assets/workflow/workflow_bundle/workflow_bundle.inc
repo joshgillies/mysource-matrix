@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.5 2010/01/13 02:41:40 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.6 2010/01/13 22:15:53 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -502,7 +502,6 @@ class Workflow_Bundle extends Asset implements Bridge
 			$vars = Array(
 						'bundle_assetid'	=> $this->id,
 						'new_status'		=> SQ_STATUS_UNDER_CONSTRUCTION,
-						'except_assets'		=> Array($broadcaster->id),
 					);
 			$hipo_herder->freestyleHipo('hipo_job_edit_bundled_assets_status', $vars);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -556,7 +555,6 @@ class Workflow_Bundle extends Asset implements Bridge
 		return;
 
 	}//end onAssetStatusUpdate()
-
 
 
 	/**
