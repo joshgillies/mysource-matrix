@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.52 2009/12/11 00:36:57 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.53 2010/01/13 00:48:06 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -112,22 +112,41 @@ class Asset_Status_Under_Construction extends Asset_Status
 				// if this user approves to determine if they can live edit
 				if ($this->owner->adminAccess('')) {
 					// If we are an admin, we should test all the streams
-					$stream = NULL;
+					// to see if some need workflow and others don't
+					$needs_workflow = FALSE;
+					$wf_complete    = FALSE;
+
+					foreach ($schemas as $schemaid) {
+						$streams = $wfm->getStreams($schemaid);
+
+						foreach ($streams as $streamid => $stream_name) {
+							$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream_name);
+							if ($publish_result === TRUE) {
+								$wf_complete = TRUE;
+							} else {
+								$needs_workflow = TRUE;
+							}
+						}
+					}
 				} else {
 					// If we are a normal user, we can only use the default
 					// stream, so only test that instead
-					$stream = '';
+					$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), '');
+					$needs_workflow = !$wf_complete;
 				}
-				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream);
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-					if ($wf_complete && $m_complete) {
+					// In the case of multiple streams, we may need to provide
+					// BOTH 'approve' and 'apply for approval' if some streams
+					// can be approved bypassing workflow, and some can't.
+					if (($wf_complete === TRUE) && ($m_complete === TRUE)) {
 						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
-					} else {
+					}
+					if (($needs_workflow === TRUE) || ($m_complete === FALSE)) {
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
 					}
 				} else {
