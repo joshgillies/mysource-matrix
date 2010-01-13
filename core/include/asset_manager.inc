@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.781 2009/12/10 23:26:52 akarelia Exp $
+* $Id: asset_manager.inc,v 1.782 2010/01/13 05:43:04 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.781 $
+* @version $Revision: 1.782 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1089,67 +1089,75 @@ class Asset_Manager extends MySource_Object
 
 		assert_valid_assetid($assetid);
 		$asset = $this->_asset_cache->get($contextid.'\\'.$assetid);
-		if (!empty($asset) && !empty($type_code)) {
-			if ($asset->type() != $type_code) {
+
+		/**
+		 * We got the asset from the cache
+		 */
+		if (!empty($asset)) {
+			/**
+			 * If we also have a type_code to check,
+			 * make sure it matches the one we're loading from cache.
+			 */
+			if (!empty($type_code) && $asset->type() != $type_code) {
 				if (!$mute_errors) {
 					trigger_localised_error('SYS0089', E_USER_WARNING, $assetid, $type_code);
 				}
 				$asset = NULL;
-				return $asset;
 			}
+			return $asset;
 		}
-		if (empty($asset)) {
-			// check if we are getting a shadow asset, and palm the request off to the
-			// handler of the shadow asset if we are
-			$id_parts = explode(':', $assetid);
-			if (isset($id_parts[1])) {
-				$real_assetid = $id_parts[0];
-				$bridge = $this->getAsset($real_assetid, '', TRUE);
-				if (is_null($bridge)) {
-					// bridge is unknown, we cannot return anything from it
-					$asset = NULL;
-					return $asset;
-				} else if (!method_exists($bridge, 'getAsset')) {
-					trigger_localised_error('SYS0203', E_USER_WARNING, $bridge->name);
-				} else {
-					$asset = $bridge->getAsset($assetid, '', $mute_errors);
-				}
-				$this->forgetAsset($bridge);
 
+		// check if we are getting a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$bridge = $this->getAsset($real_assetid, '', TRUE);
+			if (is_null($bridge)) {
+				// bridge is unknown, we cannot return anything from it
+				$asset = NULL;
+				return $asset;
+			} else if (!method_exists($bridge, 'getAsset')) {
+				trigger_localised_error('SYS0203', E_USER_WARNING, $bridge->name);
 			} else {
+				$asset = $bridge->getAsset($assetid, '', $mute_errors);
+			}
+			$this->forgetAsset($bridge);
 
-				if (empty($type_code)) {
-					$where = 'assetid = \''.$assetid.'\'';
-					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-					$type_code = MatrixDAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
+		} else {
 
+			if (empty($type_code)) {
+				$where = 'assetid = \''.$assetid.'\'';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+				$type_code = MatrixDAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
+
+			}
+
+			if (empty($type_code)) {
+				if (!$mute_errors) {
+					trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
 				}
-
-				if (empty($type_code)) {
+			} else {
+				if (!isset($this->_asset_types[$type_code])) {
 					if (!$mute_errors) {
-						trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
+						trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
 					}
 				} else {
-					if (!isset($this->_asset_types[$type_code])) {
-						if (!$mute_errors) {
-							trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
-						}
+					$this->includeAsset($type_code);
+					if ($mute_errors) {
+						$asset = @new $type_code($assetid);
 					} else {
-						$this->includeAsset($type_code);
-						if ($mute_errors) {
-							$asset = @new $type_code($assetid);
-						} else {
-							$asset = new $type_code($assetid);
-						}
-						if (empty($asset->id)) $asset = NULL;
+						$asset = new $type_code($assetid);
+					}
+					if (empty($asset->id)) {
+						$asset = NULL;
 					}
 				}
-
-			}//end if
-
-			if (isset($asset)) $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+			}
 
 		}//end if
+
+		if (isset($asset)) $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 
 		return $asset;
 
@@ -3015,7 +3023,7 @@ class Asset_Manager extends MySource_Object
 				foreach ($bind_vars as $bind_var => $bind_value) {
 					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 				}
-				 $result = MatrixDAL::executePdoAssoc($query);
+				$result = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get link for assetid: '.$assetid.' due to database error: '.$e->getMessage());
 			}
@@ -3157,7 +3165,7 @@ class Asset_Manager extends MySource_Object
 
 					$where = 'minorid = '.MatrixDAL::quote($assetid);
 					if(!is_null($link_types)){
-						$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', MatrixDAL::quote($link_types)).' > 0 ';
+						$where .= ' AND '.db_extras_bitand(MatrixDAL::GetDbType(), 'l.link_type', MatrixDAL::quote($link_types)).' > 0 ';
 					}
 					if ($type_code) {
 						if ($strict_type_code) {
@@ -3700,7 +3708,6 @@ class Asset_Manager extends MySource_Object
 			if (!$ignore_bridge) {
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
-
 			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						sl.majorid
@@ -3909,6 +3916,17 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=TRUE)
 	{
+		/**
+		 * make up a tmp key based on all the variables passed in
+		 * so if we make a call for the same assetid but different type_code
+		 * we don't return the wrong results.
+		 */
+		$_getDependantChildren_key = $assetid . '_' . $type_code . '_' . (int)$strict_type_code;
+
+		if (isset($this->_tmp['getDependantChildren'][$_getDependantChildren_key])) {
+			return $this->_tmp['getDependantChildren'][$_getDependantChildren_key];
+		}
+
 		$children = Array();
 
 		$asset = $this->getAsset($assetid);
@@ -3936,6 +3954,8 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 		}
 
+		$this->_tmp['getDependantChildren'][$_getDependantChildren_key] = $children;
+
 		unset($asset);
 		return $children;
 
@@ -3961,6 +3981,18 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=TRUE, $include_all_dependants=TRUE)
 	{
+		/**
+		 * make up a tmp key based on all the variables passed in
+		 * so if we make a call for the same assetid but different
+		 * type_code (or other variable),
+		 * we don't return the wrong results.
+		 */
+		$_getDependantParents_key = $assetid . '_' . $type_code . '_' . (int)$strict_type_code . '_' . (int)$include_all_dependants;
+
+		if (isset($this->_tmp['getDependantParents'][$_getDependantParents_key])) {
+			return $this->_tmp['getDependantParents'][$_getDependantParents_key];
+		}
+
 		$parents = Array();
 
 		$asset = $this->getAsset($assetid);
@@ -3978,6 +4010,8 @@ class Asset_Manager extends MySource_Object
 
 			$this->forgetAsset($asset);
 		}
+
+		$this->_tmp['getDependantParents'][$_getDependantParents_key] = $parents;
 
 		unset($asset);
 		return $parents;
@@ -8617,7 +8651,7 @@ class Asset_Manager extends MySource_Object
 						'group_by'	=> $group_by,
 						'having'	=> $having,
 						'order_by'	=> $order_by,
-					 );
+					);
 
 		return Array(
 				'sql_array'	=> $sql_array,
@@ -9067,12 +9101,12 @@ class Asset_Manager extends MySource_Object
 				if (is_null($max_height)) {
 					$_tree_length = strlen($treeid);
 					$_required_tree_level = $min_height ? $_tree_length - (($min_height -  1) * SQ_CONF_ASSET_TREE_SIZE) : $_tree_length;
-					
+
 					$where_comp = '(';
 					$j = 0;
 					while ($_tree_length > 0) {
 						$j++;
-						
+
 						// Don't include treeids within minimum tree height range
 						if ($_tree_length <= $_required_tree_level) {
 							$where_comp .= ':' . $bind_prefix . 'treeid_' . $i . '_' . $j . ' = t.treeid OR ';
@@ -9080,7 +9114,7 @@ class Asset_Manager extends MySource_Object
 						}
 						$treeid = substr($treeid, 0, ($_tree_length - SQ_CONF_ASSET_TREE_SIZE));
 						$_tree_length = strlen($treeid);
-					
+
 					}
 					$where_comp = rtrim($where_comp, ' OR ') . ')';
 
@@ -9105,7 +9139,7 @@ class Asset_Manager extends MySource_Object
 				 * so we end up with this (which works much better performance wise):
 				 * $treeid = t.treeid
 				 */
-				if ($min_height == $max_height) {					
+				if ($min_height == $max_height) {
 					$treeid = $max_height ? substr($treeid, 0, strlen($treeid) - ((($max_height - 1) * SQ_CONF_ASSET_TREE_SIZE))) : '';
 
 					/**
@@ -9138,7 +9172,7 @@ class Asset_Manager extends MySource_Object
 					$max_height = $temp_min_height;
 					unset($temp_min_height);
 				}
-				
+
 				/**
 				* Set some temporary variables in case the originals are used elsewhere.
 				*/
@@ -9487,6 +9521,17 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getSnippetKeywords($more_info=FALSE)
 	{
+		/**
+		 * Check if we've generated this list before.
+		 * If we have, return the old list.
+		 * include the more_info var in case we get a call
+		 * with & without more_info requested
+		 */
+		$_tmp_key = 'snippetkeywords_' . (int)$more_info;
+		if (isset($this->_tmp[$_tmp_key])) {
+			return $this->_tmp[$_tmp_key];
+		}
+
 		if (!$this->installed('content_type_snippet')) {
 			return Array();
 		}
@@ -9529,6 +9574,7 @@ class Asset_Manager extends MySource_Object
 					$content_type = $container->getContentType();
 					if ($content_type->type() == 'content_type_snippet') {
 						// exclude all snippet content type
+						$this->forgetAsset($container);
 						continue;
 					}
 					unset($content_type);
@@ -9544,7 +9590,10 @@ class Asset_Manager extends MySource_Object
 					$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container->name";
 				}
 			}
+			$this->forgetAsset($container);
 		}//end foreach container
+
+		$this->_tmp[$_tmp_key] = $keywords;
 
 		return $keywords;
 
