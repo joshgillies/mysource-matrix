@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_bundle_under_construction.inc,v 1.1.2.2 2010/01/10 23:13:48 lwright Exp $
+* $Id: asset_status_bundle_under_construction.inc,v 1.1.2.3 2010/01/13 03:15:33 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *      If all bundled assets have no workflow applied.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Status_Bundle_Under_Construction extends Asset_Status
@@ -98,6 +98,9 @@ class Asset_Status_Bundle_Under_Construction extends Asset_Status
 		// permission to the bundled asset.
 		$has_workflow   = FALSE;
 		$needs_workflow = FALSE;
+		$can_complete   = FALSE;
+
+		$m_complete = TRUE;
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$mm  = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -110,55 +113,71 @@ class Asset_Status_Bundle_Under_Construction extends Asset_Status
 			// Editing Approved (since Live cancels it). So treat it as if it
 			// had a completable workflow (ie. provide "Approve" link, not "Make
 			// Live").
-			if ($has_workflow === FALSE) {
-				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($our_asset_link['minorid']);
-				$status = (int)$asset_info[$our_asset_link['minorid']]['status'];
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($our_asset_link['minorid']);
 
+			if ($has_workflow === FALSE) {
+				$status = (int)$asset_info[$our_asset_link['minorid']]['status'];
 				if ($status === SQ_STATUS_EDITING) {
 					$has_workflow = TRUE;
-				}
-			}
-
-			$schemas = $wfm->getSchemas($our_asset_link['minorid']);
-			if (count($schemas) > 0) {
-				$has_workflow = TRUE;
-
-				// We need to get the asset, since we need to check for
-				// admin permission so we can work out what to test the
-				// schema with
-				$bundled_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($our_asset_link['minorid']);
-				if ($bundled_asset->adminAccess() === TRUE) {
-					// Test with ALL streams
-					$test_with = NULL;
 				} else {
-					// Test with default stream
-					$test_with = '';
-				}
-
-				if ($wfm->testPublish($bundled_asset->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $test_with) === FALSE) {
-					$needs_workflow = TRUE;
-				} else if ($mm->requiredFieldsComplete($bundled_asset->id) === FALSE) {
-					// If we have incomplete metadata, we cannot go straight to
-					// Approved for this asset.
-					$needs_workflow = TRUE;
+					$schemas = $wfm->getSchemas($our_asset_link['minorid'], TRUE);
+					if (count($schemas) > 0) {
+						$has_workflow = TRUE;
+					}
 				}
 			}
 
-			if (($has_workflow === TRUE) && ($needs_workflow === TRUE)) {
-				// No need to continue, we have all we need
+			// Check for complete metadata
+			if ($m_complete === TRUE) {
+				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
+					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+				}
+			}
+
+			// Both trigger conditions
+			if (($has_workflow === TRUE) && ($m_complete === FALSE)) {
 				break;
 			}
-		}
+
+		}//end foreach
 
 		if ($has_workflow === TRUE) {
-			if ($needs_workflow === TRUE) {
+			if ($m_complete === FALSE) {
 				$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
 			} else {
-				$available_statuses[SQ_STATUS_APPROVED] = translate('status_change_approve');
+				$all_streams        = $this->owner->getAllBundleStreams();
+				$bypassable_streams = $this->owner->getAllBypassableBundleStreams();
+				$default_bypassable = $this->owner->isDefaultStreamBypassable();
+
+				$needs_approve = FALSE;
+				$needs_apply   = FALSE;
+
+				if ($default_bypassable === TRUE) {
+					// Default stream is bypassable
+					$needs_approve = TRUE;
+				} else if (count($bypassable_streams) > 0) {
+					// At least one bypassable stream
+					$needs_approve = TRUE;
+				}
+
+				if (($default_bypassable === FALSE) || (count($bypassable_streams) < count($all_streams))) {
+					// Default stream is not bypassable, or at least one un-bypassable stream
+					$needs_apply = TRUE;
+				}
+
+				// If we have to apply for approval on at least one stream
+				if ($needs_apply === TRUE) {
+					$available_statuses[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
+				}
+
+				// If we can complete something through at least one stream
+				if ($needs_approve === TRUE) {
+					$available_statuses[SQ_STATUS_APPROVED] = translate('status_change_approve');
+				}
 			}
 		} else {
 			$available_statuses[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
-		}
+		}//end if has workflow
 
 		return $available_statuses;
 
