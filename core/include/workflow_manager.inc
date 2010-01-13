@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.1 2010/01/10 23:09:33 lwright Exp $
+* $Id: workflow_manager.inc,v 1.144.2.2 2010/01/13 03:13:13 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.1 $
+* @version $Revision: 1.144.2.2 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -2181,6 +2181,34 @@ class Workflow_Manager extends MySource_Object
 		return $stream_names;
 
 	}//end getStreams()
+
+
+	/**
+	* Get a list of stream IDs that could bypass workflow for the passed asset
+	* and user
+	*
+	* @param string	$assetid		ID of the asset being tested
+	* @param string	$schemaid		ID of the schema whose streams are being tested
+	* @param string	$current_userid	Test with this user, or NULL for current user
+	*/
+	public function getBypassableStreams($assetid, $schemaid, $current_userid=NULL)
+	{
+		if ($current_userid === NULL) {
+			$current_userid = $GLOBALS['SQ_SYSTEM']->user->id;
+		}
+
+		$bypassable_streams = Array();
+		$streams = $this->getStreams($schemaid);
+		foreach ($streams as $streamid => $stream_name) {
+			$test_result = $this->testPublish($assetid, $current_userid, $stream_name);
+			if ($test_result === TRUE) {
+				$bypassable_streams[] = $streamid;
+			}
+		}
+
+		return $bypassable_streams;
+
+	}//end getBypassableStreams()
 
 
 	/**
