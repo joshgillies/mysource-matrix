@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.44.2.1 2010/01/11 07:09:34 mbrydon Exp $
+* $Id: asset_status_editing.inc,v 1.44.2.2 2010/01/13 03:12:44 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -105,16 +105,36 @@ class Asset_Status_Editing extends Asset_Status
 						// see whether the current user could publish if we started workflow
 						if ($this->owner->adminAccess('')) {
 							// If we are an admin, we should test all the streams
-							$stream = NULL;
+							// to see if some need workflow and others don't
+							$needs_workflow = FALSE;
+							$wf_complete    = FALSE;
+
+							foreach ($schemas as $schemaid) {
+								$streams = $wfm->getStreams($schemaid);
+
+								foreach ($streams as $streamid => $stream_name) {
+									$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream_name);
+									if ($publish_result === TRUE) {
+										$wf_complete = TRUE;
+									} else {
+										$needs_workflow = TRUE;
+									}
+								}
+							}
 						} else {
 							// If we are a normal user, we can only use the default
 							// stream, so only test that instead
-							$stream = '';
+							$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), '');
+							$needs_workflow = !$wf_complete;
 						}
 
-						if ($wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream)) {
+						// We could have BOTH Approve and Apply for Approval,
+						// if some streams can be approved straight off and
+						// some must go through workflow
+						if ($wf_complete === TRUE) {
 							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
-						} else {
+						}
+						if ($needs_workflow === TRUE) {
 							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 						}
 					}
