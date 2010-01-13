@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.45 2010/01/06 02:36:43 lwright Exp $
+* $Id: details.inc,v 1.46 2010/01/13 02:33:26 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 
@@ -343,9 +343,15 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
+		$has_approved_status = FALSE;
 		foreach ($statii as $status_code => $status_text) {
 			if (($status_code & SQ_SC_STATUS_PENDING) > 0) {
 				$has_pending_status = TRUE;
+				break;
+			}
+
+			if (($status_code & SQ_SC_STATUS_ALL_APPROVED) > 0) {
+				$has_approved_status = TRUE;
 				break;
 			}
 		}
@@ -355,11 +361,14 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		//   or Place Up for Review);
 		// - the current status is either a "can approve" state (Safe Edit or
 		//   U/C), or Live (otherwise we couldn't run Up for Review on a stream).
-		if (($owner->adminAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && ($has_pending_status === TRUE)) {
+		if (($owner->adminAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && (($has_pending_status === TRUE) || ($has_approved_status === TRUE))) {
 			echo '&nbsp;';
 			// If it is possible that we will have a "apply for approval" in the
 			// drop-down, paint the streams box and enable/disable when required.
-			$workflow_stream_names = Array();
+			$stream_names = Array(
+								'workflow'	=> Array(),
+								'bypass'	=> Array(),
+							);
 
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($owner->id);
@@ -368,43 +377,109 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				$streamids = Array();
 				foreach ($stream_links as $stream_link) {
 					$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($stream_link['minorid'], SQ_LINK_TYPE_2, 'workflow_step', TRUE);
-					if (($stream_link['value'] !== 'default_stream') && (count($step_links) > 0)) {
+					if ($stream_link['value'] !== 'default_stream') {
 						$streamids[] = $stream_link['minorid'];
 					}
 				}
-				$stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids, 'workflow_stream', TRUE, 'name');
-				$workflow_stream_names = array_merge($workflow_stream_names, $stream_names);
+
+				if ($has_approved_status === TRUE) {
+					// We can bypass workflow on at least one stream
+					$bypassable_streams = $wfm->getBypassableStreams($owner->id, $schemaid);
+					$bypassable_streams = array_intersect($bypassable_streams, $streamids);
+					$workflowable_streams = array_diff($streamids, $bypassable_streams);
+
+					$bypass_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($bypassable_streams, 'workflow_stream', TRUE, 'name');
+					$stream_names['bypass'] = array_merge($stream_names['bypass'], $bypass_stream_names);
+				} else {
+					// We cannot bypass (either none work, or metadata is not finished)
+					$workflowable_streams = $streamids;
+				}
+
+				$workflow_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($workflowable_streams, 'workflow_stream', TRUE, 'name');
+				$stream_names['workflow'] = array_merge($stream_names['workflow'], $workflow_stream_names);
+
+			}//end foreach schema
+
+			// Make both types of streams unique, then some streams are in
+			// both columns (possible if multiple schemas applied), eliminate
+			// them from the bypassable column
+			$stream_names['workflow'] = array_unique($stream_names['workflow']);
+			$stream_names['bypass']   = array_unique($stream_names['bypass']);
+			$stream_names['bypass']   = array_diff($stream_names['bypass'], $stream_names['workflow']);
+
+			// Now generate the options
+			$options = Array(
+						'workflow'	=> Array(),
+						'bypass'	=> Array(),
+					   );
+
+			// Work out which set of options the default streams should be placed
+			$default_test = $wfm->testPublish($owner->id, $GLOBALS['SQ_SYSTEM']->user->id, '');
+			if (($has_approved_status === TRUE) && ($default_test === TRUE)) {
+				$options['bypass']   = Array('SQ_USE_DEFAULT' => 'Default Stream');
+			} else {
+				$options['workflow'] = Array('SQ_USE_DEFAULT' => 'Default Stream');
 			}
 
-			$workflow_stream_names = array_unique($workflow_stream_names);
-
-			$options = Array('SQ_USE_DEFAULT' => 'Default Stream');
-			foreach ($workflow_stream_names as $workflow_stream_name) {
-				$options[$workflow_stream_name] = $workflow_stream_name;
+			$total_options = 1;
+			foreach (array_keys($stream_names) as $stream_type) {
+				foreach ($stream_names[$stream_type] as $workflow_stream_name) {
+					$options[$stream_type][$workflow_stream_name] = $workflow_stream_name;
+					$total_options++;
+				}
 			}
 
-			if (count($options) > 1) {
+			// We have more than one stream, so paint out both drop-downs
+			if (count($options['bypass']) + count($options['workflow']) > 1) {
+				// The combo boxes are named the same, but have different IDs,
+				// and one is always disabled, so only one gets sent.
 				ob_start();
-					combo_box($prefix.'_change_status_stream', $options, FALSE, Array());
-				$cb = ob_get_clean();
-				echo translate('workflow_stream_using_workflow_stream', $cb);
+					combo_box($prefix.'_change_status_stream', $options['bypass'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_bypass"');
+				$cb1 = ob_get_clean();
+
+				ob_start();
+					combo_box($prefix.'_change_status_stream', $options['workflow'], FALSE, Array(), 0, ' disabled="disabled" id="'.$prefix.'_change_status_stream_workflow"');
+				$cb2 = ob_get_clean();
+
+				echo translate('workflow_stream_using_workflow_stream', $cb1.$cb2);
 			} else {
 				// Only one option; hide the stream field and chuck it into a hidden field
-				reset($options);
-				hidden_field($prefix.'_change_status_stream', key($options));
+				$all_options = $options['bypass'] + $options['workflow'];
+				reset($all_options);
+				hidden_field($prefix.'_change_status_stream', key($all_options));
 			}
+
+			// Javascript to keep the stream lists happy. The "Apply for Approval"
+			// list is displayed first, and they are switched when "Apply for Approval"
+			// and "Approve" are selected, respectively.
 			?>
 			<script type="text/javascript">
 			//<![CDATA[
 				var status_cb = document.getElementById("<?php echo $prefix ?>_change_status");
-				var stream_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream");
+				var stream_wf_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_workflow");
+				var stream_byp_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_bypass");
 
-				stream_cb.disabled = true;
+				if (stream_wf_cb.options.length == 0) {
+					stream_wf_cb.style.display = 'none';
+				} else {
+					stream_byp_cb.style.display = 'none';
+				}
+
 				status_cb.onchange = function() {
 					if ((this.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0) {
-						stream_cb.disabled = false;
+						stream_wf_cb.disabled = false;
+						stream_wf_cb.style.display = 'inline';
+						stream_byp_cb.style.display = 'none';
 					} else {
-						stream_cb.disabled = true;
+						stream_wf_cb.disabled = true;
+					}
+
+					if ((this.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?>) > 0) {
+						stream_byp_cb.disabled = false;
+						stream_byp_cb.style.display = 'inline';
+						stream_wf_cb.style.display = 'none';
+					} else {
+						stream_byp_cb.disabled = true;
 					}
 				}
 			// ]]></script>
