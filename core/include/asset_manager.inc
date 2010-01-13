@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.782 2010/01/13 05:43:04 csmith Exp $
+* $Id: asset_manager.inc,v 1.783 2010/01/13 22:48:10 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.782 $
+* @version $Revision: 1.783 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3916,17 +3916,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=TRUE)
 	{
-		/**
-		 * make up a tmp key based on all the variables passed in
-		 * so if we make a call for the same assetid but different type_code
-		 * we don't return the wrong results.
-		 */
-		$_getDependantChildren_key = $assetid . '_' . $type_code . '_' . (int)$strict_type_code;
-
-		if (isset($this->_tmp['getDependantChildren'][$_getDependantChildren_key])) {
-			return $this->_tmp['getDependantChildren'][$_getDependantChildren_key];
-		}
-
 		$children = Array();
 
 		$asset = $this->getAsset($assetid);
@@ -3954,8 +3943,6 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 		}
 
-		$this->_tmp['getDependantChildren'][$_getDependantChildren_key] = $children;
-
 		unset($asset);
 		return $children;
 
@@ -3981,18 +3968,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=TRUE, $include_all_dependants=TRUE)
 	{
-		/**
-		 * make up a tmp key based on all the variables passed in
-		 * so if we make a call for the same assetid but different
-		 * type_code (or other variable),
-		 * we don't return the wrong results.
-		 */
-		$_getDependantParents_key = $assetid . '_' . $type_code . '_' . (int)$strict_type_code . '_' . (int)$include_all_dependants;
-
-		if (isset($this->_tmp['getDependantParents'][$_getDependantParents_key])) {
-			return $this->_tmp['getDependantParents'][$_getDependantParents_key];
-		}
-
 		$parents = Array();
 
 		$asset = $this->getAsset($assetid);
@@ -4010,8 +3985,6 @@ class Asset_Manager extends MySource_Object
 
 			$this->forgetAsset($asset);
 		}
-
-		$this->_tmp['getDependantParents'][$_getDependantParents_key] = $parents;
 
 		unset($asset);
 		return $parents;
