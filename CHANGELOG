@@ -5,8 +5,12 @@ VERSION 3.26.0
 Featured Changes
 -----------------------------------
 
-Workflow Bundles
-	Workflow Bundles allows a group of assets to be taken into Workflow and approved in batches. Assets without an associated Workflow Schema are placed "Up for Review". This asset can be found under the "Schemas" sub-menu in the Asset Map. Workflow Streams can be assigned to a Bundle by an Administrator, in order to control the Workflow path taken.
+Bundle assets
+	Bundle assets allow a group of assets to be taken into Workflow and approved in batches. This asset can be found under the "Schemas" sub-menu in the Asset Map.
+
+"Under Construction" assets without an associated Workflow Schema which are linked under a Bundle, will be set to "Live" when applying for approval. Other assets will follow the next logical Workflow process.
+
+Bundles also have support for Workflow Streams - users have access to any stream they would have access to under at least one bundled asset.
 
 
 TRIM 6.2 compatibility
