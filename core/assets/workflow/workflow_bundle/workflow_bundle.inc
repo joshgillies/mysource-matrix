@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.4.2.4 2010/01/13 23:32:30 lwright Exp $
+* $Id: workflow_bundle.inc,v 1.4.2.5 2010/01/14 01:37:59 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.4.2.4 $
+* @version $Revision: 1.4.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,6 +555,65 @@ class Workflow_Bundle extends Asset implements Bridge
 		return;
 
 	}//end onAssetStatusUpdate()
+
+
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param Asset  $minor      the minor asset that we are linking to
+	* @param string $link_type  the type of link this is
+	* @param int    $exclusive  the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	public function canCreateLink(Asset $minor, $link_type, $exclusive)
+	{
+		if (!$this->id) return translate('asset_not_created');
+
+		// Ensure that Shadow Assets cannot be linked to a Bundle
+		$minor_asset_id_parts = explode(':', $minor->id);
+		if (isset($minor_asset_id_parts[1])) {
+			return FALSE;
+		}
+
+		return parent::canCreateLink($minor, $link_type, $exclusive);
+
+	}//end canCreateLink()
+
+
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @param Asset      $minor      the minor asset that we are linking to
+	* @param string     $link_type  the type of link this is
+	* @param string     $value      the value that is to be associated with this link
+	* @param string     $sort_order the position in the links list that this link should take,
+	*                               if NULL or less than zero places at end of list
+	* @param string     $dependant  '0' / '1' on whether the this asset is dependant on the
+	*                               asset that will be linked by this new link
+	* @param string     $exclusive  '0' / '1' on whether the this asset is linked exclusivly
+	*                               to the asset that will be linked by this new link
+	* @param boolean    $moving     moving
+	*
+	* @return int
+	* @access public
+	* @see Asset_Manager::createAssetLink()
+	*/	
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	{
+		if (!$this->id) return 0;
+
+		// Ensure that Shadow Assets cannot be linked to a Bundle
+		$minor_asset_id_parts = explode(':', $minor->id);
+		if (isset($minor_asset_id_parts[1])) {
+			return 0;
+		}
+
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+
+	}//end createLink()
 
 
 	/**
