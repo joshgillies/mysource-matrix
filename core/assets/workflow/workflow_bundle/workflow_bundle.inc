@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.4.2.5 2010/01/14 01:37:59 mbrydon Exp $
+* $Id: workflow_bundle.inc,v 1.4.2.6 2010/01/14 01:59:58 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.4.2.5 $
+* @version $Revision: 1.4.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,6 +555,36 @@ class Workflow_Bundle extends Asset implements Bridge
 		return;
 
 	}//end onAssetStatusUpdate()
+
+
+    /**
+    * Returns TRUE if at least one of the passed assetids has read access to this asset
+    *
+    * @param array  $assetids   An array of user_group and/or user ids to check for read access
+    *                           If the array is empty, the current user will be checked
+    *
+    * @return boolean
+    * @access public
+    */
+    public function readAccess(Array $assetids=Array())
+    {
+        if (!$this->id) return TRUE;
+        if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+            return TRUE;
+        }
+
+        /*
+        * We need to provide Read Permission to the Bundle to ensure that they
+        * can view Bundle details and advance Workflow if available.
+        */
+        $edit_fns = $this->getEditFns();
+        if ($edit_fns->showIfCanApprove($this)) {
+            return TRUE;
+        }
+
+        return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
+
+    }//end readAccess()
 
 
 	/**
