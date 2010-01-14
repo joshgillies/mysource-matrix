@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_prefs.inc,v 1.3 2007/08/17 03:42:32 nbhradwaj Exp $
+* $Id: content_type_snippet_prefs.inc,v 1.4 2010/01/14 05:29:26 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Snippet root node preference
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Content_Type_Snippet_Prefs extends Prefs
@@ -35,6 +35,12 @@ class Content_Type_Snippet_Prefs extends Prefs
 												'name'			=> 'snippet_root_node',
 												'description'	=> 'Allows you to specify the root node of where all snippets are located',
 												'default'		=> '',
+												'protected'		=> FALSE,
+											   ),
+						'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK'	=> Array(
+												'name'			=> 'snippet_keywords_permission_check',
+												'description'	=> 'Allows you to turn off snippet keywords permission check to speed up WYSIWYG loading',
+												'default'		=> '1',
 												'protected'		=> FALSE,
 											   ),
 					 );
@@ -97,6 +103,25 @@ class Content_Type_Snippet_Prefs extends Prefs
 
 			if (is_null($pref)) $o->closeField();
 		}//end if
+		
+		// Allows Turn Off Keywords Permission Check
+		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['name']));
+			}
+
+			$value = $this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'];
+
+			if ($have_lock && $is_admin) {
+				$options = Array(1 => 'Yes', 0 => 'No');
+				combo_box('prefs[SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK]', $options, FALSE, $value);
+			} else {
+				echo ($value) ? translate('yes') : translate('no');
+			}
+			echo $o->note(translate('cms_ct_snippet_pref_keywords_note'));
+			if (is_null($pref)) $o->closeField();
+		}
+		
 
 		return TRUE;
 
@@ -122,6 +147,14 @@ class Content_Type_Snippet_Prefs extends Prefs
 			// update snippet root node pref
 			if (isset($_POST['prefs']['SQ_SNIPPET_ROOT'])) {
 				$this->pref_vars['SQ_SNIPPET_ROOT']['default'] = $_POST['prefs']['SQ_SNIPPET_ROOT']['assetid'];
+			}
+		}
+		
+		// Allows Turn Off Keywords Permission Check
+		if (is_null($pref) || $pref == 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK') {
+			if (isset($_POST['prefs']['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK'])) {
+				$allow = strtoupper(trim($_POST['prefs']['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']));
+				$this->pref_vars['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'] = $allow;
 			}
 		}
 
