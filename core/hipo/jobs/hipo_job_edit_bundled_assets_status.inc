@@ -537,7 +537,6 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			foreach ($msg_types as $msg_type) {
 				if (empty($this->_running_vars['msg_filters'][$msg_type]) === FALSE) {
 					foreach ($this->_running_vars['msg_filters'][$msg_type] as $userid => $assets) {
-						$assets = array_unique($assets);
 						$asset_list_lines = Array();
 
 						foreach ($assets as $assetid) {
@@ -547,7 +546,6 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 							$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid);
 							$format_line = '<a href="'.$workflow_url.'">'.$asset_info[$assetid]['name'].' (Id: #'.$assetid.')</a> [<a href="'.$preview_url.'">Preview</a>]';
 
-							replace_keywords($format_line, $replacements);
 							$asset_list_lines[] = $format_line;
 
 						}//end foreach asset

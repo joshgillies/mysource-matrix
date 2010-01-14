@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.65.2.3 2010/01/13 23:31:13 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.65.2.4 2010/01/14 03:47:10 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65.2.3 $
+* @version $Revision: 1.65.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -351,7 +351,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				unset($this->_running_vars['dependant_hipo_job']);
 
 				// Add the messages saved from the sub-job into our list of messages
-				$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], array_get_index($hipo->_running_vars, 'messages', Array()));
+				$this->_running_vars['messages'] = array_get_index($hipo->_running_vars, 'messages', Array());
 
 				$hipo->save();
 				$hh->uncacheJob($hipo->code_name);
@@ -364,7 +364,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				}
 
 				// Add the messages saved from the sub-job into our list of messages
-				$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], array_get_index($hipo->_running_vars, 'messages', Array()));
+				$this->_running_vars['messages'] = array_get_index($hipo->_running_vars, 'messages', Array());
 
 				unset($this->_running_vars['dependant_hipo_job']);
 
