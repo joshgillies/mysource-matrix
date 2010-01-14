@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.783 2010/01/13 22:48:10 csmith Exp $
+* $Id: asset_manager.inc,v 1.784 2010/01/14 05:35:22 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.783 $
+* @version $Revision: 1.784 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9538,32 +9538,62 @@ class Asset_Manager extends MySource_Object
 
 		// generate list of snippet name and content
 		$keywords = Array();
+		$permission_check = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_snippet', 'SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK');
+
 		foreach ($results as $id) {
-			$container = $this->getAsset($id);
-			if (is_null($container)) continue;
-			// only list what the current user has access to
-			if ($container->readAccess()) {
-				if (method_exists($container, 'getContentType')) {
-					$content_type = $container->getContentType();
-					if ($content_type->type() == 'content_type_snippet') {
-						// exclude all snippet content type
-						$this->forgetAsset($container);
-						continue;
+			// Get every asset and do permission check (slow)
+			if($permission_check) {
+				$container = $this->getAsset($id);
+				if (is_null($container)) continue;
+				// only list what the current user has access to
+				if ($container->readAccess()) {
+					$safe_name = make_valid_web_paths(Array($container->name));
+					if ($more_info) {
+						$keywords[$id] = Array(
+											'name'		=> $container->name,
+											'safe_name'	=> $safe_name[0],
+											'attr'		=> $container->attr('attributes'),
+										 );
+					} else {
+						$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container->name";
 					}
-					unset($content_type);
 				}
-				$safe_name = make_valid_web_paths(Array($container->name));
+				$this->forgetAsset($container);
+			}
+			else {
+				$sql = 'select custom_val as name from sq_ast_attr_val a_value, sq_ast_attr a where a_value.attrid = a.attrid and a.name = :attr_name and a_value.assetid = :asset_id';
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'attr_name', 'name');
+					MatrixDAL::bindValueToPdo($query, 'asset_id', $id);
+					$result = MatrixDAL::executePdoAssoc($query);
+					$container_name = isset($result[0]['name']) ? $result[0]['name'] : '';
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
+	
+				$safe_name = make_valid_web_paths(Array($container_name));
 				if ($more_info) {
+					$sql = 'select custom_val as attributes from sq_ast_attr_val a_value, sq_ast_attr a where a_value.attrid = a.attrid and a.name = :attr_name and a_value.assetid = :asset_id';
+					$result = NULL;
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'attr_name', 'attributes');
+						MatrixDAL::bindValueToPdo($query, 'asset_id', $id);
+						$result = MatrixDAL::executePdoAssoc($query);
+						$container_attr = isset($result[0]['attributes']) ? $result[0]['attributes'] : '';
+					} catch (Exception $e) {
+						throw new Exception($e->getMessage());
+					}
 					$keywords[$id] = Array(
-										'name'		=> $container->name,
+										'name'		=> $container_name,
 										'safe_name'	=> $safe_name[0],
-										'attr'		=> $container->attr('attributes'),
+										'attr'		=> $container_attr,
 									 );
 				} else {
-					$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container->name";
+					$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container_name";
 				}
 			}
-			$this->forgetAsset($container);
 		}//end foreach container
 
 		$this->_tmp[$_tmp_key] = $keywords;
