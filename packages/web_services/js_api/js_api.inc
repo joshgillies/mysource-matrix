@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.5 2009/11/12 04:25:11 bpearson Exp $
+* $Id: js_api.inc,v 1.6 2010/01/14 04:44:34 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -272,11 +272,16 @@ class JS_Api extends Page
 
 			break;
 
+			case 	'setMetadataAllFields' :
 			case	'setMetadata':
 				if ($this->attr('set_metadata')) {
 					if ($wa) {
 						if (isset($_REQUEST['field_id']) && isset($_REQUEST['field_val'])) {
-							$this->setAssetMetadata($asset->id, $_REQUEST['field_id'], $_REQUEST['field_val']);
+
+							$field_ids = explode('\\,', $_REQUEST['field_id']);
+							$field_vals = explode('\\,', $_REQUEST['field_val']);
+
+							$this->setAssetMetadata($asset->id, $field_ids, $field_vals);
 							$data['success'] = 'Metadata field #'.$_REQUEST['field_id'].' has been set to: '.$_REQUEST['field_val'];
 						} else {
 							$this->returnError('Please enter both the field id and value');
@@ -1054,11 +1059,11 @@ class JS_Api extends Page
 
 
 	/**
-	* Description: This operation will set the value for a metadata field of an asset
+	* Description: This operation will set the value for a metadata field(s) of an asset
 	*
 	* @param string		$assetid	The asset to regenerate metadata for
-	* @param string		$fieldid	The metadata field id
-	* @param string		$new_value	The new value for the field
+	* @param array		$fieldid	Array of the metadata field ids
+	* @param array		$new_value	Array of the new value corresponding to metadata field
 	*
 	* @return void
 	* @access public
@@ -1066,31 +1071,39 @@ class JS_Api extends Page
 	function setAssetMetadata($assetid, $fieldid, $new_value)
 	{
 		if (!empty($assetid) && !empty($fieldid)) {
+			if (count($fieldid) != count($new_value) ) $this->returnError('Please provide Metadata fieldids and corresponding values correctly');
+			$s_result = TRUE;
+			$g_result = TRUE;
+
 			// Shortucts
 			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 
-			$field	= $am->getAsset($fieldid);
-			if (!($field instanceof Metadata_Field)) {
-				$this->returnError('The Field ID provided does not belong to a metadata field');
-			}//end if
 			$am->acquireLock($assetid, 'metadata');
+			for ($i = 0; $i < count($fieldid); $i++ ) {
 
-			$field_asset	= $am->getAsset($fieldid);
-			$field_name		= $field_asset->attr('name');
+				$field	= $am->getAsset($fieldid[$i]);
+				if (!($field instanceof Metadata_Field)) {
+					$this->returnError('The Field ID provided does not belong to a metadata field');
+				}//end if
 
-			$metadata_info	= Array (
-								$fieldid	=> Array (
-												Array (
-													'name'	=> $field_name,
-													'value'	=> $new_value,
-												),
-											   ),
-							  );
-			// Set metadata and generate the content file
-			$s_result = $mm->setMetadata($assetid, $metadata_info);
-			$g_result = $mm->generateContentFile($assetid);
+				$field_name		= $field->attr('name');
+				$metadata_info	= Array (
+									$fieldid[$i]	=> Array (
+														Array (
+															'name'	=> $field_name,
+															'value'	=> $new_value[$i],
+														),
+													   ),
+								  );
+				// Set metadata
+				if (!$mm->setMetadata($assetid, $metadata_info)) $s_result = FALSE;
+
+			}//end for
 			$am->releaseLock($assetid, 'metadata');
+
+			// instead for doing it for every field, lets regen content file just once here
+			if (!$mm->generateContentFile($assetid)) $g_result = FALSE;
 			if ($s_result && $g_result) {
 				return Array (
 						'success'	=> 'The metadata has been correctly set',
@@ -1684,6 +1697,42 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	makeRequest(url, true, dataCallback);
 	
 }//end setMetadata
+
+
+/**
+* This will set a metadata value of multiple fields at one go for an Asset
+*
+* @param string     asset_id        Id of the asset we are getting info for
+* @param array      field_ids       Array of fieldids to change
+* @param array      field_vals      Array of field values to change corresponding to fieldids
+* @param function   dataCallback    Custom callback function
+*
+* @version $Revision: 0.1
+*/
+function setMetadataAllFields(asset_id, field_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var field_ids = '';
+	var field_vals = '';
+	for (var field_id in field_info) {
+		// construct our query strings to be passed
+		field_ids = field_ids + field_id + '\\,';
+		field_vals = field_vals + field_info[field_id] + '\\,' ;
+	}
+
+	// remove the trailing "\,"
+	field_ids = field_ids.substring(0, field_ids.length-2);
+	field_vals = field_vals.substring(0,field_vals.length-2);
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_ids + '&field_val=' + field_vals;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end setMetadataAllFields()
 
 
 /**
