@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.43 2009/01/12 02:26:59 akarelia Exp $
+* $Id: remap_manager.inc,v 1.43.6.1 2010/01/17 22:19:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,7 +266,7 @@ class Remap_Manager extends Asset
 			// This sub-query gets all URLs for this asset that have HTTP enabled
 			// and adds http protocol to them to create a usable URL - then same
 			// or similar for HTTPS enabled.
-			$sql = 'SELECT url, expires
+			$sql = 'SELECT url, expires, never_delete
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 			$union_select = '(SELECT
 								(\'http://\' || url)
