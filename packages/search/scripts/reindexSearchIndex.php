@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: reindexSearchIndex.php,v 1.3 2009/10/20 00:59:47 lwright Exp $
+* $Id: reindexSearchIndex.php,v 1.4 2010/01/18 06:27:35 csmith Exp $
 *
 */
 
@@ -25,65 +25,77 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
-$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
-
-// ask for the id of the root node to reindex
-echo 'Enter the #ID of the root node to reindex or press ENTER to reindex the whole system: ';
-$root_node_id = (int)trim(fgets(STDIN, 4094));
-
-// if the user chooses to reindex the whole system
-if (empty($root_node_id)) {
-	$root_node_id = 1;
-}
-
-// if the id entered is not an int (should not complain normally)
-if (!is_int($root_node_id)) {
-	trigger_error("You need to supply an integer\n", E_USER_ERROR);
-}
-
-// if the asset does not exists
-if (($root_node_id > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($root_node_id)) {
-	trigger_error("The asset #".$root_node_id." is not VALID\n", E_USER_ERROR);
-}
-
 // THE INDEXING STATUS SHOULD BE TURNED ON
 $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (!$sm->attr('indexing')) {
-	echo "\n\nBEFORE RUNNING THE SCRIPT, PLEASE CHECK THAT THE INDEXING STATUS IS TURNED ON\n";
+	echo "\nBEFORE RUNNING THE SCRIPT, PLEASE CHECK THAT THE INDEXING STATUS IS TURNED ON\n";
 	echo 'Note: You can change this option from the backend "System Management" > "Search Manager" > "Details"'."\n\n";
 	exit();
 }
 
-// confirm the action
-if ($root_node_id == 1) {
-	echo "DO YOU WANT TO REINDEX THE WHOLE SYSTEM (yes/no)\n";
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+// ask for the ids to reindex
+echo 'Enter the #IDs of the root nodes to reindex (space separated) or press ENTER to reindex the whole system: ';
+$root_node_ids = trim(fgets(STDIN, 4094));
+
+// if the user chooses to reindex the whole system
+if (empty($root_node_ids)) {
+	$root_node_ids = array(1);
 } else {
-	echo "DO YOU WANT TO REINDEX THE ROOT NODE #".$root_node_id. " (yes/no)\n";
+	$root_node_ids = explode(' ', $root_node_ids);
 }
 
-// if the answer is different from yes exit
-$process = trim(fgets(STDIN, 4094));
-if (strcmp(strtolower($process), 'yes') !== 0) {
-	echo 'EXIT'."\n";
-	exit();
+/**
+ * if the user typed 1 in the list anywhere,
+ * we only need to do one reindex
+ */
+if (in_array(1, $root_node_ids)) {
+	$root_node_ids = array(1);
 }
 
-echo 'START REINDEXING'."\n";
-$all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
-$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+foreach ($root_node_ids as $root_node_id) {
+	if (!is_numeric($root_node_id)) {
+		trigger_error("Asset ID " . $root_node_id . " is not valid. Supply an integer", E_USER_WARNING);
+		continue;
+	}
 
-$vars = Array(
-			'root_assetid'       => $root_node_id,
-		);
+	// if the asset does not exist
+	if (($root_node_id > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($root_node_id)) {
+		trigger_error("The asset #".$root_node_id." is not valid", E_USER_WARNING);
+		continue;
+	}
 
-foreach ($all_contextids as $contextid) {
-	$vars['contextid'] = $contextid;
-	$hh->freestyleHipo('hipo_job_reindex', $vars, SQ_PACKAGES_PATH.'/search/hipo_jobs');
+	// confirm the action
+	if ($root_node_id == 1) {
+		echo "Do you want to reindex the whole system (yes/no) ";
+	} else {
+		echo "Do you want to reindex the root node #".$root_node_id. " (yes/no) ";
+	}
+
+	// if the answer is different from yes, skip this asset.
+	$process = trim(fgets(STDIN, 4094));
+	if (strcmp(strtolower($process), 'yes') !== 0) {
+		echo "Skipping .. \n";
+		continue;
+	}
+
+	echo 'Start Reindexing'."\n";
+	$all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+	$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+
+	$vars = Array(
+				'root_assetid'       => $root_node_id,
+			);
+
+	foreach ($all_contextids as $contextid) {
+		$vars['contextid'] = $contextid;
+		$hh->freestyleHipo('hipo_job_reindex', $vars, SQ_PACKAGES_PATH.'/search/hipo_jobs');
+	}
+	echo 'Finished'."\n";
 }
-echo 'FINISHED'."\n";
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 ?>
