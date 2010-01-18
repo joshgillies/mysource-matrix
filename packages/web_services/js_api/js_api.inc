@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.3 2009/11/12 04:44:37 bpearson Exp $
+* $Id: js_api.inc,v 1.2.2.4 2010/01/18 00:34:24 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1525,7 +1525,7 @@ function makeRequest(url, receive, dataCallback)
 	// Create an instance of our ajax object
 	var ajaxRequest = createRequest();
 	// Open request
-	ajaxRequest.open('POST', url, true);
+	ajaxRequest.open('POST', encodeURI(url), true);
 	// Should we use a callback?
 	if (receive) {
 		// Custom callback
