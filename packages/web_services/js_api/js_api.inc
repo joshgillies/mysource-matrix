@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.4 2010/01/18 00:34:24 akarelia Exp $
+* $Id: js_api.inc,v 1.2.2.5 2010/01/19 06:26:18 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.4 $
+* @version $Revision: 1.2.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -244,8 +244,8 @@ class JS_Api extends Page
 							$attributes = $am->getAssetTypeAttributes($asset->type());
 							if (array_key_exists($_REQUEST['attr_name'], $attributes)) {
 								// Set our new values
-								$this->setAttributeValue($asset->id, $_REQUEST['attr_name'], $_REQUEST['attr_val']);
-								$data['success'] = 'Attribute '.$_REQUEST['attr_name'].' has been set to '.$_REQUEST['attr_val'];
+								$this->setAttributeValue($asset->id, $_REQUEST['attr_name'], str_replace('%26' , '&' ,$_REQUEST['attr_val']));
+								$data['success'] = 'Attribute '.$_REQUEST['attr_name'].' has been set to '.str_replace('%26' , '&' ,$_REQUEST['attr_val']);
 							}//end if
 						} else {
 							$this->returnError('Please enter both the attribute name and value');
@@ -276,8 +276,8 @@ class JS_Api extends Page
 				if ($this->attr('set_metadata')) {
 					if ($wa) {
 						if (isset($_REQUEST['field_id']) && isset($_REQUEST['field_val'])) {
-							$this->setAssetMetadata($asset->id, $_REQUEST['field_id'], $_REQUEST['field_val']);
-							$data['success'] = 'Metadata field #'.$_REQUEST['field_id'].' has been set to: '.$_REQUEST['field_val'];
+							$this->setAssetMetadata($asset->id, $_REQUEST['field_id'], str_replace('%26' , '&' ,$_REQUEST['field_val']));
+							$data['success'] = 'Metadata field #'.$_REQUEST['field_id'].' has been set to: '.str_replace('%26' , '&' ,$_REQUEST['field_val']);
 						} else {
 							$this->returnError('Please enter both the field id and value');
 						}//end else
@@ -383,9 +383,9 @@ class JS_Api extends Page
 						// These must be set, so we don't need to check these
 						if (isset($_REQUEST['type_code']) && isset($_REQUEST['asset_name'])) {
 							isset($_REQUEST['type_code']) ? $type_code = $_REQUEST['type_code'] : $type_code = '';
-							isset($_REQUEST['asset_name']) ? $asset_name = $_REQUEST['asset_name'] : $asset_name = '';
+							isset($_REQUEST['asset_name']) ? $asset_name = str_replace('%26' , '&' , $_REQUEST['asset_name']) : $asset_name = '';
 							isset($_REQUEST['link_type']) ? $link_type = $_REQUEST['link_type'] : $link_type = 1;
-							isset($_REQUEST['link_value']) ? $link_value = $_REQUEST['link_value'] : $link_value = '';
+							isset($_REQUEST['link_value']) ? $link_value = str_replace('%26' , '&' , $_REQUEST['link_value']) : $link_value = '';
 							isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = '';
 							isset($_REQUEST['is_dependant']) ? $is_dependant = $_REQUEST['is_dependant'] : $is_dependant = 0;
 							isset($_REQUEST['is_exclusive']) ? $is_exclusive = $_REQUEST['is_exclusive'] : $is_exclusive = 0;
@@ -1424,13 +1424,13 @@ function createRequest()
 			}//end catch
 		}//end catch
 	}//end catch
-	
+
 	if (!request) {
 		alert('Your browser does not support Ajax');
 	}
-	
+
 	return request;
-	
+
 }//end createRequest
 
 
@@ -1465,7 +1465,7 @@ function jsonToObj(json)
 	// Make the conversion
 	// Don't worry, even the creator of JSON says eval is ok here
 	var jsonObj = eval('(' + json + ')');
-	
+
 	return jsonObj;
 
 }//end jsonToObj
@@ -1488,11 +1488,11 @@ function success(ajaxRequest, dataCallback)
 				// Custom callback
 				dataCallback(response);
 			}//end if
-			
+
 		}//end if
-		
+
 	}//end if
-	 
+
 }//end success
 
 
@@ -1586,13 +1586,13 @@ function getGeneral(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end getGeneral
 	
 
@@ -1608,13 +1608,13 @@ function getAttributes(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAttributes&id=' + asset_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end getAttributes
 
 
@@ -1632,13 +1632,13 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val;
-	
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26");
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end setAttribute
 
 
@@ -1654,13 +1654,13 @@ function getMetadata(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getMetadata&id=' + asset_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end getMetadata
 
 
@@ -1676,13 +1676,16 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
+	//check to make and parse if any "&" in the values
+	field_val = field_val.replace(/&/g , "%26");
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end setMetadata
 
 
@@ -1698,13 +1701,13 @@ function trashAsset(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=trashAsset&id=' + asset_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end trashAsset
 
 
@@ -1721,16 +1724,16 @@ function getChildren(asset_id, levels, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set any levels
 	var levels = typeof(levels) != 'undefined' ? levels : 0;
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getChildren&id=' + asset_id + '&depth=' + levels;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getChildren
 
 
@@ -1746,13 +1749,13 @@ function getParents(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getParents
 
 
@@ -1769,13 +1772,13 @@ function getPermissions(asset_id, level, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getPermissions&id=' + asset_id + '&level=' + level;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getPermissions
 
 
@@ -1799,7 +1802,7 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '';
 	if (!isset(link_value)) link_value = '';
@@ -1808,23 +1811,23 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	if (!isset(is_exclusive)) is_exclusive = '';
 	if (!isset(extra_attributes)) extra_attributes = '';
 	if (!isset(attributes)) attributes = '';
-	
+
 	// Build our string
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
-				'&asset_name=' + asset_name +
+				'&asset_name=' + asset_name.replace(/&/g , "%26") +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value +
+				'&link_value=' + link_value.replace(/&/g , "%26") +
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive +
 				'&extra_attributes=' + extra_attributes +
 				'&' + attributes;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end createAsset
 
 
@@ -1839,13 +1842,13 @@ function getAssetTypes(dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTypes&id=1';
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getAssetTypes
 
 
@@ -1862,16 +1865,16 @@ function acquireLock(asset_id, screen_name, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// If the user does not set it, we get all locks
 	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=acquireLock&id=' + asset_id + '&screen=' + screen_name;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end acquireLock
 
 
@@ -1888,16 +1891,16 @@ function releaseLock(asset_id, screen_name, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// If the user does not set it, we get all locks
 	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=releaseLock&id=' + asset_id + '&screen=' + screen_name;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end releaseLock
 
 
@@ -1918,14 +1921,14 @@ function createLink(parent_id, child_id, link_type, link_value, sort_order, is_d
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '1';
 	if (!isset(link_value)) link_value = '';
 	if (!isset(sort_order)) sort_order = '';
 	if (!isset(is_dependant)) is_dependant = '';
 	if (!isset(is_exclusive)) is_exclusive = '';
-	
+
 	// Build our string
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createLink' + 
 				'&id=' + child_id +
@@ -1935,10 +1938,10 @@ function createLink(parent_id, child_id, link_type, link_value, sort_order, is_d
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end createLink
 
 
@@ -1955,13 +1958,13 @@ function removeLink(parent_id, child_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end removeLink
 
 
@@ -1981,11 +1984,11 @@ function moveLink(old_parent_id, child_id, new_parent_id, link_type, new_positio
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '1';
 	if (!isset(new_position)) new_position = '0';
-	
+
 	// Build our string
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=moveLink' + 
 				'&id=' + child_id +
@@ -1993,10 +1996,10 @@ function moveLink(old_parent_id, child_id, new_parent_id, link_type, new_positio
 				'&new_parent_id=' + new_parent_id +
 				'&link_type=' + link_type +
 				'&new_position=' + new_position;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end moveLink
 
 
@@ -2016,12 +2019,12 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '';
 	if (!isset(link_value)) link_value = '';
 	if (!isset(sort_order)) sort_order = '';
-	
+
 	// Build our string
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=updateLink' + 
 				'&id=' + child_id +
@@ -2029,10 +2032,10 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 				'&link_type=' + link_type +
 				'&link_value=' + link_value +
 				'&sort_order=' + sort_order;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end updateLink
 
 
@@ -2049,13 +2052,13 @@ function getLinkId(parent_id, child_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getLinkId
 
 
@@ -2072,16 +2075,16 @@ function getAssetTree(asset_id, levels, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	
+
 	// Check to see if we have set any levels
 	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getAssetTree&id=' + asset_id + '&depth=' + levels;
-	
+
 	// Make our request
 	makeRequest(url, true, dataCallback);
-		
+
 }//end getAssetTree
 
 	<?php
