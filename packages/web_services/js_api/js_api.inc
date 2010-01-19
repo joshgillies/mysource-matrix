@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.5.2.4 2010/01/19 06:24:17 akarelia Exp $
+* $Id: js_api.inc,v 1.5.2.5 2010/01/19 22:22:06 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.5.2.4 $
+* @version $Revision: 1.5.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1709,11 +1709,11 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 
 
 /**
-* This will set a metadata value of multiple fields at one go for an Asset
+* Set metadata values of multiple fields for an asset
 *
-* @param string     asset_id        Id of the asset we are getting info for
-* @param array		field_info      Array of Field ids and their corresponding values
-* @param function   dataCallback    Custom callback function
+* @param string		asset_id		Id of asset to set metadata for
+* @param array 		field_info		Field Ids and their values
+* @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
 */
