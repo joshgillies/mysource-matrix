@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.140.2.3 2009/10/15 01:20:18 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.140.2.4 2010/01/19 21:57:54 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140.2.3 $
+* @version $Revision: 1.140.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -74,8 +74,8 @@ class Workflow_Manager extends MySource_Object
 		return TRUE;
 
 	}//end allowsWorkflow()
-	
-	
+
+
 	/**
 	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	* Can also optionally get running workflows only.
@@ -113,7 +113,7 @@ class Workflow_Manager extends MySource_Object
 				$where .= ' AND cascades = :cascades';
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			
+
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
@@ -1058,7 +1058,7 @@ class Workflow_Manager extends MySource_Object
 			$base_msg->type    = 'asset.workflow.announce.approve';
 			$base_msg->parameters['assetid'] = $asset->id;
 			$base_msg->replacements = $msg_reps;
-		
+
 			// Send custom messages to anything that the publisher is in the workflow of
 			$generic_publishers_before = Array();
 			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
@@ -1066,11 +1066,10 @@ class Workflow_Manager extends MySource_Object
 				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
 				if (in_array($publisher, $publishers_step)) {
 					// Does this step have a custom message?
-					$custom_message = trim($current_step['message_approve']);
-					if ($custom_message !== '') {
+					if (isset($current_step['message_approve']) && trim($current_step['message_approve']) !== '' ) {
 						$msg = clone $base_msg;
 						$msg->to = $publishers_step;
-						$msg->body = $custom_message;
+						$msg->body = trim($current_step['message_approve']);
 						$ms->enqueueMessage($msg);
 					} else {
 						$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
@@ -1086,7 +1085,7 @@ class Workflow_Manager extends MySource_Object
 			if (count($generic_publishers_before) > 0) {
 				$msg = clone $base_msg;
 				$msg->to = $generic_publishers_before;
-				
+
 				$ms->enqueueMessage($msg);
 			}
 
@@ -1147,9 +1146,8 @@ class Workflow_Manager extends MySource_Object
 					$msg->replacements = $msg_reps;
 
 					// Does this step have a custom message?
-					$custom_message = trim($current_step['message_invitation']);
-					if ($custom_message !== '') {
-						$msg->body = $custom_message;
+					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+						$msg->body = trim($current_step['message_invitation']);
 					}
 
 					$ms->enqueueMessage($msg);
@@ -1482,10 +1480,10 @@ class Workflow_Manager extends MySource_Object
 					if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
 						$workflow_backend_href  = '/'.$workflow_backend_href;
 					}//end if
-	
+
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
-	
+
 					$msg_reps = Array(
 									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
@@ -1516,17 +1514,16 @@ class Workflow_Manager extends MySource_Object
 					$msg->replacements = $msg_reps;
 
 					// Does this step have a custom message?
-					$custom_message = trim($current_step['message_invitation']);
-					if ($custom_message !== '') {
+					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 						// This message has a custom body. Just send it.
-						$msg->body = $custom_message;
+						$msg->body = trim($current_step['message_invitation']);
 					} else {
 						// This is the generic message. Make sure only one of these are sent out,
 						// regardless of how many schemas trigger it.
 						if ($generic_msg === NULL) {
 							$generic_msg = $msg;
 						} else {
-							$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 							continue;
 						}
 					}
@@ -1677,19 +1674,18 @@ class Workflow_Manager extends MySource_Object
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.announce.reject';
 				}
-				
+
 				// Does this step have a custom message?
 				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
-				$custom_message = trim($current_step['message_reject']);
-				if ($custom_message !== '') {
-					$msg->body = $custom_message;
+				if (isset($current_step['message_reject']) && trim($current_step['message_reject']) !== '' ) {
+					$msg->body = trim($current_step['message_reject']);
 				} else {
 					// This is the generic message. Make sure only one of these are sent out,
 					// regardless of how many schemas trigger it.
 					if ($generic_msg === NULL) {
 						$generic_msg = $msg;
 					} else {
-						$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+						$generic_msg->to = array_merge($generic_msg->to, $msg->to);
 						continue;
 					}
 				}
@@ -1698,9 +1694,9 @@ class Workflow_Manager extends MySource_Object
 				$ms->enqueueMessage($msg);
 
 			}//end foreach
-	
+
 		}//end if
-	
+
 		return TRUE;
 
 	}//end cancelWorkflow()
@@ -1894,9 +1890,8 @@ class Workflow_Manager extends MySource_Object
 			$msg = $ms->newMessage($admins, $type, $msg_reps);
 
 			// Does this step have a custom message for stale workflow?
-			$custom_message = trim($current_step['message_stale']);
-			if ($custom_message !== '') {
-				$msg->body = $custom_message;
+			if (isset($current_step['message_stale']) && trim($current_step['message_stale']) !== '' ) {
+				$msg->body = trim($current_step['message_stale']);
 			}
 
 			$msg->send();
@@ -1976,9 +1971,8 @@ class Workflow_Manager extends MySource_Object
 			$msg->replacements = $msg_reps;
 
 			// Does this step have a custom message for escalation?
-			$custom_message = trim($step_before['message_escalated']);
-			if ($custom_message !== '') {
-				$msg->body = $custom_message;
+			if (isset($current_step['message_escalated']) && trim($current_step['message_escalated']) !== '' ) {
+				$msg->body = trim($step_before['message_escalated']);
 			}
 
 			$ms->enqueueMessage($msg);
@@ -2020,11 +2014,10 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->type    = 'asset.workflow.invitation.progress';
 			$msg->parameters['assetid'] = $asset->id;
-					
+
 			// Does this step have a custom message (for inviting users to the next step)?
-			$custom_message = trim($current_step['message_invitation']);
-			if ($custom_message !== '') {
-				$msg->body = $custom_message;
+			if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+				$msg->body = trim($current_step['message_invitation']);
 			}
 
 			$msg->replacements = $msg_reps;
