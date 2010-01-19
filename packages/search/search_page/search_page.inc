@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.243 2010/01/19 06:33:39 cupreti Exp $
+* $Id: search_page.inc,v 1.244 2010/01/19 21:18:14 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1088,7 +1088,7 @@ class Search_Page extends Listing_Engine
 			}
 			replace_global_keywords($query);
 		}
-		log_dump($query_var);
+		
 		ob_start();
 
 			if (empty($fields[$field_name]['data_sources']) || $this->_hasMixedFieldTypes($fields[$field_name])) {
