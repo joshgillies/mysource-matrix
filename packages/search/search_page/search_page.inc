@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.242 2009/09/24 02:25:34 lwright Exp $
+* $Id: search_page.inc,v 1.243 2010/01/19 06:33:39 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1088,7 +1088,7 @@ class Search_Page extends Listing_Engine
 			}
 			replace_global_keywords($query);
 		}
-
+		log_dump($query_var);
 		ob_start();
 
 			if (empty($fields[$field_name]['data_sources']) || $this->_hasMixedFieldTypes($fields[$field_name])) {
@@ -1957,13 +1957,14 @@ class Search_Page extends Listing_Engine
 						// synonym searching
 						$field_name = $matches[1];
 						$synonym_string = Array();
-						foreach (array_get_index($this->_tmp['search_synonyms'], $field_name, Array()) as $word => $synonyms) {
-							foreach ($synonyms as $synonym) {
-								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
-								$synonym_string[] = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+						if (isset($this->_tmp['search_synonyms'])) {
+							foreach (array_get_index($this->_tmp['search_synonyms'], $field_name, Array()) as $word => $synonyms) {
+								foreach ($synonyms as $synonym) {
+									$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
+									$synonym_string[] = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+								}
 							}
 						}
-
 						$synonym_string = implode(', ', $synonym_string);
 
 						if (!empty($synonym_string)) {
@@ -2544,7 +2545,7 @@ class Search_Page extends Listing_Engine
 			// If there are no results, check to see whether there is an auto
 			// synonym search set up, and if so, use that
 			if (empty($search_results)) {
-				if (!empty($auto_ss_field)) {
+				if (!empty($auto_ss_field) && isset($search_info['fields'][$auto_ss_field])) {
 					// Search with a copy of the original search info, because
 					// we don't want to interfere with the original search
 					$syn_search_info = $search_info;
