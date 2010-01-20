@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2007/10/15 05:52:37 bshkara Exp $
+* $Id: lang_screen_details.xml,v 1.1.10.1 2010/01/20 04:50:32 cupreti Exp $
 */
 -->
 
@@ -30,7 +30,7 @@
 		</field>
 		<field attribute="allow_unrestricted">
 			<display_name>Allow Unrestricted Access</display_name>
-			<note>Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</note>
+			<note>Set to Yes to allow this file to be served by the web server if it is Live and publicly readable.</note>
 		</field>
 		<field>
 			<display_name>Upload File</display_name>
