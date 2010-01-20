@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.7.2.1 2009/11/05 22:02:55 cupreti Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.7.2.2 2010/01/20 03:54:37 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,6 @@
 *
 * @author	Mark Brydon <mbrydon@squiz.net>
 * 28 Nov 2007
-* Modified 2 Jul 2009
 *
 *
 * Purpose:
@@ -41,7 +40,7 @@
 *		2. This script outputs CSV to track the unique identifier supplied and the asset ID created
 *		3. Item 2 can be leveraged to write small scripts to work on assets previously imported by this script
 *		   (eg; assign permissions in another script to a page to user X imported in this script)
-*       4. Assets can be edited and deleted as denoted by a record flag column
+*		4. Assets can be edited and deleted as denoted by a record flag column
 *
 *	Assignment of (only) one metadata schema and relevant values is supported with this script.
 *	No validation is performed on any attributes or metadata fields, so it is assumed that the
@@ -156,7 +155,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 	$trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 	$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-	
+
 	// Set to true if temporary trash folder is created, where all the assets to be deleted are moved to
 	$temp_trash_folder = FALSE;
 
@@ -179,7 +178,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 			// If a Record Modification Field was specified, we also require that a Unique Field was specified for the import
 			// These two fields must be present in the CSV file for us to Edit and Delete existing assets. Otherwise, we'll just add
 			$record_handling = IMPORT_ADD_RECORD;
-			
+
 			if (!empty($unique_record_field) && !empty($record_modification_field) && isset($asset_spec[$unique_record_field]) && isset($asset_spec[$record_modification_field])) {
 				$record_modification_state = strtoupper($asset_spec[$record_modification_field]);
 				switch ($record_modification_state) {
@@ -245,16 +244,16 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 				}
 
 				if ($record_handling == IMPORT_DELETE_RECORD) {
-					
+
 					// Deletify
 					printStdErr('- Deleting asset');
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_asset_id);
 
 					if ($asset) {
-											
+
 						// Create temporary trash folder, if not already created
 						if (!$temp_trash_folder) {
-							
+
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 							$temp_trash_folder = new Folder();
 
@@ -265,31 +264,31 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 								'link_type'	=> SQ_LINK_TYPE_1,
 							);
 							$linkid = $temp_trash_folder->create($link_array);
-							
+
 							// If cannot create the temporary trash folder then we cannot delete any asset
 							if (!$linkid) {
 								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to create temporary trash folder. Continuing to the next record.\n");
-								
+
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 								continue;
 							}
 						}
-						
+
 						// Move the asset to the temporary trash folder
 						$asset_linkid_old = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent_id, $asset->id);
 						$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($asset_linkid_old['linkid'], $temp_trash_folder->id, SQ_LINK_TYPE_1, -1);
-						
+
 						// If cannot move the asset to temporary trash folder then it cannot be deleted
 						if (!$linkid) {
 								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to move this asset to temporary trash folder. Continuing to the next record.\n");
-								
+
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 								continue;
 						}
-						
+
 						echo $search_value.','.$existing_asset_id.",D\n";
 						$num_assets_deleted++;
-						
+
 					} // End if asset
 				} else if ($record_handling == IMPORT_EDIT_RECORD) {
 					// Editise
@@ -333,34 +332,36 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 	}// End while
 
 	fclose($csv_fd);
-	
+
 	$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-	// Now actually delete all the assets moved to "temporary purge folder" by purging this folder	
+	// Now actually delete all the assets moved to "temporary purge folder" by purging this folder
 	if ($temp_trash_folder && $GLOBALS['SQ_SYSTEM']->am->trashAsset($temp_trash_folder->id)) {
-	
+
 		$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		$trash_linkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $temp_trash_folder->id);
-		
+
 		if (isset($trash_linkid['linkid']) && $trash_linkid['linkid'] > 0) {
-			
-			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();		
-			
+
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+
 			$vars = Array(
 				'purge_root_linkid' => $trash_linkid['linkid'],
 			);
-			
+
 			$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
 
 			if (!empty($errors)) {
 				$error_msg = '';
-				foreach($errors as $error) $error_msg .= ' * '.$error['message'];
+				foreach($errors as $error) {
+					$error_msg .= ' * '.$error['message'];
+				}
 				echo "Following errors occured while deleting asset(s):\n$error_msg\n";
 			}
 		}
-	
+
 	}
-	
+
 	$status_report = Array(
 						'num_added'		=> $num_assets_imported,
 						'num_modified'	=> $num_assets_modified,
@@ -407,12 +408,12 @@ function editAsset($asset_id, Array $asset_spec, Array $attribute_mapping, Array
 function findAsset($root_asset_id, $asset_type_code, Array $search)
 {
 	// Begin uberquery!
-    $db = MatrixDAL::getDb();
+	$db = MatrixDAL::getDb();
 
 	$search_type_attribute = isset($search['attribute']);
 	$field_name = '';
 	$field_value = '';
-	
+
 	if ($search_type_attribute) {
 		$field_name = $search['attribute']['field'];
 		$field_value = $search['attribute']['value'];
@@ -431,7 +432,7 @@ function findAsset($root_asset_id, $asset_type_code, Array $search)
 
 		$tree_id = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
-        throw new Exception('Unable to search for an existing '.$asset_type_code.' asset: '.$e->getMessage());
+		throw new Exception('Unable to search for an existing '.$asset_type_code.' asset: '.$e->getMessage());
 	}
 
 	if ($tree_id == '') return Array();
@@ -442,14 +443,14 @@ function findAsset($root_asset_id, $asset_type_code, Array $search)
 	// Query portion for restricting by metadata field value
 	$metadata_sql_from = 'sq_ast_mdata_val m ';
 
-    $sql = 'SELECT a.assetid, a.name '.
-        'FROM sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t, '.(($search_type_attribute) ? $attribute_sql_from : $metadata_sql_from).
-            'WHERE t.treeid LIKE :tree_id '.
+	$sql = 'SELECT a.assetid, a.name '.
+			'FROM sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t, '.(($search_type_attribute) ? $attribute_sql_from : $metadata_sql_from).
+			'WHERE t.treeid LIKE :tree_id '.
 			'AND l.linkid = t.linkid AND a.assetid = l.minorid ';
 
-    if (!empty($asset_type_code)) {
-        $sql .= 'AND a.type_code = :type_code ';
-    }
+	if (!empty($asset_type_code)) {
+		$sql .= 'AND a.type_code = :type_code ';
+	}
 
 	if ($search_type_attribute) {
 		$sql .= ' AND v.assetid = a.assetid AND r.name = :field_name AND v.attrid = r.attrid AND v.custom_val = :field_val';
@@ -457,20 +458,20 @@ function findAsset($root_asset_id, $asset_type_code, Array $search)
 		$sql .= ' AND m.assetid = a.assetid AND m.fieldid = :field_name AND m.value = :field_val';
 	}
 
-    try {
-        $query = MatrixDAL::preparePdoQuery($sql);
-        MatrixDAL::bindValueToPdo($query, 'tree_id', $tree_id.'%');
-        MatrixDAL::bindValueToPdo($query, 'field_name', $field_name);
-        MatrixDAL::bindValueToPdo($query, 'field_val', $field_value);
-        if (!empty($asset_type_code)) {
-            MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type_code);
-        }
-        $matching_assets = MatrixDAL::executePdoAssoc($query, 0);
-    } catch (Exception $e) {
-        throw new Exception('Unable to search for an existing '.$asset_type_code.' asset: '.$e->getMessage());
-    }
+	try {
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'tree_id', $tree_id.'%');
+		MatrixDAL::bindValueToPdo($query, 'field_name', $field_name);
+		MatrixDAL::bindValueToPdo($query, 'field_val', $field_value);
+		if (!empty($asset_type_code)) {
+			MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type_code);
+		}
+		$matching_assets = MatrixDAL::executePdoAssoc($query, 0);
+	} catch (Exception $e) {
+		throw new Exception('Unable to search for an existing '.$asset_type_code.' asset: '.$e->getMessage());
+	}
 
-    return $matching_assets;
+	return $matching_assets;
 
 }//end findAsset()
 
@@ -554,6 +555,8 @@ function createAsset(Array $asset_spec, $asset_type_code, Asset &$parent_asset, 
 function editAttributes(Asset &$asset, Array $asset_spec, Array $attribute_mapping)
 {
 	$first_attr_name = '';
+	$attrs_modified = FALSE;
+
 	foreach ($attribute_mapping as $supplied_name => $attribute_name) {
 		if ($first_attr_name == '') {
 			$first_attr_name = $supplied_name;
@@ -563,7 +566,14 @@ function editAttributes(Asset &$asset, Array $asset_spec, Array $attribute_mappi
 		// Only set attributes when they are not set to that value already
 		if (isset($asset_spec[$supplied_name]) && ($asset->attr($attribute_name) != $asset_spec[$supplied_name])) {
 			$asset->setAttrValue($attribute_name, $asset_spec[$supplied_name]);
+			$attrs_modified = TRUE;
 		}
+	}
+
+	// Save attribute values and run updated (default behaviour)
+	// As fixed in Bug 4141
+	if ($attrs_modified) {
+		$asset->saveAttributes();
 	}
 
 }//end editAttributes()
@@ -580,10 +590,10 @@ function editMetadata(Asset &$asset, Array $asset_spec, Array $metadata_mapping,
 
 	foreach ($metadata_mapping as $supplied_field_name => $metadata_field_id) {
 		if (isset($asset_spec[$supplied_field_name])) {
-			$metadata = Array($metadata_field_id => Array ( 
+			$metadata = Array($metadata_field_id => Array (
 															0 => Array(
 																	'value' => $asset_spec[$supplied_field_name],
-																	'name' => $supplied_field_name 
+																	'name' => $supplied_field_name,
 																)
 													)
 							);
@@ -596,7 +606,6 @@ function editMetadata(Asset &$asset, Array $asset_spec, Array $metadata_mapping,
 	$mm->regenerateMetadata($asset->id);
 
 }//end editMetadata()
-
 
 
 /************************** MAIN PROGRAM ****************************/
