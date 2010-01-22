@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.16 2010/01/22 02:44:40 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.17 2010/01/22 02:53:07 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -312,6 +312,7 @@ class Data_Source_Xml extends Data_Source
 	function _checkRootTag($name)
 	{
 		$root_tag = $this->attr('root_tag');
+		
 		if (!$this->_inside_root_tag) {
 			if (empty($root_tag)) {
 				$this->_inside_root_tag = TRUE;
