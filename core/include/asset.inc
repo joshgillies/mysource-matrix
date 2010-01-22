@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.714 2009/12/16 04:08:49 cupreti Exp $
+* $Id: asset.inc,v 1.715 2010/01/22 04:35:07 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.714 $
+* @version $Revision: 1.715 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2270,8 +2270,10 @@ class Asset extends MySource_Object
 		$orig_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE, NULL);
 		foreach ($orig_links as $orig_link) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
-			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
-			if (!$linkid) return FALSE;
+			if ($asset->canCloneLink()) {
+				$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
+				if (!$linkid) return FALSE;
+			}
 
 		}//end foreach
 		return TRUE;
@@ -2900,6 +2902,19 @@ class Asset extends MySource_Object
 
 
 	}//end linksUpdated()
+
+
+	/**
+	* Return TRUE if this link can be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canCloneLink()
+	{
+		return TRUE;
+
+	}//end isDeletableLink()
 
 
 //--        ATTRIBUTES        --//
