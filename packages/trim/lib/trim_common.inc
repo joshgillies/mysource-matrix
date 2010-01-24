@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.7.4.1 2010/01/05 23:32:34 ewang Exp $
+* $Id: trim_common.inc,v 1.7.4.2 2010/01/24 23:32:05 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7.4.1 $
+* @version $Revision: 1.7.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -818,7 +818,7 @@ class TRIM_Common
 											'HideAdhocLocations'	=> FALSE,
 											'TargetForUpdate'		=> FALSE,
 											'IsForUpdate'			=> FALSE,
-											'Limit'					=> 20,
+											'Limit'					=> 1,
 										   );
 		// END GET ASSIGNEE URI
 		$FetchInjectionUriLocationId	= Array (
@@ -833,7 +833,7 @@ class TRIM_Common
 
         $xml = $client->ConvertToXml($Execute);
         $xml = self::SwapElement($xml->ConvertToXmlResult, 'LocationStringSelect', 'FetchInjectionUri');
-    
+  
         $data = $client->ExecuteXml(Array('xml' => $xml));
 
         $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
@@ -867,8 +867,7 @@ class TRIM_Common
 	public static function executeCreateRequest($connection, $username, $new_record_info)
 	{
 		// Check Whether the username exists in TRIM
-		//$trim_userid = self::executeGetAssigneeRequest($connection, $username);
-		$trim_userid = 1;
+		$trim_userid = self::executeGetAssigneeRequest($connection, $username);
 		if (!$trim_userid) {
 			trigger_error('There is no such user with username "'.$username.'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
