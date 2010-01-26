@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.98 2009/04/28 02:59:37 cupreti Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.98.4.1 2010/01/26 22:12:00 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2376,6 +2376,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$option_name = 'asset_attribute';
 				break;
 
+				case 'keyword':
+					$option_name = 'keyword';
+				break;
+				
 				default:
 					$option_name = '';
 				break;
@@ -2395,7 +2399,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					case 'standard_asset':
 						$commit_button |= $this->paintGroupByStandardAssetField($asset, $o, $prefix.'['.$level.']', $group_by_option);
 					break;
-
+					
+					case 'keyword':
+						$commit_button |= $this->paintGroupByKeyword($asset, $o, $prefix.'['.$level.']', $group_by_option);
+					break;
+					
 					case 'attribute':
 						// implementation reserved
 					break;
@@ -2507,7 +2515,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				case 'standard_asset':
 					$this->processGroupByStandardAssetField($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
-
+				
+				case 'keyword':
+					$this->processGroupByKeyword($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
+				break;
+				
 				case 'attribute':
 					// $this->processGroupByAttribute($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
@@ -2857,7 +2869,72 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	}//end processGroupByParentAsset()
 
+	/**
+	* Paint 'Group By Standard Asset Field' Option
+	*
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param array	$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGroupByKeyword(&$asset, &$o, $prefix, $group_by_option)
+	{
+		$write_access = $asset->writeAccess('attributes');
 
+		$o->openField(translate('keyword'));
+		$keyword = array_get_index($group_by_option, 'keyword', NULL);
+			if ($write_access) {
+				text_box($prefix.'[keyword]', $keyword, 10);
+			} else {
+				if (is_null($keyword)) {
+					echo '<em>'.translate('cms_listing_no_keyword').'</em>';
+				} else {
+					echo $keyword;
+				}
+			}
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintGroupByKeyword()
+
+
+	/**
+	* Process 'Group By Standard Asset Field' Option
+	*
+	* @param object	&$asset				asset being painted
+	* @param object	&$o					backend outputter
+	* @param string	$prefix				prefix for the html doc element name
+	* @param int	$key				key
+	* @param array	&$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGroupByKeyword(&$asset, &$o, $prefix, $key, &$group_by_option)
+	{
+		$posted_option = array_get_index($_POST[$prefix], $key, NULL);
+		if (!is_array($posted_option)) return FALSE;
+
+		if (isset($posted_option['keyword'])) {
+			$group_by_option['keyword'] = $posted_option['keyword'];
+		}
+		$group_by_option['sort_order'] = $posted_option['sort_order'];
+
+		if (empty($posted_option['max_children'])) {
+			$group_by_option['max_children'] = NULL;
+		} else {
+			$group_by_option['max_children'] = $posted_option['max_children'];
+		}
+
+		return TRUE;
+
+	}//end processGroupByKeyword()
+	
+	
 	/**
 	* Paint a place to add a new 'Group By' field
 	*
@@ -2887,6 +2964,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'parent_asset'		=> translate('cms_listing_parent_asset'),
 						'metadata'			=> translate('asset_metadata'),
 						'standard_asset'	=> translate('standard_asset_field'),
+			 			'keyword'                       => translate('keyword'),
 					   );
 
 			combo_box($prefix.'[new_type]', $options, FALSE, '');

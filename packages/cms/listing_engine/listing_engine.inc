@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.292.2.2 2009/12/17 04:29:49 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.292.2.3 2010/01/26 22:11:17 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.292.2.2 $
+* @version $Revision: 1.292.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1965,7 +1965,11 @@ class Listing_Engine extends Page
 								$group_name = $group_level;
 							}
 						break;
-
+						
+						case 'keyword':
+							$group_name = $group_level;
+						break;
+						
 						case 'attribute':
 							// oh noes, implementation reserved!
 						break;
@@ -3059,6 +3063,17 @@ class Listing_Engine extends Page
 						}
 					break;
 
+					case 'keyword':
+							$keyword = $group_level['keyword'];
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
+							if(!is_null($asset)) {
+								$value = $asset->getKeywordReplacement($keyword);
+							}
+							else {
+								$value = '';
+							}
+					break;
+					
 					case 'attribute':
 						// implementation reserved
 					break;
@@ -3450,6 +3465,7 @@ class Listing_Engine extends Page
 				if (!empty($group_order) )$results = $group_order;
 				//dont break here, just go with the flow ;)
 			case 'standard_asset':
+			case 'keyword':
 				// metadata and standard asset field groups are sorted just on
 				// the key's value, because the key IS the value
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
