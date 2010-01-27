@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.45 2009/11/27 05:37:14 bpearson Exp $
+* $Id: bodycopy_container.inc,v 1.45.2.1 2010/01/27 22:26:20 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,9 +126,16 @@ class Bodycopy_Container extends Asset
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				// Find out where the popups are located. (under bodycopy)
-				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
-				$bodycopy_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
-				require_once $bodycopy_dir.'/popups/'.trim($_REQUEST['popup_file']);
+				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');				
+				
+				$include_file = trim($_REQUEST['popup_file']);
+				$bodycopy_popup_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/popups/';
+				$dir_listing = scandir($bodycopy_popup_dir);
+				
+				if (in_array($include_file, $dir_listing)) {
+					require_once($bodycopy_popup_dir.$include_file);
+				} 
+
 				exit(0);
 			default :
 				return parent::paintBackend($o);
