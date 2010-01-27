@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.7 2009/05/29 06:33:29 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.8 2010/01/27 05:28:46 ewang Exp $
 *
 */
 
@@ -23,8 +23,9 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 * Purpose
 *
 *
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -46,6 +47,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -63,10 +65,10 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access protected
 	*/
-	function paintDynamicData(&$asset, &$o, $prefix)
+	function paintGeneralOptions(&$asset, &$o, $prefix)
 	{
+		
 		require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
-
 		$write_access = $asset->writeAccess('attributes');
 
 		$var_list = $asset->attr('dynamic_vars');
@@ -77,11 +79,18 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 									'Search Parent Container'				=> Array (
 																			   	'search_parent_container',
 																			   ),
-									'String Search Options'					=> Array (
-																				'search_keyword', 'string_search_type'
-																			   ),
-									'General Search Options'				=> array_keys($var_list),
-								  );
+									'General Search Options'				=> Array (
+																			   	'search_parent_container',
+																			   	'fileTypes',
+																			   	'limit',
+																			   	'search_sort_1',
+																			   	'search_sort_2',
+																			   	'search_sort_3',
+																			   	'sort_1_descending',
+																			   	'sort_2_descending',
+																			   	'sort_3_descending',
+																			   ),																		
+								  );							  
 
 		foreach ($var_list_classified as $name => $options) {
 			?>
@@ -93,6 +102,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			<?php
 			foreach ($options as $var) {
 				if (!isset($var_list[$var])) continue;
+				//these options moved out
 				$value = $var_list[$var];
 				$var_id = base64_encode($var);
 
@@ -111,14 +121,10 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				$list = Array();
 
 				$search_sort = FALSE;
-				if (urlencode($var) == 'fields') {
-					$list = TRIM_Common::getRecordProperties();
-				} else if (strpos(urlencode($var), 'search_sort') !== FALSE) {
+				if (strpos(urlencode($var), 'search_sort') !== FALSE) {
 					$search_sort = TRUE;
 					$list['None']	= 'None';
 					$list += TRIM_Common::getRecordSortProperties();
-				} else if (urlencode($var) == 'string_search_type') {
-					$list = TRIM_Common::getRecordStringSearchClauseType();
 				} else if (urlencode($var) == 'search_date_range_type') {
 					$list = TRIM_Common::getRecordDateRangeSearchClauseType();
 				}//end if
@@ -137,15 +143,9 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				} else {
 					if (is_array($value)) {
 						?><ul style="position:relative;left:-41px;list-style:none;"><?php
-						if (urlencode($var) == 'fields') {
-							foreach ($value as $key => $val) {
-								echo '<li>'.$list[$val].'</li>';
-							}//end foreach
-						} else {
-							foreach ($value as $key => $val) {
-								echo '<li>'.$val.'</li>';
-							}//end foreach
-						}//end if
+						foreach ($value as $key => $val) {
+							echo '<li>'.$val.'</li>';
+						}//end foreach
 						?></ul><?php
 					} else if (	strpos(urlencode($var), 'descending') !== FALSE || strpos(urlencode($var), 'use_expanded_number') !== FALSE) {
 						echo ($value) ? 'Yes' : 'No';
@@ -170,7 +170,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 		return $write_access;
 
-	}//end paintDynamicData()
+	}//end paintGeneralOptions()
 
 
 	/**
@@ -240,7 +240,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access protected
 	*/
-	function processDynamicData(&$asset, &$o, $prefix)
+	function processGeneralOptions(&$asset, &$o, $prefix)
 	{
 		$var_name_pattern = '/^[a-zA-Z_\-0-9\.]+$/';
 
@@ -353,96 +353,8 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 
 		return TRUE;
 
-	}//end processDynamicData()
+	}//end processGeneralOptions()
 
-
-	/**
-	* paint record search type
- 	*
-	* @param object $asset
-	* @param object $o
-	* @param string $prefix
-	 */
-	function paintRecordSearchType(&$asset, &$o, $prefix)
-	{
-		$selected_type = $asset->attr('record_search_type');
-		$write_access	= $asset->writeAccess('attributes');
-		//echo 'Painting Record Search Type';
-		$record_search_types	= Array();
-		$record_search_types = $asset->getRecordSearchTypes();
-		if ($write_access) {
-			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-			combo_box($prefix.'_search_types', $record_search_types, FALSE, $selected_type);
-		} else {
-			echo $record_search_types[array_pop($selected_type)];
-		}//end else if
-
-		return $write_access;
-
-	}//end paintRecordSearchType()
-
-
-	/**
-	* process record search type
- 	*
-	* @param object $asset
-	* @param object $o
-	* @param string $prefix
-	 */
-	function processRecordSearchType(&$asset, &$o, $prefix)
-	{
-        if (!$asset->writeAccess('attributes')) return FALSE;
-
-        $new_name = NULL;
-        $search_type = $asset->attr('record_search_type');
-        if (!empty($_POST[$prefix.'_search_types'])) {
-            $new_search_type = $_POST[$prefix.'_search_types'];
-			if ($search_type != $new_search_type) {
-	            $res = $asset->setAttrValue('record_search_type', Array($new_search_type));
-				$current_dyn_vars	= $asset->attr('dynamic_vars');
-				if (!is_array($current_dyn_vars)) {
-					return FALSE;
-				}
-
-				// Lets clean up the dynamic vars so we can put the new options in.
-				$asset->cleanupDynamicVars($current_dyn_vars);
-
-				$new_search_dyn_vars = Array();
-				if ($new_search_type == 'StringSearch') {
-					$new_search_dyn_vars	= Array (
-												'search_keyword'		=> 'doc',
-												'string_search_type'	=> Array (
-																		'TitleWord'	=> 'TitleWord',
-																	   ),
-											  );
-
-				} else if ($new_search_type == 'DateRangeSearch') {
-					$new_search_dyn_vars	= Array (
-												'StartTime'				=> '',
-												'EndTime'				=> '',
-												'dateRangeSearchType'	=> Array (
-																			'DateCreated'	=> 'DateCreated',
-																		   ),
-											  );
-				} else if ($new_search_type == 'NumberRangeSearch') {
-					$new_search_dyn_vars	= Array (
-												'StartNum'			=> '',
-												'EndNum'			=> '',
-												'UseExpandedNumber'	=> TRUE,
-											  );
-				}//end else if
-				$new_search_dyn_vars += $current_dyn_vars;
-				$asset->setAttrValue('dynamic_vars', $new_search_dyn_vars);
-
-	            return TRUE;
-	        } else {
-	            return FALSE;
-	        }
-        }
-        return TRUE;
-
-
-	}//end processRecordSearchType()
 
 
 	/**
@@ -618,6 +530,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		<?php
 		$o->closeRaw();
 
+
 	}//end paintSynchCheck()
 
 
@@ -637,5 +550,474 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	}//end processSynchCheck()
 
 
+	/**
+	* paint function for retrieving fields from TRIM server
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRetrieveFields(&$asset, &$o, $prefix)
+	{
+		$wa	= $asset->writeAccess('attributes');
+		$fields = $asset->attr('retrieved_fields');
+		?>
+		<table>
+		<tr>
+		<td>
+		<?php
+		if (!empty($_POST[$prefix.'_retrieve'])) echo '<span style="color:green;">';
+		echo (empty($fields) ? 'Empty' : count($fields['standard_fields']).' standard fields and '.count($fields['additional_fields']).' additional fields retrieved');
+		if (!empty($_POST[$prefix.'_retrieve'])) echo '</span>';
+		?>
+		</td>
+		<td>
+		<?php
+		if ($wa) submit_button($prefix.'_retrieve', 'Retrieve Now', '');
+		?>
+		</td>
+		</tr>
+		</table>
+		<?php
+		return $wa;
+		
+	}//end paintSynchCheck()
+
+
+	/**
+	* process function for retrieving fields from TRIM server
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRetrieveFields(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$connection = $asset->getConnection();
+
+        if (!empty($_POST[$prefix.'_retrieve']) && !empty($connection)) {
+			// get all fields form TRIM server
+			$st_fields = Array();
+			$udf_fields = Array();
+			$fields_type = Array();
+			try {
+				$client = new SoapClient($connection['wsdl'], $connection['authentication']);
+				$data = $client->ListProperties(Array('ObjectName'	=> 'Record'));
+				foreach ($data->ListPropertiesResult->PropertyDescription as $field) {
+					if (preg_match('/^udf:/', (String) $field->Name)) {
+						$udf_fields[(String) $field->Name] = ((String) $field->Caption);
+					}
+					else {
+						$st_fields[(String) $field->Name] = ((String) $field->Caption);
+					}
+					// record fields type
+					$fields_type[(String) $field->Name] = (String) $field->Type;
+				}
+				
+			} catch (SoapFault $e) {
+				trigger_error($e->getMessage(), E_USER_WARNING);
+				return FALSE;
+			}//end if
+			
+			$asset->setAttrValue('retrieved_fields', Array('standard_fields' => $st_fields, 'additional_fields' => $udf_fields, 'field_types' => $fields_type));
+
+		}
+        return TRUE;
+	}//end processRetrieveFields()
+	
+	
+	/**
+	* Paints the interface for adding and configuring search fields.
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSearchFields(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$var_list = $asset->attr('dynamic_vars'); 
+		$search_groups = isset($var_list['search_clauses']['search_groups']) ? $var_list['search_clauses']['search_groups'] : Array();
+		$global_logic = isset($var_list['search_clauses']['global_logic']) ? $var_list['search_clauses']['global_logic'] : 'AND';
+		
+		//get possible search fields
+		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_search_field').' --'));
+		$list = $asset->getRetrievedFields('additional');
+		$available_fields += TRIM_Common::getRecordStringSearchClauseType() + $list;
+		
+		//work out total rows
+		$total_rows = 0;
+		foreach($search_groups as $group_data) {
+				$total_rows += count($group_data['content']);
+				if ($write_access) $total_rows ++;
+		}
+
+		?>
+		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; ">
+			<tr>
+				<th rowspan="2"><?php echo translate('trim_ds_search_groups'); ?></th>
+				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('trim_ds_search_search_fields'); ?></th>
+				<th rowspan="2"><?php echo translate('trim_ds_search_logic_group'); ?></th>
+				<?php
+				if ($write_access) {
+					?>
+					<th rowspan="2"><?php echo translate('delete'); ?></th>
+					<?php
+				}
+				?>
+				<th rowspan="2"><?php echo translate('trim_ds_search_logic_global'); ?></th>
+			</tr>
+			<tr>
+				<th><?php echo translate('name');?></th>
+				<th><?php echo translate('keyword');?> </th>
+				<?php
+				if ($write_access) {
+					?>
+					<th><?php echo translate('delete'); ?></th>
+					<?php
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($search_groups as $group_index => $group_data) {
+				if ($write_access) $group_data['content'][] = Array('caption' => 'new');
+
+				foreach ($group_data['content'] as $field_index => $field_data) {
+					?>
+					<tr>
+						<?php
+						if ($field_index == 0) {
+						?>
+						<td rowspan="<?php echo (count($group_data['content'])); ?>">Group <?php echo ($group_index+1); ?></td>
+						<?php 
+						}
+						?>
+						<td class="sq-backend-data" style="padding: 4px;">
+							<?php
+							if ($field_data['caption'] == 'new') {
+								if ($write_access) {
+									$count  = count($group_data['content']);
+									combo_box($prefix.'_fields['.$group_index.']['.$count.'][new_search_field]', $available_fields, FALSE,'none');
+								}
+							} else {
+								echo $field_data['caption'];
+								//display field type
+								$field_type = $asset->getRetrievedFieldType($field_data['name']);
+								echo (empty($field_type) ? '' : ' ('.$field_type.')');
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($field_data['caption'] != 'new') {
+								if($write_access)
+									text_box($prefix.'_fields['.$group_index.']['.$field_index.'][keyword]', $field_data['keyword'], '20');
+								else
+									echo $field_data['keyword'];
+							}//end if
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							// Delete field Cell
+							?>
+							<td class="sq-backend-data">
+								<?php
+								if ($field_data['caption'] != 'new') {
+									check_box($prefix.'_fields['.$group_index.']['.$field_index.'][delete]');
+								}
+								?>
+							</td>
+							<?php
+						}
+						if ($field_index == 0) {
+							// Logic Cell
+							?>
+							<td rowspan="<?php echo count($group_data['content']);?>" style="vertical-align:middle; text-align:center;">
+								<?php
+								$group_logic_options = Array('AND' => translate('trim_ds_search_logic_and'), 'OR' => translate('trim_ds_search_logic_or'));
+								if ($write_access) {
+									combo_box($prefix.'_fields['.$group_index.'][group_logic]', $group_logic_options, FALSE, array_get_index($group_data, 'group_logic', 'AND'), 0, 'title="'.translate('trim_ds_search_group_logic_note').'"');
+								} else {
+									echo array_get_index($group_data, 'group_logic', 'AND');
+								}
+								?>
+							</td>
+							<?php
+						}
+
+						if (($field_index == 0) && $write_access) {
+							// Delete field overall cell
+							?>
+							<td rowspan="<?php echo count($group_data['content']);?>">
+								<?php
+								check_box($prefix.'_fields['.$group_index.'][delete]');
+								?>
+							</td>
+							<?php
+						}
+						
+						if ($group_index == 0 && $field_index == 0) {
+							// Global Logic Cell
+							?>
+							<td rowspan="<?php echo $total_rows; ?>" style="vertical-align:middle; text-align:center;">
+								<?php
+								$global_logic_options = Array('AND' => translate('trim_ds_search_logic_and'), 'OR' => translate('trim_ds_search_logic_or'));
+								if ($write_access) {
+									combo_box($prefix.'_fields[global_logic]', $global_logic_options, FALSE, $global_logic, 0, 'title="'.translate('trim_ds_search_global_logic_note').'"');
+								} else {
+									echo $global_logic;
+								}
+								?>
+							</td>
+							<?php
+						}
+											
+						?>
+						</tr>
+				
+						<?php
+					}//end foreach 
+				}//end foreach */
+				?>
+			</tr>
+
+		</table>
+		<?php
+		if ($write_access) {
+			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_add_search_field_group').'</div>');
+			$count = count($search_groups);
+			combo_box($prefix.'_fields['.$count.'][new_search_group]', $available_fields, FALSE,'none');
+		}
+		return TRUE;
+
+	}//end paintSearchFields()
+
+
+	/**
+	* Processes the interface for adding and configuring search fields.
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSearchFields(&$asset, &$o, $prefix)
+	{
+	
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$var_list = $asset->attr('dynamic_vars');
+		$search_groups = Array();
+		$global_logic = '';
+		
+		$available_fields = Array();
+		$list = $asset->getRetrievedFields('additional');
+		$available_fields = TRIM_Common::getRecordStringSearchClauseType() + $list;
+		
+		if (isset($_POST[$prefix.'_fields'])) {
+			// set global logic
+			if(isset($_POST[$prefix.'_fields']['global_logic'])) {
+				$global_logic = $_POST[$prefix.'_fields']['global_logic'];
+				unset($_POST[$prefix.'_fields']['global_logic']);
+			}
+			else {
+				$global_logic = 'AND';
+			}
+		
+			foreach ($_POST[$prefix.'_fields'] as $group_index => $group) {
+				// set group logic
+				if(isset($group['group_logic'])) {
+					$group_logic = $group['group_logic'];
+					unset($group['group_logic']);
+				}
+				else {
+					$group_logic = 'AND';
+				}
+				
+				
+				if(isset($group['delete'])) continue;
+				if(isset($field['new_search_group']) && $field['new_search_group'] === 'none')	continue;	
+				if(isset($group['new_search_group']) && $group['new_search_group'] != 'none') {
+					// build a search field with a new group
+					$new_group = Array();				
+					$field_name = $group['new_search_group'];
+					$field_caption = isset($available_fields[$field_name]) ? $available_fields[$field_name] : '';
+					$new_group['group_logic'] = 'AND';
+					$new_group['content'][] = Array('name' => $field_name, 'caption' => $field_caption, 'keyword' => '');
+					
+				}
+				else {			
+					$new_group = Array();	
+					$new_group['group_logic'] = $group_logic;	
+					$new_group['content'] = Array();
+
+					foreach ($group as $field_index => $field) {
+						if(isset($field['delete'])) continue;		
+						if(isset($field['new_search_field']) && $field['new_search_field'] === 'none')	continue;		
+						if(isset($field['new_search_field']) && $field['new_search_field'] != 'none') {
+							//build new field
+							$field_name = $field['new_search_field'];
+							$field_caption = isset($available_fields[$field_name]) ? $available_fields[$field_name] : '';
+							$keyword = '';
+						}
+						else {	
+							// process normal fields						
+							$old_field = $var_list['search_clauses']['search_groups'][$group_index]['content'][$field_index];
+							$field_name = $old_field['name'];
+							$field_caption = $old_field['caption'];
+							$keyword = $field['keyword'];											
+						}
+						$new_group['content'][] = Array('name' => $field_name, 'caption' => $field_caption, 'keyword' => $keyword);
+					}
+				}
+				if(!empty($new_group['content'])) $search_groups[] = $new_group;
+			}
+		}
+		$var_list['search_clauses']['search_groups'] = $search_groups;
+		$var_list['search_clauses']['global_logic'] = $global_logic;
+
+		return ($asset->setAttrValue('dynamic_vars', $var_list));
+
+	}//end processSearchFields()
+	
+	
+	
+	/**
+	* Paints the interface for adding and deleting result fields.
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintResultFields(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$var_list = $asset->attr('dynamic_vars'); 
+		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
+		
+		//get possible search fields
+		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_result_field').' --'));
+		$list = $asset->getRetrievedFields('all');
+		$available_fields += !empty($list) ? $list : TRIM_Common::getRecordProperties();
+		
+
+		?>
+		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; ">
+	
+			<tr>
+				<th><?php echo translate('name');?></th>
+				<th><?php echo translate('type');?> </th>
+				<th><?php echo translate('field_category');?> </th>
+				<?php
+				if ($write_access) {
+					?>
+					<th><?php echo translate('delete'); ?></th>
+					<?php
+				}
+				?>
+			</tr>
+			<?php
+				foreach ($result_fields as $name => $caption) {
+					?>
+					<tr>
+						<td class="sq-backend-data" style="padding: 4px;">
+							<?php
+								echo $caption;
+							?>
+						</td>
+						<td>
+							<?php
+								$field_type = $asset->getRetrievedFieldType($name);
+								echo (empty($field_type) ? '' : $field_type);
+							?>
+						</td>
+						<td>
+							<?php
+								echo(preg_match('/^udf:/', $name) ? translate('field_additional') : translate('field_standard'));
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							// Delete field Cell
+							?>
+							<td class="sq-backend-data">
+								<?php
+									check_box($prefix.'_result_fields['.$name.'][delete]');
+								?>
+							</td>
+							<?php
+						}
+					
+
+				}//end foreach
+				?>
+			</tr>
+		</table>
+		<?php
+		if ($write_access) {
+			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_result_field_note').'</div>');
+			combo_box($prefix.'_result_fields[new]', $available_fields, FALSE,'none');
+		}
+
+		return TRUE;
+
+	}//end paintResultFields()
+	
+	
+	/**
+	* Processes the interface for adding and deleting result fields
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processResultFields(&$asset, &$o, $prefix)
+	{
+
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$var_list = $asset->attr('dynamic_vars');
+		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
+		
+		
+		//get possible search fields
+		$list = $asset->getRetrievedFields('all');
+		$available_fields = !empty($list) ? $list : TRIM_Common::getRecordProperties();
+
+		if (isset($_POST[$prefix.'_result_fields'])) {				
+			foreach ($_POST[$prefix.'_result_fields'] as $field => $value) {
+				if (isset($field['delete']) && isset($result_fields[$field])) {
+					unset($result_fields[$field]);
+				}
+			}
+			if(isset($_POST[$prefix.'_result_fields']['new']) && $_POST[$prefix.'_result_fields']['new'] !== 'none') {
+				$new_field = $_POST[$prefix.'_result_fields']['new'];
+				$field_caption = isset($available_fields[$new_field]) ? $available_fields[$new_field] : '';
+				$result_fields[$new_field] = $field_caption;
+			}				
+		}
+
+		$var_list['result_fields'] = $result_fields;
+		return ($asset->setAttrValue('dynamic_vars', $var_list));
+
+	}//end processResultFields()
+	
 }//end class
 ?>

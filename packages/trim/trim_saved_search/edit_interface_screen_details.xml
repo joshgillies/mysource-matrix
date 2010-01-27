@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2009/12/18 00:26:18 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2010/01/27 05:28:46 ewang Exp $
 *
 */
 -->
@@ -54,6 +54,45 @@
     		</function_call>
     	</field>
     </section>
+    <section name="Retrive Fields From Server" write_access="write:attributes">
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintRetrieveFields"	/>
+    			<process_function name="processRetrieveFields"	/>
+    		</function_call>
+    	</field>
+    </section>
+    <section name="Search Fields" write_access="write:attributes">
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintSearchFields"	/>
+    			<process_function name="processSearchFields"	/>
+    		</function_call>
+    	</field>
+    </section> 
+    <section name="Result Fields" write_access="write:attributes">
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintResultFields"	/>
+    			<process_function name="processResultFields"	/>
+    		</function_call>
+    	</field>
+    </section>   
+    <section name="General Search Options" write_access="write:attributes">
+	<!--    <field>
+            <function_call>
+                <paint_function   name="paintRecordSearchType"   />
+                <process_function name="processRecordSearchType" />
+            </function_call>
+        </field>
+	-->
+		<field>
+			<function_call>
+				<paint_function	  name="paintGeneralOptions" />
+				<process_function name="processGeneralOptions" />
+			</function_call>
+		</field>
+    </section>
     <section name="Record Set Asset Names" write_access="write:attributes">
         <field>
             <function_call>
@@ -69,20 +108,5 @@
                 <process_function name="processKeywords" />
             </function_call>
         </field>
-    </section>
-    <section name="Record Operation Options" write_access="write:attributes">
-	<!--    <field>
-            <function_call>
-                <paint_function   name="paintRecordSearchType"   />
-                <process_function name="processRecordSearchType" />
-            </function_call>
-        </field>
-	-->
-		<field>
-			<function_call>
-				<paint_function	  name="paintDynamicData" />
-				<process_function name="processDynamicData" />
-			</function_call>
-		</field>
     </section>
 </contents>

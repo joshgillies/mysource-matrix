@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: asset.xml,v 1.2 2010/01/27 05:28:46 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>trim</package>
 	<type_code>trim_saved_search</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>TRIM Saved Search</name>
 	<description>This is used to establish connectivity with a TRIM system</description>
 	<instantiable>yes</instantiable>

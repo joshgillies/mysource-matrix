@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.13 2009/12/17 23:26:00 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.14 2010/01/27 05:28:46 ewang Exp $
 *
 */
 
@@ -27,8 +27,9 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * Purpose
 *
 *
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -164,6 +165,7 @@ class TRIM_Saved_Search extends Data_Source
 	{
 		$cached_result = $this->attr('cached_result');
 		$cached_result[$hash_key]	= $result;
+
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
 		if ($this->setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
 			return TRUE;
@@ -249,7 +251,6 @@ class TRIM_Saved_Search extends Data_Source
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
-
 								// If there is no file in there
 								if (empty($files_stored)) {
 					
@@ -381,19 +382,20 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function getTRIMRecords($connection)
 	{
-		$search_kw 						= $this->getDynamicVariableValue('search_keyword');
-		$string_search_type				= $this->getDynamicVariableValue('string_search_type');
+
+		$string_search_clause				= $this->getDynamicVariableValue('search_clauses');
 		$parent_container_record_number	= $this->getDynamicVariableValue('search_parent_container');
 
 		// Fetch information
-		$record_properties	= $this->getDynamicVariableValue('fields');
+		$record_properties	= $this->getDynamicVariableValue('result_fields');
 		$search_limit		= $this->getDynamicVariableValue('limit');
 
+		// Search clauses will be directly inserted to xml request
+		// Because TRIM convertToXml will mess up the order
 		$search_clauses = Array();
-		if (!empty($search_kw) && !empty($string_search_type)) {
-			$search_type	= $this->getDynamicVariableValue('string_search_type');
-			$search_keyword	= $this->getDynamicVariableValue('search_keyword');
-			$search_clauses['RecordStringSearchClause']	= TRIM_Common::constructRecordStringSearchClause($search_type, $search_keyword);
+		$search_clauses_xml = Array();
+		if (!empty($string_search_clause)) {
+			$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause);
 		}//end if
 
 
@@ -408,8 +410,19 @@ class TRIM_Saved_Search extends Data_Source
 						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
 						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
 					  );
+		$file_path = NULL;
+		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
 
-		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch');
+		// Make sure the field name is matrix keyword friendly
+		foreach ($object_list as $index => $record_info) {
+			foreach ($record_info as $key => $value) {
+				if(preg_match('/[^a-zA-Z0-9_-]/', $key)) {
+					$new_key = preg_replace('/[^a-zA-Z0-9_-]+/', '', $key);
+					unset($object_list[$index][$key]);
+					$object_list[$index][$new_key] = $value;
+				}
+			}
+		}
 
 		return $object_list;
 
@@ -528,7 +541,7 @@ class TRIM_Saved_Search extends Data_Source
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				create_directory($final_file_path);
 
-				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
+				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
 
 				$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
 			}//end if
@@ -562,23 +575,6 @@ class TRIM_Saved_Search extends Data_Source
 	}//end getDynamicVariableValue()
 
 
-	/**
-	* This function is used to clean the dynamic vars list when the data source search option is changed
-	*
-	* @return void
-	* @access public
-	*/
-	public function cleanupDynamicVars(&$dynamic_vars)
-	{
-		$remove_keys	= Array ('search_keyword', 'string_search_type', 'StartTime', 'EndTime', 'dateRangeSearchType', 'StartNum', 'EndNum', 'UseExpandedNumber');
-
-		foreach ($remove_keys as $key) {
-			if (isset($dynamic_vars[$key])) {
-				unset($dynamic_vars[$key]);
-			}//end else
-		}//end foreach
-
-	}//end cleanupDynamicVars()
 
 
 	/**
@@ -589,6 +585,7 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function printFrontend()
 	{
+
 		if ($this->readAccess()) {
 			$connection	= $this->getConnection();
 			if (isset($_GET['Uri']) && !empty($_GET['Uri'])) {
@@ -696,5 +693,46 @@ class TRIM_Saved_Search extends Data_Source
 		return $asset;
 	}//end getAsset()
 
+	
+	/**
+	* Returns retrieved fields info from TRIM server
+	*
+	* @param string		$type		what kind of fields to return? additional fields, standard fields or all
+	*
+	* @return array
+	* @access public
+	*/	
+	public function getRetrievedFields($type = 'all')
+	{
+		$fields = $this->attr('retrieved_fields');
+		if(empty($fields)) return Array();
+		
+		if ($type == 'additional') {
+			return $fields['additional_fields'];
+		}
+		else if ($type == 'standard') {
+			return $fields['standard_fields'];
+		}
+		else {
+			return (array_merge($fields['standard_fields'], $fields['additional_fields']));
+		}
+	}
+	
+	/**
+	* Returns the type of a retrieved field
+	*
+	* @param string		$field		name of the retrieved field
+	*
+	* @return string
+	* @access public
+	*/	
+	public function getRetrievedFieldType($field)
+	{
+		$fields = $this->attr('retrieved_fields');
+		if(empty($fields) || !isset($fields['field_types'])) return '';
+		$field_types = $fields['field_types'];
+		return (isset($field_types[$field]) ? $field_types[$field] : '');
+	}
+	
 }//end class
 ?>

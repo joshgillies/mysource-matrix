@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.9 2009/12/18 00:28:33 ewang Exp $
+* $Id: trim_common.inc,v 1.10 2010/01/27 05:28:46 ewang Exp $
 *
 */
 
@@ -20,8 +20,9 @@
 * This file contains global functions that are useful throughout the TRIM module
 *
 *
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -49,62 +50,63 @@ class TRIM_Common
 	}//end constructTrimRequest()
 
 
+	
 	/**
-	* Construct an array represent the RecordStringSearchClause object being sent
+	* Construct an xml string representing a serial of logic grouped RecordStringSearchClause
 	*
-	* @return unknown
+	* @return string
 	* @access public
 	*/
-	public static function constructRecordStringSearchClause($search_type, $search_keyword)
+	public static function constructRecordSearchClauseGroupedXml ($search_clause = Array())
 	{
-		$search_clause	= Array (
-							'Arg'	=> $search_keyword,
-							'Type'	=> array_pop($search_type),
-						  );
 
-		return $search_clause;
-
-	}//end constructRecordStringSearchClause()
-
-
-	/**
-	* Construct an array represent the RecordDateRangeSearchClause object being sent
-	*
-	* @return unknown
-	* @access public
-	*/
-	public static function constructRecordDateRangeSearchClause($start_time, $end_time, $type)
-	{
-		$search_clause	= Array (
-							'StartTime'	=> $start_time,
-							'EndTime'	=> $end_time,
-							'Type'		=> array_pop($type),
-						  );
-
-		return $search_clause;
-
-	}//end constructRecordDateRangeSearchClause()
-
-
-	/**
-	* Construct an array represent the RecordNumberRangeSearchClause object being sent
-	*
-	* @return unknown
-	* @access public
-	*/
-	public static function constructRecordNumberRangeSearchClause($start_number, $end_number)
-	{
-		$search_clause	= Array(
-							'Start'				=> $start_number,
-							'End'				=> $end_number,
-							'UseExpandedNumber'	=> TRUE,
-						  );
-
-		return $search_clause;
-
-	}//end constructRecordNumberRangeSearchClause()
-
-
+		if (!isset ($search_clause['search_groups'])) return '';
+		$group_clause = new SimpleXMLElement('<RecordSearchGroups/>');
+		foreach ($search_clause['search_groups'] as $group) {
+			if (isset ($group['content'])) {
+				foreach ($group['content'] as $field) {
+					if (preg_match('/^udf:/', $field['name'])) {
+						$RecordUserFieldSearchClause = $group_clause->addChild('RecordUserFieldSearchClause');
+						$RecordUserFieldSearchClause->addChild('UserDefinedFieldName', $field['name']) ;
+						$RecordUserFieldSearchClause->addChild('From', $field['keyword']) ;
+					}
+					else {
+						$RecordStringSearchClause = $group_clause->addChild('RecordStringSearchClause');
+						$RecordStringSearchClause->addChild('Type', $field['name']) ;
+						$RecordStringSearchClause->addChild('Arg', $field['keyword']) ;
+					}
+				}
+				// add group logic operator
+				$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
+				if (count($group['content']) > 1) {
+					if($group_logic === 'AND') {
+						$group_clause->addChild('RecordAndSearchClause');
+					}
+					else {
+						$group_clause->addChild('RecordOrSearchClause');
+					}
+				}
+			}
+		}
+		// add global logic operator
+		if (count($search_clause['search_groups']) > 1) {
+			$global_logic = isset($search_clause['global_logic']) ? $search_clause['global_logic'] : 'AND';
+			if($global_logic === 'AND') {
+				$group_clause->addChild('RecordAndSearchClause');
+			}
+			else {
+				$group_clause->addChild('RecordOrSearchClause');
+			}
+		}
+		
+		$result = '';
+		foreach ($group_clause->children() as $child) {
+			$result .= $child->asXML();
+		}
+		return $result;
+	}//end constructRecordSearchClauseGroupedXml()
+	
+	
 	/**
 	* construct an array represent the RecordSearch object in the WSDL.
 	*
@@ -143,7 +145,6 @@ class TRIM_Common
 						);
 
 		$recordSearch	= array_merge($recordSearch, $search_clauses);
-
 		return $recordSearch;
 
 	}//end constructRecordSearch()
@@ -252,7 +253,7 @@ class TRIM_Common
 		$spec_props = Array();
 		foreach ($record_properties as $key => $value) {
 			$spec_props[]	= Array (
-								'Name'	=> $value,
+								'Name'	=> $key,
 							  );
 		}//end foreach
 
@@ -613,7 +614,7 @@ class TRIM_Common
 						'recTypedTitle'						=> 'Title (Free Text Part)',
 						'recViewPaneId'						=> 'View Pane ID',
 					  );
-
+		
 		return $properties;
 
 	}//end getRecordProperties()
@@ -733,11 +734,12 @@ class TRIM_Common
 	*
 	* @param array 	$operations		the operations that can be perform (search, fetch, download, upload, getaccess)
 	* @param string	$display_type	the major operation that need to be achieved, so the object know how to parse the returned XML.
+	* @param string $search_clause_xml the search clauses xml grouped by logical operator.
 	*
 	* @return array|void
 	* @access public
 	*/
-	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $hash_key='', &$final_file_path='')
+	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $hash_key='', &$final_file_path='')
 	{
 
 			$Execute		= Array (
@@ -753,42 +755,41 @@ class TRIM_Common
 
 			$xml = $client->ConvertToXml($Execute);
 
+		
+		
+		
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
 			// come first in the soap request, otherwise TRIM wont know where the Fetch object should get the
 			// result from.
-			if (isset($operations['Fetch']) && isset($operations['RecordSearch'])) {
-				// We have to test the water to see whether we are getting any result first before we fetch, otherwise TRIM will complain
-				$original_execute	= $Execute;
-				unset($original_execute['req']['Fetch']);
-				$original_xml		= $client->ConvertToXml($original_execute);
-				$search_data 		= $client->ExecuteXml(Array('xml'	=> $original_xml->ConvertToXmlResult));
-				$search_xml			= new SimpleXMLElement($search_data->ExecuteXmlResult);
-				$result_count		= (string) $search_xml->SearchResult->FoundCount;
-				if ($result_count == 0) {
-					return $object_list;
-				}//end if
-				$xml = self::SwapElement($xml->ConvertToXmlResult, 'RecordSearch', 'Fetch');
+			$xml = $xml->ConvertToXmlResult;
+			if (isset($operations['Fetch']) && isset($operations['RecordSearch'])) {	
+				$xml = self::SwapElement($xml, 'RecordSearch', 'Fetch');			
+				// Add grouped search clauses xml to the converted xml
+				if(!empty($search_clause_xml)) {
+					$xml = preg_replace('/<\/RecordSearch>/', $search_clause_xml.'</RecordSearch>', $xml);
+				}
 			} else if (isset($operations['Download']) && isset($operations['ShortcutRecordUri'])) {
-				$xml = self::SwapElement($xml->ConvertToXmlResult, 'ShortcutRecordUri', 'Download');
-			} else {
-				$xml = $xml->ConvertToXmlResult;
+				$xml = self::SwapElement($xml, 'ShortcutRecordUri', 'Download');
 			}
 
+		
+			
+			
 			// Now its time to get the data
 			$data = $client->ExecuteXml(Array('xml'	=> $xml));
 
-		// The data returned is in XML format, so we have to parse it.
-		$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
-
-		if (isset($operations['Fetch'])) {
-			return $object_list;
-		} else if (isset($operations['Download'])) {
-			$res = self::getPackagedFiles($object_list, $hash_key, $final_file_path);
-		} else if (isset($operations['Upload'])) {
-			if ($object_list['UploadId'] != $up_id) {
-				echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];
-			}
-		}//end else if
+			// The data returned is in XML format, so we have to parse it.
+			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
+	
+			if (isset($operations['Fetch'])) {
+				return $object_list;
+			} else if (isset($operations['Download'])) {
+				$res = self::getPackagedFiles($object_list, $hash_key, $final_file_path);
+			} else if (isset($operations['Upload'])) {
+				if ($object_list['UploadId'] != $up_id) {
+					echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];
+				}
+			}//end else if
 
 	}//end execute
 
@@ -817,7 +818,7 @@ class TRIM_Common
 											'HideAdhocLocations'	=> FALSE,
 											'TargetForUpdate'		=> FALSE,
 											'IsForUpdate'			=> FALSE,
-											'Limit'					=> 20,
+											'Limit'					=> 1,
 										   );
 		// END GET ASSIGNEE URI
 		$FetchInjectionUriLocationId	= Array (
@@ -832,7 +833,7 @@ class TRIM_Common
 
         $xml = $client->ConvertToXml($Execute);
         $xml = self::SwapElement($xml->ConvertToXmlResult, 'LocationStringSelect', 'FetchInjectionUri');
-    
+ 
         $data = $client->ExecuteXml(Array('xml' => $xml));
 
         $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
@@ -867,6 +868,7 @@ class TRIM_Common
 	{
 		// Check Whether the username exists in TRIM
 		$trim_userid = self::executeGetAssigneeRequest($connection, $username);
+		
 		if (!$trim_userid) {
 			trigger_error('There is no such user with username "'.$username.'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
@@ -891,6 +893,7 @@ class TRIM_Common
 		// END GET RECORD TYPE "document" URI
 
 		$parent_record_uri	= self::getURIFromRecordNumber($connection, $new_record_info['parent_record_number']);
+		
 		if (!$parent_record_uri) {
 			trigger_error('There is no URI correspond to record number "'.$new_record_info['parent_record_number'].'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
@@ -1034,6 +1037,7 @@ class TRIM_Common
 		$xml = new SimpleXMLElement($data);
 
 		if ($operation == 'Fetch') {
+			if($xml->SearchResult->FoundCount ==  0) return $object_list;
 			$i = 0;
 			foreach ($xml->FetchResult->Objects->TrimObject as $object) {
 				$uri = NULL;
@@ -1105,6 +1109,7 @@ class TRIM_Common
 	public static function test_trim_connection($connection)
 	{
 
+
 		//check if recTitle property is set
 		try {
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
@@ -1124,6 +1129,5 @@ class TRIM_Common
 		}//end if
 
 	}//end test_trim_connection()
-
 
 }//end class
