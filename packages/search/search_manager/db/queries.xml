@@ -82,6 +82,41 @@
 		</primary>
 	</query>
 
+	<query id="getDefaultContext">
+		<!-- Get context id for given asset and component-->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ctx_def" column="contextid" />
+				</fields>
+				<from>
+					<table>sq_ctx_def</table>
+				</from>
+				<where>
+					<not-in>
+						<function function="cast">
+							<arg><field table="sq_ctx_def" column="contextid" /></arg>
+							<arg>VARCHAR(11)</arg>
+						</function>
+						<select>
+							<fields>
+								<field table="sq_sch_idx" column="contextid" />
+							</fields>
+							<from>
+								<table>sq_sch_idx</table>
+							</from>
+							<where>
+								<equal table="sq_sch_idx" column="assetid">:assetid</equal>
+								<equal table="sq_sch_idx" column="component">:component</equal>
+								<equal table="sq_sch_idx" column="use_default">'0'</equal>
+							</where>
+						</select>
+					</not-in>
+				</where>
+			</select>
+		</primary>
+	</query>
+
 	<query id="flushDefaultIndexableContent">
 		<!-- Delete all index entries for a specified asset ID and component(s),
 		where 'use default' was set. -->
