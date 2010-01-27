@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.34.2.2 2009/11/19 00:04:23 akarelia Exp $
+* $Id: form_submission.inc,v 1.34.2.3 2010/01/27 04:35:14 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.2 $
+* @version $Revision: 1.34.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -44,6 +44,19 @@ class Form_Submission extends Asset
 		return $this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Return TRUE if this link can be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canCloneLink()
+	{
+		return FALSE;
+
+	}//end canCloneLink()
 
 
 	/**
