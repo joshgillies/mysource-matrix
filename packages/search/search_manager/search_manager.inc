@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.200.2.12 2009/12/18 05:30:42 akarelia Exp $
+* $Id: search_manager.inc,v 1.200.2.13 2010/01/27 02:38:20 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200.2.12 $
+* @version $Revision: 1.200.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -905,25 +905,62 @@ class Search_Manager extends Asset
 		// Pre-pack the query first though, so it doesn't potentially get
 		// prepared 1000's of times over.
 		if (!empty($defaults)) {
-			$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
-			$query = $dal_query->prepare();
+			if (DAL::getDbType() === 'oci') {
+				
+				// For Oracle system, we'll use two queries to add content into search index table
+				// First query to the get the default contextid and second to insert the contextid
+				// along with other indexable content into index table
+				// See bug #4136
+				$dal_get_context_query = MatrixDAL::getQuery('search_manager', 'getDefaultContext');
+				$get_context_query = $dal_get_context_query->prepare();
+			
+				$dal_insert_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
+				$insert_query = $dal_insert_query->prepare();
 
-			foreach ($defaults as $bind_vars) {
-				try {
-					foreach ($bind_vars as $bind_var => $bind_value) {
-						if ($bind_var !== 'contextid') {
-							MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			
+				foreach ($defaults as $bind_vars) {
+					try {
+						MatrixDAL::bindValueToPdo($get_context_query, 'assetid', $bind_vars['assetid']);
+						MatrixDAL::bindValueToPdo($get_context_query, 'component', $bind_vars['component']);
+						$result = MatrixDAL::executePdoAll($get_context_query);
+						
+						foreach($result as $asset_context) {
+							$bind_vars['contextid'] = $asset_context['contextid'];
+							foreach ($bind_vars as $bind_var => $bind_value) {					
+									MatrixDAL::bindValueToPdo($insert_query, $bind_var, $bind_value);					
+							}
+							MatrixDAL::execPdoQuery($insert_query);
 						}
+						
+						$index_content_found = TRUE;
+					} catch (Exception $e) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
 					}
-					MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
-					MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
-					MatrixDAL::execPdoQuery($query);
-					$index_content_found = TRUE;
-				} catch (Exception $e) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+				}//end foreach
+			} else {
+		
+				$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
+				$query = $dal_query->prepare();
+	
+				foreach ($defaults as $bind_vars) {
+					try {
+						foreach ($bind_vars as $bind_var => $bind_value) {
+							if ($bind_var !== 'contextid') {
+								MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+							}
+						}
+						MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
+						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
+						MatrixDAL::execPdoQuery($query);
+						
+						$index_content_found = TRUE;
+					} catch (Exception $e) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+					}
 				}
-			}//end foreach
+			}//end else
 		}//end if
 
 		// And finally, add the indexable content
