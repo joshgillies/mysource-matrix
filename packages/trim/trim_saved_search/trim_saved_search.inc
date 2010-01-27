@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.12.4.1 2010/01/05 23:32:34 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.12.4.2 2010/01/27 06:06:52 ewang Exp $
 *
 */
 
@@ -27,8 +27,9 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * Purpose
 *
 *
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12.4.1 $
+* @version $Revision: 1.12.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -164,6 +165,7 @@ class TRIM_Saved_Search extends Data_Source
 	{
 		$cached_result = $this->attr('cached_result');
 		$cached_result[$hash_key]	= $result;
+
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
 		if ($this->setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
 			return TRUE;
@@ -232,13 +234,13 @@ class TRIM_Saved_Search extends Data_Source
 			foreach ($result as $index	=> $record_info) {
 				foreach ($new_object_list as $new_index	=> $new_record_info) {
 					// Comparing the same record based on the URI
-					if ($record_info['Uri'] == $new_record_info['Uri']) {
+					if ($record_info['Uri'] == $new_record_info['Uri']) {					
 						// If Forced, dont even care about version number, update anyway.
 						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
-							// UPDATE Check
-							if ($this->attr('download_files')) {
+							// UPDATE Check						
+							if ($this->attr('download_files')) {				
 								$this->storeDocumentList($connection, $new_record_info);
-							}//end if
+							}//end if							
 							$ordered_result[$new_index]	= $new_record_info;
 						} else {
 							// If this is the same version
@@ -249,11 +251,12 @@ class TRIM_Saved_Search extends Data_Source
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
-
 								// If there is no file in there
 								if (empty($files_stored)) {
+					
 									$this->storeDocumentList($connection, $new_record_info);
 								} else if (!isset($record_info['download_url'])) {
+	
 									$ordered_result[$new_index]['document_url']		= $this->getURL().'?Uri='.$new_record_info['Uri'];
 								}//end else if
 							}//end if
@@ -379,19 +382,20 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function getTRIMRecords($connection)
 	{
-		$search_kw 						= $this->getDynamicVariableValue('search_keyword');
-		$string_search_type				= $this->getDynamicVariableValue('string_search_type');
+
+		$string_search_clause				= $this->getDynamicVariableValue('search_clauses');
 		$parent_container_record_number	= $this->getDynamicVariableValue('search_parent_container');
 
 		// Fetch information
-		$record_properties	= $this->getDynamicVariableValue('fields');
+		$record_properties	= $this->getDynamicVariableValue('result_fields');
 		$search_limit		= $this->getDynamicVariableValue('limit');
 
+		// Search clauses will be directly inserted to xml request
+		// Because TRIM convertToXml will mess up the order
 		$search_clauses = Array();
-		if (!empty($search_kw) && !empty($string_search_type)) {
-			$search_type	= $this->getDynamicVariableValue('string_search_type');
-			$search_keyword	= $this->getDynamicVariableValue('search_keyword');
-			$search_clauses['RecordStringSearchClause']	= TRIM_Common::constructRecordStringSearchClause($search_type, $search_keyword);
+		$search_clauses_xml = Array();
+		if (!empty($string_search_clause)) {
+			$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause);
 		}//end if
 
 
@@ -406,8 +410,19 @@ class TRIM_Saved_Search extends Data_Source
 						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
 						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
 					  );
+		$file_path = NULL;
+		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
 
-		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch');
+		// Make sure the field name is matrix keyword friendly
+		foreach ($object_list as $index => $record_info) {
+			foreach ($record_info as $key => $value) {
+				if(preg_match('/[^a-zA-Z0-9_-]/', $key)) {
+					$new_key = preg_replace('/[^a-zA-Z0-9_-]+/', '', $key);
+					unset($object_list[$index][$key]);
+					$object_list[$index][$new_key] = $value;
+				}
+			}
+		}
 
 		return $object_list;
 
@@ -468,11 +483,12 @@ class TRIM_Saved_Search extends Data_Source
 											'trace'		=> TRUE,
 											'exception'	=> TRUE,
 										  );
-		// add proxy
+		// add proxy 
 		if(method_exists($connector, 'getProxy')) {
 			$proxy = $connector->getProxy();
 			$connection['authentication'] = array_merge($connection['authentication'], $proxy);
 		}
+
 		return $connection;
 
 	}//end getConnection()
@@ -509,9 +525,11 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	function storeDocumentList($connection, &$record_info)
 	{
+	
 		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
 			$record_info['document_url']	= '';
-			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']   != 'Record has no document attached.') {
+		
+			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']	!= 'Record has no document attached.') {
 				// We got a file here.
 				$operations = Array (
 								'Download'					=> TRIM_Common::constructDownload(),
@@ -523,7 +541,8 @@ class TRIM_Saved_Search extends Data_Source
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				create_directory($final_file_path);
 
-				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
+				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
+
 				$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
 			}//end if
 		}//end if
@@ -556,23 +575,6 @@ class TRIM_Saved_Search extends Data_Source
 	}//end getDynamicVariableValue()
 
 
-	/**
-	* This function is used to clean the dynamic vars list when the data source search option is changed
-	*
-	* @return void
-	* @access public
-	*/
-	public function cleanupDynamicVars(&$dynamic_vars)
-	{
-		$remove_keys	= Array ('search_keyword', 'string_search_type', 'StartTime', 'EndTime', 'dateRangeSearchType', 'StartNum', 'EndNum', 'UseExpandedNumber');
-
-		foreach ($remove_keys as $key) {
-			if (isset($dynamic_vars[$key])) {
-				unset($dynamic_vars[$key]);
-			}//end else
-		}//end foreach
-
-	}//end cleanupDynamicVars()
 
 
 	/**
@@ -583,6 +585,7 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function printFrontend()
 	{
+
 		if ($this->readAccess()) {
 			$connection	= $this->getConnection();
 			if (isset($_GET['Uri']) && !empty($_GET['Uri'])) {
@@ -690,5 +693,46 @@ class TRIM_Saved_Search extends Data_Source
 		return $asset;
 	}//end getAsset()
 
+	
+	/**
+	* Returns retrieved fields info from TRIM server
+	*
+	* @param string		$type		what kind of fields to return? additional fields, standard fields or all
+	*
+	* @return array
+	* @access public
+	*/	
+	public function getRetrievedFields($type = 'all')
+	{
+		$fields = $this->attr('retrieved_fields');
+		if(empty($fields)) return Array();
+		
+		if ($type == 'additional') {
+			return $fields['additional_fields'];
+		}
+		else if ($type == 'standard') {
+			return $fields['standard_fields'];
+		}
+		else {
+			return (array_merge($fields['standard_fields'], $fields['additional_fields']));
+		}
+	}
+	
+	/**
+	* Returns the type of a retrieved field
+	*
+	* @param string		$field		name of the retrieved field
+	*
+	* @return string
+	* @access public
+	*/	
+	public function getRetrievedFieldType($field)
+	{
+		$fields = $this->attr('retrieved_fields');
+		if(empty($fields) || !isset($fields['field_types'])) return '';
+		$field_types = $fields['field_types'];
+		return (isset($field_types[$field]) ? $field_types[$field] : '');
+	}
+	
 }//end class
 ?>

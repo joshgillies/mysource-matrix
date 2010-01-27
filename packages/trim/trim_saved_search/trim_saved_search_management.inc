@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.4 2009/05/29 06:33:29 hnguyen Exp $
+* $Id: trim_saved_search_management.inc,v 1.4.4.1 2010/01/27 06:06:52 ewang Exp $
 *
 */
 
@@ -22,8 +22,9 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -116,30 +117,14 @@ class TRIM_Saved_Search_Management extends Asset_Management
 													'added'		=> '0.2',
 													'type'		=> 'serialise',
 													'default'	=> Array (
-																	'search_keyword'			=> 'doc',
-																	'string_search_type'		=> Array (
-																									'TitleWord'	=> 'TitleWord',
-																								   ),
 																	'search_parent_container'	=> '',
-																	/*'search_start_time'			=> '',
-																	'search_end_time'			=> '',
-																	'search_date_range_type'	=> Array (
-																									'DateUpdated'	=> 'DateUpdated',
-																								   ),
-																	'search_start_rec_num'		=> '',
-																	'search_end_rec_num'		=> '',
-																	'use_expanded_number'		=> FALSE,
-																	'search_location_uri'		=> '',
-																	'search_location_recursive'	=> FALSE,
-																	'search_location_type'		=> Array (
-																									'NotAtHome'	=> 'NotAtHome',
-																								   ),*/
-																	'fields'					=> Array (
-																									'recTitle'	=> 'recTitle',
-																									'recNumber'	=> 'recNumber',
-																									'recRecordType'	=> 'recRecordType',
-																									'recDocumentType' => 'recDocumentType',
-																									'recCreatorLoc'	=> 'recCreatorLoc',
+											  	   					'search_clauses'			=> Array(),
+																	'result_fields'				=> Array (
+																									'recTitle'	=> 'Title',
+																									'recNumber'	=> 'Record Number',
+																									'recRecordType'	=> 'Record Type',
+																									'recDocumentType' => 'Document Type',
+																									'recCreatorLoc'	=> 'Creator',
 																								   ),
 																	'fileTypes'					=> '',
 																	'limit'						=> 30,
@@ -159,7 +144,14 @@ class TRIM_Saved_Search_Management extends Asset_Management
 																		'parameters'	=> Array(),
 																	   ),
 												   ),
-
+						'retrieved_fields'	=> Array (
+											   		'added'			=> '0.1',
+											   		'type'			=> 'serialise',
+											   		'default'		=> Array(),
+											   		'parameters'	=> Array (
+												   						'allow_empty'		=> TRUE,
+												   					   ),
+											  	   ),
 						// This array allows TRIM data source to map the dynamic parameters with trim options
 						// Eg: if you want to set a dynamic parameter to pass the keyword option in
 						// with parameter name 'search_term', then trim_options['keyword'] need to be set to 'search_term'
@@ -185,6 +177,104 @@ class TRIM_Saved_Search_Management extends Asset_Management
     }//end _getFileList()
 
 
+    /**
+	* Upgrade this asset to the current version
+	*
+	* @param string	$current_version	the version of the asset that is currently installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.2', '<')) {
+			pre_echo('STARTING UPGRADE OF '.$asset_name.' FROM VERSION '.$current_version.' TO VERSION 0.2');
+			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', FALSE, TRUE);
+			
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating TRIM Saved Search...');
+			
+			$available_fields = TRIM_Common::getRecordProperties();
+			$available_search_type = TRIM_Common::getRecordStringSearchClauseType();
+			
+			// find every trim saved search asset and update the var list
+			foreach ($saved_search_ids as $id => $blank) {
+				$saved_search = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $blank['type_code']);
+				$var_list = $saved_search->attr('dynamic_vars');
+				if(isset($var_list['fields'])) {
+					$result_fields = Array();
+					foreach ($var_list['fields'] as $field_name) {
+						if(isset($available_fields[$field_name]))
+							$result_fields[$field_name] = $available_fields[$field_name];
+					}
+					$var_list['result_fields'] = $result_fields;
+					unset ($var_list['fields']);
+				}
+				if(isset($var_list['string_search_type'][0]) && isset($var_list['search_keyword'])) {
+					
+					$search_name = $var_list['string_search_type'][0];
+					$search_caption = $available_search_type[$search_name];
+					$search_keyword = $var_list['search_keyword'];
+					$var_list['search_clauses'] = Array(
+													'search_groups' => Array (
+																		Array(
+																			'content'		=>	Array (
+																								Array (
+																									'name'		=>	$search_name,
+																									'caption'	=>	$search_caption,
+																									'keyword'	=>	$search_keyword,
+																								)
+																							),
+																			'group_logic'	=>	'AND',
+																		),
+																	),
+													'global_logic'	=> 'AND',
+												);
+					unset ($var_list['string_search_type']);
+					unset ($var_list['search_keyword']);
+				}
+				
+				// Save the attribute
+				$saved_search->setAttrValue('dynamic_vars', $var_list);
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+				if (!$saved_search->saveAttributes()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+					pre_echo($asset_name.' UPGRADE FAILED - Could not save attributes');
+					return FALSE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($saved_search);
+				unset($saved_search);
+				
+				$count++;
+			}
+			
+			pre_echo('Updated TRIM Saved Search - '.$count.' assets(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo($asset_name.' SUCCESSFULLY UPGRADED TO VERSION 0.2');
+		}//end if
+
+		return TRUE;
+
+	}//end _upgrade()
+	
 }//end class
 
 ?>
