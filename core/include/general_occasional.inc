@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.95 2009/12/11 02:26:22 cupreti Exp $
+* $Id: general_occasional.inc,v 1.96 2010/01/28 06:57:03 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 
@@ -35,6 +35,17 @@
 */
 function link_type_name($type)
 {
+	/**
+	 * Have we seen this link type before?
+	 * If we have, it'll be cached and easily returned.
+	 * These names don't change -
+	 * especially during a script run.
+	 */
+	static $_link_type_name_cache = array();
+	if (isset($_link_type_name_cache[$type])) {
+		return $_link_type_name_cache[$type];
+	}
+
 	$names = get_bit_names('SQ_LINK_', $type);
 
 	if (is_array($names)) {
@@ -47,8 +58,10 @@ function link_type_name($type)
 				$str .= ' or ';
 			}
 		}
+		$_link_type_name_cache[$type] = $str;
 		return $str;
 	} else {
+		$_link_type_name_cache[$type] = $names;
 		return $names;
 	}
 
@@ -63,11 +76,17 @@ function link_type_name($type)
 */
 function get_link_type_names()
 {
+	static $_get_link_type_names_cache = array();
+	if (!empty($_get_link_type_names_cache)) {
+		return $_get_link_type_names_cache;
+	}
 	$link_types = get_constant_values('SQ_LINK_');
 
 	foreach ($link_types as $value) {
 		$type_names[$value] = link_type_name($value);
 	}
+
+	$_get_link_type_names_cache = $type_names;
 
 	return $type_names;
 
