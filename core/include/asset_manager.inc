@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.785 2010/01/27 21:59:33 cupreti Exp $
+* $Id: asset_manager.inc,v 1.786 2010/01/28 01:22:58 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.785 $
+* @version $Revision: 1.786 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3568,17 +3568,57 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		/**
+		 * get the parent treeid's for this asset.
+		 *
+		 * This is done as a separate db call for performance reasons
+		 * if it's done as a subquery, then there are multiple
+		 * seq-scans of the lnk & lnk_tree tables (which can be quite large)
+		 * separating the two calls means the second call looks at
+		 * hardcoded id's - which can then be looked up in the index
+		 * which is a nice win.
+		 *
+		 */
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size)';
-		$bind_vars['assetid']   = (string) $assetid;
-		$bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
 
+		$treeids = array();
 		if (MatrixDAL::getDbType() === 'oci') {
-			$in_sql = 'SELECT * FROM table('.$in_sql.')';
+			$treeids_query = "SELECT * FROM TABLE(" . $in_sql . ")";
 		} else {
-			$in_sql = 'SELECT * FROM '.$in_sql;
+			$treeids_query = "SELECT * FROM " . $in_sql;
+		}
+		$treeid_bind_vars['assetid']   = (string) $assetid;
+		$treeid_bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
+
+		try {
+			$tree_query = MatrixDAL::preparePdoQuery($treeids_query);
+			foreach ($treeid_bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($tree_query, $bind_var, $bind_value);
+			}
+			$tree_result = MatrixDAL::executePdoAssoc($tree_query);
+		} catch (Exception $e) {
+			throw $e;
 		}
 
-		$where .= ' AND pt.treeid IN ('.$in_sql.')';
+		 /**
+		  * If we didn't find any tree id's, make a where clause that will return nothing
+		  * which then causes the parent query to return an empty result set.
+		  * If we leave the where clause blank, we actually return every treeid
+		  * which is not what we want.
+		 */
+		if (empty($tree_result)) {
+			$where .= ' AND 1=0';
+		} else {
+			/**
+			 * we found some tree id's -
+			 * quote them and plug them back in to the main query directly.
+			 */
+			foreach ($tree_result as $row => $info) {
+				$treeids[] = MatrixDAL::quote($info['column_value']);
+			}
+			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
+			unset($treeids);
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
