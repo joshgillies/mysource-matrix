@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.787 2010/01/28 01:28:16 csmith Exp $
+* $Id: asset_manager.inc,v 1.788 2010/01/28 01:59:46 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787 $
+* @version $Revision: 1.788 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3600,43 +3600,41 @@ class Asset_Manager extends MySource_Object
 			throw $e;
 		}
 
-		 /**
-		  * If we didn't find any tree id's, make a where clause that will return nothing
-		  * which then causes the parent query to return an empty result set.
-		  * If we leave the where clause blank, we actually return every treeid
-		  * which is not what we want.
+		/**
+		 * we found some tree id's -
+		 * quote them and plug them back in to the main query directly.
 		 */
-		if (empty($tree_result)) {
-			$where .= ' AND 1=0';
-		} else {
-			/**
-			 * we found some tree id's -
-			 * quote them and plug them back in to the main query directly.
-			 */
+		if (!empty($tree_result)) {
 			foreach ($tree_result as $row => $info) {
 				$treeids[] = MatrixDAL::quote($info['treeid']);
 			}
 			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
 			unset($treeids);
-		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-		$sql .= $where.'
-			ORDER BY cl.linkid, ct.treeid, pt.treeid';
+			$sql .= $where.'
+				ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			foreach ($bind_vars as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+				$result = MatrixDAL::executePdoGroupedAssoc($query);
+			} catch (Exception $e) {
+				throw $e;
 			}
-			$result = MatrixDAL::executePdoGroupedAssoc($query);
-		} catch (Exception $e) {
-			throw $e;
+		} else {
+			/**
+			 * no parent tree ids? then we don't have any lineages
+			 * we are on the top level.
+			 */
+			$result = array();
 		}
 
 		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
