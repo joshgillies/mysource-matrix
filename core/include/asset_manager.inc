@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.786 2010/01/28 01:22:58 csmith Exp $
+* $Id: asset_manager.inc,v 1.787 2010/01/28 01:28:16 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.786 $
+* @version $Revision: 1.787 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3583,9 +3583,9 @@ class Asset_Manager extends MySource_Object
 
 		$treeids = array();
 		if (MatrixDAL::getDbType() === 'oci') {
-			$treeids_query = "SELECT * FROM TABLE(" . $in_sql . ")";
+			$treeids_query = "SELECT column_value AS treeid FROM TABLE(" . $in_sql . ")";
 		} else {
-			$treeids_query = "SELECT * FROM " . $in_sql;
+			$treeids_query = "SELECT " . SQ_TABLE_RUNNING_PREFIX . "get_lineage_treeids AS treeid FROM " . $in_sql;
 		}
 		$treeid_bind_vars['assetid']   = (string) $assetid;
 		$treeid_bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
@@ -3614,7 +3614,7 @@ class Asset_Manager extends MySource_Object
 			 * quote them and plug them back in to the main query directly.
 			 */
 			foreach ($tree_result as $row => $info) {
-				$treeids[] = MatrixDAL::quote($info['column_value']);
+				$treeids[] = MatrixDAL::quote($info['treeid']);
 			}
 			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
 			unset($treeids);
