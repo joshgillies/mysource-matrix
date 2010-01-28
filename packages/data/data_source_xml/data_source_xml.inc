@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.8.2.6 2010/01/07 03:22:00 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.8.2.7 2010/01/28 22:16:14 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.8.2.6 $
+* @version $Revision: 1.8.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -66,7 +66,8 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
-	* Flag set when we are in a tag of which we want its data
+	* Flag set when we are in a relevent tag
+	* Set to false once parser's end of the element function handler is called for the tag
 	*
 	* @var boolean
 	*/
@@ -103,6 +104,15 @@ class Data_Source_Xml extends Data_Source
 	* @var int
 	*/
 	protected $_record_set_index = 0;
+	
+	
+	/**
+	* Flag set when we are in a relevent tag
+	* Set to false once the parser's character handler function is called for the tag
+	*
+	* @var boolean
+	*/
+	protected $_new_teg = FALSE;
 
 
 	/**
@@ -223,7 +233,7 @@ class Data_Source_Xml extends Data_Source
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 		unset($HTTP_Client);
 
-		return xml_entity_decode($response['body'], FALSE);
+		return $response['body'];
 
 	}//end openFeed()
 
@@ -279,7 +289,7 @@ class Data_Source_Xml extends Data_Source
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 			if (!xml_parse($xml_parser, $content, TRUE)) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				return FALSE;
 			}
 			xml_parser_free($xml_parser);
@@ -302,6 +312,7 @@ class Data_Source_Xml extends Data_Source
 	function _checkRootTag($name)
 	{
 		$root_tag = $this->attr('root_tag');
+		
 		if (!$this->_inside_root_tag) {
 			if (empty($root_tag)) {
 				$this->_inside_root_tag = TRUE;
@@ -338,7 +349,7 @@ class Data_Source_Xml extends Data_Source
 	{
 		// Increment the XML tree level tracker one level up
 		$this->_tree_level++; 
-
+		
 		if (!empty($name)) {
 			// check that we are inside the root tag
 			$this->_checkRootTag($name);
@@ -346,9 +357,10 @@ class Data_Source_Xml extends Data_Source
 			if ($this->_inside_root_tag) {
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
-					if ($required_tags === FALSE || $name === $required_tags[$i]) {
+					if ($name === $required_tags[$i]) {
 						$this->_inside_relevant_tag = TRUE;
 						$this->_current_tag_name = $name;
+						$this->_new_tag = TRUE;
 
 						// Set record tree level to where required elemets are
 						$this->_record_tree_level = $this->_tree_level;
@@ -388,14 +400,22 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function characterData($parser, $data)
-	{
+	{	
 		if ($this->_inside_relevant_tag) {
-
-			// if there are multiple tags with same name in the record, merge the values using the given delimiter
 			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
-			} else {
+			} 
+			// If value for this tag is already set even when it is new tag then it means there are multiple tags with same name in the record 
+			// Merge the values using the given delimiter
+			else if ($this->_new_tag) {
 				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $this->attr('data_delimiter') . $data;
+			} 
+			// Being here implies that this function handler has been called more than once for data in the same tag.
+			// Merge the data to get the whole thing.
+			// See bug #4113 - When parser encounters special content in data like &amp;, &apos;, etc., it stops scanning and calls the data handler,
+			// and then calls the handler again for the remaining data in the tag.	
+			else {
+				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $data;
 			}
 
 			$required_attributes = $this->_getRequiredAttributes();
@@ -415,7 +435,7 @@ class Data_Source_Xml extends Data_Source
 			}
 		}
 
-		$this->_inside_relevant_tag = FALSE;
+		$this->_new_tag = FALSE;
 
 	}//end characterData()
 
@@ -436,6 +456,8 @@ class Data_Source_Xml extends Data_Source
 
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
+
+		$this->_inside_relevant_tag = FALSE;
 
 	}//end endElement()
 
@@ -552,7 +574,7 @@ class Data_Source_Xml extends Data_Source
 		$cdata_tags = unserialize(html_entity_decode($this->attr('cdata_tags')));
 		if (empty($cdata_tags)) return $content;
 		$cdata_tags = array_unique($cdata_tags);
-
+		
 		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
 
@@ -561,6 +583,7 @@ class Data_Source_Xml extends Data_Source
 			$replacement = "$1<![CDATA[$3]]>$4";
 			$content = preg_replace($replace_pattern, $replacement, $content);
 		}
+		
 		return $content;
 	}
 
