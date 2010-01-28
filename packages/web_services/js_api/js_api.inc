@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.5 2010/01/19 06:26:18 akarelia Exp $
+* $Id: js_api.inc,v 1.2.2.6 2010/01/28 21:58:31 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.5 $
+* @version $Revision: 1.2.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2022,7 +2022,6 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '';
-	if (!isset(link_value)) link_value = '';
 	if (!isset(sort_order)) sort_order = '';
 
 	// Build our string
@@ -2030,7 +2029,7 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 				'&id=' + child_id +
 				'&parent_id=' + parent_id +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value +
+				(isset(link_value) ? '&link_value=' + link_value : '') +
 				'&sort_order=' + sort_order;
 
 	// Make our request
