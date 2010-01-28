@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.11 2010/01/17 23:12:08 ewang Exp $
+* $Id: form_question_type_email_address.inc,v 1.12 2010/01/28 00:44:21 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,11 +109,11 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	{
 		// borrow a valid email rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1', 'value' => '');
-		$this->addRule($req_rule['rule_code'], $req_rule['operator'], $req_rule['value']);	
+		array_push($this->vars['rules']['value'],$req_rule);	
 		
 		$code = parent::generateJSCode();
 
-		$this->removeRule($req_rule);
+		array_pop($this->vars['rules']['value']);
 
 		return $code;
 
