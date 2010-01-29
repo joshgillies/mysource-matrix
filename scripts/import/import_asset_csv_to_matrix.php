@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.7.2.2 2010/01/20 03:54:37 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.7.2.3 2010/01/29 00:13:29 mbrydon Exp $
 *
 */
 
@@ -201,7 +201,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 				if (isset($metadata_mapping[$unique_record_field])) {
 					$search_type = 'metadata';
-					$search_field = $unique_record_field;
+					$search_field = $metadata_mapping[$unique_record_field];
 					$search_value = $asset_spec[$unique_record_field];
 				}
 
@@ -221,6 +221,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 				if (count($existing_assets) > 1) {
 					// Multiple matching assets - skip
 					printStdErr("\n*\t* The record for '".$search_value."' matched multiple existing assets. Cannot determine how to proceed - continuing to the next record.\n");
+					continue;
 				}
 
 				$existing_asset_id = reset($existing_assets);
