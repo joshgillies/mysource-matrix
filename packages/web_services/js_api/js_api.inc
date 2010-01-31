@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.11 2010/01/28 06:28:44 cupreti Exp $
+* $Id: js_api.inc,v 1.12 2010/01/31 22:56:16 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -59,6 +59,13 @@ class JS_Api extends Page
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
+		// Create a random key
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
+		$key = rand(1000000000, 9999999999);
+		$this->setAttrValue('api_key', $key);
+		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		
 		return $this->makeAndSaveInitialWebPath(strtolower($this->attr('name').'.js'), $link);
 
 	}//end _createAdditional()
