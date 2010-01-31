@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.2.2.2 2009/11/12 04:44:37 bpearson Exp $
+* $Id: js_api_management.inc,v 1.2.2.3 2010/01/31 23:26:36 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -39,8 +39,6 @@ class JS_Api_Management extends Asset_Management
     {
         Asset_Management::__construct($pm);
 		
-		// Create a random key
-		$key = rand(1000000000, 9999999999);
 
 		$this->vars	= Array (
 						'types'						=> Array(
@@ -80,7 +78,7 @@ class JS_Api_Management extends Asset_Management
 						'api_key'					=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'text',
-														'default'		=> $key,
+														'default'		=> '',
 														'description'	=> 'The API Key',
 														'update_fn'		=> '',
 														'is_admin'		=> FALSE,
@@ -324,6 +322,36 @@ class JS_Api_Management extends Asset_Management
 
 		}//end if - upgrade to version 0.2
 
+		
+		if (version_compare($current_version, '0.3', '<')) {
+			
+			// Generate API key for those had empty default key
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3 - FIXING Default API Key');
+			$apis = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('js_api', FALSE, TRUE);
+			$count = 0;
+			foreach ($apis as $assetid => $type_code) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'js_api');
+				if (is_null($asset)) continue;
+				$key = $asset->attr('api_key');
+				if(empty($key)) {
+					// regenerate api key
+					$new_key = rand(1000000000, 9999999999);
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$asset->setAttrValue('api_key', $new_key);
+					$asset->saveAttributes();				
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					pre_echo('JS API Asset #'.$asset->id.' has a new API key '.$new_key);
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			pre_echo('Updated - '.$count.' Javascript Api(s)...');
+			pre_echo($asset_name.' UPGRADE COMPLETE - TO VERSION 0.3');
+
+		}//end if - upgrade to version 0.3
+		
 		return TRUE;
 
 	}//end _upgrade()
