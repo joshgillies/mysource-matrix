@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_remaps.inc,v 1.1 2008/11/12 22:57:57 bpearson Exp $
+* $Id: trigger_action_remove_remaps.inc,v 1.1.10.1 2010/01/31 22:13:40 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that removes all the assets remaps
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,14 +72,29 @@ class Trigger_Action_Remove_Remaps extends Trigger_Action
 		// Grab the URLS for this asset
 		$urls = $state['asset']->getURLs();
 
+		try {
+			$results = MatrixDAL::executeAssoc('core', 'getRemapUrls');
+		} catch (DALException $e) {
+			throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
+		}
+
+		// Don't process those Never Delete remaps
+		$never_delete_urls = Array();
+		foreach ($results as $index => $result) {
+			if($result['never_delete']) {
+				$never_delete_urls[$result[$remove_from_to ? 'remap_url' : 'url']] = 1;
+			}
+		}
+		
 		foreach ($urls as $url) {
 			$address = Array();
-			if ($url['http'] == '1') {
+			if ($url['http'] == '1' && !isset($never_delete_urls['http://'.$url['url']])) {
 				$address[] = 'http://'.$url['url'];
 			}
-			if ($url['https'] == '1') {
+			if ($url['https'] == '1' && !isset($never_delete_urls['https://'.$url['url']])) {
 				$address[] = 'https://'.$url['url'];
 			}
+			
 			
 			if (!empty($address)) {
 				// Process removing remaps (from-to) ie. remapping to this address (remap_url is this address)
