@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15 2009/08/07 06:40:49 lwright Exp $
+* $Id: lang_strings.xml,v 1.15.2.1 2010/02/01 03:45:32 mbrydon Exp $
 *
 */
 -->
@@ -46,7 +46,7 @@
 	<string source="hide_user_held_locks_details">Hide User Held Lock Details</string>
 
 	<string source="user_email_image">User Email Image</string>
-	<string source="user_prefs_attribute_image">Settings for using Image keywords replacements</string>
+	<string source="user_prefs_attribute_image">Settings for using Image keyword replacements</string>
 	<string source="set_attribute_image_settings">Set the attribute image defaults</string>
 	<string source="attribute_image_face">Font</string>
 	<string source="attribute_image_size">Size</string>
