@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.2 2009/12/10 23:32:51 akarelia Exp $
+* $Id: asset_manager.inc,v 1.779.2.3 2010/02/01 04:51:01 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.2 $
+* @version $Revision: 1.779.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3560,35 +3560,73 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		/**
+		 * get the parent treeid's for this asset.
+		 *
+		 * This is done as a separate db call for performance reasons
+		 * if it's done as a subquery, then there are multiple
+		 * seq-scans of the lnk & lnk_tree tables (which can be quite large)
+		 * separating the two calls means the second call looks at
+		 * hardcoded id's - which can then be looked up in the index
+		 * which is a nice win.
+		 *
+		 */
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size)';
-		$bind_vars['assetid']   = (string) $assetid;
-		$bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
 
+		$treeids = array();
 		if (MatrixDAL::getDbType() === 'oci') {
-			$in_sql = 'SELECT * FROM table('.$in_sql.')';
+			$treeids_query = "SELECT column_value AS treeid FROM TABLE(" . $in_sql . ")";
 		} else {
-			$in_sql = 'SELECT * FROM '.$in_sql;
+			$treeids_query = "SELECT " . SQ_TABLE_RUNNING_PREFIX . "get_lineage_treeids AS treeid FROM " . $in_sql;
 		}
-
-		$where .= ' AND pt.treeid IN ('.$in_sql.')';
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql .= $where.'
-			ORDER BY cl.linkid, ct.treeid, pt.treeid';
+		$treeid_bind_vars['assetid']   = (string) $assetid;
+		$treeid_bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			foreach ($bind_vars as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			$tree_query = MatrixDAL::preparePdoQuery($treeids_query);
+			foreach ($treeid_bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($tree_query, $bind_var, $bind_value);
 			}
-			$result = MatrixDAL::executePdoGroupedAssoc($query);
+			$tree_result = MatrixDAL::executePdoAssoc($tree_query);
 		} catch (Exception $e) {
 			throw $e;
+		}
+
+		/**
+		 * we found some tree id's -
+		 * quote them and plug them back in to the main query directly.
+		 */
+		if (!empty($tree_result)) {
+			foreach ($tree_result as $row => $info) {
+				$treeids[] = MatrixDAL::quote($info['treeid']);
+			}
+			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
+			unset($treeids);
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+			$sql .= $where.'
+				ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+				$result = MatrixDAL::executePdoGroupedAssoc($query);
+			} catch (Exception $e) {
+				throw $e;
+			}
+		} else {
+			/**
+			 * no parent tree ids? then we don't have any lineages
+			 * we are on the top level.
+			 */
+			$result = array();
 		}
 
 		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
