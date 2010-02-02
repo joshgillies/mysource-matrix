@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.44.2.2 2010/01/13 03:12:57 lwright Exp $
+* $Id: details.inc,v 1.44.2.3 2010/02/02 22:23:38 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44.2.2 $
+* @version $Revision: 1.44.2.3 $
 * @package MySource_Matrix
 */
 
@@ -569,18 +569,18 @@ function processDetails(&$owner, &$o, &$ei)
 
 				case 'status_change' :
 					///// IMMEDIATE STATUS CHANGES ////
-					$is_updated = $is_updated || _processDetailsStatusChange($owner, $o, $prefix);
+					$is_updated = _processDetailsStatusChange($owner, $o, $prefix) || $is_updated;
 				break;
 
 				case 'status_future_status' :
 					///// FUTURE STATUS CHANGES ////
-					$is_updated = $is_updated || _processDetailsFutureStatusCurrent($owner, $o, $prefix);
-					$is_updated = $is_updated || _processDetailsFutureStatusNew($owner, $o, $prefix);
+					$is_updated = _processDetailsFutureStatusCurrent($owner, $o, $prefix) || $is_updated;
+					$is_updated = _processDetailsFutureStatusNew($owner, $o, $prefix) || $is_updated;
 				break;
 
 				case 'thumbnail_change' :
 					///// THUMBNAIL CHANGES ////
-					$is_updated = $is_updated || _processDetailsThumbnailChange($owner, $o, $prefix);
+					$is_updated = _processDetailsThumbnailChange($owner, $o, $prefix) || $is_updated;
 				break;
 
 			}//end switch on code
