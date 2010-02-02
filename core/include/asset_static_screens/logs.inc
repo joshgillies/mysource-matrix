@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.26 2008/05/27 01:22:57 bpearson Exp $
+* $Id: logs.inc,v 1.26.8.1 2010/02/02 04:23:59 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.8.1 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,12 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		throw new Exception('Failed to get log messages due to database error: '.$e->getMessage());
 	}
 
-	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
+	if (isset($_REQUEST['sq_backend_log_type'])) {
+		$active_log_type = $_REQUEST['sq_backend_log_type'];
+	} else {
+		$active_log_type = (!empty($log_types) && isset($log_types[0])) ? $log_types[0] : '';
+	}
+
 	$selected_key = NULL;
 	$selected_base_url = '';
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
@@ -70,21 +75,24 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		$type_options[$base_url] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 	}
 
-	echo '<b>'.translate('log_type').'</b>&nbsp;';
+	if (!( empty($type_options) && empty($selected_base_url) )) {
 
-	// if it is in limbo mode there will be already an element with sq_backend_log_type id
-	$_combo_box_name = 'sq_backend_log_type';
+		echo '<b>'.translate('log_type').'</b>&nbsp;';
 
-	// if it is in limbo mode there will be already an element with sq_backend_log_type id
-	// therefore we will change the name of the combo box
-	if (SQ_IN_LIMBO) {
-		$_combo_box_name = 'sq_backend_log_type2';
+		// if it is in limbo mode there will be already an element with sq_backend_log_type id
+		$_combo_box_name = 'sq_backend_log_type';
+
+		// if it is in limbo mode there will be already an element with sq_backend_log_type id
+		// therefore we will change the name of the combo box
+		if (SQ_IN_LIMBO) {
+			$_combo_box_name = 'sq_backend_log_type2';
+		}
+
+		combo_box($_combo_box_name, $type_options, FALSE, $selected_base_url);
+		echo '&nbsp;';
+
+		normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 	}
-
-	combo_box($_combo_box_name, $type_options, FALSE, $selected_base_url);
-	echo '&nbsp;';
-
-	normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 
 	$o->closeRaw();
 
@@ -128,7 +136,11 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 	if (empty($logs)) {
 		$o->openRaw();
-			echo '<b>'.translate('no_logged_messages', $owner->name).'</b>';
+			if (!( empty($type_options) && empty($selected_base_url) )) {
+				echo '<b>'.translate('no_logged_messages', $owner->name).'</b>';
+			} else {
+				echo '<b>'.translate('no_logged_messages_found', $owner->name).'</b>';
+			}
 		$o->closeRaw();
 	} else {
 		$o->openRaw();
