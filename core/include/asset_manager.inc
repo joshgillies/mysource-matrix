@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.3 2010/02/01 04:51:01 csmith Exp $
+* $Id: asset_manager.inc,v 1.779.2.4 2010/02/02 23:08:21 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.3 $
+* @version $Revision: 1.779.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5674,7 +5674,7 @@ class Asset_Manager extends MySource_Object
 			if ($new_linkid != 0) $link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($new_linkid);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			//Bug Fix #3886 if we rolling back, delete the link we had already created
-			$this->deleteAssetLinkByLink($link);
+			 if ($new_linkid != 0) $this->deleteAssetLinkByLink($link);
 			$new_linkid = 0;
 		}
 
