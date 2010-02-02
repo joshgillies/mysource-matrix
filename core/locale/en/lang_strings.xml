@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.335.2.9 2009/10/19 04:02:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.335.2.10 2010/02/02 04:20:57 akarelia Exp $
 *
 */
 
@@ -1566,6 +1566,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<string source="log_type">Log Type</string>
 	<string source="no_logged_messages">There are no logged messages of this type for "%s"</string>
+	<string source="no_logged_messages_found">There are no logged messages for this Asset</string>
 	<string source="previous_page">Previous Page</string>
 	<string source="next_page">Next Page</string>
 	<string source="page_number">Page %1$s of %2$s</string>
