@@ -1515,7 +1515,18 @@
 			</delete>
 		</primary>
 	</query>
-
+	
+	<query id="deleteContextMetadataValue">
+		<!-- Deletes data from the metadata value table for the deleted context(s) -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_mdata_val" column="contextid">:contextids</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	
 	<query id="deleteSchemaOnAsset">
 		<!-- Deletes link with specified linkid -->
 		<primary>
