@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.30 2009/10/21 03:01:53 csmith Exp $
+#* $Id: backup.sh,v 1.30.2.1 2010/02/03 04:05:14 csmith Exp $
 #*
 #*/
 #
@@ -697,8 +697,30 @@ if [ "${tar_gzip}" -eq 0 ]; then
 else
 	print_verbose "Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
 	# dereference is in case there is a symlink either to matrix or inside the matrix folder
-	"${tar_command}" --dereference -czf "${backupdir}/${backupfilename}" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
-	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
+	TMPFILE=`mktemp`
+	"${tar_command}" --dereference -czf "${backupdir}/${backupfilename}" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}" 2>&1 > $TMPFILE
+	RESULT=$?
+	case $RESULT in
+		0)
+			# Success!
+			print_verbose "Tar completed Successfully"
+			;;
+		1)
+			# Minor Error - probably "file changed as we read it"
+			# Don't print to stderr unless in verbose mode.
+			if [ "${VERBOSE}" -eq 1 ]; then
+				echo "\$TMPFILE=$TMPFILE"
+				cat $TMPFILE >&2
+			fi
+			;;
+		*)
+			# Serious Error code is 2.  Shouldn't be any other error codes in use, but catch it with * anyway.
+			print_error "Backup failed"
+			cat $TMPFILE >&2
+			;;
+	esac
+	rm $TMPFILE
+	print_verbose "Finished tarring & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
 fi
 
 print_verbose ""
