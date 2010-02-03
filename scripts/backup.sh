@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.30.2.1 2010/02/03 04:05:14 csmith Exp $
+#* $Id: backup.sh,v 1.30.2.2 2010/02/03 05:57:28 csmith Exp $
 #*
 #*/
 #
@@ -202,7 +202,7 @@ pg_dbdump()
 
 	outputfile="${SYSTEM_ROOT}/.pgdumpoutput"
 
-	${pgdump} ${args} ${db} -f ${dumpfile} 2> ${outputfile}
+	${pgdump} ${args} -f ${dumpfile} ${db} 2> ${outputfile}
 
 	if [ $? -gt 0 ]; then
 		print_verbose ""
