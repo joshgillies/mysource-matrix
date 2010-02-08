@@ -77,6 +77,7 @@ Fixed Bug #4141: Script import_asset_csv_to_matrix.php does not alter edited att
 Fixed Bug #4143: Typo in File asset's details screen
 Fixed Bug #4149: Deleting contexts leaves records for the contexts on db
 Fixed Bug #4161: Edit operations import new assets in import_assets_csv_to_matrix when a Metadata Field is chosen for the unique identifier
+Fixed Bug #4167: Attaching thumbnail through Details screen does not work in 3.26.0 (?)
 Fixed Bug #4168: Typo on User Group asset User Preferences screen
 Fixed Bug #4171: Asset Logs screen shows PHP Notice immediately after truncating Internal Messages table
 
