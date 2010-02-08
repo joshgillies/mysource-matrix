@@ -1,5 +1,106 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.1
+
+Featured Changes
+-----------------------------------
+
+JS API: Multiple Set Metadata function [ Feature Request #4128 ]
+	A new function "setMetadataAllFields()" is now available in the JS API. This function takes a single array of field ids and their corresponding values to enable updating multiple fields for an asset in one request.
+
+This provides performance gains over using multiple "setMetadata()" requests. Locks are acquired once and the Metadata Content is generated once for the asset instead of once per field. This function returns TRUE on success and FALSE on failure (eg; when failing to fill in a required field).
+
+
+Reindex Assets script: Specification of multiple Root Asset Nodes [ Feature Request #4130 ]
+	The command line script packages/search/scripts/reindexSearchIndex.php now allows multiple Root Nodes to be entered for reindexing.
+
+The script can now be used as follows:
+
+	$ php packages/search/scripts/reindexSearchIndex.php `pwd`
+	Enter the #IDs of the root nodes to reindex (space separated)
+	or press ENTER to reindex the whole system: 123 456 789
+
+A prompt will appear to confirm reindexing of each specified node.
+
+
+Listing Engine: Group by Asset Keyword [ Feature Request #4153 ]
+	A new option is available in Listing Engine assets such as Asset Listing and Search Page, to provide grouping by keywords.
+
+Like existing grouping options, this can be configured from the Asset Grouping screen of these assets. The keyword used for the grouping is supplied without leading or training percentage (%) characters.
+
+
+TRIM Saved Search: Custom Metadata Fields and Search Logic [ Feature Request #4155 ]
+	TRIM Saved Search assets now allow queries on custom TRIM metadata fields and allow boolean search logic between these terms to be defined.
+
+A set of known metadata fields which is shipped with TRIM are the TRIM Saved Search options by default. This can be expanded by requesting all available fields from the TRIM system, for use in search queries. A "Retrieve Now" button is available from the Details screen to retrieve these fields.
+
+The Search Logic and Result Fields are expanded, and are configured from the Details screen. The layout is similar to that provided for Search Page assets. Fields may be grouped with a boolean operator, and each group is joined by another boolean operator.
+
+For example:
+
+	Group 1:
+		- Search field "AnyWord" for value "Fred"
+	[ AND ]
+		- Search field "Title" for value "Test"
+
+	[ OR ]
+
+	Group 2:
+		- Search custom field "Status" for value "Yes"
+
+Groups may be joined only by one common boolean operator, and "NOT" logic is unavailable.
+
+Just like the Search Logic, Result Fields may be composed of standard or custom fields, or both.
+
+
+Asset Manager lineage listing performance enhancement [ Feature Request #4160 ]
+	A performance enhancement may be evident on systems with large asset trees and/or many links pointing to a particular asset.
+
+
+Matrix Backup Script: Suppression of minor notices [ Feature Request #4158 ]
+	Minor notices such as "file changed as we read it" are now suppressed, to avoid these being sent by email from backup routines scheduled by cron.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3717: New version of backup.sh fails with Postgres 8.3
+Fixed Bug #3927: Form email address question throws error for public user
+Fixed Bug #4098: Remaps can be deleted from asset Web Paths screens regardless of Never Delete setting
+Fixed Bug #4099: Trigger will remove remaps even if "Never Delete" option is selected for that remap
+Fixed Bug #4102: System Maintenance: Total Assets Report incorrect
+Fixed Bug #4109: Undefined index: message_reject
+Fixed Bug #4118: Reports and Maintenance Tasks : Rollback Report, logic incorrect
+Fixed Bug #4139: Moving asset onto itself or under itself prompts warning and places into trash
+Fixed Bug #4141: Script import_asset_csv_to_matrix.php does not alter edited attribute values
+Fixed Bug #4143: Typo in File asset's details screen
+Fixed Bug #4149: Deleting contexts leaves records for the contexts on db
+Fixed Bug #4161: Edit operations import new assets in import_assets_csv_to_matrix when a Metadata Field is chosen for the unique identifier
+Fixed Bug #4168: Typo on User Group asset User Preferences screen
+Fixed Bug #4171: Asset Logs screen shows PHP Notice immediately after truncating Internal Messages table
+
+CMS
+Fixed Bug #4119: Cloning a form new links the submissions from the old form
+
+Data
+Fixed Bug #4113: XML Data Source throws "XML error: XML_ERR_NAME_REQUIRED" when source XML contains XML entities
+
+Search
+Fixed Bug #4122: Empty search and synonym search cause php warning
+Fixed Bug #4136: Inserting value larger than 4000 characters into search index table in Oracle system throws db error
+
+TRIM
+Fixed Bug #4151: TRIM form submission action author always uses user id 1 for 3.26
+
+Web Services
+Fixed Bug #4123: Javascript API not handling UTF-8 extended characters in Internet Explorer
+Fixed Bug #4126: JS API Key changed on upgrade
+Fixed Bug #4129: Javascript API not handling '&' characters
+Fixed Bug #4145: JS API not maintaining link values when moveing and creating
+
+
+
 VERSION 3.26.0
 
 Featured Changes
