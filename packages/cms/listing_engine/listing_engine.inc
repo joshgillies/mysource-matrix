@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.295 2010/01/25 06:01:12 ewang Exp $
+* $Id: listing_engine.inc,v 1.296 2010/02/09 00:40:33 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.295 $
+* @version $Revision: 1.296 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2302,7 +2302,7 @@ class Listing_Engine extends Page
 				if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
 						$kw = parse_keyword($kw);
 
-						if (in_array($kw, $bc_keywords)) {
+						if (!in_array($kw, $bc_keywords)) {
 								 array_push($bc_keywords, $kw);
 						}
 				}
