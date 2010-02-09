@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.16 2009/10/28 03:42:16 csmith Exp $
+* $Id: check_requirements.php,v 1.17 2010/02/09 04:34:50 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -354,7 +354,7 @@ function check_requirement($requirement_check, $package_name='core')
 		 */
 		if (empty($pecl_list) || $rc !== 0) {
 			$msg = "Unable to exec the 'pecl list' command.\n";
-			$msg .= "Please check pear is installed and in your path then try again.\n";
+			$msg .= "Please check pecl is installed and in your path then try again.\n";
 			echo $msg;
 			exit(1);
 		}
