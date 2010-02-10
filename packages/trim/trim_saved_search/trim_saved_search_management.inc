@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.4.4.1 2010/01/27 06:06:52 ewang Exp $
+* $Id: trim_saved_search_management.inc,v 1.4.4.2 2010/02/10 05:24:53 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4.4.1 $
+* @version $Revision: 1.4.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -118,7 +118,10 @@ class TRIM_Saved_Search_Management extends Asset_Management
 													'type'		=> 'serialise',
 													'default'	=> Array (
 																	'search_parent_container'	=> '',
-											  	   					'search_clauses'			=> Array(),
+											  	   					'search_clauses'			=> Array(
+											  	   													'search_groups' => Array(),
+											  	   													'global_logic'	=> 'AND',
+											  	   													),
 																	'result_fields'				=> Array (
 																									'recTitle'	=> 'Title',
 																									'recNumber'	=> 'Record Number',
@@ -144,7 +147,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 																		'parameters'	=> Array(),
 																	   ),
 												   ),
-						'retrieved_fields'	=> Array (
+						'retrieved_fields'		=> Array (
 											   		'added'			=> '0.1',
 											   		'type'			=> 'serialise',
 											   		'default'		=> Array(),
@@ -152,10 +155,29 @@ class TRIM_Saved_Search_Management extends Asset_Management
 												   						'allow_empty'		=> TRUE,
 												   					   ),
 											  	   ),
-						// This array allows TRIM data source to map the dynamic parameters with trim options
-						// Eg: if you want to set a dynamic parameter to pass the keyword option in
-						// with parameter name 'search_term', then trim_options['keyword'] need to be set to 'search_term'
-
+						'classification'		=> Array (
+											  	   	'added'     => '0.2',
+		                                            'type'      => 'text',
+		                                            'default'   => '',
+											  	   ),
+						'classification_sub'	=> Array (
+											  	   	'added'     => '0.2',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Whether to include records in sub classifications',
+													'parameters'    => Array(
+																		'allow_empty'   => FALSE,
+												   					   ),
+											  	   ),
+						'convert_timezone'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'description'	=> 'Whether to convert GMT datetime to local timezone',
+													'parameters'    => Array(
+																		'allow_empty'   => FALSE,
+												   					   ),
+												   	),
 					  );
 
 	}//end constructor
@@ -245,6 +267,9 @@ class TRIM_Saved_Search_Management extends Asset_Management
 				// Save the attribute
 				$saved_search->setAttrValue('dynamic_vars', $var_list);
 
+				// Parameter map should be cleaned, because the input vars now are too complicared to be used
+				$saved_search->setAttrValue('parameter_map', Array());
+				
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 				if (!$saved_search->saveAttributes()) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.7.4.3 2010/01/27 06:06:52 ewang Exp $
+* $Id: trim_common.inc,v 1.7.4.4 2010/02/10 05:24:53 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7.4.3 $
+* @version $Revision: 1.7.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -53,11 +53,14 @@ class TRIM_Common
 	
 	/**
 	* Construct an xml string representing a serial of logic grouped RecordStringSearchClause
-	*
+	* 
+	* @param array $search_clause	The search clauses which will be converted to xml
+	* @param array $classifications	The classifications uris. Search will be restricted to those uris.
+	* 
 	* @return string
 	* @access public
 	*/
-	public static function constructRecordSearchClauseGroupedXml ($search_clause = Array())
+	public static function constructRecordSearchClauseGroupedXml ($search_clause = Array(), $classifications)
 	{
 
 		if (!isset ($search_clause['search_groups'])) return '';
@@ -99,6 +102,23 @@ class TRIM_Common
 			}
 		}
 		
+		// add classification restrictions
+		if (!empty($classifications)) {
+			$i = 0;
+			foreach ($classifications as $uri => $title) {
+				$RecordClassificationSearchClause = $group_clause->addChild('RecordClassificationSearchClause');
+				$RecordClassificationSearchClause->addChild('ClassificationUri', $uri);
+				if($i > 0) {
+					$group_clause->addChild('RecordOrSearchClause');
+				}
+				$i++;			
+			}		
+			if(count($search_clause['search_groups']) > 0 )
+				$group_clause->addChild('RecordAndSearchClause');
+		}
+		
+		
+		// convert to string
 		$result = '';
 		foreach ($group_clause->children() as $child) {
 			$result .= $child->asXML();
@@ -371,6 +391,73 @@ class TRIM_Common
 
 	}//end getURIFromRecordNumber()
 
+	
+	
+	/**
+	* This function return the Unique Resource Identifiers of a classification and all its sub-classifications
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getURIsFromClassification($connection, $classification)
+	{
+		$results	= Array();
+		if(!preg_match('/^[a-zA-Z0-9_ ]+( - [a-zA-Z0-9_]+)*$/', $classification)) return $results;
+		
+		$specific_items = Array();
+		$specific_items['plnTitle'] = 1;
+
+		$operations = Array (
+						'ClassificationStringSelect'	=> Array (
+																		'Arg'				=>	$classification,
+																		'Type'				=>	'ByWord',
+																		'TargetForUpdate'	=>	FALSE,
+																		'IsForUpdate'		=>	FALSE,
+																		'Limit'				=>	100000,
+														),
+						'Fetch'							=> self::constructFetch($specific_items, 100000),							
+					  );
+
+		$results = self::executeRequest($connection, $operations, 'Fetch');
+	
+		return $results;
+
+	}//end getURIsFromClassification()
+	
+	
+	
+	
+	/**
+	* This function returns the Record Type names from the uris of Record Types
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getRecordTypeNamesFromUris($connection, $uris)
+	{
+		$results	= Array();
+		
+		$specific_items = Array();
+		$specific_items['rtyName'] = 1;
+
+		$operations = Array (
+						'RecordTypeUrisSelect'	=> Array (
+																		'Uris'				=>	$uris,
+																		'BehaviorFilter'	=>	'Document',
+																		'TypeFilter'		=>	'All',
+																		'TargetForUpdate'	=>	FALSE,
+																		'IsForUpdate'		=>	FALSE,
+																		'Limit'				=>	100000,
+														),
+						'Fetch'							=> self::constructFetch($specific_items, 100000),							
+					  );
+
+		$results = self::executeRequest($connection, $operations, 'Fetch');
+	
+		return $results;
+
+	}//end getRecordTypeNamesFromUris()
+	
 
 	/**
 	* This function return
@@ -755,8 +842,7 @@ class TRIM_Common
 
 			$xml = $client->ConvertToXml($Execute);
 
-		
-		
+	
 		
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
 			// come first in the soap request, otherwise TRIM wont know where the Fetch object should get the
@@ -771,10 +857,14 @@ class TRIM_Common
 			} else if (isset($operations['Download']) && isset($operations['ShortcutRecordUri'])) {
 				$xml = self::SwapElement($xml, 'ShortcutRecordUri', 'Download');
 			}
+			else if (isset($operations['Fetch']) && isset($operations['ClassificationStringSelect'])) {
+				$xml = self::SwapElement($xml, 'ClassificationStringSelect', 'Fetch');
+			}
+			else if (isset($operations['Fetch']) && isset($operations['RecordTypeUrisSelect'])) {
+				$xml = self::SwapElement($xml, 'RecordTypeUrisSelect', 'Fetch');
+			}
 
-		
-			
-			
+
 			// Now its time to get the data
 			$data = $client->ExecuteXml(Array('xml'	=> $xml));
 

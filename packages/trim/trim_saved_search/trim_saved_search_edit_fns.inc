@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.7.4.1 2010/01/27 06:06:52 ewang Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.7.4.2 2010/02/10 05:24:53 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7.4.1 $
+* @version $Revision: 1.7.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -721,7 +721,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							<?php
 							if ($field_data['caption'] != 'new') {
 								if($write_access)
-									text_box($prefix.'_fields['.$group_index.']['.$field_index.'][keyword]', $field_data['keyword'], '20');
+									text_box($prefix.'_fields['.$group_index.']['.$field_index.'][keyword]', $field_data['keyword'], '35');
 								else
 									echo $field_data['keyword'];
 							}//end if

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1.10.2 2010/01/27 06:06:52 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.10.3 2010/02/10 05:24:53 ewang Exp $
 *
 */
 -->
@@ -86,6 +86,7 @@
     </section>
 	<section name="Search Fields" write_access="write:attributes">
     	<field>
+    		<display_name>Search Fields</display_name>
     		<function_call>
     			<paint_function   name="paintSearchFields"	/>
     			<process_function name="processSearchFields"	/>
@@ -95,12 +96,26 @@
     </section> 
     <section name="Result Fields" write_access="write:attributes">
     	<field>
+    		<display_name>Result Fields</display_name>
     		<function_call>
     			<paint_function   name="paintResultFields"	/>
     			<process_function name="processResultFields"	/>
     		</function_call>
     	</field>
+    	<field attribute="convert_timezone">
+    		<display_name>Use Local Time</display_name>
+    		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_time:Y% will print a full numeric representation of a year in local time.</note>
+    	</field>
     </section>   
+    <section name="Classification Options" write_access="write:attributes">
+    	<field attribute="classification">
+			<display_name>Classification</display_name>
+			<note>Search for records with a specific classification. E.g. RESEARCH - PROJECTS. Returned records can be grouped in listing page using keyword %ds__classification_title_[level_number]%</note>
+        </field>
+        <field attribute="classification_sub">
+			<display_name>Include Sub-classifications</display_name>
+        </field>
+    </section>
     <section name="General Search Options" write_access="write:attributes">
 		<field>
 			<function_call>
