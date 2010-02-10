@@ -1,0 +1,9 @@
+<requirement_info>
+        <package_name>__core__</package_name>
+        <requirement>
+                <php_extension>SimpleXML</php_extension>
+        </requirement>
+        <requirement>
+                <php_extension>soap</php_extension>
+        </requirement>
+</requirement_info>

@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.14 2010/01/27 05:28:46 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.15 2010/02/10 05:26:13 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -385,20 +385,40 @@ class TRIM_Saved_Search extends Data_Source
 
 		$string_search_clause				= $this->getDynamicVariableValue('search_clauses');
 		$parent_container_record_number	= $this->getDynamicVariableValue('search_parent_container');
-
+		$classification_title = $this->attr('classification');
+		$classification_include_sub = $this->attr('classification_sub');
+		
 		// Fetch information
 		$record_properties	= $this->getDynamicVariableValue('result_fields');
 		$search_limit		= $this->getDynamicVariableValue('limit');
 
+		// Get classification and sub-classification structure
+		$classifications = Array();
+		if(!empty($classification_title)) {
+			$classification_uris = TRIM_Common::getURIsFromClassification($connection, trim($classification_title));
+			foreach ($classification_uris as $classification) {
+				// filter out inrelevent classifications
+				if($classification_include_sub) {
+					if (!preg_match ('/^'.$classification_title.'( - )?/',$classification['plnTitle'])) continue;
+				}
+				else {
+					if ($classification['plnTitle'] != $classification_title) continue;
+				}				
+				$classifications[$classification['Uri']] = $classification['plnTitle'];
+			}
+			// make sure classification is in the returned results
+			$record_properties['recClassification'] = 'Classification';
+		}
+
+		
+		
+		
+		
 		// Search clauses will be directly inserted to xml request
-		// Because TRIM convertToXml will mess up the order
+		// Because TRIM convertToXml will mess up the order	
+		$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause, $classifications);
+
 		$search_clauses = Array();
-		$search_clauses_xml = Array();
-		if (!empty($string_search_clause)) {
-			$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause);
-		}//end if
-
-
 		if (!empty($parent_container_record_number)) {
 			$parent_container_uri	= TRIM_Common::getURIFromRecordNumber($connection, $parent_container_record_number);
 			$search_clauses['RecordContainerAltClause']	= TRIM_Common::constructRecordContainerAltClause($parent_container_uri);
@@ -413,17 +433,70 @@ class TRIM_Saved_Search extends Data_Source
 		$file_path = NULL;
 		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
 
-		// Make sure the field name is matrix keyword friendly
+
+
+		// inserting classification grouping keywords
+		if(!empty($classification_title)) {
+			foreach ($object_list as $index => $record_info) {
+				if (!isset($classifications[$record_info['recClassification']])) continue;
+				$record_classification = $classifications[$record_info['recClassification']];			
+				$object_list[$index]['classification_title'] = $record_classification;
+				$object_list[$index]['classification_title_1'] = $classification_title;
+				
+				if ($record_classification !== $classification_title) {
+					$record_classification = preg_replace('/^'.$classification_title.' - /', '', $record_classification, 1);
+					$record_classification_level = explode (' - ', $record_classification);
+					$i = 2;
+					foreach ($record_classification_level as $level_title) {
+						$object_list[$index]['classification_title_'.$i] = $level_title;
+						$i++;
+					}
+				}
+			}
+		}
+		
+		$record_type_uris = Array();		
 		foreach ($object_list as $index => $record_info) {
 			foreach ($record_info as $key => $value) {
+				// Convert GMT Datetime to Local Time
+				if($this->attr('convert_timezone') && preg_match('/ GMT$/', $value)) {
+					$local_datetime = date('D, d M Y H:i:s', strtotime($value));
+					$object_list[$index][$key] = empty($local_datetime) ? $value : $local_datetime;
+				}
+				
+				// Make sure the field name is matrix keyword friendly
 				if(preg_match('/[^a-zA-Z0-9_-]/', $key)) {
 					$new_key = preg_replace('/[^a-zA-Z0-9_-]+/', '', $key);
+					$new_value = $object_list[$index][$key];
 					unset($object_list[$index][$key]);
-					$object_list[$index][$new_key] = $value;
+					$object_list[$index][$new_key] = $new_value;
+				}
+				
+				// Prapare to convert Record Type uri field to readable Record Type name
+				if($key === 'recRecordType') {
+					$record_type_uris[] = $value;
 				}
 			}
 		}
 
+		// Convert Record Type from uri to name
+		if(!empty($record_type_uris)) {
+			$record_names_data = TRIM_Common::getRecordTypeNamesFromUris($connection, $record_type_uris);
+			foreach ($record_names_data as $record_info) {
+				$record_names[$record_info['Uri']] = $record_info['rtyName'];
+			}
+			
+			foreach ($object_list as $index => $record_info) {
+				foreach ($record_info as $key => $value) {
+					if($key === 'recRecordType') {
+						$new_value = isset($record_names[$value]) ? $record_names[$value] : $value;
+						$object_list[$index][$key] = $new_value;					
+					}
+				}
+			}
+		}
+		
+		
 		return $object_list;
 
 	}//end getTRIMRecords();

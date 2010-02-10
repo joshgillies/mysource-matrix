@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.8 2010/01/27 05:28:46 ewang Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.9 2010/02/10 05:26:13 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -721,7 +721,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							<?php
 							if ($field_data['caption'] != 'new') {
 								if($write_access)
-									text_box($prefix.'_fields['.$group_index.']['.$field_index.'][keyword]', $field_data['keyword'], '20');
+									text_box($prefix.'_fields['.$group_index.']['.$field_index.'][keyword]', $field_data['keyword'], '35');
 								else
 									echo $field_data['keyword'];
 							}//end if
@@ -909,7 +909,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$var_list = $asset->attr('dynamic_vars'); 
 		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
-		
+
 		//get possible search fields
 		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_result_field').' --'));
 		$list = $asset->getRetrievedFields('all');
@@ -1013,7 +1013,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				$result_fields[$new_field] = $field_caption;
 			}				
 		}
-
+	
 		$var_list['result_fields'] = $result_fields;
 		return ($asset->setAttrValue('dynamic_vars', $var_list));
 
