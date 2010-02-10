@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.51 2009/12/08 06:46:02 cupreti Exp $
+* $Id: text.inc,v 1.52 2010/02/10 04:37:25 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package Fudge
 * @subpackage Text
 */
@@ -386,6 +386,11 @@ function apply_keyword_modifier($text, $modifier)
 	case "sha1":
 		return sha1($text);
 
+	case "date_format":
+		// Format a date string and only prints the field required
+		$format = array_get_index($modifier['args'], 0, '');
+		return date($format, strtotime($text));
+		
 	default:
 		return $text;
 
