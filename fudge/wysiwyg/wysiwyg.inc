@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.76.2.7 2009/10/16 03:21:35 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.76.2.8 2010/02/11 06:17:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76.2.7 $
+* @version $Revision: 1.76.2.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -837,11 +837,11 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 							
 							if (sFocusNode.nodeName == 'BODY' && sFocusNode.childNodes[sFocusOffset]) {								
-									sFocusNode = sFocusNode.childNodes[sFocusOffset];
-									sFocusOffset = 0;
+								sFocusNode = sFocusNode.childNodes[sFocusOffset];
+								sFocusOffset = 0;
 									
-									while(sFocusNode.childNodes[0] && sFocusNode.nodeName != '#text') 
-										sFocusNode = sFocusNode.childNodes[0];
+								while(sFocusNode.childNodes[0] && sFocusNode.nodeName != '#text') 
+									sFocusNode = sFocusNode.childNodes[0];
 							}
 							
 							if (sFocusNode.nodeName != '#text') {
@@ -1417,20 +1417,18 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						9830 : '&diams;'	// black diamond suit
 					};
 
-					var html_length = html_code.length;
-					var new_html = '';
-					for(var i = 0; i < html_length; i++) {
-
-						code = html_code.charCodeAt(i);
+					// Carry out replacement for each entities (see bug #4182)
+					for(var code in entities_array) {
 						entity = entities_array[code];
-						if (entity && entity != '') {
-							new_html += entities_array[code];
-						} else {
-							new_html += String.fromCharCode(code);
-						}
+						
+						reg = new RegExp("&#" + code + ";", "ig");
+						html_code = html_code.replace(reg, entity);						
+						
+						reg = new RegExp(String.fromCharCode(code), "ig");
+						html_code = html_code.replace(reg, entity);				
 					}
-
-					return new_html;
+					
+					return html_code;					
 				};
 
 			</script>
