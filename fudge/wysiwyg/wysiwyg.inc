@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.83 2009/10/16 03:20:42 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.84 2010/02/11 06:16:15 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1416,22 +1416,20 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						9827 : '&clubs;',	// black club suit, shamrock
 						9829 : '&hearts;',	// black heart suit, valentine
 						9830 : '&diams;'	// black diamond suit
-					};
-
-					var html_length = html_code.length;
-					var new_html = '';
-					for(var i = 0; i < html_length; i++) {
-
-						code = html_code.charCodeAt(i);
+					};					
+					
+					// Carry out replacement for each entities (see bug #4182)
+					for(var code in entities_array) {
 						entity = entities_array[code];
-						if (entity && entity != '') {
-							new_html += entities_array[code];
-						} else {
-							new_html += String.fromCharCode(code);
-						}
+						
+						reg = new RegExp("&#" + code + ";", "ig");
+						html_code = html_code.replace(reg, entity);						
+						
+						reg = new RegExp(String.fromCharCode(code), "ig");
+						html_code = html_code.replace(reg, entity);				
 					}
-
-					return new_html;
+					
+					return html_code;
 				};
 
 			</script>
