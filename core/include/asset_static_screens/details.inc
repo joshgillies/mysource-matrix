@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.47 2010/02/02 22:23:22 cupreti Exp $
+* $Id: details.inc,v 1.48 2010/02/11 05:05:20 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 
@@ -163,7 +163,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						$contents = ob_get_clean();
 
 						// If unable to save as a keyword replacement, echo it
-						if (_paintDetailsRegisterKeyword($ei, $keywords, 'field', 'status_current', $contents) === FALSE) {
+						if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_current', $contents) === FALSE) {
 							echo $contents;
 						}
 
@@ -196,7 +196,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						$contents = ob_get_clean();
 
 						// If unable to save as a keyword replacement, echo it
-						if (_paintDetailsRegisterKeyword($ei, $keywords, 'field', 'status_change', $contents) === FALSE) {
+						if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_change', $contents) === FALSE) {
 							echo $contents;
 						}
 
