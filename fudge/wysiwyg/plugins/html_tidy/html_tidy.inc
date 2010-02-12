@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.70 2009/12/02 03:17:20 bpearson Exp $
+* $Id: html_tidy.inc,v 1.71 2010/02/12 06:34:38 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -205,38 +205,32 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						'.$html.'
 						</body></html>';
 
+				$input_file = tempnam(SQ_TEMP_PATH, 'tidy_in_');
+				$output_file = tempnam(SQ_TEMP_PATH, 'tidy_out_');
+				$error_file = tempnam(SQ_TEMP_PATH, 'tidy_err_');
+
+				file_put_contents($input_file, $complete_html);
+				touch($output_file);
+				touch($error_file);
+
 				$descriptorspec = array(
-					0 => Array("pipe", "r"),  // stdin is a pipe that the child will read fromi
-					1 => Array("pipe", "w"),  // stdout is a pipe that the child will write to
-					2 => Array("pipe", "w"),  // stderr is a file to write to
+					0 => Array("file", $input_file, "r"),  // file that the child will read from
+					1 => Array("file", $output_file, "w"),  // file that the child will write to
+					2 => Array("file", $error_file, "w"),  // stderr is a file to write to
 				);
-
+				
 				$process = proc_open("$path_to_tidy $args ", $descriptorspec, $pipes);
-
+				
 				if (is_resource($process)) {
-					$STDIN = $pipes[0];
-					$STDOUT = $pipes[1];
-					$STDERR = $pipes[2];
-
-					// Send html data and receive tidied html data.
-					fwrite($STDIN, $complete_html);
-					fclose($STDIN);
-					$tidy = stream_get_contents($STDOUT);
-					fclose($STDOUT);
-					
-					// Find the errors
-					$errors = Array($STDERR);
-					$error = '';
-					foreach ($errors as $key => $err) {
-						switch ($err) {
-							case $STDERR:
-								$error = stream_get_contents($STDERR)."\n";
-								break;
-						}
-					}
-					fclose($STDERR);
 					$return = proc_close($process);
+				
+					$tidy = file_get_contents($output_file);
+					$error = file_get_contents($error_file);
 				}
+
+				unlink($input_file);
+				unlink($output_file);
+				unlink($error_file);
 
 				// First ignore anything we don't want to show for whatever reason
 				$ignore_errors_list = $this->getIgnoredErrors();
@@ -254,7 +248,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				// A return of 2 from tidy indicates there were fatal errors.
 				// (0 = no messages; 1 = only warnings, which we allow)
 				if (($return >= 2) || empty($tidy) || empty($tidy_char_set)) {
-					$this->htmltidy_status = 'fail';
+					$this->htmltidy_status = 'fail';					
 				} else {
 					// Only now we update the HTML
 					$html = $tidy;
