@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.4.4.2 2010/02/10 05:24:53 ewang Exp $
+* $Id: trim_saved_search_management.inc,v 1.4.4.3 2010/02/12 01:26:11 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4.4.2 $
+* @version $Revision: 1.4.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -267,9 +267,6 @@ class TRIM_Saved_Search_Management extends Asset_Management
 				// Save the attribute
 				$saved_search->setAttrValue('dynamic_vars', $var_list);
 
-				// Parameter map should be cleaned, because the input vars now are too complicared to be used
-				$saved_search->setAttrValue('parameter_map', Array());
-				
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 				if (!$saved_search->saveAttributes()) {
