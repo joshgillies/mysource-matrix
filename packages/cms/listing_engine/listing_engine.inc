@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.296 2010/02/09 00:40:33 cupreti Exp $
+* $Id: listing_engine.inc,v 1.297 2010/02/15 01:11:23 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.296 $
+* @version $Revision: 1.297 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3103,13 +3103,14 @@ class Listing_Engine extends Page
 
 		$group_keys = array_keys($group_levels);
 
-
+		bam(MatrixDAL::getDbType());
 		// we need to flip the keys back to what they were to construct the array
 		foreach ($asset_groups as $group_data) {
 			$base =& $results;
 			foreach (array_reverse($group_keys) as $group_key) {
 				$key = $group_data['group'][$group_key];
-				if (is_null($key)) $key = '';
+				// Postgres returns FALSE when no records are found
+				if (is_null($key) || (MatrixDAL::getDbType() == 'pgsql' && $key === FALSE)) $key = '';
 				$base =& $base[$key];
 			}
 			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
