@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.3 2010/01/19 21:56:31 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.144.2.4 2010/02/16 23:36:14 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.3 $
+* @version $Revision: 1.144.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -2001,8 +2001,18 @@ class Workflow_Manager extends MySource_Object
 		$log = $ms->newMessage();
 
 		$url_parts = explode('://' , $asset->getURL());
-		$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
-		$root_url = $url_parts[0].'://'.$site_url['url'];
+		
+		if (count($url_parts) > 1) {
+			$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
+			$root_url = $url_parts[0].'://'.$site_url['url'];		
+		} else {
+			// Asset doesn't has url, so ...
+			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
+			$href = str_replace('./', '', current($hrefs));
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			$root_url = 'http://'.current($root_urls).'/'.$href;
+		}
+
 		$msg_reps = Array(
 						'user_name'				=> $user->name,
 						'workflow_user'			=> $user->name,
@@ -2054,8 +2064,17 @@ class Workflow_Manager extends MySource_Object
 			$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 			$url_parts = explode('://' , $asset->getURL());
-			$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
-			$root_url = $url_parts[0].'://'.$site_url['url'];
+			
+			if (count($url_parts) > 1) {			
+				$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
+				$root_url = $url_parts[0].'://'.$site_url['url'];
+			} else {
+				// Asset doesn't has url, so ...
+				$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
+				$href = str_replace('./', '', current($hrefs));
+				$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+				$root_url = 'http://'.current($root_urls).'/'.$href;
+			}
 
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
