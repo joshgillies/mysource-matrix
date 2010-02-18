@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.12 2010/01/31 22:56:16 ewang Exp $
+* $Id: js_api.inc,v 1.13 2010/02/18 03:32:49 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -709,6 +709,9 @@ class JS_Api extends Page
 			$parent	= $am->getAsset($parent);
 			$child	= $am->getAsset($child);
 			$new_id = $am->createAssetLink($parent, $child, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
+			//done creating the link, lets update lookup
+			$result = $this->updateLookupsforAsset($child->id);
+			if (!is_null($result)) $this->returnError('Unable to Update Lookups on the Asset #'.$child->id.' and its Childrens');
 
 			if ($new_id == 0) {
 				$this->returnError('Unable to create link');
@@ -758,6 +761,9 @@ class JS_Api extends Page
 					// Only one link holly cow, lets trash it instead, otherwise we'l have an orphan asset in the system
 					$result	= $am->trashAsset($link['minorid']);
 				}//end if
+				//no matter if link is deleted or the whole asset is moved to thrash, we will update lookups :)
+				$result_from_update = $this->updateLookupsforAsset($child);
+				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset #'.$child.' and its Childrens');
 
 				// Release all our locks
 				$am->releaseLock($link['minorid'], 'all');
@@ -803,6 +809,9 @@ class JS_Api extends Page
 			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id, $new_parent_id, $link_type, $new_position);
 
 			if (!empty($new_link_id)) {
+				//wow we moved the asset successfully, now lets try and update lookups
+				$result = $this->updateLookupsforAsset($asset_id_to_move);
+				if (!is_null($result)) $this->returnError('Unable to Update Lookups on the Asset #'.$asset_id_to_move.' and its Childrens');
 				return Array (
 						'link_id'	=> $new_link_id,
 					   );
@@ -1030,6 +1039,9 @@ class JS_Api extends Page
 				return;
 			} else {
 				$result	= $am->trashAsset($id);
+				//done thrashing the asset? update lookups then
+				$result_from_update = $this->updateLookupsforAsset($id);
+				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset #'.$id.' and its Childrens');
 			}//end else
 			$am->releaseLock($id, 'all');
 
@@ -1352,6 +1364,23 @@ class JS_Api extends Page
 		return $nodes;
 
 	}//end getRootNodes()
+
+
+	/**
+	* updates the lookup of the assetid passed and all its childrens, (runs freestyle HIPO)
+	*
+	* @return assetid
+	* @access public
+	*/
+	public function updateLookupsforAsset($assetid)
+	{
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+
+		$vars = Array('assetids' => Array($assetid));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
+
+	}//end updateLookupsforAsset()
 
 
 	/**
