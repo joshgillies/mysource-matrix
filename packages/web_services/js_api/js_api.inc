@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.13 2010/02/18 03:32:49 akarelia Exp $
+* $Id: js_api.inc,v 1.14 2010/02/21 22:02:22 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -243,17 +243,25 @@ class JS_Api extends Page
 
 			break;
 
+			case	'setMultipleAttributes' :
 			case	'setAttribute':
 				if ($this->attr('set_attribute')) {
 					if ($wa) {
 						if (isset($_REQUEST['attr_name']) && isset($_REQUEST['attr_val'])) {
-							// Check to see if the passed name is even an attribute
-							$attributes = $am->getAssetTypeAttributes($asset->type());
-							if (array_key_exists($_REQUEST['attr_name'], $attributes)) {
-								// Set our new values
-								$this->setAttributeValue($asset->id, $_REQUEST['attr_name'], str_replace('%26' , '&' ,$_REQUEST['attr_val']));
-								$data['success'] = 'Attribute '.$_REQUEST['attr_name'].' has been set to '.str_replace('%26' , '&' ,$_REQUEST['attr_val']);
-							}//end if
+							$attr_names = explode('\\,', $_REQUEST['attr_name']);
+							$attr_vals  = explode('\\,', $_REQUEST['attr_val']);
+
+							foreach($attr_vals as $index =>  $attr_val) {
+								$attr_vals[$index] = str_replace('%26' , '&' , $attr_val);
+							}
+
+							// Set our new values
+							$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);
+							if($success) {
+								foreach($attr_vals as $index =>  $fieldVal) {
+									if ($fieldVal != '') $data['success'][] = 'Attribute '.$index.' has been set to '.str_replace('%26' , '&' ,$fieldVal);
+								}
+							}
 						} else {
 							$this->returnError('Please enter both the attribute name and value');
 						}//end else
@@ -325,12 +333,12 @@ class JS_Api extends Page
 			case	'getChildren':
 				if ($this->attr('get_children')) {
 					if ($ra) {
-						if (empty($_REQUEST['depth'])) {
+						if (empty($_REQUEST['depth']) && $_REQUEST['depth'] != '0') {
 							$this->returnError('Please set a depth limit');
 							return;
 						}
 						// Check to see how deep we should go
-						if ($_REQUEST['depth'] == 0) {
+						if ($_REQUEST['depth'] == '0') {
 							$level = NULL;
 						} else {
 							$level = $_REQUEST['depth'];
@@ -357,7 +365,17 @@ class JS_Api extends Page
 							$this->returnError('The root asset does not have any parents');
 							return;
 						}
-						$data = $this->getParents($asset->id);
+						if (empty($_REQUEST['depth']) && $_REQUEST['depth'] != '0') {
+							$this->returnError('Please set a depth limit');
+							return;
+						}
+						// Check to see how deep we should go
+						if ($_REQUEST['depth'] == '0') {
+							$level = NULL;
+						} else {
+							$level = $_REQUEST['depth'];
+						}
+						$data = $this->getParents($asset->id, $level);
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
@@ -959,19 +977,25 @@ class JS_Api extends Page
 	* @return void
 	* @access public
 	*/
-	function getParents($id)
+	function getParents($id, $level)
 	{
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		$parents = $am->getParents($id, '', TRUE, NULL, NULL, TRUE, NULL, 1);
+		$parents = $am->getParents($id, '', TRUE, NULL, NULL, TRUE, NULL, $level);
 		foreach ($parents as $parent => $type_code) {
+			// Levels greater than 1 won't have a link id with the parent
+			if (!$this->hasLink($id, $child->id)) {
+				$show_link_id = NULL;
+			} else {
+				$show_link_id = $this->getLinkId($id, $child->id);
+			}
 			$asset = $am->getAsset($parent);
 			$parent_arr[$asset->id] = Array(
 							'id'		=>	$asset->id,
 							'name'		=>	$asset->name,
 							'type_code'	=>	$asset->type(),
-							'link_id'	=>	$this->getLinkId($asset->id, $id),
+							'link_id'	=>	$show_link_id,
 						);
 		}//end foreach
 
@@ -1057,8 +1081,8 @@ class JS_Api extends Page
 	* Description: This operation will return set the attribute value of an asset based on assetid and attribute name
 	*
 	* @param string		$assetid	The ID of the asset in query
-	* @param string		$attr_name	The name of the attribute
-	* @param string		$attr_val	The new value of the attribute
+	* @param array		$attr_name	The names of the attributes
+	* @param array		$attr_val	The new values of the attributes
 	*
 	* @return void
 	* @access public
@@ -1066,16 +1090,30 @@ class JS_Api extends Page
 	function setAttributeValue($assetid, $attr_name, $attr_val)
 	{
 		if (!empty($assetid) && !empty($attr_name) && !empty($attr_val)) {
+			if (count($attr_name) != count($attr_val) ) $this->returnError('Please provide Attributes and corresponding values correctly');
 			// Shortcuts
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			// Change our values
 			$am->acquireLock($assetid, 'attributes');
-			$asset->setAttrValue($attr_name, $attr_val);
-			$asset->saveAttributes();
+			for ($i = 0; $i < count($attr_name); $i++ ) {
+				$attributes = $am->getAssetTypeAttributes($asset->type());
+				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
+					//set our new attribute
+					$asset->setAttrValue($attr_name[$i], $attr_val[$i]);
+					
+				} else if (array_key_exists($attr_name[$i], $attributes)){
+					$this->returnError('Attribute : '.$attr_name[$i].' does not exist for Asset "'.$asset->name.'" (#'.$assetid.')');
+				}
+				if (!$asset->saveAttributes()) {
+					$am->releaseLock($assetid, 'attributes');
+					return FALSE;
+				}
+			}//end for
 			$am->releaseLock($assetid, 'attributes');
 			$am->forgetAsset($asset);
+			return TRUE;
 		} else {
 			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value');
 		}//end else
@@ -1698,6 +1736,42 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 
 
 /**
+* This will set an multiple attributes value for an Asset
+*
+* @param string		asset_id		Id of the asset we are getting info for
+* @param array		field_info		Attribute name and their respective values to be changed to
+* @param function	dataCallback	Custom callback function
+*
+* @version $Revision: 0.1
+*/
+function setMultipleAttributes(asset_id, field_info, dataCallback) 
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var field_names = '';
+	var field_vals = '';
+	for (var field_name in field_info) {
+		// construct our query strings to be passed
+		if (field_name == '') continue;
+		field_names = field_names + field_name + '\\,';
+		field_vals = field_vals + field_info[field_name].replace(/&/g , "%26") + '\\,' ;
+	}
+
+	// remove the trailing "\,"
+	field_names = field_names.substring(0, field_names.length-2);
+	field_vals = field_vals.substring(0,field_vals.length-2);
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMultipleAttributes&id=' + asset_id + '&attr_name=' + field_names + '&attr_val=' + field_vals.replace(/&/g , "%26");
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end setMultipleAttributes
+
+
+/**
 * This will return a metadata value for the passed metadata name
 *
 * @param string		asset_id		Id of the asset we are getting info for
@@ -1835,13 +1909,13 @@ function getChildren(asset_id, levels, dataCallback)
 *
 * @version $Revision: 0.2
 */
-function getParents(asset_id, dataCallback)
+function getParents(asset_id, levels, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id + '&depth=' + levels;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
