@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.239 2009/12/15 03:23:15 mbrydon Exp $
+* $Id: general.inc,v 1.240 2010/02/21 23:07:20 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix
 */
 
@@ -2130,7 +2130,7 @@ the GPL.
 function xml_entity_decode($string, $decode_html_entities = TRUE)
 {
 	if ($decode_html_entities) {
-		$string = html_entity_decode($string);
+		$string = html_entity_decode($string, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 	}
 	$string = str_replace('&#124;', '|', $string);
 	$string = str_replace('&apos;', "'", $string);

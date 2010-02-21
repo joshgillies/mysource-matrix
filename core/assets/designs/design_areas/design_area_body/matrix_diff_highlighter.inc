@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.4 2007/12/13 02:40:18 colivar Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.5 2010/02/21 23:05:05 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -361,7 +361,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 		$out = preg_replace('/<del>(\s*)<\/del>/', '', $out);
 		$out = preg_replace('/<ins>(\s*)<\/ins>/', '', $out);
 
-		return html_entity_decode($out);
+		return html_entity_decode($out, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 	}//end render()
 

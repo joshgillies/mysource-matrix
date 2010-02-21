@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.46 2009/10/21 06:28:34 cupreti Exp $
+* $Id: linking.inc,v 1.47 2010/02/21 23:10:19 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 
@@ -398,7 +398,7 @@ function processLinking(&$owner, &$o, &$ei)
 			$new_value = NULL;
 		} else {
 			$new_value = $_POST[$prefix.'_link_value'][$link['linkid']]; // Set the value for testing
-			if (html_entity_decode($link['value']) == $new_value) {
+			if (html_entity_decode($link['value'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET) == $new_value) {
 				$new_value = NULL;
 			}
 		}
@@ -689,7 +689,7 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 						if (!$can_edit) {
 							echo $link_value;
 						} else {
-							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value), 15, FALSE);
+							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), 15, FALSE);
 						}
 						?>
 					</td>
