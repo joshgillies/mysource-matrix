@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.285.2.10 2010/02/15 06:29:05 cupreti Exp $
+* $Id: listing_engine.inc,v 1.285.2.11 2010/02/22 23:24:17 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.285.2.10 $
+* @version $Revision: 1.285.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -242,13 +242,17 @@ class Listing_Engine extends Page
 	function isDeletableLink($linkid)
 	{
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
-		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+		if (!empty($folder_link)) {
+			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+				return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
-		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+		if (!empty($asset_folder_link)) {
+			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+				return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+			}
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
@@ -706,7 +710,7 @@ class Listing_Engine extends Page
 
 		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
-		
+
 		// Include any GET variables passed (for instance, from the nesting asset)
 		if (!empty($_GET)) {
 			$_REQUEST = array_merge($_REQUEST, $_GET);
