@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.298 2010/02/15 01:20:38 cupreti Exp $
+* $Id: listing_engine.inc,v 1.299 2010/02/22 23:20:25 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.298 $
+* @version $Revision: 1.299 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -242,13 +242,17 @@ class Listing_Engine extends Page
 	function isDeletableLink($linkid)
 	{
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
-		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+		if (!empty($folder_link)) {
+			if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+				return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
+			}
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'position_formats');
-		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+		if (!empty($asset_folder_link)) {
+			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+				return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+			}
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
