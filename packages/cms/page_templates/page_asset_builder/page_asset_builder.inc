@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.154 2009/11/12 23:25:00 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.155 2010/02/23 05:56:47 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -241,7 +241,7 @@ class Page_Asset_Builder extends Page
 	* @access public
 	*/
 	function printBody()
-	{
+	{	
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		}
@@ -523,6 +523,12 @@ class Page_Asset_Builder extends Page
 										$edit_fns = $mf_asset->getEditFns();
 										$cascade = TRUE;
 										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade);
+											
+										// When date is not supplied for metadata date field
+										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
+											$result_value = '';
+										}
+											
 										if (!$did_process) {
 											$valid_value = FALSE;
 										}//end if
@@ -533,7 +539,6 @@ class Page_Asset_Builder extends Page
 											}
 										}//end if
 									}//end if
-
 
 
 									if (!$valid_value) {
