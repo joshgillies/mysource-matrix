@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.292.2.5 2010/02/22 23:22:35 bpearson Exp $
+* $Id: listing_engine.inc,v 1.292.2.6 2010/02/23 06:06:24 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.292.2.5 $
+* @version $Revision: 1.292.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3113,7 +3113,8 @@ class Listing_Engine extends Page
 			$base =& $results;
 			foreach (array_reverse($group_keys) as $group_key) {
 				$key = $group_data['group'][$group_key];
-				if (is_null($key)) $key = '';
+				// Postgres returns FALSE when no records are found
+				if (is_null($key) || (MatrixDAL::getDbType() == 'pgsql' && $key === FALSE)) $key = '';
 				$base =& $base[$key];
 			}
 			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
