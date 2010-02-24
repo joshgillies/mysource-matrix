@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.788 2010/01/28 01:59:46 csmith Exp $
+* $Id: asset_manager.inc,v 1.789 2010/02/24 23:30:43 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.788 $
+* @version $Revision: 1.789 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6981,6 +6981,15 @@ class Asset_Manager extends MySource_Object
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 
+		// notify anyone interested that permission changed
+		$changed_array = Array(
+							'perm_name'		=> permission_type_name($permission),
+							'asset_name'	=> $asset->name,
+							'user_name'		=> $user_name,
+						 );
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($asset, 'PermissionChange', $changed_array);
+
 		return TRUE;
 
 	}//end setPermission()
@@ -7086,6 +7095,15 @@ class Asset_Manager extends MySource_Object
 		$message = $ms->newMessage(Array(), 'asset.permissions.delete', $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
+
+		// notify anyone interested that permission changed
+		$changed_array = Array(
+							'perm_name'		=> permission_type_name($permission),
+							'asset_name'	=> $asset->name,
+							'user_name'		=> $user_name,
+						 );
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($asset, 'PermissionChange', $changed_array);
 
 		return TRUE;
 
