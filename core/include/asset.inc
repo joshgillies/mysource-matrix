@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.715 2010/01/22 04:35:07 akarelia Exp $
+* $Id: asset.inc,v 1.716 2010/02/24 23:37:16 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.715 $
+* @version $Revision: 1.716 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5763,6 +5763,10 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// notify anyone interested that lookups have been updated
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
 		$ms->closeLog();
 
