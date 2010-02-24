@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.8.2.7 2010/01/28 22:16:14 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.8.2.8 2010/02/24 00:52:44 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.8.2.7 $
+* @version $Revision: 1.8.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -289,7 +289,7 @@ class Data_Source_Xml extends Data_Source
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 			if (!xml_parse($xml_parser, $content, TRUE)) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)).', line '.xml_get_current_line_number($xml_parser).', column '.xml_get_current_column_number($xml_parser).' (byte '.xml_get_current_byte_index($xml_parser).')', htmlentities($content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				return FALSE;
 			}
 			xml_parser_free($xml_parser);
