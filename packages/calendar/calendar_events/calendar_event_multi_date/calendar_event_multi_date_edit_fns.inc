@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.8 2010/02/25 06:16:04 akarelia Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.9 2010/02/25 06:19:13 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -316,10 +316,8 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 
 		//adding all the new instances, save the current links to file
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING){
-			if (!empty($schema)) {
 				$child_events = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, Array('calendar_event_single', 'calendar_event_recurring'), FALSE);
 				file_put_contents($asset->data_path.'/.safe_edit_after', serialize($child_events));
-			}
 		}
 
 	}//end processDates()
