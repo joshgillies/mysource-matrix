@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.14 2010/02/21 22:02:22 akarelia Exp $
+* $Id: js_api.inc,v 1.15 2010/02/25 03:24:05 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -95,6 +95,8 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
+		$replace_these = Array ('%26' , '%23');
+		$replace_with = Array ('&' , '#');
 		// Make sure the user can log in first
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
@@ -252,15 +254,19 @@ class JS_Api extends Page
 							$attr_vals  = explode('\\,', $_REQUEST['attr_val']);
 
 							foreach($attr_vals as $index =>  $attr_val) {
-								$attr_vals[$index] = str_replace('%26' , '&' , $attr_val);
+								$attr_vals[$index] = str_replace($replace_these, $replace_with, $attr_val);
 							}
 
 							// Set our new values
-							$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);
+							$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);;
 							if($success) {
+								$i = 0;
 								foreach($attr_vals as $index =>  $fieldVal) {
-									if ($fieldVal != '') $data['success'][] = 'Attribute '.$index.' has been set to '.str_replace('%26' , '&' ,$fieldVal);
+									if ($fieldVal != '') $data[] = 'Attribute "'.$attr_names[$i].'" has been set to '.str_replace($replace_these, $replace_with,$fieldVal);
+									$i++;
 								}
+							} else {
+								$data = 'Attribute for Asset #'.$asset->id.' were not set. Check Error Log for more information';
 							}
 						} else {
 							$this->returnError('Please enter both the attribute name and value');
@@ -297,12 +303,14 @@ class JS_Api extends Page
 							$field_vals = explode('\\,', $_REQUEST['field_val']);
 
 							foreach($field_vals as $index =>  $fieldVal) {
-								$field_vals[$index] = str_replace('%26' , '&' , $fieldVal);
+								$field_vals[$index] = str_replace($replace_these, $replace_with, $fieldVal);
 							}
 
 							$this->setAssetMetadata($asset->id, $field_ids, $field_vals);
+							$i = 0;
 							foreach($field_vals as $index =>  $fieldVal) {
-								$data['success'][] = 'Metadata field #'.$index.' has been set to: '.$fieldVal;
+								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been set to: '.str_replace($replace_these, $replace_with, $fieldVal);
+								$i++;
 							}
 						} else {
 							$this->returnError('Please enter both the field id and value');
@@ -419,9 +427,9 @@ class JS_Api extends Page
 						// These must be set, so we don't need to check these
 						if (isset($_REQUEST['type_code']) && isset($_REQUEST['asset_name'])) {
 							isset($_REQUEST['type_code']) ? $type_code = $_REQUEST['type_code'] : $type_code = '';
-							isset($_REQUEST['asset_name']) ? $asset_name = str_replace('%26' , '&' , $_REQUEST['asset_name']) : $asset_name = '';
+							isset($_REQUEST['asset_name']) ? $asset_name = str_replace($replace_these, $replace_with, $_REQUEST['asset_name']) : $asset_name = '';
 							isset($_REQUEST['link_type']) ? $link_type = $_REQUEST['link_type'] : $link_type = 1;
-							isset($_REQUEST['link_value']) ? $link_value = str_replace('%26' , '&' , $_REQUEST['link_value']) : $link_value = '';
+							isset($_REQUEST['link_value']) ? $link_value = str_replace($replace_these, $replace_with, $_REQUEST['link_value']) : $link_value = '';
 							isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = '';
 							isset($_REQUEST['is_dependant']) ? $is_dependant = $_REQUEST['is_dependant'] : $is_dependant = 0;
 							isset($_REQUEST['is_exclusive']) ? $is_exclusive = $_REQUEST['is_exclusive'] : $is_exclusive = 0;
@@ -1102,9 +1110,9 @@ class JS_Api extends Page
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
 					$asset->setAttrValue($attr_name[$i], $attr_val[$i]);
-					
-				} else if (array_key_exists($attr_name[$i], $attributes)){
+				} else if (!array_key_exists($attr_name[$i], $attributes)){
 					$this->returnError('Attribute : '.$attr_name[$i].' does not exist for Asset "'.$asset->name.'" (#'.$assetid.')');
+					return FALSE;
 				}
 				if (!$asset->saveAttributes()) {
 					$am->releaseLock($assetid, 'attributes');
@@ -1727,7 +1735,7 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/#/g , "%23").replace(/&/g , "%26");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1755,7 +1763,7 @@ function setMultipleAttributes(asset_id, field_info, dataCallback)
 		// construct our query strings to be passed
 		if (field_name == '') continue;
 		field_names = field_names + field_name + '\\,';
-		field_vals = field_vals + field_info[field_name].replace(/&/g , "%26") + '\\,' ;
+		field_vals = field_vals + field_info[field_name].replace(/&/g , "%26").replace(/#/g , "%23") + '\\,' ;
 	}
 
 	// remove the trailing "\,"
@@ -1763,7 +1771,7 @@ function setMultipleAttributes(asset_id, field_info, dataCallback)
 	field_vals = field_vals.substring(0,field_vals.length-2);
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMultipleAttributes&id=' + asset_id + '&attr_name=' + field_names + '&attr_val=' + field_vals.replace(/&/g , "%26");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMultipleAttributes&id=' + asset_id + '&attr_name=' + field_names + '&attr_val=' + field_vals;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1806,11 +1814,8 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
-	//check to make and parse if any "&" in the values
-	field_val = field_val.replace(/&/g , "%26");
-
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/#/g , "%23").replace(/&/g , "%26");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1837,7 +1842,7 @@ function setMetadataAllFields(asset_id, field_info, dataCallback)
 	for (var field_id in field_info) {
 		// construct our query strings to be passed
 		field_ids = field_ids + field_id + '\\,';
-		field_vals = field_vals + field_info[field_id].replace(/&/g , "%26") + '\\,' ;
+		field_vals = field_vals + field_info[field_id].replace(/&/g , "%26").replace(/#/g , "%23") + '\\,' ;
 	}
 
 	// remove the trailing "\,"
@@ -1980,9 +1985,9 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
-				'&asset_name=' + asset_name.replace(/&/g , "%26") +
+				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23") +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value.replace(/&/g , "%26") +
+				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23") +
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive +
