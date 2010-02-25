@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.4 2010/02/02 23:08:21 cupreti Exp $
+* $Id: asset_manager.inc,v 1.779.2.5 2010/02/25 01:24:38 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.4 $
+* @version $Revision: 1.779.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6975,6 +6975,15 @@ class Asset_Manager extends MySource_Object
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 
+		// notify anyone interested that permission changed
+		$changed_array = Array(
+							'perm_name'		=> permission_type_name($permission),
+							'asset_name'	=> $asset->name,
+							'user_name'		=> $user_name,
+						 );
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($asset, 'PermissionChange', $changed_array);
+
 		return TRUE;
 
 	}//end setPermission()
@@ -7080,6 +7089,15 @@ class Asset_Manager extends MySource_Object
 		$message = $ms->newMessage(Array(), 'asset.permissions.delete', $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
+
+		// notify anyone interested that permission changed
+		$changed_array = Array(
+							'perm_name'		=> permission_type_name($permission),
+							'asset_name'	=> $asset->name,
+							'user_name'		=> $user_name,
+						 );
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($asset, 'PermissionChange', $changed_array);
 
 		return TRUE;
 
@@ -9105,12 +9123,12 @@ class Asset_Manager extends MySource_Object
 				if (is_null($max_height)) {
 					$_tree_length = strlen($treeid);
 					$_required_tree_level = $min_height ? $_tree_length - (($min_height -  1) * SQ_CONF_ASSET_TREE_SIZE) : $_tree_length;
-					
+
 					$where_comp = '(';
 					$j = 0;
 					while ($_tree_length > 0) {
 						$j++;
-						
+
 						// Don't include treeids within minimum tree height range
 						if ($_tree_length <= $_required_tree_level) {
 							$where_comp .= ':' . $bind_prefix . 'treeid_' . $i . '_' . $j . ' = t.treeid OR ';
@@ -9118,7 +9136,7 @@ class Asset_Manager extends MySource_Object
 						}
 						$treeid = substr($treeid, 0, ($_tree_length - SQ_CONF_ASSET_TREE_SIZE));
 						$_tree_length = strlen($treeid);
-					
+
 					}
 					$where_comp = rtrim($where_comp, ' OR ') . ')';
 
@@ -9143,7 +9161,7 @@ class Asset_Manager extends MySource_Object
 				 * so we end up with this (which works much better performance wise):
 				 * $treeid = t.treeid
 				 */
-				if ($min_height == $max_height) {					
+				if ($min_height == $max_height) {
 					$treeid = $max_height ? substr($treeid, 0, strlen($treeid) - ((($max_height - 1) * SQ_CONF_ASSET_TREE_SIZE))) : '';
 
 					/**
@@ -9176,7 +9194,7 @@ class Asset_Manager extends MySource_Object
 					$max_height = $temp_min_height;
 					unset($temp_min_height);
 				}
-				
+
 				/**
 				* Set some temporary variables in case the originals are used elsewhere.
 				*/
