@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.7 2010/01/31 23:26:36 ewang Exp $
+* $Id: js_api.inc,v 1.2.2.8 2010/02/25 03:27:52 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.7 $
+* @version $Revision: 1.2.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -95,6 +95,8 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
+		$replace_these = Array ('%26' , '%23');
+		$replace_with = Array ('&' , '#');
 		// Make sure the user can log in first
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
@@ -251,8 +253,8 @@ class JS_Api extends Page
 							$attributes = $am->getAssetTypeAttributes($asset->type());
 							if (array_key_exists($_REQUEST['attr_name'], $attributes)) {
 								// Set our new values
-								$this->setAttributeValue($asset->id, $_REQUEST['attr_name'], str_replace('%26' , '&' ,$_REQUEST['attr_val']));
-								$data['success'] = 'Attribute '.$_REQUEST['attr_name'].' has been set to '.str_replace('%26' , '&' ,$_REQUEST['attr_val']);
+								$this->setAttributeValue($asset->id, $_REQUEST['attr_name'], str_replace($replace_these, $replace_with, $_REQUEST['attr_val']));
+								$data['success'] = 'Attribute '.$_REQUEST['attr_name'].' has been set to '.str_replace($replace_these, $replace_with, $_REQUEST['attr_val']);
 							}//end if
 						} else {
 							$this->returnError('Please enter both the attribute name and value');
@@ -283,8 +285,8 @@ class JS_Api extends Page
 				if ($this->attr('set_metadata')) {
 					if ($wa) {
 						if (isset($_REQUEST['field_id']) && isset($_REQUEST['field_val'])) {
-							$this->setAssetMetadata($asset->id, $_REQUEST['field_id'], str_replace('%26' , '&' ,$_REQUEST['field_val']));
-							$data['success'] = 'Metadata field #'.$_REQUEST['field_id'].' has been set to: '.str_replace('%26' , '&' ,$_REQUEST['field_val']);
+							$this->setAssetMetadata($asset->id, $_REQUEST['field_id'], str_replace($replace_these, $replace_with, $_REQUEST['field_val']));
+							$data['success'] = 'Metadata field #'.$_REQUEST['field_id'].' has been set to: '.str_replace($replace_these, $replace_with, $_REQUEST['field_val']);
 						} else {
 							$this->returnError('Please enter both the field id and value');
 						}//end else
@@ -314,12 +316,12 @@ class JS_Api extends Page
 			case	'getChildren':
 				if ($this->attr('get_children')) {
 					if ($ra) {
-						if (empty($_REQUEST['depth'])) {
+						if (empty($_REQUEST['depth']) && $_REQUEST['depth'] != '0') {
 							$this->returnError('Please set a depth limit');
 							return;
 						}
 						// Check to see how deep we should go
-						if ($_REQUEST['depth'] == 0) {
+						if ($_REQUEST['depth'] == '0') {
 							$level = NULL;
 						} else {
 							$level = $_REQUEST['depth'];
@@ -390,9 +392,9 @@ class JS_Api extends Page
 						// These must be set, so we don't need to check these
 						if (isset($_REQUEST['type_code']) && isset($_REQUEST['asset_name'])) {
 							isset($_REQUEST['type_code']) ? $type_code = $_REQUEST['type_code'] : $type_code = '';
-							isset($_REQUEST['asset_name']) ? $asset_name = str_replace('%26' , '&' , $_REQUEST['asset_name']) : $asset_name = '';
+							isset($_REQUEST['asset_name']) ? $asset_name = str_replace($replace_these, $replace_with,  $_REQUEST['asset_name']) : $asset_name = '';
 							isset($_REQUEST['link_type']) ? $link_type = $_REQUEST['link_type'] : $link_type = 1;
-							isset($_REQUEST['link_value']) ? $link_value = str_replace('%26' , '&' , $_REQUEST['link_value']) : $link_value = '';
+							isset($_REQUEST['link_value']) ? $link_value = str_replace($replace_these, $replace_with,  $_REQUEST['link_value']) : $link_value = '';
 							isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = '';
 							isset($_REQUEST['is_dependant']) ? $is_dependant = $_REQUEST['is_dependant'] : $is_dependant = 0;
 							isset($_REQUEST['is_exclusive']) ? $is_exclusive = $_REQUEST['is_exclusive'] : $is_exclusive = 0;
@@ -1641,7 +1643,7 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26").replace(/#/g , "%23");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1684,11 +1686,8 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
-	//check to make and parse if any "&" in the values
-	field_val = field_val.replace(/&/g , "%26");
-
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/&/g , "%26").replace(/#/g , "%23");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1823,9 +1822,9 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
-				'&asset_name=' + asset_name.replace(/&/g , "%26") +
+				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23") +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value.replace(/&/g , "%26") +
+				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23") +
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive +
