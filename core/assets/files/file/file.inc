@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.182 2009/11/27 05:37:14 bpearson Exp $
+* $Id: file.inc,v 1.183 2010/02/25 00:41:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -751,6 +751,8 @@ class File extends Asset
 		if (!empty($old_urls)) {
 			$parameter['old_urls'] = $old_urls;
 		}
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
 
 		return TRUE;
