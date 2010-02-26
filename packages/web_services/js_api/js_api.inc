@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.15 2010/02/25 03:24:05 akarelia Exp $
+* $Id: js_api.inc,v 1.16 2010/02/26 04:41:21 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1918,6 +1918,9 @@ function getParents(asset_id, levels, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// Check to see if we have set any levels
+	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id + '&depth=' + levels;
