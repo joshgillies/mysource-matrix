@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.14 2010/02/25 06:33:27 akarelia Exp $
+* $Id: calendar_event_multi_date.inc,v 1.15 2010/02/28 22:18:42 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -428,8 +428,7 @@ class Calendar_Event_Multi_Date extends Asset
 					if (!empty($after_safe_edit_string)) {
 						$after_safe_edit = @unserialize($after_safe_edit_string);
 					}//end if
-log_dump($before_safe_edit);
-log_dump($after_safe_edit);
+
 					if (!empty($after_safe_edit)) {
 						foreach ($after_safe_edit as $active_link) {
 							if (!$this->_compareLink($active_link, $before_safe_edit)) {
