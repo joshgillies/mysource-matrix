@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.5 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.5.6.1 2010/02/28 22:36:08 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -258,6 +258,14 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
+		//if we are going to manipulate asset while is safe edit, let us first save its links beforehand
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+			if (!file_exists($asset->data_path.'/.safe_edit_before')) {
+				$child_events = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, Array('calendar_event_single', 'calendar_event_recurring'), FALSE);
+				file_put_contents($asset->data_path.'/.safe_edit_before', serialize($child_events));
+			}
+		}
+
 		// New instances
 		$i = 0;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
@@ -287,13 +295,30 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 						);
 				if ($asset->id) {
 					$new_asset->create($link);
+					//we are done creating asset instance, lets make sure bug # 4168 doesnt occur
+					if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+						if ($new_asset->status != SQ_STATUS_EDITING) {
+							// Drop to a run level to force the status change to SQ_STATUS_EDITING (saveSystemVersion() so it can go back to LIVE)
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(191);
+							$new_asset->saveSystemVersion();
+							$new_asset->processStatusChange(SQ_STATUS_EDITING, FALSE);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
+					}
 				} else {
 					// line it up for creation after the parent asset is created
 					$asset->addPendingChild($new_asset, $link);
 				}
 			}//end if
 			$i++;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_asset);
 		}//end while
+
+		//adding all the new instances, save the current links to file
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING){
+			$child_events = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, Array('calendar_event_single', 'calendar_event_recurring'), FALSE);
+			file_put_contents($asset->data_path.'/.safe_edit_after', serialize($child_events));
+		}
 
 	}//end processDates()
 
