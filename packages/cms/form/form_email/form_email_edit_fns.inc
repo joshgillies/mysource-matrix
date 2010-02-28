@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.102 2009/11/30 04:27:09 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.103 2010/02/28 23:57:48 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1870,9 +1870,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$actions = $asset->attr('actions');
 
 			$rule_changes = array_get_index($_POST, $prefix.'_rules', Array());
-			if (!isset($rule_changes['active'])) {
-				$rule_changes['active'] = Array();
+			if(!empty($actions)) {
+				foreach ($actions as $key => $action) {
+					if (!isset($rule_changes['active'][$key])) {
+						$rule_changes['active'][$key] = Array();
+					}
+				}
 			}
+
 			if (!isset($rule_changes['delete'])) {
 				$rule_changes['delete'] = Array();
 			}
