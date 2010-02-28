@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.9.2.1 2010/01/05 01:11:21 ewang Exp $
+* $Id: calendar_event_multi_date.inc,v 1.9.2.2 2010/02/28 22:33:13 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,7 +113,6 @@ class Calendar_Event_Multi_Date extends Asset
 	}//end _createAdditional()
 
 
-		
 	/**
 	* Perform any additional processing required during the cloning of components of this asset
 	*
@@ -148,8 +147,8 @@ class Calendar_Event_Multi_Date extends Asset
 		return $value;
 
 	}//end cloneDependantAdditional()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	* @see Asset::_getAllowLinks()
@@ -385,6 +384,134 @@ class Calendar_Event_Multi_Date extends Asset
 		return TRUE;
 
 	}//end processCustomKeywords()
+
+
+	/**
+	* Provides extra checking and disable invalid  statud change on errors
+	*
+	* @param int	$new_status	the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parents as well
+	*
+	* @return boolean
+	* @access public
+	**/
+	function processStatusChange($new_status, $update_parents)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		//make sure our data directory exist
+		if (!create_directory($this->data_path)) {
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
+		switch ($new_status) {
+			case SQ_STATUS_EDITING:
+				// Going to safe edit
+				if ($this->status == SQ_STATUS_LIVE) {
+					$child_events = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, Array('calendar_event_single', 'calendar_event_recurring'), FALSE);
+					file_put_contents($this->data_path.'/.safe_edit_before', serialize($child_events));
+					file_put_contents($this->data_path.'/.safe_edit_after', serialize($child_events));
+				}//end if
+			break;
+			case SQ_STATUS_LIVE:
+				if ($this->status == SQ_STATUS_EDITING) {
+					//we are cancelling safe edit
+					$before_safe_edit = Array();
+					$after_safe_edit = Array();
+					$before_safe_edit_string = file_to_string($this->data_path.'/.safe_edit_before');
+					$after_safe_edit_string = file_to_string($this->data_path.'/.safe_edit_after');
+
+					if (!empty($before_safe_edit_string)) {
+						$before_safe_edit = @unserialize($before_safe_edit_string);
+					}//end if
+					if (!empty($after_safe_edit_string)) {
+						$after_safe_edit = @unserialize($after_safe_edit_string);
+					}//end if
+
+					if (!empty($after_safe_edit)) {
+						foreach ($after_safe_edit as $active_link) {
+							if (!$this->_compareLink($active_link, $before_safe_edit)) {
+								// this link did not exist , move to thrash
+								if (isset($active_link['linkid'])) {
+									// Drop to a run level to allow the links to be shuffled out without a fuss
+									$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+									$this->deleteLink($active_link['linkid']);
+									$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+								}// end if
+							}// end if
+						}// end foreach
+					}// end if
+					// Coming out of safe edit remove safe edit files
+					$this->_cleanupSafeEdit();
+
+				}// end $this->status == SQ_SAFE_EDITING
+
+				if ($this->status == SQ_STATUS_EDITING_APPROVED) {
+					// Changes approved
+					$this->_cleanupSafeEdit();				
+				}// end $this->status == SQ_STATUS_EDITING_APPROVED
+			break;
+
+		}// end switch
+
+		return parent::processStatusChange($new_status, $update_parents);
+	
+	}//end processStatusChange()
+
+
+	/**
+	* Compares the before and after state to check for div/table removal
+	*
+	* @param array          $current_link   The info about the current link
+	* @param array          $before_links   An array of all the before links
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _compareLink($current_link, $before_links)
+	{
+		if (!isset($current_link['minorid'])) {
+			// Not enough information to proceed
+			return FALSE;
+		}//end if
+
+		//if before_link is empty, that means there were no dependat events before, just return true
+		if (empty($before_links)){
+			return FALSE;
+		}
+
+		foreach ($before_links as $before_link) {
+			if (isset($before_link['minorid'])) {
+				if ($before_link['minorid'] == $current_link['minorid']) {
+					// It exists!
+					return TRUE;
+				}//end if
+			}//end if
+		}//end foreach
+
+		// Didn't find one, report that...
+		return FALSE;
+
+	}//end _compareLink()
+
+
+	/**
+	* Cleaning up files after coming out of Safe Edit
+	*
+	* @return void
+	* @access private
+	*/
+	function _cleanupSafeEdit()
+	{
+		if (file_exists($this->data_path.'/.safe_edit_after')) {
+			unlink($this->data_path.'/.safe_edit_after');
+		}//end if
+		if (file_exists($this->data_path.'/.safe_edit_before')) {
+			unlink($this->data_path.'/.safe_edit_before');
+		}//end if
+
+	}//end _cleanupSafeEdit()
 
 
 }//end class
