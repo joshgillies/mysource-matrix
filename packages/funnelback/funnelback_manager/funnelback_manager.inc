@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.2 2010/03/01 23:49:18 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -480,13 +480,12 @@ class Funnelback_Manager extends Asset
 			// Public user found AND page is live, place in the public lock 
 			if (in_array($public_user_id, $permissions) && ($asset->status | SQ_SC_STATUS_NOT_LIVE)) {
 				$permissions[] = 'public';
-			}//end if else {
-				$all_permissions = Array();
-				foreach ($permissions as $permission) {
-					$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, 'utf-8'))."'";
-				}//end foreach
-				$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
-//			}//end if
+			}//end if
+			$all_permissions = Array();
+			foreach ($permissions as $permission) {
+				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, 'utf-8'))."'";
+			}//end foreach
+			$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
 		}//end if
 
 		// Add in the metadata
@@ -1077,8 +1076,12 @@ class Funnelback_Manager extends Asset
 					$line = trim($line);
 					if (!empty($line) && ((strpos($line, '#') !== 0) || (strpos($line, $delimiter) !== FALSE))) {
 						$line_data = explode($delimiter, $line);
-						if (!empty($line_data[0])) {
-							$data[$line_data[0]] = $line_data[1];
+						if (isset($line_data[0]) && !empty($line_data[0])) {
+							// These settings do not need to be saved as they are used exclusively by the search page
+							$invalid = Array('enable_fluster', 'site.max_clusters', 'type.max_clusters', 'topic.max_clusters'); 
+							if (!in_array($line_data[0], $invalid)) {
+								$data[$line_data[0]] = $line_data[1];
+							}//end if
 						}//end if
 					}//end if
 				}//end foreach
@@ -1181,9 +1184,11 @@ class Funnelback_Manager extends Asset
 				$contents .= "#\n";
 				$contents .= "# Fluster Configuration\n";
 				$contents .= "#\n";
+				// These settings do not need to be saved as they are used exclusively by the search page
+				$invalid = Array('enable_fluster', 'site.max_clusters', 'type.max_clusters', 'topic.max_clusters'); 
 				ksort($data);
 				foreach ($data as $switch => $parameter) {
-					if ($switch == 'enable_fluster') continue;
+					if (in_array($switch, 'enable_fluster')) continue;
 					$contents .= $switch.$delimiter.$parameter."\n";
 				}//end foreach
 			break;
@@ -1432,7 +1437,7 @@ class Funnelback_Manager extends Asset
 	*/
 	function getFunnelbackPath()
 	{
-		return SQ_PACKAGES_PATH.'/funnelback/lib';
+		return '/opt/funnelback-oem';
 
 	}//end getFunnelbackPath()
 

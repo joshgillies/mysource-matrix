@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.2 2010/03/01 04:47:37 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.3 2010/03/01 23:49:18 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -588,7 +588,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		switch ($type) {
 			case 'web':
 				// Web Search ie. Using a funnelback search engine
-				$url = $this->_parseURL($search);
+				$url = $this->parseURL($search);
 				if (empty($url)) {
 					// The error has triggered inside this function
 					return $search_results;
@@ -638,10 +638,10 @@ class Funnelback_Search_Page extends Listing_Engine
 		} else {
 			// No errors so continue processing
 			// Process the search results
-			$search_results['results'] = $this->_processSearchResults($dom);
+			$search_results['results'] = $this->processSearchResults($dom);
 
 			// Process the search summary
-			$search_results['summary'] = $this->_processSearchSummary($dom);
+			$search_results['summary'] = $this->processSearchSummary($dom);
 		}//end if
 
 		return $search_results;
@@ -1112,6 +1112,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 									// Sort out the current query vars
 									foreach ($_GET as $query_name => $query_value) {
+										if ($query_name == 'current_result_page') continue;
 										if (is_array($query_value)) {
 											foreach ($query_value as $value_index => $value_contents) {
 												$queries .= '&'.$query_name.'['.$value_index.']='.$value_contents;
@@ -1145,6 +1146,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									$cluster_query = $this->getPrefix().'_'.$query_cluster.'='.$max_clusters;
 									$cluster_name = $this->attr('less_'.$type.'_text');
 									foreach ($_GET as $query_name => $query_value) {
+										if ($query_name == 'current_result_page') continue;
 										if (is_array($query_value)) {
 											foreach ($query_value as $value_index => $value_contents) {
 												$queries .= '&'.$query_name.'['.$value_index.']='.$value_contents;
@@ -1239,6 +1241,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						$get_vars = '';
 						if (!empty($queries)) {
 							foreach ($queries as $switch => $param) {
+								if ($switch == 'current_result_page') continue;
 								$get_vars .= '&'.$switch.'='.$param;
 							}//end foreach
 
@@ -1991,9 +1994,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param array	$search The search vars
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	private function _parseURL($search)
+	public function parseURL($search)
 	{
 		// Get the query term
 		$query = array_get_index($search, 'query', '');
@@ -2091,7 +2094,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		return $funnelback_url.$url;
 
-	}//end _parseURL()
+	}//end parseURL()
 
 
 	/**
@@ -2295,9 +2298,9 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 
 		if (!empty($topic_max)) {
-			$fluster .= ' -topic.max_clusters=2';//.(int) $topic_max;
+			$fluster .= ' -topic.max_clusters='.(int) $topic_max;
 		} else {
-			$fluster .= ' -topic.max_clusters=1';//.(int) $this->attr('less_topic_num');
+			$fluster .= ' -topic.max_clusters='.(int) $this->attr('less_topic_num');
 		}//end if
 
 		if (!empty($site_max)) {
@@ -2407,9 +2410,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param string $url	The URL to strip
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	private function _stripURL($url)
+	public function _stripURL($url)
 	{
 		return str_replace('/search/xml.cgi?', '', $url);
 
@@ -2422,9 +2425,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param object &$xml	The simplexml object with the goods!
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
-	private function _processSearchSummary(&$xml)
+	public function processSearchSummary(&$xml)
 	{
 		$default_fluster = Array('category' => Array('type' => Array(), 'topic' => Array(), 'site' => Array()));
 		$results = Array('summary'=>Array(), 'fluster'=>$default_fluster, 'spell'=>Array(), 'featured'=>Array());
@@ -2599,9 +2602,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param object &$xml	The simplexml object with the goods!
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
-	private function _processSearchResults(&$xml)
+	public function processSearchResults(&$xml)
 	{
 		$results = Array();
 		$result = $xml->getElementsByTagName('results');
