@@ -10,17 +10,17 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fluster.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+* $Id: lang_screen_fluster.xml,v 1.2 2010/03/01 04:47:37 bpearson Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Fluster Options">
+	<section name="Contextual Navigation Options">
 		<field attribute="show_fluster_more">
 			<boolean true_text="yes" false_text="no" />
-			<display_name>Show Fluster Expansion</display_name>
-			<note><![CDATA[When this is enable, flustering lists show extra links to enable more clusters to be shown]]></note>
+			<display_name>Show Contextual Navigation Expansion</display_name>
+			<note><![CDATA[When this is enabled, navigation shows extra links to enable more searches to be shown]]></note>
 		</field>
 	</section>
 	<section name="Category Type Options">
@@ -87,7 +87,7 @@
 			<note><![CDATA[The minimum number of clusters for the category "Site"]]></note>
 		</field>
 	</section>
-	<section name="Fluster Formats">
+	<section name="Contextual Navigation Formats">
 		<field>
 			<display_name />
 			<note></note>

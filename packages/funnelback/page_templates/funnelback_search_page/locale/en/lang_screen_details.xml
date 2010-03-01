@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.2 2010/03/01 04:47:37 bpearson Exp $
 *
 */
 -->
@@ -18,23 +18,37 @@
 <contents>
 	<section name="Details">
 		<field attribute="name">
-			<display_name>Page Name</display_name>
+			<display_name>Name</display_name>
 			<note />
 		</field>
 		<field attribute="short_name">
-			<display_name>Page Short Name</display_name>
+			<display_name>Short Name</display_name>
 			<note />
 		</field>
 	</section>
+	<section name="Funnelback Options" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function		name="paintFunnelbackOptions" />
+				<process_function	name="processFunnelbackOptions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Integrated Search Options" write_access="write:attributes">
+		<field attribute="allow_empty">
+			<display_name>Allow Empty Searches</display_name>
+			<note />
+		</field>
+		<field keyword="sort">
+			<display_name>Sort Order</display_name>
+			<note />
+			<function_call>
+				<paint_function		name="paintSort" />
+				<process_function	name="processSort" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Search Options" write_access="write:attributes">
-		<field attribute="funnelback_url">
-			<display_name>Funnelback URL</display_name>
-			<note></note>
-		</field>
-		<field attribute="collection">
-			<display_name>Collection</display_name>
-			<note></note>
-		</field>
 		<field keyword="scope">
 			<display_name>Scope</display_name>
 			<note>Use ALL as the scope to search all scopes</note>

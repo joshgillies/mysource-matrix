@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2010/03/01 04:47:37 bpearson Exp $
 *
 */
 -->
@@ -24,13 +24,26 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
+	<section name="Funnelback Options" write_access="write:attributes"  limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function		name="paintFunnelbackOptions" />
+				<process_function	name="processFunnelbackOptions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Integrated Search Options" show_if="integratedSearch" write_access="write:attributes"  limbo_access="1">
+		<field attribute="allow_empty">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field keyword="sort">
+			<function_call>
+				<paint_function		name="paintSort" />
+				<process_function	name="processSort" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Search Options" write_access="write:attributes"  limbo_access="1">
-		<field attribute="funnelback_url">
-			<text width="80" height="1" />
-		</field>
-		<field attribute="collection">
-			<text width="35" height="1" />
-		</field>
 		<field keyword="scope">
 			<function_call>
 				<paint_function		name="paintScope" />

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1 2009/08/11 01:51:54 bpearson Exp $
+* $Id: lang_strings.xml,v 1.2 2010/03/01 04:47:37 bpearson Exp $
 *
 *
 * Funnelback Search Package Localised Strings File
@@ -19,4 +19,13 @@
 
 <strings>
 	<string source="funnelback">Funnelback Search</string>
+
+	<!-- Funnelback HIPO Rebuild Cache -->
+	<string source="fnb_hipo_refreshing_asset">Refreshing the Cache for Asset "%s"</string>
+	<string source="fnb_hipo_rebuild_cache">Funnelback Rebuild Cache</string>
+	<string source="fnb_hipo_rebuild_cache_step_name0">Flushing the existing Funnelback Cache</string>
+	<string source="fnb_hipo_rebuild_cache_step_name1">Rebuilding the Funnelback Cache</string>
+	<string source="fnb_hipo_reindex">Funnelback Reindex</string>
+	<string source="fnb_hipo_reindex_step_name0">Reindexing</string>
+	<string source="fnb_hipo_reindexing_url">Reindexing URL: "%s"</string>
 </strings>
