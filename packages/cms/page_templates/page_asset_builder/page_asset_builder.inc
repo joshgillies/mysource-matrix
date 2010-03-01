@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.150.2.5 2010/02/28 22:08:24 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.150.2.6 2010/03/01 06:49:15 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.150.2.5 $
+* @version $Revision: 1.150.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,7 +141,7 @@ class Page_Asset_Builder extends Page
 			}
 			$types_needing_layouts = array_diff($custom_types, $current_layouts);
 			if (!empty($types_needing_layouts)) {
-				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfO($types_needing_layouts, 'name');
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types_needing_layouts, 'name');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				foreach ($types_needing_layouts as $type_code) {
 					$layout = new Layout();
