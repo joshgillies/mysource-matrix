@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2009/11/12 04:25:11 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2010/03/02 23:40:52 akarelia Exp $
 *
 */
 -->
@@ -84,6 +84,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="trash_asset">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="get_keywords_replacements">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>	

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.16 2010/02/26 04:41:21 akarelia Exp $
+* $Id: js_api.inc,v 1.17 2010/03/02 23:40:52 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -260,11 +260,7 @@ class JS_Api extends Page
 							// Set our new values
 							$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);;
 							if($success) {
-								$i = 0;
-								foreach($attr_vals as $index =>  $fieldVal) {
-									if ($fieldVal != '') $data[] = 'Attribute "'.$attr_names[$i].'" has been set to '.str_replace($replace_these, $replace_with,$fieldVal);
-									$i++;
-								}
+								$data = $success; 
 							} else {
 								$data = 'Attribute for Asset #'.$asset->id.' were not set. Check Error Log for more information';
 							}
@@ -309,7 +305,7 @@ class JS_Api extends Page
 							$this->setAssetMetadata($asset->id, $field_ids, $field_vals);
 							$i = 0;
 							foreach($field_vals as $index =>  $fieldVal) {
-								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been set to: '.str_replace($replace_these, $replace_with, $fieldVal);
+								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.str_replace($replace_these, $replace_with, $fieldVal).'" for Asset "'.$asset->name.'" (#'.$assetid.')';
 								$i++;
 							}
 						} else {
@@ -642,6 +638,24 @@ class JS_Api extends Page
 					$this->returnError('The getChildren function must be activated');
 				}//end else
 
+			break;
+
+			case	'getKeywordsReplacements':
+
+				if ($this->attr('get_keywords_replacements')) {
+					if ($ra) {
+						if (isset($_REQUEST['keywords']) && !empty ($_REQUEST['keywords']) ){
+							$keywords = explode('\\,', $_REQUEST['keywords']);
+							$data = $this->getKeywordsReplacements($asset, $keywords);
+						} else {
+							$this->returnError('Please provide keywords to get replacement for');
+						}
+					} else {
+						$this->returnError('You do not have permissions to access this asset');
+					}//end else
+				} else {
+					$this->returnError('The getKeywordsReplacements function must be activated');
+				}//end else
 			break;
 
 			default:	$this->returnError('This is not a valid function name');
@@ -1092,7 +1106,7 @@ class JS_Api extends Page
 	* @param array		$attr_name	The names of the attributes
 	* @param array		$attr_val	The new values of the attributes
 	*
-	* @return void
+	* @return array
 	* @access public
 	*/
 	function setAttributeValue($assetid, $attr_name, $attr_val)
@@ -1111,17 +1125,18 @@ class JS_Api extends Page
 					//set our new attribute
 					$asset->setAttrValue($attr_name[$i], $attr_val[$i]);
 				} else if (!array_key_exists($attr_name[$i], $attributes)){
-					$this->returnError('Attribute : '.$attr_name[$i].' does not exist for Asset "'.$asset->name.'" (#'.$assetid.')');
-					return FALSE;
+					$data[] = 'Attribute "'.$attr_name[$i].'" does not exist for Asset "'.$asset->name.'" (#'.$assetid.')';
+					continue;
 				}
 				if (!$asset->saveAttributes()) {
-					$am->releaseLock($assetid, 'attributes');
-					return FALSE;
+					$data[] = 'Attribute "'.$attr_name[$i].'" could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+				} else {
+					$data[] = 'Attribute "'.$attr_name[$i].'" has been successfully set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
 				}
 			}//end for
 			$am->releaseLock($assetid, 'attributes');
 			$am->forgetAsset($asset);
-			return TRUE;
+			return $data;
 		} else {
 			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value');
 		}//end else
@@ -1427,6 +1442,59 @@ class JS_Api extends Page
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 	}//end updateLookupsforAsset()
+
+
+	/**
+	* Description: get the asset/global/simple_edit level keyword replacement for the passed in asset
+	*
+	* @param object	 $asset	The asset to fetch replacements for
+	* @param array	 $keywords	array of keywords to get replacement for
+	*
+	* @return array
+	* @access public
+	*/
+	public function getKeywordsReplacements($asset, $keywords)
+	{
+		$return_array = Array();
+		$se_level_keywords = Array();
+		//lets split asset/global level keywords as opposed to simple edit layout keywords
+		foreach ($keywords as $index => $keyword) {
+			if(!(strpos($keyword, '%asset_') === 0 || strpos($keyword, '%globals_') === 0) ) {
+				//seems like its a simple edit screen keywords
+				$se_level_keywords[] = $keyword;
+				unset($keywords[$index]);
+			}
+		}
+
+		foreach ($keywords as $keyword) {
+			$keyword = trim($keyword,'%');
+			$return_array[$keyword] = $asset->getKeywordReplacement($keyword);
+			if (empty($return_array[$keyword]) || $return_array[$keyword] == '%'.$keyword.'%') $return_array[$keyword] = 'Could not get replacement for keyword : '.$keyword ;
+		}
+
+		if(!empty($se_level_keywords)) {
+			// create layout on the fly
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
+			$layout = new Layout();
+			// create limbo outputter on fly
+			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+			$limbo_outputter = new Limbo_Outputter();
+			// get asset_edit_interface
+			require_once SQ_SYSTEM_ROOT.'/core/include/asset_edit_interface.inc';
+			$ei = new Asset_Edit_Interface($asset->type());
+
+			foreach ($se_level_keywords as $index => $se_keyword) {
+				$se_keyword = trim($se_keyword,  '%');
+				$layout->layout_keywords = $layout->getLayoutKeywordsArray(Array ($se_keyword));
+				//sort order isnt really important here, so we always use like follows
+				$screen_sort_order = Array ('0' => 'custom', '1' => 'screen');
+				$return_array[$se_keyword] = $ei->getKeywordsReplacementsForPaint($asset, $limbo_outputter, $layout, $screen_sort_order, FALSE, TRUE);
+				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
+			}
+		}
+		return $return_array;
+
+	}//end getKeywordsReplacements()
 
 
 	/**
@@ -2257,6 +2325,42 @@ function getAssetTree(asset_id, levels, dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end getAssetTree
+
+
+/**
+* This will get replacements for the passed in keywords
+*
+* @param string		asset_id		Id of the asset to get children of
+* @param array		keywords		Array of keywords to get replacements for
+* @param function	dataCallback	Custom callback function
+*
+*/
+function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// Check to see if we have set any levels
+	var levels = typeof(levels) != 'undefined' ? levels : 0;
+
+	var keywords = '';
+	for (var keyword in keywords_array) {
+		// construct our query strings to be passed
+		if (keywords_array[keyword] == '') continue;
+		keywords = keywords + keywords_array[keyword] + '\\,';
+	}
+
+	// remove the trailing "\,"
+	keywords = keywords.substring(0, keywords.length-2);
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getKeywordsReplacements&id=' + asset_id + '&keywords=' + keywords;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getKeywordsReplacements()
+
 
 	<?php
 	}//end printJs

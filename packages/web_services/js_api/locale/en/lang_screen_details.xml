@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2009/11/12 04:25:11 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.6 2010/03/02 23:40:52 akarelia Exp $
 *
 */
 -->
@@ -105,6 +105,10 @@
         </field>
         <field attribute="trash_asset">
             <display_name>Trash Asset</display_name>
+            <note />
+        </field>
+		<field attribute="get_keywords_replacements">
+            <display_name>Get Keywords Replacement</display_name>
             <note />
         </field>
     </section>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.6 2010/01/31 23:42:12 ewang Exp $
+* $Id: js_api_management.inc,v 1.7 2010/03/02 23:40:52 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -253,6 +253,14 @@ class JS_Api_Management extends Asset_Management
 											   			),
 						'get_asset_tree'			=> Array(
 														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											   			),
+						'get_keywords_replacements'	=> Array(
+														'added'			=> '0.3',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
