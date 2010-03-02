@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.5.6.1 2009/09/04 01:06:37 bpearson Exp $
+* $Id: remove_internal_message.php,v 1.5.6.2 2010/03/02 23:04:11 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5.6.1 $
+* @version $Revision: 1.5.6.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -248,7 +248,7 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 		MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 	}
 	MatrixDAL::execPdoQuery($query);
-	$affected_rows = $query->rowCount();
+	$affected_rows = MatrixDAL::getDbType() == 'oci' ? oci_num_rows($query) : $query->rowCount();
 
 	if (!$QUIET) {
 		echo "\n".$affected_rows.' INTERNAL MESSAGES '.($SHOW_QUERY_ONLY ? 'CAN BE ' : '').'DELETED'."\n\n";
