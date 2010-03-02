@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.2 2010/03/01 23:49:18 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.3 2010/03/02 05:30:02 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -478,7 +478,7 @@ class Funnelback_Manager extends Asset
 			return '';
 		} else {
 			// Public user found AND page is live, place in the public lock 
-			if (in_array($public_user_id, $permissions) && ($asset->status | SQ_SC_STATUS_NOT_LIVE)) {
+			if (in_array($public_user_id, $permissions) && !($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
 				$permissions[] = 'public';
 			}//end if
 			$all_permissions = Array();
