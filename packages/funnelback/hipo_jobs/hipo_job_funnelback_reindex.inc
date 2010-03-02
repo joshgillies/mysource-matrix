@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_funnelback_reindex.inc,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: hipo_job_funnelback_reindex.inc,v 1.2 2010/03/02 00:16:41 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage funnelback
 */
@@ -285,7 +285,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 				$output = '';
 				$xml = $fm->generateXMLCache($url, $assetid, FALSE);
 				$log_file = SQ_LOG_PATH.'/funnelback.log';
-				$bin_path = SQ_PACKAGES_PATH.'/funnelback/lib/bin/';
+				$bin_path = $fm->getFunnelbackPath();
 				$coll_path = $fm->getCollectionDataPath($collection_id);
 				$coll_log_path = $fm->getCollectionDataPath($collection_id, 'log');
 				$data_path = $fm->getCollectionDataPath($collection_id, 'idx_new');
@@ -324,7 +324,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 				$options[] = '-security_level=1';
 
 				// Build the command line
-				$command = $bin_path.'padre-iw';
+				$command = $bin_path.'/bin/padre-iw';
 				$command .= ' -secmap '.escapeshellarg($data_path.'/sitemap.xml');
 				$command .= ' '.escapeshellarg($collection_id);		// Index Stem
 				$command .= ' '.implode(' ', $options);				// Command line Options
