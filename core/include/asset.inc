@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.717 2010/03/02 22:32:07 lwright Exp $
+* $Id: asset.inc,v 1.718 2010/03/02 23:11:03 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.717 $
+* @version $Revision: 1.718 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3784,7 +3784,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	public function getCustomKeywordReplacements($keywords=Array())
+	public function getCustomKeywordReplacements($keywords=Array(), $invoke_backend = TRUE)
 	{
 		return Array();
 

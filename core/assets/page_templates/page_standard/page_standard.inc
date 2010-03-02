@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.30 2009/11/02 16:28:30 ata Exp $
+* $Id: page_standard.inc,v 1.31 2010/03/02 23:13:03 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -352,7 +352,7 @@ class Page_Standard extends Page
 	* @access public
 	* @see Asset::getCustomKeywordReplacements()
 	*/
-	public function getCustomKeywordReplacements($keywords)
+	public function getCustomKeywordReplacements($keywords, $invoke_backend = FALSE)
 	{
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();
@@ -366,8 +366,14 @@ class Page_Standard extends Page
 					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
 					$edit = $bodycopy->getEditFns();
+					if (!$invoke_backend) {
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out ;
+					} else {
+						require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+						$o = new Backend_Outputter();
+					}
 					ob_start();
-						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
+						if ($edit->paintBodycopy($bodycopy, $o, $bodycopy->getPrefix())) {
 							$print_commit_button = TRUE;
 						}
 						$replacements[$keyword] = ob_get_contents();

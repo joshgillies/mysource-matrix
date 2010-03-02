@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.16 2007/12/03 22:09:31 bshkara Exp $
+* $Id: page_multiple_page_page.inc,v 1.17 2010/03/02 23:17:59 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -226,7 +226,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	* @access public
 	* @see Asset::getCustomKeywordReplacements()
 	*/
-	function getCustomKeywordReplacements($keywords)
+	function getCustomKeywordReplacements($keywords, $invoke_backend = FALSE)
 	{
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();
@@ -238,8 +238,14 @@ class Page_Multiple_Page_Page extends Bodycopy
 			switch ($keyword) {
 				case 'contents' :
 					$edit = $this->getEditFns();
+					if (!$invoke_backend) {
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out ;
+					} else {
+						require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+						$o = new Backend_Outputter();
+					}
 					ob_start();
-						if ($edit->paintBodycopy($this, $GLOBALS['SQ_SYSTEM']->backend->out, $this->getPrefix())) {
+						if ($edit->paintBodycopy($this, $o, $this->getPrefix())) {
 							$print_commit_button = TRUE;
 						}
 						$replacements[$keyword] = ob_get_contents();

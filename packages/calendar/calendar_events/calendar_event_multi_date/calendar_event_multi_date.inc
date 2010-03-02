@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.15 2010/02/28 22:18:42 akarelia Exp $
+* $Id: calendar_event_multi_date.inc,v 1.16 2010/03/02 23:16:37 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -322,7 +322,7 @@ class Calendar_Event_Multi_Date extends Asset
 	* @return array
 	* @access public
 	*/
-	function getCustomKeywordReplacements($keywords)
+	function getCustomKeywordReplacements($keywords, $invoke_backend = FALSE)
 	{
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();
@@ -336,8 +336,14 @@ class Calendar_Event_Multi_Date extends Asset
 					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
 					$edit = $bodycopy->getEditFns();
+					if (!$invoke_backend) {
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out ;
+					} else {
+						require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+						$o = new Backend_Outputter();
+					}
 					ob_start();
-						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
+						if ($edit->paintBodycopy($bodycopy, $o, $bodycopy->getPrefix())) {
 							$print_commit_button = TRUE;
 						}
 						$replacements[$keyword] = ob_get_contents();
