@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.26 2010/02/26 04:19:11 cupreti Exp $
+* $Id: recreate_link_tree.php,v 1.27 2010/03/02 05:03:33 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -83,7 +83,8 @@ $base_sql = 'SELECT l.majorid, l.linkid, l.minorid
 			sq_ast_lnk l
 		WHERE
 			'.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
-		';
+		ORDER BY
+			l.sort_order, l.linkid, l.majorid, l.minorid';
 
 $offset = 0;
 $chunk_size = 2000;
