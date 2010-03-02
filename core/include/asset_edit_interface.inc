@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.358 2009/07/12 22:39:49 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.359 2010/03/02 23:51:31 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.358 $
+* @version $Revision: 1.359 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1254,6 +1254,30 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function paintLayout(&$owner, &$o, &$layout)
 	{
+		// Get the order in which keywords are placed in the raw content in container.
+		// This order is required to deciede which keyword to evaluate first. Say a metadata keyword is placed
+		// after custom keyword in a container, if it is evaluted before custom keyword, the the js code for wysiwyg (i.e.
+		// if metadata contains wysiwyg field) is placed with metadata keyword. In this case, custom key will only have 
+		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page, 
+		// its will give 'undefined function call' js error.
+		//
+		// See bug #3698
+		$layout_keywords_order = $this->_getLayoutKeywordsOrder($layout);
+
+		$this->getKeywordsReplacementsForPaint($owner, $o, $layout, $layout_keywords_order);
+
+		// we need to open a raw section so that the form gets printed before the contents of the layout
+		$o->openRaw();
+			$layout->printBody();
+		$o->closeRaw();
+
+		return TRUE;
+
+	}//end paintLayout()
+
+
+	public function getKeywordsReplacementsForPaint(&$owner, &$o, &$layout, $layout_keywords_order, $set_keywords_replacement = TRUE, $invoke_backend = FALSE)
+	{
 		$keywords = $layout->getLayoutKeywords();
 		$print_commit_button = FALSE;
 
@@ -1274,17 +1298,6 @@ class Asset_Edit_Interface extends MySource_Object
 		// let the backend outputter know that we want buffering turned off
 		$o->setBuffering(FALSE);
 
-		// Get the order in which keywords are placed in the raw content in container.
-		// This order is required to deciede which keyword to evaluate first. Say a metadata keyword is placed
-		// after custom keyword in a container, if it is evaluted before custom keyword, the the js code for wysiwyg (i.e.
-		// if metadata contains wysiwyg field) is placed with metadata keyword. In this case, custom key will only have 
-		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page, 
-		// its will give 'undefined function call' js error.
-		//
-		// See bug #3698
-
-		$layout_keywords_order = $this->_getLayoutKeywordsOrder($layout);
-		
 		foreach ($layout_keywords_order as $order_keyword) {
 			// loop over the screens and get the xml file for each screen
 			// generate some keywords for each screen
@@ -1376,7 +1389,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if there are some custom keywords, get some replacements from the owner
 			if (isset($keywords['custom']) && !empty($keywords['custom']) && $order_keyword == 'custom') {
-				$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
+				$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom'], $invoke_backend);
 
 				if (!empty($custom_replacements)) {
 					assert_isset_array_index($custom_replacements, 'replacements');
@@ -1477,17 +1490,12 @@ class Asset_Edit_Interface extends MySource_Object
 			$this->_tmp['layout_keyword_replacements']['commit_button_clean'] = '';
 		}
 
+		if (!$set_keywords_replacement) return $this->_tmp['layout_keyword_replacements'] ;
+
 		// tell the layout what the keyword replacements are
 		$layout->setKeywordReplacements($this->_tmp['layout_keyword_replacements']);
 
-		// we need to open a raw section so that the form gets printed before the contents of the layout
-		$o->openRaw();
-			$layout->printBody();
-		$o->closeRaw();
-
-		return TRUE;
-
-	}//end paintLayout()
+	}//end getKeywordsReplacementsForPaint()
 
 
 	/**

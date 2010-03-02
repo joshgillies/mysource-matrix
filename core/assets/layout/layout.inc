@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.11 2009/07/12 23:24:29 lwright Exp $
+* $Id: layout.inc,v 1.12 2010/03/02 23:51:31 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,68 +147,84 @@ class Layout extends Bodycopy
 			$this->layout_keywords['custom']			= Array();
 			$this->layout_keywords['layout']			= Array();
 
-			foreach ($keywords as $keyword) {
-
-				if (FALSE !== (strpos($keyword, '-'))) {
-					list($screen, $tag) = explode('-', $keyword);
-					$screen = strtolower($screen);
-					$tag = strtolower($tag);
-
-					if ($screen == '__custom') {
-						// this is not acually a screen, but a custom keyword that we need to
-						// ask the owner of this layout at limbo time
-						$this->layout_keywords['custom'][] = $tag;
-					}
-
-					if ($tag) {
-						// get the first letter of the type
-						$type = $tag{0};
-						// check to see if we have a field or a section
-						if (strtoupper($type) != 'S' && strtoupper($type) != 'F') {
-							continue;
-						}
-						$tag = substr($tag, 2);
-
-						if (!isset($this->layout_keywords['screens'][$screen])) {
-							$this->layout_keywords['screens'][$screen] = Array();
-						}
-
-						// its a field
-						if (strtoupper($type) == 'F') {
-							if (!isset($this->layout_keywords['screens'][$screen]['fields'])) {
-								$this->layout_keywords['screens'][$screen]['fields'] = Array();
-							}
-							if (!in_array($tag, $this->layout_keywords['screens'][$screen]['fields'])) {
-								$this->layout_keywords['screens'][$screen]['fields'][$tag] = $keyword;
-							}
-						// its a section
-						} else {
-							if (!isset($this->layout_keywords['screens'][$screen]['sections'])) {
-								$this->layout_keywords['screens'][$screen]['sections'] = Array();
-							}
-							if (!in_array($tag, $this->layout_keywords['screens'][$screen]['sections'])) {
-								$this->layout_keywords['screens'][$screen]['sections'][$tag] = $keyword;
-							}
-						}//end if
-					// they want the entire screen
-					} else {
-						if (!in_array($screen, $this->layout_keywords['entire_screens'])) {
-							$this->layout_keywords['entire_screens'][$screen] = $keyword;
-						}
-					}
-
-				} else {
-					// this keyword is a custom keyword for the layout
-					$this->layout_keywords['layout'][] = $keyword;
-				}
-
-			}//end foreach
+			$this->layout_keywords = $this->getLayoutKeywordsArray($keywords, $this->layout_keywords);
 
 		}//end if
 
 		return $this->layout_keywords;
 
 	}//end getLayoutKeywords()
+
+
+	/**
+	* returns associative array for the keyword passed 
+	*
+	* @param string	$keyword		the keyword to be processed
+	* @param array	$return_array	the array to return value in
+	*
+	* @return array
+	* @access public
+	*/
+	public function getLayoutKeywordsArray($keywords, $return_array = Array())
+	{
+		foreach ($keywords as $keyword) {
+			if (FALSE !== (strpos($keyword, '-'))) {
+				list($screen, $tag) = explode('-', $keyword);
+				$screen = strtolower($screen);
+				$tag = strtolower($tag);
+
+				if ($screen == '__custom') {
+					// this is not acually a screen, but a custom keyword that we need to
+					// ask the owner of this layout at limbo time
+					$return_array['custom'][] = $tag;
+				}
+
+				if ($tag) {
+					// get the first letter of the type
+					$type = $tag{0};
+					// check to see if we have a field or a section
+					if (strtoupper($type) != 'S' && strtoupper($type) != 'F') {
+						continue;
+					}
+					$tag = substr($tag, 2);
+
+					if (!isset($return_array['screens'][$screen])) {
+						$return_array['screens'][$screen] = Array();
+					}
+
+					// its a field
+					if (strtoupper($type) == 'F') {
+						if (!isset($return_array['screens'][$screen]['fields'])) {
+							$return_array['screens'][$screen]['fields'] = Array();
+						}
+						if (!in_array($tag, $return_array['screens'][$screen]['fields'])) {
+							$return_array['screens'][$screen]['fields'][$tag] = $keyword;
+						}
+					// its a section
+					} else {
+						if (!isset($return_array['screens'][$screen]['sections'])) {
+							$return_array['screens'][$screen]['sections'] = Array();
+						}
+						if (!in_array($tag, $return_array['screens'][$screen]['sections'])) {
+							$return_array['screens'][$screen]['sections'][$tag] = $keyword;
+						}
+					}//end if
+				// they want the entire screen
+				} else {
+					if (!in_array($screen, $return_array['entire_screens'])) {
+						$return_array['entire_screens'][$screen] = $keyword;
+					}
+				}
+
+			} else {
+				// this keyword is a custom keyword for the layout
+				$return_array['layout'][] = $keyword;
+			}
+		}//end foreach
+
+		return $return_array;
+	
+	}//end getLayoutKeywordsArray()
 
 
 	/**
