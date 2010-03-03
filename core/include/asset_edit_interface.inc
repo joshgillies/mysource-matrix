@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.359 2010/03/02 23:51:31 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.360 2010/03/03 00:41:03 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.359 $
+* @version $Revision: 1.360 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1243,7 +1243,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Prints limbo in a specified layout
+	* Wrapper Function : Prints limbo in a specified layout
 	*
 	* @param object	&$owner		the owner of this interface
 	* @param object	&$o			the backend outputter
@@ -1276,6 +1276,19 @@ class Asset_Edit_Interface extends MySource_Object
 	}//end paintLayout()
 
 
+	/**
+	* Gets keywords replacements for printing limbo in a specified layout
+	*
+	* @param object  &$owner						the owner of this interface
+	* @param object	 &$o							the backend outputter
+	* @param object	 &$layout					the layout to be painted
+	* @param array	 &$layout_keywords_order		order of appearence of the keywords
+	* @param boolean &$set_keywords_replacement	set keyword in body or just return replacements
+	* @param boolean &$invoke_backend			the layout to be painted
+	*
+	* @return mixed
+	* @access public
+	*/
 	public function getKeywordsReplacementsForPaint(&$owner, &$o, &$layout, $layout_keywords_order, $set_keywords_replacement = TRUE, $invoke_backend = FALSE)
 	{
 		$keywords = $layout->getLayoutKeywords();
