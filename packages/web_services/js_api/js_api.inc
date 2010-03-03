@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.18 2010/03/03 02:26:31 akarelia Exp $
+* $Id: js_api.inc,v 1.19 2010/03/03 03:38:18 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1467,13 +1467,13 @@ class JS_Api extends Page
 		}
 
 		foreach ($keywords as $keyword) {
+			$trimmed_keyword = trim($keyword,'%');
 			if (strpos($keyword, '%globals_') === 0) {
-				$return_array[$keyword] = replace_global_keywords($keyword);
+				$return_array[$trimmed_keyword] = replace_global_keywords($keyword);
 			} else if (strpos($keyword, '%asset_') === 0 ) {
-				$keyword = trim($keyword,'%');
-				$return_array[$keyword] = $asset->getKeywordReplacement($keyword);
+				$return_array[$trimmed_keyword] = $asset->getKeywordReplacement($trimmed_keyword);
 			}
-			if (empty($return_array[$keyword]) || $return_array[$keyword] == '%'.$keyword.'%') $return_array[$keyword] = 'Could not get replacement for keyword : '.$keyword ;
+			if (empty($return_array[$trimmed_keyword])) $return_array[$trimmed_keyword] = 'Could not get replacement for keyword : '.$trimmed_keyword ;
 		}
 
 		if(!empty($se_level_keywords)) {
