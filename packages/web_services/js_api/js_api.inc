@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.19 2010/03/03 03:38:18 akarelia Exp $
+* $Id: js_api.inc,v 1.20 2010/03/03 05:56:05 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1695,10 +1695,12 @@ function setApiKey(api_key)
 */
 function makeRequest(url, receive, dataCallback)
 {
+	//split url to url and parameters
+	urlarray = url.split("?");
 	// Create an instance of our ajax object
 	var ajaxRequest = createRequest();
 	// Open request
-	ajaxRequest.open('POST', encodeURI(url), true);
+	ajaxRequest.open('POST', encodeURI(urlarray[0]), true);
 	// Should we use a callback?
 	if (receive) {
 		// Custom callback
@@ -1706,7 +1708,8 @@ function makeRequest(url, receive, dataCallback)
 			success(ajaxRequest, dataCallback);
 		}
 	}//end if
-	ajaxRequest.send(null);
+	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+	ajaxRequest.send(encodeURI(urlarray[1]));
 
 }//end makeRequest
 
