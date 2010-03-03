@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.789 2010/02/24 23:30:43 bpearson Exp $
+* $Id: asset_manager.inc,v 1.790 2010/03/03 23:14:30 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.789 $
+* @version $Revision: 1.790 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2278,6 +2278,8 @@ class Asset_Manager extends MySource_Object
 		if (is_null($asset)) return FALSE;
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
+		if (empty($current_locks)) return FALSE;
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -8292,7 +8294,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function clearLookupsCache($assetid)
-	{
+	{	
 		if (isset($this->_tmp['urls'])) {
 			unset($this->_tmp['urls'][$assetid]);
 		}

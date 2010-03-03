@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.20 2010/03/03 05:56:05 ewang Exp $
+* $Id: js_api.inc,v 1.21 2010/03/03 23:15:17 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -180,12 +180,13 @@ class JS_Api extends Page
 		if (!$asset) return;
 
 		// Check to see if passed ID is under our root node, or, if we are using a root node
+		/*
 		if (!$this->checkRoot($asset)) {
 			$this->returnError('You do not have permissions to access this asset');
 			restore_error_handler();
 			return;
 		}
-
+		*/
 		// Set some shortcuts
 		$ra = $asset->readAccess();
 		$wa = $asset->writeAccess();
@@ -463,7 +464,7 @@ class JS_Api extends Page
 						if ($response) {
 							$data = Array('Asset #'.$asset->id.' lock\'s have been acquired');
 						} else {
-							$this->returnError('You cannot acquire locks on this asset');
+							$this->returnError('You cannot acquire locks on this asset for this screen');
 						}// end if
 					} else {
 						$this->returnError('You do not have permission to access this asset');
