@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.17 2010/03/02 23:40:52 akarelia Exp $
+* $Id: js_api.inc,v 1.18 2010/03/03 02:26:31 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1467,8 +1467,12 @@ class JS_Api extends Page
 		}
 
 		foreach ($keywords as $keyword) {
-			$keyword = trim($keyword,'%');
-			$return_array[$keyword] = $asset->getKeywordReplacement($keyword);
+			if (strpos($keyword, '%globals_') === 0) {
+				$return_array[$keyword] = replace_global_keywords($keyword);
+			} else if (strpos($keyword, '%asset_') === 0 ) {
+				$keyword = trim($keyword,'%');
+				$return_array[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
 			if (empty($return_array[$keyword]) || $return_array[$keyword] == '%'.$keyword.'%') $return_array[$keyword] = 'Could not get replacement for keyword : '.$keyword ;
 		}
 
