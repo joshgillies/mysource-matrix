@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.4 2010/03/02 05:30:02 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.5 2010/03/04 05:44:07 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -98,7 +98,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						'no_results'	=> Array(
 											'initial_layout',
 										   ),
-						'type_results'	=> Array(
+						'default_format'=> Array(
 											'result_rank',
 											'result_score',
 											'result_name_linked',
@@ -110,28 +110,28 @@ class Funnelback_Search_Page extends Listing_Engine
 											'result_size',
 											'result_type',
 										   ),
-						'featured'		=> Array(
+						'featured_format'=> Array(
 											'featured_trigger',
 											'featured_url',
 											'featured_title',
 											'featured_summary',
 										   ),
-						'fluster'		=> Array(
+						'context_format'=> Array(
 											'fluster_category_name',
 											'fluster_current_term',
 											'fluster_navigation',
 											'fluster_list',
 										   ),
-						'cluster'		=> Array(
+						'cluster_format'=> Array(
 											'cluster_name',
 											'cluster_url',
 											'cluster_count',
 										   ),
-						'navigation'	=> Array(
+						'navigation_format'=> Array(
 											'navigation_name',
 											'navigation_url',
 										   ),
-						'spelling'		=> Array(
+						'spell_format'	=> Array(
 											'spell_url',
 											'spell_text',
 										   ),
@@ -467,17 +467,17 @@ class Funnelback_Search_Page extends Listing_Engine
 		$mode  = array_get_index($_REQUEST, 'mode', '');
 
 		$search_vars = Array();
-		$search_vars['query'] = array_get_index($_REQUEST, $prefix.'_search_query', '');
-		$search_vars['scope'] = array_get_index($_REQUEST, $prefix.'_search_scope', '');
-		$search_vars['sort'] = array_get_index($_REQUEST, $prefix.'_search_sort', $this->attr('sort_order'));
-		$search_vars['page'] = array_get_index($_REQUEST, 'current_result_page', 1);
-		$search_vars['num_per_page'] = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
+		$search_vars['query'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_query', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['scope'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_scope', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['sort'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_sort', $this->attr('sort_order')), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['page'] = htmlspecialchars(array_get_index($_REQUEST, 'current_result_page', 1), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['num_per_page'] = htmlspecialchars(array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 		// If the flustering links are clicked, we need these extra vars to pass off to funnelback
-		$search_vars['stem'] = array_get_index($_REQUEST, $prefix.'_stem', '');
-		$search_vars['type_max'] = array_get_index($_REQUEST, $prefix.'_type_max_clusters', '');
-		$search_vars['topic_max'] = array_get_index($_REQUEST, $prefix.'_topic_max_clusters', '');
-		$search_vars['site_max'] = array_get_index($_REQUEST, $prefix.'_site_max_clusters', '');
+		$search_vars['stem'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_stem', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['type_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_type_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['topic_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_topic_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['site_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_site_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['cluster'] = Array();
 		foreach ($_GET as $index => $value) {
 			if (strpos($index, $prefix.'_cluster') !== FALSE) {
@@ -683,11 +683,32 @@ class Funnelback_Search_Page extends Listing_Engine
 		// this check relies on the fact that ALL single asset formats like type, default or position
 		// are located in subfolders of this asset, and only its context bodycopies are its direct children
 		if (empty($bodycopies)) {
-			parent::onRequestKeywords($broadcaster, $vars);
-			return;
+			// So try and guess the correct bodycopy!
+			$bc_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
+			$folder_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'folder');
+			
+			foreach ($folder_links as $link_info) {
+				if (isset($bc_parents[$link_info['minorid']])) {
+					$bc_folder = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_info['minorid'], SQ_LINK_TYPE_2, 'bodycopy');
+					foreach ($bc_folder as $bc_link_info) {
+						if (isset($parents[$bc_link_info['minorid']])) {
+							$bodycopies[] = $bc_link_info['value'];
+						}//end if
+					}//end foreach
+				}//end if
+			}//end foreach
+
+			if (empty($bodycopies)) {
+				parent::onRequestKeywords($broadcaster, $vars);
+				return;
+			}//end if
 		}
 
 		foreach ($bodycopies as $bodycopy) {
+			if (!isset($this->keywords[$bodycopy])) {
+				// If bodycopy not found, just assume the default type format
+				$bodycopy = 'default_format';
+			}//end if
 			foreach ($this->keywords[$bodycopy] as $keyword) {
 				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 			}//end foreach
@@ -735,7 +756,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	{
 		$results = array_get_index($search_results, 'results', Array());
 
-		$mode = array_get_index($_REQUEST, 'mode', 'results');
+		$mode = htmlspecialchars(array_get_index($_REQUEST, 'mode', 'results'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$bodycopy =& $this->getBodycopy($bc_name);
 		$keywords = $bodycopy->getKeywords();
 
@@ -771,7 +792,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$params  = array_get_index($search_results, 'params', Array());
 
 		$prefix = $this->getPrefix();
-		$mode = array_get_index($_REQUEST, 'mode', 'results');
+		$mode = htmlspecialchars(array_get_index($_REQUEST, 'mode', 'results'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 		// Sort out the query vars
 		$queries = '';
@@ -990,7 +1011,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'result_url_click_event':
 					$replacement = '';
 					$field_name = $prefix.'_search_query';
-					$query = array_get_index($_REQUEST, $field_name, '');
+					$query = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$rank = array_get_index(array_get_index($results, $index, Array()), 'rank', '');
 					$url = array_get_index(array_get_index($results, $index, Array()), 'live_url', '');
 					if (!empty($url)) {
@@ -1001,7 +1022,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'result_url_click_js':
 					$replacement = '';
 					$field_name = $prefix.'_search_query';
-					$query = array_get_index($_REQUEST, $field_name, '');
+					$query = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$rank = array_get_index(array_get_index($results, $index, Array()), 'rank', '');
 					$url = array_get_index(array_get_index($results, $index, Array()), 'live_url', '');
 					if (!empty($url)) {
@@ -1012,7 +1033,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'result_name_linked':
 					$replacement = '';
 					$field_name = $prefix.'_search_query';
-					$query = array_get_index($_REQUEST, $field_name, '');
+					$query = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$rank = array_get_index(array_get_index($results, $index, Array()), 'rank', '');
 					$title = array_get_index(array_get_index($results, $index, Array()), 'title', '');
 					$url = array_get_index(array_get_index($results, $index, Array()), 'live_url', '');
@@ -1340,14 +1361,14 @@ class Funnelback_Search_Page extends Listing_Engine
 
 				case 'current_query_term':
 					$field_name = $prefix.'_search_query';
-					$current_value = array_get_index($_REQUEST, $field_name, '');
+					$current_value = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 					$replacement = $current_value;
 				break;
 
 				case 'search_query':
 					$field_name = $prefix.'_search_query';
-					$current_value = array_get_index($_REQUEST, $field_name, '');
+					$current_value = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$dynamic_query = array_get_index($extra, 'query', '');
 					if (!empty($dynamic_query) && empty($current_value)) {
 						$current_value = $dynamic_query;
@@ -1360,7 +1381,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'search_scope':
 					$field_name = $prefix.'_search_scope';
 					$scope = $this->attr('scope');
-					$current_value = array_get_index($_REQUEST, $field_name, '');
+					$current_value = htmlspecialchars(array_get_index($_REQUEST, $field_name, ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$dynamic_scope = array_get_index($extra, 'scope', '');
 					if (!empty($dynamic_scope) && empty($current_value)) {
 						$current_value = $dynamic_scope;
@@ -1388,7 +1409,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					$current_sort = $this->attr('sort_order');
 					if (isset($_REQUEST[$this->getPrefix().'_search_sort'])) {
 						// There is an override for the current sort
-						$current_sort = $_REQUEST[$this->getPrefix().'_search_sort'];
+						$current_sort = htmlspecialchars($_REQUEST[$this->getPrefix().'_search_sort'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}//end if
 					ob_start();
 						combo_box($this->getPrefix().'_search_sort', $sort_options, FALSE, $current_sort);
@@ -1400,7 +1421,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					// print the spelling suggestion
 					if (!empty($spelling)) {
 						// Check for same spelling and dont print it
-						$current_term = array_get_index($_REQUEST, $this->getPrefix().'_search_query', '');
+						$current_term = htmlspecialchars(array_get_index($_REQUEST, $this->getPrefix().'_search_query', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 						$spell_term = array_get_index($spelling, 'text', '');
 						$spell_term = trim($spell_term);
 						if ($current_term != $spell_term) {
@@ -1451,7 +1472,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 					// if we are on the initial search page, don't use javascript
 					// for the submit button so enter will submit the form
-					$mode = array_get_index($_REQUEST, 'mode', 'initial');
+					$mode = htmlspecialchars(array_get_index($_REQUEST, 'mode', 'initial'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					if ($mode == 'initial') {
 						$replacement  = '<input type="submit" name="'.$field_name.'"
 							value="'.$this->attr('submit_button_text').'" />';
@@ -1465,7 +1486,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				break;
 
 				case 'results_per_page':
-					$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
+					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$field_name = 'results_per_page_text_box';
 					$this->registerFormField($field_name);
 					$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');

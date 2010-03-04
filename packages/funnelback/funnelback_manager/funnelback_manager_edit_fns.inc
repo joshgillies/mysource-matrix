@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.2 2010/03/04 05:44:07 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1424,7 +1424,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 				<?php
 				$alias_options = $asset->getMetadataAliases();
-				$flag_options = Array(0=>translate('fb_index'),1=>translate('fb_noindex'));
+				$flag_options = Array(0=>translate('fb_noindex'),1=>translate('fb_index'));
 				if (isset($alias_options['S'])) unset($alias_options['S']);
 				foreach ($config as $line) {
 					$alias = array_get_index($line, 'alias', '');

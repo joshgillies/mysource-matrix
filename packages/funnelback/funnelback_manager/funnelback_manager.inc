@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.3 2010/03/02 05:30:02 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.4 2010/03/04 05:44:07 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -902,7 +902,7 @@ class Funnelback_Manager extends Asset
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
 					$lines = $this->readConfiguration($file, 'fluster');
-					$this->writeConfiguration($lines, $file, 'fluster');
+					$this->writeConfiguration($file, $lines, 'fluster');
 				}//end if
 			break;
 
@@ -914,7 +914,7 @@ class Funnelback_Manager extends Asset
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
 					$lines = $this->readConfiguration($file, 'metadata', ',');
-					$this->writeConfiguration($lines, $file, 'metadata', ',');
+					$this->writeConfiguration($file, $lines, 'metadata', ',');
 				}//end if
 			break;
 
@@ -1188,7 +1188,7 @@ class Funnelback_Manager extends Asset
 				$invalid = Array('enable_fluster', 'site.max_clusters', 'type.max_clusters', 'topic.max_clusters'); 
 				ksort($data);
 				foreach ($data as $switch => $parameter) {
-					if (in_array($switch, 'enable_fluster')) continue;
+					if (in_array($switch, $invalid)) continue;
 					$contents .= $switch.$delimiter.$parameter."\n";
 				}//end foreach
 			break;
@@ -1361,7 +1361,7 @@ class Funnelback_Manager extends Asset
 	public function getMetadataAliases()
 	{
 		return Array(
-				''	=> 'Anywhere',
+				//''	=> 'Anywhere',					// DISABLED until tested properly
 				'a'	=> translate('fb_mclass', 'a'),		// Author
 				'b'	=> translate('fb_mclass', 'b'),		// Rights
 				'c'	=> translate('fb_mclass', 'c'),		// Description
