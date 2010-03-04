@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.11 2010/02/10 05:26:13 ewang Exp $
+* $Id: trim_common.inc,v 1.12 2010/03/04 04:54:19 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -152,7 +152,7 @@ class TRIM_Common
 							'Sort2'								=> $record_search_options['sort_2'],
 							'Sort3'								=> $record_search_options['sort_3'],
 							//'Record'.$record_search_type.'Clause'	=> $search_clause,
-							'FilterRecordTypesInclude'			=> '',
+							'FilterRecordTypesInclude'			=> $record_search_options['record_type_filter'],
 							'FilterRecordTypesExclude'			=> '',
 							'FilterRecordClassInclude'			=> '',
 							'FilterRecordClassExclude'			=> '',
@@ -454,11 +454,55 @@ class TRIM_Common
 
 		$results = self::executeRequest($connection, $operations, 'Fetch');
 	
-		return $results;
+		foreach ($results as $record_info) {
+			$record_names[$record_info['Uri']] = $record_info['rtyName'];
+		}
+		return $record_names;
 
 	}//end getRecordTypeNamesFromUris()
 	
 
+	
+	/**
+	* This function returns the Record Type names from the uris of Record Types
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getAllRecordTypes($connection)
+	{
+		$results	= Array();
+		
+		$specific_items = Array();
+		$specific_items['rtyName'] = 1;
+		$behaviours = self::getRecordBehaviours();
+
+		foreach($behaviours as $behaviour) {
+			$operations = Array (
+						'RecordTypeSimpleSelect'	=> Array (
+																		'Type'				=>	'All',
+																		'BehaviorFilter'	=>	$behaviour,
+																		'TypeFilter'		=>	'All',
+																		'TargetForUpdate'	=>	FALSE,
+																		'IsForUpdate'		=>	FALSE,
+																		'Limit'				=>	100000,
+														),
+						'Fetch'							=> self::constructFetch($specific_items, 100000),								
+					  );
+					
+
+			$result = self::executeRequest($connection, $operations, 'Fetch');
+			$results = array_merge($results, $result);
+		}
+		
+		foreach ($results as $record_info) {
+			$record_names[$record_info['Uri']] = $record_info['rtyName'];
+		}
+		return $record_names;
+
+	}//end getAllRecordTypes()
+	
+	
 	/**
 	* This function return
 	*
@@ -523,6 +567,30 @@ class TRIM_Common
 	}//end getRecordSearchTypes()
 
 
+	
+	/**
+	* this function return the record behaviours
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getRecordBehaviours()
+	{
+		$types	= Array (
+						'Document'				=> 'Document',
+						'Folder'				=> 'Folder',
+						'Series'				=> 'Series',
+						'Box'					=> 'Box',
+						'PaperFolder'			=> 'PaperFolder',
+						'Blueprint'				=> 'Blueprint',
+						'Clause'				=> 'Clause',
+					  );
+
+		return $types;
+
+	}//end getRecordBehaviours()
+	
+	
 	/**
 	* this function return the record string search clause types() available for searching
 	*
@@ -842,8 +910,8 @@ class TRIM_Common
 
 			$xml = $client->ConvertToXml($Execute);
 
+
 	
-		
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
 			// come first in the soap request, otherwise TRIM wont know where the Fetch object should get the
 			// result from.
@@ -863,6 +931,10 @@ class TRIM_Common
 			else if (isset($operations['Fetch']) && isset($operations['RecordTypeUrisSelect'])) {
 				$xml = self::SwapElement($xml, 'RecordTypeUrisSelect', 'Fetch');
 			}
+			else if (isset($operations['Fetch']) && isset($operations['RecordTypeSimpleSelect'])) {
+				$xml = self::SwapElement($xml, 'RecordTypeSimpleSelect', 'Fetch');
+			}
+			
 
 
 			// Now its time to get the data

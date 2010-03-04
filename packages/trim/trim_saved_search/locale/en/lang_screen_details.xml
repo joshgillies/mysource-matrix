@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2010/02/10 05:26:13 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5 2010/03/04 04:54:19 ewang Exp $
 *
 */
 -->
@@ -74,14 +74,14 @@
     		</function_call>
     	</field>
     </section>
-	<section name="Retrive Fields From Server" write_access="write:attributes">
+	<section name="Retrive Info From Server" write_access="write:attributes">
     	<field>
     		<function_call>
     			<paint_function   name="paintRetrieveFields"	/>
     			<process_function name="processRetrieveFields"	/>
     		</function_call>
-    		<display_name>Retrieved Fields</display_name>
-    		<note>Retrive all standard and additional fields from TRIM server, instead of using default ones.</note>
+    		<display_name>Retrieved</display_name>
+    		<note>Retrive all record types and fields info from TRIM server, instead of using default ones.</note>
     	</field>
     </section>
 	<section name="Search Fields" write_access="write:attributes">
@@ -123,6 +123,14 @@
 				<process_function name="processGeneralOptions" />
 			</function_call>
 			<display_name>General Options</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function	  name="paintRecordTypeFilter" />
+				<process_function name="processRecordTypeFilter" />
+			</function_call>
+			<display_name>Record Type Filter</display_name>
 			<note />
 		</field>
     </section>

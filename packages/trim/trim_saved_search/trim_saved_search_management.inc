@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.7 2010/02/12 01:25:29 mbrydon Exp $
+* $Id: trim_saved_search_management.inc,v 1.8 2010/03/04 04:54:19 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -137,6 +137,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 																	'sort_1_descending'			=> FALSE,
 																	'sort_2_descending'			=> FALSE,
 																	'sort_3_descending'			=> FALSE,
+																	'record_type_filter'		=> Array(),
 																   ),
 												   ),
 						'parameter_map'			=> Array (
