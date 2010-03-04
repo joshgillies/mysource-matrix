@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.7.4.2 2010/02/10 05:24:53 ewang Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.7.4.3 2010/03/04 06:09:59 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7.4.2 $
+* @version $Revision: 1.7.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -564,13 +564,16 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$wa	= $asset->writeAccess('attributes');
 		$fields = $asset->attr('retrieved_fields');
+		$standard_fields = isset ($fields['standard_fields']) ? count($fields['standard_fields']) : 0;
+		$additional_fields = isset ($fields['additional_fields']) ? count($fields['additional_fields']) : 0;
+		$record_types = isset ($fields['record_types']) ? count($fields['record_types']) : 0;
 		?>
 		<table>
 		<tr>
 		<td>
 		<?php
 		if (!empty($_POST[$prefix.'_retrieve'])) echo '<span style="color:green;">';
-		echo (empty($fields) ? 'Empty' : count($fields['standard_fields']).' standard fields and '.count($fields['additional_fields']).' additional fields retrieved');
+		echo (empty($fields) ? 'Empty' : $standard_fields.' standard fields, '.$additional_fields.' additional fields and '.$record_types.' record types retrieved');
 		if (!empty($_POST[$prefix.'_retrieve'])) echo '</span>';
 		?>
 		</td>
@@ -626,7 +629,10 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				return FALSE;
 			}//end if
 			
-			$asset->setAttrValue('retrieved_fields', Array('standard_fields' => $st_fields, 'additional_fields' => $udf_fields, 'field_types' => $fields_type));
+			
+			//retrieve record types info
+			$record_types = TRIM_Common::getAllRecordTypes($connection);
+			$asset->setAttrValue('retrieved_fields', Array('standard_fields' => $st_fields, 'additional_fields' => $udf_fields, 'field_types' => $fields_type, 'record_types' => $record_types));
 
 		}
         return TRUE;
@@ -909,7 +915,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$var_list = $asset->attr('dynamic_vars'); 
 		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
-		
+
 		//get possible search fields
 		$available_fields = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_result_field').' --'));
 		$list = $asset->getRetrievedFields('all');
@@ -969,12 +975,11 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			</tr>
 		</table>
 		<?php
-
 		if ($write_access) {
 			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_result_field_note').'</div>');
 			combo_box($prefix.'_result_fields[new]', $available_fields, FALSE,'none');
 		}
-					
+
 		return TRUE;
 
 	}//end paintResultFields()
@@ -1014,8 +1019,125 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				$result_fields[$new_field] = $field_caption;
 			}				
 		}
-
+	
 		$var_list['result_fields'] = $result_fields;
+		return ($asset->setAttrValue('dynamic_vars', $var_list));
+
+	}//end processResultFields()
+	
+	
+	
+	/**
+	* Paints the interface for record  type filter
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintRecordTypeFilter(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$retrieved = $asset->attr('retrieved_fields'); 
+		$available_record_types = Array('none'	=>	'-- '.ucfirst(translate('trim_ds_search_add_record_type').' --'));
+		$available_record_types += isset($retrieved['record_types']) ? $retrieved['record_types'] : Array();
+
+		$var_list = $asset->attr('dynamic_vars'); 
+		$record_types = isset($var_list['record_type_filter']) ? $var_list['record_type_filter'] : Array();
+		
+
+		?>
+		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px; width:300px;">
+	
+			<tr>
+				<th><?php echo translate('name');?></th>
+				<?php
+				if ($write_access) {
+					?>
+					<th><?php echo translate('delete'); ?></th>
+					<?php
+				}
+				?>
+			</tr>
+			<?php
+				foreach ($record_types as $uri => $name) {
+					?>
+					<tr>
+						<td class="sq-backend-data" style="padding: 4px;">
+							<?php
+								echo $name;
+							?>
+						</td>
+						
+						<?php
+						if ($write_access) {
+							// Delete field Cell
+							?>
+							<td class="sq-backend-data">
+								<?php
+									check_box($prefix.'_record_type_filter['.$uri.'][delete]');
+								?>
+							</td>
+							<?php
+						}
+					
+
+				}//end foreach
+				?>
+			</tr>
+		</table>
+		<?php
+		if ($write_access) {
+			echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_record_type_filter_note').'</div>');
+			combo_box($prefix.'_record_type_filter[new]', $available_record_types, FALSE,'none');
+			if(count($available_record_types) ==1 ) {
+				echo ('<div class="sq-backend-smallprint">'.translate('trim_ds_search_record_type_filter_no_record_type').'</div>');
+			}
+		}
+
+		return TRUE;
+
+	}//end paintRecordTypeFilter()
+	
+	
+	/**
+	* Processes the interface for adding and deleting record types filter
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRecordTypeFilter(&$asset, &$o, $prefix)
+	{
+
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$var_list = $asset->attr('dynamic_vars');
+		$record_types = isset($var_list['record_type_filter']) ? $var_list['record_type_filter'] : Array();
+		
+		
+		//get possible record types
+		$retrieved = $asset->attr('retrieved_fields'); 
+		$available_record_types = isset($retrieved['record_types']) ? $retrieved['record_types'] : Array();
+
+		if (isset($_POST[$prefix.'_record_type_filter'])) {			
+			foreach ($_POST[$prefix.'_record_type_filter'] as $field => $value) {
+				if (isset($value['delete']) && isset($record_types[$field])) {
+					unset($record_types[$field]);
+				}
+			}
+			if(isset($_POST[$prefix.'_record_type_filter']['new']) && $_POST[$prefix.'_record_type_filter']['new'] !== 'none') {
+				$new_uri = $_POST[$prefix.'_record_type_filter']['new'];
+				$record_name = isset($available_record_types[$new_uri]) ? $available_record_types[$new_uri] : '';
+				$record_types[$new_uri] = $record_name;
+			}				
+		}
+	
+		$var_list['record_type_filter'] = $record_types;
 		return ($asset->setAttrValue('dynamic_vars', $var_list));
 
 	}//end processResultFields()

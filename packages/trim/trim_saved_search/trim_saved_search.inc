@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.12.4.3 2010/02/10 05:24:53 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.12.4.4 2010/03/04 06:09:59 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12.4.3 $
+* @version $Revision: 1.12.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -430,6 +430,7 @@ class TRIM_Saved_Search extends Data_Source
 						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
 						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
 					  );
+					
 		$file_path = NULL;
 		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
 
@@ -481,15 +482,19 @@ class TRIM_Saved_Search extends Data_Source
 
 		// Convert Record Type from uri to name
 		if(!empty($record_type_uris)) {
-			$record_names_data = TRIM_Common::getRecordTypeNamesFromUris($connection, $record_type_uris);
-			foreach ($record_names_data as $record_info) {
-				$record_names[$record_info['Uri']] = $record_info['rtyName'];
+			//if we dont already know all record types, we have to send extra queries to get their names
+			$retrieved_info = $this->attr('retrieved_fields');
+			if(isset($retrieved_info['record_types'])) {
+				$record_names_data = $retrieved_info['record_types'];
 			}
-			
+			else {
+				$record_names_data = TRIM_Common::getRecordTypeNamesFromUris($connection, $record_type_uris);
+			}
+						
 			foreach ($object_list as $index => $record_info) {
 				foreach ($record_info as $key => $value) {
 					if($key === 'recRecordType') {
-						$new_value = isset($record_names[$value]) ? $record_names[$value] : $value;
+						$new_value = isset($record_names_data[$value]) ? $record_names_data[$value] : $value;
 						$object_list[$index][$key] = $new_value;					
 					}
 				}
@@ -575,15 +580,16 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	function getRecordSearchOptions()
 	{
-		$record_search_options						= Array();
-		$record_search_options['limit']				= $this->getDynamicVariableValue('limit');
-		$record_search_options['file_types']		= $this->getDynamicVariableValue('fileTypes');
-		$record_search_options['sort_1']			= $this->getDynamicVariableValue('search_sort_1');
-		$record_search_options['sort_2']			= $this->getDynamicVariableValue('search_sort_2');
-		$record_search_options['sort_3']			= $this->getDynamicVariableValue('search_sort_3');
-		$record_search_options['sort_1_descending']	= $this->getDynamicVariableValue('sort_1_descending');
-		$record_search_options['sort_2_descending']	= $this->getDynamicVariableValue('sort_2_descending');
-		$record_search_options['sort_3_descending']	= $this->getDynamicVariableValue('sort_3_descending');
+		$record_search_options							= Array();
+		$record_search_options['limit']					= $this->getDynamicVariableValue('limit');
+		$record_search_options['file_types']			= $this->getDynamicVariableValue('fileTypes');
+		$record_search_options['sort_1']				= $this->getDynamicVariableValue('search_sort_1');
+		$record_search_options['sort_2']				= $this->getDynamicVariableValue('search_sort_2');
+		$record_search_options['sort_3']				= $this->getDynamicVariableValue('search_sort_3');
+		$record_search_options['sort_1_descending']		= $this->getDynamicVariableValue('sort_1_descending');
+		$record_search_options['sort_2_descending']		= $this->getDynamicVariableValue('sort_2_descending');
+		$record_search_options['sort_3_descending']		= $this->getDynamicVariableValue('sort_3_descending');
+		$record_search_options['record_type_filter']	= array_keys ($this->getDynamicVariableValue('record_type_filter'));
 
 		return $record_search_options;
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1.10.1 2010/01/27 06:06:52 ewang Exp $
+* $Id: lang_strings.xml,v 1.1.1.1.10.2 2010/03/04 06:09:59 ewang Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -26,6 +26,7 @@
 <string source="trim_ds_search_result_fields">Result Fields</string>
 <string source="trim_ds_search_add_search_field">Add search field</string>
 <string source="trim_ds_search_add_result_field">Add result field</string>
+<string source="trim_ds_search_add_record_type">Add record type</string>
 <string source="trim_ds_search_add_search_field_group">Add search field in a new group</string>
 <string source="trim_ds_search_logic_group">Group Logic</string>
 <string source="trim_ds_search_logic_global">Global Logic</string>
@@ -34,8 +35,9 @@
 <string source="trim_ds_search_group_logic_note">Use this logic operator to connect search fields</string>
 <string source="trim_ds_search_global_logic_note">Use this logic operator to connect search groups</string>
 <string source="trim_ds_search_result_field_note">Tell TRIM server which infomation to be returned</string>
+<string source="trim_ds_search_record_type_filter_note">Only include above record types.</string>
+<string source="trim_ds_search_record_type_filter_no_record_type">No record types found, please retrieve from TRIM server.</string>
 <string source="field_category">Category</string>
 <string source="field_additional">Additional Field</string>
 <string source="field_standard">Standard Field</string>
 </strings>
-
