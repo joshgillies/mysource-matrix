@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.5 2010/03/04 05:44:07 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.6 2010/03/05 03:26:24 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -575,9 +575,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param array	$search The passed search variable used for stored searches
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
-	function processSearch($search)
+	public function processSearch($search)
 	{
 		// Defaults
 		$search_summary = Array('summary' => Array(), 'fluster' => Array(), 'spell' => Array());

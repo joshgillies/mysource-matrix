@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.2 2010/03/04 05:44:07 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.3 2010/03/05 03:26:24 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -473,7 +473,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$collection_id = array_get_index($_POST, $prefix.'_edit_collection', NULL);
 
 		if ($wa) {
-			if (!empty($collection_id) || isset($collections[$collection_id])) {
+			if (!empty($collection_id) && isset($collections[$collection_id])) {
 				$current_type = array_get_index($collections[$collection_id], 'type', 'web');
 				$current_name = array_get_index($collections[$collection_id], 'name', '');
 				$current_assetid = array_get_index($collections[$collection_id], 'asset', Array());

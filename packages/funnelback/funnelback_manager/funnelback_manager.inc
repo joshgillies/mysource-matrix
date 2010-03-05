@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.4 2010/03/04 05:44:07 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.5 2010/03/05 03:26:24 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -468,7 +468,7 @@ class Funnelback_Manager extends Asset
 		/*
 		 * Add in the permissions, with the following logic:
 		 *	- No permissions, return nothing
-		 *	- Public permission and live status, no 'locks'
+		 *	- Public permission and live status, give a "public" lock 
 		 *  - Specific permission, add the lock
 		 */
 		$permissions = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
