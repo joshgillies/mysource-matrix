@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.53 2009/12/01 04:47:08 bpearson Exp $
+* $Id: datetime_field.inc,v 1.54 2010/03/08 01:02:37 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -781,7 +781,8 @@ class DateTime_Field
 	function format($format=NULL)
 	{
 		if (is_null($format)) {
-			$format =& $this->getParam('print_format');
+			$print_format =& $this->getParam('print_format');
+			$format = $print_format;
 		}
 
 		// We need to strip certain elements out of the format if we don't have enough
@@ -806,6 +807,7 @@ class DateTime_Field
 		$real_y = 0;
 		if (!isset($c)) {
 			$c = $this->getParam('allow_circa');
+
 		}//end if
 		if ($y < 1970 && !stristr($es,'y')) {
 			$es .= 'DIlLrUwWzZ';
@@ -874,7 +876,7 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$min =& $this->getParam('min'); 
+		$min =& $this->getParam('min');
 		$d = new DateTime_Field($this->prefix.'_min', $min, $p);
 		$d->processField();
 
