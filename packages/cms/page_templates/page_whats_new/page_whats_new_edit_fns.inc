@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.16 2007/12/06 05:14:00 rong Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.17 2010/03/08 03:36:13 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,6 +176,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 
 				// set some params for the datetime field so that it paints properly
 				$datetime->_edit_params['allow_period'] = TRUE;
+				$datetime->_edit_params['allow_period_today'] = TRUE;
 				$datetime->_edit_params['use_picker'] = TRUE;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
 
@@ -198,7 +199,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$o->closeField();
 		}
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintRangeOptions()
 
