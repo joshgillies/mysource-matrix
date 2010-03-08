@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_reindex.php,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: funnelback_reindex.php,v 1.2 2010/03/08 04:44:19 bpearson Exp $
 *
 */
 
@@ -35,6 +35,7 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // THE INDEXING STATUS SHOULD BE TURNED ON
 $fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+$collections = $fm->attr('collections');
 if (is_null($fm)) {
 	trigger_localised_error('FNB0020', E_USER_WARNING);
 	exit();
@@ -44,21 +45,15 @@ if (!$fm->attr('indexing')) {
 	echo 'Note: You can change this option from the backend "System Management" > "Funnelback Manager" > "Details"'."\n\n";
 	exit();
 }
-
-// confirm the action
-if (empty($root_collection)) {
-	echo "DO YOU WANT TO REINDEX THE WHOLE SYSTEM (yes/no)\n";
-} else {
-	echo "DO YOU WANT TO REINDEX THE COLLECTION ".$root_collection. " (yes/no)\n";
-}
-
-// if the answer is different from yes exit
-$process = trim(fgets(STDIN, 4094));
-if (strcmp(strtolower($process), 'yes') !== 0) {
-	echo 'EXIT'."\n";
+if (!empty($root_collection) && !isset($collections[$root_collection])) {
+	echo "\n\nInvalid Collection ID passed in\n";
 	exit();
-}
+}//end if
 
+// Create a lock file
+touch(SQ_TEMP_PATH.'/funnelback.indexer');
+
+// Start indexing
 echo 'START REINDEXING'."\n";
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $vars = Array(
@@ -69,6 +64,11 @@ if (empty($errors)) {
 	echo 'FINISHED'."\n";
 } else {
 	echo 'FAILED'."\n";
+}//end if
+
+// Remove if finished AND failed
+if (file_exists(SQ_TEMP_PATH.'/funnelback.indexer')) {
+	unlink(SQ_TEMP_PATH.'/funnelback.indexer');
 }//end if
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rebuild_cache.php,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: funnelback_rebuild_cache.php,v 1.2 2010/03/08 04:44:19 bpearson Exp $
 *
 */
 
@@ -30,23 +30,16 @@ $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-// ask for the id of the root node to reindex
-echo 'Enter the #ID of the root node to reindex or press ENTER to reindex the whole system: ';
-$root_node_id = (int)trim(fgets(STDIN, 4094));
-
-// if the user chooses to reindex the whole system
-if (empty($root_node_id)) {
-	$root_node_id = 1;
-}
+$ROOT_NODE_ID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
 
 // if the id entered is not an int (should not complain normally)
-if (!is_int($root_node_id)) {
+if (!is_int($ROOT_NODE_ID)) {
 	trigger_error("You need to supply an integer\n", E_USER_ERROR);
 }
 
 // if the asset does not exists
-if (($root_node_id > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($root_node_id)) {
-	trigger_error("The asset #".$root_node_id." is not VALID\n", E_USER_ERROR);
+if (($ROOT_NODE_ID > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($ROOT_NODE_ID)) {
+	trigger_error("The asset #".$ROOT_NODE_ID." is not VALID\n", E_USER_ERROR);
 }
 
 // THE INDEXING STATUS SHOULD BE TURNED ON
@@ -61,25 +54,20 @@ if (!$fm->attr('indexing')) {
 	exit();
 }
 
-// confirm the action
-if ($root_node_id == 1) {
-	echo "DO YOU WANT TO REBUILD THE WHOLE SYSTEM (yes/no)\n";
-} else {
-	echo "DO YOU WANT TO REBUILD THE ROOT NODE #".$root_node_id. " (yes/no)\n";
-}
+// Create a lock file
+touch(SQ_TEMP_PATH.'/funnelback.rebuilder');
 
-// if the answer is different from yes exit
-$process = trim(fgets(STDIN, 4094));
-if (strcmp(strtolower($process), 'yes') !== 0) {
-	echo 'EXIT'."\n";
-	exit();
-}
-
+// Start rebuilding
 echo 'START REBUILDING'."\n";
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-$vars = Array('root_assetid'=> $root_node_id);
+$vars = Array('root_assetid'=> $ROOT_NODE_ID);
 $hh->freestyleHipo('hipo_job_funnelback_rebuild_cache', $vars, SQ_PACKAGES_PATH.'/funnelback/hipo_jobs');
 echo 'FINISHED'."\n";
+
+// Remove if finished
+if (file_exists(SQ_TEMP_PATH.'/funnelback.rebuilder')) {
+	unlink(SQ_TEMP_PATH.'/funnelback.rebuilder');
+}//end if
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 ?>
