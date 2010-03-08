@@ -1,18 +1,87 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.2
+
+Featured Changes
+===================================
+
+Funnelback Search integration [ Feature Request #4214 ]
+-----------------------------
+MySource Matrix has been integrated with purpose-built Funnelback binaries, for indexing and searching of content housed in a MySource Matrix system.
+
+Searches are performed against Collections, which are linked to MySource Matrix Site assets, and Meta-Collections which comprise multiple Collections (ie; for searching more than one site at a time). Configuration of Collections, Metadata mappings and indexing are performed under the Funnelback Manager asset.
+
+The Funnelback Search Page asset has been expanded to include bodycopies for Contextual Navigation, Type Formats (HTML, PDF etc.), Featured Pages and spelling suggestions.
+
+Funnelback search integration is performed through interaction with external binaries. These are included within MySource Matrix SSV for configuration during installation or upgrade.
+
+Search indexing functions differently to MySource Matrix Search, in that content is not immediately indexed when updated. Scripts are available within the Funnelback package which can be added to the cron to update the index periodically. The frequency at which the indexer should be run is dependent on the amount of content being indexed and the dynamic requirements of this content. Collections can be reindexed independently of each other.
+
+The MySource Matrix search system is still required for items such as backend search. 
+
+
+TRIM Saved Search enhancements [ Feature Request #4180 ]
+------------------------------
+Searches can now be restricted by TRIM Classification may be specified to restrict search results to an exact classification (eg; Projects) or a classification and its sub-classifications (eg; including Projects - MySource Matrix).
+
+Data Source elements are provided for to expose TRIM Classification elements and each classification portion (eg; Projects, MySource Matrix, Projects - MySource Matrix), for listing and grouping purposes.
+
+TRIM Date values stored in UTC (GMT) format can be converted to the timezone of the Matrix system upon returning the record set. This is provided as an option from the TRIM Saved Search asset.
+
+The Record Type value returned in record sets previously returned a number representing that type. The Record Type is now converted to a textual representation from TRIM, providing text such as "DOCUMENT" instead of the numeric format.
+
+
+TRIM Record Type filter [ Feature Request #4224 ]
+-----------------------
+A Record Type Filter is now available in the "General Search Options" of TRIM Saved Search assets to restrict retrieved records to particular TRIM Record Types.
+
+As record types can be custom-built, a list of these are retrieved from the TRIM server when synchronising the Saved Search page, which are then available for selection.
+
+For example, a saved search may be configured to return "Document" types, or both "Document" and "Folder" types. 
+
+      
+Date/Time Keyword Modifier [ Feature Request #4181 ]
+--------------------------
+A new Keyword Modifier, "date_time", is available to format asset attributes which provide a UNIX timestamp. One argument is required to define the PHP date() format used for display.
+
+For example, %asset_created^date_time:Y% will print the four-digit representation of the year in which the current asset was created.
+
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Fixed Bug #3889: remove_internal_messages.php script does not delete messages / gives error
+Fixed Bug #4166: asset_contents keyword in asset listing's type format cannot process modifiers
+Fixed Bug #4173: Asset listing may display group name as '0'
+Fixed Bug #4174: Asset Buider - Required Metadata Date Field doesn't validate
+Fixed Bug #4175: Status Simple Edit Keywords Don't Display
+Fixed Bug #4178: Link to asset's workflow screen in workflow escalation message is malformed in dependent assets
+Fixed Bug #4189: Creating New Dates on Multi-Date Calendar Events does not work with Assets in Workflow
+Fixed Bug #4197: Unable to deactivate Form submission actions
+Fixed Bug #4199: Listing engine throws an error when expected structure does not exist
+Fixed Bug #4204: JS API not handling '#' characters
+Fixed Bug #4205: Form submission asset throws error if accessed in edit mode
++ New system events to broadcast update of lookups and permissions [ Feature Request #4208 ]
+
+
+
+
 VERSION 3.26.1
 
 Featured Changes
------------------------------------
+===================================
 
 JS API: Multiple Set Metadata function [ Feature Request #4128 ]
-	A new function "setMetadataAllFields()" is now available in the JS API. This function takes a single array of field ids and their corresponding values to enable updating multiple fields for an asset in one request.
+--------------------------------------
+A new function "setMetadataAllFields()" is now available in the JS API. This function takes a single array of field ids and their corresponding values to enable updating multiple fields for an asset in one request.
 
 This provides performance gains over using multiple "setMetadata()" requests. Locks are acquired once and the Metadata Content is generated once for the asset instead of once per field. This function returns TRUE on success and FALSE on failure (eg; when failing to fill in a required field).
 
 
 Reindex Assets script: Specification of multiple Root Asset Nodes [ Feature Request #4130 ]
-	The command line script packages/search/scripts/reindexSearchIndex.php now allows multiple Root Nodes to be entered for reindexing.
+-----------------------------------------------------------------
+The command line script packages/search/scripts/reindexSearchIndex.php now allows multiple Root Nodes to be entered for reindexing.
 
 The script can now be used as follows:
 
@@ -24,13 +93,15 @@ A prompt will appear to confirm reindexing of each specified node.
 
 
 Listing Engine: Group by Asset Keyword [ Feature Request #4153 ]
-	A new option is available in Listing Engine assets such as Asset Listing and Search Page, to provide grouping by keywords.
+--------------------------------------
+A new option is available in Listing Engine assets such as Asset Listing and Search Page, to provide grouping by keywords.
 
 Like existing grouping options, this can be configured from the Asset Grouping screen of these assets. The keyword used for the grouping is supplied without leading or training percentage (%) characters.
 
 
 TRIM Saved Search: Custom Metadata Fields and Search Logic [ Feature Request #4155 ]
-	TRIM Saved Search assets now allow queries on custom TRIM metadata fields and allow boolean search logic between these terms to be defined.
+----------------------------------------------------------
+TRIM Saved Search assets now allow queries on custom TRIM metadata fields and allow boolean search logic between these terms to be defined.
 
 A set of known metadata fields which is shipped with TRIM are the TRIM Saved Search options by default. This can be expanded by requesting all available fields from the TRIM system, for use in search queries. A "Retrieve Now" button is available from the Details screen to retrieve these fields.
 
@@ -54,15 +125,18 @@ Just like the Search Logic, Result Fields may be composed of standard or custom 
 
 
 Asset Manager lineage listing performance enhancement [ Feature Request #4160 ]
-	A performance enhancement may be evident on systems with large asset trees and/or many links pointing to a particular asset.
+-----------------------------------------------------
+A performance enhancement may be evident on systems with large asset trees and/or many links pointing to a particular asset.
 
 
 Matrix Backup Script: Suppression of minor notices [ Feature Request #4158 ]
-	Minor notices such as "file changed as we read it" are now suppressed, to avoid these being sent by email from backup routines scheduled by cron.
+--------------------------------------------------
+Minor notices such as "file changed as we read it" are now suppressed, to avoid these being sent by email from backup routines scheduled by cron.
+
 
 
 Additional Changes and Bug Fixes
------------------------------------
+===================================
 
 Core
 Fixed Bug #3717: New version of backup.sh fails with Postgres 8.3
@@ -102,13 +176,15 @@ Fixed Bug #4145: JS API not maintaining link values when moveing and creating
 
 
 
+
 VERSION 3.26.0
 
 Featured Changes
------------------------------------
+===================================
 
 Bundle assets
-	Bundle assets allow a group of assets to be taken into Workflow and approved in batches. This asset can be found under the "Schemas" sub-menu in the Asset Map.
+-------------
+Bundle assets allow a group of assets to be taken into Workflow and approved in batches. This asset can be found under the "Schemas" sub-menu in the Asset Map.
 
 "Under Construction" assets without an associated Workflow Schema which are linked under a Bundle, will be set to "Live" when applying for approval. Other assets will follow the next logical Workflow process.
 
@@ -116,11 +192,13 @@ Bundles also have support for Workflow Streams - users have access to any stream
 
 
 TRIM 6.2 compatibility
-	All functionality provided by the TRIM Package is now compatible with TRIM 6.2. In addition to this, Search and Form posting access can now be provided to non-admin TRIM users who have the appropriate grants. The TRIM Connector supports connections over proxies, determined either from the Matrix Proxy Configuration, or an alternate one specified in the Connector itself.
+----------------------
+All functionality provided by the TRIM Package is now compatible with TRIM 6.2. In addition to this, Search and Form posting access can now be provided to non-admin TRIM users who have the appropriate grants. The TRIM Connector supports connections over proxies, determined either from the Matrix Proxy Configuration, or an alternate one specified in the Connector itself.
 
 
 Matrix System Check script
-	A test suite to identify system integrity issues on a Matrix System has been added to the "scripts" directory. The script "system_check.php" will run tests which will report on any known inconsistencies in the system. This script will not resolve any issues, so the results must be interpreted and the appropriate action taken.
+--------------------------
+A test suite to identify system integrity issues on a Matrix System has been added to the "scripts" directory. The script "system_check.php" will run tests which will report on any known inconsistencies in the system. This script will not resolve any issues, so the results must be interpreted and the appropriate action taken.
 
 The script is executed as follows:
 
@@ -135,11 +213,13 @@ The script is executed as follows:
 
 
 Check Indexes System Integrity script: Alter Table for incorrect primary keys
-	Additional checking has been added to this script to verify that primary key constraints are named as expected. For example, "ast_pk" for the sq_ast table. Corrective database queries will be displayed during the script run which must be applied manually.
+-----------------------------------------------------------------------------
+Additional checking has been added to this script to verify that primary key constraints are named as expected. For example, "ast_pk" for the sq_ast table. Corrective database queries will be displayed during the script run which must be applied manually.
+
 
 
 Additional Changes and Bug Fixes
------------------------------------
+===================================
 
 Core
 Fixed Bug #4075: System Maintenance: Trash Age Report JS Error
@@ -172,32 +252,38 @@ Fixed Bug #4090: Search Manager does not respect Asset Weight priority when inde
 
 
 
+
 VERSION 3.26.0 RC1
 
 Featured Changes
------------------------------------
+===================================
 
 Workflow Streams
-	This functionality allows multiple sets of Workflow Steps per Workflow Schema, and allows Administrators to select which of these sets is to be used for any given Workflow process.
+----------------
+This functionality allows multiple sets of Workflow Steps per Workflow Schema, and allows Administrators to select which of these sets is to be used for any given Workflow process.
 
 Please note that new and existing Workflow Schema steps will be moved under a "Default Stream" which resides under the related Workflow Schema. This Default Stream cannot be moved or deleted. 
 
 
 Replace Keywords option in Set Value Trigger Action
-	A checkbox "Replace keywords in the set value" is provided in the Set Metadata Value and Set Attribute Value Trigger Actions to indicate whether keywords supplied in these fields are to be replaced upon evaluation rather than being treated as literal text. This can be used with both asset-level and Global Keywords.
+---------------------------------------------------
+A checkbox "Replace keywords in the set value" is provided in the Set Metadata Value and Set Attribute Value Trigger Actions to indicate whether keywords supplied in these fields are to be replaced upon evaluation rather than being treated as literal text. This can be used with both asset-level and Global Keywords.
 
 
 Public User Trigger Condition
-	A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
+-----------------------------
+A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
 
 
 Asset Lineage Design Area: Negative Start Level definition
-	The attribute value for "start_at_level" can now be specified as a negative number to refer to direct parent assets of the current asset.
+----------------------------------------------------------
+The attribute value for "start_at_level" can now be specified as a negative number to refer to direct parent assets of the current asset.
 For example, -1 would refer to the direct parent, -n to the nth direct parent. Other positive numbers (0 = current asset, 1 direct child etc.) still continue to function as previously defined. 
 
 
 Additional Asset Keyword Modifiers
-	New Keyword Modifiers have been added, which are:
+----------------------------------
+New Keyword Modifiers have been added, which are:
 
 	- md5 (return the computed MD5 hash of the value)
 	- sha1 (return the computed SHA1 hash of the value)
@@ -210,7 +296,8 @@ Some examples:
 
 
 PayPal Payment Gateway modifications
-	The PayPal Payment Button asset now supports "Donate", "Add to Cart" and "View Cart" button types, in addition to "Buy Now". The options for each Button Type are available by toggling the Button Type from the "Details" screen and clicking "Commit".
+------------------------------------
+The PayPal Payment Button asset now supports "Donate", "Add to Cart" and "View Cart" button types, in addition to "Buy Now". The options for each Button Type are available by toggling the Button Type from the "Details" screen and clicking "Commit".
 
 	- Donate Button
 	This button allows the name of the Organisation or purpose of the donation to be supplied, as well as the ability to specify a fixed amount.
@@ -223,22 +310,27 @@ PayPal Payment Gateway modifications
 
 
 Move Assets Script enhancements
-	The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation. 
+-------------------------------
+The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation. 
 
 
 System Update Lookups Script: Increased Verbosity
-	The system_update_lookups.php script now supports an optional "--verbose" argument to display any errors which may occur as a result of updating lookups. The script can now be executed from the Matrix System Root directory as follows:
+-------------------------------------------------
+The system_update_lookups.php script now supports an optional "--verbose" argument to display any errors which may occur as a result of updating lookups. The script can now be executed from the Matrix System Root directory as follows:
 
 	php scripts/system_update_lookups.php . 123 --verbose
 
 
 Globals Site Keywords performance enhancement
-	Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map. 
+---------------------------------------------
+Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map. 
 
 
 Get Lineage performance enhancement
-	Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit. 
+-----------------------------------
+Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit. 
 
 
 Purge Trash HIPO performance enhancement
-	A query has been optimised in the Purge Trash HIPO to return assets in "sort order". This modification removes the need to update the sort order of nearby assets, which may result in a performance increase when running this HIPO.
+----------------------------------------
+A query has been optimised in the Purge Trash HIPO to return assets in "sort order". This modification removes the need to update the sort order of nearby assets, which may result in a performance increase when running this HIPO.
