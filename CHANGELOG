@@ -51,18 +51,25 @@ For example, %asset_created^date_time:Y% will print the four-digit representatio
 Additional Changes and Bug Fixes
 ===================================
 
+Core
 Fixed Bug #3889: remove_internal_messages.php script does not delete messages / gives error
+Fixed Bug #4175: Status Simple Edit Keywords Don't Display
+Fixed Bug #4178: Link to asset's workflow screen in workflow escalation message is malformed in dependent assets
++ New system events to broadcast update of lookups and permissions [ Feature Request #4208 ]
+
+Calendar
+Fixed Bug #4189: Creating New Dates on Multi-Date Calendar Events does not work with Assets in Workflow
+
+CMS
 Fixed Bug #4166: asset_contents keyword in asset listing's type format cannot process modifiers
 Fixed Bug #4173: Asset listing may display group name as '0'
 Fixed Bug #4174: Asset Buider - Required Metadata Date Field doesn't validate
-Fixed Bug #4175: Status Simple Edit Keywords Don't Display
-Fixed Bug #4178: Link to asset's workflow screen in workflow escalation message is malformed in dependent assets
-Fixed Bug #4189: Creating New Dates on Multi-Date Calendar Events does not work with Assets in Workflow
 Fixed Bug #4197: Unable to deactivate Form submission actions
 Fixed Bug #4199: Listing engine throws an error when expected structure does not exist
-Fixed Bug #4204: JS API not handling '#' characters
 Fixed Bug #4205: Form submission asset throws error if accessed in edit mode
-+ New system events to broadcast update of lookups and permissions [ Feature Request #4208 ]
+
+Web Services
+Fixed Bug #4204: JS API not handling '#' characters
 
 
 
