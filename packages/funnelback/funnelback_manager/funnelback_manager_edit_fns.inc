@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.3 2010/03/05 03:26:24 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.4 2010/03/08 03:48:26 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -610,7 +610,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				}//end if
 				if ($current_type == 'web') {
 					$collections[$collection_id]['url'] = $url;
-					if (empty($url)) {
+					if (empty($url) || empty($collections[$collection_id]['asset'])) {
 						$collections[$collection_id]['valid'] = FALSE;
 					}//end if
 					$changed = TRUE;
