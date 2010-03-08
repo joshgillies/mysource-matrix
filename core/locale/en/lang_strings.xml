@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.351 2010/02/02 04:26:36 akarelia Exp $
+* $Id: lang_strings.xml,v 1.352 2010/03/08 02:56:45 lwright Exp $
 *
 */
 
@@ -735,8 +735,9 @@
 	<string source="false_text">False Text</string>
 	<string source="empty_text">Empty Text</string>
 
-	<string source="select_single_date">Select a single date using the boxes above</string>
-	<string source="select_date_period">Enter a period using the boxes above. eg. 3 days</string>
+	<string source="attribute_datetime_select_single_date">Select a single fixed date and time using the boxes above.</string>
+	<string source="attribute_datetime_select_date_period"><![CDATA[Enter a period using the boxes above (eg. "3 days n the past"). The time period selected will be added or subtracted from the current date and time.<br/><br/><strong>NOTE:</strong> To avoid confusion, a period of "0" (zero) means that the current time will be used.]]></string>
+	<string source="attribute_datetime_select_date_period_today"><![CDATA[Enter a period and time using the boxes above (eg. "3 days before today, at 09:00:00"). The period will be added or subtracted from the current date, and the specified time used.<br/><br/><strong>NOTE:</strong> To avoid confusion, a period of "0" (zero) means the date used will be "today" at the time indicated.]]></string>
 
 	<string source="to">To</string>
 	<string source="from">From</string>
@@ -1072,6 +1073,18 @@
 	<string source="config_display_name">%1$s Defined %2$s Design</string>
 	<string source="select_single_period">Select Single Period</string>
 	<string source="select_date_period_config">Select Date Period</string>
+
+	<string source="attribute_datetime_option_single_date">Fixed date and time</string>
+	<string source="attribute_datetime_option_date_period">Period relative to current date and time</string>
+	<string source="attribute_datetime_option_date_period_today">Period relative to a fixed time on current date</string>
+	<string source="attribute_datetime_today_age_-">%1$s %2$s before today, at %3$s</string>
+	<string source="attribute_datetime_today_age_+">%1$s %2$s after today, at %3$s</string>
+	<string source="attribute_datetime_today_age_0">Today, at %3$s</string>
+	<string source="attribute_datetime_period_age_-">%1$s %2$s in the past</string>
+	<string source="attribute_datetime_period_age_+">%1$s %2$s in the future</string>
+	<string source="attribute_datetime_period_age_0">Current point in time</string>
+	<string source="attribute_datetime_date_period_edit_format">%1$s %2$s %3$s</string>
+	<string source="attribute_datetime_today_period_edit_format">%1$s %2$s %3$s at %4$s</string>
 
 	<string source="condition_user_type_list">User Types</string>
 	<string source="condition_user_type_true">The current user has been matched</string>

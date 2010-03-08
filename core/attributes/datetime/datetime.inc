@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.44 2010/03/08 01:09:55 lwright Exp $
+* $Id: datetime.inc,v 1.45 2010/03/08 02:56:45 lwright Exp $
 *
 */
 
@@ -65,7 +65,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -263,6 +263,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				if (empty($date_field_value) === TRUE) {
 					// Empty
 					$date_field_value = ts_iso8601(time());
+					$date_period_value = '';
 
 				} else if ($date_field_value !== '---------- --:--:--') {
 					// Not null date
@@ -342,13 +343,19 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				break;
 
 				case 'date_period':
-					$age_options = $this->_getAgeOptions();
-					echo translate('attribute_datetime_period_age_'.$period_age, $period_num, $period_options[$period_type]);
+					if ((int)$period_num === 0) {
+						echo translate('attribute_datetime_period_age_0', $period_num, $period_options[$period_type]);
+					} else {
+						echo translate('attribute_datetime_period_age_'.$period_age, $period_num, $period_options[$period_type]);
+					}
 				break;
 
 				case 'date_period_today':
-					$age_options = $this->_getAgeOptionsFromToday();
-					echo translate('attribute_datetime_today_age_'.$period_age, $period_num, $period_options[$period_type], $base_time);
+					if ((int)$period_num === 0) {
+						echo translate('attribute_datetime_today_age_0', $period_num, $period_options[$period_type], $base_time);
+					} else {
+						echo translate('attribute_datetime_today_age_'.$period_age, $period_num, $period_options[$period_type], $base_time);
+					}
 				break;
 
 			}//end switch on date option
