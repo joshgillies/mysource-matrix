@@ -42,9 +42,9 @@ For example, a saved search may be configured to return "Document" types, or bot
       
 Date/Time Keyword Modifier [ Feature Request #4181 ]
 --------------------------
-A new Keyword Modifier, "date_time", is available to format asset attributes which provide a UNIX timestamp. One argument is required to define the PHP date() format used for display.
+A new Keyword Modifier, "date_format", is available to format asset attributes which provide a UNIX timestamp. One argument is required to define the PHP date() format used for display.
 
-For example, %asset_created^date_time:Y% will print the four-digit representation of the year in which the current asset was created.
+For example, %asset_created^date_format:Y% will print the four-digit representation of the year in which the current asset was created.
 
 
 
