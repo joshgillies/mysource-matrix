@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: apache_config.inc,v 1.6 2007/10/29 04:51:07 lwright Exp $
+* $Id: apache_config.inc,v 1.6.10.1 2010/03/08 23:54:43 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY', 'sq_custom_keyword_key');
 *    Manage any Apache related configuration
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.10.1 $
 * @package MySource_Matrix
 */
 class Apache_Config extends Config
@@ -399,7 +399,7 @@ class Apache_Config extends Config
 	*/
 	function processBackend(&$o)
 	{
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		// wipe the values of any checked entries
 		if (isset($_POST['remove']) && !empty($_POST['remove'])) {
