@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.2 2010/03/01 04:47:37 bpearson Exp $
+* $Id: lang_errors.xml,v 1.3 2010/03/08 05:42:52 bpearson Exp $
 *
 */
 
@@ -35,6 +35,9 @@
 	<error code="FNB0012">The Funnelback installation has incorrect permissions</error>
 	<error code="FNB0013">Unable to create the collection path</error>
 	<error code="FNB0014">Invalid Password: Incorrect user or password, correct for proper use</error>
+
+	<!-- Scripts -->
+	<error code="FNB0019">Lockfile found. Scripts cannot be run concurrently.</error>
 
 	<!-- Funnelback HIPO Rebuild Cache -->
 	<error code="FNB0020">Unable to load Funnelback Manager, Funnelback Manager is not installed</error>
