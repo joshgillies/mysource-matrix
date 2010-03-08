@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_reindex.php,v 1.2 2010/03/08 04:44:19 bpearson Exp $
+* $Id: funnelback_reindex.php,v 1.3 2010/03/08 05:39:18 bpearson Exp $
 *
 */
 
@@ -47,6 +47,12 @@ if (!$fm->attr('indexing')) {
 }
 if (!empty($root_collection) && !isset($collections[$root_collection])) {
 	echo "\n\nInvalid Collection ID passed in\n";
+	exit();
+}//end if
+
+// Check for a lock file
+if (file_exists(SQ_TEMP_PATH.'/funnelback.indexer')) {
+	trigger_localised_error('FNB0019', E_USER_WARNING);
 	exit();
 }//end if
 

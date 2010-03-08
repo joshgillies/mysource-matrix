@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rebuild_cache.php,v 1.2 2010/03/08 04:44:19 bpearson Exp $
+* $Id: funnelback_rebuild_cache.php,v 1.3 2010/03/08 05:39:18 bpearson Exp $
 *
 */
 
@@ -53,6 +53,12 @@ if (!$fm->attr('indexing')) {
 	echo 'Note: You can change this option from the backend "System Management" > "Funnelback Manager" > "Details"'."\n\n";
 	exit();
 }
+
+// Check for a lock file
+if (file_exists(SQ_TEMP_PATH.'/funnelback.rebuilder')) {
+	trigger_localised_error('FNB0019', E_USER_WARNING);
+	exit();
+}//end if
 
 // Create a lock file
 touch(SQ_TEMP_PATH.'/funnelback.rebuilder');
