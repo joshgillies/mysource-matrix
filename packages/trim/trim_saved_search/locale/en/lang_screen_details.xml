@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/03/04 04:54:19 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.6 2010/03/08 05:57:51 ewang Exp $
 *
 */
 -->
@@ -104,7 +104,7 @@
     	</field>
     	<field attribute="convert_timezone">
     		<display_name>Use Local Time</display_name>
-    		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_time:Y% will print a full numeric representation of a year in local time.</note>
+    		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_format:Y% will print a full numeric representation of a year in local time.</note>
     	</field>
     </section>   
     <section name="Classification Options" write_access="write:attributes">
