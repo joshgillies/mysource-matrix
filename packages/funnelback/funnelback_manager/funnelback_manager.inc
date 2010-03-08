@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.5 2010/03/05 03:26:24 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.6 2010/03/08 05:09:05 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -485,6 +485,11 @@ class Funnelback_Manager extends Asset
 			foreach ($permissions as $permission) {
 				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, 'utf-8'))."'";
 			}//end foreach
+
+			// Give the root user, "GOD" access
+			if (!in_array("'12'", $all_permissions)) {
+				$all_permissions[] = "'".$this->encodeText(htmlspecialchars('12', ENT_COMPAT, 'utf-8'))."'";
+			}//end if
 			$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
 		}//end if
 
