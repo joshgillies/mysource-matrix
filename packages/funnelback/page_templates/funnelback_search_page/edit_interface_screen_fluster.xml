@@ -10,13 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fluster.xml,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+* $Id: edit_interface_screen_fluster.xml,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
 *
 */
 -->
 <contents>
-	<section name="Fluster Options"  limbo_access="0">
-		<field attribute="show_fluster_more">
+	<section name="Contextual Navigation Options"  limbo_access="0">
+		<field attribute="show_fluster_more" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -62,7 +62,7 @@
 			<int width="10" />
 		</field>
 	</section>
-	<section name="Fluster Formats"  limbo_access="0">
+	<section name="Contextual Navigation Formats"  limbo_access="0">
 		<field>
 			<function_call>
 				<paint_function   name="paintFlusterFormatLinks"   />

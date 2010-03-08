@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.1.1.1 2009/08/11 01:51:56 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -42,6 +42,22 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
+
+
+	/**
+	* Returns true if integrated search is enabled
+	*
+	* @param object	&$owner	the search manager
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function integratedSearch(&$owner, $prefix)
+	{
+		return ($owner->attr('search_type') == 'integrated');
+
+	}//end integratedSearch()
 
 
 	/**
@@ -67,7 +83,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$this->_paintDefaultFormatLink($asset->id, 'results', translate('funnelback_results_bodycopy_desc'));
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('funnelback_no_results_bodycopy_desc'));
 
-			$folder = $asset->getFolder('type_formats');
+			$folder = $asset->getFolder('type_format');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('funnelback_default_bodycopy_desc'));
 			$this->_paintDefaultFormatLink($folder->id, 'featured_format', translate('funnelback_featured_bodycopy_desc'));
 			?>
@@ -98,8 +114,8 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<th><?php echo translate('note') ?></th>
 			</tr>
 			<?php
-			$folder = $asset->getFolder('fluster_formats');
-			$this->_paintDefaultFormatLink($folder->id, 'fluster_format', translate('funnelback_fluster_format_desc'));
+			$folder = $asset->getFolder('fluster_format');
+			$this->_paintDefaultFormatLink($folder->id, 'context_format', translate('funnelback_fluster_format_desc'));
 			$this->_paintDefaultFormatLink($folder->id, 'cluster_format', translate('funnelback_cluster_format_desc'));
 			$this->_paintDefaultFormatLink($folder->id, 'navigation_format', translate('funnelback_navigation_format_desc'));
 			?>
@@ -130,7 +146,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<th><?php echo translate('note') ?></th>
 			</tr>
 			<?php
-			$folder = $asset->getFolder('spell_formats');
+			$folder = $asset->getFolder('spell_format');
 			$this->_paintDefaultFormatLink($folder->id, 'spell_format', translate('funnelback_spell_format_desc'));
 			?>
 		</table>
@@ -196,8 +212,8 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintTypeFormats(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('links');
-		$folder = $asset->getFolder('type_formats');
-		$formats = $asset->getFormats('type_formats');
+		$folder = $asset->getFolder('type_format');
+		$formats = $asset->getFormats('type_format');
 
 		if (count($formats) > 2) {
 			?>
@@ -250,7 +266,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function processTypeFormats(&$asset, &$o, $prefix)
 	{
-		$folder = $asset->getFolder('type_formats');
+		$folder = $asset->getFolder('type_format');
 
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete', Array());
@@ -269,7 +285,6 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				}//end if
 			}//end if
 		}//end foreach
-	
 
 		if (!empty($new_type)) {
 			// check that this type isnt already customised
@@ -301,6 +316,208 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return FALSE;
 
 	}//end processTypeFormats()
+
+
+	/**
+	* Paints the search options for choosing the url/collections 
+	*
+	* @param object		&$asset		asset being painted
+	* @param object		&$o			backend outputter
+	* @param string		$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintFunnelbackOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$search_type = $asset->attr('search_type');
+		$web_url   = $asset->attr('funnelback_url');
+		$collection = $asset->attr('collection');
+		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+		$all_collections = $fm->getCollections();
+		$local_collections = Array(''=>translate('funnelback_no_collection'));
+		foreach ($all_collections as $all_col_id => $all_col_info) {
+			$local_collections[$all_col_id] = array_get_index($all_col_info, 'name', '');
+		}//end foreach
+		if ($search_type == 'integrated') {
+			$hidden_web = 'style="display:none;"';
+			$hidden_local = '';
+		} else {
+			$hidden_web = '';
+			$hidden_local = 'style="display:none;"';
+		}//end if
+		$object_type  = 'this.form.'.$prefix.'_search_type.value';
+		$object_url1  = 'this.form.'.$prefix.'_search_url_web';
+		$object_url2  = 'document.getElementById(\''.$prefix.'_search_url_local\')';
+		$object_coll1 = 'this.form.'.$prefix.'_search_collection_web';
+		$object_coll2 = 'this.form.'.$prefix.'_search_collection_local';
+		$js = 'onChange="chooseFunnelbackSearchType('.$object_type.', '.$object_url1.', '.$object_url2.', '.$object_coll1.', '.$object_coll2.');"';
+
+		$o->openField('Search Type');
+			?>
+			<script type="text/javascript">
+				function chooseFunnelbackSearchType(type, url1, url2, coll1, coll2) {
+					if (type == 'web') {
+						url1.disabled=false;
+						coll1.disabled=false;
+						url1.style.display='block';
+						url2.style.display='none';
+						coll1.style.display='block';
+						coll2.style.display='none';
+						coll2.disabled=true;
+					} else {
+						coll2.disabled=false;
+						url1.style.display='none';
+						url2.style.display='block';
+						coll1.style.display='none';
+						coll2.style.display='block';
+						url1.disabled=true;
+						coll1.disabled=true;
+					}
+				}
+			</script>
+			<?php
+			$type_attribute = $asset->getAttribute('search_type');
+			$type_options = $type_attribute->getOptions();
+			if ($wa) {
+				echo combo_box($prefix.'_search_type', $type_options, FALSE, $search_type, 0, $js);
+			} else {
+				echo $type_options[$search_type];
+			}
+		$o->note(translate('funnelback_search_type_note'));
+		$o->closeField();
+		$o->openField('Search URL');
+			if ($wa) {
+				echo text_box($prefix.'_search_url_web', $web_url, '', '', FALSE, $hidden_web);
+				echo '<span id="'.$prefix.'_search_url_local" '.$hidden_local.'>';
+				echo 'Integrated Search';
+				echo '</span>';
+			} else {
+				if ($search_type == 'integrated') {
+					echo 'Integrated Search';
+				} else {
+					echo $web_url;
+				}//end if
+			}//end if
+		$o->closeField();
+		$o->openField('Collection');
+			if ($wa) {
+				echo text_box($prefix.'_search_collection_web', $collection, '', '', FALSE, $hidden_web);
+				echo combo_box($prefix.'_search_collection_local', $local_collections, FALSE, $collection, 0, $hidden_local);
+			} else {
+				if ($search_type == 'integrated') {
+					if (empty($collection) || !isset($local_collections[$collection])) {
+						echo translate('funnelback_no_collection');
+					} else {
+						echo $local_collections[$collection];
+					}//end if
+				} else {
+					echo $collection;
+				}//end if
+			}//end if
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintFunnelbackOptions()
+
+
+	/**
+	* Processes the search options for choosing the url/collections 
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processFunnelbackOptions(&$asset, &$o, $prefix)
+	{
+		// Save the values based on the type
+		$wa = $asset->writeAccess('attributes');
+		$status = FALSE;
+		$type = array_get_index($_POST, $prefix.'_search_type', 'integrated');
+		if ($wa) {
+			if ($type == 'integrated') {
+				$collection = array_get_index($_POST, $prefix.'_search_collection_local', '');
+				$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+				$all_collections = $fm->getCollections();
+				// In case, the collection does not match the loaded collections
+				if (!array_key_exists($collection, $all_collections)) {
+					$collection = '';
+				}//end if
+				$url = '';
+			} else {
+				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
+				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
+			}//end if
+			$asset->setAttrValue('search_type', $type);
+			$asset->setAttrValue('funnelback_url', $url);
+			$asset->setAttrValue('collection', $collection);
+			$status = $asset->saveAttributes();
+		}//end if
+
+		return $status;
+
+	}//end processFunnelbackOptions()
+
+
+	/**
+	* Paints the sort options
+	*
+	* @param object		&$asset		asset being painted
+	* @param object		&$o			backend outputter
+	* @param string		$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSort(&$asset, &$o, $prefix)
+	{
+		$sort = $asset->attr('sort_order');
+		$sort_options = $asset->getSortOptions();
+
+		if ($asset->writeAccess('attributes')) {
+			combo_box($prefix.'_sort_order', $sort_options, FALSE, $sort);
+		} else {
+			if (!isset($sort_options[$sort])) {
+				$sort = 'rank';
+			}//end if
+			echo $sort_options[$sort];
+		}//end if
+
+		return TRUE;
+
+	}//end paintSort()
+
+
+	/**
+	* Processes the sort options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processSort(&$asset, &$o, $prefix)
+	{
+		// Save the values
+		if ($asset->writeAccess('attributes')) {
+			$processed_value = array_get_index($_POST, $prefix.'_sort_order', 'rank');
+			$current_value = $asset->attr('sort_order');
+			if ($processed_value != $current_value) {
+				$asset->setAttrValue('sort_order', $processed_value);
+				$asset->saveAttributes();
+			}//end if
+		}//end if
+
+		return TRUE;
+
+	}//end processScope()
 
 
 	/**
@@ -471,23 +688,23 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
 			?>
 				buttons = document.getElementsByTagName('BUTTON');
-			for (i = 0; i < buttons.length; i++) {
-				if (buttons[i].className == 'delete-button') {
-					with (buttons[i].style) {
-						backgroundImage = 'url(<?php echo sq_web_path('lib') ?>/web/images/icons/delete.png)';
-						backgroundPosition = '50% 50%';
-						backgroundRepeat = 'no-repeat';
-						width = '16px';
-						height = '16px';
-						backgroundColor = 'transparent';
-						border = '0px';
-						cursor = 'pointer';
+				for (i = 0; i < buttons.length; i++) {
+					if (buttons[i].className == 'delete-button') {
+						with (buttons[i].style) {
+							backgroundImage = 'url(<?php echo sq_web_path('lib') ?>/web/images/icons/delete.png)';
+							backgroundPosition = '50% 50%';
+							backgroundRepeat = 'no-repeat';
+							width = '16px';
+							height = '16px';
+							backgroundColor = 'transparent';
+							border = '0px';
+							cursor = 'pointer';
+						}
 					}
 				}
-			}
-		<?php
-		}
-		?>
+			<?php
+			}//end if
+			?>
 			// Some variables
 			var optionItemPrefix = '<?php echo $prefix; ?>';
 
