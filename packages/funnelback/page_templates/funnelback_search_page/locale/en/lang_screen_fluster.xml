@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fluster.xml,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
+* $Id: lang_screen_fluster.xml,v 1.1.1.1.2.2 2010/03/08 07:11:02 mbrydon Exp $
 *
 */
 -->
@@ -36,7 +36,7 @@
 		</field>
 		<field attribute="less_type_text" write_access="write:attributes">
 			<text width="30" />
-			<display_name>Next page link text</display_name>
+			<display_name><![CDATA[Category "Type" show fewer link]]></display_name>
 			<note><![CDATA[The text for the link to show less for the category "Type"]]></note>
 		</field>
 		<field attribute="less_type_num" write_access="write:attributes">
