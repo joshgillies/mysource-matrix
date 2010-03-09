@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2009/05/15 06:30:07 ewang Exp $
+* $Id: lang_strings.xml,v 1.4.2.1 2010/03/09 00:12:24 akarelia Exp $
 *
 * Localised Strings File for Uploaded File Type Form Question Rule Asset
 */
@@ -24,7 +24,7 @@
 <string source="core_form_rule_file_type_edit_true">Uploaded file must match one of the following extensions: %s</string>
 <string source="core_form_rule_file_type_edit_false">Uploaded file must NOT match one of the following extensions: %s</string>
 <string source="core_form_rule_file_type_ext_list">Extension List</string>
-<string source="core_form_rule_file_type_note">Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension. MIME check is optional but recommaned. It will make sure the file is what they say it is.</string>
+<string source="core_form_rule_file_type_note">Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension. MIME check is optional but recommended. It will make sure the file is what they say it is.</string>
 <string source="core_form_rule_file_type_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must match one of the following: %3$s</string>
 <string source="core_form_rule_file_type_error_false">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must NOT match one of the following: %3$s</string>
 <string source="core_form_rule_file_type_enforce_check_mime">Enforce MIME Check</string>
