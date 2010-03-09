@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.17 2010/02/09 04:34:50 csmith Exp $
+* $Id: check_requirements.php,v 1.18 2010/03/09 22:58:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -464,10 +464,15 @@ function check_requirement($requirement_check, $package_name='core')
 
 		case 'external_program':
 			$external_program = (string)$requirement_check->external_program;
+			$program_path = '';
+			if (isset($requirement_check->path)) {
+				$program_path = (string)$requirement_check->path;
+				$program_path = rtrim($program_path, '/').'/';
+			}//end if
 
 			$version_required = (string)$requirement_check->version;
 
-			$cmd = $external_program;
+			$cmd = $program_path.$external_program;
 			$check_name = $external_program;
 
 			if (isset($requirement_check->version_arguments)) {
@@ -659,6 +664,29 @@ function check_requirement($requirement_check, $package_name='core')
 					}
 					$version_line = $cmd_output[1];
 					$match_found = preg_match('/ version (.*?) /', $version_line, $matches);
+					if ($match_found) {
+						$check_ok = true;
+						$version_found = $matches[1];
+					} else {
+						$extra_info = " (version checking not working)";
+					}
+
+				break;
+
+				/**
+				 * $ padre-iw -V
+				 *
+				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.18 $ 
+				 * ....
+				 *
+				 */
+				case 'padre-iw':
+					if (!isset($cmd_output[0])) {
+						$extra_info = " (version checking not working)";
+						break;
+					}
+					$version_line = $cmd_output[0];
+					$match_found = preg_match('/FUNNELBACK_PADRE_([0-9\.]*)/', $version_line, $matches);
 					if ($match_found) {
 						$check_ok = true;
 						$version_found = $matches[1];
