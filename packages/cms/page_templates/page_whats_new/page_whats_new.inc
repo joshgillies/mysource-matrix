@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.42 2008/03/20 00:31:25 lwright Exp $
+* $Id: page_whats_new.inc,v 1.43 2010/03/09 01:25:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,17 +101,71 @@ class Page_Whats_New extends Listing_Engine
 
 		// work out the where clause that is going to find "new" assets
 		$where = '';
+		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 
 		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
-			require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
 			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 
-			$from = new Asset_Attribute_DateTime();
-			$from->value = $ranges[$id]['oldest_date'];
+			if ($ranges[$id]['range_type'] !== '') {
+				switch ($ranges[$id]['range_type']) {
+					case 'today':
+						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
+					break;
 
-			$to = new Asset_Attribute_DateTime();
-			$to->value = $ranges[$id]['newest_date'];
+					case 'week':
+						// If it's a Monday, then doing "next Monday, 1 week ago"
+						// will make it one week out.
+						if ((int)date('w') === 1) {
+							$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
+						} else {
+							$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 Monday -1 week')));
+						}
+					break;
+
+					case 'month':
+						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime(date('Y-m').'-01 00:00:00')));
+					break;
+
+					case 'year':
+						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime(date('Y').'-01-01 00:00:00')));
+					break;
+				}
+
+				$to = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('now')));
+			} else {
+				$from = new Asset_Attribute_DateTime();
+				$from->value = $ranges[$id]['oldest_date'];
+
+				$to = new Asset_Attribute_DateTime();
+				$to->value = $ranges[$id]['newest_date'];
+			}
+		} else if ($this->attr('range_type') !== '') {
+			switch ($this->attr('range_type')) {
+				case 'today':
+					$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
+				break;
+
+				case 'week':
+					// If it's a Monday, then doing "next Monday, 1 week ago"
+					// will make it one week out.
+					if ((int)date('w') === 1) {
+						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
+					} else {
+						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 Monday -1 week')));
+					}
+				break;
+
+				case 'month':
+					$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime(date('Y-m').'-01 00:00:00')));
+				break;
+
+				case 'year':
+					$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime(date('Y').'-01-01 00:00:00')));
+				break;
+			}
+
+			$to = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('now')));
 		} else {
 			$from = $this->getAttribute('date_range_from');
 			$to   = $this->getAttribute('date_range_to');

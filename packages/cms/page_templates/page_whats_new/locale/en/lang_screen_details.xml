@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.12 2009/06/10 04:04:39 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.13 2010/03/09 01:25:31 lwright Exp $
 *
 */
 -->
@@ -21,13 +21,11 @@
 			<display_name>Date Field</display_name>
 			<note>This is the date used to determine if something is "new"</note>
 		</field>
-		<field attribute="date_range_from">
-			<display_name>Oldest Date</display_name>
-			<note>Show assets that are newer than this date</note>
-		</field>
-		<field attribute="date_range_to">
-			<display_name>Newest Date</display_name>
-			<note>Show assets that are older than this date</note>
+		<field>
+			<function_call>
+				<paint_function   name="paintMainDateRange"   />
+				<process_function name="processMainDateRange" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Asset Selection">

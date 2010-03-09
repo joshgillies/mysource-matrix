@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.17 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_whats_new_management.inc,v 1.18 2010/03/09 01:25:31 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,6 +52,11 @@ class Page_Whats_New_Management extends Asset_Management
 																   ),
 												'multiple'		=> FALSE,
 												'allow_empty'	=> FALSE,
+											   ),
+						'range_type'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
 											   ),
 						'date_range_from'	=> Array(
 												'added'			=> '0.1',

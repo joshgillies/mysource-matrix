@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.17 2010/03/08 03:36:13 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.18 2010/03/09 01:25:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -140,6 +140,122 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
+	function paintMainDateRange(&$asset, &$o, $prefix)
+	{
+		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($asset->attr('range_type') !== '') {
+			$range = $asset->attr('range_type');
+			$date_range_from = '---------- --:--:--';
+			$date_range_to   = '---------- --:--:--';
+		} else {
+			$range = '';
+			$date_range_from = $asset->attr('date_range_from');
+			$date_range_to   = $asset->attr('date_range_to');
+		}
+
+		$range_types = Array(
+						''			=> 'Specified Range',
+						'today'		=> 'Today',
+						'week'		=> 'This Week',
+						'month'		=> 'This Month',
+						'year'		=> 'This Year',
+					   );
+
+		$o->openField('Range Type');
+			if ($write_access === TRUE) {
+				combo_box($prefix.'_range_type', $range_types, FALSE, $range);
+			} else {
+				echo $range_types[$range];
+			}
+		$o->note(translate('cms_whats_new_range_type_note'));
+		$o->closeField();
+
+		foreach (Array('date_range_from', 'date_range_to') as $type) {
+
+			$o->openField(ucwords(str_replace('_', ' ', $type)));
+				$datetime = new Asset_Attribute_DateTime();
+
+				// set some params for the datetime field so that it paints properly
+				$datetime->_edit_params['allow_period'] = TRUE;
+				$datetime->_edit_params['allow_period_today'] = TRUE;
+				$datetime->_edit_params['use_picker'] = TRUE;
+				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
+				$datetime->_edit_params['null'] = Array('y','m','d','h','i','s');
+
+				foreach ($datetime->_edit_params['show'] as $u) {
+					$datetime->_edit_params['style'][$u] = 's';
+				}
+				$datetime->_edit_params['style']['y'] = 't';
+				$datetime->value = $$type;
+
+				$datetime->paint($prefix.'_'.$type, !$write_access);
+
+			$o->closeField();
+		}
+
+		return $write_access;
+
+	}//end paintMainDateRange()
+
+
+	/**
+	* Processes the range options interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMainDateRange(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') === FALSE) {
+			return FALSE;
+		}
+
+		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
+
+		$range_type = array_get_index($_POST, $prefix.'_range_type', '');
+		$save       = FALSE;
+
+		if ($range_type !== '') {
+			if ($asset->attr('range_type') !== $range_type) {
+				$asset->setAttrValue('range_type', $range_type);
+				$asset->setAttrValue('date_range_from', '---------- --:--:--');
+				$asset->setAttrValue('date_range_to',   '---------- --:--:--');
+				$save = TRUE;
+			}
+		} else {
+			$asset->setAttrValue('range_type', '');
+			foreach (Array('date_range_from', 'date_range_to') as $type) {
+				$datetime = new Asset_Attribute_DateTime();
+				$datetime->process($prefix.'_'.$type);
+
+				if ($asset->attr($type) !== $datetime->value) {
+					$asset->setAttrValue($type, $datetime->value);
+					$save = TRUE;
+				}
+			}
+		}
+
+		return $save;
+
+	}//end processMainDateRange()
+
+
+	/**
+	* Paints the range options interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintRangeOptions(&$asset, &$o, $prefix)
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
@@ -169,6 +285,37 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$o->closeField();
 
+		if ($rangeid === -1) {
+			$range = '';
+			$oldest_date = '---------- --:--:--';
+			$newest_date = '---------- --:--:--';
+		} else if (array_key_exists('range_type', $ranges[$rangeid]) === TRUE) {
+			$range = $ranges[$rangeid]['range_type'];
+			$oldest_date = '---------- --:--:--';
+			$newest_date = '---------- --:--:--';
+		} else {
+			$range = '';
+			$oldest_date = $ranges[$rangeid]['oldest_date'];
+			$newest_date = $ranges[$rangeid]['newest_date'];
+		}
+
+		$range_types = Array(
+						''			=> 'Specified Range',
+						'today'		=> 'Today',
+						'week'		=> 'This Week',
+						'month'		=> 'This Month',
+						'year'		=> 'This Year',
+					   );
+
+		$o->openField('Range Type');
+			if ($write_access === TRUE) {
+				combo_box($prefix.'_range_type', $range_types, FALSE, $range);
+			} else {
+				echo $range_types[$range];
+			}
+			$o->note(translate('cms_whats_new_range_type_note'));
+		$o->closeField();
+
 		foreach (Array('oldest_date', 'newest_date') as $type) {
 
 			$o->openField(ucwords(str_replace('_', ' ', $type)));
@@ -179,13 +326,12 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$datetime->_edit_params['allow_period_today'] = TRUE;
 				$datetime->_edit_params['use_picker'] = TRUE;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
+				$datetime->_edit_params['null'] = Array('y','m','d','h','i','s');
 
 				foreach ($datetime->_edit_params['show'] as $u) {
 					$datetime->_edit_params['style'][$u] = 's';
 				}
-				if (trim($range_name) != '') {
-					$datetime->value = $ranges[$rangeid][$type];
-				}
+				$datetime->value = $$type;
 
 				$datetime->paint($prefix.'_'.$type, !$write_access);
 
@@ -224,6 +370,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		$ranges     = $asset->attr('date_ranges');
 		$rangeid    = $_POST[$prefix.'_curr_range_id'];
 		$range_name = $_POST[$prefix.'_range_name'];
+		$range_type = array_get_index($_POST, $prefix.'_range_type', '');
 		$save       = FALSE;
 
 		if (isset($_POST[$prefix.'_remove'])) {
@@ -246,15 +393,25 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 
-			foreach (Array('oldest_date', 'newest_date') as $type) {
-				$datetime = new Asset_Attribute_DateTime();
-				$datetime->process($prefix.'_'.$type);
-
-				if (isset($current_range[$type]) && $current_range[$type] == $datetime->value) {
-					continue;
+			if ($range_type !== '') {
+				if (array_get_index($current_range, 'range_type', '') !== $range_type) {
+					$current_range['range_type'] = $range_type;
+					unset($current_range['oldest_date']);
+					unset($current_range['newest_date']);
+					$save = TRUE;
 				}
-				$current_range[$type] = $datetime->value;
-				$save = TRUE;
+			} else {
+				$current_range['range_type'] = '';
+				foreach (Array('oldest_date', 'newest_date') as $type) {
+					$datetime = new Asset_Attribute_DateTime();
+					$datetime->process($prefix.'_'.$type);
+
+					if (isset($current_range[$type]) && $current_range[$type] == $datetime->value) {
+						continue;
+					}
+					$current_range[$type] = $datetime->value;
+					$save = TRUE;
+				}
 			}
 		}//end if remove
 
