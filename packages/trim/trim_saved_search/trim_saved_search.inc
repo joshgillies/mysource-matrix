@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.12.4.5 2010/03/08 23:46:40 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.12.4.6 2010/03/09 00:23:27 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12.4.5 $
+* @version $Revision: 1.12.4.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -589,7 +589,7 @@ class TRIM_Saved_Search extends Data_Source
 		$record_search_options['sort_1_descending']		= $this->getDynamicVariableValue('sort_1_descending');
 		$record_search_options['sort_2_descending']		= $this->getDynamicVariableValue('sort_2_descending');
 		$record_search_options['sort_3_descending']		= $this->getDynamicVariableValue('sort_3_descending');
-		$record_search_options['record_type_filter']	= is_array($this->getDynamicVariableValue('record_type_filter')) ? array_keys ($this->getDynamicVariableValue('record_type_filter')) : '';
+		$record_search_options['record_type_filter']	= array_keys ($this->getDynamicVariableValue('record_type_filter'));
 
 		return $record_search_options;
 
