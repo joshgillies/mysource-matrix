@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.18 2010/03/09 01:25:31 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.19 2010/03/09 23:31:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,7 +145,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($asset->attr('range_type') !== '') {
+		if ($asset->attr('range_type') !== 'default') {
 			$range = $asset->attr('range_type');
 			$date_range_from = '---------- --:--:--';
 			$date_range_to   = '---------- --:--:--';
@@ -156,7 +156,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 		$range_types = Array(
-						''			=> 'Specified Range',
+						'default'	=> 'Specified Range',
 						'today'		=> 'Today',
 						'week'		=> 'This Week',
 						'month'		=> 'This Month',
@@ -218,10 +218,10 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 
-		$range_type = array_get_index($_POST, $prefix.'_range_type', '');
+		$range_type = array_get_index($_POST, $prefix.'_range_type', 'default');
 		$save       = FALSE;
 
-		if ($range_type !== '') {
+		if ($range_type !== 'default') {
 			if ($asset->attr('range_type') !== $range_type) {
 				$asset->setAttrValue('range_type', $range_type);
 				$asset->setAttrValue('date_range_from', '---------- --:--:--');
@@ -229,7 +229,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				$save = TRUE;
 			}
 		} else {
-			$asset->setAttrValue('range_type', '');
+			$asset->setAttrValue('range_type', 'default');
 			foreach (Array('date_range_from', 'date_range_to') as $type) {
 				$datetime = new Asset_Attribute_DateTime();
 				$datetime->process($prefix.'_'.$type);
@@ -286,7 +286,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		$o->closeField();
 
 		if ($rangeid === -1) {
-			$range = '';
+			$range = 'default';
 			$oldest_date = '---------- --:--:--';
 			$newest_date = '---------- --:--:--';
 		} else if (array_key_exists('range_type', $ranges[$rangeid]) === TRUE) {
@@ -294,13 +294,13 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$oldest_date = '---------- --:--:--';
 			$newest_date = '---------- --:--:--';
 		} else {
-			$range = '';
+			$range = 'default';
 			$oldest_date = $ranges[$rangeid]['oldest_date'];
 			$newest_date = $ranges[$rangeid]['newest_date'];
 		}
 
 		$range_types = Array(
-						''			=> 'Specified Range',
+						'default'	=> 'Specified Range',
 						'today'		=> 'Today',
 						'week'		=> 'This Week',
 						'month'		=> 'This Month',
@@ -370,7 +370,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		$ranges     = $asset->attr('date_ranges');
 		$rangeid    = $_POST[$prefix.'_curr_range_id'];
 		$range_name = $_POST[$prefix.'_range_name'];
-		$range_type = array_get_index($_POST, $prefix.'_range_type', '');
+		$range_type = array_get_index($_POST, $prefix.'_range_type', 'default');
 		$save       = FALSE;
 
 		if (isset($_POST[$prefix.'_remove'])) {
@@ -393,15 +393,15 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 
-			if ($range_type !== '') {
-				if (array_get_index($current_range, 'range_type', '') !== $range_type) {
+			if ($range_type !== 'default') {
+				if (array_get_index($current_range, 'range_type', 'default') !== $range_type) {
 					$current_range['range_type'] = $range_type;
 					unset($current_range['oldest_date']);
 					unset($current_range['newest_date']);
 					$save = TRUE;
 				}
 			} else {
-				$current_range['range_type'] = '';
+				$current_range['range_type'] = 'default';
 				foreach (Array('oldest_date', 'newest_date') as $type) {
 					$datetime = new Asset_Attribute_DateTime();
 					$datetime->process($prefix.'_'.$type);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.43 2010/03/09 01:25:31 lwright Exp $
+* $Id: page_whats_new.inc,v 1.44 2010/03/09 23:31:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -107,7 +107,7 @@ class Page_Whats_New extends Listing_Engine
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
 			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 
-			if ($ranges[$id]['range_type'] !== '') {
+			if ($ranges[$id]['range_type'] !== 'default') {
 				switch ($ranges[$id]['range_type']) {
 					case 'today':
 						$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
@@ -140,7 +140,7 @@ class Page_Whats_New extends Listing_Engine
 				$to = new Asset_Attribute_DateTime();
 				$to->value = $ranges[$id]['newest_date'];
 			}
-		} else if ($this->attr('range_type') !== '') {
+		} else if ($this->attr('range_type') !== 'default') {
 			switch ($this->attr('range_type')) {
 				case 'today':
 					$from = new Asset_Attribute_DateTime(0, ts_iso8601(strtotime('00:00:00 today')));
