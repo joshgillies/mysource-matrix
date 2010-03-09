@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: requirements.xml,v 1.1 2010/03/09 22:59:51 bpearson Exp $
+*
+*/
+-->
+<requirement_info>
+	<requirement>
+		<external_program>padre-iw</external_program>
+		<path>/opt/funnelback-oem/bin</path>
+		<description> - Missing funnelback binaries</description>
+		<version>9.0.2.1</version>
+		<version_arguments>-V</version_arguments>
+		<expected_return_code>0</expected_return_code>
+	</requirement>
+</requirement_info>
