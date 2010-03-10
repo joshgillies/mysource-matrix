@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.60.4.3 2009/11/05 06:33:28 cupreti Exp $
+* $Id: hipo_job_edit_status.inc,v 1.60.4.4 2010/03/10 22:02:29 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.4.3 $
+* @version $Revision: 1.60.4.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -202,7 +202,15 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$this->_running_vars['dependants_only'] = TRUE;
 				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, '', TRUE, FALSE);
 			}
-
+			
+			// exclude shadow children
+			foreach ($child_assets as $id => $asset) {
+				$id_parts = explode(':', $id);
+				if(isset($id_parts[1])) {
+					unset($child_assets[$id]);
+				}
+			}
+			
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_root']     = FALSE;
 		}
