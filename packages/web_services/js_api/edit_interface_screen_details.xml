@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2010/03/02 23:40:52 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2010/03/10 05:54:30 akarelia Exp $
 *
 */
 -->
@@ -75,6 +75,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="set_attribute">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="get_locks_info">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="acquire_lock">

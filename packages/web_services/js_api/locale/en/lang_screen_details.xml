@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2010/03/02 23:40:52 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.7 2010/03/10 05:54:30 akarelia Exp $
 *
 */
 -->
@@ -93,6 +93,10 @@
         </field>
         <field attribute="set_attribute">
             <display_name>Set Attribute</display_name>
+            <note />
+        </field>
+		<field attribute="get_locks_info">
+            <display_name>Get Lock Info</display_name>
             <note />
         </field>
         <field attribute="acquire_lock">

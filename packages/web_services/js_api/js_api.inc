@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.22 2010/03/03 23:24:03 cupreti Exp $
+* $Id: js_api.inc,v 1.23 2010/03/10 05:54:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -455,15 +455,42 @@ class JS_Api extends Page
 
 			break;
 
+			case	'getLocksInfo':
+				if ($this->attr('get_locks_info')) {
+					if ($ra) {
+						$screen = $_REQUEST['screen'];
+						$response = $this->getLocksInfo($asset->id, $screen);
+						if (empty($response)) {
+							$data[] = 'No lock are held by anyone on Asset "'.$asset->name.'" (#'.$asset->id.')';
+						} else {
+							foreach ($response as $screen_lock => $lock_info) {
+								if ($screen_lock == '0') $screen_lock = $screen;
+								$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock_info['userid']);
+								$expires_in = easy_time_total(($lock_info['expires'] - time()), TRUE);
+								if (!$expires_in) $expires_in = '1 second';
+								$data[] = '"'.$screen_lock.'" locks are held by User "'.$user->name.'" (#'.$lock_info['userid'].') for Asset "'.$asset->name.'" (#'.$asset->id.'). This is due to expire in '.$expires_in;
+							}
+						}// end if
+					} else {
+						$this->returnError('You do not have permission to access this asset');
+					}//end else
+				} else {
+					$this->returnError('The getLocksInfo function must be activated');
+				}
+				
+			break;
+
 			case	'acquireLock':
 				if ($this->attr('acquire_lock')) {
 					if ($wa) {
 						$screen = $_REQUEST['screen'];
-						$response = $am->acquireLock($asset->id, $screen);
-						if ($response) {
-							$data = Array('Asset #'.$asset->id.' lock\'s have been acquired');
+						$dependants_only = isset($_REQUEST['dependants_only']) ? $_REQUEST['dependants_only'] : TRUE ;
+						$force_acquire = isset($_REQUEST['force_acquire']) ? $_REQUEST['force_acquire'] : FALSE;
+						$response = $this->acquireLocks($asset, $screen, $dependants_only, $force_acquire);
+						if (empty($response)) {
+							$data[] = '"'.$screen.'" locks are now acquired for Asset "'.$asset->name.'" (#'.$asset->id.')';
 						} else {
-							$this->returnError('You cannot acquire locks on this asset for this screen');
+							$data = $response;
 						}// end if
 					} else {
 						$this->returnError('You do not have permission to access this asset');
@@ -478,12 +505,17 @@ class JS_Api extends Page
 				if ($this->attr('release_lock')) {
 					if ($wa) {
 						$screen = $_REQUEST['screen'];
-						$response = $am->releaseLock($asset->id, $screen);
-						if ($response) {
-							$data = Array('Asset #'.$asset->id.' lock\'s have been released');
+						$response = $this->getLocksInfo($asset->id, $screen);
+						if (empty($response)) {
+							$data[] =  'No lock are held by anyone on Asset "'.$asset->name.'" (#'.$asset->id.')';
 						} else {
-							$this->returnError('You cannot release locks on this asset');
-						}// end if
+							$response = $am->releaseLock($asset->id, $screen);
+								if ($response) {
+									$data[] ='"'.$screen.'" locks are now released for Asset "'.$asset->name.'" (#'.$asset->id.')';
+								} else {
+								$this->returnError('You cannot release locks on this asset');
+							}// end if
+						}//end else
 					} else {
 						$this->returnError('You do not have permission to access this asset');
 					}//end else
@@ -1502,6 +1534,88 @@ class JS_Api extends Page
 
 
 	/**
+	* Description: trys to acquire locks on the asset
+	*
+	* @param object	 $asset				the asset to acquire locks for
+	* @param string	 $screen			the screen for which to acquire locks for
+	* @param boolean $dependants_only	whether dependants only or all children, defaults to true
+	* @param boolean $force_acquire		whether to attempt to forceably acquire the lock or not,  defaults to false
+	*
+	* @return array
+	* @access public
+	*/
+	public function acquireLocks(Asset $asset, $screen, $dependants_only , $force_acquire)
+	{
+		$return_array = Array();
+
+		//if the we arent trying to get all locks and if the locks name specified doesnt exist for this asset then start complaining
+		if(!in_array($screen, $GLOBALS['SQ_SYSTEM']->am->getLockTypes($asset->id, 'all')) && $screen != 'all') {
+			$return_array[] = '"'.$screen.'" type lock doesnt exist for Asset "'.$asset->name.'" (#'.$asset->id.').';
+			return $return_array;
+		}
+		
+		//lets prepare a hipo running vars
+		$res = NULL;
+		$locks = $this->getLocksInfo($asset->id, $screen);
+		if (empty($locks) || (!empty($locks) && $force_acquire)) {
+			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+			require_once $job_dir.'/hipo_job_acquire_locks.inc';
+			$init_hipo =& new Hipo_Job_Acquire_Locks();
+			$running_vars = Array(
+								'assetids'          => Array($asset->id),
+								'lock_type'         => $screen,
+								'forceably_acquire' => $force_acquire,
+								'dependants_only'   => $dependants_only,
+							);
+			$init_hipo->setRunningVars($running_vars);
+			$init_hipo->_steps = $init_hipo->getInitialStepData();
+			if (!$init_hipo->prepare()) {
+				$return_array[] = 'Could not initialise HIPO job';
+				return $return_array;
+			}
+			set_error_handler(Array(&$init_hipo, '_errorHandler'));
+				$init_hipo->freestyle();
+			restore_error_handler();
+			$return_array = $init_hipo->getErrors();
+		} else {
+			foreach ($locks as $screen_lock => $lock_info) {
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock_info['userid']);
+				$expires_in = easy_time_total(($lock_info['expires'] - time()), TRUE);
+				if (!$expires_in) $expires_in = '1 second';
+				$return_array[] = '"'.$screen_lock.'" locks are held by User "'.$user->name.'" (#'.$lock_info['userid'].') for Asset "'.$asset->name.'" (#'.$asset->id.'). This is due to expire in '.$expires_in;
+			}
+		}
+		return array_unique($return_array);
+	
+	}//end acquireLocks()
+
+
+	/**
+	* Returns an array of information about the current lock on this asset (if any)
+	*
+	* @param string		$assetid		the assetid of the asset that we want lock info for
+	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all locks that this asset has - 
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getLockInfo()
+	*/
+	public function getLocksInfo($assetid, $lock_types)
+	{
+		$return_array =  $GLOBALS['SQ_SYSTEM']->am->getLockInfo($assetid, $lock_types);
+		foreach ($return_array as $screen => $lock_info){
+			if (empty($lock_info)){
+				unset($return_array[$screen]);
+			}
+		}
+		if($lock_types != 'all' && !empty($return_array)) $return_array = Array ($return_array);
+
+		return $return_array;
+
+	}//end getLocksInfo()
+
+
+	/**
 	* Returns an error in JSON format
 	*
 	* @param string	 $error	The error to send back as JSON
@@ -2100,15 +2214,15 @@ function getAssetTypes(dataCallback)
 
 
 /**
-* Acquires a lock
+* Gets information for lock type passed
 *
 * @param string		asset_id		Id of the asset to get locks for
 * @param string		screen_name		The screen to get locks for
 * @param function	dataCallback	Custom callback function
 *
-* @version $Revision: 0.2
+*
 */
-function acquireLock(asset_id, screen_name, dataCallback)
+function getLocksInfo(asset_id, screen_name, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -2117,7 +2231,37 @@ function acquireLock(asset_id, screen_name, dataCallback)
 	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=acquireLock&id=' + asset_id + '&screen=' + screen_name;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLocksInfo&id=' + asset_id + '&screen=' + screen_name;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getLocksInfo()
+
+
+/**
+* Acquires a lock
+*
+* @param string		asset_id		Id of the asset to get locks for
+* @param string		screen_name		The screen to get locks for
+* @param boolean 	dependants_only	whether dependants only or all children, defaults to true
+* @param boolean 	force_acquire	whether to attempt to forceably acquire the lock or not,  defaults to false
+* @param function	dataCallback	Custom callback function
+*
+* @version $Revision: 0.2
+*/
+function acquireLock(asset_id, screen_name, dependants_only, force_acquire, dataCallback)
+{
+	if (!isset(dependants_only)) dependants_only = '1';
+	if (!isset(force_acquire)) force_acquire = '0';
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// If the user does not set it, we get all locks
+	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=acquireLock&id=' + asset_id + '&screen=' + screen_name + '&dependants_only=' + dependants_only + '&force_acquire=' + force_acquire;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -2346,9 +2490,6 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-
-	// Check to see if we have set any levels
-	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	var keywords = '';
 	for (var keyword in keywords_array) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.7 2010/03/02 23:40:52 akarelia Exp $
+* $Id: js_api_management.inc,v 1.8 2010/03/10 05:54:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -189,6 +189,14 @@ class JS_Api_Management extends Asset_Management
 											   			),
 						'get_asset_types'			=> Array(
 														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+											   			),
+						'get_locks_info'			=> Array(
+														'added'			=> '0.3',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
