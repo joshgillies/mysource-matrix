@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.712.2.4 2010/02/25 01:24:38 bpearson Exp $
+* $Id: asset.inc,v 1.712.2.5 2010/03/10 22:47:35 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.712.2.4 $
+* @version $Revision: 1.712.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1269,7 +1269,7 @@ class Asset extends MySource_Object
 		$name            = check_char_encoding(substr($this->_getName(FALSE, $default_context), 0, 255));
 		$short_name      = check_char_encoding(substr($this->_getName(TRUE, $default_context), 0, 255));
 
-		
+
 
 		// if we have an ID hit the DB
 		if ($this->id) {
@@ -3010,7 +3010,7 @@ class Asset extends MySource_Object
 				$msg_reps['new_value'] = ellipsisize($attr_value,30);
 				$msg_type .= '.scalar';
 			}
-			
+
 			$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 			$sml_message->parameters['assetid'] = $this->id;
 			$ms->logMessage($sml_message);
@@ -3208,7 +3208,7 @@ class Asset extends MySource_Object
 	* @see saveAttributes()
 	*/
 	public function setAttrValue($name, $value)
-	{		
+	{
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
@@ -5284,7 +5284,7 @@ class Asset extends MySource_Object
 	public function updateLookups($auto_add_remaps = TRUE)
 	{
 		$paths = $this->getWebPaths();
-		
+
 		// get ready to log what happens
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
@@ -5479,7 +5479,7 @@ class Asset extends MySource_Object
 
 						// Get the protocol info for this new url
 						$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($new_url);
-						
+
 						$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
 						$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
 
@@ -5730,13 +5730,34 @@ class Asset extends MySource_Object
 					$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 
 					// get the first new URL
-					reset($done_urls);
-					$new_url = current($done_urls);
-					$old_url = $url_data['url'];
 					// don't add a remap if we don't have a URL to map to
-					if ($new_url != '') {
+					if (count($done_urls) > 0) {
 						foreach ($old_urls as $url_data) {
 							$old_url = $url_data['url'];
+
+							// Search the new URLs for the one closest to an old
+							// URL..
+							$closest_url = NULL;
+							$most_bits_matched = -1;
+
+							foreach ($done_urls as $new_url) {
+								$new_url = strip_url($new_url, TRUE);
+								$new_url_bits = explode('/', $new_url);
+								$old_url_bits = explode('/', $old_url);
+
+								for ($bits = 0; $bits < count($old_url_bits); $bits++) {
+									if ((string)$old_url_bits[$bits] !== (string)$new_url_bits[$bits]) {
+										break;
+									}
+								}//end for
+
+								if ($bits > $most_bits_matched) {
+									$closest_url = $new_url;
+									$most_bits_matched = $bits;
+								}
+
+							}//end foreach URL
+
 							// this URL is already in the list of new URLs, therefore we don't need a remap
 							// because we're only making a remap to ourselves
 							if (!in_array($old_url, $done_urls)) {
@@ -5748,10 +5769,10 @@ class Asset extends MySource_Object
 									}
 								}
 								if ($url_data['http']) {
-									$rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
+									$rm->addRemapURL('http://'.$old_url,  'http://'.$closest_url);
 								}
 								if ($url_data['https']) {
-									$rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+									$rm->addRemapURL('https://'.$old_url, 'https://'.$closest_url);
 								}
 							}
 						}
@@ -5930,7 +5951,7 @@ class Asset extends MySource_Object
 		return $string;
 
 	}//end replaceKeywordsInString()
-	
+
 
 }//end class
 
