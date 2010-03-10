@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.78.2.1 2010/01/17 22:29:19 ewang Exp $
+* $Id: asset_edit_fns.inc,v 1.78.2.2 2010/03/10 22:59:31 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78.2.1 $
+* @version $Revision: 1.78.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -253,6 +253,7 @@ class Asset_Edit_Fns extends MySource_Object
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
 				<?php
 					if ($admin_access) {
@@ -277,6 +278,7 @@ class Asset_Edit_Fns extends MySource_Object
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
+					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
 					<?php
 						if ($admin_access) {
@@ -362,7 +364,7 @@ class Asset_Edit_Fns extends MySource_Object
 				foreach ($urls as $index => $url_to_delete) {
 					if ($url_info['url'] === $url_to_delete && $url_info['never_delete']) {
 						unset($urls[$index]);
-					}					
+					}
 				}
 			}
 			
@@ -721,37 +723,37 @@ class Asset_Edit_Fns extends MySource_Object
 
 
 	/**
-        * Paints the Automatic Remapping checkbox
-        *
-        * @param Remap_Manager          $asset  the asset to which we belong
-        * @param Backend_Outputter      $o      the outputter class
-        * @param string                 $prefix prefix for the form element
-        *
-        * @return boolean
-        * @access public
-        */
-        function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
-        {
-                $write_access = $asset->writeAccess('lookups');
+		* Paints the Automatic Remapping checkbox
+		*
+		* @param Remap_Manager          $asset  the asset to which we belong
+		* @param Backend_Outputter      $o      the outputter class
+		* @param string                 $prefix prefix for the form element
+		*
+		* @return boolean
+		* @access public
+		*/
+		function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
+		{
+				$write_access = $asset->writeAccess('lookups');
 
 		if ($write_access) {
 			$o->closeField();
 
 			$o->openField(translate('web_paths_auto_add_remaps'));
 				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-		                $remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
+						$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
 
-		                // paint checkbox
+						// paint checkbox
 				check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
 
 				$o->note(translate('web_paths_auto_add_remaps_note'));
 			$o->closeField();
-                }
+				}
 
 
-                return $write_access;
+				return $write_access;
 
-        }//end paintAutomaticRemapSetting()
+		}//end paintAutomaticRemapSetting()
 
 
 }//end class
