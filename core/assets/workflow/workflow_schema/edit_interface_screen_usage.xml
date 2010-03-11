@@ -10,11 +10,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.8 2010/03/11 04:42:10 lwright Exp $
+* $Id: edit_interface_screen_usage.xml,v 1.1 2010/03/11 04:42:10 lwright Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
-</screens>
+<contents>
+	<section name="Schema Usage" write_access="none">
+		<function_call>
+			<paint_function name="paintUsage" />
+		</function_call>
+	</section>
+</contents>
