@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.790 2010/03/03 23:14:30 cupreti Exp $
+* $Id: asset_manager.inc,v 1.791 2010/03/11 22:36:37 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.790 $
+* @version $Revision: 1.791 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8924,7 +8924,10 @@ class Asset_Manager extends MySource_Object
 						WHERE
 					';
 
-					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+					$userids = $current_user->getUserGroups();
+					$this->forgetAsset($current_user);
+
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
 					$public_userid = (String)$this->getSystemAssetid('public_user');
 					$userids[] = $public_userid;
