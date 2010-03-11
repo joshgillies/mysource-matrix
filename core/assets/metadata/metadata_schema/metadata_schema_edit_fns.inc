@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.56 2010/03/11 04:40:30 lwright Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.57 2010/03/11 05:20:43 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -388,10 +388,10 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 													JOIN sq_ast_lnk lb ON tb.linkid = lb.linkid
 														JOIN sq_ast_mdata mb ON lb.minorid = mb.assetid)
 									WHERE mb.schemaid = ma.schemaid
-									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size AND SUBSTRING(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
+									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size AND SUBSTR(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
 									AND ma.granted = mb.granted
 									AND ma.cascades = mb.cascades
-								) ORDER BY length(treeid), treeid;';
+								) ORDER BY length(treeid), treeid';
 
 		$query = MatrixDAL::preparePdoQuery($schema_treeids_sql);
 		MatrixDAL::bindValueToPdo($query, 'schemaid', $asset->id);

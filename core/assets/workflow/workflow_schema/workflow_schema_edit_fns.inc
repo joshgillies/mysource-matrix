@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.35 2010/03/11 04:42:10 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.36 2010/03/11 05:20:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -554,10 +554,10 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 													JOIN sq_ast_lnk lb ON tb.linkid = lb.linkid
 														JOIN sq_ast_wflow wb ON lb.minorid = wb.assetid)
 									WHERE wb.schemaid = wa.schemaid
-									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size AND SUBSTRING(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
+									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size AND SUBSTR(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
 									AND wa.granted = wb.granted
 									AND wa.cascades = wb.cascades
-								) ORDER BY length(treeid), treeid;';
+								) ORDER BY length(treeid), treeid';
 
 		$query = MatrixDAL::preparePdoQuery($schema_treeids_sql);
 		MatrixDAL::bindValueToPdo($query, 'schemaid', $asset->id);
