@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.30 2009/12/20 22:40:11 cupreti Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.31 2010/03/11 04:45:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,14 +75,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('all');
 
-		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
-
 		// check if we need to filter the url or remap url
 		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
 		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
 		$remap_urls = Array();
 		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+			$remap_entries_tag = 'remap_entries_filtered';
+			$no_entries_tag = 'no_url_remappings_filtered';
 			$bind_vars = Array(
 					'url' 		=> (string) '%'.$url_filter.'%',
 					'remap_url'	=> (string) '%'.$remap_url_filter.'%',
@@ -94,6 +94,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 		} else {
+			$remap_entries_tag = 'remap_entries';
+			$no_entries_tag = 'no_url_remappings';
 			try {
 				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
 			} catch (Exception $e) {
@@ -113,79 +115,57 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField('&nbsp;');
 
 		if (empty($remap_urls)) {
-			echo translate('no_url_remappings');
+			echo translate($no_entries_tag);
 			return FALSE;
 		}
 
 		$num_per_page = 100;
 		$total_assets = count($remap_urls);
-		$remap_urls = array_slice($remap_urls, $link_offset, $num_per_page);
 		$num_pages = ceil($total_assets / $num_per_page);
 
-		?>
+		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
+		$page_num = max($page_num, 1);
+		$page_num = min($page_num, $num_pages);
+
+		if ($num_pages == 1) {
+			$page_tag = translate('page_number', $page_num, $num_pages);
+		} else {
+			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
+		}
+		$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate($remap_entries_tag)));
+
+		$remap_urls = array_slice($remap_urls, ($page_num - 1) * $num_per_page, $num_per_page);
+
+		$links = Array(
+					'first'		=> '&lt;&lt;',
+					'previous'	=> '&lt;',
+					'page'		=> $page_tag,
+					'next'		=> '&gt;',
+					'last'		=> '&gt;&gt;',
+				);
+
+		if ($page_num > 1) {
+			$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
+			$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+		} else {
+			$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+			$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+		}
+
+		if ($page_num < $num_pages) {
+			$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
+			$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+		} else {
+			$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+			$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+		}
+
+		hidden_field($prefix.'_remap_urls_page', $page_num); ?>
+
 		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header-header" colspan="5"><b><?php
-					hidden_field($prefix.'_link_offset', $link_offset);
-					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
-					}
-					?>
-					&lt;&lt;
-					<?php
-					if ($link_offset > 0) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?> &nbsp; &nbsp; <?php
-					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
-					}
-					?>
-					&lt;
-					<?php
-					if ($link_offset > 0) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
-					}
-					?>
-					&gt;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?> &nbsp; &nbsp; <?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
-					}
-					?>
-					&gt;&gt;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?></b>
-				</td>
+			<tr class="sq-backend-table-row">
+				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
@@ -197,10 +177,10 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						<td class="sq-backend-table-header">
 							<?php
 							label(translate('delete_question'), $prefix.'_select_all');
-							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");							
+							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							?>
 						</td>
-						
+
 						<?php
 					}
 				?>
@@ -218,9 +198,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					// any warning text to show for this remapped URL (any possible problems)
 					$warning = '';
-					
+
 					// To let the process function know the remaps on the current page
-					hidden_field($prefix.'_current_page_remaps['.$url_info['url'].']', $link_offset);
+					hidden_field($prefix.'_current_page_remaps['.$url_info['url'].']', $page_num);
 
 					// check to see if the URL is actually being used by a real asset within the system
 					// because if it is, this remap will never be used
@@ -248,7 +228,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 								<?php
 								if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
 									check_box($prefix.'_never_delete_remap['.$url_info['url'].']',1, TRUE);
-									
+
 								} else {
 									check_box($prefix.'_never_delete_remap['.$url_info['url'].']');
 								}
@@ -301,12 +281,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (isset($_POST[$prefix.'_never_delete_remap'])) {
-			
-			// Only update the remaps in current page 
+
+			// Only update the remaps in current page
 			$urls_to_check = array_keys($_POST[$prefix.'_never_delete_remap']);
 			$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
 			$urls_to_uncheck = array_diff($urls_in_current_page, $urls_to_check);
-			
+
 			try {
 				$bind_vars = Array(
 								'never_delete'		=> '0',
@@ -322,7 +302,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
 		} else {
-			
+
 			// When 'never delete' option is not checked for any remaps, only the remaps in current page are to be unchecked
 			$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
 			try {
@@ -334,7 +314,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			} catch (Exception $e) {
 				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-			}			
+			}
 		}
 
 		if (isset($_POST[$prefix.'_delete_remap'])) {
@@ -387,7 +367,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField(translate('new_url'));
 			text_box($prefix.'_add_remap_new_url', '', 50);
 		$o->closeField();
-		
+
 		$o->openField(translate('never_delete'));
 			check_box($prefix.'_add_never_delete_option');
 		$o->closeField();
@@ -567,61 +547,61 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-        * Paints the Automatic Remapping checkbox
-        *
-        * @param Remap_Manager		$asset	the asset to which we belong
-        * @param Backend_Outputter	$o	the outputter class
-        * @param string			$prefix	prefix for the form element
-        *
-        * @return boolean
-        * @access public
-        */
-        public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
-        {
-                $write_access = $asset->writeAccess('attributes');
-                $remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
+		* Paints the Automatic Remapping checkbox
+		*
+		* @param Remap_Manager		$asset	the asset to which we belong
+		* @param Backend_Outputter	$o	the outputter class
+		* @param string			$prefix	prefix for the form element
+		*
+		* @return boolean
+		* @access public
+		*/
+		public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+		{
+				$write_access = $asset->writeAccess('attributes');
+				$remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
 
 		$o->closeField();
 		$o->openField(translate('remap_manager_automatically_add_remaps_question'));
 
-                // paint checkbox
-                if ($write_access) {
-                        check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
-                } else {
-                        ?>
-                                <img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-                        <?php
-                }
+				// paint checkbox
+				if ($write_access) {
+						check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+				} else {
+						?>
+								<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+						<?php
+				}
 
 		$o->note(translate('remap_manager_auto_add_remaps_note'));
 
 		$o->closeField();
 
-                return $write_access;
+				return $write_access;
 
-        }//end paintAutomaticRemappingCheckbox()
+		}//end paintAutomaticRemappingCheckbox()
 
 
-        /**
-        * Process the Automatic Remapping checkbox
-        *
-        * @param Remap_Manager		$asset	the asset to which we belong
-        * @param Backend_Outputter	$o	the outputter class
-        * @param string			$prefix	prefix for the form element
-        *
-        * @return boolean
-        * @access public
-        */
-        public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
-        {
-                if (!$asset->writeAccess('attributes')) return FALSE;
+		/**
+		* Process the Automatic Remapping checkbox
+		*
+		* @param Remap_Manager		$asset	the asset to which we belong
+		* @param Backend_Outputter	$o	the outputter class
+		* @param string			$prefix	prefix for the form element
+		*
+		* @return boolean
+		* @access public
+		*/
+		public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+		{
+				if (!$asset->writeAccess('attributes')) return FALSE;
 
-                $remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
-                $asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
+				$remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
+				$asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
 
-                return TRUE;
+				return TRUE;
 
-        }//end processAutomaticRemappingCheckbox()
+		}//end processAutomaticRemappingCheckbox()
 
 
 }//end class
