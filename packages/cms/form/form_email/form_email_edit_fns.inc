@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.103 2010/02/28 23:57:48 akarelia Exp $
+* $Id: form_email_edit_fns.inc,v 1.104 2010/03/11 04:47:10 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,8 +131,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
 		if ($num_per_page < 1) $num_per_page = 50;
 
-		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
-
 		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
@@ -199,17 +197,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		$num_pages = ceil($asset_count / $num_per_page);
+		$page_num = array_get_index($_POST, $prefix.'_submissions_page', 1);
+		$page_num = max($page_num, 1);
+		$page_num = min($page_num, $num_pages);
 
-
-		if (($submission_offset % $num_per_page) != 0) {
-			$submission_offset = $submission_offset - ($submission_offset % $num_per_page);
-		}
-
-		if ($submission_offset < 0) $submission_offset = 0;
-
-		if ($submission_offset >= $asset_count) {
-			$submission_offset = ($num_pages - 1) * $num_per_page;
-		}
+		$submission_offset = ($page_num - 1) * $num_per_page;
 
 		$sql = $sql.$where.$order;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -218,7 +210,40 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
 		} else {
-			?><style type="text/css">
+			if ($num_pages == 1) {
+				$page_tag = translate('page_number', $page_num, $num_pages);
+			} else {
+				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_submissions_page');
+			}
+			$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($asset_count, $page_num * $num_per_page), $asset_count, strtolower(translate('submissions')));
+
+			$links = Array(
+						'first'		=> '&lt;&lt;',
+						'previous'	=> '&lt;',
+						'page'		=> $page_tag,
+						'next'		=> '&gt;',
+						'last'		=> '&gt;&gt;',
+					);
+
+			if ($page_num > 1) {
+				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', 1)">'.$links['first'].'</a>';
+				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			} else {
+				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+			}
+
+			if ($page_num < $num_pages) {
+				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.$num_pages.')">'.$links['last'].'</a>';
+				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_submissions_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			} else {
+				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+			}
+
+			hidden_field($prefix.'_submissions_page', $page_num); ?>
+
+			<style type="text/css">
 				td.sq-form-sub {
 					padding-top: 0px;
 				}
@@ -270,6 +295,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			//--></script>
 			<table class="sq-backend-table">
 			<tr>
+				<td class="sq-backend-table-header-header" colspan="2"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+			</tr>
+			<!-- <tr>
 			<td class="sq-form-sub-header" colspan="2"><b><?php
 				hidden_field($prefix.'_submission_offset', $submission_offset);
 				if ($submission_offset > 0) {
@@ -333,7 +362,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			</td>
 			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo translate('cms_form_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
 			</td>
-			</tr>
+			</tr> -->
 			<tr>
 				<th>
 					<?php echo translate('asset_id') ?>
@@ -856,7 +885,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Get the submission log from the database 
+	* Get the submission log from the database
 	*
 	* @param array	$bind_vars	the bind vars to process
 	*
@@ -874,11 +903,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		try {
 			if (MatrixDAL::getDbType() === 'oci') {
-				$sql = "SELECT a.assetid, a.type_code, v.custom_val AS submitted, a.created_userid 
-						 FROM sq_ast a 
-						 INNER JOIN sq_ast_typ_inhd t ON a.type_code=t.type_code 
-						 INNER JOIN sq_ast_lnk l ON l.minorid=a.assetid 
-						 INNER JOIN sq_ast_attr_val v ON v.assetid=a.assetid 
+				$sql = "SELECT a.assetid, a.type_code, v.custom_val AS submitted, a.created_userid
+						 FROM sq_ast a
+						 INNER JOIN sq_ast_typ_inhd t ON a.type_code=t.type_code
+						 INNER JOIN sq_ast_lnk l ON l.minorid=a.assetid
+						 INNER JOIN sq_ast_attr_val v ON v.assetid=a.assetid
 						 INNER JOIN sq_ast_attr n ON n.attrid=v.attrid";
 				$where = " WHERE";
 				$assetids = array_get_index($bind_vars, 'assetids', Array());
@@ -889,9 +918,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					$where .= " l.majorid IN (".implode(',', $assetids).") AND";
 				}//end if
 				$where .= " t.inhd_type_code='form_submission'
-						    AND n.name=:name AND v.contextid=:context 
-						    AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_time 
-						    AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) < :to_time";
+							AND n.name=:name AND v.contextid=:context
+							AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) > :from_time
+							AND TO_CHAR(DBMS_LOB.SUBSTR(v.custom_val, 30, 1)) < :to_time";
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'name', array_get_index($bind_vars, 'name', ''));
 				MatrixDAL::bindValueToPdo($query, 'context', array_get_index($bind_vars, 'context', ''));
