@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.55 2008/10/15 03:09:09 bpearson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.56 2010/03/11 04:40:30 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -281,7 +281,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$edit_fns = $section->getEditFns();
 			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids)) {
 				$res = TRUE;
-				
+
 				foreach($section_cascade_values_asset_ids as $asset_id => $val) {
 					$schema_cascade_values_asset_ids[$asset_id] = 1;
 				}
@@ -366,6 +366,231 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		return TRUE;
 
 	}//end generateMetadata()
+
+
+	//--        METADATA SCHEMA USAGE        --//
+
+
+	public function paintUsage(Metadata_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		$page_size = 10;
+
+		$o->openRaw();
+
+		$schema_treeids_sql = 'SELECT
+								treeid, assetid, granted, cascades
+								FROM (sq_ast_lnk_tree ta
+									JOIN sq_ast_lnk la ON ta.linkid = la.linkid
+										JOIN sq_ast_mdata ma ON la.minorid = ma.assetid)
+								WHERE ma.schemaid = :schemaid
+								AND NOT EXISTS (
+									SELECT * FROM (sq_ast_lnk_tree tb
+													JOIN sq_ast_lnk lb ON tb.linkid = lb.linkid
+														JOIN sq_ast_mdata mb ON lb.minorid = mb.assetid)
+									WHERE mb.schemaid = ma.schemaid
+									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size AND SUBSTRING(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
+									AND ma.granted = mb.granted
+									AND ma.cascades = mb.cascades
+								) ORDER BY length(treeid), treeid;';
+
+		$query = MatrixDAL::preparePdoQuery($schema_treeids_sql);
+		MatrixDAL::bindValueToPdo($query, 'schemaid', $asset->id);
+		MatrixDAL::bindValueToPdo($query, 'tree_size', SQ_CONF_ASSET_TREE_SIZE);
+		MatrixDAL::bindValueToPdo($query, 'tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
+		$treeids = MatrixDAL::executePdoAssoc($query);
+
+		if (count($treeids) > 0) {
+			$tree_tops = $this->_getTreeTops($asset, $treeids);
+
+			$num_pages = ceil(count($tree_tops) / $page_size);
+			$page_num = array_get_index($_POST, $prefix.'_usage_page', 1);
+			$page_num = max($page_num, 1);
+			$page_num = min($page_num, $num_pages);
+
+			if ($num_pages == 1) {
+				$page_tag = translate('page_number', $page_num, $num_pages);
+			} else {
+				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+			}
+			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('trees')));
+
+			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
+
+			$links = Array(
+						'first'		=> '&lt;&lt;',
+						'previous'	=> '&lt;',
+						'page'		=> $page_tag,
+						'next'		=> '&gt;',
+						'last'		=> '&gt;&gt;',
+					);
+
+			if ($page_num > 1) {
+				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			} else {
+				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+			}
+
+			if ($page_num < $num_pages) {
+				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			} else {
+				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+			}
+
+			hidden_field($prefix.'_usage_page', $page_num); ?>
+			<table class="sq-backend-table">
+			<thead>
+			<tr class="sq-backend-table-row">
+				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+			</tr>
+			<tr class="sq-backend-table-row">
+				<th class="sq-backend-table-cell"><?php echo translate('asset'); ?></th>
+				<th style="width: 15%" class="sq-backend-table-cell"><?php echo translate('granted_question') ?></th>
+				<th style="width: 15ex" class="sq-backend-table-cell"><?php echo translate('cascade_question') ?></th>
+			</tr>
+			</thead>
+			<tbody>
+			<?php
+
+			foreach ($tree_tops as $tt_assetid => &$tree_top_info) {
+				$root_tree = $tree_top_info;
+				unset($root_tree['sub_trees']);
+				$root_trees = array_merge(Array($root_tree), $tree_top_info['sub_trees']);
+
+				foreach ($root_trees as $root_assetid => &$tree_info) {
+
+					?><tr class="sq-backend-table-row">
+						<td class="sq-backend-table-cell">
+						<?php
+
+						$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
+
+						echo ($tree_info['depth'] === 0 ? '' : '<span style="padding-left: '.($tree_info['depth']*5).'ex">');
+						echo translate('asset_and_child_count_0', $tag_line);
+						echo ($tree_info['depth'] === 0 ? '' : '</span>');
+
+						?></td>
+						<td class="sq-backend-table-cell">
+							<strong><span style="color: <?php echo (($tree_info['granted'] == '0') ? 'red' : 'green'); ?>"><?php echo (($tree_info['granted'] == '0') ? translate('denied') : translate('applied')) ?></span></strong>
+						</td>
+						<td class="sq-backend-table-cell">
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($tree_info['cascades'] === '1' ? 'tick' : 'cross'); ?>.gif" width="15" height="15" style="vertical-align: middle;" alt="<?php echo translate($tree_info['cascades'] === '1' ? 'yes' : 'no'); ?>" />
+						</td>
+					</tr>
+					<?php
+				}//end foreach entry
+
+				unset($tree_info);
+
+			}//end foreach top tree
+			?>
+
+			</tbody>
+			</table>
+			<?php
+
+			$o->note(translate('core_schema_usage_explanation'));
+
+		} else {
+			$o->note(translate('core_schema_usage_no_assets'));
+		}
+
+		$o->closeRaw();
+
+		return FALSE;
+
+	}//end paintUsage()
+
+
+	/**
+	* Get the "tree tops" in the supplied list of assets
+	*
+	* An asset is a "tree top" in a set of assets if none of its ancestors
+	* in the asset tree are in the set with it.  Conversely if an asset's parent
+	* or grandparent etc is in the set, then that asset is not a tree top.
+	*
+	* Returns an array indexed by treeid, where each value is another array
+	* containing assetid and number of children of that assetid found in
+	* the set.
+	*
+	* @param array	$assetids	The assetids we are analysing
+	*
+	* @return array
+	* @access public
+	*/
+	public function _getTreeTops(Metadata_Schema $asset, Array $treeids)
+	{
+		$used_assetids = Array();
+
+		$all_treeids = Array();
+		foreach ($treeids as $treeid) {
+			$all_treeids[$treeid['treeid']] = $treeid;
+		}
+		unset($treeids);
+
+		$res = Array();
+		foreach ($all_treeids as $tree_info) {
+			$treeid = $tree_info['treeid'];
+			$treeid_copy = $treeid;
+			$top_parent  = $treeid;
+			$depth       = 0;
+			$used_sub_tree = FALSE;
+
+			while (empty($treeid_copy) === FALSE) {
+				if (isset($res[$treeid_copy]) === TRUE) {
+					if ($used_sub_tree === FALSE) {
+						$used_sub_tree = TRUE;
+					}
+				}
+
+				if (($used_sub_tree === TRUE) && (array_key_exists($treeid_copy, $all_treeids) === TRUE)) {
+					$top_parent = $treeid_copy;
+					$depth++;
+				}
+
+				$treeid_copy = substr($treeid_copy, 0, -SQ_CONF_ASSET_TREE_SIZE);
+			}
+
+			$res[$treeid] = $tree_info;
+			$res[$treeid]['top_parent'] = $top_parent;
+			$res[$treeid]['depth'] = $depth;
+			$res[$treeid]['sub_trees'] = Array();
+
+			// Have we seen this asset before? If so, let it go, but mark it
+			// to be dumped afterwards so we only have one of each asset
+			if (array_search($tree_info['assetid'], $used_assetids) === FALSE) {
+				$res[$treeid]['dupe'] = FALSE;
+				$used_assetids[] = $tree_info['assetid'];
+			} else {
+				$res[$treeid]['dupe'] = TRUE;
+			}
+		}
+
+		foreach ($res as $key => &$res_item) {
+			if ($res_item['dupe'] === TRUE) {
+				unset($res[$key]);
+			} else {
+				if ($res_item['depth'] > 0) {
+					$res[$res_item['top_parent']]['sub_trees'][$res_item['treeid']] =& $res_item;
+					unset($res[$key]);
+				}
+			}
+		}
+
+		// Sort each sub-tree top-to-bottom, to ensure correct tree order
+		foreach ($res as $key => &$res_item) {
+			uksort($res_item['sub_trees'], create_function('$key1,$key2', 'return strcmp($key1, $key2);'));
+		}
+
+		unset($res_item);
+
+		return $res;
+
+	}//end _getTreeTops()
 
 
 }//end class
