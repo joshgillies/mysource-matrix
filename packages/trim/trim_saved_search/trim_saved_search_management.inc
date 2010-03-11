@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.4.4.4 2010/03/04 06:09:59 ewang Exp $
+* $Id: trim_saved_search_management.inc,v 1.4.4.5 2010/03/11 05:32:56 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4.4.4 $
+* @version $Revision: 1.4.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -292,8 +292,60 @@ class TRIM_Saved_Search_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 			pre_echo($asset_name.' SUCCESSFULLY UPGRADED TO VERSION 0.2');
+			
+			$current_version = '0.2';
 		}//end if
 
+				
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('STARTING UPGRADE OF '.$asset_name.' FROM VERSION '.$current_version.' TO VERSION 0.3');
+			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', FALSE, TRUE);
+			
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating TRIM Saved Search...');
+			
+		
+			// find every trim saved search asset and update the var list
+			foreach ($saved_search_ids as $id => $blank) {
+				$saved_search = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $blank['type_code']);
+				$var_list = $saved_search->attr('dynamic_vars');
+				if(!isset($var_list['record_type_filter'])) {
+					$var_list['record_type_filter'] = Array();
+				}
+				
+				// Save the attribute
+				$saved_search->setAttrValue('dynamic_vars', $var_list);
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+				if (!$saved_search->saveAttributes()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+					pre_echo($asset_name.' UPGRADE FAILED - Could not save attributes');
+					return FALSE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($saved_search);
+				unset($saved_search);
+				
+				$count++;
+			}
+			
+			pre_echo('Updated TRIM Saved Search - '.$count.' assets(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo($asset_name.' SUCCESSFULLY UPGRADED TO VERSION 0.3');
+		}//end if
+		
 		return TRUE;
 
 	}//end _upgrade()
