@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.55 2009/06/12 05:17:05 bpearson Exp $
+* $Id: edit.js,v 1.56 2010/03/11 04:38:05 lwright Exp $
 *
 */
 
@@ -267,7 +267,7 @@ function expandOptionList(input, reorder)
 		moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
 		//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
-		var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
+		var buttonScript =  moveDownButton.getElementsByTagName("script")[0];
 		var browserAgent = navigator.userAgent.toLowerCase();
 		if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
 			moveDownButton.removeChild(buttonScript);
@@ -314,7 +314,7 @@ function expandOptionList(input, reorder)
 		moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
 		//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
-		var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
+		var buttonScript =  moveUpButton.getElementsByTagName("script")[0];
 		var browserAgent = navigator.userAgent.toLowerCase();
 		if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
 				moveUpButton.removeChild(buttonScript);
@@ -629,4 +629,77 @@ function toggleNextElt(elt, targetType)
 		}
 	}
 	with (target.style) { display = (display == 'none') ? 'block' : 'none'; }
+}
+
+
+/**
+* Provide a standard interface for jumping between pages in an edit interface
+*
+* - Sets the value of a hidden field of your choice
+* - Resubmits the form (but without 'submit_form' enabled, meaning changes
+*   will not take effect)
+* - Returns false so the link you use doesn't activate on onClick or similar
+*   (ie. you can do "return sq_pager_jump(...);" for this to work)
+*
+* BYO:
+* - Hidden form field to act as your pager
+* - Links to do the jumping (best placed in onclick)
+*
+* How you do your paging is up to you - whether you send a page number or an
+* offset, that is up to your processing. This is just to stop having to put
+* a pager script everywhere it's necessary. :-)
+*
+* If val is NaN (eg. if passed from sq_pager_prompt()), nothing will happen.
+*
+* @param string	page_field	The hidden field's name.
+* @param mixed	val			The value to send to the hidden field.
+*
+* @return boolean
+* @access public
+*/
+function sq_pager_jump(page_field, val)
+{
+	if (isNaN(val) == false) {
+		set_hidden_field(page_field, val);
+		set_hidden_field('process_form', '0');
+		submit_form();
+	}
+	return false;
+}
+
+
+/**
+* Provide a standard interface for providing a prompt for jumping between pages
+*
+* Works best in situations where the page numbers are sequential, and not offsets.
+* If it's an offset, you could possibly do something like:
+* <pre>
+*   var pageNo = sq_pager_prompt(min, max);
+*   if (!isNaN(pageNo)) { sq_pager_jump('page_field', (pageNo - 1) * page_size); }
+* </pre>
+*
+* But would be better if you just used sequential numbers instead:
+* <pre>
+*   sq_pager_jump(sq_pager_prompt(min, max));
+* </pre>
+*
+* Returns NaN if not a valid number (according to parseInt). If passed to
+* sq_pager_jump as in the second example, this will become a 'no-op'.
+*
+* @param string	page_field	The hidden field's name.
+* @param mixed	val			The value to send to the hidden field.
+*
+* @return boolean
+* @access public
+*/
+function sq_pager_prompt(min, max)
+{
+	var pageNo = prompt(js_translate('sq_pager_prompt_js', min, max));
+	pageNo = parseInt(pageNo, 10);
+	if (isNaN(pageNo) == false) {
+		if ((pageNo >= min) && (pageNo <= max)) {
+			return pageNo;
+		}
+	}
+	return NaN;
 }
