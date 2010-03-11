@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.353 2010/03/11 04:52:17 lwright Exp $
+* $Id: lang_strings.xml,v 1.354 2010/03/11 05:15:36 lwright Exp $
 *
 */
 
@@ -1587,6 +1587,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="user_defined_layouts">User Defined Layouts</string>
 	<string source="not_customised">Not customised</string>
 
+
 	<string source="rollback_mode_warning_message">The system is as it appeared on %s.&lt;br /&gt;While viewing in rollback mode you cannot make any changes to the system.</string>
 	<string source="exit_rollback_view">Exit Rollback View</string>
 	<string source="in_rollback_mode">You are currently viewing the system in rollback mode</string>
@@ -2780,5 +2781,6 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<p>Where the applying or denying of the schema is cascaded unaffected through a tree of assets, only the top asset of that tree will be displayed. However, if any children underneath the asset do anything different to its parent - such as denying the schema where its parent had applied (or vice-versa), or it no longer cascades to new assets - a child entry in the table is created.</p>]]></string>
 
 	<string source="core_schema_usage_no_assets"><![CDATA[<p>This schema is not applied to any assets.</p>]]></string>
+	<string source="core_design_usage_no_assets"><![CDATA[<p>This design is not applied to any assets.</p>]]></string>
 
 </strings>
