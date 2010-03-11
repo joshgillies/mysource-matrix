@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.133 2009/08/28 05:18:32 bpearson Exp $
+* $Id: design_edit_fns.inc,v 1.134 2010/03/11 04:42:59 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -789,10 +789,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// style sheets, JS files and meta tag stuff
 		$temp = explode('</head>', $file_contents, 2);
 		if (sizeof($temp) > 1) {
-            $file_contents= $temp[0]
-                            ."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
-                            ."</head>"
-                            .$temp[1];
+			$file_contents= $temp[0]
+							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
+							."</head>"
+							.$temp[1];
 		}
 
 		// Let's place an print operation after the termination body tag
@@ -950,10 +950,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// for login form design area and password change form design area
 			// this only occurs in CLI mode
 			if (SQ_PHP_CLI) {
-                $lockInfo = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($design_areas[$element['attributes']['id_name']]->id, 'parsing');
-                if (!empty($lockInfo['links']) && $lockInfo['links']['userid'] == '0') {
-                    @$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
-                }
+				$lockInfo = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+				if (!empty($lockInfo['links']) && $lockInfo['links']['userid'] == '0') {
+					@$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+				}
 			}
 
 		}//end foreach
@@ -1389,38 +1389,91 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	public function paintUsage(Design $asset, Backend_Outputter $o, $prefix)
 	{
+		$page_size = 20;
+
 		$o->openRaw();
-		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
-		echo '<div style="line-height: 160%">';
-		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('design::%', $asset->id, TRUE);
-		$res = $this->_getTreeTops($res);
-		$singular = strtolower(translate('child'));
-		$plural = strtolower(translate('children'));
-		$paginate = (count($res) > 20);
-		if ($paginate) {
-			$current_page_no = array_get_index($_REQUEST, 'usage_page_no', 0);
-			$total_pages = ceil(count($res) / 20);
-			$res = array_slice($res, $current_page_no * 20, 20);
-		}
-		foreach ($res as $entry) {
-			$count = $entry['child_count'];
-			echo get_asset_tag_line($entry['assetid'], 'settings');
-			if (!empty($count)) {
-				echo ' and '.$count.' '.(($count > 1) ? $plural : $singular);
+
+		$tree_tops = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('design::%', $asset->id, TRUE);
+
+		if (count($tree_tops) > 0) {
+			$tree_tops = $this->_getTreeTops($tree_tops);
+
+			$num_pages = ceil(count($tree_tops) / $page_size);
+			$page_num = array_get_index($_POST, $prefix.'_usage_page', 1);
+			$page_num = max($page_num, 1);
+			$page_num = min($page_num, $num_pages);
+
+			if ($num_pages == 1) {
+				$page_tag = translate('page_number', $page_num, $num_pages);
+			} else {
+				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
 			}
-			echo '<br />';
-		}
-		echo '</div>';
-		if ($paginate) {
-			echo '<p>';
-			if ($current_page_no > 0) {
-				echo '<a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no-1)).'">'.translate('previous_page').'</a> &nbsp; ';
+			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($tree_tops), $page_num * $page_size), count($tree_tops), strtolower(translate('assets')));
+
+			$tree_tops = array_slice($tree_tops, ($page_num - 1) * $page_size, $page_size);
+
+			$links = Array(
+						'first'		=> '&lt;&lt;',
+						'previous'	=> '&lt;',
+						'page'		=> $page_tag,
+						'next'		=> '&gt;',
+						'last'		=> '&gt;&gt;',
+					);
+
+			if ($page_num > 1) {
+				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			} else {
+				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
 			}
-			echo translate('page_number', $current_page_no + 1, $total_pages);
-			if ($current_page_no < ($total_pages-1)) {
-				echo ' &nbsp; <a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no+1)).'">'.translate('next_page').'</a> ';
+
+			if ($page_num < $num_pages) {
+				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			} else {
+				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
 			}
-			echo '</p>';
+
+			hidden_field($prefix.'_usage_page', $page_num); ?>
+			<table class="sq-backend-table">
+			<thead>
+			<tr class="sq-backend-table-row">
+				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+			</tr>
+			<tr class="sq-backend-table-row">
+				<th class="sq-backend-table-cell" colspan="2"><?php echo translate('asset'); ?></th>
+			</tr>
+			</thead>
+			<tbody>
+			<?php
+
+			foreach ($tree_tops as &$tree_info) {
+				?><tr class="sq-backend-table-row">
+					<td class="sq-backend-table-cell" colspan="2">
+					<?php
+
+					$tag_line = get_asset_tag_line($tree_info['assetid'], 'details');
+
+					$child_count_mult = $tree_info['child_count'];
+					if ($child_count_mult > 1) $child_count_mult = 'm';
+					echo translate('asset_and_child_count_'.$child_count_mult, $tag_line, $tree_info['child_count']);
+					?>
+				</tr>
+				<?php
+			}//end foreach top tree
+			?>
+
+			</tbody>
+			</table>
+			<?php
+
+			$o->note(translate('design_usage_explanation'));
+
+		} else {
+			$o->note(translate('no_assets'));
 		}
 
 		$o->closeRaw();
@@ -1624,7 +1677,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @param Design					$asset	the asset whose interface we are painting
 	* @param Backend_Outputter		$o		the outputter class
 	* @param string					$prefix	prefix for the form elements
-	* 
+	*
 	*/
 	public function paintWysiwygClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1644,7 +1697,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @param Design					$asset	the asset whose interface we are painting
 	* @param Backend_Outputter		$o		the outputter class
 	* @param string					$prefix	prefix for the form elements
-	* 
+	*
 	*/
 	public function processWysiwygClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1661,7 +1714,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @param Design					$asset	the asset whose interface we are painting
 	* @param Backend_Outputter		$o		the outputter class
 	* @param string					$prefix	prefix for the form elements
-	* 
+	*
 	*/
 	public function paintDivClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1681,7 +1734,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @param Design					$asset	the asset whose interface we are painting
 	* @param Backend_Outputter		$o		the outputter class
 	* @param string					$prefix	prefix for the form elements
-	* 
+	*
 	*/
 	public function processDivClasses(Design $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1689,7 +1742,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return TRUE;
 
-	}//end processDivClasses()	
+	}//end processDivClasses()
 
 
 }//end class
