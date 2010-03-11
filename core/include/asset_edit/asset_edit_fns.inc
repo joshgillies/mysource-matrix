@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.80 2010/03/02 23:50:24 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.81 2010/03/11 04:53:12 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -168,7 +168,6 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function paintEditRemapURLs(&$asset, &$o, $prefix)
 	{
-
 		$admin_access = $asset->adminAccess('lookups');
 
 		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
@@ -179,77 +178,53 @@ class Asset_Edit_Fns extends MySource_Object
 			return FALSE;
 		}
 
-		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
-
 		$num_per_page = 100;
 		$total_assets = count($remap_urls);
-		$remap_urls = array_slice($remap_urls, $link_offset, $num_per_page);
 		$num_pages = ceil($total_assets / $num_per_page);
 
-		?>
+		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
+		$page_num = max($page_num, 1);
+		$page_num = min($page_num, $num_pages);
+
+		if ($num_pages == 1) {
+			$page_tag = translate('page_number', $page_num, $num_pages);
+		} else {
+			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
+		}
+		$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate('remap_entries')));
+
+		$remap_urls = array_slice($remap_urls, ($page_num - 1) * $num_per_page, $num_per_page);
+
+		$links = Array(
+					'first'		=> '&lt;&lt;',
+					'previous'	=> '&lt;',
+					'page'		=> $page_tag,
+					'next'		=> '&gt;',
+					'last'		=> '&gt;&gt;',
+				);
+
+		if ($page_num > 1) {
+			$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', 1)">'.$links['first'].'</a>';
+			$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+		} else {
+			$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+			$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+		}
+
+		if ($page_num < $num_pages) {
+			$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.$num_pages.')">'.$links['last'].'</a>';
+			$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_remap_urls_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+		} else {
+			$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+			$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+		}
+
+		hidden_field($prefix.'_remap_urls_page', $page_num); ?>
+
 		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header-header" colspan="4"><b><?php
-					hidden_field($prefix.'_link_offset', $link_offset);
-					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
-					}
-					?>
-					&lt;&lt;
-					<?php
-					if ($link_offset > 0) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?> &nbsp; &nbsp; <?php
-					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
-					}
-					?>
-					&lt;
-					<?php
-					if ($link_offset > 0) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
-					}
-					?>
-					&gt;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?> &nbsp; &nbsp; <?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
-					}
-					?>
-					&gt;&gt;
-					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?></b>
-				</td>
+			<tr class="sq-backend-table-row">
+				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 3 : 2 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
