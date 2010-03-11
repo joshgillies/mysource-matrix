@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.134 2010/03/11 04:42:59 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.135 2010/03/11 05:16:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1473,7 +1473,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$o->note(translate('design_usage_explanation'));
 
 		} else {
-			$o->note(translate('no_assets'));
+			$o->note(translate('core_design_usage_no_assets'));
 		}
 
 		$o->closeRaw();
