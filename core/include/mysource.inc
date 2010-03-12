@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.15 2010/02/02 23:03:18 cupreti Exp $
+* $Id: mysource.inc,v 1.313.2.16 2010/03/12 02:23:53 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.15 $
+* @version $Revision: 1.313.2.16 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -962,6 +962,13 @@ class MySource extends MySource_Object
 
 		// let's try do this via HTTP authentication
 		if (SQ_CONF_ENABLE_HTTP_LOGIN && !empty($_GET['USE_HTTP_LOGIN']) && !isset($_SERVER['PHP_AUTH_USER'])) {
+			// Blank out the session parameters regarding public user before sending the headers (see bug #4209)
+			if ($this->userPublic($this->user)) {
+				$_SESSION['user'] = NULL;
+				$_SESSION['userid'] = NULL;
+				$_SESSION['user_type_code'] = NULL;
+			}
+			
 			header('WWW-Authenticate: Basic realm="MySource Matrix"');
 			header('HTTP/1.0 401 Unauthorized');
 		}
