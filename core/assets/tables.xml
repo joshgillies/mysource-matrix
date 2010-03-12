@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.66 2009/10/11 23:04:59 lwright Exp $
+* $Id: tables.xml,v 1.67 2010/03/12 03:06:36 lwright Exp $
 *
 */
 -->
@@ -913,6 +913,12 @@
 					<type_variations />
 					<default>'1'</default>
 					<description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
+				</column>
+				<column name="auto" allow_null="1">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default />
+					<description>1 = automatic, 0 = manual, null = unknown (for upgrades)</description>
 				</column>
 			</columns>
 			<keys>

@@ -1255,6 +1255,7 @@
 					<field table="sq_ast_lookup_remap" column="remap_url" />
 					<field table="sq_ast_lookup_remap" column="expires" />
 					<field table="sq_ast_lookup_remap" column="never_delete" />
+					<field table="sq_ast_lookup_remap" column="auto" />
 				</fields>
 				<from>
 					<table>sq_ast_lookup_remap</table>
@@ -1272,6 +1273,7 @@
 					<field table="sq_ast_lookup_remap" column="remap_url" />
 					<field table="sq_ast_lookup_remap" column="expires" />
 					<field table="sq_ast_lookup_remap" column="never_delete" />
+					<field table="sq_ast_lookup_remap" column="auto" />
 				</fields>
 				<from>
 					<table>sq_ast_lookup_remap</table>
@@ -1293,12 +1295,14 @@
 					<field>remap_url</field>
 					<field>expires</field>
 					<field>never_delete</field>
+					<field>auto</field>
 				</fields>
 				<values>
 					<value column="url">:url</value>
 					<value column="remap_url">:remap_url</value>
 					<value column="expires">:expires</value>
 					<value column="never_delete">:never_delete</value>
+					<value column="auto">:auto</value>
 				</values>
 			</insert>
 		</primary>
@@ -1527,7 +1531,7 @@
 			</delete>
 		</primary>
 	</query>
-	
+
 	<query id="deleteSchemaOnAsset">
 		<!-- Deletes link with specified linkid -->
 		<primary>
