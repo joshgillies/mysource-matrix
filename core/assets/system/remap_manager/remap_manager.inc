@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.45 2010/03/05 03:42:59 lwright Exp $
+* $Id: remap_manager.inc,v 1.46 2010/03/12 05:17:44 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,7 +176,7 @@ class Remap_Manager extends Asset
 	* @return int
 	* @access public
 	*/
-	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete='1')
+	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete='1', $auto=TRUE)
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
@@ -229,6 +229,7 @@ class Remap_Manager extends Asset
 							'remap_url'	=> $new_url,
 							'expires'	=> (is_null($expires)) ? $expires : ts_iso8601($expires),
 							'never_delete' => $never_delete,
+							'auto'		=> ($auto === TRUE) ? '1' : (($auto === FALSE) ? '0' : NULL),
 						  );
 			$type_codes = MatrixDAL::executeQuery('core', 'insertRemap', $bind_vars);
 		} catch (Exception $e) {
@@ -266,7 +267,7 @@ class Remap_Manager extends Asset
 			// This sub-query gets all URLs for this asset that have HTTP enabled
 			// and adds http protocol to them to create a usable URL - then same
 			// or similar for HTTPS enabled.
-			$sql = 'SELECT url, remap_url, expires, never_delete
+			$sql = 'SELECT url, remap_url, expires, never_delete, auto
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 			$union_select = '(SELECT
 								(\'http://\' || url)
@@ -328,7 +329,7 @@ class Remap_Manager extends Asset
 
 		foreach ($urls as $url_data) {
 			if ($url_data['http']) {
-				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires);
+				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, '0', FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -337,7 +338,7 @@ class Remap_Manager extends Asset
 				}
 			}
 			if ($url_data['https']) {
-				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires);
+				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires, '0', FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
