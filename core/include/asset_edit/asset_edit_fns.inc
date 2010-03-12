@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.81 2010/03/11 04:53:12 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.82 2010/03/12 05:20:20 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -224,12 +224,13 @@ class Asset_Edit_Fns extends MySource_Object
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
 				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 3 : 2 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('type'); ?></td>
 				<?php
 					if ($admin_access) {
 						?>
@@ -255,6 +256,7 @@ class Asset_Edit_Fns extends MySource_Object
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto'] === 1) ? translate('automatic') : (($url_info['auto'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($admin_access) {
 							?>

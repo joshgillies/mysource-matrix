@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.31 2010/03/11 04:45:03 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.32 2010/03/12 05:20:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,12 +165,13 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
 				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('type'); ?></td>
 				<?php
 					if ($write_access) {
 						?>
@@ -216,6 +217,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning; ?></b></span></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto'] === 1) ? translate('automatic') : (($url_info['auto'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($write_access) {
 							?>
@@ -425,7 +427,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 				$never_delete = trim($line_value[3]);
 
-				$asset->addRemapURL($old_url, $new_url, $int_expires, $never_delete);
+				$asset->addRemapURL($old_url, $new_url, $int_expires, $never_delete, FALSE);
 			}
 		}
 
@@ -454,7 +456,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		$asset->addRemapURL($old_url, $new_url, $expires, $never_delete);
+		$asset->addRemapURL($old_url, $new_url, $expires, $never_delete, FALSE);
 
 		return TRUE;
 
