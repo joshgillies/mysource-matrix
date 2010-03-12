@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.354 2010/03/11 05:15:36 lwright Exp $
+* $Id: lang_strings.xml,v 1.355 2010/03/12 05:16:21 lwright Exp $
 *
 */
 
@@ -1357,6 +1357,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="and">And</string>
 	<string source="some">Some</string>
 	<string source="go">Go</string>
+	<string source="automatic">Automatic</string>
+	<string source="manual">Manual</string>
 	<string source="unknown">Unknown</string>
 	<string source="default">Default</string>
 	<string source="login">Login</string>
