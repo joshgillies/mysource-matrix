@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.791 2010/03/11 22:36:37 cupreti Exp $
+* $Id: asset_manager.inc,v 1.792 2010/03/12 00:33:12 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.791 $
+* @version $Revision: 1.792 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3245,7 +3245,7 @@ class Asset_Manager extends MySource_Object
 			}
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
-
+			
 			if (!empty($links_query)) {
 				$sql = implode(' ', $links_query['sql_array']);
 				$query = MatrixDAL::preparePdoQuery($sql);
@@ -8577,7 +8577,7 @@ class Asset_Manager extends MySource_Object
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.'.$other_side.'id';
 
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
@@ -8682,7 +8682,7 @@ class Asset_Manager extends MySource_Object
 						'having'	=> $having,
 						'order_by'	=> $order_by,
 					);
-
+		
 		return Array(
 				'sql_array'	=> $sql_array,
 				'bind_vars'	=> $bind_vars,
