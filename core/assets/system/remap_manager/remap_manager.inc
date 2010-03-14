@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.46 2010/03/12 05:17:44 lwright Exp $
+* $Id: remap_manager.inc,v 1.47 2010/03/14 23:29:00 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -229,7 +229,7 @@ class Remap_Manager extends Asset
 							'remap_url'	=> $new_url,
 							'expires'	=> (is_null($expires)) ? $expires : ts_iso8601($expires),
 							'never_delete' => $never_delete,
-							'auto'		=> ($auto === TRUE) ? '1' : (($auto === FALSE) ? '0' : NULL),
+							'auto_remap' => ($auto === TRUE) ? '1' : (($auto === FALSE) ? '0' : NULL),
 						  );
 			$type_codes = MatrixDAL::executeQuery('core', 'insertRemap', $bind_vars);
 		} catch (Exception $e) {
@@ -267,7 +267,7 @@ class Remap_Manager extends Asset
 			// This sub-query gets all URLs for this asset that have HTTP enabled
 			// and adds http protocol to them to create a usable URL - then same
 			// or similar for HTTPS enabled.
-			$sql = 'SELECT url, remap_url, expires, never_delete, auto
+			$sql = 'SELECT url, remap_url, expires, never_delete, auto_remap
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 			$union_select = '(SELECT
 								(\'http://\' || url)

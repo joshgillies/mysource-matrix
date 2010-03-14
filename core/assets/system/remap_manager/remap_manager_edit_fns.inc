@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.32 2010/03/12 05:20:20 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.33 2010/03/14 23:29:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,7 +217,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning; ?></b></span></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
-					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto'] === 1) ? translate('automatic') : (($url_info['auto'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($write_access) {
 							?>

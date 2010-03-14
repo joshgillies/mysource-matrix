@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.67 2010/03/12 03:06:36 lwright Exp $
+* $Id: tables.xml,v 1.68 2010/03/14 23:29:00 lwright Exp $
 *
 */
 -->
@@ -914,7 +914,7 @@
 					<default>'1'</default>
 					<description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
 				</column>
-				<column name="auto" allow_null="1">
+				<column name="auto_remap" allow_null="1">
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default />

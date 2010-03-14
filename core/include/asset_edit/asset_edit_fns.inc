@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.82 2010/03/12 05:20:20 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.83 2010/03/14 23:29:00 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -256,7 +256,7 @@ class Asset_Edit_Fns extends MySource_Object
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
-					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto'] === 1) ? translate('automatic') : (($url_info['auto'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($admin_access) {
 							?>
@@ -478,7 +478,7 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-		$remap_manager->addRemapURL($old_url, $new_url, $expires);
+		$remap_manager->addRemapURL($old_url, $new_url, $expires, '1', FALSE);
 
 		return TRUE;
 
