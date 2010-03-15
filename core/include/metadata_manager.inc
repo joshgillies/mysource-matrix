@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.206 2010/03/11 22:45:57 ewang Exp $
+* $Id: metadata_manager.inc,v 1.207 2010/03/15 23:39:08 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -994,6 +994,15 @@ class Metadata_Manager extends MySource_Object
 							  );
 
 				if (!in_array($fieldid, $updates)) {
+					// for non contextable field, delete all entries first to avoid duplicate insertion error
+					if(!isset($do_contextid)){
+						try {
+							$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+						} catch (Exception $e) {
+							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+						}
+					}
+					// insert values of contextable field in current context or insert values of non-contextable for all contexts
 					try {
 						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 					} catch (Exception $e) {
