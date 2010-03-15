@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.14 2010/03/15 04:27:26 akarelia Exp $
+* $Id: ecommerce_order_management.inc,v 1.15 2010/03/15 06:39:54 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -124,8 +124,8 @@ class Ecommerce_Order_Management extends Asset_Management
 												   ),
 						'order_grand_total'			=> Array(
 													'added'			=> '0.3',
-													'type'			=> 'text',
-													'default'		=> '',
+													'type'			=> 'float',
+													'default'		=> 0.0,
 													'description'	=> 'The grand total price of this Order asset',
 												   ),
 					  );
