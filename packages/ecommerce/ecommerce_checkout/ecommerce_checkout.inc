@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.79 2009/12/03 00:13:17 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.80 2010/03/15 04:27:26 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1324,6 +1324,34 @@ class Ecommerce_Checkout extends Page
 	}//end _getCartXml()
 
 
+	/**
+	* Return a cart total of ecommerce cart
+	*
+	* @param boolean	$html	if it's true, the summary string is wrapped by <pre> tags
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCartTotal($html=TRUE)
+	{
+		$cart = new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+
+		ob_start();
+			if ($html) echo '<pre>';
+
+			// if products are taxed, remove tax from final amount
+			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+			echo $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
+
+			if ($html) echo '</pre>';
+		$total_cost = ob_get_clean();
+		unset($cart);
+		return  $total_cost;
+
+	}//end _getCartTotal()
+
+
 	//// -- Keywords
 
 
@@ -2060,10 +2088,13 @@ class Ecommerce_Checkout extends Page
 			$order_summary .= $neg_quantity_list;
 		}
 
+		$total_cost = $this->_getCartTotal(FALSE);
+
 		$order_asset->setAttrValue('summary',			$order_summary);
 		$order_asset->setAttrValue('order_xml',			$order_xml);
 		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
 		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
+		$order_asset->setAttrValue('order_grand_total', $total_cost);
 
 	}//end _saveOrderSummary()
 
