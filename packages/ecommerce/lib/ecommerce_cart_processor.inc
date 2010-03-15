@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.26 2009/08/27 14:28:52 ata Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.26.2.1 2010/03/15 04:29:23 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -195,7 +195,6 @@ class Ecommerce_Cart_Processor
 	* Includes all tax considerations, all flat charges.
 	* Does not include any delivery fees, this must be calculated separately.
 	*
-	* @param float		$taxation_cost	Taxation cost contains the total cost of tax
 	* @param float		$taxation_rate	Taxation rate of each item
 	* @param boolean	$remove_tax		Whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	* @param array		$flat_charges	Flat charges Array('Name' => 'Price')
