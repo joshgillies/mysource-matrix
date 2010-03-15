@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: asset.xml,v 1.6.8.1 2010/03/15 04:24:28 akarelia Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>ecommerce</package>
 	<type_code>ecommerce_order</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Ecommerce Order</name>
 	<description>Ecommerce Order object for E-Commerce system</description>
 	<instantiable>no</instantiable>

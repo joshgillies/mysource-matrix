@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.13 2009/08/14 10:16:48 ata Exp $
+* $Id: ecommerce_order_management.inc,v 1.13.2.1 2010/03/15 04:24:28 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -122,6 +122,12 @@ class Ecommerce_Order_Management extends Asset_Management
 													'default'		=> '',
 													'description'	=> 'The XML representation of this Order asset',
 												   ),
+						'order_grand_total'			=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The grand total price of this Order asset',
+												   ),
 					  );
 
 	}//end constructor
@@ -137,6 +143,50 @@ class Ecommerce_Order_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		if (version_compare($current_version, '0.2', '<=')) {
+			pre_echo('STARTING ECOMMERCE CHECKOUT UPGRADE - VERSION 0.3');
+
+				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
+
+				pre_echo('Upgrading '.count($children).' assets...');
+				foreach ($children as $assetid => $type) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
+					if (is_null($asset)) continue;
+					$products_info = $asset->attr('products');
+
+					$ecomm_checkout_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid, 'ecommerce_checkout'));
+					if (empty($ecomm_checkout_id)) continue;
+					$ecomm_checkout = $GLOBALS['SQ_SYSTEM']->am->getAsset($ecomm_checkout_id[0]);
+					if (is_null($ecomm_checkout)) continue;
+
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
+						trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
+						return FALSE;
+					}
+
+					$total_cost = 0;
+					$flat_charges_total = 0;
+
+					$cart = new Ecommerce_Cart_Processor();
+					$flat_charges_total = $ecomm_checkout->getFlatCharges();
+
+					$cart->setCartContainer($products_info);
+					$total_cost = $cart->getGrandTotalExDelivery($ecomm_checkout->attr('taxation_rate')/100, FALSE, $flat_charges_total);
+
+					unset($cart);
+
+					$asset->setAttrValue('order_grand_total', $total_cost);
+					if (!$asset->saveAttributes()) {
+						trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
+						return FALSE;
+					}
+
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
+				}
+
+			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
+		}
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 

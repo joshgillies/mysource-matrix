@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.18 2009/09/16 01:05:39 mbrydon Exp $
+* $Id: ecommerce_order.inc,v 1.18.2.1 2010/03/15 04:24:28 akarelia Exp $
 *
 */
 
@@ -313,6 +313,7 @@ class Ecommerce_Order extends Asset
 		$keywords['status_message']		= translate('ecom_order_keyword_status_message');
 		$keywords['edit_url']			= translate('ecom_order_keyword_edit_url');
 		$keywords['order_xml']			= translate('ecom_order_keyword_order_xml');
+		$keywords['order_grand_total']	= translate('ecom_order_keyword_order_grand_total');
 		
 		return $keywords;
 
@@ -431,6 +432,19 @@ class Ecommerce_Order extends Asset
 		return $this->attr('order_xml');
 
 	}//end getOrderXmlKeywordReplacement()
+
+
+	/**
+	* Get order_grand_total keyword replacement
+	*
+	* @return int
+	* @access public
+	*/
+	function getOrderGrandTotalKeywordReplacement()
+	{
+		return $this->attr('order_grand_total');
+
+	}//end getCheckoutAssetidKeywordReplacement()
 	
 
 	/**
