@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.9 2010/03/09 00:47:10 ewang Exp $
+* $Id: js_api.inc,v 1.2.2.10 2010/03/16 00:24:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.9 $
+* @version $Revision: 1.2.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -95,8 +95,8 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
-		$replace_these = Array ('%26' , '%23');
-		$replace_with = Array ('&' , '#');
+		$replace_these = Array ('%26' , '%23' , '%3F' , '%2B');
+		$replace_with = Array ('&' , '#' , '?' , '+');
 		// Make sure the user can log in first
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
@@ -1646,7 +1646,7 @@ function setAttribute(asset_id, attr_name, attr_val, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26").replace(/#/g , "%23");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAttribute&id=' + asset_id + '&attr_name=' + attr_name + '&attr_val=' + attr_val.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1690,7 +1690,7 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/&/g , "%26").replace(/#/g , "%23");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1825,9 +1825,9 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
-				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23") +
+				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23") +
+				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive +
