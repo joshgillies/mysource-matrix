@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.738.2.31 2010/03/16 06:51:34 cupreti Exp $
+* $Id: asset_manager.inc,v 1.738.2.32 2010/03/16 06:54:59 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738.2.31 $
+* @version $Revision: 1.738.2.32 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8509,7 +8509,7 @@ class Asset_Manager extends MySource_Object
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.'.$other_side.'id';
 
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
