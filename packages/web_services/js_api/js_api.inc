@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.23 2010/03/10 05:54:30 akarelia Exp $
+* $Id: js_api.inc,v 1.24 2010/03/16 00:13:11 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -95,8 +95,8 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
-		$replace_these = Array ('%26' , '%23');
-		$replace_with = Array ('&' , '#');
+		$replace_these = Array ('%26' , '%23' , '%3F' , '%2B');
+		$replace_with = Array ('&' , '#' , '?' , '+');
 		// Make sure the user can log in first
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
@@ -1952,7 +1952,7 @@ function setMultipleAttributes(asset_id, field_info, dataCallback)
 		// construct our query strings to be passed
 		if (field_name == '') continue;
 		field_names = field_names + field_name + '\\,';
-		field_vals = field_vals + field_info[field_name].replace(/&/g , "%26").replace(/#/g , "%23") + '\\,' ;
+		field_vals = field_vals + field_info[field_name].replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,' ;
 	}
 
 	// remove the trailing "\,"
@@ -2004,7 +2004,7 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/#/g , "%23").replace(/&/g , "%26");
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/#/g , "%23").replace(/&/g , "%26").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -2031,7 +2031,7 @@ function setMetadataAllFields(asset_id, field_info, dataCallback)
 	for (var field_id in field_info) {
 		// construct our query strings to be passed
 		field_ids = field_ids + field_id + '\\,';
-		field_vals = field_vals + field_info[field_id].replace(/&/g , "%26").replace(/#/g , "%23") + '\\,' ;
+		field_vals = field_vals + field_info[field_id].replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,' ;
 	}
 
 	// remove the trailing "\,"
@@ -2177,9 +2177,9 @@ function createAsset(parent_id, type_code, asset_name, link_type, link_value, so
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=createAsset' + 
 				'&id=' + parent_id +
 				'&type_code=' + type_code +
-				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23") +
+				'&asset_name=' + asset_name.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23") +
+				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
 				'&sort_order=' + sort_order +
 				'&is_dependant=' + is_dependant +
 				'&is_exclusive=' + is_exclusive +
