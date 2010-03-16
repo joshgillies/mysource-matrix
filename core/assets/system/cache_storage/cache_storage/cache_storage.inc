@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage.inc,v 1.1 2009/09/11 03:24:24 lwright Exp $
+ * $Id: cache_storage.inc,v 1.2 2010/03/16 00:40:36 csmith Exp $
  *
  */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -185,6 +185,18 @@ class Cache_Storage extends Asset
 
 	}//end getAllFilePaths()
 
+
+	/**
+	 * clearCachedAssetsByUrl
+	 * deletes those assets which match the url passed in
+	 * from the cache storage.
+	 *
+	 * @access public
+	 */
+	function clearCachedAssetsByUrl()
+	{
+		return;
+	}
 
 }//end class
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.77 2009/10/07 00:30:40 ewang Exp $
+* $Id: cache_manager.inc,v 1.78 2010/03/16 00:40:36 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -651,7 +651,24 @@ class Cache_Manager extends Asset
 
 	}//end _loadCacheStorage()
 
-
+	/**
+	 * clearCachedAssetsByUrl
+	 * deletes those assets which match the url passed in
+	 * from the cache storage.
+	 * This is just basically a wrapper function which calls
+	 * the storage type to deal with it.
+	 *
+	 * @param string $url The url to delete cache entries for
+	 *
+	 * @access public
+	 */
+	public function clearCachedAssetsByUrl($url)
+	{
+		if (empty($url)) {
+			return;
+		}
+		return $this->_storage->clearCachedAssetsByUrl($url);
+	}
 
 }//end class
 

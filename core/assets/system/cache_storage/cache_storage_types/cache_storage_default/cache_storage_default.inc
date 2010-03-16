@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.2 2009/10/19 03:31:29 cupreti Exp $
+ * $Id: cache_storage_default.inc,v 1.3 2010/03/16 00:40:36 csmith Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -457,6 +457,68 @@ class Cache_Storage_Default extends Cache_Storage
 
 	}//end getAssetHash()
 
+	/**
+	 * clearCachedAssetsByUrl
+	 * gets the current url and deletes those assets which match
+	 * both from the database table and the sq_cache folder.
+	 * connects to the dbcache dsn to do the work.
+	 *
+	 * throws an exception if the db query to delete assets by url fails.
+	 *
+	 * @param string $url The url to clear the cache for.
+	 *
+	 * @access public
+	 */
+	function clearCachedAssetsByUrl($url)
+	{
+		if (empty($url)) {
+			return;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+
+		$bind_vars = Array(
+						'url1'	=> $url,		// exact match for:	url.com
+						'url2'	=> $url.'/',	// exact match for:	url.com/
+						'url3'	=> $url.'?%',	// like match for:	url.com?%
+						'url4'	=> $url.'/?%',	// like match for:	url.com/?%
+					 );
+		$cached_assets = MatrixDAL::executeAll('cache_manager', 'getCachedAssetByUrl', $bind_vars);
+
+		if (!empty($cached_assets)) {
+			// Remove the content file for each assetid
+			foreach ($cached_assets as $cached_asset) {
+				if (isset($cached_asset['path'])) {
+					$asset_cache_path = SQ_CACHE_PATH.'/'.$cached_asset['path'];
+					if (is_file($asset_cache_path)) {
+						if (!unlink($asset_cache_path)) {
+							log_dump('Failed to delete cache file: '.$asset_cache_path);
+						}//end if
+					}//end if
+				}//end if
+			}//end foreach
+
+			// Purge assetids from cache table based on url
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			try {
+				$delete_bind_vars = Array(
+										'url1'	=> $url,		// exact match for:	url.com
+										'url2'	=> $url.'/',	// exact match for:	url.com/
+										'url3'	=> $url.'?%',	// like match for:	url.com?%
+										'url4'	=> $url.'/?%',	// like match for:	url.com/?%
+									);
+				MatrixDAL::executeQuery('cache_manager', 'deleteCachedAssetByUrl', $delete_bind_vars);
+			} catch (DALException $e) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	}
 
 }//end class
 
