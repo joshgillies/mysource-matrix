@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.50.2.2 2010/02/10 04:38:22 ewang Exp $
+* $Id: text.inc,v 1.50.2.3 2010/03/16 07:04:58 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50.2.2 $
+* @version $Revision: 1.50.2.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -178,7 +178,11 @@ function apply_keyword_modifier($text, $modifier)
 	case "maxchars":
 		// One argument; the max characters as an integer.
 		$max = array_get_index($modifier['args'], 0, -1);
-		return substr($text, 0, $max);
+		
+		if (SQ_CONF_DEFAULT_CHARACTER_SET == 'utf-8' && extension_loaded('mbstring')) 
+			return mb_substr($text, 0, $max, SQ_CONF_DEFAULT_CHARACTER_SET);
+		else
+			return substr($text, 0, $max);
 
 	case "maxwords":
 		// One argument; the max words as an integer.
