@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.35 2009/09/30 00:13:42 lwright Exp $
+* $Id: preview.inc,v 1.35.2.1 2010/03/16 07:00:17 cupreti Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 
@@ -164,9 +164,10 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		$root_url_array = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($owner->getURL(), TRUE));
 		$root_url = trim($root_url_array['url']);
 
-		if (strpos($primary_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && ($root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE))) {
+		if (strpos($primary_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && ($root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE || strpos($primary_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE))) {
 			$add_nocache = FALSE;
 		}
+
 
 		$o->openRaw();
 			?>
