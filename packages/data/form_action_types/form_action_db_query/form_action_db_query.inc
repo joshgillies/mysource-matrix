@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.4 2008/11/12 00:27:19 lwright Exp $
+* $Id: form_action_db_query.inc,v 1.5 2010/03/16 06:40:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -449,23 +449,22 @@ class Form_Action_DB_Query extends Form_Action
 			$dsn_string = $settings['dsn'];
 			$username   = $settings['username'];
 			$password   = $settings['password'];
+
+			$db_type = substr($dsn_string, 0, strpos($dsn_string, ':'));
+
+			$dsn = Array(
+					'DSN'		=> $dsn_string,
+					'user'		=> $username,
+					'password'	=> $password,
+					'type'		=> $db_type,
+			   );
+
 		} else if (!empty($settings['connector_assetid'])) {
-			$connector = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['connector_assetid']);
-			$dsn_string = $connector->getDSN();
-			$username   = $connector->attr('user');
-			$password   = $connector->attr('password');
+			$connector	= $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['connector_assetid']);
+			$dsn	 	= $connector->getDSN();
 		} else {
 			return FALSE;
 		}
-
-		$db_type = substr($dsn_string, 0, strpos($dsn_string, ':'));
-
-		$dsn = Array(
-				'DSN'		=> $dsn_string,
-				'user'		=> $username,
-				'password'	=> $password,
-				'type'		=> $db_type,
-			   );
 
 		$db = MatrixDAL::dbConnect($dsn, 'form_action_db_query_'.$form->id);
 		return $db;
