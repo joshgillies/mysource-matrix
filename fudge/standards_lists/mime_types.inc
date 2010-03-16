@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.14 2009/09/25 05:07:06 ewang Exp $
+* $Id: mime_types.inc,v 1.14.2.1 2010/03/16 04:19:08 ewang Exp $
 *
 */
 
@@ -23,12 +23,34 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
 
-$standards_lists_mime_types = Array('hqx'		=> 'application/mac-binhex40',
+$standards_lists_mime_types = Array(
+									'onetoc' 	=> 'application/onenote',
+									'onetoc2' 	=> 'application/onenote',
+									'onetmp'	=> 'application/onenote',
+									'onepkg'	=> 'application/onenote',
+									'xlam' 		=> 'application/vnd.ms-excel.addin.macroEnabled.12',
+									'xlsb' 		=> 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+									'xlsm' 		=> 'application/vnd.ms-excel.sheet.macroEnabled.12',
+									'xltm' 		=> 'application/vnd.ms-excel.template.macroEnabled.12',
+									'ppam' 		=> 'application/vnd.ms-powerpoint.addin.macroEnabled.12',
+									'pptm' 		=> 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+									'sldm' 		=> 'application/vnd.ms-powerpoint.slide.macroEnabled.12',
+									'ppsm' 		=> 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+									'potm' 		=> 'application/vnd.ms-powerpoint.template.macroEnabled.12',
+									'docm' 		=> 'application/vnd.ms-word.document.macroEnabled.12',
+									'dotm' 		=> 'application/vnd.ms-word.template.macroEnabled.12',
+									'pptm' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+									'sldx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.slide',
+									'ppsx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+									'potx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.template',
+									'xltx' 		=> 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
+									'dotx'		=> 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+									'hqx'		=> 'application/mac-binhex40',
 									'cpt'		=> 'application/mac-compactpro',
 									'doc'		=> 'application/msword',
 									'docx'		=> 'application/msword',
