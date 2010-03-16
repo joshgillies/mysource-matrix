@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.33 2010/03/14 23:29:00 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.34 2010/03/16 05:49:02 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,7 +306,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		} else {
 
 			// When 'never delete' option is not checked for any remaps, only the remaps in current page are to be unchecked
-			$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
+			$urls_in_current_page = array_keys(array_get_index($_POST, $prefix.'_current_page_remaps', Array()));
 			try {
 							$bind_vars = Array(
 								'never_delete'		=> '0',
@@ -431,7 +431,6 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-
 		// now add a manually set remap if we have on to set
 		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) {
 			return FALSE;
@@ -549,61 +548,179 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-		* Paints the Automatic Remapping checkbox
-		*
-		* @param Remap_Manager		$asset	the asset to which we belong
-		* @param Backend_Outputter	$o	the outputter class
-		* @param string			$prefix	prefix for the form element
-		*
-		* @return boolean
-		* @access public
-		*/
-		public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
-		{
-				$write_access = $asset->writeAccess('attributes');
-				$remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
+	* Paints the Automatic Remapping checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			$write_access = $asset->writeAccess('attributes');
+			$remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
 
-		$o->closeField();
-		$o->openField(translate('remap_manager_automatically_add_remaps_question'));
+	$o->closeField();
+	$o->openField(translate('remap_manager_automatically_add_remaps_question'));
 
-				// paint checkbox
-				if ($write_access) {
-						check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
-				} else {
-						?>
-								<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-						<?php
+			// paint checkbox
+			if ($write_access) {
+					check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+			} else {
+					?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<?php
+			}
+
+	$o->note(translate('remap_manager_auto_add_remaps_note'));
+
+	$o->closeField();
+
+			return $write_access;
+
+	}//end paintAutomaticRemappingCheckbox()
+
+
+	/**
+	* Process the Automatic Remapping checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			if (!$asset->writeAccess('attributes')) return FALSE;
+
+			$remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
+			$asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
+
+			return TRUE;
+
+	}//end processAutomaticRemappingCheckbox()
+
+
+//--        EXPORT REMAP ENTRIES TO CSV        --//
+
+
+	/**
+	* Paint interface for the exporting of remap entries to a CSV file
+	*
+	* @param Remap_Manager		$asset	The asset that we are painting
+	* @param Backend_Outputter	$o		The outputter to inject the output into
+	* @param string				$prefix Prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintExportEntriesToCSV(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess();
+
+		if ($write_access === TRUE) {
+			$this->processExportEntriesToCSV($asset, $o, $prefix);
+
+			normal_button($prefix.'_export_to_csv', translate('download_file'), 'this.form.'.$prefix.'_download_file.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+			hidden_field($prefix.'_download_file', 0);
+		}
+
+		return FALSE;
+
+	}//end paintExportEntriesToCSV()
+
+
+	/**
+	* Process interface for the exporting of remap entries to a CSV file
+	*
+	* (...and actually do the exporting if we're asked to do it!)
+	*
+	* @param Remap_Manager		$asset	The asset that we are painting
+	* @param Backend_Outputter	$o		The outputter to inject the output into
+	* @param string				$prefix Prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processExportEntriesToCSV(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		if ($asset->writeAccess() === FALSE) {
+			return FALSE;
+		}
+
+		$download_file = (int)array_get_index($_POST, $prefix.'_download_file', 0);
+
+		if ($download_file === 1) {
+			// check if we need to filter the url or remap url
+			$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
+			$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
+
+			$remap_urls = Array();
+			if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+				$bind_vars = Array(
+						'url' 		=> (string) '%'.$url_filter.'%',
+						'remap_url'	=> (string) '%'.$remap_url_filter.'%',
+						);
+				try {
+					$remap_urls	= MatrixDAL::executeAssoc('core', 'getRemapUrlsFilter', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
 				}
 
-		$o->note(translate('remap_manager_auto_add_remaps_note'));
+			} else {
+				try {
+					$remap_urls	= MatrixDAL::executeAssoc('core', 'getRemapUrls');
+				} catch (Exception $e) {
+					throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+				}
+			}
 
-		$o->closeField();
+			if (count($remap_urls) === 0) {
+				// Cannot export remap entries to CSV, there are no entries to export
+				trigger_localised_error('CORE0287', E_USER_WARNING);
+			} else {
+				require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 
-				return $write_access;
+				$csv = new CSV();
+				$csv->setFilename('remap_entries.csv');
+				$csv->setDeliminator(',');
 
-		}//end paintAutomaticRemappingCheckbox()
+				$values = Array();
+				foreach ($remap_urls as $remap_url) {
+					$value_row = Array($remap_url['url'], $remap_url['remap_url'], $remap_url['expires']);
+					if ($remap_url['never_delete'] !== NULL) {
+						$value_row[] = (boolean)($remap_url['never_delete']) ? 1 : 0;
+					} else {
+						$value_row[] = NULL;
+					}
+					if ($remap_url['auto_remap'] !== NULL) {
+						$value_row[] = (boolean)($remap_url['auto_remap']) ? 1 : 0;
+					} else {
+						$value_row[] = NULL;
+					}
+					$values[] = $value_row;
+				}
 
 
-		/**
-		* Process the Automatic Remapping checkbox
-		*
-		* @param Remap_Manager		$asset	the asset to which we belong
-		* @param Backend_Outputter	$o	the outputter class
-		* @param string			$prefix	prefix for the form element
-		*
-		* @return boolean
-		* @access public
-		*/
-		public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
-		{
-				if (!$asset->writeAccess('attributes')) return FALSE;
+				$csv->setValues($values);
 
-				$remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
-				$asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
+				$headers = Array('Original URL', 'Remapped URL', 'Expiry', 'Never Delete', 'Automatic');
+				$csv->setFieldHeaders($headers);
 
-				return TRUE;
+				$csv->setHeader();
+				$csv->export(FALSE);
 
-		}//end processAutomaticRemappingCheckbox()
+				// We don't want the rest of the interface printed, so exit.
+				exit(0);
+
+			}//end if there are any remaps (or not)
+		}
+
+		return FALSE;
+
+	}//end processExportEntriesToCSV()
 
 
 }//end class
