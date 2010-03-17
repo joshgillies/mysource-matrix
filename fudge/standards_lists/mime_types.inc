@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.15 2010/03/16 04:18:00 ewang Exp $
+* $Id: mime_types.inc,v 1.16 2010/03/17 04:19:44 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -44,7 +44,7 @@ $standards_lists_mime_types = Array(
 									'potm' 		=> 'application/vnd.ms-powerpoint.template.macroEnabled.12',
 									'docm' 		=> 'application/vnd.ms-word.document.macroEnabled.12',
 									'dotm' 		=> 'application/vnd.ms-word.template.macroEnabled.12',
-									'pptm' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+									'pptx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 									'sldx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.slide',
 									'ppsx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
 									'potx' 		=> 'application/vnd.openxmlformats-officedocument.presentationml.template',
