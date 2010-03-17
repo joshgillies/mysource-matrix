@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2010/03/10 05:54:30 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2010/03/17 04:48:05 akarelia Exp $
 *
 */
 -->
@@ -92,7 +92,10 @@
 		<field attribute="get_keywords_replacements">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-	</section>	
+		<field attribute="set_asset_status">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
     <section name="Linking" write_access="write:attributes">
 		<field attribute="create_link">
 			<boolean true_text="yes" false_text="no" />

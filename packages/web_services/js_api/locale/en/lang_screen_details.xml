@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2010/03/10 05:54:30 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.8 2010/03/17 04:48:05 akarelia Exp $
 *
 */
 -->
@@ -113,6 +113,10 @@
         </field>
 		<field attribute="get_keywords_replacements">
             <display_name>Get Keywords Replacement</display_name>
+            <note />
+        </field>
+		<field attribute="set_asset_status">
+            <display_name>Set Asset Status</display_name>
             <note />
         </field>
     </section>

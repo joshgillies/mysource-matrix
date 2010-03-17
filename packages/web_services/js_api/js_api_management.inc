@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.8 2010/03/10 05:54:30 akarelia Exp $
+* $Id: js_api_management.inc,v 1.9 2010/03/17 04:48:05 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -196,7 +196,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_locks_info'			=> Array(
-														'added'			=> '0.3',
+														'added'			=> '0.4',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -268,14 +268,22 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 											   			),
 						'get_keywords_replacements'	=> Array(
-														'added'			=> '0.3',
+														'added'			=> '0.4',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
 																			'allow_empty'	=> FALSE,
 																		   ),
 											   			),
-											
+						'set_asset_status'			=> Array(
+														'added'			=> '0.4',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+														),
+
 					  );
 
 	}//end constructor
@@ -365,6 +373,40 @@ class JS_Api_Management extends Asset_Management
 			}//end foreach
 			pre_echo('Updated - '.$count.' Javascript Api(s)...');
 			pre_echo($asset_name.' UPGRADE COMPLETE - TO VERSION 0.3');
+
+		}//end if - upgrade to version 0.3
+
+		if (version_compare($current_version, '0.4', '<')) {
+			
+			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.4');
+				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
+
+				pre_echo('Upgrading '.count($children).' assets...');
+				foreach ($children as $assetid => $type) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
+					if (is_null($asset)) continue;
+
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
+						trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
+						return FALSE;
+					}
+
+
+					$asset->setAttrValue('get_locks_info', FALSE);
+
+					$asset->setAttrValue('get_keywords_replacements', FALSE);
+
+					$asset->setAttrValue('set_asset_status', FALSE);
+
+					if (!$asset->saveAttributes()) {
+						trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
+						return FALSE;
+					}
+
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
+				}
+			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.4');
 
 		}//end if - upgrade to version 0.3
 

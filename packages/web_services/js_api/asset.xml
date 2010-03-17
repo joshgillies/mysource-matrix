@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2010/01/31 22:56:16 ewang Exp $
+* $Id: asset.xml,v 1.5 2010/03/17 04:48:05 akarelia Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
     <package>web_services</package>
     <type_code>js_api</type_code>
-    <version>0.3</version>
+    <version>0.4</version>
     <name>Javascript API</name>
     <description>The API contains a number of functions which is exposed to allow external system to do operations in Matrix</description>
     <instantiable>yes</instantiable>

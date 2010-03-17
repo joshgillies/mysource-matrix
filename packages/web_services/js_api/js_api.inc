@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.25 2010/03/16 00:18:27 akarelia Exp $
+* $Id: js_api.inc,v 1.26 2010/03/17 04:48:05 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -687,6 +687,35 @@ class JS_Api extends Page
 					}//end else
 				} else {
 					$this->returnError('The getKeywordsReplacements function must be activated');
+				}//end else
+			break;
+
+			case	'setAssetStatus':
+				if ($this->attr('set_asset_status')) {
+					if ($wa) {
+						$status = (int) $_REQUEST['status'];
+						$cascade = isset($_REQUEST['cascade']) ? $_REQUEST['cascade'] : FALSE;
+
+						//let check if the status supplied is valid one
+						$desc = get_status_description($status);
+						$current_desc = ($status != $asset->status) ? get_status_description($asset->status) : $desc;
+
+						$response = $this->setAssetStatus($asset, $status, $cascade, $current_desc, $desc);
+						if (empty($response)) {
+							if (!$cascade) {
+								$data[] = 'Status for Asset "'.$asset->name.'" (#'.$asset->id.') has been changed successfully to '.$desc;
+							} else {
+								$data[] = 'Status for Asset "'.$asset->name.'" (#'.$asset->id.') and its non-dependant children has been changed successfully to '.$desc;
+							}
+						} else {
+							$data = $response;
+						}
+
+					} else {
+						$this->returnError('You do not have permissions to access this change status for this asset');
+					}//end else
+				} else {
+					$this->returnError('The setAssetStatus function must be activated');
 				}//end else
 			break;
 
@@ -1616,6 +1645,53 @@ class JS_Api extends Page
 
 
 	/**
+	* sets the asset status that is passed
+	*
+	* @param string		$assetid				the assetid of the asset that we want lock info for
+	* @param int		$status					status we want to set to
+	* @param boolean	$cascade				if the status change should be cascaded to non dependant children assets, default to false
+	* @param string		$current_status_desc	description of the current status
+	* @param string		$to_be_status_desc		description of the status to be changed to
+	*
+	* @return array
+	* @access public
+	*/
+	public function setAssetStatus(Asset $asset, $status, $cascade, $current_status_desc, $to_be_status_desc)
+	{
+
+		$return_array = Array();
+		//if status is being set to something we are not allowed to set then start complaining
+		if(!(in_array($status, array_keys($asset->getAvailableStatii()))) && !($status == $asset->status && $cascade) ) {
+			$return_array[] = '"'.$to_be_status_desc.'" is not a valid option for the "'.$asset->name.'" asset (#'.$asset->id.') in its current "'.$current_status_desc.'" state';
+		return $return_array;
+		}
+
+		//lets prepare a hipo running vars
+		$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		require_once $job_dir.'/hipo_job_edit_status.inc';
+		$init_hipo =& new HIPO_Job_Edit_Status();
+		$running_vars = Array(
+                            'assetid'           => $asset->id,
+                            'new_status'        => $status,
+                            'dependants_only'   => !$cascade,
+                        );
+		$init_hipo->setRunningVars($running_vars);
+		$init_hipo->_steps = $init_hipo->getInitialStepData();
+		if (!$init_hipo->prepare()) {
+			$return_array[] = 'Could not initialise HIPO job';
+			return $return_array;
+		}
+		set_error_handler(Array(&$init_hipo, '_errorHandler'));
+			$init_hipo->freestyle();
+		restore_error_handler();
+		$return_array = $init_hipo->getErrors();
+
+		return $return_array;
+
+	}//end setAssetStatus()
+
+
+	/**
 	* Returns an error in JSON format
 	*
 	* @param string	 $error	The error to send back as JSON
@@ -2508,6 +2584,30 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end getKeywordsReplacements()
+
+
+/**
+* This will set Asset to the status that is passed in
+*
+* @param string		asset_id		Id of the asset to get children of
+* @param int		status			status tha asset is to be set to
+* @param boolean	cascade			if to cascade the status to non-dependant children
+* @param function	dataCallback	Custom callback function
+*
+*
+*/
+function setAssetStatus(asset_id, status, cascade, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end setAssetStatus()
 
 
 	<?php
