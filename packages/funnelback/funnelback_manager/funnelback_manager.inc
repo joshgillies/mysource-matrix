@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.7 2010/03/18 00:37:53 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.8 2010/03/18 00:42:37 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1353,7 +1353,7 @@ class Funnelback_Manager extends Asset
 	{
 		// Strip disallowed characters (0-0x20 and 0x7F-0xA0)
 		$pattern = Array();
-		for ($i=0; $i<20; $i++) {
+		for ($i=0; $i<32; $i++) {
 			$pattern[] = chr($i);
 		}//end for
 		for ($i=127; $i<161; $i++) {
