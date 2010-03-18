@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.28 2009/10/16 03:06:10 cupreti Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.29 2010/03/18 03:37:28 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -364,7 +364,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 		$user_name = htmlspecialchars(array_get_index($_REQUEST, $this->getPrefix().'_user_name', ''));
-			
+
 		if (empty($email_address)) {
 			if (isset($_REQUEST[$this->getPrefix().'_email_address'])) {
 				$this->errors[] = translate('bm_email_empty');
@@ -385,7 +385,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			if (empty($subscriptions)) {
 				$subscriptions = Array();
 			} else {
-				$subscriptions = Array($subscriptions);		
+				$subscriptions = Array($subscriptions);
 			}
 		}
 		if (!is_array($unsubscriptions)) {
@@ -422,24 +422,33 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unverified_folder = $this->getUnverifiedUsersFolder();
 		$uniqid = md5(uniqid(''));
 
-        // Get the bulkmail user from email address
+		// Get the bulkmail user from email address
 		$bulk_userid = $this->getExistingBulkmailUserid($email_address);
-		
+
 		// If exists in system, check if user is trying to subscribe to a already subscribed group.
 		if ($bulk_userid) {
-		 	
+
 			$available_user_groups = $this->getAvailableLocations();
-		 	$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulk_userid, 'user_group', FALSE));
-		 	$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
-			
+			$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulk_userid, 'user_group', FALSE));
+			$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
+
 			// While subscribing, if user has subscribed to this group previously, don't process further
-			if (array_intersect($subscriptions, $currently_subscribed_groups)) { 
+			if (array_intersect($subscriptions, $currently_subscribed_groups)) {
 				// However display a message of a bogus conformation email being sent (for security reasons)
+				if ($sub_verify === TRUE) {
+					$from_addr = $this->attr('verify_from_address');
+					$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
+					if (empty($from_addr)) {
+						trigger_localised_error('SYS0315', E_USER_WARNING);
+						trigger_localised_error('BML0016', E_USER_WARNING);
+					} else {
+						$this->sendAlreadySubscribedEmail($email_address, $from_addr, $subscriptions);
+					}
+				}
 				$this->messages[] = translate('bsp_verification_email_sent', $email_address);
-				return;				
+				return;
 			}
 		}
-        
 
 		if ($sub_verify || $unsub_verify) {
 			$from_addr = $this->attr('verify_from_address');
@@ -457,7 +466,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				}
 			}
 		}
-		
+
 		// We need to verify both subscribing and unsubscribing
 		if ($sub_verify && $unsub_verify) {
 			$subscriptions = Array($unverified_folder->id);
@@ -543,7 +552,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$curr_plus_new = array_merge($current_subscriptions, $subscriptions);
 			$new_minus_old = array_diff($curr_plus_new, $unsubscriptions);
 			$new_subscriptions = array_unique($new_minus_old);
-			
+
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
 				$done = $this->processMinorLinks($bulkmail_user->id, $current_subscriptions, $new_subscriptions, $this->attr('link_type'));
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -610,6 +619,29 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$current_user_email = $current_user->attr('email');
 		if (empty($current_user_email)) {
 			$this->errors[] = translate('bsp_email_not_configured');
+			return;
+		}
+
+		// If subscription already exists, then reject the subscription
+		$available_user_groups = $this->getAvailableLocations();
+		$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE));
+		$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
+
+		// While subscribing, if user has subscribed to this group previously, don't process further
+		if (array_intersect($subscriptions, $currently_subscribed_groups)) {
+			// However display a message of a bogus conformation email being sent (for security reasons)
+			// Behaviour for a logged in user is to show nothing if subs are not verified, though.
+			if ($sub_verify === TRUE) {
+				$from_addr = $this->attr('verify_from_address');
+				$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
+				if (empty($from_addr)) {
+					trigger_localised_error('SYS0315', E_USER_WARNING);
+					trigger_localised_error('BML0016', E_USER_WARNING);
+				} else {
+					$this->sendAlreadySubscribedEmail($current_user_email, $from_addr, $subscriptions);
+					$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+				}
+			}
 			return;
 		}
 
@@ -763,7 +795,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					  );
 		$body = @$mime->get($param);
 		$headers = @$mime->headers($headers);
-		
+
 		$mail =& Mail::factory('mail');
 		$status = @$mail->send($to, $headers, $body);
 		if (PEAR::isError($status)) {
@@ -774,6 +806,53 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		return;
 
 	}//end sendConfirmationEmail()
+
+
+	/**
+	* Send email stating that attempt was made to subscribe them to lists they
+	* are already a part of
+	*
+	* @param string	$to					Recipient email address (either 'user@example.com' or 'User <user@example.com>')
+	* @param string	$from				Sending email address (formatted as above)
+	* @param array	$subscriptions		Assetids the user wanted to link under
+	*
+	* @return void
+	* @access public
+	*/
+	function sendAlreadySubscribedEmail($to, $from, $subscriptions)
+	{
+		if (empty($subscriptions)) {
+			return;
+		}
+
+		$headers = Array(
+					'From'		=> $from,
+					'Subject'	=> translate('bsp_verification_email_subject'),
+				   );
+
+		$url = current_url();
+		$body = translate('bsp_already_sub_email_body', $this->_getCommaSeparatedNamesByAssetid($subscriptions), $url);
+
+		$mime = new Mail_mime("\n");
+		$mime->setTXTBody($body);
+		$param = Array(
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+		$body = @$mime->get($param);
+		$headers = @$mime->headers($headers);
+
+		$mail =& Mail::factory('mail');
+		$status = $mail->send($to, $headers, $body);
+		if (PEAR::isError($status)) {
+			// unable to send verification email
+			trigger_localised_error('BML0018', E_USER_WARNING);
+		}
+
+		return;
+
+	}//end sendAlreadySubscribedEmail()
 
 
 	/**
