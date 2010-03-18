@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.2.2.10 2010/03/16 00:24:30 akarelia Exp $
+* $Id: js_api.inc,v 1.2.2.11 2010/03/18 22:34:19 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2.2.10 $
+* @version $Revision: 1.2.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1542,9 +1542,9 @@ function makeRequest(url, receive, dataCallback)
 		// Custom callback
 		ajaxRequest.onreadystatechange = function() {
 			success(ajaxRequest, dataCallback);
-		}
+		};
 	}//end if
-	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	ajaxRequest.send(encodeURI(urlarray[1]));
 
 }//end makeRequest
