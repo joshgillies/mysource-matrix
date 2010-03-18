@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.43 2009/06/22 06:43:00 wszymanski Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.44 2010/03/18 00:09:42 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -172,7 +172,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 					<td>
 						<?php
 						if ($write_access) {
-							combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
+							combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 46ex;"');
 						} else {
 							echo $view_options[$category][$current_views[$category]];
 						}
