@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.39 2009/08/17 02:41:36 cupreti Exp $
+* $Id: lang_strings.xml,v 1.40 2010/03/18 00:57:25 lwright Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -36,6 +36,10 @@
 Please click on the following link if you would like to proceed:
 
 %s</string>
+	<string source="bsp_already_sub_email_body">Someone has requested for this email address to be subscribed to %1$s.
+This request was made from the following URL: %2$s
+
+Your email address is already subscribed, therefore no action has been taken.</string>
 
 	<string source="bsp_default_title_logged_in">Editing list subscriptions for %s</string>
 	<string source="bsp_default_title_not_logged_in">Edit List Subscriptions</string>
@@ -128,7 +132,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_hipo_name_import_bmail_user">Import Bulkmail User</string>
 	<string source="bm_hipo_importing_bmail_users">Importing Bulkmail Users</string>
 	<string source="bm_importing_bmail_user">Importing %s</string>
-	
+
 	<string source="bm_tool_delete_bmail_users_file_upload">Text File of Email Addresses to remove</string>
 	<string source="bm_tool_delete_bmail_users_file_upload_note">Each line must contain one email address only</string>
 	<string source="bm_tool_delete_bmail_users_root_node">Root Node</string>
@@ -144,7 +148,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_tool_delete_bmail_users_confirm_note">All matching bulkmail users will be deleted, when Yes is selected</string>
 
 	<string source="bm_hipo_name_delete_bmail_user">Delete Bulkmail User</string>
-	<string source="bm_hipo_deleting_bmail_users">Deleting Bulkmail Users</string>	
+	<string source="bm_hipo_deleting_bmail_users">Deleting Bulkmail Users</string>
 	<string source="bm_deleting_bmail_user">Deleting %s</string>
 
 	<string source="bm_email_empty">Email address was not provided</string>
