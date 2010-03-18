@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.4 2010/03/08 06:30:07 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.5 2010/03/18 01:16:47 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4.2.4 $
+* @version $Revision: 1.4.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -605,7 +605,14 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$changed = TRUE;
 				}//end if
 				if (!empty($source)) {
-					$collections[$collection_id]['asset'] = array_get_index($source, 'assetid', 0);
+					$source_assetid = array_get_index($source, 'assetid', 0);
+					if (!empty($source_assetid)) {
+						$source_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($source_assetid, Array(), TRUE, 'type_code');
+						if (!isset($source_asset_info[$source_assetid]) || !$GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($source_asset_info[$source_assetid], 'site')) {
+							$source_assetid = 0;
+						}//end if
+					}//end if
+					$collections[$collection_id]['asset'] = $source_assetid;
 					$changed = TRUE;
 				}//end if
 				if ($current_type == 'web') {
@@ -1115,6 +1122,17 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$desc = array_get_index($_POST, $prefix.'_edit_selected_feature_page_desc', '');
 					$asset_info = array_get_index($_POST, $prefix.'_edit_selected_feature_page_assetid', Array());
 					$assetid = array_get_index($asset_info, 'assetid', 0);
+					if (!empty($assetid)) {
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid, Array(), TRUE, 'type_code');
+						if (isset($asset_info[$assetid])) {
+							$asset_type = $asset_info[$assetid];
+							if (!($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'page') || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site'))) {
+								$assetid = 0;
+							}//end if
+						} else {
+							$assetid = 0;
+						}//end if
+					}//end if
 					$url = array_get_index($_POST, $prefix.'_edit_selected_feature_page_url', '');
 					$edit_feature = Array('query'=>$query,'trigger'=>$trigger,'assetid'=>$assetid,'url'=>$url,'valid'=>FALSE);
 					if (!empty($title)) $edit_feature['title'] = $title;
