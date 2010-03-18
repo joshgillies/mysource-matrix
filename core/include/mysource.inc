@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.16 2010/03/12 02:23:53 cupreti Exp $
+* $Id: mysource.inc,v 1.313.2.17 2010/03/18 02:48:08 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.16 $
+* @version $Revision: 1.313.2.17 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -635,7 +635,7 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cache_enabled) {
-					
+
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
@@ -716,6 +716,7 @@ class MySource extends MySource_Object
 		if (!$recache) {
 			header('Pragma: cache');
 		}
+
 		$contextid = $this->getContextId();
 		$cache_key = 'cache_info';
 		if ($contextid !== 0) {
@@ -932,6 +933,7 @@ class MySource extends MySource_Object
 		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
 			// we don't want to print a login box in the top frame, so reload the parent frame
 			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => NULL));
+			$redirect_location = strip_tags(addslashes($redirect_location));
 			?>
 			<script type="text/javascript">
 				window.parent.document.location = '<?php echo $redirect_location; ?>';
