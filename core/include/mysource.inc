@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.337 2010/03/16 00:40:36 csmith Exp $
+* $Id: mysource.inc,v 1.338 2010/03/18 02:44:04 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.337 $
+* @version $Revision: 1.338 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -227,7 +227,7 @@ class MySource extends MySource_Object
 		$this->lm = new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
-		
+
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			// we are accessing from the web, and the security subsystem is enabled in this run level,
 			// so we use cookies for security
@@ -889,6 +889,7 @@ class MySource extends MySource_Object
 		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
 			// we don't want to print a login box in the top frame, so reload the parent frame
 			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => NULL));
+			$redirect_location = strip_tags(addslashes($redirect_location));
 			?>
 			<script type="text/javascript">
 				window.parent.document.location = '<?php echo $redirect_location; ?>';
