@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.333.2.2 2010/03/12 02:26:27 cupreti Exp $
+* $Id: mysource.inc,v 1.333.2.3 2010/03/18 02:46:15 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.333.2.2 $
+* @version $Revision: 1.333.2.3 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -933,6 +933,7 @@ class MySource extends MySource_Object
 		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
 			// we don't want to print a login box in the top frame, so reload the parent frame
 			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => NULL));
+			$redirect_location = strip_tags(addslashes($redirect_location));
 			?>
 			<script type="text/javascript">
 				window.parent.document.location = '<?php echo $redirect_location; ?>';
