@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.7 2009/09/22 06:08:21 ewang Exp $
+ * $Id: cache_storage_memcache.inc,v 1.8 2010/03/19 02:45:12 lwright Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -209,6 +209,21 @@ class Cache_Storage_Memcache extends Cache_Storage
 		}
 
 	}//end clearAll()
+
+
+	/**
+	 * Cleans up expired entries.
+	 *
+	 * Assumed that memcache does this for us, so nothing to be done here.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	function cleanExpiredEntries()
+	{
+		return TRUE;
+
+	}//end cleanExpiredEntries()
 
 
 	/**

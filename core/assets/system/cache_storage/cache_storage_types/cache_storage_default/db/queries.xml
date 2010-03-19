@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<queries id="cache_storage_default">
+	<query id="selectExpiredEntryPaths">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+				<where>
+					<equal-or-less table="sq_cache" column="expires">:now</equal-or-less>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteExpiredEntries">
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_cache" column="path">:paths</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+</queries>

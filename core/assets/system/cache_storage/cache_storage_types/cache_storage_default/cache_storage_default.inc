@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.3 2010/03/16 00:40:36 csmith Exp $
+ * $Id: cache_storage_default.inc,v 1.4 2010/03/19 02:45:12 lwright Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -216,7 +216,8 @@ class Cache_Storage_Default extends Cache_Storage
 	function canClearByAssetid()
 	{
 		return TRUE;
-	}
+
+	}//end canClearByAssetid()
 
 
 	/**
@@ -251,6 +252,51 @@ class Cache_Storage_Default extends Cache_Storage
 		}
 
 	}//end clear()
+
+
+	/**
+	* Cleans up expired entries.
+	*
+	* Delete any cache files on the filesystem that have expired, then remove
+	* the cache entries from the table that it was able to delete.
+	*
+	* For this to work, the Cron run script needs to run as the Apache user.
+	* It normally creates cache bucket directories with write access only to
+	* itself, and this write access to the directory is required to delete
+	* files.
+	*
+	* @return void
+	* @access public
+	*/
+	function cleanExpiredEntries()
+	{
+		$bind_vars = Array('now'	=> ts_iso8601(time()));
+		$paths = MatrixDAL::executeAssoc('cache_storage_default', 'selectExpiredEntryPaths', 0, $bind_vars);
+
+		$paths_removed = Array();
+
+		foreach ($paths as $path) {
+			$cache_file = SQ_CACHE_PATH.'/'.$path;
+			if (is_file($cache_file) === TRUE) {
+				$result = unlink($cache_file);
+				if ($result === TRUE) {
+					$paths_removed[] = $path;
+				} else {
+					trigger_error('Unable to remove expired cache file "'.$cache_file.'"', E_USER_WARNING);
+				}
+			}
+		}
+
+		// Delete the paths that we were able to remove
+		// (do less than 1,000 a time, since Oracle does not like more than
+		// 1,000 in an IN clause).
+		foreach (array_chunk($paths_removed, 999) as $chunk) {
+			$bind_vars = Array('paths'	=> $chunk);
+			MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
+		}
+		return TRUE;
+
+	}//end cleanExpiredEntries()
 
 
 	/**
@@ -375,6 +421,7 @@ class Cache_Storage_Default extends Cache_Storage
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _deleteCache()
+
 
 	/**
 	 * Extends the expiry time (and updates the cache file)

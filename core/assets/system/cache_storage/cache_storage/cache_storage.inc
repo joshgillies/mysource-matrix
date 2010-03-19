@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage.inc,v 1.2 2010/03/16 00:40:36 csmith Exp $
+ * $Id: cache_storage.inc,v 1.3 2010/03/19 02:45:12 lwright Exp $
  *
  */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -154,6 +154,19 @@ class Cache_Storage extends Asset
 		return;
 
 	}//end clear()
+
+
+	/**
+	 * Cleans up expired entries.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	function cleanExpiredEntries()
+	{
+		return FALSE;
+
+	}//end cleanExpiredEntries()
 
 
 	/**
