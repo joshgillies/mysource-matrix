@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.793 2010/03/19 00:55:27 csmith Exp $
+* $Id: asset_manager.inc,v 1.794 2010/03/19 01:07:04 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.793 $
+* @version $Revision: 1.794 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3608,6 +3608,13 @@ class Asset_Manager extends MySource_Object
 		 */
 		if (!empty($tree_result)) {
 			foreach ($tree_result as $row => $info) {
+				/**
+				 * check if we've seen this tree id before
+				 * if we have, skip it.
+				 * if we haven't, add it to the list
+				 * this check can provide an improvement if an asset
+				 * is linked in *lots* of places all over the system
+				 */
 				$quoted_treeid = MatrixDAL::quote($info['treeid']);
 				if (!in_array($quoted_treeid, $treeids)) {
 					$treeids[] = $quoted_treeid;
