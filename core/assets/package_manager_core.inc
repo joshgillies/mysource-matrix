@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.42 2009/07/17 01:52:51 lwright Exp $
+* $Id: package_manager_core.inc,v 1.43 2010/03/21 21:58:00 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -132,6 +132,7 @@ class Package_Manager_Core extends Package_Manager
 				'cron_job_escalate_safe_trash',
 				'tag_manager',
 				'cron_job_metadata_triggers',
+				'cron_job_expired_matrix_cache',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -682,7 +683,7 @@ class Package_Manager_Core extends Package_Manager
 
 
 	/**
-	* Create the generate log report cron job
+	* Create the Escalate Safe Trash cron job
 	*
 	* @return object
 	* @access public
@@ -737,7 +738,7 @@ class Package_Manager_Core extends Package_Manager
 
 
 	/**
-	* Create the generate log report cron job
+	* Create the Metadata Triggers cron job
 	*
 	* @return object
 	* @access public
@@ -763,9 +764,39 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_metadata_triggers', $cron_job->id);
 
 		return $cron_job;
-		
-	}//end createCronJobManagePendingAccounts()
 
+	}//end createCronJobMetadataTriggers()
+
+
+	/**
+	* Create the Expired Matrix Cache cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobExpiredMatrixCache()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Expired Matrix Cache cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_expired_matrix_cache');
+
+		$cron_job = new Cron_Job_Expired_Matrix_Cache();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Expired Matrix Cache Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Expired Matrix Cache Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_matrix_cache', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobExpiredMatrixCache()
 
 }//end class
 
