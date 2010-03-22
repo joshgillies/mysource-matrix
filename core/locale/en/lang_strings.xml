@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.355 2010/03/12 05:16:21 lwright Exp $
+* $Id: lang_strings.xml,v 1.356 2010/03/22 00:18:28 lwright Exp $
 *
 */
 
@@ -456,6 +456,7 @@
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
 	<string source="cron_job_escalate_safe_trash">Escalate Safe-Trash Cron Job</string>
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
+	<string source="cron_job_expired_matrix_cache">Expired Matrix Cache Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
