@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.148 2010/02/15 00:47:10 cupreti Exp $
+* $Id: workflow_manager.inc,v 1.149 2010/03/22 05:25:59 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1067,6 +1067,8 @@ class Workflow_Manager extends MySource_Object
 					if (isset($current_step['message_approve']) && trim($current_step['message_approve']) !== '' ) {
 						$msg = clone $base_msg;
 						$msg->to = $publishers_step;
+						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
 						$msg->body = trim($current_step['message_approve']);
 						$ms->enqueueMessage($msg);
 					} else {
@@ -1145,6 +1147,8 @@ class Workflow_Manager extends MySource_Object
 
 					// Does this step have a custom message?
 					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
 						$msg->body = trim($current_step['message_invitation']);
 					}
 
@@ -1583,6 +1587,8 @@ class Workflow_Manager extends MySource_Object
 					// Does this step have a custom message?
 					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
 						// This message has a custom body. Just send it.
+						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
 						$msg->body = trim($current_step['message_invitation']);
 					} else {
 						// This is the generic message. Make sure only one of these are sent out,
@@ -1745,6 +1751,8 @@ class Workflow_Manager extends MySource_Object
 				// Does this step have a custom message?
 				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
 				if (isset($current_step['message_reject']) && trim($current_step['message_reject']) !== '' ) {
+					$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
+					$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
 					$msg->body = trim($current_step['message_reject']);
 				} else {
 					// This is the generic message. Make sure only one of these are sent out,
@@ -1957,6 +1965,8 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message for stale workflow?
 			if (isset($current_step['message_stale']) && trim($current_step['message_stale']) !== '' ) {
+				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
+				$subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 				$msg->body = trim($current_step['message_stale']);
 			}
 
@@ -2048,6 +2058,8 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message for escalation?
 			if (isset($current_step['message_escalated']) && trim($current_step['message_escalated']) !== '' ) {
+				$subject = trim(array_get_index($current_step, 'subject_escalated', 'Workflow Escalated'));
+				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Escalated';
 				$msg->body = trim($step_before['message_escalated']);
 			}
 
@@ -2076,7 +2088,6 @@ class Workflow_Manager extends MySource_Object
 				$root_url = 'http://'.current($root_urls).'/'.$href;
 			}
 
-
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
 							'workflow_user'			=> $user->name,
@@ -2104,6 +2115,8 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message (for inviting users to the next step)?
 			if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+				$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
 				$msg->body = trim($current_step['message_invitation']);
 			}
 

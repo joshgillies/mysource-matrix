@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.31 2009/06/12 05:55:01 akarelia Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.32 2010/03/22 05:26:44 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,22 +150,22 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	{
 		try {
 			if (MatrixDAL::getDbType() === 'oci') {
-                $sql = 'SELECT
-                            aw.assetid, aw.schemaid, aw.wflow , aw.granted , a.name
-                        FROM
-                            sq_ast_wflow aw, sq_ast a
-                        WHERE
-                            aw.assetid = a.assetid
-                        AND
-                            TO_CHAR(aw.wflow) is not null
-                        AND
-                            aw.granted = 1';
+				$sql = 'SELECT
+							aw.assetid, aw.schemaid, aw.wflow , aw.granted , a.name
+						FROM
+							sq_ast_wflow aw, sq_ast a
+						WHERE
+							aw.assetid = a.assetid
+						AND
+							TO_CHAR(aw.wflow) is not null
+						AND
+							aw.granted = 1';
 
-                $query = MatrixDAL::preparePdoQuery($sql);
-                $rows  = MatrixDAL::executePdoAll($query);
-            } else {
-                $rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
-            }
+				$query = MatrixDAL::preparePdoQuery($sql);
+				$rows  = MatrixDAL::executePdoAll($query);
+			} else {
+				$rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
+			}
 		} catch (DALException $e) {
 			throw new Exception ('Unable to get running workflows due to database error: '.$e->getMessage());
 		}
@@ -263,6 +263,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		// Does this step have a custom message for stale workflow?
 		$custom_message = trim($step_data['message_stale']);
 		if ($custom_message !== '') {
+			$subject = trim(array_get_index($step_data, 'message_stale', 'Stale Workflow Step'));
+			$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 			$msg->body = $custom_message;
 		}
 

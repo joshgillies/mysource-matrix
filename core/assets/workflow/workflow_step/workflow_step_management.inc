@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_management.inc,v 1.15 2009/04/06 05:05:17 lwright Exp $
+* $Id: workflow_step_management.inc,v 1.16 2010/03/22 05:25:06 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,6 +103,36 @@ class Workflow_Step_Management extends Asset_Management
 																	'type'			=> 'text',
 																	'default'		=> '',
 																	'description'	=> 'Custom message to users when the workflow is escalated from this step',
+																   ),
+						'subject_invitation'					=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Workflow Approval Required',
+																	'description'	=> 'Custom subject to users when this workflow step begins',
+																   ),
+						'subject_approve'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Asset Changes Approved',
+																	'description'	=> 'Custom subject to users when changes to an asset in workflow are approved by a user',
+																   ),
+						'subject_reject'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Asset Changes Rejected',
+																	'description'	=> 'Custom subject to users when changes to an asset in workflow are rejected by a user',
+																   ),
+						'subject_stale'							=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Stale Workflow Step',
+																	'description'	=> 'Custom subject to users when the workflow passes the expiry time, but is not escalated',
+																   ),
+						'subject_escalated'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Workflow Escalated',
+																	'description'	=> 'Custom subject to users when the workflow is escalated from this step',
 																   ),
 					  );
 

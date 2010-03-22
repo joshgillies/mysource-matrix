@@ -10,28 +10,50 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_messages.xml,v 1.1 2009/04/06 05:06:26 lwright Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.2 2010/03/22 05:25:06 bpearson Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Custom Messages" write_access="write:attributes">
+	<section name="Workflow Invitation Message" write_access="write:attributes">
+		<field attribute="subject_invitation">
+			<text width="80" height="1" />
+		</field>
 		<field attribute="message_invitation">
 			<text width="80" height="5" />
+		</field>
+	</section>
+	<section name="Workflow Approval Message" write_access="write:attributes">
+		<field attribute="subject_approve">
+			<text width="80" height="1" />
 		</field>
 		<field attribute="message_approve">
 			<text width="80" height="5" />
 		</field>
+	</section>
+	<section name="Workflow Rejection Message" write_access="write:attributes">
+		<field attribute="subject_reject">
+			<text width="80" height="1" />
+		</field>
 		<field attribute="message_reject">
 			<text width="80" height="5" />
 		</field>
+	</section>
+	<section name="Workflow Stale Message" write_access="write:attributes">
+		<field attribute="subject_stale">
+			<text width="80" height="1" />
+		</field>
 		<field attribute="message_stale">
 			<text width="80" height="5" />
+		</field>
+	</section>
+	<section name="Workflow Escalated Message" write_access="write:attributes">
+		<field attribute="subject_escalated">
+			<text width="80" height="1" />
 		</field>
 		<field attribute="message_escalated">
 			<text width="80" height="5" />
 		</field>
 	</section>
-
 </contents>
