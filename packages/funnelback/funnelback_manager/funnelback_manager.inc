@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.6.2.4 2010/03/08 06:30:07 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.6.2.5 2010/03/22 05:46:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6.2.4 $
+* @version $Revision: 1.6.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -238,7 +238,7 @@ class Funnelback_Manager extends Asset
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								Component is set as $vars['component']
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function onAssetDeleted(&$broadcaster, $vars=Array())
@@ -259,7 +259,7 @@ class Funnelback_Manager extends Asset
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								Component is set as $vars['component']
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function onPermissionChange(&$broadcaster, $vars=Array())
@@ -280,7 +280,7 @@ class Funnelback_Manager extends Asset
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								Component is set as $vars['component']
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function onLookupsUpdated(&$broadcaster, $vars=Array())
@@ -301,7 +301,7 @@ class Funnelback_Manager extends Asset
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								Component is set as $vars['component']
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function onMetadataDeleted(&$broadcaster, $vars=Array())
@@ -322,7 +322,7 @@ class Funnelback_Manager extends Asset
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								Component is set as $vars['component']
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function onMetadataUpdate(&$broadcaster, $vars=Array())
@@ -345,7 +345,7 @@ class Funnelback_Manager extends Asset
 	* @param object	&$asset	the asset to update
 	* @param array	$vars	the components to update
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	public function updateAsset(&$asset, $vars=Array())
@@ -354,7 +354,7 @@ class Funnelback_Manager extends Asset
 		if ($asset->id == $this->id) return FALSE;
 
 		$action = array_get_index($vars, 'action', '');
-		
+
 		// If the action is delete, just delete and do not worry about the rest
 		if ($action == 'delete') {
 			return $this->_cleanupEntriesByAssetid($asset->id);
@@ -404,7 +404,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($http_url)) {
 						$sitemap_xml = $this->_generateXML($http_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'http', &$asset);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'http:') === 0) {
 									$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
@@ -417,7 +417,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($https_url)) {
 						$sitemap_xml = $this->_generateXML($https_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'https', &$asset);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'https:') === 0) {
 									$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
@@ -460,7 +460,7 @@ class Funnelback_Manager extends Asset
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		$url = str_replace('&#039;', '&apos;', htmlspecialchars($url, ENT_QUOTES));
+		$url = str_replace('&#039;', '&apos;', htmlspecialchars($url, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
 		$xml  = '<url>';
 		$xml .= '<loc>'.$url.'</loc>';
 		$xml .= '<lastmod>'.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated).'</lastmod>';
@@ -468,7 +468,7 @@ class Funnelback_Manager extends Asset
 		/*
 		 * Add in the permissions, with the following logic:
 		 *	- No permissions, return nothing
-		 *	- Public permission and live status, give a "public" lock 
+		 *	- Public permission and live status, give a "public" lock
 		 *  - Specific permission, add the lock
 		 */
 		$permissions = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
@@ -477,18 +477,18 @@ class Funnelback_Manager extends Asset
 			// No permissions found, therefore return nothing, so the asset does NOT get indexed
 			return '';
 		} else {
-			// Public user found AND page is live, place in the public lock 
+			// Public user found AND page is live, place in the public lock
 			if (in_array($public_user_id, $permissions) && !($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
 				$permissions[] = 'public';
 			}//end if
 			$all_permissions = Array();
 			foreach ($permissions as $permission) {
-				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, 'utf-8'))."'";
+				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
 			}//end foreach
 
 			// Give the root user, "GOD" access
 			if (!in_array("'12'", $all_permissions)) {
-				$all_permissions[] = "'".$this->encodeText(htmlspecialchars('12', ENT_COMPAT, 'utf-8'))."'";
+				$all_permissions[] = "'".$this->encodeText(htmlspecialchars('12', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
 			}//end if
 			$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
 		}//end if
@@ -510,8 +510,8 @@ class Funnelback_Manager extends Asset
 				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 			}//end foreach
 			replace_keywords($value, $replacements);
-			$name = $this->encodeText(htmlspecialchars($name, ENT_COMPAT, 'utf-8'));
-			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, 'utf-8'));
+			$name = $this->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
 		}//end foreach
 
@@ -535,7 +535,7 @@ class Funnelback_Manager extends Asset
 	 * @return boolean
 	 * @access private
 	 */
-	private function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml)
+	public function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -567,7 +567,6 @@ class Funnelback_Manager extends Asset
 
 		return TRUE;
 
-
 	}//end _addEntry()
 
 
@@ -596,7 +595,6 @@ class Funnelback_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return TRUE;
-
 
 	}//end _cleanupEntriesByAssetid()
 
@@ -658,17 +656,28 @@ class Funnelback_Manager extends Asset
 			$bind_vars['root_url'.$index] = $single_url;
 		}//end foreach
 
-
 		$db = MatrixDAL::getDb();
 		try {
-			$sql = 'SELECT DISTINCT f.xml 
-					 FROM sq_fnb_idx f 
-					  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
-						WHERE l.is_dependant=:dependant';
-			if ($public) $sql .= ' AND f.live=:live';
-			$sql .= ' AND (';
-			$sql .= rtrim(implode(' OR ', $where), 'OR');
-			$sql .= ')';
+			if (MatrixDAL::getDbType() == 'pgsql') { 
+				$sql = 'SELECT DISTINCT f.url, f.xml 
+						 FROM sq_fnb_idx f 
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+							WHERE l.is_dependant=:dependant';
+				if ($public) $sql .= ' AND f.live=:live';
+				$sql .= ' AND (';
+				$sql .= rtrim(implode(' OR ', $where), 'OR');
+				$sql .= ') ORDER BY f.url, f.xml';
+			} else {
+				// Oracle fun n games
+				$sql = 'SELECT DISTINCT f.url, CAST(f.xml AS VARCHAR2(1000)) AS xml 
+						 FROM sq_fnb_idx f 
+						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
+							WHERE l.is_dependant=:dependant';
+				if ($public) $sql .= ' AND f.live=:live';
+				$sql .= ' AND (';
+				$sql .= rtrim(implode(' OR ', $where), 'OR');
+				$sql .= ') ORDER BY f.url, CAST(f.xml AS VARCHAR2(1000))';
+			}//end if
 			$query = MatrixDAL::preparePDOQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'dependant', '0');
 			if ($public) MatrixDAL::bindValueToPdo($query, 'live', '1');
@@ -813,8 +822,8 @@ class Funnelback_Manager extends Asset
 	/**
 	* Get the data path of the collection
 	*
-	* @param string		$collection_id	The ID of the collection to get the data path for
-	* @param string		$sub_dir		The name of a sub directory if needed
+	* @param string	$collection_id	The ID of the collection to get the data path for
+	* @param string	$sub_dir		The name of a sub directory if needed
 	*
 	* @return string
 	* @access public
@@ -848,7 +857,7 @@ class Funnelback_Manager extends Asset
 	/**
 	* Get the config files of a collection
 	*
-	* @param string		$collection_id	The ID of the collection to get the data path for
+	* @param string	$collection_id	The ID of the collection to get the data path for
 	*
 	* @return string
 	* @access public
@@ -931,6 +940,9 @@ class Funnelback_Manager extends Asset
 				}//end if
 			break;
 
+			default:
+				// Meh
+			break;
 		}//end switch
 
 	}//end createCollectionConfig()
@@ -945,8 +957,8 @@ class Funnelback_Manager extends Asset
 	function _getCollectionTypes()
 	{
 		return Array(
-					'web'		=> translate('funnelback_collection_type_web'),
-					'meta'		=> translate('funnelback_collection_type_meta'),
+					'web'	=> translate('funnelback_collection_type_web'),
+					'meta'	=> translate('funnelback_collection_type_meta'),
 			   );
 
 	}//end _getCollectionTypes()
@@ -966,7 +978,7 @@ class Funnelback_Manager extends Asset
 		$options = Array();
 		$available_opts = Array(
 							'politeness'			=> '-politeness',
-							//'orgname'				=> '-O',
+							// 'orgname'				=> '-O',
 							'spelleroff'			=> '-spelleroff',
 							'spelling_threshold'	=> '-spelling_threshold',
 							'ibd'					=> '-ibd',
@@ -980,7 +992,7 @@ class Funnelback_Manager extends Asset
 		// Now add in the user-specified options
 		foreach ($available_opts as $opt_name => $opt_switch) {
 			$attribute = $this->attr($opt_name);
-			if (in_array($opt_name, Array('politeness','spelling_threshold')) && $attribute == '0') {
+			if (in_array($opt_name, Array('politeness', 'spelling_threshold')) && $attribute == '0') {
 				// Special case for politeness to work on 0, ie. we dont want to be polite ;-)
 				$options[] = $opt_switch.'0';
 			} else if ($opt_name == 'orgname') {
@@ -1010,10 +1022,10 @@ class Funnelback_Manager extends Asset
 	/**
 	* Read a configuration file
 	*
-	* @param string	$config		The file to read
-	* @param string	$type		The type of configuration to read
-	* @param string	$delimiter	The delimiter of each line
-	* @param array	$attribute	Used currently for metamap, to pass in the attribute
+	* @param string		$config		The file to read
+	* @param string		$type		The type of configuration to read
+	* @param string		$delimiter	The delimiter of each line
+	* @param boolean	$system		Used currently for metamap, to pass in the attribute
 	*
 	* @return array
 	* @access public
@@ -1067,7 +1079,11 @@ class Funnelback_Manager extends Asset
 								$query = 'exact';
 							}//end if
 
-							$data_line = Array('query'=>$query,'trigger'=>$trigger,'url'=>$url);
+							$data_line = Array(
+											'query'		=> $query,
+											'trigger'	=> $trigger,
+											'url'		=> $url,
+										 );
 							if (!empty($title)) $data_line['title'] = $title;
 							if (!empty($desc)) $data_line['desc'] = $desc;
 							$data[] = $data_line;
@@ -1083,7 +1099,12 @@ class Funnelback_Manager extends Asset
 						$line_data = explode($delimiter, $line);
 						if (isset($line_data[0]) && !empty($line_data[0])) {
 							// These settings do not need to be saved as they are used exclusively by the search page
-							$invalid = Array('enable_fluster', 'site.max_clusters', 'type.max_clusters', 'topic.max_clusters'); 
+							$invalid = Array(
+											'enable_fluster',
+											'site.max_clusters',
+											'type.max_clusters',
+											'topic.max_clusters',
+									   );
 							if (!in_array($line_data[0], $invalid)) {
 								$data[$line_data[0]] = $line_data[1];
 							}//end if
@@ -1116,7 +1137,12 @@ class Funnelback_Manager extends Asset
 				}//end foreach
 
 				// This *has* to be in the entries for access_locks
-				$data[] = Array('alias'=>'S','content'=>'1','metatag'=>'access_locks','system'=>TRUE);
+				$data[] = Array(
+							'alias'		=> 'S',
+							'content'	=> '1',
+							'metatag'	=> 'access_locks',
+							'system'	=> TRUE,
+						  );
 			break;
 
 			case 'thesaurus':
@@ -1131,7 +1157,11 @@ class Funnelback_Manager extends Asset
 						$query_exp = (($query == '+') ? 'whole' : 'term');
 						if (!empty($term) && !empty($expansion)) {
 							// No point having a nothing there
-							$data[] = Array('query'=>$query_exp,'term'=>$term,'expansion'=>$expansion);
+							$data[] = Array(
+										'query'		=> $query_exp,
+										'term'		=> $term,
+										'expansion'	=> $expansion,
+									  );
 						}//end if
 					}//end if
 				}//end foreach
@@ -1190,7 +1220,12 @@ class Funnelback_Manager extends Asset
 				$contents .= "# Fluster Configuration\n";
 				$contents .= "#\n";
 				// These settings do not need to be saved as they are used exclusively by the search page
-				$invalid = Array('enable_fluster', 'site.max_clusters', 'type.max_clusters', 'topic.max_clusters'); 
+				$invalid = Array(
+								'enable_fluster',
+								'site.max_clusters',
+								'type.max_clusters',
+								'topic.max_clusters',
+						   );
 				ksort($data);
 				foreach ($data as $switch => $parameter) {
 					if (in_array($switch, $invalid)) continue;
@@ -1227,7 +1262,6 @@ class Funnelback_Manager extends Asset
 						$contents .= $query.$delimiter.$term.$delimiter.$expansion."\n";
 					}//end if
 				}//end foreach
-
 			break;
 		}//end switch
 
@@ -1242,7 +1276,14 @@ class Funnelback_Manager extends Asset
 	/**
 	* Run a command line program
 	*
-	* @return array
+	* @param string	$command		The command to run
+	* @param string	&$output		The output to return
+	* @param string	$input			The input to pass into $command (NULL if none)
+	* @param string	$log_file		Where to log
+	* @param string	$cwd			The current working directory (NULL to use current)
+	* @param array	$environment	Any environment settings to use at run time
+	*
+	* @return integer
 	* @access public
 	*/
 	function runCommand($command, &$output, $input=NULL, $log_file=NULL, $cwd=NULL, $environment=Array())
@@ -1255,17 +1296,27 @@ class Funnelback_Manager extends Asset
 			$environment['SITE_SEARCH_ROOT'] = $cwd;
 		}//end if
 		if (is_null($log_file)) {
-			$log = Array('pipe', 'w');
+			$log = Array(
+						'pipe',
+						'w',
+				   );
 		} else {
-			$log = Array('file', $log_file, 'a');
+			$log = Array(
+						'file',
+						$log_file,
+						'a',
+				   );
 		}//end if
 
 		$status = FALSE;
-		$spec = array(
-			0 => Array('pipe', 'r'),  // stdin is a pipe that the child will read from
-			1 => $log,  // stdout is a pipe that the child will write to
-			2 => $log,  // stderr is a file to write to
-		);
+		$spec = Array(
+					0	=> Array(
+								'pipe',
+								'r',
+						   ),					// stdin is a pipe that the child will read from
+					1	=> $log,				// stdout is a pipe that the child will write to
+					2	=> $log,				// stderr is a file to write to
+				);
 
 		$process = proc_open($command, $spec, $pipes, $cwd, $environment);
 
@@ -1280,12 +1331,12 @@ class Funnelback_Manager extends Asset
 				// Get the output
 				$output .= stream_get_contents($pipes[1]);
 				fclose($pipes[1]);
-			
+
 				// Find the errors ... do NOT throw to output
 				$errors = stream_get_contents($pipes[2]);
 				if (!empty($errors)) {
 					error_log("\nCommand failed\n");
-					//log_dump($errors);
+					// log_dump($errors);
 				}//end if
 				fclose($pipes[2]);
 			}//end if
@@ -1313,14 +1364,28 @@ class Funnelback_Manager extends Asset
 	public function encodeText($text)
 	{
 		// Strip disallowed characters (0-0x20 and 0x7F-0xA0)
-		$invalid = Array();
-		for ($i=0; $i<=31; $i++) {
-			$invalid[] = chr($i);
+		$pattern = Array();
+		for ($i=0; $i<32; $i++) {
+			$pattern[] = chr($i);
 		}//end for
-		for ($i=127; $i<=160; $i++) {
-			$invalid[] = chr($i);
+		for ($i=127; $i<161; $i++) {
+			$pattern[] = chr($i);
 		}//end for
-		$text = str_replace($invalid, '', $text);
+
+		foreach ($pattern as $patt) {
+			if (SQ_CONF_DEFAULT_CHARACTER_SET == 'utf-8' && function_exists('mb_substr') && function_exists('mb_strlen') && function_exists('mb_strpos')) {
+				// Bug #4240 - when dealing with 2 byte utf8 characters, str_replace just ain't up to scratch
+				$patt = utf8_encode($patt);
+				$replace = '';
+				$pos = mb_strpos($text, $patt);
+				while ($pos !== FALSE) {
+					$text = mb_substr($text, 0, $pos).$replace.mb_substr($text, $pos + mb_strlen($patt));
+					$pos = mb_strpos($text, $patt, $pos+mb_strlen($replace));
+				}
+			} else {
+				$text = str_replace($patt, '', $text);
+			}//end if
+		}
 
 		// Remove Quote marks
 		$text = str_replace('"', '&ldquo;', $text);
@@ -1366,69 +1431,69 @@ class Funnelback_Manager extends Asset
 	public function getMetadataAliases()
 	{
 		return Array(
-				//''	=> 'Anywhere',					// DISABLED until tested properly
-				'a'	=> translate('fb_mclass', 'a'),		// Author
-				'b'	=> translate('fb_mclass', 'b'),		// Rights
-				'c'	=> translate('fb_mclass', 'c'),		// Description
-				'd'	=> translate('fb_mclass', 'd'),		// Date
-				'e'	=> translate('fb_mclass', 'e'),		// Type
-				'f'	=> translate('fb_mclass', 'f'),		// Format
-				'g'	=> translate('fb_mclass', 'g'),		// Relation
-				'h'	=> translate('fb_mclass', 'h'),		// Outgoing Links
-				'i'	=> translate('fb_mclass', 'i'),		// Images
-				'j'	=> translate('fb_mclass', 'j'),		// Availability
-				'k'	=> translate('fb_mclass', 'k'),		// Anchor Text
-				'l'	=> translate('fb_mclass', 'l'),		// Language
-				'm'	=> translate('fb_mclass', 'm'),		// Mailto references
-				'n'	=> translate('fb_mclass', 'n'),		// Source
-				'o'	=> translate('fb_mclass', 'o'),		// Coverage
-				'p'	=> translate('fb_mclass', 'p'),		// Publisher
-				'q'	=> translate('fb_mclass', 'q'),		// Function
-				'r'	=> translate('fb_mclass', 'r'),		// Recipients
-				's'	=> translate('fb_mclass', 's'),		// Subject/Keywords
-				't'	=> translate('fb_mclass', 't'),		// Title
-				'u'	=> translate('fb_mclass', 'u'),		// Hostname part of URL
-				'v'	=> translate('fb_mclass', 'v'),		// Filename part of URL
-				'w'	=> translate('fb_mclass', 'w'),
-				'x'	=> translate('fb_mclass', 'x'),
-				'y'	=> translate('fb_mclass', 'y'),
-				'z'	=> translate('fb_mclass', 'z'),
-				'A'	=> translate('fb_mclass', 'A'),
-				'B'	=> translate('fb_mclass', 'B'),
-				'C'	=> translate('fb_mclass', 'C'),
-				'D'	=> translate('fb_mclass', 'D'),
-				'E'	=> translate('fb_mclass', 'E'),
-				'F'	=> translate('fb_mclass', 'F'),
-				'G'	=> translate('fb_mclass', 'G'),
-				'H'	=> translate('fb_mclass', 'H'),
-				'I'	=> translate('fb_mclass', 'I'),
-				'J'	=> translate('fb_mclass', 'J'),
-				'K'	=> translate('fb_mclass', 'K'),		// Click Data
-				'L'	=> translate('fb_mclass', 'L'),
-				'M'	=> translate('fb_mclass', 'M'),
-				'N'	=> translate('fb_mclass', 'N'),
-				'O'	=> translate('fb_mclass', 'O'),
-				'P'	=> translate('fb_mclass', 'P'),
-				'Q'	=> translate('fb_mclass', 'Q'),
-				'R'	=> translate('fb_mclass', 'R'),
-				'S'	=> translate('fb_mclass', 'S'),		// Squiz Access keys
-				'T'	=> translate('fb_mclass', 'T'),
-				'U'	=> translate('fb_mclass', 'U'),
-				'V'	=> translate('fb_mclass', 'V'),
-				'W'	=> translate('fb_mclass', 'W'),
-				'X'	=> translate('fb_mclass', 'X'),
-				'Y'	=> translate('fb_mclass', 'Y'),
-				'Z'	=> translate('fb_mclass', 'Z'),
-				'0'	=> translate('fb_mclass', '0'),
-				'1'	=> translate('fb_mclass', '1'),
-				'2'	=> translate('fb_mclass', '2'),
-				'3'	=> translate('fb_mclass', '3'),
-				'4'	=> translate('fb_mclass', '4'),
-				'5'	=> translate('fb_mclass', '5'),
-				'6'	=> translate('fb_mclass', '6'),
-				'7'	=> translate('fb_mclass', '7'),
-				'8'	=> translate('fb_mclass', '8'),
-				'9'	=> translate('fb_mclass', '9'),
+					// ''=> 'Anywhere',						// DISABLED until tested properly
+					'a'	=> translate('fb_mclass', 'a'),		// Author
+					'b'	=> translate('fb_mclass', 'b'),		// Rights
+					'c'	=> translate('fb_mclass', 'c'),		// Description
+					'd'	=> translate('fb_mclass', 'd'),		// Date
+					'e'	=> translate('fb_mclass', 'e'),		// Type
+					'f'	=> translate('fb_mclass', 'f'),		// Format
+					'g'	=> translate('fb_mclass', 'g'),		// Relation
+					'h'	=> translate('fb_mclass', 'h'),		// Outgoing Links
+					'i'	=> translate('fb_mclass', 'i'),		// Images
+					'j'	=> translate('fb_mclass', 'j'),		// Availability
+					'k'	=> translate('fb_mclass', 'k'),		// Anchor Text
+					'l'	=> translate('fb_mclass', 'l'),		// Language
+					'm'	=> translate('fb_mclass', 'm'),		// Mailto references
+					'n'	=> translate('fb_mclass', 'n'),		// Source
+					'o'	=> translate('fb_mclass', 'o'),		// Coverage
+					'p'	=> translate('fb_mclass', 'p'),		// Publisher
+					'q'	=> translate('fb_mclass', 'q'),		// Function
+					'r'	=> translate('fb_mclass', 'r'),		// Recipients
+					's'	=> translate('fb_mclass', 's'),		// Subject/Keywords
+					't'	=> translate('fb_mclass', 't'),		// Title
+					'u'	=> translate('fb_mclass', 'u'),		// Hostname part of URL
+					'v'	=> translate('fb_mclass', 'v'),		// Filename part of URL
+					'w'	=> translate('fb_mclass', 'w'),
+					'x'	=> translate('fb_mclass', 'x'),
+					'y'	=> translate('fb_mclass', 'y'),
+					'z'	=> translate('fb_mclass', 'z'),
+					'A'	=> translate('fb_mclass', 'A'),
+					'B'	=> translate('fb_mclass', 'B'),
+					'C'	=> translate('fb_mclass', 'C'),
+					'D'	=> translate('fb_mclass', 'D'),
+					'E'	=> translate('fb_mclass', 'E'),
+					'F'	=> translate('fb_mclass', 'F'),
+					'G'	=> translate('fb_mclass', 'G'),
+					'H'	=> translate('fb_mclass', 'H'),
+					'I'	=> translate('fb_mclass', 'I'),
+					'J'	=> translate('fb_mclass', 'J'),
+					'K'	=> translate('fb_mclass', 'K'),		// Click Data
+					'L'	=> translate('fb_mclass', 'L'),
+					'M'	=> translate('fb_mclass', 'M'),
+					'N'	=> translate('fb_mclass', 'N'),
+					'O'	=> translate('fb_mclass', 'O'),
+					'P'	=> translate('fb_mclass', 'P'),
+					'Q'	=> translate('fb_mclass', 'Q'),
+					'R'	=> translate('fb_mclass', 'R'),
+					'S'	=> translate('fb_mclass', 'S'),		// Squiz Access keys
+					'T'	=> translate('fb_mclass', 'T'),
+					'U'	=> translate('fb_mclass', 'U'),
+					'V'	=> translate('fb_mclass', 'V'),
+					'W'	=> translate('fb_mclass', 'W'),
+					'X'	=> translate('fb_mclass', 'X'),
+					'Y'	=> translate('fb_mclass', 'Y'),
+					'Z'	=> translate('fb_mclass', 'Z'),
+					'0'	=> translate('fb_mclass', '0'),
+					'1'	=> translate('fb_mclass', '1'),
+					'2'	=> translate('fb_mclass', '2'),
+					'3'	=> translate('fb_mclass', '3'),
+					'4'	=> translate('fb_mclass', '4'),
+					'5'	=> translate('fb_mclass', '5'),
+					'6'	=> translate('fb_mclass', '6'),
+					'7'	=> translate('fb_mclass', '7'),
+					'8'	=> translate('fb_mclass', '8'),
+					'9'	=> translate('fb_mclass', '9'),
 			   );
 
 	}//end getMetadataAliases()
@@ -1488,7 +1553,18 @@ class Funnelback_Manager extends Asset
 		$config_metamap = (($path) ? 'conf/' : '').'metamap.cfg';
 		$config_fluster = (($path) ? 'conf/' : '').'fluster.cfg';
 		$licence        = (($path) ? 'VERSION/' : '').'squiz.lic';
-		$files = Array($indexer, $search, $fl, $annie, $spelling, $click, $config_xml, $config_metamap, $config_fluster, $licence);
+		$files = Array(
+					$indexer,
+					$search,
+					$fl,
+					$annie,
+					$spelling,
+					$click,
+					$config_xml,
+					$config_metamap,
+					$config_fluster,
+					$licence,
+				 );
 
 		return $files;
 
@@ -1496,4 +1572,5 @@ class Funnelback_Manager extends Asset
 
 
 }//end class
+
 ?>
