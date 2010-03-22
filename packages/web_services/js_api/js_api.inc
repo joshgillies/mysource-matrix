@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.26 2010/03/17 04:48:05 akarelia Exp $
+* $Id: js_api.inc,v 1.27 2010/03/22 02:26:50 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -195,25 +195,7 @@ class JS_Api extends Page
 			case	'getGeneral':
 				if ($this->attr('get_general')) {
 					if ($ra) {
-						// Get general info about asset
-						$data = Array(
-									'name'					=>	$asset->name,
-									'short_name'			=>	$asset->short_name,
-									'id'					=>	$asset->id,
-									'type_code'				=>	$asset->type(),
-									'icon_path'				=>	$am->getAssetIconURL($asset->type()),
-									'data_path'				=>	$asset->data_path,
-									'web_path'				=>	$asset->getURL(),
-									'status'				=>	$asset->getStatusDescription(),
-									'created'				=>	$asset->created,
-									'created_userid'		=>	$asset->created_userid,
-									'updated'				=>	$asset->updated,
-									'updated_userid'		=>	$asset->updated_userid,
-									'published'				=>	$asset->published,
-									'published_userid'		=>	$asset->published_userid,
-									'status_changed'		=>	$asset->status_changed,
-									'status_changed_userid'	=>	$asset->status_changed_userid,
-								);
+						$data = $this->getGeneralInfo($asset);
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
@@ -637,8 +619,9 @@ class JS_Api extends Page
 							$this->returnError('A parent asset is required');
 							return;
 						}
+						$all_info = (boolean)$_REQUEST['all_info'];
 						// Get our link id
-						$data['link_id'] = $this->getLinkId($parent->id, $asset->id);
+						$data = $this->getLinkId($parent->id, $asset->id, $all_info);
 						if (!$data['link_id']) return;
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
@@ -722,7 +705,7 @@ class JS_Api extends Page
 			default:	$this->returnError('This is not a valid function name');
 
 		}//end switch
- 
+
 		// Send our data as JSON
 		if (isset($data)) {
 			$this->returnJSON($data, $type);
@@ -788,6 +771,78 @@ class JS_Api extends Page
 
 
 	/**
+	* Gets general information for the passed in Asset
+	*
+	* @param object	$asset		The asset we want to get information about
+	*
+	* @return array
+	* @access public
+	*/
+	public function getGeneralInfo(Asset $asset)
+	{
+		if (is_null($asset)) return Array();
+
+		//root folder?
+		if ($asset->id == '1') {
+			$data['name'] = 'Root Folder';
+			return $data;
+		}
+
+		// Set some shortcuts
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$created_user = $am->getAsset($asset->created_userid);
+
+		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
+			$updated_user = $am->getAsset($asset->updated_userid);
+		} else {
+			$updated_user = 'Never Updated';
+		}
+
+		if (isset($asset->published_userid) && $asset->published_userid != '' && (int)$asset->published_userid != 0 ) {
+			$published_user = $am->getAsset($asset->published_userid);
+		} else {
+			$published_user = 'Never Published';
+		}
+
+		if (isset($asset->status_changed_userid) && $asset->status_changed_userid != '' && (int)$asset->status_changed_userid != 0 ) {
+			$status_user  = $am->getAsset($asset->status_changed_userid);
+		} else {
+			$status_user = 'Never Changed';
+		}
+
+		// Get general info about asset
+		
+		$data = Array(
+					'name'						=>	$asset->name,
+					'short_name'				=>	$asset->short_name,
+					'id'						=>	$asset->id,
+					'type_code'					=>	$asset->type(),
+					'type'						=>	str_replace('_', ' ', get_class($asset)),
+					'icon_path'					=>	$am->getAssetIconURL($asset->type()),
+					'data_path'					=>	$asset->data_path,
+					'web_path'					=>	$asset->getURL(),
+					'status'					=>	$asset->getStatusDescription(),
+					'created'					=>	$asset->created,
+					'created_userid'			=>	$created_user->id,
+					'created_username'			=>	$created_user->name,
+					'updated'					=>	($updated_user === 'Never Updated') ? $updated_user : $asset->updated,
+					'updated_userid'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->id,
+					'update_username'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->name,
+					'published'					=>	($published_user === 'Never Published') ? $published_user : $asset->published,
+					'published_userid'			=>	($published_user === 'Never Published') ? $published_user : $published_user->id,
+					'published_username'		=>	($published_user === 'Never Published') ? $published_user : $published_user->name,
+					'status_changed'			=>	($status_user === 'Never Changed') ? $status_user : $asset->status_changed,
+					'status_changed_userid'		=>	($status_user === 'Never Changed') ? $status_user : $status_user->id,
+					'status_changed_username'	=>	($status_user === 'Never Changed') ? $status_user : $status_user->name,
+				);
+
+		return $data;
+
+	}//end getGeneralInfo()
+
+
+	/**
 	* Description: This will create a link between two assets
 	*
 	* @param integer	$parent			Major asset id we are linking from
@@ -845,8 +900,8 @@ class JS_Api extends Page
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if ($linkid != '') {
-			$link = $am->getLinkById($linkid);
+		if ($linkid['link_id'] != '') {
+			$link = $am->getLinkById($linkid['link_id']);
 			// Make sure our array contains some items
 			if (!empty($link)) {
 				// Get all our locks
@@ -857,7 +912,7 @@ class JS_Api extends Page
 				// See if we should delete a link or move the asset to the trash
 				if (count($parents) > 1) {
 					// More than one parent link, we can delete the link
-					$result	= $am->deleteAssetLink($linkid);
+					$result	= $am->deleteAssetLink($linkid['link_id']);
 				} else {
 					// Only one link holly cow, lets trash it instead, otherwise we'l have an orphan asset in the system
 					$result	= $am->trashAsset($link['minorid']);
@@ -907,7 +962,7 @@ class JS_Api extends Page
 			// Get our link id!!
 			$link_id = $this->getLinkId($old_parent_id, $asset_id_to_move);
 			if (!$link_id) return FALSE;
-			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id, $new_parent_id, $link_type, $new_position);
+			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id['link_id'], $new_parent_id, $link_type, $new_position);
 
 			if (!empty($new_link_id)) {
 				//wow we moved the asset successfully, now lets try and update lookups
@@ -943,11 +998,11 @@ class JS_Api extends Page
 		if (!empty($parent) && !empty($child)) {
 			$link_id = $this->getLinkId($parent, $child);
 			if (!$link_id) return FALSE;
-			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id, $link_type, $link_value, $sort_order);
+			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id['link_id'], $link_type, $link_value, $sort_order);
 
 			if (!empty($new_link_id)) {
 				return Array (
-						'success'	=> 'Link #'.$link_id.' has been updated',
+						'success'	=> 'Link #'.$link_id['link_id'].' has been updated',
 					   );
 			} else {
 				//$this->returnError('Unable to update link');
@@ -1064,22 +1119,21 @@ class JS_Api extends Page
 	{
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$parent_arr = Array();
 
 		$parents = $am->getParents($id, '', TRUE, NULL, NULL, TRUE, NULL, $level);
 		foreach ($parents as $parent => $type_code) {
 			// Levels greater than 1 won't have a link id with the parent
-			if (!$this->hasLink($id, $child->id)) {
+			if (!$this->hasLink($parent, $id)) {
 				$show_link_id = NULL;
 			} else {
-				$show_link_id = $this->getLinkId($id, $child->id);
+				$show_link = $this->getLinkId($parent, $id);
+				$show_link_id = $show_link['link_id'];
 			}
 			$asset = $am->getAsset($parent);
-			$parent_arr[$asset->id] = Array(
-							'id'		=>	$asset->id,
-							'name'		=>	$asset->name,
-							'type_code'	=>	$asset->type(),
-							'link_id'	=>	$show_link_id,
-						);
+			$parent_arr[$asset->id] = $this->getGeneralInfo($asset);
+			$parent_arr[$asset->id]['link_id'] = $show_link_id;
+
 		}//end foreach
 
 		return $parent_arr;
@@ -1100,22 +1154,21 @@ class JS_Api extends Page
 	{
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$children_arr =Array();
 
 		$children = $am->getChildren($id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, $level);
 		foreach ($children as $children => $child_id) {
 			$child = $am->getAsset($children);
 			// Levels lower than 1 won't have a link id with the parent
-			if (!$this->hasLink($id, $child->id)) {
+			if (!$this->hasLink($id, $children)) {
 				$show_link_id = NULL;
 			} else {
-				$show_link_id = $this->getLinkId($id, $child->id);
+				$show_link = $this->getLinkId($id, $child->id);
+				$show_link_id = $show_link['link_id'];
 			}
-			$children_arr[$child->id] = Array(
-							'id'		=>	$child->id,
-							'name'		=>	$child->name,
-							'type_code'	=>	$child->type(),
-							'link_id'	=>	$show_link_id,
-						);
+			$children_arr[$child->id] = $this->getGeneralInfo($child);
+			$children_arr[$child->id]['link_id'] = $show_link_id;
+
 		}//end foreach
 
 		return $children_arr;
@@ -1270,22 +1323,37 @@ class JS_Api extends Page
 	*
 	* @param string		$parent			Parent id
 	* @param string		$child			Child id
+	* @param boolean	$all_info		If to return just LinkId or all the information
 	*
-	* @return void
+	* @return string/array
 	* @access public
 	*/
-	function getLinkId($parent, $child)
+	function getLinkId($parent, $child, $all_info = FALSE)
 	{
 		if (!empty($parent) && !empty($child)) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent, $child);
-			$linkid = array_get_index($link, 'linkid', 0);
-
-			if (empty($linkid)) {
+			if (empty($link)) {
 				$this->returnError('Parent #'.$parent.' and child #'.$child.' do not have a valid link');
 				return FALSE;
 			}
-
-			return $linkid;
+			if (!$all_info) {
+				$link_array['link_id'] = array_get_index($link, 'linkid', 0);
+				return $link_array;
+			} else {
+				// we are returning more information
+				$data_array = Array (
+								'link_id'		=> isset($link['linkid']) ? $link['linkid'] : '',
+								'minorid'		=> isset($link['minorid']) ? $link['minorid'] : '',
+								'majorid'		=> $parent,
+								'value'			=> isset($link['value']) ? $link['value'] : '',
+								'link_type'		=> isset($link['link_type']) ? $link['link_type'] : '',
+								'sort_order'	=> isset($link['sort_order']) ? $link['sort_order'] : '',
+								'is_dependant'	=> isset($link['is_dependant']) ? $link['is_dependant'] : '',
+								'is_exclusive'	=> isset($link['is_exclusive']) ? $link['is_exclusive'] : '',
+								'locked'		=> isset($link['locked']) ? $link['locked'] : '',
+							  );
+				return $data_array;
+			}
 		} else {
 			$this->returnError('Please provide a parent id and child id');
 			return FALSE;
@@ -1896,9 +1964,9 @@ function makeRequest(url, receive, dataCallback)
 		// Custom callback
 		ajaxRequest.onreadystatechange = function() {
 			success(ajaxRequest, dataCallback);
-		}
+		};
 	}//end if
-	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	ajaxRequest.send(encodeURI(urlarray[1]));
 
 }//end makeRequest
@@ -2510,17 +2578,19 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 *
 * @param string		parent_id		Id of the parent
 * @param string		child_id		Id of the child
+* @param function	all_info		if we want all the link information or just linkid
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.2
 */
-function getLinkId(parent_id, child_id, dataCallback)
+function getLinkId(parent_id, child_id, all_info, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var all_info = isset(all_info) ? all_info : 0;
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id + '&all_info=' + all_info;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
