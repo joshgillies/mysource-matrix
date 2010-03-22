@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.27 2010/03/22 02:26:50 akarelia Exp $
+* $Id: js_api.inc,v 1.28 2010/03/22 04:21:47 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1125,14 +1125,21 @@ class JS_Api extends Page
 		foreach ($parents as $parent => $type_code) {
 			// Levels greater than 1 won't have a link id with the parent
 			if (!$this->hasLink($parent, $id)) {
-				$show_link_id = NULL;
+				$show['link_id']		= NULL;
+				$show['is_dependant']	= NULL;
+				$show['is_exclusive']	= NULL;
+				$show['sort_order']		= NULL;
+				$show['link_value']		= NULL;
 			} else {
-				$show_link = $this->getLinkId($parent, $id);
-				$show_link_id = $show_link['link_id'];
+				$show_link = $this->getLinkId($parent, $id, TRUE);
+				$show['link_id']		= $show_link['link_id'];
+				$show['is_dependant']	= $show_link['is_dependant'];
+				$show['is_exclusive']	= $show_link['is_exclusive'];
+				$show['sort_order']		= $show_link['sort_order'];
+				$show['link_value']		= $show_link['value'];
 			}
 			$asset = $am->getAsset($parent);
-			$parent_arr[$asset->id] = $this->getGeneralInfo($asset);
-			$parent_arr[$asset->id]['link_id'] = $show_link_id;
+			$parent_arr[$asset->id] = array_merge($this->getGeneralInfo($asset), $show);
 
 		}//end foreach
 
@@ -1161,13 +1168,20 @@ class JS_Api extends Page
 			$child = $am->getAsset($children);
 			// Levels lower than 1 won't have a link id with the parent
 			if (!$this->hasLink($id, $children)) {
-				$show_link_id = NULL;
+				$show['link_id']		= NULL;
+				$show['is_dependant']	= NULL;
+				$show['is_exclusive']	= NULL;
+				$show['sort_order']		= NULL;
+				$show['link_value']		= NULL;
 			} else {
-				$show_link = $this->getLinkId($id, $child->id);
-				$show_link_id = $show_link['link_id'];
+				$show_link = $this->getLinkId($id, $child->id, TRUE);
+				$show['link_id']		= $show_link['link_id'];
+				$show['is_dependant']	= $show_link['is_dependant'];
+				$show['is_exclusive']	= $show_link['is_exclusive'];
+				$show['sort_order']		= $show_link['sort_order'];
+				$show['link_value']		= $show_link['value'];
 			}
-			$children_arr[$child->id] = $this->getGeneralInfo($child);
-			$children_arr[$child->id]['link_id'] = $show_link_id;
+			$children_arr[$child->id] = array_merge($this->getGeneralInfo($child), $show);
 
 		}//end foreach
 
