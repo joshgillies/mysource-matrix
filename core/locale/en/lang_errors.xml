@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.119 2010/03/16 05:49:20 lwright Exp $
+* $Id: lang_errors.xml,v 1.120 2010/03/22 00:19:59 lwright Exp $
 *
 */
 
@@ -1781,6 +1781,7 @@ Full Node Contents :
 
 	<error code="CORE0286">More than one default option was set in the CSV file, but the question is not set for multiple selection. Only the first default option found will be used.</error>
 	<error code="CORE0287">Cannot export remap entries to CSV, there are no entries to export</error>
+	<error code="CORE0288">Cannot download log file "%1$s", it does not exist</error>
 
 	<error code="CORE0300">Cannot use File. File (%1$s) was infected</error>
 
