@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.36 2009/03/25 05:47:38 mbrydon Exp $
+* $Id: data_source_db.inc,v 1.37 2010/03/22 21:54:28 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,17 +239,23 @@ class Data_Source_DB extends Data_Source
 		$db = $this->connectToDB();
 		if ($db === FALSE) return $result;
 		$sql = trim($sql, ';');
-
+			
 		try {
-			MatrixDAL::changeDb('data_source_db_'.$this->id);
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			MatrixDAL::changeDb('data_source_db_'.$this->id);	
+			// differentiate  select queries and execute queries	
+			if(preg_match('/^[ ]*select/i', $sql)) {
+				$result = MatrixDAL::executeSqlAssoc($sql);
+			}
+			else {
+				MatrixDAL::executeQueries($sql);
+			}
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
 			MatrixDAL::restoreDb();
 			return $result;
 		}
-
+									
 		return $result;
 
 	}//end _executeQuery()
@@ -290,6 +296,7 @@ class Data_Source_DB extends Data_Source
 			return FALSE;
 		}
 
+		
 		return $this->_tmp['db_connection'];
 
 	}//end connectToDB()
