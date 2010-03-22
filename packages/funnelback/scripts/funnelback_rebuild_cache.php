@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rebuild_cache.php,v 1.3.2.4 2010/03/08 06:30:07 bpearson Exp $
+* $Id: funnelback_rebuild_cache.php,v 1.3.2.5 2010/03/22 23:21:58 bpearson Exp $
 *
 */
 
@@ -64,11 +64,18 @@ if (file_exists(SQ_TEMP_PATH.'/funnelback.rebuilder')) {
 touch(SQ_TEMP_PATH.'/funnelback.rebuilder');
 
 // Start rebuilding
-echo 'START REBUILDING'."\n";
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $vars = Array('root_assetid'=> $ROOT_NODE_ID);
-$hh->freestyleHipo('hipo_job_funnelback_rebuild_cache', $vars, SQ_PACKAGES_PATH.'/funnelback/hipo_jobs');
-echo 'FINISHED'."\n";
+$errors = $hh->freestyleHipo('hipo_job_funnelback_rebuild_cache', $vars, SQ_PACKAGES_PATH.'/funnelback/hipo_jobs');
+if (!empty($errors)) {
+	echo 'Funnelback Cache Rebuild FAILED'."\n";
+	foreach ($errors as $error) {
+		$line = array_get_index($error, 'message', '');
+		if (!empty($line)) {
+			echo $line."\n";
+		}//end if
+	}//end foreach
+}//end if
 
 // Remove if finished
 if (file_exists(SQ_TEMP_PATH.'/funnelback.rebuilder')) {
