@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_reindex.php,v 1.3 2010/03/08 05:39:18 bpearson Exp $
+* $Id: funnelback_reindex.php,v 1.4 2010/03/22 23:19:45 bpearson Exp $
 *
 */
 
@@ -60,16 +60,19 @@ if (file_exists(SQ_TEMP_PATH.'/funnelback.indexer')) {
 touch(SQ_TEMP_PATH.'/funnelback.indexer');
 
 // Start indexing
-echo 'START REINDEXING'."\n";
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $vars = Array(
 			'collections'=> ((empty($root_collection)) ? Array() : $root_collection),
 		);
 $errors = $hh->freestyleHipo('hipo_job_funnelback_reindex', $vars, SQ_PACKAGES_PATH.'/funnelback/hipo_jobs');
-if (empty($errors)) {
-	echo 'FINISHED'."\n";
-} else {
-	echo 'FAILED'."\n";
+if (!empty($errors)) {
+	echo 'Funnelback Reindexing FAILED'."\n";
+	foreach ($errors as $error) {
+		$line = array_get_index($error, 'message', '');
+		if (!empty($line)) {
+			echo $line."\n";
+		}//end if
+	}//end foreach
 }//end if
 
 // Remove if finished AND failed
