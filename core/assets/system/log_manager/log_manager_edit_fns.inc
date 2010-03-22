@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.12 2010/03/22 00:33:22 lwright Exp $
+* $Id: log_manager_edit_fns.inc,v 1.13 2010/03/22 00:43:56 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -393,7 +393,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Process the log file for the
+	* Process the downloading of a log file
 	*
 	* @param Remap_Manager		$asset	The asset that we are painting
 	* @param Backend_Outputter	$o		The outputter to inject the output into
