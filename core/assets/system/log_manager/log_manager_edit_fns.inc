@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.11 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: log_manager_edit_fns.inc,v 1.12 2010/03/22 00:33:22 lwright Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 
 /**
@@ -25,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,6 +65,11 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintLogList(&$lm, &$o, $prefix)
 	{
+		$download_file = array_get_index($_POST, $prefix.'_download_file', '');
+		if ($download_file !== '') {
+			$this->processDownloadLogFile($lm, $o, $prefix);
+		}
+
 		$write_access = $lm->writeAccess();
 
 		$o->openRaw();
@@ -314,15 +320,20 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				<td>
 					<?php echo translate('modified'); ?>: <strong><?php echo $last_modified; ?></strong>
 					<br />
+					<?php echo translate('core_log_manager_current_logfile_size'); ?>: <strong><?php echo easy_filesize(filesize($filepath)); ?></strong>
+					<br />
 					<?php echo translate('rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
 				</td>
 				<td>
 					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="<?php echo translate('monitor'); ?>" />
+					<?php normal_button($prefix.'_export_to_csv', translate('download_file'), 'this.form.'.$prefix.'_download_file.value = \''.$logname.'\'; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_download_file.value = 0; return true;');
+					?>
 				</td>
 			</tr>
 			<?php
 		}
 		echo '</table>';
+		hidden_field($prefix.'_download_file', 0);
 
 		$o->closeRaw();
 		$o->closeSection();
@@ -379,6 +390,59 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end paintLogList()
+
+
+	/**
+	* Process the log file for the
+	*
+	* @param Remap_Manager		$asset	The asset that we are painting
+	* @param Backend_Outputter	$o		The outputter to inject the output into
+	* @param string				$prefix Prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processDownloadLogFile(Log_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		if ($asset->writeAccess() === FALSE) {
+			return FALSE;
+		}
+
+		$download_file = array_get_index($_POST, $prefix.'_download_file', '');
+
+		if ($download_file !== '') {
+			$log_file = SQ_DATA_PATH.'/private/logs/'.$download_file.SQ_CONF_LOG_EXTENSION;
+			if (is_file($log_file) === TRUE) {
+				$fp = fopen($log_file, 'r');
+				if ($fp === FALSE) {
+					trigger_localised_error('CORE0288', E_USER_WARNING, $download_file);
+					return FALSE;
+				}
+
+				// Only do the headers if we were able to read the file
+				header('Content-Type: text/plain');
+				header('Content-Disposition: attachment; filename="'.$download_file.SQ_CONF_LOG_EXTENSION.'"');
+				header('Content-Length: '.filesize($log_file));
+				header('Last-Modified: '.gmdate('r', filemtime($log_file)));
+
+				while (feof($fp) === FALSE) {
+					$chunk = fread($fp, 4096);
+					if ($chunk === FALSE) {
+						// Uh oh...
+						exit(1);
+					} else {
+						echo $chunk;
+					}
+				}
+				fclose($fp);
+
+				exit(0);
+			}
+
+		}//end if download file exists
+
+		return FALSE;
+
+	}//end processDownloadLogFile()
 
 
 }//end class
