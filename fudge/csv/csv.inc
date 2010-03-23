@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.16 2009/12/01 05:27:26 cupreti Exp $
+* $Id: csv.inc,v 1.17 2010/03/23 23:27:26 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -244,12 +244,14 @@ class CSV
 		if (!$this->filepath) {
 			// no file to write to.....lets send the header and then the file
 			$this->setHeader();
+			$fp = null;
 		} else {
 			if (!$fp = fopen($this->filepath,'w')) {
 				trigger_error('Unable to open file "'.$this->filepath.'" for writing', E_USER_WARNING);
 				return;
 			}
 		}
+
 		if ($this->field_headers) {
 			$line = $this->formatLine($this->field_headers, $this->deliminator);
 			if (isset($fp)) {
@@ -259,6 +261,27 @@ class CSV
 			}
 		}
 
+		$this->printValues($ordered, $fp);
+		
+		if (isset($fp)) fclose($fp);
+
+	}//end export()
+
+	/**
+	 * This goes through the values previously set
+	 * and either prints them out (if $fp is null)
+	 * or writes them to the file descriptor previously opened
+	 *
+	 * @param boolean	$ordered	Whether the data needs to be ordered or not
+	 * @param resource	$fp			If this is null, then just print the data out.
+	 * 								If it's not null, write the data to the file descriptor.
+	 *								The file descriptor is previously opened by the calling fn's
+	 *								So this fn can just write the data to the file
+	 *
+	 * @return void
+	 */
+	private function printValues($ordered=false, $fp=null)
+	{
 		foreach ($this->values as $value) {
 			// if field headers are there, use the ordered version of the
 			// format line method to export
@@ -267,17 +290,42 @@ class CSV
 			} else {
 				$line = $this->formatLine($value, $this->deliminator);
 			}
-			if (isset($fp)) {
+			if (isset($fp) && $fp !== null) {
 				fputs($fp, $line."\n");
 			} else {
 				echo $line."\n";
 			}
 		}
+	}
+
+	/**
+	 * exportValues
+	 * Takes values and either appends them to the file previously specified
+	 * or prints out the extra data
+	 *
+	 * This is used after the initial export().
+	 * export either sets the header for the browser, or creates the file
+	 * and then prints the csv header line (if necessary).
+	 * This either appends more data to the csv file, or prints out more data.
+	 *
+	 * @param boolean	$ordered	Whether the values need to be ordered or not.
+	 *
+	 * @return void
+	 */
+	function exportValues($ordered=false)
+	{
+		if ($this->filepath) {
+			if (!$fp = fopen($this->filepath,'a')) {
+				trigger_error('Unable to open file "'.$this->filepath.'" for writing', E_USER_WARNING);
+				return;
+			}
+		} else {
+			$fp = null;
+		}
+		$this->printValues($ordered, $fp);
 		
 		if (isset($fp)) fclose($fp);
-
-	}//end export()
-
+	}
 
 	/**
 	* Import the current file to this->values
