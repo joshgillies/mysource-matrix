@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.45 2006/12/06 05:14:24 bcaldwell Exp $
+* $Id: datetime.inc,v 1.46 2010/03/23 22:39:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package Fudge
 * @subpackage General
 */
@@ -292,6 +292,98 @@ function easy_time_total($secs=0, $full_format=FALSE, $return_array=FALSE, $unit
 	return $str.$suffix;
 
 }//end easy_time_total()
+
+
+/**
+* Format a timestamp in a short, relative datetime format.
+*
+* Uses easy_datetime() and easy_time_total() along with its own handling for
+* years/months/weeks to result in a short time format, that shows:
+*
+* Number of days either way if the date (including time) is within 14 days;
+* number of weeks if within 1 month/months if within 1 year/years if more than:
+* - eg. "1 year ago", "4 months ago", "2 weeks ago", "9 days in the future"
+*
+* If $with_day === TRUE, display day of week and time if the date (excluding
+* time) is within 6 calendar days either way:
+* - eg. "3:30pm yesterday", "3:30pm Monday", "3:30pm this Monday"
+*   (the keyword "this" indicates "in the future")
+*
+* If $with_day === FALSE, duration intervals go down to seconds as appropriate.
+*
+* @param int		$timestamp	UNIX timestamp of the date you wish to format
+* @param boolean	$with_day	If TRUE, show time and day of week, if within
+*								a week (or "today", "yesterday", "tomorrow")
+*
+* @return string
+*/
+function easy_short_relative_datetime($timestamp, $with_day=TRUE)
+{
+	if (is_int($timestamp) === FALSE) return FALSE;
+
+	$current_time = time();
+	$time_diff = $current_time - $timestamp;
+	$duration_bits = easy_time_total(abs($time_diff), FALSE, TRUE);
+	$duration_text = '';
+	$add_ago = TRUE;
+
+	if (empty($duration_bits) === FALSE) {
+		if (strtotime('-1 year', $current_time) > $timestamp) {
+			$years = (int)date('Y', $current_time) - (int)date('Y', $timestamp);
+			if (date('m-d H:i:s', $current_time) < date('m-d H:i:s', $timestamp)) {
+				$years--;
+			}
+			$duration_text = $years.' year';
+			if ($years !== 1) $duration_text .= 's';
+
+		} else if (strtotime('-1 year', $timestamp) > $current_time) {
+			$years = (int)date('Y', $timestamp) - (int)date('Y', $current_time);
+			if (date('m-d H:i:s', $timestamp) < date('m-d H:i:s', $current_time)) {
+				$years--;
+			}
+			$duration_text = $years.' year';
+			if ($years !== 1) $duration_text .= 's';
+
+		} else if (strtotime('-1 month', $current_time) > $timestamp) {
+			$months = 12 * ((int)date('Y', $current_time) - (int)date('Y', $timestamp));
+			$months += (int)date('m', $current_time) - (int)date('m', $timestamp);
+			if (date('d H:i:s', $current_time) < date('d H:i:s', $timestamp)) {
+				$months--;
+			}
+			$duration_text = $months.' month';
+			if ($months !== 1) $duration_text .= 's';
+
+		} else if (strtotime('-1 month', $timestamp) > $current_time) {
+			$months = 12 * ((int)date('Y', $timestamp) - (int)date('Y', $current_time));
+			$months += (int)date('m', $timestamp) - (int)date('m', $current_time);
+			if (date('d H:i:s', $timestamp) < date('d H:i:s', $current_time)) {
+				$months--;
+			}
+			$duration_text = $months.' month';
+			if ($months !== 1) $duration_text .= 's';
+
+		} else if (abs($time_diff) >= 14*86400) {
+			$duration_text = floor(abs($time_diff) / (7*86400)).' weeks';
+		} else if (($with_day === TRUE) && (abs(strtotime('00:00:00 today', $current_time) - strtotime('00:00:00 today', $timestamp)) < 7*86400)) {
+			return easy_datetime($timestamp);
+		} else {
+			$duration_text = explode(', ', easy_time_total(abs($time_diff), TRUE));
+			$duration_text = $duration_text[0];
+			if (empty($duration_text) === TRUE) $duration_text = 'now';
+		}
+
+		if ($add_ago === TRUE) {
+			if ($timestamp > $current_time) {
+				$duration_text .= ' in the future';
+			} else if ($timestamp < $current_time) {
+				$duration_text .= ' ago';
+			}
+		}
+
+	}
+
+	return $duration_text;
+}
 
 
 /**
