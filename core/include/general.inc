@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.240 2010/02/21 23:07:20 akarelia Exp $
+* $Id: general.inc,v 1.241 2010/03/23 23:02:11 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.241 $
 * @package MySource_Matrix
 */
 
@@ -970,7 +970,7 @@ function ts_iso8601($timestamp)
 
 
 /**
-* Format a date using one of a few predefined
+* Format a date using one of a few predefined options
 *
 * @param int	$timestamp		Timestamp of the date to format
 * @param string	$format_name	The name of the date format to use
@@ -980,9 +980,17 @@ function ts_iso8601($timestamp)
 */
 function format_date($timestamp, $format_name)
 {
-	$date_formats = get_date_formats();
-	if (isset($date_formats[$format_name])) {
-		return date($date_formats[$format_name], $timestamp);
+	if ($format_name === 'relative') {
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		return easy_short_relative_datetime($timestamp, FALSE);
+	} else if ($format_name === 'relative-dow') {
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		return easy_short_relative_datetime($timestamp, TRUE);
+	} else {
+		$date_formats = get_date_formats();
+		if (isset($date_formats[$format_name])) {
+			return date($date_formats[$format_name], $timestamp);
+		}
 	}
 	return '';
 
@@ -991,6 +999,10 @@ function format_date($timestamp, $format_name)
 
 /**
 * Get the matrix standard date formats
+*
+* Relative formats requiring another function than date() will be marked in here
+* with a NULL format. This lets us still have a keyword replacement name in
+* the
 *
 * @return array
 * @access public
@@ -1006,6 +1018,8 @@ function get_date_formats()
 						'rfc2822'			=> 'r',
 						'rfc2822-dateonly'	=> 'D, d M Y',
 						'ical'				=> 'Ymd\THis',
+						'relative'			=> NULL,
+						'relative-dow'		=> NULL,
 					);
 	return $date_formats;
 
