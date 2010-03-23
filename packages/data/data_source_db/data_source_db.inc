@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.37 2010/03/22 21:54:28 ewang Exp $
+* $Id: data_source_db.inc,v 1.38 2010/03/23 23:21:33 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,7 +247,16 @@ class Data_Source_DB extends Data_Source
 				$result = MatrixDAL::executeSqlAssoc($sql);
 			}
 			else {
+				// Oracle db will usually cache the execution query, but we need immediate execution here
+				if (MatrixDAL::getDbType() === 'oci') {
+					MatrixDAL::setOciCommitOnSuccess(TRUE);
+				}
+				
 				MatrixDAL::executeQueries($sql);
+				
+				if (MatrixDAL::getDbType() === 'oci') {
+					MatrixDAL::setOciCommitOnSuccess(FALSE);
+				}
 			}
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
