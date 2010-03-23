@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.356 2010/03/22 00:18:28 lwright Exp $
+* $Id: lang_strings.xml,v 1.357 2010/03/23 22:17:45 lwright Exp $
 *
 */
 
@@ -2529,6 +2529,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="date_format_readabletime">time only - h:mm[am pm]</string>
 	<string source="date_format_iso8601">ISO8601 format</string>
 	<string source="date_format_rfc2822">RFC2822 format</string>
+	<string source="date_format_relative">relative time - eg. "X days ago"</string>
+	<string source="date_format_relative-dow">Day/time if within 1 week of now, otherwise relative time</string>
 	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
 	<string source="date_format_ical">iCalendar format</string>
 
