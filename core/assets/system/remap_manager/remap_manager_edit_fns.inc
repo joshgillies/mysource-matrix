@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.34 2010/03/16 05:49:02 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.35 2010/03/23 23:25:21 csmith Exp $
 *
 */
 
@@ -25,12 +25,22 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
+	/**
+	 * Set the number of results to show per page.
+	 * This is used to work out paging and also when fetching
+	 * the remaps to display (or for csv download).
+	 *
+	 * csv download increases this substantially so we do
+	 * less trips to the db.
+	 */
+	private $num_per_page = 100;
 
 
 	/**
@@ -58,7 +68,91 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['roles']);
 		unset($this->static_screens['permissions']);
 
-	}//end constructor
+	}//end __construct()
+
+
+	/**
+	 * _fetchRemapUrls
+	 * Fetches the urls from the db.
+	 * This is used both when displaying the remaps and also when
+	 * downloading them so we don't fetch all remaps at once, and instead
+	 * chunk the results based on $this->num_per_page.
+	 *
+	 * @param string	$url_filter			This can be used to limit the results to a particular url
+	 * @param string	$remap_url_filter	Used to limit results to a particular remap url
+	 * @param int		$page_num			Which "page" to return results for.
+	 * 										Used by pagination and also csv download
+	 * @param boolean	$return_count		Whether to return the count of the number of remaps.
+	 *										Enabled by default. Disabled for csv download by subsequent calls
+	 *										(So we only get the total number of remaps once)
+	 *
+	 * @return mixed	If $return_count is set to true (default), then the return array will be multi-dimensional:
+	 *               ('total_remaps' => X, 'remap_rows' => array(remap_row, remap_row, remap_row)
+	 *               If $return_count is false, then it only returns the remap_rows and the array is not multi
+	 *               ie. $return = array(remap_row, remap_row, remap_row)
+	 */
+	private function _fetchRemapUrls($url_filter='', $remap_url_filter='', $page_num=1, $return_count=TRUE)
+	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$offset = $this->num_per_page * ($page_num - 1);
+
+		$remap_urls = Array();
+		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+			$bind_vars = Array(
+						'url' 		=> (string) '%'.$url_filter.'%',
+						'remap_url'	=> (string) '%'.$remap_url_filter.'%',
+					);
+
+			$where = ' WHERE url LIKE :url AND remap_url LIKE :remap_url';
+
+		} else {
+			$bind_vars = Array();
+
+			$where = '';
+		}
+
+		$count_query = 'SELECT COUNT(url) FROM sq_ast_lookup_remap '.$where;
+
+		/**
+		 * we need the order by here so we get consistent results when we do paging
+		 * url is the primary key so that's the best thing to use.
+		*/
+		$query = 'SELECT url, remap_url, expires, never_delete, auto_remap FROM sq_ast_lookup_remap '.$where.' ORDER BY url';
+
+		$query = db_extras_modify_limit_clause($query, MatrixDAL::getDbType(), $this->num_per_page, $offset);
+
+		try {
+			if ($return_count) {
+				$count_result = MatrixDAL::preparePdoQuery($count_query);
+			}
+			$result = MatrixDAL::preparePdoQuery($query);
+
+			if (!empty($bind_vars)) {
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					if ($return_count) {
+						MatrixDAL::bindValueToPdo($count_result, $bind_var, $bind_value);
+					}
+					MatrixDAL::bindValueToPdo($result, $bind_var, $bind_value);
+				}
+			}
+			if ($return_count) {
+				$total_assets = MatrixDAL::executePdoOne($count_result);
+			}
+
+			$remap_urls = MatrixDAL::executePdoAll($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get remap urls due to the following database error: '.$e->getMessage());
+		}
+
+		if ($return_count) {
+			return Array(
+					'total_remaps'	=> $total_assets,
+					'remap_rows'	=> $remap_urls,
+				);
+		}
+		return $remap_urls;
+	}// end _fetchRemapUrls()
 
 
 	/**
@@ -79,29 +173,20 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
 		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
-		$remap_urls = Array();
 		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
 			$remap_entries_tag = 'remap_entries_filtered';
 			$no_entries_tag = 'no_url_remappings_filtered';
-			$bind_vars = Array(
-					'url' 		=> (string) '%'.$url_filter.'%',
-					'remap_url'	=> (string) '%'.$remap_url_filter.'%',
-					);
-			try {
-				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrlsFilter', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-			}
-
 		} else {
 			$remap_entries_tag = 'remap_entries';
 			$no_entries_tag = 'no_url_remappings';
-			try {
-				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
-			} catch (Exception $e) {
-				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-			}
 		}
+
+		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
+		$page_num = max($page_num, 1);
+
+		$remap_info = $this->_fetchRemapUrls($url_filter, $remap_url_filter, $page_num, TRUE);
+		$total_assets = $remap_info['total_remaps'];
+		$remap_urls = $remap_info['remap_rows'];
 
 		$o->openField('Original URL Filter');
 		text_box($prefix.'_URL_FILTER', $url_filter, 30);
@@ -119,22 +204,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
-		$num_per_page = 100;
-		$total_assets = count($remap_urls);
-		$num_pages = ceil($total_assets / $num_per_page);
-
-		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
-		$page_num = max($page_num, 1);
-		$page_num = min($page_num, $num_pages);
+		$num_pages = ceil($total_assets / $this->num_per_page);
 
 		if ($num_pages == 1) {
 			$page_tag = translate('page_number', $page_num, $num_pages);
 		} else {
 			$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_remap_urls_page');
 		}
-		$asset_count_tag = translate('item_range', ($page_num - 1) * $num_per_page + 1, min($total_assets, $page_num * $num_per_page), $total_assets, strtolower(translate($remap_entries_tag)));
-
-		$remap_urls = array_slice($remap_urls, ($page_num - 1) * $num_per_page, $num_per_page);
+		$asset_count_tag = translate('item_range', ($page_num - 1) * $this->num_per_page + 1, $total_assets, $total_assets, strtolower(translate($remap_entries_tag)));
 
 		$links = Array(
 					'first'		=> '&lt;&lt;',
@@ -315,7 +392,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
 
 			} catch (Exception $e) {
-				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+				throw new Exception('Unable to get remap urls due to the following database error: '.$e->getMessage());
 			}
 		}
 
@@ -323,7 +400,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$urls = array_keys($_POST[$prefix.'_delete_remap']);
 			if (isset($_POST[$prefix.'_never_delete_remap'])) {
 				foreach ($_POST[$prefix.'_never_delete_remap'] as $url => $not_deletable) {
-					foreach ($urls as  $index => $url_to_delete){
+					foreach ($urls as  $index => $url_to_delete) {
 						if ($url == $url_to_delete && !$not_deletable == 0) {
 							unset($urls[$index]);
 						}
@@ -354,7 +431,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @param Backend_Outputter	$o		the backend outputter
 	* @param string				$prefix	a unique prefix for variables
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
 	public function paintAddRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
@@ -588,7 +665,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param Remap_Manager		$asset	the asset to which we belong
 	* @param Backend_Outputter	$o	the outputter class
-	* @param string			$prefix	prefix for the form element
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -603,9 +680,6 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 
 	}//end processAutomaticRemappingCheckbox()
-
-
-//--        EXPORT REMAP ENTRIES TO CSV        --//
 
 
 	/**
@@ -657,66 +731,68 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
 			$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
-			$remap_urls = Array();
-			if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
-				$bind_vars = Array(
-						'url' 		=> (string) '%'.$url_filter.'%',
-						'remap_url'	=> (string) '%'.$remap_url_filter.'%',
-						);
-				try {
-					$remap_urls	= MatrixDAL::executeAssoc('core', 'getRemapUrlsFilter', $bind_vars);
-				} catch (Exception $e) {
-					throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-				}
+			$page = 1;
 
-			} else {
-				try {
-					$remap_urls	= MatrixDAL::executeAssoc('core', 'getRemapUrls');
-				} catch (Exception $e) {
-					throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-				}
-			}
+			// since we're going to be downloading this file, lets set a bigger per_page size
+			$this->num_per_page = 10000;
 
-			if (count($remap_urls) === 0) {
+			$remap_urls = $this->_fetchRemapUrls($url_filter, $remap_url_filter, $page, FALSE);
+
+			if (empty($remap_urls)) {
 				// Cannot export remap entries to CSV, there are no entries to export
 				trigger_localised_error('CORE0287', E_USER_WARNING);
 			} else {
+
 				require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 
 				$csv = new CSV();
 				$csv->setFilename('remap_entries.csv');
 				$csv->setDeliminator(',');
 
-				$values = Array();
-				foreach ($remap_urls as $remap_url) {
-					$value_row = Array($remap_url['url'], $remap_url['remap_url'], $remap_url['expires']);
-					if ($remap_url['never_delete'] !== NULL) {
-						$value_row[] = (boolean)($remap_url['never_delete']) ? 1 : 0;
-					} else {
-						$value_row[] = NULL;
-					}
-					if ($remap_url['auto_remap'] !== NULL) {
-						$value_row[] = (boolean)($remap_url['auto_remap']) ? 1 : 0;
-					} else {
-						$value_row[] = NULL;
-					}
-					$values[] = $value_row;
-				}
-
-
-				$csv->setValues($values);
-
 				$headers = Array('Original URL', 'Remapped URL', 'Expiry', 'Never Delete', 'Automatic');
 				$csv->setFieldHeaders($headers);
 
-				$csv->setHeader();
-				$csv->export(FALSE);
+				$header_printed = FALSE;
+				while (!empty($remap_urls)) {
+					$values = Array();
+					foreach ($remap_urls as $remap_url) {
+						$value_row = Array(
+								$remap_url['url'],
+								$remap_url['remap_url'],
+								$remap_url['expires'],
+							);
+						if ($remap_url['never_delete'] !== NULL) {
+							$value_row[] = (boolean)($remap_url['never_delete']) ? 1 : 0;
+						} else {
+							$value_row[] = NULL;
+						}
+						if ($remap_url['auto_remap'] !== NULL) {
+							$value_row[] = (boolean)($remap_url['auto_remap']) ? 1 : 0;
+						} else {
+							$value_row[] = NULL;
+						}
+						$values[] = $value_row;
+					}
+
+					$csv->setValues($values);
+
+					if (!$header_printed) {
+						$csv->export(FALSE);
+						$header_printed = TRUE;
+					} else {
+						$csv->exportValues(FALSE);
+					}
+					$page++;
+					// see if we have more remaps to get,
+					// eventually this will be an empty array.
+					$remap_urls = $this->_fetchRemapUrls($url_filter, $remap_url_filter, $page, FALSE);
+				}
 
 				// We don't want the rest of the interface printed, so exit.
 				exit(0);
 
-			}//end if there are any remaps (or not)
-		}
+			}//end else if there are any remaps (or not)
+		}//end if download is 1
 
 		return FALSE;
 
