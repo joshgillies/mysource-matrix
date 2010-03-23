@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.46 2010/03/23 22:39:53 lwright Exp $
+* $Id: datetime.inc,v 1.47 2010/03/23 23:17:33 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package Fudge
 * @subpackage General
 */
@@ -319,7 +319,8 @@ function easy_time_total($secs=0, $full_format=FALSE, $return_array=FALSE, $unit
 */
 function easy_short_relative_datetime($timestamp, $with_day=TRUE)
 {
-	if (is_int($timestamp) === FALSE) return FALSE;
+	if (is_numeric($timestamp) === FALSE) return FALSE;
+	$timestamp = (int)$timestamp;
 
 	$current_time = time();
 	$time_diff = $current_time - $timestamp;
@@ -367,8 +368,44 @@ function easy_short_relative_datetime($timestamp, $with_day=TRUE)
 		} else if (($with_day === TRUE) && (abs(strtotime('00:00:00 today', $current_time) - strtotime('00:00:00 today', $timestamp)) < 7*86400)) {
 			return easy_datetime($timestamp);
 		} else {
-			$duration_text = explode(', ', easy_time_total(abs($time_diff), TRUE));
-			$duration_text = $duration_text[0];
+			reset($duration_bits);
+			$duration_text = '';
+
+			// Get the first 'duration bit' that we can find that has a value
+			while (key($duration_bits) !== NULL) {
+				if (current($duration_bits) > 0) {
+					switch (key($duration_bits)) {
+						case 'd':
+							$duration_text = $duration_bits['d'].' day';
+							if ($duration_bits['d'] !== 1) $duration_text .= 's';
+						break;
+
+						case 'h':
+							$duration_text = $duration_bits['h'].' hour';
+							if ($duration_bits['h'] !== 1) $duration_text .= 's';
+						break;
+
+						case 'm':
+							$duration_text = $duration_bits['m'].' minute';
+							if ($duration_bits['m'] !== 1) $duration_text .= 's';
+						break;
+
+						case 's':
+							$duration_text = $duration_bits['s'].' second';
+							if ($duration_bits['s'] !== 1) $duration_text .= 's';
+						break;
+
+					}//emd switch
+				}//end if
+
+				if ($duration_text !== '') {
+					break;
+				} else {
+					next($duration_bits);
+				}
+
+			}//end while
+
 			if (empty($duration_text) === TRUE) $duration_text = 'now';
 		}
 
