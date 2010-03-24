@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.6 2010/03/05 03:26:24 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.7 2010/03/24 06:02:59 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1205,7 +1205,8 @@ class Funnelback_Search_Page extends Listing_Engine
 				break;
 
 				case 'cluster_url':
-					$replacement = $this->getSearchURL();
+					$replacement = '';
+					$cluster_url = '';
 					$url = array_get_index(array_get_index($category_type, $index, Array()), 'href', '');
 					$query = array_get_index(array_get_index($category_type, $index, Array()), 'query', '');
 					if (!empty($url)) {
@@ -1228,16 +1229,15 @@ class Funnelback_Search_Page extends Listing_Engine
 						}//end if
 
 						// Build the URL
-						$get_vars = '';
 						if (!empty($queries)) {
+							$get_vars = '';
 							foreach ($queries as $switch => $param) {
 								$get_vars .= '&'.$switch.'='.$param;
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
-							$get_queries = '?'.$get_vars;
+							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
-						$replacement .= $get_queries;
 					} else if (!empty($query)) {
 						$queries = Array();
 						$query_found = FALSE;
@@ -1259,18 +1259,18 @@ class Funnelback_Search_Page extends Listing_Engine
 						}//end if
 
 						// Build the URL
-						$get_vars = '';
 						if (!empty($queries)) {
+							$get_vars = '';
 							foreach ($queries as $switch => $param) {
 								if ($switch == 'current_result_page') continue;
 								$get_vars .= '&'.$switch.'='.$param;
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
-							$get_queries = '?'.$get_vars;
+							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
-						$replacement .= $get_queries;
 					}//end if
+					$replacement = $cluster_url;
 				break;
 
 				case 'cluster_count':
