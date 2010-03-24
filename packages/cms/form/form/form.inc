@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.231.2.10 2010/01/07 22:48:44 ewang Exp $
+* $Id: form.inc,v 1.231.2.11 2010/03/24 22:31:50 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.231.2.10 $
+* @version $Revision: 1.231.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2597,7 +2597,11 @@ class Form extends Asset implements Bridge
 
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 
-			$question->populate($this);
+			// There is no point in populating the question if answer is not posted
+			if (isset($_POST['SQ_FORM_'.$this->id.'_PAGE'])) {
+				$question->populate($this);
+			}
+
 			// Only fail the page if we are moving forward
 			// File upload question should always get validated
 			$question_type = strtolower($question->type());	
