@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.28 2010/03/22 04:21:47 akarelia Exp $
+* $Id: js_api.inc,v 1.29 2010/03/25 04:00:15 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -161,12 +161,109 @@ class JS_Api extends Page
 					return;
 				}//end else
 
+			break;			
+
+			case	'trashAsset':
+				if ($this->attr('trash_asset')) {
+					if (isset($_REQUEST['assetid']) && !empty($_REQUEST['assetid'])) {
+						$assetids = explode('\\,', $_REQUEST['assetid']);
+						$data = $this->trashAsset($assetids);
+					} else {
+						$this->returnError('Please Enter Asset Id(s) to move to Trash');
+					}
+				} else {
+					$this->returnError('The trashAsset function must be activated');
+				}//end else
+
+			break;
+
+			case	'getChildCount':
+
+				if ($this->attr('get_general')) {
+					if (isset($_REQUEST['asset_id']) && !empty($_REQUEST['asset_id'])) {
+						$assetid = $_REQUEST['asset_id'];
+						// Check to see how deep we should go
+						if ($_REQUEST['depth'] == '0') {
+							$level = NULL;
+						} else {
+							$level = $_REQUEST['depth'];
+						}
+						$children = $this->getChildren($assetid, $level);
+						$data['child_count'] = count($children);
+					} else {
+						$this->returnError('Please Enter Asset Id to get the child count');
+					}
+				} else {
+					$this->returnError('The getGeneral function must be activated');
+				}//end else
+
+			break;
+
+			case	'updateMultipleLinks':
+
+				if ($this->attr('update_link')) {
+						$links = Array();
+						$links['parents']  = explode('\\,', $_REQUEST['parent_id']);
+						$links['children'] = explode('\\,', $_REQUEST['child_id']);
+						$links['link_type'] = explode('\\,', $_REQUEST['link_type']);
+						$links['link_value'] = explode('\\,', $_REQUEST['link_value']);
+						$links['sort_order'] = explode('\\,', $_REQUEST['sort_order']);
+						$links['lock'] = explode('\\,', $_REQUEST['locked']);
+
+						foreach ($links as $elements) {
+							if (count($elements) != count($links['parents'])) $this->returnError('Please provide correct number of link elements');
+						}
+
+						//looks like correct number of elements are passed
+						for ($i = 0;  $i < count($links['parents']); $i++) {
+							// Update our link
+							if($links['children'][$i] == 'Undefined' || $links['children'][$i] == '' ) {
+								$data[$i]['error'] = 'Child Id whose link is to be update was not provided';
+								continue;
+							} else if ($links['parents'][$i] == 'Undifined' || $links['parents'][$i] == ''){
+								$data[$i]['error'] = 'Parent Id whose link is to be update was not provided';
+								continue;
+							}
+
+							$child_asset = $am->getAsset($links['children'][$i]);
+							if(is_null($child_asset)) {
+								$data[$i]['error'] = 'Asset #'.$links['children'][$i].' does not exist';
+								continue;
+							}
+
+							$parent_asset = $am->getAsset($links['parents'][$i]);
+							if(is_null($parent_asset)) {
+								$data[$i]['error'] = 'Asset #'.$links['parents'][$i].' does not exist';
+								continue;
+							}
+
+							if ($child_asset->writeAccess()) {
+
+								$link_value = ($links['link_value'][$i] != '' || $links['link_value'][$i] != 'undefined' ) ? $links['link_value'][$i] : NULL;
+								$link_value = str_replace($replace_these, $replace_with, $link_value);
+								$data[$i] = $this->updateLink(
+																$links['parents'][$i] ,
+																$links['children'][$i] ,
+																($links['link_type'][$i] != '' && $links['link_type'][$i] != 'undefined') ? $links['link_type'][$i] : NULL ,
+																$link_value ,
+																($links['sort_order'][$i] != '' && $links['sort_order'][$i] != 'undefined') ? $links['sort_order'][$i] : NULL ,
+																($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : NULL
+																);
+							} else {
+								$data[$i] = 'Not enough permission to update link between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and for Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+							}
+						}
+						if (!$data) return;
+				} else {
+					$this->returnError('The updateLink function must be activated');
+				}//end else
+
 			break;
 
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
- 
+
 		// Send our data as JSON
 		if (isset($data)) {
 			$this->returnJSON($data, $type);
@@ -298,20 +395,6 @@ class JS_Api extends Page
 					}//end else
 				} else {
 					$this->returnError('The setMetadata function must be activated');
-				}//end else
-
-			break;
-
-			case	'trashAsset':
-				if ($this->attr('trash_asset')) {
-					if ($wa) {
-						$this->trashAsset($asset->id);
-						$data['success'] = 'Asset #'.$asset->id.' is now in the trash';
-					} else {
-						$this->returnError('You do not have permissions to delete this asset');
-					}//end else
-				} else {
-					$this->returnError('The trashAsset function must be activated');
 				}//end else
 
 			break;
@@ -596,8 +679,9 @@ class JS_Api extends Page
 						isset($_REQUEST['link_type']) ? $link_type = $_REQUEST['link_type'] : $link_type = NULL;
 						isset($_REQUEST['link_value']) ? $link_value = $_REQUEST['link_value'] : $link_value = NULL;
 						isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = NULL;
+						isset($_REQUEST['locked']) ? $locked = $_REQUEST['locked'] : $locked = NULL;
 						// Remove our link
-						$data = $this->updateLink($parent->id, $asset->id, $link_type, $link_value, $sort_order);
+						$data = $this->updateLink($parent->id, $asset->id, $link_type, $link_value, $sort_order, $locked);
 						if (!$data) return;
 					} else {
 						$this->returnError('You do not have permission to access this asset');
@@ -791,7 +875,13 @@ class JS_Api extends Page
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		$created_user = $am->getAsset($asset->created_userid);
+		if (isset($asset->created_userid) && $asset->created_userid != '' && (int)$asset->created_userid != 0 ) {
+			$created_user = $am->getAsset($asset->created_userid);
+		} else if (isset($asset->created_userid) && (int)$asset->created_userid == 0) {
+			$created_user = 'Root User';
+		} else {
+			$created_user = 'Undefined';
+		}
 
 		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
 			$updated_user = $am->getAsset($asset->updated_userid);
@@ -824,8 +914,8 @@ class JS_Api extends Page
 					'web_path'					=>	$asset->getURL(),
 					'status'					=>	$asset->getStatusDescription(),
 					'created'					=>	$asset->created,
-					'created_userid'			=>	$created_user->id,
-					'created_username'			=>	$created_user->name,
+					'created_userid'			=>	$created_userid,
+					'created_username'			=>	($created_user === 'Root User' || $created_user === 'Undefined') ? $created_user : $created_user->name,
 					'updated'					=>	($updated_user === 'Never Updated') ? $updated_user : $asset->updated,
 					'updated_userid'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->id,
 					'update_username'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->name,
@@ -894,8 +984,14 @@ class JS_Api extends Page
 	function removeLink($parent, $child)
 	{
 		// Set our link id
-		$linkid = $this->getLinkId($parent, $child);
+		$linkid = $this->getLinkId($parent, $child, TRUE);
+
 		if (!$linkid) return FALSE;
+
+		if ($linkid['locked']) {
+			$this->returnError('Link "'.$linkid['link_id'].'" cannot be deleted, link is locked');
+			return FALSE;
+		}
 
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -960,8 +1056,12 @@ class JS_Api extends Page
 	{
 		if (!empty($old_parent_id) && !empty($asset_id_to_move) && !empty($new_parent_id)) {
 			// Get our link id!!
-			$link_id = $this->getLinkId($old_parent_id, $asset_id_to_move);
+			$link_id = $this->getLinkId($old_parent_id, $asset_id_to_move, TRUE);
 			if (!$link_id) return FALSE;
+			if ($link_id['locked']) {
+				$this->returnError('Link "'.$link_id['link_id'].'" cannot be deleted, link is locked');
+				return FALSE;
+			}
 			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id['link_id'], $new_parent_id, $link_type, $new_position);
 
 			if (!empty($new_link_id)) {
@@ -989,24 +1089,49 @@ class JS_Api extends Page
 	* @param integer	$link_type		Type of link to set
 	* @param string		$link_value		Value of the link
 	* @param integer	$sort_order		Sort order in the asset tree
+	* @param integer	$locked			the asset's link lock status
 	*
-	* @return void
+	* @return array
 	* @access public
 	*/
-	function updateLink($parent, $child, $link_type, $link_value, $sort_order)
+	function updateLink($parent, $child, $link_type, $link_value, $sort_order, $locked)
 	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
 		if (!empty($parent) && !empty($child)) {
-			$link_id = $this->getLinkId($parent, $child);
+
+			$link_id = $this->getLinkId($parent, $child, TRUE);
+			$parent_asset = $am->getAsset($parent);
+			$child_asset = $am->getAsset($child);
+
 			if (!$link_id) return FALSE;
-			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->updateLink($link_id['link_id'], $link_type, $link_value, $sort_order);
+
+			// we cannot change a link from being a significant link to a non-significant link or vice versa
+			// so if we are try to do that, do what a backend does, delete the old one and then create a new
+			// one with all same properties except for changed linked value
+			$current_is_sig = (bool) ((int) $link_id['link_type'] & SQ_SC_LINK_SIGNIFICANT);
+			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
+			if ($current_is_sig !== $new_is_sig) {
+				if ($am->deleteAssetLink($link_id['link_id'], FALSE)) {
+					// irrespective of what is passed value of link lock, if the link isnt siginificant, then dont bother locking it
+					if (!$new_is_sig) {
+						$lock = 0;
+					} else {
+						$lock = $locked;
+					}
+					$new_link_id = $am->createAssetLink($parent_asset, $child_asset, $link_type, $link_value, $sort_order, $link_id['is_dependant'], $link_id['is_exclusive'], FALSE, $lock);
+				}
+			
+			} else {
+				$new_link_id = $am->updateLink($link_id['link_id'], $link_type, $link_value, $sort_order, $locked);
+			}
 
 			if (!empty($new_link_id)) {
-				return Array (
-						'success'	=> 'Link #'.$link_id['link_id'].' has been updated',
-					   );
+				$response['success'] = 'Link #'.$link_id['link_id'].' between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') has been updated';
+				return $response;
 			} else {
-				//$this->returnError('Unable to update link');
-				return FALSE;
+				$response['error'] = 'Unable to update Link #'.$link_id['link_id'].' between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+				return $response;
 			}//end else
 		} else {
 			$this->returnError('Please enter a valid parent id and child id');
@@ -1130,6 +1255,7 @@ class JS_Api extends Page
 				$show['is_exclusive']	= NULL;
 				$show['sort_order']		= NULL;
 				$show['link_value']		= NULL;
+				$show['locked']			= NULL;
 			} else {
 				$show_link = $this->getLinkId($parent, $id, TRUE);
 				$show['link_id']		= $show_link['link_id'];
@@ -1137,6 +1263,7 @@ class JS_Api extends Page
 				$show['is_exclusive']	= $show_link['is_exclusive'];
 				$show['sort_order']		= $show_link['sort_order'];
 				$show['link_value']		= $show_link['value'];
+				$show['locked']			= $show_link['locked'];
 			}
 			$asset = $am->getAsset($parent);
 			$parent_arr[$asset->id] = array_merge($this->getGeneralInfo($asset), $show);
@@ -1173,6 +1300,7 @@ class JS_Api extends Page
 				$show['is_exclusive']	= NULL;
 				$show['sort_order']		= NULL;
 				$show['link_value']		= NULL;
+				$show['locked']			= NULL;
 			} else {
 				$show_link = $this->getLinkId($id, $child->id, TRUE);
 				$show['link_id']		= $show_link['link_id'];
@@ -1180,6 +1308,7 @@ class JS_Api extends Page
 				$show['is_exclusive']	= $show_link['is_exclusive'];
 				$show['sort_order']		= $show_link['sort_order'];
 				$show['link_value']		= $show_link['value'];
+				$show['locked']			= $show_link['locked'];
 			}
 			$children_arr[$child->id] = array_merge($this->getGeneralInfo($child), $show);
 
@@ -1193,36 +1322,74 @@ class JS_Api extends Page
 	/**
 	* Description: This operation will send an asset to the trash
 	*
-	* @param string  $id  The id of the asset we want to delete
+	* @param array  $ids  The id of the assets we want to delete
 	*
 	*
-	* @return void
+	* @return array
 	* @access public
 	*/
-	function trashAsset($id)
+	function trashAsset($ids)
 	{
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$response = Array();
 
-		if (!empty($id)) {
-			$already_in_trash = $am->assetInTrash($id, TRUE);
+		if (!empty($ids)) {
+			foreach($ids as $id) {
+				$already_in_trash = $am->assetInTrash($id, TRUE);
+				$asset = $am->getAsset($id);
+				//need to make sure that links are not locked
+				$parents = $this->getParents($id, 1);
+				$locked = FALSE;
+				//loop through each parents and see if any of the links are locked
+				foreach ($parents as $parentid => $parent_link_info) {
+					if($parent_link_info['locked'] == '1') $locked = TRUE;
+				}
 
-			$am->acquireLock($id, 'all');
-			if ($already_in_trash) {
-				$this->returnError('Asset #'.$id.' is already in the trash');
-				return;
-			} else {
-				$result	= $am->trashAsset($id);
-				//done thrashing the asset? update lookups then
-				$result_from_update = $this->updateLookupsforAsset($id);
-				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset #'.$id.' and its Childrens');
-			}//end else
-			$am->releaseLock($id, 'all');
+				if ($already_in_trash) {
+					$response[] = 'Asset "'.$asset->name.'" (#'.$asset->id.') is already in the trash';
+				} else if ($locked && $asset->writeAccess()){
+					// few or all the links are locked so lets go through each one of them and try to delete the links
+					foreach ($parents as $parentid => $parent_link_info) {
+						$parent_asset = $am->getAsset($parentid);
+						if ($parent_link_info['locked'] == '1') {
+							// found the link locked.... 
+							$response[] = 'Link between Asset "'.$asset->name.'" (#'.$asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') is locked';
+						} else {
+							//link not locked....lets get it done with
+							if($am->deleteAssetLink($parent_link_info['link_id'])) {
+								$response[] = 'Successfully unlinked link between Asset "'.$asset->name.'" (#'.$asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+							}
+						}
+					}
+				} else if ($asset->writeAccess()) {
+					// asset isnt in trash and none of the links are locked, Hooorrrrray !!!!
+					$am->acquireLock($id, 'all');
+					$result	= $am->trashAsset($id);
+					if (!$result) {
+						$response[] = 'Could not move Asset "'.$asset->name.'" (#'.$asset->id.') to Trash';
+					} else {
+						//done thrashing the asset? update lookups then
+						$result_from_update = $this->updateLookupsforAsset($id);
+						if (!is_null($result_from_update)) {
+							$response[] = 'Asset deleted but unable to Update Lookups on the Asset "'.$asset->name.'" (#'.$asset->id.')';
+						} else {
+							//all good? let the user know what we did
+							$response[] = 'Asset "'.$asset->name.'" (#'.$assetid.') successfully moved to Thrash';
+						}
+					}
+					$am->releaseLock($id, 'all');
+				} else {
+					$response[] = 'Not enough permision to delete Asset "'.$asset->name.'" (#'.$asset->id.')';
+				}
 
+			}
 		} else {
-			$this->returnError('Asset #'.$id.' is not valid. Please provide a valid Asset ID');
+			$this->returnError('Please provide a valid Asset ID');
 			return;
 		}//end else
+
+		return $response;
 
 	}//end trashAsset()
 
@@ -1339,7 +1506,7 @@ class JS_Api extends Page
 	* @param string		$child			Child id
 	* @param boolean	$all_info		If to return just LinkId or all the information
 	*
-	* @return string/array
+	* @return array
 	* @access public
 	*/
 	function getLinkId($parent, $child, $all_info = FALSE)
@@ -1351,8 +1518,8 @@ class JS_Api extends Page
 				return FALSE;
 			}
 			if (!$all_info) {
-				$link_array['link_id'] = array_get_index($link, 'linkid', 0);
-				return $link_array;
+				$data_array['link_id'] = array_get_index($link, 'linkid', 0);
+				return $data_array;
 			} else {
 				// we are returning more information
 				$data_array = Array (
@@ -2208,18 +2375,31 @@ function setMetadataAllFields(asset_id, field_info, dataCallback)
 /**
 * This will send an asset to the trash
 *
-* @param string		asset_id		Id of the asset to delete
-* @param function	dataCallback	Custom callback function
+* @param array | string		asset_ids		Id of the asset(s) to delete
+* @param function			dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
 */
-function trashAsset(asset_id, dataCallback)
+function trashAsset(asset_ids, dataCallback)
 {
-	// Create blank function
-	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	if (typeof(asset_ids) != 'string') {
+		// Create blank function
+		var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+		var ids = '';
+
+		for (var index in asset_ids) {
+			// construct our query strings to be passed
+			ids = ids + asset_ids[index] + '\\,';
+		}
+
+		// remove the trailing "\,"
+		ids = ids.substring(0, ids.length-2);
+	} else {
+		ids = asset_ids;
+	}
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=trashAsset&id=' + asset_id;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=trashAsset&assetid=' + ids;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -2257,6 +2437,7 @@ function getChildren(asset_id, levels, dataCallback)
 * This return parents of the passed id
 *
 * @param string		asset_id		Id of the asset to get parents of
+* @param number		levels			Number of levels to return 
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.2
@@ -2555,16 +2736,17 @@ function moveLink(old_parent_id, child_id, new_parent_id, link_type, new_positio
 /**
 * Updates a link
 *
-* @param string		parent_id				Id of the parent
-* @param string		child_id				Id of the child
-* @param string		new_parent_id			Id of the new parent
-* @param string		link_type				Type of link to use
-* @param string		new_position			The new position
-* @param function	dataCallback			Custom callback function
+* @param string		parent_id				id of the parent
+* @param string		child_id				id of the child
+* @param string		link_type				type of link to use
+* @param string		link_value				value to set the link to
+* @param string		new_position			the new position
+* @param string		locked					the asset's link lock status
+* @param function	dataCallback			custom callback function
 *
 * @version $Revision: 0.2
 */
-function updateLink(parent_id, child_id, link_type, link_value, sort_order, dataCallback)
+function updateLink(parent_id, child_id, link_type, link_value, sort_order, locked, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -2572,19 +2754,99 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, data
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '';
 	if (!isset(sort_order)) sort_order = '';
+	if (!isset(locked)) locked = '';
 
 	// Build our string
 	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=updateLink' + 
 				'&id=' + child_id +
 				'&parent_id=' + parent_id +
 				'&link_type=' + link_type +
-				(isset(link_value) ? '&link_value=' + link_value : '') +
-				'&sort_order=' + sort_order;
+				(isset(link_value) ? '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '') +
+				'&sort_order=' + sort_order +
+				'&locked=' + locked;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
 
 }//end updateLink
+
+
+/**
+* Updates multiple links
+*
+* @param json object	link_info		Array of all the link information
+* example :
+* 		var link_info = {
+* 			"links":[
+* 				{
+* 					"parent": parent,
+* 					"child": child,
+* 					"link_type": link_type,
+* 					"link_value": link_value,
+* 					"sort_order": sort_order,
+* 					"link_lock": link_lock,
+* 				},
+* 				{
+* 					"parent": parent_2,
+* 					"child": child_2,
+* 					"link_type": link_type_2,
+* 					"link_value": link_value_2,
+* 					"sort_order": sort_order_2,
+* 					"link_lock": link_lock_2,
+* 				},
+* 				{
+* 					"parent": parent_3,
+* 					"child": child_3,
+* 					"link_type": link_type_3,
+* 					"link_value": link_value_3,
+* 					"sort_order": sort_order_3,
+* 					"link_lock": link_lock_3,
+* 				},
+* 			]
+* 		 };
+* @param function		dataCallback	Custom callback function
+*
+* @version $Revision: 0.2
+*/
+function updateMultipleLinks(link_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var parentid = '';
+	var childid = '';
+	var link_type = '';
+	var link_value = '';
+	var sort_order = '';
+	var locked = '';
+
+	for (var x = 0; x < link_info.links.length; x++) {
+		link_typ = isset(link_info.links[x].link_type) ?  link_info.links[x].link_type : '' ;
+		link_val = isset(link_info.links[x].link_value) ?  link_info.links[x].link_value : '' ;
+		sort_ord = isset(link_info.links[x].sort_order) ?  link_info.links[x].sort_order : '' ;
+		lock     = isset(link_info.links[x].link_lock) ?  link_info.links[x].link_lock : '' ;
+
+		parentid = parentid + link_info.links[x].parent + '\\,';
+		childid = childid + link_info.links[x].child + '\\,';
+		link_type = link_type + link_typ + '\\,';
+		link_value = link_value + link_val.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,';
+		sort_order = sort_order + sort_ord + '\\,';
+		locked = locked + lock + '\\,';
+	}
+
+	// Build our string
+	var url =	'<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=updateMultipleLinks' + 
+				'&parent_id=' + parentid.substring(0, parentid.length-2) +
+				'&child_id=' + childid.substring(0, childid.length-2) +
+				'&link_type=' + link_type.substring(0, link_type.length-2) +
+				'&link_value=' + link_value.substring(0, link_value.length-2) +
+				'&sort_order=' + sort_order.substring(0, sort_order.length-2) +
+				'&locked=' + locked.substring(0, locked.length-2);
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end updateMultipleLinks()
+
 
 
 /**
@@ -2692,6 +2954,32 @@ function setAssetStatus(asset_id, status, cascade, dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end setAssetStatus()
+
+
+/**
+* This will get the Child count for the passed in asset
+*
+* @param string		asset_id		Id of the asset to get children of
+* @param number		level			Number of levels to return, default all
+* @param function	dataCallback	Custom callback function
+*
+*
+*/
+function getChildCount(asset_id, level, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	// Check to see if we have set any levels
+	var level = isset(level) ? level : 0;
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getChildCount&asset_id=' + asset_id + '&depth=' + level;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getChildCount()
+
 
 
 	<?php
