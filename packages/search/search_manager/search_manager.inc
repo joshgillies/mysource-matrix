@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.227.2.2 2010/01/27 02:39:50 cupreti Exp $
+* $Id: search_manager.inc,v 1.227.2.3 2010/03/25 06:02:21 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.227.2.2 $
+* @version $Revision: 1.227.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -900,6 +900,30 @@ class Search_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		
+		// And finally, add the indexable content
+		// This code was moved outside the loop below which creates both the default and now the content.
+		// This was due to a bug in PHP (<5.2) and Postgres 8.1 dropping transactions silently
+		// when a prepared statement is not executed.
+		if (!empty($add_content)) {
+			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
+			$query = $dal_query->prepare();
+
+			foreach ($add_content as $bind_vars) {
+				try {
+					// Non-default value, or non-contextable. Put it in straight away.
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					MatrixDAL::execPdoQuery($query);
+					$index_content_found = TRUE;
+				} catch (Exception $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+				}
+			}//end foreach
+		}//end if
+
 		// Okay, shove in the default values, which will be determined by what
 		// context values are not already in there.
 		// Pre-pack the query first though, so it doesn't potentially get
@@ -908,8 +932,8 @@ class Search_Manager extends Asset
 			if (DAL::getDbType() === 'oci') {
 				
 				// For Oracle system, we'll use two queries to add content into search index table
-				// First query to the get the default contextid and second to insert the contextid
-				// along with other indexable content into index table
+				// First query to the get the contextids which doesn't have context values already there  
+				// and second to insert the contextid along with other indexable content into index table
 				// See bug #4136
 				$dal_get_context_query = MatrixDAL::getQuery('search_manager', 'getDefaultContext');
 				$get_context_query = $dal_get_context_query->prepare();
@@ -961,29 +985,6 @@ class Search_Manager extends Asset
 					}
 				}
 			}//end else
-		}//end if
-
-		// And finally, add the indexable content
-		// This code was moved outside the above loop which creates both the default and now the content.
-		// This was due to a bug in PHP (<5.2) and Postgres 8.1 dropping transactions silently
-		// when a prepared statement is not executed.
-		if (!empty($add_content)) {
-			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
-			$query = $dal_query->prepare();
-
-			foreach ($add_content as $bind_vars) {
-				try {
-					// Non-default value, or non-contextable. Put it in straight away.
-					foreach ($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-					}
-					MatrixDAL::execPdoQuery($query);
-					$index_content_found = TRUE;
-				} catch (Exception $e) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
-				}
-			}//end foreach
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1301,7 +1302,7 @@ class Search_Manager extends Asset
 	*/
 	function onMetadataUpdate(&$broadcaster, $vars=Array())
 	{
-		$this->reindexMetadata($broadcaster->id, $vars);
+		$this->reindexMetadata($broadcaster->id, $vars, TRUE);
 
 	}//end onMetadataUpdate()
 
@@ -1339,10 +1340,13 @@ class Search_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function reindexMetadata($assetid, $vars=Array())
+	function reindexMetadata($assetid, $vars=Array(), $all_contexts=FALSE)
 	{
 		assert_valid_assetid($assetid);
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
+        $all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 
 		if (in_array('all', $vars)) {
 			$schema_ids = array_keys($mm->getSchemas($assetid));
@@ -1363,7 +1367,15 @@ class Search_Manager extends Asset
 		}
 
 		if (!empty($flush_fieldids)) {
-			$this->flushIndexableContent($assetid, $flush_fieldids);
+			if ($all_contexts) {
+				$this->flushIndexableContent($assetid, $flush_fieldids);
+			} else {
+				if ($contextid === 0) {
+					$this->flushDefaultIndexableContent($assetid, $flush_fieldids);
+				} else {
+					$this->flushIndexableContent($assetid, $flush_fieldids, Array($contextid));
+				}
+			}			
 		}
 
 		if (!$this->isAssetIndexable($assetid)) return;
@@ -1385,7 +1397,7 @@ class Search_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getIndexableMetadataContent(&$asset, $fieldids=Array())
+	function getIndexableMetadataContent(&$asset, $fieldids=Array(), $all_contexts=TRUE)
 	{
 		$index_content = Array();
 		$flag_match_found = FALSE;
@@ -1394,6 +1406,10 @@ class Search_Manager extends Asset
 		$type_code = $asset->type();
 
 		if (is_null($asset)) return $index_content;
+		
+        // Get the current contextid
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$context_list = $all_contexts ? array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts()) : Array($contextid);
 
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
@@ -1439,79 +1455,93 @@ class Search_Manager extends Asset
 			}//end if
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
 
-			if (isset($metadata[$field->id][0]['value'])) {
-				$value = $metadata[$field->id][0]['value'];
-			} else if ($field instanceof Metadata_Field_WYSIWYG) {
-				$value = $field->attr('default_html');
-			} else {
-				$value = $field->attr('default');
-			}
-			$value_components = Array();
-			Metadata_Field::decodeValueString($value, $value, $value_components);
+			// If metadata field is non-contextable then we'll be using same value for all contexts
+			$is_contextable = (int)$field->attr('is_contextable') === 0 ? FALSE : TRUE;
+			$context_to_index = $is_contextable ? $context_list : Array($context_list[0]);
+			
+			foreach($context_to_index as $this_contextid) {
+				
+				// Get metadata for this context
+				$metadata = $mm->getMetadata($asset->id, 0, $this_contextid);
+				
+				if (isset($metadata[$field->id][0]['value'])) {
+					$value = $metadata[$field->id][0]['value'];
+				} else if ($field instanceof Metadata_Field_WYSIWYG) {
+					$value = $field->attr('default_html');
+				} else {
+					$value = $field->attr('default');
+				}
+				
+         		$use_default = empty($value) || $this_contextid === 'default' || $this_contextid === 0 ? TRUE : FALSE;
 
-			$keywords = retrieve_keywords_replacements($value, '.');
-			$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
-			foreach($keywords as $keyword) {
-				if (!isset($the_replacement[$keyword])) {
-					// Looking for further replacements
-					$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-				}//end if
-			}//end foreach
-			replace_keywords($value, $the_replacement);
+				$value_components = Array();
+				Metadata_Field::decodeValueString($value, $value, $value_components);
 
-			// check field_type to define the indexing way
-			if ($field_type == 'metadata_field_date') {
-				$index_content[] = Array(
-									'value'		=> $value,
-									'type_code'	=> $type_code,
-									'type'		=> 'datetime',
-									'component'	=> 'metadata:'.$field->id,
-									'score'		=> $weighting,
-									'contextid'	=> 'default',
-									'use_default'	=> 1,
-								   );
-			} else {
+				$keywords = retrieve_keywords_replacements($value, '.');
+				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+				foreach($keywords as $keyword) {
+					if (!isset($the_replacement[$keyword])) {
+						// Looking for further replacements
+						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
+					}//end if
+				}//end foreach
+				replace_keywords($value, $the_replacement);
 
-				switch ($field_type) {
-					case 'metadata_field_hierarchy':
-						$key_type = 'selection';
-					break;
+				// check field_type to define the indexing way
+				if ($field_type == 'metadata_field_date') {
+					$index_content[] = Array(
+										'value'		=> $value,
+										'type_code'	=> $type_code,
+										'type'		=> 'datetime',
+										'component'	=> 'metadata:'.$field->id,
+										'score'		=> $weighting,
+										'contextid'	=> $this_contextid,
+										'use_default'	=> $use_default,
+									   );
+				} else {
 
-					case 'metadata_field_select':
-						if ($field->attr('multiple')) {
+					switch ($field_type) {
+						case 'metadata_field_hierarchy':
+							$key_type = 'selection';
+						break;
+
+						case 'metadata_field_select':
+							if ($field->attr('multiple')) {
+								$plugin =& $this->_getDBPlugin();
+								$value = $plugin->handleMultipleMetadataSelect($value);
+							}
+
+							$key_type = 'selection';
+						break;
+
+						case 'metadata_field_multiple_text':
 							$plugin =& $this->_getDBPlugin();
 							$value = $plugin->handleMultipleMetadataSelect($value);
-						}
+							$key_type = 'selection';
+						break;
 
-						$key_type = 'selection';
-					break;
+						case 'metadata_field_thesaurus':
+							$key_type = 'thesaurus';
+							// Replace comma with spaces so the values can be indexed correctly. This should be done here and not in get_word_counts/remove_silent_chars.
+							$value = str_replace(',',' ', $value);
+						break;
 
-					case 'metadata_field_multiple_text':
-						$plugin =& $this->_getDBPlugin();
-						$value = $plugin->handleMultipleMetadataSelect($value);
-						$key_type = 'selection';
-					break;
+						case 'metadata_field_wysiwyg':
+							$key_type = 'metadata_field_wysiwyg';
+							$plugin =& $this->_getDBPlugin();
+							$value = $plugin->handleMultipleMetadataSelect($value);
+						break;
 
-					case 'metadata_field_thesaurus':
-						$key_type = 'thesaurus';
-						// Replace comma with spaces so the values can be indexed correctly. This should be done here and not in get_word_counts/remove_silent_chars.
-						$value = str_replace(',',' ', $value);
-					break;
+						default:
+							$key_type = 'text';
+							$value = $this->_getRawNumberInText($value);
+					}
 
-					case 'metadata_field_wysiwyg':
-						$key_type = 'metadata_field_wysiwyg';
-						$plugin =& $this->_getDBPlugin();
-						$value = $plugin->handleMultipleMetadataSelect($value);
-					break;
-
-					default:
-						$key_type = 'text';
-						$value = $this->_getRawNumberInText($value);
-				}
-
-				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting, 'default', TRUE));
-			}//end else
-
+					$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting, $this_contextid, $use_default));
+				}//end else
+			
+			}// end foreach contexts_to_use
+			
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
 			unset($field);
 
@@ -1520,6 +1550,7 @@ class Search_Manager extends Asset
 		return $index_content;
 
 	}//end getIndexableMetadataContent()
+		
 
 
 //--        WEIGHTINGS        --//
