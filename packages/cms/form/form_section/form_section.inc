@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.73.2.3 2009/12/03 03:35:33 bpearson Exp $
+* $Id: form_section.inc,v 1.73.2.4 2010/03/25 05:25:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.73.2.3 $
+* @version $Revision: 1.73.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1395,6 +1395,7 @@ class Form_Section extends Asset implements Bridge
 			$new_link_type = ($enabled) ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3;
 			if ($bodycopy_link['link_type'] != $new_link_type) {
 				$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], $new_link_type);
+				$this->fileRegeneration();
 			}
 		}
 
