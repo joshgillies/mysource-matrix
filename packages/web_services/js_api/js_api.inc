@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.29 2010/03/25 04:00:15 akarelia Exp $
+* $Id: js_api.inc,v 1.30 2010/03/25 22:59:41 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -384,7 +384,7 @@ class JS_Api extends Page
 							$this->setAssetMetadata($asset->id, $field_ids, $field_vals);
 							$i = 0;
 							foreach($field_vals as $index =>  $fieldVal) {
-								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.str_replace($replace_these, $replace_with, $fieldVal).'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.str_replace($replace_these, $replace_with, $fieldVal).'" for Asset "'.$asset->name.'" (#'.$asset->id.')';
 								$i++;
 							}
 						} else {
@@ -681,7 +681,7 @@ class JS_Api extends Page
 						isset($_REQUEST['sort_order']) ? $sort_order = $_REQUEST['sort_order'] : $sort_order = NULL;
 						isset($_REQUEST['locked']) ? $locked = $_REQUEST['locked'] : $locked = NULL;
 						// Remove our link
-						$data = $this->updateLink($parent->id, $asset->id, $link_type, $link_value, $sort_order, $locked);
+						$data = $this->updateLink($parent->id, $asset->id, $link_type, str_replace($replace_these, $replace_with, $link_value), $sort_order, $locked);
 						if (!$data) return;
 					} else {
 						$this->returnError('You do not have permission to access this asset');
@@ -2753,6 +2753,7 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, lock
 
 	// Check to see if we have set values
 	if (!isset(link_type)) link_type = '';
+	if (!isset(link_value)) link_value = '';
 	if (!isset(sort_order)) sort_order = '';
 	if (!isset(locked)) locked = '';
 
@@ -2761,7 +2762,7 @@ function updateLink(parent_id, child_id, link_type, link_value, sort_order, lock
 				'&id=' + child_id +
 				'&parent_id=' + parent_id +
 				'&link_type=' + link_type +
-				(isset(link_value) ? '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '') +
+				'&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") +
 				'&sort_order=' + sort_order +
 				'&locked=' + locked;
 
