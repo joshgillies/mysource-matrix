@@ -10,21 +10,23 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.6 2009/05/29 06:47:16 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.7 2010/03/25 22:17:14 ewang Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api_file_retrieval_service/soap_api_file_retrieval_service.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Soap_Api_Asset_Service
 *
 * Purpose
 *
-*
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -69,6 +71,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'SetAttributeValue'			=> '1',
         		'SetTag'					=> '1',
         		'TrashAsset'				=> '1',
+        		'SetAssetStatus'			=> '1',
 			   );
 
     }//end getFunctionList()
@@ -106,13 +109,15 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$sort_order		= array_get_index($request_info, 'SortOrder', '');
 		$is_dependant	= array_get_index($request_info, 'IsDependant', '0');
 		$is_exclusive	= array_get_index($request_info, 'IsExclusive', '0');
+		$file_content	= array_get_index($request_info, 'FileContentBase64', '');
+		$file_name		= array_get_index($request_info, 'FileName', '');
 
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
 		$asset = new $object_name();
-		$asset->setAttrValue('name', $asset_name);
+
 
 		$request_info['asset']	= $parent_asset;
 
@@ -125,8 +130,46 @@ class Soap_Api_Asset_Service extends Soap_Api
 						'is_dependant'	=> $is_dependant,
 						'is_exclusive'	=> $is_exclusive,
 					  );
+		  
+	
+		// Create a file asset
+		$type_ancestors = $asset->getTypeAncestors(FALSE);		  
+		if(!empty($file_name) && !empty($file_content) && (in_array('file', $type_ancestors) || $type_code === 'file')) {
+			$tmp_file_name	= Soap_Api_File_Retrieval_Service::getRandomFilename($file_name);
+			// We are going to write to the Matrix Data tmp dir
+			$destination_file	= SQ_DATA_PATH.'/temp/'.$tmp_file_name;
+			while (file_exists($destination_file)) {
+				sleep(1);
+				$tmp_file_name	= Soap_Api_File_Retrieval_Service::getRandomFilename($file_name);
+			}//end if
+			file_put_contents($destination_file, base64_decode($file_content));
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$file_type		= get_file_type($file_name);
+			$info	= Array (
+						'name'		=> $file_name,
+						'type'		=> $file_type,
+						'tmp_name'			=> $destination_file,
+						'non_uploaded_file'	=> TRUE,
+						'error'		=> 0,
+						'size'		=> filesize($destination_file),
+					  );
+			$asset->_tmp['uploading_file'] = 1;
+			$asset->setAttrValue('title', $asset_name);
+			$linkid = $asset->create($link_info, $info);	
+			
+			// Remove the tmp file before we return
+			if (file_exists($destination_file)) {
+				unlink($destination_file);
+			}//end if
+			
+		}
+		// Create a normal asset
+		else {
+			$asset->setAttrValue('name', $asset_name);
+			$linkid = $asset->create($link_info);	
+		}
 
-		$linkid = $asset->create($link_info);
+		
 		if ($linkid) {
 			return Array (
 					'CreateMessage' => 'Asset was created successfully. Link id #'.$linkid,
@@ -752,6 +795,62 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	}//end GetAllStatus()
 
+	
+	/**
+	* Description: This operation will set status for an asset
+	*
+    * @param string  $request  The request information
+    *
+    * <pre>
+    * Array (
+	*		'AssetID'	 		=> [The ID of the asset in query],
+	*		'StatusValue'		=> [The asset status to be set],
+	*		'DependantsOnly'	=> [Cascade the change to children or just dependants?],
+    *        )
+    * </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function SetAssetStatus($request)
+	{
+
+		$request_info = (Array) $request;
+		$assetid = array_get_index($request_info, 'AssetID', '');
+		$status = array_get_index($request_info, 'StatusValue', '');
+		$dependants_only = array_get_index($request_info, 'DependantsOnly', TRUE);
+
+		if (!empty($assetid)) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$statuses = $asset->getAvailableStatii();
+
+			if(!isset($statuses[$status])) {
+				throw new SoapFault('Server', $status.' is not a valid status of the asset');
+			}
+				
+			$running_vars	= Array (
+								'assetid'			=> $assetid,
+								'new_status'		=> $status,
+								'dependants_only'	=> $dependants_only,
+							  );
+
+			$hh		= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$errors	= $hh->freestyleHipo('hipo_job_edit_status', $running_vars);
+			if (empty($errors)) {
+				return Array (
+						'SetAssetStatusResult'	=> TRUE,
+					   );
+			} else {
+				throw new SoapFault('Server', 'Unable to set asset status');
+			}//end else
+		} else {
+			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+		}//end else
+
+	}//end SetAssetStatus()
+	
+	
+	
 
 	/**
 	* getComplexElements
@@ -773,14 +872,16 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$complex_types	= Array (
 							'CreateAsset'				=> Array (
 															'CreateAsset'			=> Array (
-											    										'TypeCode'		=> $asset_type,
-																						'Name'			=> self::$string_non_optional,
-																						'ParentID'		=> self::$string_non_optional,
-																						'LinkType'		=> $link_type,
-																						'LinkValue'		=> self::$string_optional,
-																						'SortOrder'		=> self::$int_optional,
-																						'IsDependant'	=> self::$string_optional,
-																						'IsExclusive'	=> self::$string_optional,
+											    										'TypeCode'			=> $asset_type,
+																						'Name'				=> self::$string_non_optional,
+																						'ParentID'			=> self::$string_non_optional,
+																						'LinkType'			=> $link_type,
+																						'LinkValue'			=> self::$string_optional,
+																						'SortOrder'			=> self::$int_optional,
+																						'IsDependant'		=> self::$string_optional,
+																						'IsExclusive'		=> self::$string_optional,
+																						'FileName'			=> self::$string_optional,
+																						'FileContentBase64'	=> self::$string_optional,
 																					  ),
 															'CreateAssetResponse'	=> Array (
 																						'NewAssetID'		=> self::$string_optional,
@@ -905,6 +1006,16 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAllStatusesResult'	=> $statuses_des_val,
 													   	   							   ),
 													   	   ),
+							'SetAssetStatus'			=> Array (
+															'SetAssetStatus'			=> Array (
+											    										'AssetID'			=> self::$string_non_optional,
+																						'StatusValue'		=> self::$string_non_optional,
+													   	   								'DependantsOnly'	=> self::$boolean_optional,
+																					  ),
+															'SetAssetStatusResponse'	=> Array (
+																						'SetAssetStatusResult'	=> self::$boolean_optional,
+																					   ),
+														   ),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
@@ -974,6 +1085,26 @@ class Soap_Api_Asset_Service extends Soap_Api
 		foreach ($asset_types_info as $asset_type_info) {
 			$asset_types[]	= $asset_type_info['type_code'];
 		}//end foreach
+		
+		$asset_status = Array (
+							SQ_STATUS_ARCHIVED,
+							SQ_STATUS_UNDER_CONSTRUCTION,
+							SQ_STATUS_PENDING_APPROVAL,
+							SQ_STATUS_APPROVED,
+							SQ_STATUS_LIVE,
+							SQ_STATUS_LIVE_APPROVAL,
+							SQ_STATUS_EDITING,
+							SQ_STATUS_EDITING_APPROVAL,
+							SQ_STATUS_EDITING_APPROVED,
+							SQ_SC_STATUS_NOT_LIVE,
+							SQ_SC_STATUS_LIVE_EDIT,
+							SQ_SC_STATUS_CAN_APPROVE,
+							SQ_SC_STATUS_PENDING,
+							SQ_SC_STATUS_ALL_APPROVED,
+							SQ_SC_STATUS_SAFE_EDITING,
+							SQ_SC_STATUS_ALL,
+						);
+						
 		$attribute_details	= Array (
 								'attrid',
 								'type_code',
@@ -1020,6 +1151,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 																							'enumeration'		=> $attribute_details,
 																						   ),
 																   ),
+										'SetAssetStatus'		=> Array (
+																   	'StatusValue'		=> Array (
+																   								'restriction_base'	=> 'string',
+																   								'enumeration'		=> $asset_status,	
+																   							),
+																   ),
 									  );
 
 		$simple_restricted_types_available = parent::processSimpleRestrictedTypes($simple_restricted_types);
@@ -1028,6 +1165,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	}//end getSimpleRestrictedTypes()
 
-
+	
 }//end class
 ?>
