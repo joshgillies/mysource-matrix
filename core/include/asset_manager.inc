@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.8 2010/03/22 22:17:19 csmith Exp $
+* $Id: asset_manager.inc,v 1.779.2.9 2010/03/26 00:23:51 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.8 $
+* @version $Revision: 1.779.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2270,6 +2270,8 @@ class Asset_Manager extends MySource_Object
 		if (is_null($asset)) return FALSE;
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
+		if (empty($current_locks)) return FALSE;
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
