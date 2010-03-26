@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.11 2009/11/24 23:55:04 bpearson Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.11.2.1 2010/03/26 02:33:53 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -190,8 +190,8 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				$order = 0;
 				if (count($value) > 0) {
 					foreach ($value as $k => $v) {
-						$k = html_entity_decode($k);
-						$v = html_entity_decode($v);
+						$k = html_entity_decode($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+						$v = html_entity_decode($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 						$printup = ($order < 1) ? FALSE : TRUE;
 						$this->_printOptionField($k, $v, $order, $prefix, 20, $printup);
 						$order++;
@@ -300,7 +300,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				// abort if we and the second-last input are both empty
 				var lastInput = input.previousSibling;
 				var last2Input = lastInput.previousSibling;
-				
+
 				while (lastInput !== null) {
 					if (lastInput.tagName == 'INPUT') {
 						last2Input = lastInput.previousSibling;
@@ -342,7 +342,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				}
 
 
-	
+
 				var brElements = lastInput.parentNode.getElementsByTagName('BR');
 				input.parentNode.removeChild(brElements[brElements.length-1]);
 				input.parentNode.appendChild(document.createTextNode(' '));
@@ -384,7 +384,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				moveUpButton = moveUpButton.cloneNode(true);
 				moveUpButton.id = optionItemPrefix+'_options['+((inputs.length/2)-1)+']';
 				moveUpButton.onclick = doMoveUp;
-				
+
 				//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
 				var buttonScript =  moveUpButton.getElementsByTagName("script")[0];
 				var browserAgent = navigator.userAgent.toLowerCase();
@@ -482,7 +482,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		<?php
 	} else {
 		if (count($value) > 0) {
-			echo '<ul><li>'.html_entity_decode(implode('</li><li>', $value)).'</li></ul>';
+			echo '<ul><li>'.html_entity_decode(implode('</li><li>', $value), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li></ul>';
 		}
 	}
 
