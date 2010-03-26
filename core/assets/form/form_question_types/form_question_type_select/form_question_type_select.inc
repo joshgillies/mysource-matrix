@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.16 2008/11/12 06:55:44 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.16.6.1 2010/03/26 03:16:12 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,16 +118,15 @@ class Form_Question_Type_Select extends Form_Question
 			$decoded_options = Array();
 			// remove empty options
 			foreach (array_keys($options) as $k) {
-				//$options[$k] = html_entity_decode($options[$k]);
 				if ($options[$k] != '') {
-					$decoded_options[html_entity_decode($k)] = html_entity_decode($options[$k]);
+					$decoded_options[html_entity_decode($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)] = html_entity_decode($options[$k], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 			}
 			$options = $decoded_options;
 
 			// if allow empty is true, add the '-- Leave Empty --' as the first option
 			if ($this->attr('allow_empty')) {
-				$empty = Array(html_entity_decode($this->attr('empty_key')) => html_entity_decode($this->attr('empty_text')));
+				$empty = Array(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET) => html_entity_decode($this->attr('empty_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$options = array_merge($empty, $options);
 			}
 		}
@@ -186,11 +185,11 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		ob_start();
 
-		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlentities($this->attr('name')).'">';
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlentities($this->attr('name'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'">';
 		if (!is_array($answer)) $answer = Array($answer);
 
 		foreach ($answer as $a) {
-			echo '<option value="'.$a.'">'.htmlentities($this->getAnswerByOffset($a)).'</option>';
+			echo '<option value="'.$a.'">'.htmlentities($this->getAnswerByOffset($a), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</option>';
 		}
 		echo '</select_q>';
 
@@ -286,12 +285,12 @@ class Form_Question_Type_Select extends Form_Question
 				if ($num_columns === 1) {
 					// If we haven't provided a first column, then key and value
 					// are the same
-					$value = htmlentities($row[0], ENT_NOQUOTES);
+					$value = htmlentities($row[0], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$options[$index] = $value;
 					$index++;
 				} else {
-					$key = htmlentities($row[0], ENT_NOQUOTES);
-					$value = htmlentities($row[1], ENT_NOQUOTES);
+					$key = htmlentities($row[0], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$value = htmlentities($row[1], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$options[$key] = $value;
 
 					if ($num_columns === 3) {
