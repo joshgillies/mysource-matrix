@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.36 2009/03/25 05:47:38 mbrydon Exp $
+* $Id: data_source_db.inc,v 1.36.4.1 2010/03/28 22:51:31 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,8 +241,23 @@ class Data_Source_DB extends Data_Source
 		$sql = trim($sql, ';');
 
 		try {
-			MatrixDAL::changeDb('data_source_db_'.$this->id);
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			MatrixDAL::changeDb('data_source_db_'.$this->id);	
+			// differentiate  select queries and execute queries	
+			if(preg_match('/^[ ]*select/i', $sql)) {
+				$result = MatrixDAL::executeSqlAssoc($sql);
+			}
+			else {
+				// Oracle db will usually cache the execution query, but we need immediate execution here
+				if (MatrixDAL::getDbType() === 'oci') {
+					MatrixDAL::setOciCommitOnSuccess(TRUE);
+				}
+				
+				MatrixDAL::executeQueries($sql);
+				
+				if (MatrixDAL::getDbType() === 'oci') {
+					MatrixDAL::setOciCommitOnSuccess(FALSE);
+				}
+			}
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
