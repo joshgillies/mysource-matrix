@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.1.1.1.2.2 2010/03/28 23:27:26 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.1 $
+* @version $Revision: 1.1.1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -50,7 +50,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	*
 	* @var array
 	*/
-	var $defaults = Array ('query_width' => 25);
+	var $defaults = Array('query_width' => 25);
 
 	/**
 	* An array of keywords replacements that can be used in this page
@@ -58,83 +58,83 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @var array
 	*/
 	var $keywords = Array(
-						'initial'		=> Array(
-											'current_query_term',
-											'search_query',
-											'search_scope',
-											'search_sort',
-											'search_button',
-											'submit_button',
-											'results_per_page',
-											'metadata_scope_X',
-											'metadata_logic_X',
-										   ),
-						'results'		=> Array(
-											'page_list_X',
-											'result_list',
-											'spell_suggestion',
-											'fluster_category_type',
-											'fluster_category_topic',
-											'fluster_category_site',
-											'fluster_current_term',
-											'fluster_navigation',
-											'result_featured',
-											'result_count',
-											'result_count_fully',
-											'result_count_partially',
-											'result_count_pages',
-											'total_result_pages',
-											'result_per_page',
-											'current_result_page',
-											'current_result_page_start',
-											'current_result_page_end',
-											'result_page_index',
-											'previous_result_page_link',
-											'next_result_page_link',
-											'previous_result_page_href',
-											'next_result_page_href',
-											'initial_layout',
-										   ),
-						'no_results'	=> Array(
-											'initial_layout',
-										   ),
-						'default_format'=> Array(
-											'result_rank',
-											'result_score',
-											'result_name_linked',
-											'result_title',
-											'result_summary',
-											'result_url',
-											'result_url_click_event',
-											'result_url_click_js',
-											'result_size',
-											'result_type',
-										   ),
-						'featured_format'=> Array(
-											'featured_trigger',
-											'featured_url',
-											'featured_title',
-											'featured_summary',
-										   ),
-						'context_format'=> Array(
-											'fluster_category_name',
-											'fluster_current_term',
-											'fluster_navigation',
-											'fluster_list',
-										   ),
-						'cluster_format'=> Array(
-											'cluster_name',
-											'cluster_url',
-											'cluster_count',
-										   ),
-						'navigation_format'=> Array(
-											'navigation_name',
-											'navigation_url',
-										   ),
-						'spell_format'	=> Array(
-											'spell_url',
-											'spell_text',
-										   ),
+						'initial'			=> Array(
+													'current_query_term',
+													'search_query',
+													'search_scope',
+													'search_sort',
+													'search_button',
+													'submit_button',
+													'results_per_page',
+													'metadata_scope_X',
+													'metadata_logic_X',
+											   ),
+						'results'			=> Array(
+													'page_list_X',
+													'result_list',
+													'spell_suggestion',
+													'fluster_category_type',
+													'fluster_category_topic',
+													'fluster_category_site',
+													'fluster_current_term',
+													'fluster_navigation',
+													'result_featured',
+													'result_count',
+													'result_count_fully',
+													'result_count_partially',
+													'result_count_pages',
+													'total_result_pages',
+													'result_per_page',
+													'current_result_page',
+													'current_result_page_start',
+													'current_result_page_end',
+													'result_page_index',
+													'previous_result_page_link',
+													'next_result_page_link',
+													'previous_result_page_href',
+													'next_result_page_href',
+													'initial_layout',
+											   ),
+						'no_results'		=> Array(
+													'initial_layout',
+											   ),
+						'default_format'	=> Array(
+													'result_rank',
+													'result_score',
+													'result_name_linked',
+													'result_title',
+													'result_summary',
+													'result_url',
+													'result_url_click_event',
+													'result_url_click_js',
+													'result_size',
+													'result_type',
+											   ),
+						'featured_format'	=> Array(
+													'featured_trigger',
+													'featured_url',
+													'featured_title',
+													'featured_summary',
+											   ),
+						'context_format'	=> Array(
+													'fluster_category_name',
+													'fluster_current_term',
+													'fluster_navigation',
+													'fluster_list',
+											   ),
+						'cluster_format'	=> Array(
+													'cluster_name',
+													'cluster_url',
+													'cluster_count',
+											   ),
+						'navigation_format'	=> Array(
+													'navigation_name',
+													'navigation_url',
+											   ),
+						'spell_format'		=> Array(
+													'spell_url',
+													'spell_text',
+											   ),
 					);
 
 
@@ -229,6 +229,10 @@ class Funnelback_Search_Page extends Listing_Engine
 					$bc_args = Array('content' => $this->_getDefaultBodycopyContent($extra_format));
 					if (!$bc_asset->create($bc_copy_link, $bc_args)) return FALSE;
 				break;
+
+				default:
+					// Do nothing
+				break;
 			}//end switch
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bc_asset);
@@ -304,6 +308,9 @@ class Funnelback_Search_Page extends Listing_Engine
 				return '<p><a href="%navigation_url%">%navigation_name%</a></p>';
 			case 'spell_format':
 				return '<p>Did you mean: <a href="%spell_url%">%spell_text%</a>?</p>';
+			default:
+				// Do nothing
+			break;
 		}//end switch
 		return parent::_getDefaultBodycopyContent($bodycopy_code);
 
@@ -448,7 +455,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// No click log, move on....
 		parent::printFrontend();
-	
+
 	}//end printFrontend()
 
 
@@ -513,6 +520,10 @@ class Funnelback_Search_Page extends Listing_Engine
 						if (!empty($dynamic_scope) && empty($search_vars['scope'])) {
 							$search_vars['scope'] = $dynamic_scope;
 						}//end if
+					break;
+
+					default:
+						// Do nothing
 					break;
 				}//end switch
 			}//end foreach
@@ -613,6 +624,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					// Empty Searches are not permitted
 					return $search_results;
 				}//end if
+			break;
 		}//end switch
 
 		// Just in case, XML returned can be malformed
@@ -745,11 +757,10 @@ class Funnelback_Search_Page extends Listing_Engine
 	/**
 	* Keyword-replaces for the results mode
 	*
-	* @param array	$results	the results returned
-	* @param array	$params		the search parameters
-	* @param string $bc_name	the name of the bodycopy to be printed (results | no_results)
+	* @param array	$search_results	the results returned
+	* @param string $bc_name		the name of the bodycopy to be printed (results | no_results)
 	*
-	* @return void
+	* @return array
 	* @access private
 	*/
 	function getResultsBodyReplacements($search_results, $bc_name='results')
@@ -779,6 +790,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @param string $keyword		the keyword of the wanted replacement
 	* @param array	$search_results	the search information used for the keywords
 	* @param int	$index			the index for the item replacements
+	* @param string	$type			the type of fluster (USED only for flustering)
 	*
 	* @return string
 	* @access public
@@ -786,7 +798,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	function getFunnelbackReplacement($keyword, $search_results=Array(), $index=NULL, $type='site')
 	{
 		$default_fluster = Array('category' => Array('type' => Array(), 'topic' => Array(), 'site' => Array()));
-		$default_summary = Array('summary'=>Array(), 'fluster'=>$default_fluster, 'spell'=>Array(), 'featured'=>Array());
+		$default_summary = Array('summary' => Array(), 'fluster' => $default_fluster, 'spell' => Array(), 'featured' => Array());
 		$results = array_get_index($search_results, 'results', Array());
 		$summary = array_get_index($search_results, 'summary', $default_summary);
 		$params  = array_get_index($search_results, 'params', Array());
@@ -950,17 +962,17 @@ class Funnelback_Search_Page extends Listing_Engine
 
 				case 'previous_result_page_link':
 					if ($current_result_page <= 1) {
-						$replacement = $this->attr('prev_page_text');
+						$replacement = htmlspecialchars($this->attr('prev_page_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else {
-						$replacement = '<a href="'.$this->getSearchURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$num_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
+						$replacement = '<a href="'.$this->getSearchURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$num_per_page.$queries).'">'.htmlspecialchars($this->attr('prev_page_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
 					}//end if
 				break;
 
 				case 'next_result_page_link':
 					if ($current_result_page >= $total_pages) {
-						$replacement = $this->attr('next_page_text');
+						$replacement = htmlspecialchars($this->attr('next_page_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					} else {
-						$replacement = '<a href="'.$this->getSearchURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$num_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
+						$replacement = '<a href="'.$this->getSearchURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$num_per_page.$queries).'">'.htmlspecialchars($this->attr('next_page_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
 					}//end if
 				break;
 
@@ -1156,7 +1168,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									$url = $this->getSearchUrl().'?'.$queries.'&'.$cluster_query;
 
 									// Here we are to print the more... flag
-									echo '<a href="'.$url.'">'.$cluster_name.'</a>';
+									echo '<a href="'.$url.'">'.htmlspecialchars($cluster_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
 								} else {
 									// If the show more is has been set (max cluster) show less
 									$queries = '';
@@ -1190,7 +1202,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 									// Here we are to print the more... flag
 									if ($show_link) {
-										echo '<a href="'.$url.'">'.$cluster_name.'</a>';
+										echo '<a href="'.$url.'">'.htmlspecialchars($cluster_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
 									}//end if
 								}//end if
 							}//end if
@@ -1205,7 +1217,8 @@ class Funnelback_Search_Page extends Listing_Engine
 				break;
 
 				case 'cluster_url':
-					$replacement = $this->getSearchURL();
+					$replacement = '';
+					$cluster_url = '';
 					$url = array_get_index(array_get_index($category_type, $index, Array()), 'href', '');
 					$query = array_get_index(array_get_index($category_type, $index, Array()), 'query', '');
 					if (!empty($url)) {
@@ -1228,16 +1241,15 @@ class Funnelback_Search_Page extends Listing_Engine
 						}//end if
 
 						// Build the URL
-						$get_vars = '';
 						if (!empty($queries)) {
+							$get_vars = '';
 							foreach ($queries as $switch => $param) {
 								$get_vars .= '&'.$switch.'='.$param;
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
-							$get_queries = '?'.$get_vars;
+							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
-						$replacement .= $get_queries;
 					} else if (!empty($query)) {
 						$queries = Array();
 						$query_found = FALSE;
@@ -1259,18 +1271,18 @@ class Funnelback_Search_Page extends Listing_Engine
 						}//end if
 
 						// Build the URL
-						$get_vars = '';
 						if (!empty($queries)) {
+							$get_vars = '';
 							foreach ($queries as $switch => $param) {
 								if ($switch == 'current_result_page') continue;
 								$get_vars .= '&'.$switch.'='.$param;
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
-							$get_queries = '?'.$get_vars;
+							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
-						$replacement .= $get_queries;
 					}//end if
+					$replacement = $cluster_url;
 				break;
 
 				case 'cluster_count':
@@ -1303,11 +1315,12 @@ class Funnelback_Search_Page extends Listing_Engine
 
 				default:
 					$replacement = $this->getGeneralReplacement($keyword, $params, $summary['spell']);
+				break;
 			}//end switch
 		}//end if
 
 		return $replacement;
-	
+
 	}//end getFunnelbackReplacement()
 
 
@@ -1316,6 +1329,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	*
 	* @param string $keyword	the keyword of the wanted replacement
 	* @param array	$extra		the extra information that can be used by the initial bodycopy
+	* @param array	$spelling	the extra spelling information
 	*
 	* @return string
 	* @access public
@@ -1337,7 +1351,6 @@ class Funnelback_Search_Page extends Listing_Engine
 					text_box($prefix.'_metadata_scope['.$class.']', $current_class);
 					$replacement = ob_get_contents();
 				ob_end_clean();
-				
 			}//end if
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($fm, TRUE);
 		} else if (strpos($keyword, 'metadata_logic') === 0) {
@@ -1349,7 +1362,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				$current_logic = '1';
 				$all_current_logic = array_get_index($_GET, $prefix.'_metadata_logic', Array());
 				if (isset($all_current_logic[$class])) $current_logic = $all_current_logic[$class];
-				$logic_options = Array('Exclude','Include');
+				$logic_options = Array('Exclude', 'Include');
 				ob_start();
 					combo_box($prefix.'_metadata_logic['.$class.']', $logic_options, FALSE, $current_logic);
 					$replacement = ob_get_contents();
@@ -1496,6 +1509,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 				default:
 					$replacement = $this->getKeywordReplacement($keyword);
+				break;
 			}//end switch
 		}//end if
 
@@ -1525,7 +1539,12 @@ class Funnelback_Search_Page extends Listing_Engine
 	/**
 	* Returns replacements for the sliding page index 
 	*
-	* @param int	$pages	the number of pages to show
+	* @param string	$mode					The mode of the page
+	* @param int	$current_result_page	The current result page
+	* @param int	$total_pages			The total number of pages
+	* @param int	$show_pages				The number of results shown
+	* @param int	$num_per_page			The number of results per page
+	* @param string	$queries				Any extra queries
 	*
 	* @return string
 	* @access private
@@ -1700,7 +1719,6 @@ class Funnelback_Search_Page extends Listing_Engine
 	* This method ensures the list is printed in columns if required, and keeps
 	* track of what position in the list we are printing
 	*
-	* @param array	$search_params	The search parameters
 	* @param array	$search_results	The search results
 	*
 	* @return void
@@ -1722,7 +1740,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	* Prints the individual result in the list
 	*
 	* @param array	$search_results		The current search results
-	* @param string $assetid			The assetid of the asset we are printing
+	* @param string $index				The assetid of the asset we are printing
 	*
 	* @return void
 	* @access private
@@ -1760,7 +1778,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $search_results, $index);	
+			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $search_results, $index);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1802,7 +1820,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index);	
+			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1844,7 +1862,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, 0, $type);	
+			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, 0, $type);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1888,7 +1906,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$keywords = Array();
 		// Go through and replace keywords
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index, $type);	
+			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index, $type);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1930,7 +1948,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index);	
+			$keywords[$keyword] = $this->getFunnelbackReplacement($keyword, $results, $index);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1971,7 +1989,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		foreach ($bc_keywords as $keyword) {
-			$keywords[$keyword] = $this->getGeneralReplacement($keyword, Array(), $results);	
+			$keywords[$keyword] = $this->getGeneralReplacement($keyword, Array(), $results);
 		}//end foreach
 
 		$bodycopy->setKeywordReplacements($keywords);
@@ -1986,7 +2004,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	/**
 	 * Return an array of the query vars
 	 *
-	 * @param string	$query_vars_string	The string of query vars
+	 * @param string	$query_string	The string of query vars
 	 *
 	 * @return array
 	 * @access private
@@ -2000,7 +2018,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		$vars = Array();
 		preg_match_all('|&([^=]+)=([^&]+)?|', $query_string, $matches);
-		foreach($matches[1] as $index => $query_name) {
+		foreach ($matches[1] as $index => $query_name) {
 			$vars[$query_name] = isset($matches[2][$index]) ? $matches[2][$index] : '';
 		}//end foreach
 
@@ -2098,19 +2116,19 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Fluster more/less links
 		if (!empty($type_max)) {
-			$url .= '&type_max_clusters='.$type_max;
+			$url .= '&type.max_clusters='.$type_max;
 		} else {
-			$url .= '&type_max_clusters='.$this->attr('less_type_num');
+			$url .= '&type.max_clusters='.$this->attr('less_type_num');
 		}//end if
 		if (!empty($topic_max)) {
-			$url .= '&topic_max_clusters='.$topic_max;
+			$url .= '&topic.max_clusters='.$topic_max;
 		} else {
-			$url .= '&topic_max_clusters='.$this->attr('less_topic_num');
+			$url .= '&topic.max_clusters='.$this->attr('less_topic_num');
 		}//end if
 		if (!empty($site_max)) {
-			$url .= '&site_max_clusters='.$site_max;
+			$url .= '&site.max_clusters='.$site_max;
 		} else {
-			$url .= '&site_max_clusters='.$this->attr('less_site_num');
+			$url .= '&site.max_clusters='.$this->attr('less_site_num');
 		}//end if
 
 		return $funnelback_url.$url;
@@ -2244,14 +2262,14 @@ class Funnelback_Search_Page extends Listing_Engine
 			case 'rank':
 			default:
 				// Default to rank, already handled by default by Funnelback
+			break;
 		}//end switch
 
 		// Searching... Searching... Searching...
-		$status = $fm->runCommand($command, $output, NULL, NULL, $data_path, Array('SITE_SEARCH_ROOT'=>$coll_path));
-//bam($command);
+		$status = $fm->runCommand($command, $output, NULL, NULL, $data_path, Array('SITE_SEARCH_ROOT' => $coll_path));
+
 		// Make sure the 'NULL' query doesn't come through in the results
 		$output = str_replace($nullquery, '', $output);
-//bam($output);
 
 		return $output;
 
@@ -2300,14 +2318,16 @@ class Funnelback_Search_Page extends Listing_Engine
 	/**
 	 * Get the flustering options 
 	 *
+	 * @param array	$params	The search parameters
+	 *
 	 * @return string
 	 * @access private
 	 */
 	private function _getFlusterOptions($params)
 	{
 		$fluster = ' -fluster_enabled';
-		//$cluster = array_get_index($params, 'cluster', Array());
-		//$stem = array_get_index($params, 'stem', 0);
+		// $cluster = array_get_index($params, 'cluster', Array());
+		// $stem = array_get_index($params, 'stem', 0);
 		$type_max = array_get_index($params, 'type_max', 0);
 		$topic_max = array_get_index($params, 'topic_max', 0);
 		$site_max = array_get_index($params, 'site_max', 0);
@@ -2451,7 +2471,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	public function processSearchSummary(&$xml)
 	{
 		$default_fluster = Array('category' => Array('type' => Array(), 'topic' => Array(), 'site' => Array()));
-		$results = Array('summary'=>Array(), 'fluster'=>$default_fluster, 'spell'=>Array(), 'featured'=>Array());
+		$results = Array('summary' => Array(), 'fluster' => $default_fluster, 'spell' => Array(), 'featured' => Array());
 		/**
 		 * <results_summary>
 		 *		<fully_matching></fully_matching>
@@ -2465,7 +2485,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		 */
 		$result_summary = $xml->getElementsByTagName('results_summary');
 		for ($i=0; $i<$result_summary->length; $i++) {
-			if ($result_summary->item($i)->hasChildNodes()) {	
+			if ($result_summary->item($i)->hasChildNodes()) {
 				foreach ($result_summary->item($i)->childNodes as $summary) {
 					$name = $summary->nodeName;
 					$value = $summary->nodeValue;
@@ -2614,7 +2634,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		return $results;
 
-	}//end _processSearchSummary()
+	}//end processSearchSummary()
 
 
 	/**
@@ -2670,22 +2690,31 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		return $results;
 
-	}//end _processSearchResults()
-
+	}//end processSearchResults()
 
 }//end class
 
 
 /**
- * XML Error Exception handling
- *
- */
+* XML Error Handler
+*
+* @param string	$errno		The error number
+* @param string	$errstr		The error string
+* @param string	$errfile	The error file
+* @param string	$errline	The error line
+*
+* @throw ErrorException
+* @return void
+* @access public
+*/
 function funnelback_xml_error_handler($errno, $errstr, $errfile, $errline)
 {
 	if ($errno & (E_USER_ERROR | E_ERROR | E_USER_WARNING | E_WARNING)) {
-		log_dump("XML ERROR: ".$errstr .'. Error Number:'.$errno .'. Error File:'.$errfile.'. Error Line:'.$errline);
-		throw new ErrorException($errstr, $errno);	
+		log_dump('XML ERROR: '.$errstr.'. Error Number:'.$errno.'. Error File:'.$errfile.'. Error Line:'.$errline);
+		throw new ErrorException($errstr, $errno);
 	}//end if
 
 }//end funnelback_xml_error_handler()
+
+
 ?>
