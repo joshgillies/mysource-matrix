@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.29.6.1 2009/12/20 22:41:30 cupreti Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.29.6.2 2010/03/28 22:36:14 csmith Exp $
 *
 */
 
@@ -25,12 +25,22 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29.6.1 $
+* @version $Revision: 1.29.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
+	/**
+	 * Set the number of results to show per page.
+	 * This is used to work out paging and also when fetching
+	 * the remaps to display (or for csv download).
+	 *
+	 * csv download increases this substantially so we do
+	 * less trips to the db.
+	 */
+	private $num_per_page = 100;
 
 
 	/**
@@ -62,6 +72,90 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	 * _fetchRemapUrls
+	 * Fetches the urls from the db.
+	 * This is used both when displaying the remaps and also when
+	 * downloading them so we don't fetch all remaps at once, and instead
+	 * chunk the results based on $this->num_per_page.
+	 *
+	 * @param string	$url_filter			This can be used to limit the results to a particular url
+	 * @param string	$remap_url_filter	Used to limit results to a particular remap url
+	 * @param int		$page_num			Which "page" to return results for.
+	 * 										Used by pagination and also csv download
+	 * @param boolean	$return_count		Whether to return the count of the number of remaps.
+	 *										Enabled by default. Disabled for csv download by subsequent calls
+	 *										(So we only get the total number of remaps once)
+	 *
+	 * @return mixed	If $return_count is set to true (default), then the return array will be multi-dimensional:
+	 *               ('total_remaps' => X, 'remap_rows' => array(remap_row, remap_row, remap_row)
+	 *               If $return_count is false, then it only returns the remap_rows and the array is not multi
+	 *               ie. $return = array(remap_row, remap_row, remap_row)
+	 */
+	private function _fetchRemapUrls($url_filter='', $remap_url_filter='', $page_num=1, $return_count=TRUE)
+	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$offset = $this->num_per_page * ($page_num - 1);
+
+		$remap_urls = Array();
+		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+			$bind_vars = Array(
+						'url' 		=> (string) '%'.$url_filter.'%',
+						'remap_url'	=> (string) '%'.$remap_url_filter.'%',
+					);
+
+			$where = ' WHERE url LIKE :url AND remap_url LIKE :remap_url';
+
+		} else {
+			$bind_vars = Array();
+
+			$where = '';
+		}
+
+		$count_query = 'SELECT COUNT(url) FROM sq_ast_lookup_remap '.$where;
+
+		/**
+		 * we need the order by here so we get consistent results when we do paging
+		 * url is the primary key so that's the best thing to use.
+		*/
+		$query = 'SELECT url, remap_url, expires, never_delete FROM sq_ast_lookup_remap '.$where.' ORDER BY url';
+
+		$query = db_extras_modify_limit_clause($query, MatrixDAL::getDbType(), $this->num_per_page, $offset);
+
+		try {
+			if ($return_count) {
+				$count_result = MatrixDAL::preparePdoQuery($count_query);
+			}
+			$result = MatrixDAL::preparePdoQuery($query);
+
+			if (!empty($bind_vars)) {
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					if ($return_count) {
+						MatrixDAL::bindValueToPdo($count_result, $bind_var, $bind_value);
+					}
+					MatrixDAL::bindValueToPdo($result, $bind_var, $bind_value);
+				}
+			}
+			if ($return_count) {
+				$total_assets = MatrixDAL::executePdoOne($count_result);
+			}
+
+			$remap_urls = MatrixDAL::executePdoAll($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get remap urls due to the following database error: '.$e->getMessage());
+		}
+
+		if ($return_count) {
+			return Array(
+					'total_remaps'	=> $total_assets,
+					'remap_rows'	=> $remap_urls,
+				);
+		}
+		return $remap_urls;
+	}// end _fetchRemapUrls()
+
+
+	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
 	* @param Remap_Manager		$asset	the remap manager
@@ -81,25 +175,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
 		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
 
-		$remap_urls = Array();
-		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
-			$bind_vars = Array(
-					'url' 		=> (string) '%'.$url_filter.'%',
-					'remap_url'	=> (string) '%'.$remap_url_filter.'%',
-					);
-			try {
-				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrlsFilter', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-			}
-
-		} else {
-			try {
-				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
-			} catch (Exception $e) {
-				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
-			}
-		}
+		$remap_info = $this->_fetchRemapUrls($url_filter, $remap_url_filter, $link_offset, TRUE);
+		$total_assets = $remap_info['total_remaps'];
+		$remap_urls = $remap_info['remap_rows'];
 
 		$o->openField('Original URL Filter');
 		text_box($prefix.'_URL_FILTER', $url_filter, 30);
@@ -117,10 +195,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
-		$num_per_page = 100;
-		$total_assets = count($remap_urls);
-		$remap_urls = array_slice($remap_urls, $link_offset, $num_per_page);
-		$num_pages = ceil($total_assets / $num_per_page);
+		$num_pages = ceil($total_assets / $this->num_per_page);
 
 		?>
 		<table class="sq-backend-table">
@@ -142,7 +217,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $this->num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
 					}
@@ -155,31 +230,31 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $this->num_per_page) / $this->num_per_page), ceil($total_assets / $this->num_per_page)); ?> &nbsp; &nbsp;
 					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					if (($link_offset + $this->num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $this->num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 					}
 					?>
 					&gt;
 					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
+					if (($link_offset + $this->num_per_page) < $total_assets) {
 						?></a><?php
 					} else {
 						?></span><?php
 					}
 					?> &nbsp; &nbsp; <?php
-					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					if (($link_offset + $this->num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $this->num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 					}
 					?>
 					&gt;&gt;
 					<?php
-					if (($link_offset + $num_per_page) < $total_assets) {
+					if (($link_offset + $this->num_per_page) < $total_assets) {
 						?></a><?php
 					} else {
 						?></span><?php
