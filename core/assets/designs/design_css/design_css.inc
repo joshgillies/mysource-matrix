@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.38 2009/09/17 01:01:03 ewang Exp $
+* $Id: design_css.inc,v 1.38.2.1 2010/03/29 23:23:34 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -417,14 +417,27 @@ echo '/*
 	* @access public
 	*/
 	public function processBackend(Backend_Outputter $o, Array &$link)
-	{
+	{	
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		
+		//store old attributes, status and public read permission that can affect the regeneration of static cache file
 		$cache = $this->attr('cache_css');
 		$strip = $this->attr('strip_whitespace');
+		//status and public read permission can make the URLs of child assets changed, so we will need to regenerate cache file 
+		$status = $this->status;
+		$read_access = $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid));
+		
 		if (!parent::processBackend($o, $link)) return FALSE;
 
-		$regen = (!$cache && $this->attr('cache_css')) || ($strip != $this->attr('strip_whitespace'));
+		//URLs only changed if status is changed from or to live, and/or when public read permission is changed
+		$status_changed = ($status != $this->status) && (($status == SQ_STATUS_LIVE) || ($this->status == SQ_STATUS_LIVE));
+		$read_access_changed = ($read_access != $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
+		
+		$regen = $this->attr('cache_css') && (($cache != $this->attr('cache_css')) || ($strip != $this->attr('strip_whitespace')) || $status_changed
+												|| $read_access_changed);
 		// Okay, if after processing everything in the backend, and the
-		// status of the cache_css attribute has gone from FALSE to TRUE or strip_whitespace has changed,
+		// status of the cache_css attribute is TRUE (use static cache file) and either the cache_css attribute, the strip_whitespace attribute,
+		// the status (changed to or from live), or the public read permission is changed,
 		// we've gotta update the static cache to reflect that this has changed.
 		if ($regen && !$this->_tmp['updated_cache']) {
 			$this->_updateCacheFile();
@@ -441,6 +454,7 @@ echo '/*
 		return TRUE;
 
 	}//end processBackend()
+
 
 
 	/**
