@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.7 2010/03/25 22:17:14 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.8 2010/03/29 01:13:33 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1096,13 +1096,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 							SQ_STATUS_EDITING,
 							SQ_STATUS_EDITING_APPROVAL,
 							SQ_STATUS_EDITING_APPROVED,
-							SQ_SC_STATUS_NOT_LIVE,
-							SQ_SC_STATUS_LIVE_EDIT,
-							SQ_SC_STATUS_CAN_APPROVE,
-							SQ_SC_STATUS_PENDING,
-							SQ_SC_STATUS_ALL_APPROVED,
-							SQ_SC_STATUS_SAFE_EDITING,
-							SQ_SC_STATUS_ALL,
 						);
 						
 		$attribute_details	= Array (
