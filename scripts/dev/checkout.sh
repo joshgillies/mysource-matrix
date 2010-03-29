@@ -42,7 +42,7 @@ if [ -d $CHECKOUT_DIR ]; then
 	exit 1
 fi
 
-PACKAGES="bulkmail calendar cms ecommerce import_tools news search web_services"
+PACKAGES="bulkmail calendar cms ecommerce filesystem import_tools news search web_services"
 FUDGE_PACKAGES="antivirus datetime_field db_extras dev colour csv file_versioning general image image_editor js_calendar ldap rss_feeds standards_lists var_serialise wysiwyg"
 
 echo "Checking out mysource matrix core .. "
