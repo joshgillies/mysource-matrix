@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.338 2010/03/18 02:44:04 bpearson Exp $
+* $Id: mysource.inc,v 1.339 2010/03/29 22:48:34 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338 $
+* @version $Revision: 1.339 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -703,6 +703,15 @@ class MySource extends MySource_Object
 		if ($cache_info === FALSE) {
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
+
+			// Remove any context info from asset cache key entries
+			foreach ($assetids as &$assetid) {
+				$assetid_bits = explode('\\', $assetid, 2);
+				if ($assetid_bits > 1) {
+					$assetid = $assetid_bits[1];
+				}
+			}
+
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
 
 			// The Matrix Cache Expiry (a.k.a "Default Expiry") is used when saving to cache
@@ -926,7 +935,7 @@ class MySource extends MySource_Object
 				$_SESSION['userid'] = NULL;
 				$_SESSION['user_type_code'] = NULL;
 			}
-			
+
 			header('WWW-Authenticate: Basic realm="MySource Matrix"');
 			header('HTTP/1.0 401 Unauthorized');
 		}
@@ -2551,7 +2560,7 @@ class MySource extends MySource_Object
 	* @return boolean
 	*/
 	public function deleteContextData($contextid)
-	{	
+	{
 		try {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
