@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.244 2010/03/23 21:26:07 cupreti Exp $
+* $Id: form.inc,v 1.245 2010/03/29 04:59:13 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1749,6 +1749,9 @@ class Form extends Asset implements Bridge
 					} else if (isset($submission_var)) {
 						$this->updateSubmissionCookie();
 					}
+						
+					$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+					$sm->reindexMetadata($submission->id, Array('all'), TRUE);
 
 					// Are we there yet? Assuming that we are moving forward
 					// on this page, and not backwards or same page...

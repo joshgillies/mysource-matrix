@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.40 2010/02/23 22:56:43 cupreti Exp $
+* $Id: form_submission.inc,v 1.41 2010/03/29 04:59:49 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -440,7 +440,9 @@ class Form_Submission extends Asset
 	{
 		$matches = Array();
 		if (preg_match('/question\_name\_q([0-9]+)/', $keyword, $matches)) {
-			$attrs = $this->attr('attributes');
+			$attrs = $this->attr('attributes');			
+			if (!isset($attrs['summary'])) return '';
+
 			foreach ($attrs['summary'] as $name => $value) {
 				$q_ids = split(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
@@ -451,13 +453,17 @@ class Form_Submission extends Asset
 		}
 
 		if (preg_match('/question\_name\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
-			$attrs = $this->attr('attributes');
+			$attrs = $this->attr('attributes');			
+			if (!isset($attrs['summary'])) return '';
+
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
 			return $elt['name'];
 		}
 
 		if (preg_match('/question\_answer\_q([0-9]+)/', $keyword, $matches)) {
-			$attrs = $this->attr('attributes');
+			$attrs = $this->attr('attributes');			
+			if (!isset($attrs['summary'])) return '';
+
 			foreach ($attrs['summary'] as $name => $value) {
 				$q_ids = split(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
@@ -469,12 +475,14 @@ class Form_Submission extends Asset
 
 		if (preg_match('/question\_answer\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
+			if (!isset($attrs['summary'])) return '';
+
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
 			return $elt['answer'];
 		}
 
 		if (preg_match('/question\_answer\_key\_q([0-9]+)/', $keyword, $matches)) {
-			$attrs = $this->attr('attributes');
+			$attrs = $this->attr('attributes');			
 			foreach ($attrs['answers'] as $name => $value) {
 				$q_ids = split(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
