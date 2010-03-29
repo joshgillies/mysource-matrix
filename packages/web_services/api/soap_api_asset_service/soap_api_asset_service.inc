@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.6.4.1 2010/03/25 22:18:35 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.6.4.2 2010/03/29 01:15:13 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6.4.1 $
+* @version $Revision: 1.6.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -863,7 +863,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	public static function getComplexElements($func_list=Array())
 	{
-$asset_type							= self::getArgType('AssetType', 1, 1);
+		$asset_type							= self::getArgType('AssetType', 1, 1);
 		$attribute_detail					= self::getArgType('AttributeDetail', 0, 'unbounded', TRUE);
 		$attribute_properties				= self::getArgType('AttributeProperty', 0, 'unbounded', TRUE);
 		$attribute_values_by_name_result	= self::getArgType('AttributeValueInfo', 0, 'unbounded', TRUE);
@@ -1099,13 +1099,6 @@ $asset_type							= self::getArgType('AssetType', 1, 1);
 							SQ_STATUS_EDITING,
 							SQ_STATUS_EDITING_APPROVAL,
 							SQ_STATUS_EDITING_APPROVED,
-							SQ_SC_STATUS_NOT_LIVE,
-							SQ_SC_STATUS_LIVE_EDIT,
-							SQ_SC_STATUS_CAN_APPROVE,
-							SQ_SC_STATUS_PENDING,
-							SQ_SC_STATUS_ALL_APPROVED,
-							SQ_SC_STATUS_SAFE_EDITING,
-							SQ_SC_STATUS_ALL,
 						);
 						
 		$attribute_details	= Array (
