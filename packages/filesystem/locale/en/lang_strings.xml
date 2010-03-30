@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1 2010/03/29 23:32:26 bpearson Exp $
+* $Id: lang_strings.xml,v 1.2 2010/03/30 00:44:14 bpearson Exp $
 *
 *
 * File Package Localised Strings File
@@ -19,8 +19,10 @@
 
 <strings>
 	<string source="file_root_node">File Bridge Root Node</string>
+	<string source="file_root_node_note">If a file is selected as the root node, it will be imported as a new File asset. If a folder or file bridge is selected, then all files and folders underneath will be imported, and not the selected node.</string>
 	<string source="file_parent_node">New Parent Node</string>
 	<string source="file_recursive">Recursive</string>
+	<string source="file_recursive_note">If selected, the import tool will import the contents of any folder found underneath the root node</string>
 	<string source="file_importing_file">Importing File "%s"</string>
 	<string source="file_importing_folder">Importing Folder "%s"</string>
 	<string source="file_hipo_import_file_threshold">Importing File Threshold</string>

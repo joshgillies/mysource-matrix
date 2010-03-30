@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_file.inc,v 1.1.1.1 2010/03/29 23:32:27 bpearson Exp $
+* $Id: hipo_job_import_file.inc,v 1.2 2010/03/30 00:44:14 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage file
 */
@@ -220,7 +220,17 @@ class HIPO_Job_Import_File extends HIPO_Job
 				return FALSE;
 			}//end if
 
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			if (strtolower($asset->type()) == 'physical_file') {
+				$child_assets = Array(
+									$asset->id	=> Array(
+														Array(
+															'type_code'	=> $asset->type(),
+														),
+												   ),
+								);
+			} else {
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			}//end if
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_assetids'] = Array();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);

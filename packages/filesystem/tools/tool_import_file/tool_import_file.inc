@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_file.inc,v 1.1.1.1 2010/03/29 23:32:27 bpearson Exp $
+* $Id: tool_import_file.inc,v 1.2 2010/03/30 00:44:14 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *    Tool for importing a file/folder from under a file bridge
 *
 * @author Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -66,12 +66,14 @@ class Tool_Import_File extends Tool
 								'file_bridge'		=> 'I',
 							 );
 				asset_finder($type_code.'_importing_root_assetid', '', $root_nodes);
+				$o->note(translate('file_root_node_note'));
 			$o->closeField();
 			$o->openField(translate('file_parent_node'));
 				asset_finder($type_code.'_importing_parent_assetid', '');
 			$o->closeField();
 			$o->openField(translate('file_recursive'));
 				check_box($type_code.'_recursive', '1');
+				$o->note(translate('file_recursive_note'));
 			$o->closeField();
 		$o->closeSection();
 
