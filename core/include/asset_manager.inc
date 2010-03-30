@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.9 2010/03/26 00:23:51 cupreti Exp $
+* $Id: asset_manager.inc,v 1.779.2.10 2010/03/30 03:51:36 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.9 $
+* @version $Revision: 1.779.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8587,7 +8587,10 @@ class Asset_Manager extends MySource_Object
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
 				$userid2_conds = Array(':'.$bind_prefix.'userids_2_current', ':'.$bind_prefix.'userids_2_public_user');
 
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = $current_user->getUserGroups();
+				$this->forgetAsset($current_user);
+				
 				$public_userid = (string)$this->getSystemAssetid('public_user');
 
 				$bind_vars[$bind_prefix.'userids_1_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
@@ -9388,7 +9391,10 @@ class Asset_Manager extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$where .= ' AND p.assetid = a.assetid';
 
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = $current_user->getUserGroups();
+				$this->forgetAsset($current_user);
+
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
