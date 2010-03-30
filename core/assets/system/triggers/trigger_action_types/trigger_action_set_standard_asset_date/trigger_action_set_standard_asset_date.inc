@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_standard_asset_date.inc,v 1.1 2010/03/29 04:45:44 lwright Exp $
+* $Id: trigger_action_set_standard_asset_date.inc,v 1.2 2010/03/30 00:00:39 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,6 +117,10 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 			}
 		} else if ($settings['when_type'] == 'on_trigger_fire') {
 			$when = time();
+			if ($settings['offset_used']) {
+				$offset = (int)$settings['offset'] * 60;
+				$when += $offset;
+			}
 
 		} else {
 			// just the straight value
