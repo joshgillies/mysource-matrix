@@ -11,12 +11,16 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.8 2009/10/02 04:29:59 csmith Exp $
+* $Id: requirements.xml,v 1.9 2010/03/30 03:38:12 bpearson Exp $
 *
 */
 -->
 <requirement_info>
 	<package_name>__core__</package_name>
+	<requirement>
+		<php_extension>xsl</php_extension>
+		<description> - you only need to install this module, if you are going to use the XSL Transformation.</description>
+	</requirement>
 	<requirement>
 		<!--
 		both of these are suggested so we check both are available
