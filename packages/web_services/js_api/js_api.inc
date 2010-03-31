@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.31 2010/03/31 00:49:12 akarelia Exp $
+* $Id: js_api.inc,v 1.32 2010/03/31 21:54:56 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1251,6 +1251,7 @@ class JS_Api extends Page
 			// Levels greater than 1 won't have a link id with the parent
 			if (!$this->hasLink($parent, $id)) {
 				$show['link_id']		= NULL;
+				$show['link_type']		= NULL;
 				$show['is_dependant']	= NULL;
 				$show['is_exclusive']	= NULL;
 				$show['sort_order']		= NULL;
@@ -1259,6 +1260,7 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($parent, $id, TRUE);
 				$show['link_id']		= $show_link['link_id'];
+				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
 				$show['is_exclusive']	= $show_link['is_exclusive'];
 				$show['sort_order']		= $show_link['sort_order'];
@@ -1296,6 +1298,7 @@ class JS_Api extends Page
 			// Levels lower than 1 won't have a link id with the parent
 			if (!$this->hasLink($id, $children)) {
 				$show['link_id']		= NULL;
+				$show['link_type']		= NULL;
 				$show['is_dependant']	= NULL;
 				$show['is_exclusive']	= NULL;
 				$show['sort_order']		= NULL;
@@ -1304,6 +1307,7 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($id, $child->id, TRUE);
 				$show['link_id']		= $show_link['link_id'];
+				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
 				$show['is_exclusive']	= $show_link['is_exclusive'];
 				$show['sort_order']		= $show_link['sort_order'];
