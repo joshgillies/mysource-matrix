@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.8 2010/03/28 23:30:54 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.9 2010/03/31 23:58:21 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -97,6 +97,7 @@ class Funnelback_Search_Page extends Listing_Engine
 											   ),
 						'no_results'		=> Array(
 													'initial_layout',
+													'spell_suggestion',
 											   ),
 						'default_format'	=> Array(
 													'result_rank',
