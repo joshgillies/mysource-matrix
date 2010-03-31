@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.29.6.2 2010/03/28 22:36:14 csmith Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.29.6.3 2010/03/31 22:17:28 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29.6.2 $
+* @version $Revision: 1.29.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -399,7 +399,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			
 			// When 'never delete' option is not checked for any remaps, only the remaps in current page are to be unchecked
-			$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
+			$urls_in_current_page = array_keys(array_get_index($_POST, $prefix.'_current_page_remaps', Array()));
 			try {
 							$bind_vars = Array(
 								'never_delete'		=> '0',
