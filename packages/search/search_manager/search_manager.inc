@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.231 2010/03/18 00:21:27 cupreti Exp $
+* $Id: search_manager.inc,v 1.232 2010/03/31 23:52:20 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.232 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -926,7 +926,6 @@ class Search_Manager extends Asset
 				}
 			}//end foreach
 		}//end if
-
 		
 		// Okay, shove in the default values, which will be determined by what
 		// context values are not already in there.
@@ -979,7 +978,8 @@ class Search_Manager extends Asset
 							}
 						}
 						MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
-						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
+						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);						
+						MatrixDAL::bindValueToPdo($query, 'value_1', $bind_vars['value']);
 						MatrixDAL::execPdoQuery($query);
 						
 						$index_content_found = TRUE;
@@ -1353,8 +1353,7 @@ class Search_Manager extends Asset
 		
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
         $all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
-
-
+		
 		if (in_array('all', $vars)) {
 			$schema_ids = array_keys($mm->getSchemas($assetid));
 			$fieldids = $mm->getMetadataFields($schema_ids);

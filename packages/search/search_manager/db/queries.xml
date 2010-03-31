@@ -72,6 +72,7 @@
 								<where>
 									<equal table="sq_sch_idx" column="assetid">:assetid_1</equal>
 									<equal table="sq_sch_idx" column="component">:component_1</equal>
+									<equal table="sq_sch_idx" column="value">:value_1</equal>
 								</where>
 							</select>
 						</not-in>
@@ -115,7 +116,6 @@
 		</primary>
 	</query>
 
-	q
 	<query id="flushDefaultIndexableContent">
 		<!-- Delete all index entries for a specified asset ID and component(s),
 		where 'use default' was set. -->
