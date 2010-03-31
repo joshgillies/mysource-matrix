@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.30 2010/03/25 22:59:41 akarelia Exp $
+* $Id: js_api.inc,v 1.31 2010/03/31 00:49:12 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1803,6 +1803,15 @@ class JS_Api extends Page
 				//sort order isnt really important here, so we always use like follows
 				$screen_sort_order = Array ('0' => 'custom', '1' => 'screen');
 				$return_array[$se_keyword] = $ei->getKeywordsReplacementsForPaint($asset, $limbo_outputter, $layout, $screen_sort_order, FALSE, TRUE);
+				// lets replace % with &#37; so that while rendering on frontend %asset_name% (keywords)
+				// are not replaced and the raw keyword is spat out. but also make sure to do this only to keywords
+				$pattern = '/(.)(%)([asset_|globals_]?[a-zA-Z0-9_:\^]*)(%)(.)/';
+				$replacement = '$1&#37;$3&#37;$5';
+				$return_array[$se_keyword] = preg_replace($pattern, $replacement ,$return_array[$se_keyword]);
+				$pattern_2 = '/([\"|\']{0}%)([asset_|globals_]?[a-zA-Z0-9_:\^]*)(%[\"|\']{0})/';
+				$replacement_2 = '&#37;$2&#37;';
+				$return_array[$se_keyword] = preg_replace($pattern_2, $replacement_2 ,$return_array[$se_keyword]);
+
 				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
 			}
 		}
