@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.74.4.3 2009/10/07 00:31:28 ewang Exp $
+* $Id: cache_manager.inc,v 1.74.4.4 2010/04/01 05:53:34 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74.4.3 $
+* @version $Revision: 1.74.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -650,6 +650,29 @@ class Cache_Manager extends Asset
 		$this->_storage = new $asset_type();
 
 	}//end _loadCacheStorage()
+
+  
+    /**
+    * Set the value for the passed variable to the passed value
+    *
+    * @param string $name   the name of the attribute
+    * @param string $value  the new value of the attribute
+    *
+    * @return boolean
+    * @access public
+    */
+    public function setAttrValue($name, $value)
+    {
+        $success = parent::setAttrValue($name, $value);
+
+		// If the cache type is being set then cache storage needs to be reloaded
+        if ($name === 'cache_storage_type' && $success) {
+			$this->_loadCacheStorage($value);
+        }
+        
+        return $success;        
+
+    }//end setAttrValue()
 
 
 
