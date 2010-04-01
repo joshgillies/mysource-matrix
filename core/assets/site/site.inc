@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.119 2009/09/21 05:12:36 cupreti Exp $
+* $Id: site.inc,v 1.119.2.1 2010/04/01 02:31:00 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.119.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -938,6 +938,31 @@ class Site extends Folder
 
 	}//end getNetworkPrimaryURL()
 
+
+	/**
+	* Returns the most recent 'last modified time' among all component parts
+	*
+	* If the site's URL is being loaded, normally the index page has already
+	* been loaded, and therefore does not count towards the "effective last
+	* updated" time. This is not satisfactory in assets where updates are not
+	* dependent on child assets (such as bodycopies). Make sure the index page
+	* is added to ensure this happens.
+	*
+	* @param array	$assetids	id of all assets that get loaded during printFrontend
+	*
+	* @return int
+	* @access public
+	*/
+	public function getEffectiveLastUpdatedTime($assetids)
+	{
+		$index_link = $this->getSpecialPageLink('index');
+		if (empty($index_link) === FALSE) {
+			$assetids[] = $index_link['minorid'];
+		}
+
+		return parent::getEffectiveLastUpdatedTime($assetids);
+
+	}//end getEffectiveLastUpdatedTime()
 
 }//end class
 
