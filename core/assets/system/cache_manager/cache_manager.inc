@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.80 2010/04/01 05:45:14 cupreti Exp $
+* $Id: cache_manager.inc,v 1.81 2010/04/01 05:50:22 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -701,7 +701,7 @@ class Cache_Manager extends Asset
         $success = parent::setAttrValue($name, $value);
 
 		// If the cache type is being set then cache storage needs to be reloaded
-        if ($success && $name === 'cache_storage_type') {
+        if ($name === 'cache_storage_type' && $success) {
 			$this->_loadCacheStorage($value);
         }
         
