@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.333.2.3 2010/03/18 02:46:15 bpearson Exp $
+* $Id: mysource.inc,v 1.333.2.4 2010/04/01 02:32:27 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.333.2.3 $
+* @version $Revision: 1.333.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -747,6 +747,15 @@ class MySource extends MySource_Object
 		if ($cache_info === FALSE) {
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
+
+			// Remove any context info from asset cache key entries
+			foreach ($assetids as &$assetid) {
+				$assetid_bits = explode('\\', $assetid, 2);
+				if ($assetid_bits > 1) {
+					$assetid = $assetid_bits[1];
+				}
+			}
+
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
 
 			// The Matrix Cache Expiry (a.k.a "Default Expiry") is used when saving to cache
@@ -970,7 +979,7 @@ class MySource extends MySource_Object
 				$_SESSION['userid'] = NULL;
 				$_SESSION['user_type_code'] = NULL;
 			}
-			
+
 			header('WWW-Authenticate: Basic realm="MySource Matrix"');
 			header('HTTP/1.0 401 Unauthorized');
 		}
