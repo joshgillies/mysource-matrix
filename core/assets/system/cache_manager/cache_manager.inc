@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.77 2009/10/07 00:30:40 ewang Exp $
+* $Id: cache_manager.inc,v 1.77.2.1 2010/04/01 02:23:30 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,7 +283,18 @@ class Cache_Manager extends Asset
 	*/
 	function clearCache($assetids)
 	{
-		return $this->_storage->clear($assetids);
+		if ($this->_storage->clear($assetids) === FALSE) {
+			return FALSE;
+		}
+
+		foreach ($assetids as $assetid) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_matrix_cache_cleared', $asset, NULL);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		return TRUE;
 
 	}//end clearCache()
 
@@ -650,7 +661,6 @@ class Cache_Manager extends Asset
 		$this->_storage = new $asset_type();
 
 	}//end _loadCacheStorage()
-
 
 
 }//end class
