@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.227.2.3 2010/03/25 06:02:21 cupreti Exp $
+* $Id: search_manager.inc,v 1.227.2.4 2010/04/01 00:08:34 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.227.2.3 $
+* @version $Revision: 1.227.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -976,6 +976,7 @@ class Search_Manager extends Asset
 						}
 						MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
 						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
+						MatrixDAL::bindValueToPdo($query, 'value_1', $bind_vars['value']);
 						MatrixDAL::execPdoQuery($query);
 						
 						$index_content_found = TRUE;

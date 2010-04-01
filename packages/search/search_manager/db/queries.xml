@@ -72,6 +72,7 @@
 								<where>
 									<equal table="sq_sch_idx" column="assetid">:assetid_1</equal>
 									<equal table="sq_sch_idx" column="component">:component_1</equal>
+									<equal table="sq_sch_idx" column="value">:value_1</equal>									
 								</where>
 							</select>
 						</not-in>
