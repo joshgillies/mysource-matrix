@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.13 2010/03/22 00:43:56 lwright Exp $
+* $Id: log_manager_edit_fns.inc,v 1.14 2010/04/01 05:15:49 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -410,8 +410,12 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$download_file = array_get_index($_POST, $prefix.'_download_file', '');
 
 		if ($download_file !== '') {
+			// Get all the valid log files in that directory, and see whether our
+			// file is one of them
 			$log_file = SQ_DATA_PATH.'/private/logs/'.$download_file.SQ_CONF_LOG_EXTENSION;
-			if (is_file($log_file) === TRUE) {
+			$valid_log_files = glob(SQ_DATA_PATH.'/private/logs/*'.SQ_CONF_LOG_EXTENSION);
+
+			if (array_search($log_file, $valid_log_files) !== FALSE) {
 				$fp = fopen($log_file, 'r');
 				if ($fp === FALSE) {
 					trigger_localised_error('CORE0288', E_USER_WARNING, $download_file);
