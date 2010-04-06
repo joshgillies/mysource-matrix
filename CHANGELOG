@@ -1,5 +1,52 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.3
+
+Featured Changes
+==================================
+
+...
+
+
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Fixed Bug #3653: Safe edit on css files and __data URLs
+Fixed Bug #3918: PHP notices from invalid apparent keywords in metadata
+Fixed Bug #4138: Non contextable metadata value is broken when applied before a context is added
+Fixed Bug #4150: JS API: Content length error when posting data in FF 3.0.17 and 3.0.15
+Fixed Bug #4157: JSAPI acquireLocks() returns success for incorrect screen names
+Fixed Bug #4162: Values broken when special characters are used
+Fixed Bug #4165: The use of substr on values/contents breaks multi-bite
+Fixed Bug #4169: recreate_link_tree script not working in postgres
+Fixed Bug #4183: Metadata indexing is not context aware
+Fixed Bug #4184: When wysiwyg contians bulkly content and that can potentially cause many HTML Tidy errors, commiting it can stall Matix forever
+Fixed Bug #4185: Uncustomising format for sections does not work
+Fixed Bug #4186: IE6 Calendar CSS bug
+Fixed Bug #4191: Apache Configuration screen doesn't save input
+Fixed Bug #4201: Asset listing ignores user group restrictions
+Fixed Bug #4202: Upwards direct asset listings use incorrect permissions
+Fixed Bug #4209: Logging into Matrix via HTTP authentication not working
+Fixed Bug #4226: Shadow assets should not be cascaded status change when workflow applied to parent
+Fixed Bug #4231: TRIM saved search, incorrect php warning shown where it shouldn't be
+Fixed Bug #4232: Custom Form - Complex Validation Rules - Spelling mistake in "Note:"
+Fixed Bug #4239: JS API not handling '?' characters
+Fixed Bug #4240: Some assets unable to be indexed by Funnelback with UTF8 metadata
+Fixed Bug #4242: Using db connector in 'Run db query' in form submission action will throw error
+Fixed Bug #4249: Radio buttons cleared after Save & Exit
+Fixed Bug #4253: No type checking on picking a collection 
+Fixed Bug #4257: Cannot create assets in alternate context
+Fixed Bug #4259: DB data source asset creates many empty record sets for a update query
+Fixed Bug #4261: Funnelback Sitemap Generation fails on Oracle
+Fixed Bug #4272: Remap Manager Scalability issue
+Fixed Bug #4278: Last Modified headers: not taking into account child assets
+Fixed Bug #4283: Error uploading CSV to empty remap manager
+Fixed Bug #4284: More/less links do not work
+
+
+
 VERSION 3.26.2
 
 Featured Changes
