@@ -26,11 +26,6 @@ E-Commerce Order: New Keyword for Order Total [ Feature Request #4248 ]
 A new keyword, %order_grand_total%, has been added to E-Commerce Order assets to expose the total amount of orders on the frontend, and for listing and grouping purposes through Listing Engine. 
 
 
-Workflow Step: Custom Subject line for Email Notifications [ Feature Request #4268 ]
------------------------------
-The subject line used for workflow notifications can be customised per Workflow Step. The default values for each message type (eg; Invitation Message) is retained from previous releases and will also revert back to this default if left blank.
-
-
 SOAP API be able to set asset status and create a file asset [ Feature Request #4274 ]
 -----------------------------
 Additional functionality to create File assets and to set their status.
