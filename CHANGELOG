@@ -16,10 +16,6 @@ Web Paths Screen: Target URL display in Remaps List [ Feature Request #4220 ]
 To retain consistency with Remap Manager, the Remaps section on the asset Web Paths screen now displays the Target URLs within the remaps list.
 
 
------------------------------
-A <path> tag is now available for use in requirements.xml files to check binaries which do not reside within the operating system's PATH environment. 
-
-
 Additional MIME Types added for Microsoft Office [ Feature Request #4105 ]
 -----------------------------
 MIME types for Microsoft Office documents, such as those with extensions "docx" and "pptm", have been added to enable these files to be served with the expected type header. 
