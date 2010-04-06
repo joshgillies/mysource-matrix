@@ -5,8 +5,62 @@ VERSION 3.26.3
 Featured Changes
 ==================================
 
-...
+Automatic Remaps to use closest available Lookup match [ Feature Request #4217 ]
+-----------------------------
+Remaps are now selected to more closely match by old URL. Previously remap destination URLs were determined to be the first URL in the lookup.
+This new functionality means that remaps should maintain within the same domain, as long as there is a matching URL for that domain. 
 
+
+Web Paths Screen: Target URL display in Remaps List [ Feature Request #4220 ]
+-----------------------------
+To retain consistency with Remap Manager, the Remaps section on the asset Web Paths screen now displays the Target URLs within the remaps list.
+
+
+-----------------------------
+A <path> tag is now available for use in requirements.xml files to check binaries which do not reside within the operating system's PATH environment. 
+
+
+Additional MIME Types added for Microsoft Office [ Feature Request #4105 ]
+-----------------------------
+MIME types for Microsoft Office documents, such as those with extensions "docx" and "pptm", have been added to enable these files to be served with the expected type header. 
+
+
+E-Commerce Order: New Keyword for Order Total [ Feature Request #4248 ]
+-----------------------------
+A new keyword, %order_grand_total%, has been added to E-Commerce Order assets to expose the total amount of orders on the frontend, and for listing and grouping purposes through Listing Engine. 
+
+
+Workflow Step: Custom Subject line for Email Notifications [ Feature Request #4268 ]
+-----------------------------
+The subject line used for workflow notifications can be customised per Workflow Step. The default values for each message type (eg; Invitation Message) is retained from previous releases and will also revert back to this default if left blank.
+
+
+SOAP API be able to set asset status and create a file asset [ Feature Request #4274 ]
+-----------------------------
+Additional functionality to create File assets and to set their status.
+
+
+Link lineage performance improvements part 2 [ Feature Request #4262 ]
+-----------------------------
+Performance enhancement to remove duplicate asset IDs before being included in an SQL query.
+This enhancement was made to lineage code and may be noticed on systems with many links to particular assets.
+
+
+Custom Workflow Subjects [ Feature Request #4268 ]
+-----------------------------
+The subject line of Workflow Messages sent via email can now be customised per Workflow Step. The body of these messages (eg; Invitation message) could already be customised here, so this compliments this functionality.
+
+
+New Trigger Event: Matrix Cache Cleared [ Feature Request #4293 ]
+-----------------------------
+A new "Matrix Cache Cleared" Trigger Event is available for capture and use in Triggers whenever the cache is cleared on a particular asset.
+
+Please note that this is not available for systems using Memcache cache storage, nor when the cache is cleared by URL or entirely, due to technical constraints with implementing this functionality.
+
+
+New Trigger Action: Set Standard Asset Date [ Feature Request #4294 ]
+-----------------------------
+The values for standard asset date fields "Created", "Last Updated", "Published" and "Status Last Changed", may be set from within a Trigger to a fixed value or the time the Trigger was fired. One-minute resolution is provided for each of these values.
 
 
 
@@ -44,6 +98,8 @@ Fixed Bug #4272: Remap Manager Scalability issue
 Fixed Bug #4278: Last Modified headers: not taking into account child assets
 Fixed Bug #4283: Error uploading CSV to empty remap manager
 Fixed Bug #4284: More/less links do not work
++ (Core) Check Requirements Script: Ability to check executables with path component [ Feature Request #4233 ]
++ (Funnelback Search Page) %spell_suggestion% should be included in the No Results Page Layout [ Feature Request #4296 ]
 
 
 
