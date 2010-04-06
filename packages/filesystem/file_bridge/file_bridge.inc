@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge.inc,v 1.1.1.1 2010/03/29 23:32:28 bpearson Exp $
+* $Id: file_bridge.inc,v 1.2 2010/04/06 00:28:20 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -258,9 +258,7 @@ class File_Bridge extends Asset implements Bridge
 
 				// The file is invalid why proceed?
 				if (!$this->_isValidFile($location.'/'.$shadowid)) {
-					//trigger_localised_error('FIL0004', E_USER_WARNING, $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id);
 					return Array();
-
 				}//end if
 
 				// because the varieties are only ever going to be one level down
