@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.8 2010/03/29 01:13:33 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.9 2010/04/07 04:03:13 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -59,19 +59,22 @@ class Soap_Api_Asset_Service extends Soap_Api
         return Array(
 				'CreateAsset'				=> '1',
 				'CloneAsset'				=> '1',
-        		'GetAllStatuses'			=> '1',
+				'GetAllStatuses'			=> '1',
 				'GetAsset'					=> '1',
 				'GetAssetFromURL'			=> '1',
-        		'GetAssetTypeAttribute'		=> '1',
+				'GetAssetTypeAttribute'		=> '1',
+				'GetAssetTypeDescendants'   => '1',
+				'GetAssetsInfo'             => '1',
 				'GetAttributeValuesByName'	=> '1',
-        		'GetAssetAvailableKeywords'	=> '1',
+				'GetAssetAvailableKeywords'	=> '1',
 				'GetAssetAvailableStatuses'	=> '1',
-        		'GetAssetWebPaths'			=> '1',
+				'GetAssetWebPaths'			=> '1',
 				'GetAssetURLs'				=> '1',
+				'GetPageContents'           => '1',
 				'SetAttributeValue'			=> '1',
-        		'SetTag'					=> '1',
-        		'TrashAsset'				=> '1',
-        		'SetAssetStatus'			=> '1',
+				'SetTag'					=> '1',
+				'SetAssetStatus'			=> '1',
+				'TrashAsset'				=> '1',
 			   );
 
     }//end getFunctionList()
@@ -268,21 +271,31 @@ class Soap_Api_Asset_Service extends Soap_Api
 	{
 		$request_info 	= (Array) $request;
 		$assetid		= array_get_index($request_info, 'AssetID', '');
+        $root_path_id	= array_get_index($request_info, 'RootPathAssetID', '');
+
 		if (!empty($assetid)) {
-			$urls_info	= $GLOBALS['SQ_SYSTEM']->am->getURLs($assetid);
-			$urls	= Array();
-			foreach ($urls_info as $info) {
-				$protocol	= '';
-				if ($info['http'] == '1') {
-					$urls[]	= 'http://'.$info['url'];
-				}//end if
-				if ($info['https'] == '1') {
-					$urls[]	= 'https://'.$info['url'];
-				}//end if
-			}//end foreach
-			return Array (
-					'GetAssetURLsResult'	=> $urls,
-				   );
+			if (!empty($root_path_id)) {
+				$root_path_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($root_path_id);
+				$assetUrls     = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid, $root_path_url);
+				return Array (
+						'GetAssetURLsResult'	=> Array($assetUrls),
+					   );
+			} else {
+				$urls_info	= $GLOBALS['SQ_SYSTEM']->am->getURLs($assetid);
+				$urls	= Array();
+				foreach ($urls_info as $info) {
+					$protocol	= '';
+					if ($info['http'] == '1') {
+						$urls[]	= 'http://'.$info['url'];
+					}//end if
+					if ($info['https'] == '1') {
+						$urls[]	= 'https://'.$info['url'];
+					}//end if
+				}//end foreach
+				return Array (
+						'GetAssetURLsResult'	=> $urls,
+					   );
+			}//end else
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
 		}//end else
@@ -590,14 +603,132 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 
 	/**
-	* Description: This operation will return all available keywords of an asset
+	* Description: This operation will return all the type descendants of an asset type.
 	*
+     * @return void
+     */
+    function GetAssetTypeDescendants($request)
+    {
+        $request_info   = (Array) $request;
+        $typecode       = array_get_index($request_info, 'TypeCode', '');
+        if (!empty($typecode)) {
+            $descendantTypes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($typecode);
+
+            return Array (
+                    'GetAssetTypeDescendantsResult' => $descendantTypes,
+                   );
+        } else {
+            throw new SoapFault('Server', 'TypeCode is not valid. Please provide a valid TypeCode');
+        }//end else
+
+    }//end GetAssetTypeDescendants()
+
+
+    /**
+     *
+     * @param $request
+     * @return void
+     */
+    function GetAssetsInfo($request)
+    {
+        $request_info = (Array) $request;
+        $assetids     = array_get_index($request_info, 'AssetIDs', '');
+        $attr_names   = array_get_index($request_info, 'FinderAttributes', '');
+        $root_assetid = array_get_index($request_info, 'RootNode', '');
+
+        if (!is_array($attr_names)) {
+            $attr_names = Array($attr_names);
+        }//end if
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}//end
+
+        if (!empty($assetids) && !empty($attr_names)) {
+            $assetsInfo = Array();
+            if (in_array('children', $attr_names) === TRUE) {
+                foreach ($assetids as $assetid) {
+                    $childrenCount = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, '', TRUE, NULL, $sort_by=NULL, NULL, TRUE, 0, 1));
+                    $assetsInfo[$assetid]['AssetChildren'] = $childrenCount;
+                }//end foreach
+            }//end if
+
+            $type_codes_ancestor = array();
+
+			$info_results = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+			foreach ($info_results as $assetid => $result) {
+
+				if (in_array('lineage', $attr_names) === TRUE) {
+					$treeids = NULL;
+	
+					if (!empty($root_assetid)) {
+						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_assetid, SQ_LINK_TYPE_1, '', TRUE, 'minor');
+						foreach($root_links as $link) {
+							$treeid_info = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+							$treeid      = $treeid_info[$link['linkid']][0];
+							$treeids[]   = $treeid;
+						}//end if
+					}//end if
+	
+					$lineages        = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
+					$lineages_result = array();
+					foreach ($lineages as $lineage_info) {
+						$lineage_details   = array();
+						$lineage_details['LinkID']   = $lineage_info['linkid'];
+						$lineage_details['LinkType'] = $lineage_info['link_type'];
+						$order = 0;
+						foreach ($lineage_info['lineage'] as $parentid => $parent_name) {
+							$one_lineage = array();
+							$one_lineage['AssetID']       = $parentid;
+							$one_lineage['AssetName']     = $parent_name;
+							$one_lineage['Order']         = $order;
+							$lineage_details['Lineage'][] = $one_lineage;
+							$order++;
+						}//end foreach
+						//$lineage_details['Lineage']  = $lineage['lineage'];
+						$lineages_result[] = $lineage_details;
+					}//end foreach
+					$assetsInfo[$assetid]['AssetLineage'] = $lineages_result;
+				}//end if
+				
+				if (isset($type_codes_ancestor[$result['type_code']]) === TRUE) {
+					$ancestor = $type_codes_ancestor[$result['type_code']];
+				} else {
+					$ancestor = array_pop($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($result['type_code'], FALSE));
+					$type_codes_ancestor[$result['type_code']] = $ancestor;
+				}//end if
+
+				$assetsInfo[$assetid]['AssetType']         = $result['type_code'];
+				$assetsInfo[$assetid]['AssetTypeAncestor'] = $ancestor;
+
+				$assetsInfo[$assetid]['AssetName'] = $result['name'];
+				if ($ancestor !== 'file') {
+					if (isset($result['short_name']) === TRUE) {
+						$assetsInfo[$assetid]['AssetName'] = $result['short_name'];
+					}//end if
+				}//end if
+
+				$assetsInfo[$assetid]['AssetID'] = $assetid;
+			}//end foreach
+
+            return Array (
+                       'GetAssetsInfoResult'  => array_values($assetsInfo),
+                   );
+        } else {
+            throw new SoapFault('Server', 'Please provide assetids and finder attributes.');
+        }//end else
+
+    }//end GetAssetsInfo()
+
+
+    /**
+    * Description: This operation will return all available keywords of an asset
+    *
     * @param string  $request  The request information
     *
     * <pre>
     * Array (
-	*		'AssetID'	 		=> [The ID of the asset in query],
-    *        )
+	*		'AssetID' => [The ID of the asset in query],
+    *       )
     * </pre>
 	*
 	* @return void
@@ -651,6 +782,38 @@ class Soap_Api_Asset_Service extends Soap_Api
 	}//end GetAssetWebPaths()
 
 
+    /**
+     * This function return the page contents for
+     *
+     * @return array
+     * @access public
+     */
+	function GetPageContents($request)
+	{
+		$request_info = (Array) $request;
+		$assetid      = array_get_index($request_info, 'AssetID', '');
+		if (!empty($assetid)) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$descendantTypes = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset->type());
+			if (in_array('page', $descendantTypes)) {
+				ob_start();
+				$asset->printBody();
+				$content = ob_get_contents();
+				ob_end_clean();
+
+				return Array (
+						'PageContent'   => $content,
+						);
+			} else {
+                throw new SoapFault('Server', 'This asset is not of type page');
+            }//end if
+
+        } else {
+            throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+        }//end if
+
+    }//end GetPageContents()
+
 
 	/**
 	* Description: This operation will return all attributes belong to an asset type classified by attribute name
@@ -677,7 +840,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		if (!empty($assetids) && !empty($attr_name) && !empty($type_code)) {
 			$attribute_values	= $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, $type_code, $assetids);
 			$final_attribute_values	= Array();
-			$i	= 0;
+			$i = 0;
 			foreach ($attribute_values as $assetid => $attribute_value) {
 				$final_attribute_values[$i]['AssetID']			= $assetid;
 				$final_attribute_values[$i]['AttributeValue']	= $attribute_value;
@@ -772,7 +935,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 	/**
 	* Description: This operation will return all statuses of the asset in Matrix
 	*
-    * @param string  $request  The request information
+	* @param string  $request  The request information
     *
 	* @return void
 	* @access public
@@ -799,8 +962,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 	/**
 	* Description: This operation will set status for an asset
 	*
-    * @param string  $request  The request information
-    *
+	* @param string  $request  The request information
+	*
     * <pre>
     * Array (
 	*		'AssetID'	 		=> [The ID of the asset in query],
@@ -814,7 +977,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	function SetAssetStatus($request)
 	{
-
 		$request_info = (Array) $request;
 		$assetid = array_get_index($request_info, 'AssetID', '');
 		$status = array_get_index($request_info, 'StatusValue', '');
@@ -848,9 +1010,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		}//end else
 
 	}//end SetAssetStatus()
-	
-	
-	
+
 
 	/**
 	* getComplexElements
@@ -861,13 +1021,16 @@ class Soap_Api_Asset_Service extends Soap_Api
 	public static function getComplexElements($func_list=Array())
 	{
 		$asset_type							= self::getArgType('AssetType', 1, 1);
+		$asset_types                        = self::getArgType('AssetType', 0, 'unbounded');
 		$attribute_detail					= self::getArgType('AttributeDetail', 0, 'unbounded', TRUE);
 		$attribute_properties				= self::getArgType('AttributeProperty', 0, 'unbounded', TRUE);
 		$attribute_values_by_name_result	= self::getArgType('AttributeValueInfo', 0, 'unbounded', TRUE);
 		$keywords							= self::$string_optional_unbounded;
 		$statuses_des_val					= self::getArgType('StatusDescription', 0, 'unbounded', TRUE);
+		$asset_finder_info                  = self::getArgType('AssetFinderInfo', 0, 'unbounded', TRUE);
 		$urls								= self::$string_optional_unbounded;
 		$link_type							= self::getArgType('LinkType', 0, 1);
+		$asset_info                         = self::getArgType('AssetInfo', 0, 1);
 
 		$complex_types	= Array (
 							'CreateAsset'				=> Array (
@@ -899,6 +1062,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 							'GetAssetURLs'				=> Array (
 															'GetAssetURLs'				=> Array (
 																						'AssetID'		=> self::$string_non_optional,
+																						'RootPathAssetID'	=> self::$string_optional,
 																					   ),
 															'GetAssetURLsResponse'		=> Array (
 																						'GetAssetURLsResult'=> $urls,
@@ -959,6 +1123,24 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAssetTypeAttributeResult'		=> $attribute_properties,
 														   							   ),
 														   ),
+							'GetAssetTypeDescendants'     => Array (
+																'GetAssetTypeDescendants' => Array (
+                                                                                           'TypeCode'           => $asset_type,
+																							 ),
+																'GetAssetTypeDescendantsResponse'=> Array (
+                                                                                        'GetAssetTypeDescendantsResult'       => $asset_types,
+                                                                                          ),
+                                                           ),
+                            'GetAssetsInfo'              => Array (
+                                                               'GetAssetsInfo' => Array (
+                                                                                            'AssetIDs'         => self::$string_optional_unbounded,
+                                                                                            'FinderAttributes' => self::$string_optional_unbounded,
+																							'RootNode'		   => self::$string_optional,
+                                                                                 ),
+                                                               'GetAssetsInfoResponse' => Array (
+                                                                                              'GetAssetsInfoResult' => $asset_finder_info,
+                                                                                          ),
+                                                           ),
 							'GetAssetAvailableKeywords'	=> Array (
 															'GetAssetAvailableKeywords'	=> Array (
 														   								'AssetID'			=> self::$string_non_optional,
@@ -1016,6 +1198,14 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'SetAssetStatusResult'	=> self::$boolean_optional,
 																					   ),
 														   ),
+                            'GetPageContents'           => Array (
+                                                               'GetPageContents'        => Array (
+                                                                                            'AssetID'       => self::$string_non_optional,
+                                                                                           ),
+                                                               'GetPageContentsResponse'=> Array (
+                                                                                            'PageContent'       => self::$string_non_optional,
+                                                                                           ),
+                                                              ),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
@@ -1034,7 +1224,8 @@ class Soap_Api_Asset_Service extends Soap_Api
     */
     public static function getComplexTypes($func_list=Array())
     {
-
+		$lineages_details = self::getArgType('LineagesDetails', 0, 'unbounded');
+		$lineage          = self::getArgType('Lineage', 0, 'unbounded');
         $complex_types    = Array (
 							'GetAllStatuses'			=> Array (
 															'StatusDescription'			=> Array (
@@ -1063,6 +1254,26 @@ class Soap_Api_Asset_Service extends Soap_Api
 															   								'AttributeUnique'				=> self::$boolean_optional,
 															   							   ),
 													  	   ),
+                            'GetAssetsInfo'              => Array (
+                                                                'AssetFinderInfo'          => Array (
+                                                                                               'AssetID'           => self::$string_non_optional,
+                                                                                               'AssetType'         => self::$string_optional,
+                                                                                               'AssetTypeAncestor' => self::$string_optional,
+                                                                                               'AssetName'         => self::$string_optional,
+                                                                                               'AssetChildren'     => self::$string_optional_unbounded,
+                                                                                               'AssetLineage'      => $lineages_details,
+                                                                                              ),
+							                                   'LineagesDetails'   => Array (
+							                                                           'LinkID'    => self::$string_non_optional,
+							                                                           'LinkType'  => self::$string_non_optional,
+							                                                           'Lineage'   => $lineage,
+							                                                          ),
+							                                   'Lineage'           => Array (
+							                                                           'AssetID'   => self::$string_non_optional,
+							                                                           'AssetName' => self::$string_non_optional,
+							                                                           'Order'     => self::$int_non_optional,
+							                                                          ),
+                                                           ),
                           );
 
         $complex_types_available = parent::getComplexElements($complex_types);
@@ -1080,10 +1291,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	public static function getSimpleRestrictedTypes($func_list=Array())
 	{
-		$asset_types_info 			= $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE, TRUE);
-		$asset_types	= Array();
+		$asset_types_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE, TRUE);
+		$asset_types	  = Array();
 		foreach ($asset_types_info as $asset_type_info) {
-			$asset_types[]	= $asset_type_info['type_code'];
+			$asset_types[] = $asset_type_info['type_code'];
 		}//end foreach
 		
 		$asset_status = Array (

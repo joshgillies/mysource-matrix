@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_file_retrieval_service.inc,v 1.1 2009/04/03 00:32:27 hnguyen Exp $
+* $Id: soap_api_file_retrieval_service.inc,v 1.2 2010/04/07 04:03:13 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -58,6 +58,7 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 				'Download'				=> '1',
         		'Upload'				=> '1',
         		'GetFileInformation'	=> '1',
+                'GetImageInformation'   => '1',
 			   );
 
     }//end getFunctionList()
@@ -104,7 +105,6 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 			throw new SoapFault('Server', 'The Asset ID Provided Is Not Of A File Asset');
 		}//end else
 
-
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($link_info['type_code']);
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $link_info['type_code'])));
 		$asset = new $object_name();
@@ -145,7 +145,6 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 		$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($request_info['AssetID']);
 		$type_ancestors	= $file_asset->getTypeAncestors(FALSE);
 		if (in_array('file', $type_ancestors) || $file_asset->type() == 'file') {
-			// Now we do the stuff
 			$file_info		= $file_asset->getExistingFile();
 
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -166,6 +165,45 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 
 	}//end GetFileInformation()
 
+
+    /**
+    * Description: This operation return the information about the image on the assetid
+    *
+    * @param array  $request    The request information
+    * <pre>
+    * Array (
+    *        'AssetID'   => [The AssetID of the image to get information for],
+    *        )
+    * </pre>
+    *
+    * @return void
+    * @access public
+    */
+    function GetImageInformation($request)
+    {
+        $request_info = (Array) $request;
+
+        $file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($request_info['AssetID']);
+        if ($file_asset->type() === 'image') {
+            $fileInfo   = $file_asset->getExistingFile();
+            $image_info = getimagesize($fileInfo['path']);
+            $mime_info  = $image_info['mime'];
+
+            return Array (
+                    'FileName'      => $file_asset->vars['name']['value'],
+                    'FileTitle'     => $file_asset->vars['title']['value'],
+                    'FileType'      => $file_asset->type(),
+                    'FileSize'      => $file_asset->vars['size']['value'],
+                    'MimeType'      => $mime_info,
+                    'ImageWidth'    => $file_asset->vars['width']['value'],
+                    'ImageHeight'   => $file_asset->vars['height']['value'],
+                    'LastModified'  => date('d-m-Y H:i:s', $file_modified),
+                   );
+        } else {
+            throw new SoapFault('Server', 'The Asset ID provided is not of a file asset');
+        }//end else
+
+    }//end GetImageInformation()
 
 	/**
 	* Description: This operation allow upload of file into an existing File Asset
@@ -292,6 +330,21 @@ class Soap_Api_File_Retrieval_Service extends Soap_Api
 																							'LastModified'		=> self::$string_optional,
 																						   ),
 													   ),
+                            'GetImageInformation'    => Array (
+                                                        'GetImageInformation'            => Array (
+                                                                                            'AssetID'           => self::$string_non_optional,
+                                                                                           ),
+                                                        'GetImageInformationResponse'    => Array (
+                                                                                            'FileName'          => self::$string_optional,
+                                                                                            'FileTitle'         => self::$string_optional,
+                                                                                            'FileType'          => self::$string_optional,
+                                                                                            'FileSize'          => self::$string_optional,
+                                                                                            'MimeType'          => self::$string_optional,
+                                                                                            'ImageWidth'        => self::$string_optional,
+                                                                                            'ImageHeight'       => self::$string_optional,
+                                                                                            'LastModified'      => self::$string_optional,
+                                                                                           ),
+                                                       ),
 							'Upload'				=> Array (
 													 	'Upload'						=> Array (
 																							'AssetID'			=> self::$string_non_optional,

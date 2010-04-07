@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.4 2009/05/28 22:46:05 hnguyen Exp $
+* $Id: soap_api_link_service.inc,v 1.5 2010/04/07 04:03:13 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -62,8 +62,10 @@ class Soap_Api_Link_Service extends Soap_Api
 				'GetDependantChildren'	=> '1',
 				'GetDependantParents'	=> '1',
 				'GetLinks'				=> '1',
-        		'GetLinkByAsset'		=> '1',
+				'GetLinkByAsset'		=> '1',
+				'GetLinkLineages'       => '1',
 				'GetParents'			=> '1',
+				'GetParentsUnderTree'   => '1',
 				'MoveLink'				=> '1',
 				'UpdateLink'			=> '1',
 			   );
@@ -583,6 +585,62 @@ class Soap_Api_Link_Service extends Soap_Api
 	}//end findStatus()
 
 
+    /**
+     * Get Parents Under Tree
+     *
+     * @param $request
+     * @return unknown_type
+     */
+    function GetParentsUnderTree($request)
+    {
+        $request_info = (Array) $request;
+        $assetid      = array_get_index($request_info, 'AssetID', '');
+        $rootid       = array_get_index($request_info, 'RootID', '');
+        $minLevel     = array_get_index($request_info, 'MinLevel', NULL);
+        $maxLevel     = array_get_index($request_info, 'MaxLevel', NULL);
+
+        if (!empty($assetid) && !empty($rootid)) {
+            $treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($rootid);
+
+            foreach ($treeids as $index => $treeid) {
+                $treeids[$index] = Array($treeid);
+            }//end foreach
+
+            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
+            $lineageResult = Array();
+
+            foreach ($lineages as $lineageDetail) {
+                $parentAsset = Array();
+                foreach ($lineageDetail['lineage'] as $parentid => $parent_name) {
+                    $parentAsset[] = Array (
+                                      'ParentID'    => $parentid,
+                                      'ParentName'  => $parent_name,
+                                   );
+                }//end foreach
+
+                if (!is_null($minLevel) && !is_null($maxLevel)) {
+                    // How to limit the min level.
+                    $maxParentAsset = array_slice($parentAsset, (-1) * $maxLevel);
+                    // Plus one because we want the min level as well.
+                    $parentAsset = array_slice($maxParentAsset, 0, count($maxParentAsset) - $minLevel + 1);
+                }//end if
+
+                $lineageResult[] = Array(
+                                    'LinkID'       => $lineageDetail['linkid'],
+                                    'LinkType'     => $lineageDetail['link_type'],
+                                    'ParentAssets' => $parentAsset,
+                                   );
+            }//end foreach
+
+            return $lineageResult;
+
+        } else {
+            throw new SoapFault('Server', 'Asset ID or Root ID is not valid. Please provide a valid Asset ID');
+        }//end else
+
+    }//end GetParentsUnderTree()
+
+
 	/**
 	* Description: This function returns all the links between two asset
 	*
@@ -642,8 +700,63 @@ class Soap_Api_Link_Service extends Soap_Api
 
 		}//end else
 
-
 	}//end GetLinkByAsset()
+
+
+	/**
+	 * This function return link lineages by root node.
+     *
+     * @return array
+     * @access public
+     */
+    function GetLinkLineages($request)
+    {
+        $request_info       = (Array) $request;
+        $assetid            = array_get_index($request_info, 'AssetID', '');
+        $root_assetid       = array_get_index($request_info, 'RootNode', '');
+
+        if (!empty($assetid)) {
+            // Get the tree id of the rootnode.
+            $treeids = NULL;
+            if (!empty($root_assetid)) {
+            	$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($root_assetid);
+                foreach ($treeids as $index => $treeid) {
+                	$treeids[$index] = Array($treeid);
+                }//end foreach
+            }//end if
+
+            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
+            $lineages_result = array();
+            foreach ($lineages as $lineage_info) {
+                $lineage_details = array();
+                $lineage_details['LinkID']   = $lineage_info['linkid'];
+                $lineage_details['LinkType'] = $lineage_info['link_type'];
+                $order = 0;
+                foreach ($lineage_info['lineage'] as $parentid => $parent_name) {
+                    $one_lineage = array();
+                    $one_lineage['AssetID']       = $parentid;
+                    $one_lineage['AssetName']     = $parent_name;
+                    $one_lineage['Order']         = $order;
+                    $lineage_details['Lineage'][] = $one_lineage;
+                    $order++;
+                }//end foreach
+
+                $lineages_result[] = $lineage_details;
+                $lineage_details   = array();
+            }//end foreach
+
+            // Lineage details, lineages result, lineages details.
+
+        } else {
+            throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+
+        }//end else
+
+        return Array (
+                'GetLinkLineagesResult' => $lineages_result,
+               );
+
+    }//end GetLinkLineages()
 
 
 	/**
@@ -658,9 +771,11 @@ class Soap_Api_Link_Service extends Soap_Api
 		$link_details			= self::getArgType('LinkDetails', 0, 'unbounded', TRUE);
 		$link_info_summary		= self::getArgType('LinkInfoSummary', 0, 'unbounded', TRUE);
 		$children_info_summary	= self::getArgType('ChildrenInfoSummary', 0, 'unbounded', TRUE);
-        $link_type				= self::getArgType('LinkTypeValue', 0, 1);
-        $asset_types			= self::getArgType('AssetType', 0, 1);
 		$link_type				= self::getArgType('LinkTypeValue', 0, 1);
+		$asset_types			= self::getArgType('AssetType', 0, 1);
+		$link_type				= self::getArgType('LinkTypeValue', 0, 1);
+		$lineages_details       = self::getArgType('LineagesDetails', 0, 'unbounded');
+		$parent_path_details    = self::getArgType('ParentPathsDetails', 0, 'unbounded');
 
 		$complex_types	= Array (
 							'CreateAssetLink'			=> Array (
@@ -766,6 +881,15 @@ class Soap_Api_Link_Service extends Soap_Api
 																								'GetLinkByAssetResult'	=> $link_details,
 																							   ),
 														   ),
+                            'GetLinkLineages'           => Array (
+                                                            'GetLinkLineages'                => Array (
+                                                                                                'AssetID'                => self::$string_non_optional,
+                                                                                                'RootNode'               => self::$string_optional,
+                                                                                               ),
+                                                            'GetLinkLineagesResponse'        => Array (
+                                                                                                'GetLinkLineagesResult'  => $lineages_details,
+                                                                                               ),
+                                                           ),
 							'MoveLink'					=> Array (
 															'MoveLink'						=> Array (
 																								'LinkID'				=> self::$string_non_optional,
@@ -806,6 +930,17 @@ class Soap_Api_Link_Service extends Soap_Api
 																								'GetParentsResult'		=> $link_info_summary,
 																							   ),
 														   ),
+                            'GetParentsUnderTree'       => Array (
+                                                            'GetParentsUnderTree'           => Array (
+                                                                                                'AssetID'               => self::$string_non_optional,
+                                                                                                'RootID'                => self::$string_non_optional,
+                                                                                                'MinLevel'              => self::$string_non_optional,
+                                                                                                'MaxLevel'              => self::$string_non_optional,
+                                                                                               ),
+                                                            'GetParentsUnderTreeResponse'   => Array (
+                                                                                                'ParentPaths'           => $parent_path_details,
+                                                                                               ),
+                                                           ),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
@@ -843,11 +978,41 @@ class Soap_Api_Link_Service extends Soap_Api
 												'DependantTreeID'	=> self::$string_optional,
 											   ),
 						  );
+        $lineages_details = self::getArgType('LineagesDetails', 0, 'unbounded');
+        $lineage          = self::getArgType('Lineage', 0, 'unbounded');
+
+        $lineages_details     = Array (
+                                   'LineagesDetails'   => Array (
+                                                           'LinkID'    => self::$string_non_optional,
+                                                           'LinkType'  => self::$string_non_optional,
+                                                           'Lineage'   => $lineage,
+                                                          ),
+                                   'Lineage'           => Array (
+                                                           'AssetID'   => self::$string_non_optional,
+                                                           'AssetName' => self::$string_non_optional,
+                                                           'Order'     => self::$int_non_optional,
+                                                          ),
+                                );
+
+        $parent_list          = self::getArgType('ParentAssets', 0, 'unbounded');
+        $parent_paths_details = Array (
+                                   'ParentPathsDetails' => Array (
+                                                              'LinkID'       => self::$string_non_optional,
+                                                              'LinkType'     => self::$string_non_optional,
+                                                              'ParentAssets' => $parent_list,
+                                                           ),
+                                   'ParentAssets'        => Array (
+                                                              'ParentID'     => self::$string_non_optional,
+                                                              'ParentName'   => self::$string_non_optional,
+                                                           ),
+                                );
 
         $complex_types    = Array (
                             'GetAllChildLinks'		=> $link_details,
         					'GetLinks'				=> $link_details,
         					'GetLinkByAsset'		=> $link_details,
+                            'GetLinkLineages'       => $lineages_details,
+                            'GetParentsUnderTree'   => $parent_paths_details,
 							'GetDependantParents'	=> Array (
                                            			     	'LinkInfoSummary'			=> Array (
 																							'AssetID'			=> self::$string_non_optional,
@@ -955,6 +1120,14 @@ class Soap_Api_Link_Service extends Soap_Api
 	}//end getSimpleRestrictedTypes()
 
 
+    /**
+     * Get Perm Value.
+     *
+     * @param $permission
+     *
+     * @since  3.0.0
+     * @return void
+     */
 	private static function getPermValue($permission)
 	{
 		$perm_level			= Array (
