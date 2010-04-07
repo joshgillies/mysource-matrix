@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_constant.inc,v 1.5 2010/04/07 04:13:53 mbrydon Exp $
+* $Id: bulkmail_constant.inc,v 1.6 2010/04/07 04:15:58 mbrydon Exp $
 *
 */
-//test
+
 define('BML_JOB_STATE_NOT_RUNNING', 0);
 define('BML_JOB_STATE_RUNNING',     1);
 define('BML_JOB_STATE_PAUSED',      2);
