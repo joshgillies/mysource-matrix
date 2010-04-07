@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.795 2010/03/29 23:02:08 cupreti Exp $
+* $Id: asset_manager.inc,v 1.796 2010/04/07 00:38:24 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.795 $
+* @version $Revision: 1.796 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3758,13 +3758,17 @@ class Asset_Manager extends MySource_Object
 			if (!$ignore_bridge) {
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
+
+			$bind_vars = array();
 			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						sl.majorid
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 
-			$where = 'sl.minorid = '.MatrixDAL::quote($assetid).' AND sl.link_type != '.MatrixDAL::quote(SQ_LINK_NOTICE);
+			$where = 'sl.minorid = :shadow_assetid AND sl.link_type != :link_notice';
+			$bind_vars['shadow_assetid'] = $assetid;
+			$bind_vars['link_notice'] = SQ_LINK_NOTICE;
 
 			if (!empty($type_code)) {
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
@@ -3793,8 +3797,13 @@ class Asset_Manager extends MySource_Object
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'sl');
 
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+
 			try {
-				$shdw_parentids = MatrixDAL::executeSqlAssoc($sql.$where, 0);
+				$shdw_parentids = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get parents from due to the following database error:'.$e->getMessage());
 			}//end try catch
