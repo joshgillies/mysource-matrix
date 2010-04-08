@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.246 2010/03/31 05:01:29 cupreti Exp $
+* $Id: form.inc,v 1.247 2010/04/08 06:50:27 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3475,6 +3475,14 @@ class Form extends Asset implements Bridge
 		}
 
 		$submission_asset->saveAttributes();
+
+		// If submission asset has metadata schema applied, broadcast the MetadataUpdate event
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$applied_schemas = $mm->getSchemas($submission_asset->id);		
+		if (!empty($applied_schemas)) {			
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadCastEvent($submission_asset, 'MetadataUpdate', Array('all'));
+		}
 
 	}//end updateSubmission()
 
