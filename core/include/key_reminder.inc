@@ -11,7 +11,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: key_reminder.inc,v 1.6 2009/10/06 23:41:33 bpearson Exp $
+* $Id: key_reminder.inc,v 1.7 2010/04/08 00:21:08 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 ?>
@@ -65,7 +65,7 @@
 
 			<p>For assistance or to submit your <em>Install Key</em>, contact Squiz Support on 13000 SQUIZ (+61 1300 077 849) or email warrantykey@squiz.net.</p>
 
-			<h2>Continue to <?php echo (!SQ_IN_LIMBO ? 'Administration' : 'Simple Edit') ?> Interface</h3>
+			<h2>Continue to <?php echo (!SQ_IN_LIMBO ? 'Administration' : 'Simple Edit') ?> Interface</h2>
 
 			<p>Click the <strong>Continue</strong> button below to proceed to your backend interface. This message will not appear again until this session concludes.</p>
 
