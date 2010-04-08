@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.29.6.3 2010/03/31 22:17:28 akarelia Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.29.6.4 2010/04/08 07:04:13 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29.6.3 $
+* @version $Revision: 1.29.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,8 +95,6 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$offset = $this->num_per_page * ($page_num - 1);
-
 		$remap_urls = Array();
 		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
 			$bind_vars = Array(
@@ -120,7 +118,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		*/
 		$query = 'SELECT url, remap_url, expires, never_delete FROM sq_ast_lookup_remap '.$where.' ORDER BY url';
 
-		$query = db_extras_modify_limit_clause($query, MatrixDAL::getDbType(), $this->num_per_page, $offset);
+		$query = db_extras_modify_limit_clause($query, MatrixDAL::getDbType(), $this->num_per_page, $page_num);
 
 		try {
 			if ($return_count) {
