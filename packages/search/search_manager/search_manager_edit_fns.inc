@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.23 2009/10/20 00:59:47 lwright Exp $
+* $Id: search_manager_edit_fns.inc,v 1.24 2010/04/12 07:39:57 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $ - 1.0
+* @version $Revision: 1.24 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -483,8 +483,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 								$type_name  = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($info['type_code'], 'name');
 								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'name');
 								$indexed    = (isset($weights[$assetid]['indexed'])) ? $weights[$assetid]['indexed'] : 1;
-								$asset_name = $asset_info[$assetid];
-
+								$asset_name = !empty($asset_info[$assetid]) ? $asset_info[$assetid] : "<span style='color:red'>(".translate('asset_not_found_no_id').")</span>";
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
