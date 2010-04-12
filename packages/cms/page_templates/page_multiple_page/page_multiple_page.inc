@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.27 2009/05/27 04:58:30 akarelia Exp $
+* $Id: page_multiple_page.inc,v 1.27.4.1 2010/04/12 00:32:06 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -382,6 +382,7 @@ class Page_Multiple_Page extends Page
 		$keywords['page_link_x'] = translate('cms_page_multiple_page_page_link_x');
 		$keywords['page_assetid_x'] = translate('cms_page_multiple_page_page_assetid_x');
 		$keywords['current_page_name'] = translate('cms_page_multiple_page_current_page_name');
+		$keywords['current_page_attribute_name'] = translate('cms_page_multiple_page_current_page_attribute_name');
 		$keywords['current_page_number'] = translate('cms_page_multiple_page_current_page_number');
 		$keywords['current_page_assetid'] = translate('cms_page_multiple_page_current_page_assetid');
 		$keywords['toc_unordered'] = translate('cms_page_multiple_page_toc_unordered');
@@ -648,6 +649,12 @@ class Page_Multiple_Page extends Page
 			case 'current_page_name':
 				if (!is_null($this->_tmp['current_page_asset'])) {
 					$replacement = $this->_tmp['current_page_asset']->name;
+				}
+			break;
+
+			case 'current_page_attribute_name':
+				if (!is_null($this->_tmp['current_page_asset'])) {
+					$replacement = $this->_tmp['current_page_asset']->_getName();
 				}
 			break;
 
