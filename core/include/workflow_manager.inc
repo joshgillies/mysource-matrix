@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.5 2010/03/23 00:36:35 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.144.2.6 2010/04/12 23:56:28 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.5 $
+* @version $Revision: 1.144.2.6 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -103,7 +103,7 @@ class Workflow_Manager extends MySource_Object
 			$where = 'assetid = :assetid';
 			if ($running) {
 				if (MatrixDAL::getDbType() === 'oci') {
-					$where .= ' AND TO_CHAR(wflow) IS NOT NULL';
+					$where .= ' AND DBMS_LOB.GETLENGTH(wflow) > 0';
 				} else {
 					$where .= ' AND wflow IS NOT NULL';
 				}
