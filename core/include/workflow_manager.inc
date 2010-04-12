@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.151 2010/04/12 04:37:41 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.152 2010/04/12 06:10:36 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1071,6 +1071,12 @@ class Workflow_Manager extends MySource_Object
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
 						$msg->body = trim($current_step['message_approve']);
 						$ms->enqueueMessage($msg);
+					} else if (isset($current_step['subject_approve']) && trim($current_step['subject_approve']) !== '') {
+						$msg = clone $base_msg;
+						$msg->to = $publishers_step;
+						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
+						$ms->enqueueMessage($msg);
 					} else {
 						$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
 					}
@@ -1085,8 +1091,6 @@ class Workflow_Manager extends MySource_Object
 			if (count($generic_publishers_before) > 0) {
 				$msg = clone $base_msg;
 				$msg->to = $generic_publishers_before;
-				$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
-				$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
 
 				$ms->enqueueMessage($msg);
 			}
