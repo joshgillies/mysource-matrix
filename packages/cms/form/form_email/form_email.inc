@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.72 2009/12/04 03:20:21 bpearson Exp $
+* $Id: form_email.inc,v 1.73 2010/04/12 01:29:59 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -299,6 +299,13 @@ class Form_Email extends Form
 	*/
 	function finishForm()
 	{
+		// Perform submission actions which need to be executed before finish form
+		if (!$this->performSubmissionActions(TRUE)) {
+			// We had problems, print last page again
+			$this->printPageContentsBodycopy();
+			return FALSE;
+		}
+				
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
@@ -646,19 +653,29 @@ class Form_Email extends Form
 	/**
 	* Perform any submission actions that are valid and active
 	*
+	* @param boolean	$before_submit	perform action before form gets submitted?
 	* @return void
 	*/
-	public function performSubmissionActions()
+	public function performSubmissionActions($before_submit = FALSE)
 	{
+		$success = TRUE;
 		$actions = $this->attr('actions');
 		foreach ($actions as $action) {
 			$action_type = $action['type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
-
+			
+			// If need to perform 'before_submit' actions, skip those 'after_submit' action
+			if ($before_submit && !isset($action['settings']['before_submit'])) continue;
+			// If need to perform 'after_submit' actions, skip those 'before_submit' action
+			if (!$before_submit && isset($action['settings']['before_submit'])) continue;
+			
+				
 			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
-				call_user_func(Array($action_type, 'execute'), $this, $action['settings']);
+				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings']);
 			}
 		}
+		
+		return $success;
 
 	}//end performSubmissionActions()
 

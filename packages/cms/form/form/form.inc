@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.247 2010/04/08 06:50:27 cupreti Exp $
+* $Id: form.inc,v 1.248 2010/04/12 01:28:44 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.247 $
+* @version $Revision: 1.248 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3363,6 +3363,8 @@ class Form extends Asset implements Bridge
 		}
 
 		$submission_asset->setAttrValue('complete', FALSE);
+		// initially created submission asset should have current page set to first page.
+		$submission_asset->setAttrValue('current_page', 1);
 		$submission_asset->saveAttributes();
 
 		// The current user will receive write access to this submission
