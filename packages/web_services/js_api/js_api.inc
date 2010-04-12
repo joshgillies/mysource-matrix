@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.32 2010/03/31 21:54:56 akarelia Exp $
+* $Id: js_api.inc,v 1.33 2010/04/12 03:44:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -220,7 +220,7 @@ class JS_Api extends Page
 							if($links['children'][$i] == 'Undefined' || $links['children'][$i] == '' ) {
 								$data[$i]['error'] = 'Child Id whose link is to be update was not provided';
 								continue;
-							} else if ($links['parents'][$i] == 'Undifined' || $links['parents'][$i] == ''){
+							} else if ($links['parents'][$i] == 'Undefined' || $links['parents'][$i] == ''){
 								$data[$i]['error'] = 'Parent Id whose link is to be update was not provided';
 								continue;
 							}
@@ -239,7 +239,7 @@ class JS_Api extends Page
 
 							if ($child_asset->writeAccess()) {
 
-								$link_value = ($links['link_value'][$i] != '' || $links['link_value'][$i] != 'undefined' ) ? $links['link_value'][$i] : NULL;
+								$link_value = ($links['link_value'][$i] != '') ? $links['link_value'][$i] : NULL;
 								$link_value = str_replace($replace_these, $replace_with, $link_value);
 								$data[$i] = $this->updateLink(
 																$links['parents'][$i] ,
@@ -256,6 +256,63 @@ class JS_Api extends Page
 						if (!$data) return;
 				} else {
 					$this->returnError('The updateLink function must be activated');
+				}//end else
+
+			break;
+
+			case	'removeMultipleLinks':
+
+				$data = Array();
+
+				if ($this->attr('remove_link')) {
+					$links = Array();
+					$links['parents']  = explode('\\,', $_REQUEST['parent_id']);
+					$links['children'] = explode('\\,', $_REQUEST['child_id']);
+					$links['link_type'] = explode('\\,', $_REQUEST['link_type']);
+					$links['link_value'] = explode('\\,', $_REQUEST['link_value']);
+
+					foreach ($links as $elements) {
+						if (count($elements) != count($links['parents'])) $this->returnError('Please provide correct number of link elements');
+					}
+
+					//looks like correct number of elements are passed
+					for ($i = 0;  $i < count($links['parents']); $i++) {
+						// Update our link
+						if($links['children'][$i] == 'Undefined' || $links['children'][$i] == '' || $links['children'][$i] == NULL) {
+							$data[$i]['error'] = 'Child Id whose link is to be update was not provided';
+							continue;
+						} else if ($links['parents'][$i] == 'Undefined' || $links['parents'][$i] == ''|| $links['children'][$i] == NULL){
+							$data[$i]['error'] = 'Parent Id whose link is to be update was not provided';
+							continue;
+						}
+
+						$child_asset = $am->getAsset($links['children'][$i]);
+						if(is_null($child_asset)) {
+							$data[$i]['error'] = 'Asset #'.$links['children'][$i].' does not exist';
+							continue;
+						}
+
+						$parent_asset = $am->getAsset($links['parents'][$i]);
+						if(is_null($parent_asset)) {
+							$data[$i]['error'] = 'Asset #'.$links['parents'][$i].' does not exist';
+							continue;
+						}
+
+						if ($child_asset->writeAccess()) {
+
+							$link_value = ($links['link_value'][$i] != '' ) ? $links['link_value'][$i] : NULL;
+							$link_value = str_replace($replace_these, $replace_with, $link_value);
+
+							$link_type = ($links['link_type'][$i] != '' && $links['link_type'][$i] != 'undefined' ) ? $links['link_type'][$i] : NULL;
+
+							$data[$i] = $this->removeLink($parent_asset->id, $child_asset->id, $link_type, $link_value);
+						} else {
+							$data[$i] = 'Not enough permission to update link between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and for Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+						}
+					}
+
+				} else {
+					$this->returnError('The removeLink function must be activated');
 				}//end else
 
 			break;
@@ -705,8 +762,10 @@ class JS_Api extends Page
 						}
 						$all_info = (boolean)$_REQUEST['all_info'];
 						// Get our link id
-						$data = $this->getLinkId($parent->id, $asset->id, $all_info);
-						if (!$data['link_id']) return;
+						$data = $this->getLinkId($parent->id, $asset->id, NULL, NULL, $all_info);
+						if (!$data) {
+							$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+						}
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end if
@@ -977,20 +1036,30 @@ class JS_Api extends Page
 	*
 	* @param integer	$parent			Major asset id we are linking from
 	* @param integer	$child			Minor asset id we are linking to
+	* @param integer	$link_type		Link type between parent and child asset
+	* @param integer	$link_value		Link value of link between parent and child asset
 	*
-	* @return void
+	* @return array
 	* @access public
 	*/
-	function removeLink($parent, $child)
+	function removeLink($parent, $child, $link_type=NULL, $link_value=NULL)
 	{
-		// Set our link id
-		$linkid = $this->getLinkId($parent, $child, TRUE);
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if (!$linkid) return FALSE;
+		// Set our link id
+		$linkid = $this->getLinkId($parent, $child, $link_type, $link_value, TRUE);
+
+		if (!$linkid) {
+			$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+			return $data;
+		}
+
+		$parent_asset = $am->getAsset($parent);
+		$child_asset = $am->getAsset($child);
 
 		if ($linkid['locked']) {
-			$this->returnError('Link "'.$linkid['link_id'].'" cannot be deleted, link is locked');
-			return FALSE;
+			$data['error'] = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " cannot be deleted, link is locked';
+			return $data;
 		}
 
 		// Set some shortcuts
@@ -1015,16 +1084,15 @@ class JS_Api extends Page
 				}//end if
 				//no matter if link is deleted or the whole asset is moved to thrash, we will update lookups :)
 				$result_from_update = $this->updateLookupsforAsset($child);
-				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset #'.$child.' and its Childrens');
+				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset "'.$child_asset->name.'" (#'.$child.') and its Childrens');
 
 				// Release all our locks
 				$am->releaseLock($link['minorid'], 'all');
 				$am->releaseLock($link['majorid'], 'all');
 
 				if ($result) {
-					return Array (
-							'success'	=> 'Asset #'.$child.' has been removed from asset #'.$parent,
-						   );
+					$data['success'] = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " has been sucessfully removed';
+					return $data;
 				} else {
 					$this->returnError('Unable to delete link');
 				}//end else
@@ -1056,10 +1124,15 @@ class JS_Api extends Page
 	{
 		if (!empty($old_parent_id) && !empty($asset_id_to_move) && !empty($new_parent_id)) {
 			// Get our link id!!
-			$link_id = $this->getLinkId($old_parent_id, $asset_id_to_move, TRUE);
-			if (!$link_id) return FALSE;
+			$link_id = $this->getLinkId($old_parent_id, $asset_id_to_move, NULL, NULL, TRUE);
+
+			if (!$link_id) {
+				$data['error'] = 'Parent Asset #'.$old_parent_id.' and Child Asset #'.$asset_id_to_move.' do not have a valid link';
+				return $data;
+			}
+
 			if ($link_id['locked']) {
-				$this->returnError('Link "'.$link_id['link_id'].'" cannot be deleted, link is locked');
+				$this->returnError('Link "'.$link_id['link_id'].'" cannot be moved, link is locked');
 				return FALSE;
 			}
 			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id['link_id'], $new_parent_id, $link_type, $new_position);
@@ -1100,11 +1173,14 @@ class JS_Api extends Page
 
 		if (!empty($parent) && !empty($child)) {
 
-			$link_id = $this->getLinkId($parent, $child, TRUE);
+			$link_id = $this->getLinkId($parent, $child, NULL, NULL, TRUE);
 			$parent_asset = $am->getAsset($parent);
 			$child_asset = $am->getAsset($child);
 
-			if (!$link_id) return FALSE;
+			if (!$link_id) {
+				$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+				return $data;
+			}
 
 			// we cannot change a link from being a significant link to a non-significant link or vice versa
 			// so if we are try to do that, do what a backend does, delete the old one and then create a new
@@ -1200,7 +1276,7 @@ class JS_Api extends Page
 			return FALSE;
 		}//end else
 
-	}//end GetPermission
+	}//end getPermission
 
 
 	/**
@@ -1258,7 +1334,11 @@ class JS_Api extends Page
 				$show['link_value']		= NULL;
 				$show['locked']			= NULL;
 			} else {
-				$show_link = $this->getLinkId($parent, $id, TRUE);
+				$show_link = $this->getLinkId($parent, $id, NULL, NULL, TRUE);
+				if (!$show_link) {
+					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+					return $data;
+				}
 				$show['link_id']		= $show_link['link_id'];
 				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
@@ -1305,7 +1385,11 @@ class JS_Api extends Page
 				$show['link_value']		= NULL;
 				$show['locked']			= NULL;
 			} else {
-				$show_link = $this->getLinkId($id, $child->id, TRUE);
+				$show_link = $this->getLinkId($id, $child->id, NULL, NULL, TRUE);
+				if (!$show_link) {
+					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+					return $data;
+				}
 				$show['link_id']		= $show_link['link_id'];
 				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
@@ -1513,12 +1597,12 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	function getLinkId($parent, $child, $all_info = FALSE)
+	function getLinkId($parent, $child, $link_type=NULL, $link_value=NULL, $all_info = FALSE)
 	{
 		if (!empty($parent) && !empty($child)) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent, $child);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent, $child, $link_type, $link_value);
 			if (empty($link)) {
-				$this->returnError('Parent #'.$parent.' and child #'.$child.' do not have a valid link');
+				//$this->returnError('Parent #'.$parent.' and child #'.$child.' do not have a valid link');
 				return FALSE;
 			}
 			if (!$all_info) {
@@ -2709,6 +2793,67 @@ function removeLink(parent_id, child_id, dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end removeLink
+
+
+/**
+* Removes multiple links between parent and child pairs
+*
+* @param json object	link_info		array of link_info
+* example :
+* 		var link_info = {
+* 			"links":[
+* 				{
+* 					"parent": parent,
+* 					"child": child,
+* 					"link_type": link_type,
+*					"link_value": link_value,
+* 				},
+* 				{
+* 					"parent": parent_2,
+* 					"child": child_2,
+* 					"link_type": link_type_2,
+*					"link_value": link_value,
+* 				},
+* 				{
+* 					"parent": parent_3,
+* 					"child": child_3,
+* 					"link_type": link_type_3,
+*					"link_value": link_value,
+* 				},
+* 			]
+* 		 };
+* @param function		dataCallback	Custom callback function
+*
+*/
+function removeMultipleLinks(link_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var parentid = '';
+	var childid = '';
+	var link_type = '';
+	var link_value = '';
+
+	for (var x = 0; x < link_info.links.length; x++) {
+		link_typ = isset(link_info.links[x].link_type) ?  link_info.links[x].link_type : '' ;
+		link_val = isset(link_info.links[x].link_value) ?  link_info.links[x].link_value : '' ;
+
+		parentid = parentid + link_info.links[x].parent + '\\,';
+		childid = childid + link_info.links[x].child + '\\,';
+		link_type = link_type + link_typ + '\\,';
+		link_value = link_value + link_val.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,';
+	}
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeMultipleLinks&parent_id=' + parentid.substring(0, parentid.length-2) + 
+				'&child_id=' + childid.substring(0, childid.length-2) +
+				'&link_type=' + link_type.substring(0, link_type.length-2) +
+				'&link_value=' + link_value.substring(0, link_value.length-2)
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end removeMultipleLinks
 
 
 /**
