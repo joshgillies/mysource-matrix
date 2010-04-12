@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.33 2010/04/12 03:44:33 akarelia Exp $
+* $Id: js_api.inc,v 1.34 2010/04/12 05:23:29 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1336,7 +1336,7 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($parent, $id, NULL, NULL, TRUE);
 				if (!$show_link) {
-					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$id.' do not have a valid link';
 					return $data;
 				}
 				$show['link_id']		= $show_link['link_id'];
@@ -1387,7 +1387,7 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($id, $child->id, NULL, NULL, TRUE);
 				if (!$show_link) {
-					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link';
+					$data['error'] = 'Parent Asset #'.$id.' and Child Asset #'.$child->id.' do not have a valid link';
 					return $data;
 				}
 				$show['link_id']		= $show_link['link_id'];
@@ -1602,7 +1602,6 @@ class JS_Api extends Page
 		if (!empty($parent) && !empty($child)) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent, $child, $link_type, $link_value);
 			if (empty($link)) {
-				//$this->returnError('Parent #'.$parent.' and child #'.$child.' do not have a valid link');
 				return FALSE;
 			}
 			if (!$all_info) {
