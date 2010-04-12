@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.348.2.3 2010/02/02 04:24:33 akarelia Exp $
+* $Id: lang_strings.xml,v 1.348.2.4 2010/04/12 07:42:01 cupreti Exp $
 *
 */
 
@@ -2162,6 +2162,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="testing" js="1">Testing...</string>
 
 	<string source="asset_not_found">Asset %s not found</string>
+	<string source="asset_not_found_no_id">Asset not found</string>
 
 	<string source="default_content_type">Default Content Type</string>
 	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
