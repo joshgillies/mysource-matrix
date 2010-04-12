@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1.10.5 2010/03/08 05:59:11 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.10.6 2010/04/12 01:14:44 mbrydon Exp $
 *
 */
 -->
@@ -74,7 +74,7 @@
     		</function_call>
     	</field>
     </section>
-	<section name="Retrive Info From Server" write_access="write:attributes">
+	<section name="Retrieve Info From Server" write_access="write:attributes">
     	<field>
     		<function_call>
     			<paint_function   name="paintRetrieveFields"	/>
