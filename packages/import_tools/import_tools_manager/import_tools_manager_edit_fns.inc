@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.10 2008/05/26 22:34:39 bpearson Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.10.8.1 2010/04/13 23:31:10 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.10.8.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -40,6 +40,18 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	function Import_Tools_Manager_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		unset($this->static_screens['settings']);
+  	    unset($this->static_screens['preview']);
+  	    unset($this->static_screens['lookupValues']);
+  	    unset($this->static_screens['metadata']);
+  	    unset($this->static_screens['metadataSchemas']);
+  	    unset($this->static_screens['workflow']);
+  	    unset($this->static_screens['tagging']);
+  	    unset($this->static_screens['dependants']);
+  	    unset($this->static_screens['linking']);
+  	    unset($this->static_screens['roles']);
+  	    unset($this->static_screens['permissions']);
+  	    unset($this->static_screens['layouts']);
 
 	}//end constructor
 

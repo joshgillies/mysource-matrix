@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager_edit_fns.inc,v 1.22 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: bulkmail_manager_edit_fns.inc,v 1.22.8.1 2010/04/13 23:30:48 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -43,6 +43,18 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		unset($this->static_screens['settings']);
+  	    unset($this->static_screens['preview']);
+  	    unset($this->static_screens['lookupValues']);
+  	    unset($this->static_screens['metadata']);
+  	    unset($this->static_screens['metadataSchemas']);
+  	    unset($this->static_screens['workflow']);
+  	    unset($this->static_screens['tagging']);
+  	    unset($this->static_screens['dependants']);
+  	    unset($this->static_screens['linking']);
+  	    unset($this->static_screens['roles']);
+  	    unset($this->static_screens['permissions']);
+  	    unset($this->static_screens['layouts']);
 
 	}//end constructor
 

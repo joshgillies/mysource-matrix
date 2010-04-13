@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter_word_edit_fns.inc,v 1.4 2006/12/07 01:09:32 emcdonald Exp $
+* $Id: import_tool_converter_word_edit_fns.inc,v 1.4.16.1 2010/04/13 23:31:10 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/import_tools/converters/import_tool_converter/im
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -39,6 +39,18 @@ class Import_Tool_Converter_Word_Edit_Fns extends Import_Tool_Converter_Edit_Fns
 	function Import_Tool_Converter_Word_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		unset($this->static_screens['settings']);
+  	    unset($this->static_screens['preview']);
+  	    unset($this->static_screens['lookupValues']);
+  	    unset($this->static_screens['metadata']);
+  	    unset($this->static_screens['metadataSchemas']);
+  	    unset($this->static_screens['workflow']);
+  	    unset($this->static_screens['tagging']);
+  	    unset($this->static_screens['dependants']);
+  	    unset($this->static_screens['linking']);
+  	    unset($this->static_screens['roles']);
+  	    unset($this->static_screens['permissions']);
+  	    unset($this->static_screens['layouts']);
 
 	}//end constructor
 
