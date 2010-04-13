@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.339 2010/03/29 22:48:34 lwright Exp $
+* $Id: mysource.inc,v 1.340 2010/04/13 00:18:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.339 $
+* @version $Revision: 1.340 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -989,6 +989,27 @@ class MySource extends MySource_Object
 		$db = $this->db;
 
 		$GLOBALS['SQ_PASSWORD_CHANGE_FORM'] = Array('paint' => 'password_change', 'heading' => $heading, 'msg' => $msg);
+
+		if ((current_protocol() == 'http') && (SQ_CONF_FORCE_SECURE_LOGIN_URLS != '')) {
+			// If we require secure login for this URL, we will also require it
+			// for password changes.
+			$current_url = current_url(FALSE, TRUE);
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			$current_root_url = '';
+			foreach ($root_urls as $url) {
+				if (0 === strpos($current_url, $url)) {
+					if (strlen($url) > strlen($current_root_url)) {
+						$current_root_url = $url;
+					}
+				}
+			}
+
+			if (in_array($current_root_url, explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS))) {
+				// Redirect to HTTPS
+				$_SESSION['SQ_RETURN_TO_HTTP'] = 1;
+				do_redirect('https://'.current_url(FALSE)); // exits
+			}
+		}//end if http
 
 		if (empty($_GET['FORCE_BACKUP_PASSWORD_CHANGE'])) {
 
