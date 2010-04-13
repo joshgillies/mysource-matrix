@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.5 2010/03/18 01:15:21 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.6 2010/04/13 06:17:18 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -40,6 +40,18 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 	function __construct($assetid=0)
 	{
 		parent::__construct($assetid);
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['dependants']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
+		unset($this->static_screens['layouts']);
 
 	}//end constructor
 
