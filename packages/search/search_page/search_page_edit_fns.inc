@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.82 2009/09/08 23:21:56 akarelia Exp $
+* $Id: search_page_edit_fns.inc,v 1.83 2010/04/14 00:11:01 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -224,7 +224,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							if ($field_datasource != 'new') {
 								switch ($type) {
 
-									case 'asset_attrib':
+									case 'asset_attrib':									
 										if (!isset($field_datasource['params'])) {
 											$field_datasources[$index]['params'] = Array();
 										}
@@ -257,11 +257,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												}
 												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
 											} else if ($selected_attr != '') {
-												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr];
+												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
 											}
 										}
 
 										if (!empty($selected_attr)) {
+				
 											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
 											$attr_info = $attr_info[$selected_attr];
 
