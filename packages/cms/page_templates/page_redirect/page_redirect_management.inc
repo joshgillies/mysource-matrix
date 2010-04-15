@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.21 2009/06/12 05:58:18 bpearson Exp $
+* $Id: page_redirect_management.inc,v 1.22 2010/04/15 23:49:56 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,10 +49,11 @@ class Page_Redirect_Management extends Asset_Management
 													
 													   ),
 						'redirect_url'				=> Array(
-														'added'		=> '0.0.1',
-														'type'		=> 'text',
-														'default'	=> '',
-														'is_admin'	=> FALSE,
+														'added'			=> '0.0.1',
+														'type'			=> 'text',
+														'default'		=> '',
+														'is_admin'		=> FALSE,
+														'description'	=> 'URL to redirect to, including URI scheme'
 													   ),
 						'url_suffix'				=> Array(
 														'added'			=> '0.0.1',

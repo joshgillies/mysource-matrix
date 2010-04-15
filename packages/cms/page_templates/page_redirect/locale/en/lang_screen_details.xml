@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2009/06/12 05:58:18 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.7 2010/04/15 23:49:56 mhaidar Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 	<section name="Redirect Type">
 		<field attribute="permanent_redirect">
 			<display_name>Permanent Redirect</display_name>
-			<note>HTTP 301 response code will be sent to tell user-agents that the location has permanently moved.This is usefull for search engines.
+			<note>HTTP 301 response code will be sent to tell user-agents that the location has permanently moved. This is useful for search engines.
 				If permanent redirect is used, &lt;strong&gt;New Window&lt;/strong&gt; option and &lt;strong&gt;Redirect Timeout&lt;/strong&gt; option will have no effect.
 			</note>
 		</field>
@@ -37,7 +37,8 @@
 	<section name="Location">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
-			<note />
+			<note>%description% (for example, &lt;i&gt;http://matrix.squiz.net/&lt;/i&gt;). Global keywords are supported.
+			</note>
 		</field>
 		<field>
 			<display_name>or Asset</display_name>
@@ -58,7 +59,7 @@
 	<section name="Location Options">
 		<field attribute="url_suffix">
 			<display_name>URL Suffix</display_name>
-			<note>%description%</note>
+			<note>%description%. Global keywords are supported.</note>
 		</field>
  		<field attribute="append_querystring">
  			<display_name>Pass through query &lt;br /&gt; string parameters?</display_name>

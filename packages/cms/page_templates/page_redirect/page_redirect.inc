@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.38 2009/06/12 05:58:18 bpearson Exp $
+* $Id: page_redirect.inc,v 1.39 2010/04/15 23:49:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -342,15 +342,19 @@ class Page_Redirect extends Page
 	*/
 	function _getRedirectURL()
 	{
-		$url = '';
-
 		// See if we are given a query string value to look at
 		$qrystr_param = $this->attr('use_querystring_parameter');
+		$url = trim($this->attr('redirect_url'));
 		if ($qrystr_param && isset($_GET[$qrystr_param]) && trim($_GET[$qrystr_param]) != '') {
 			$url = trim($_GET[$qrystr_param]);
 
+		// See if there is a URL entered manually in the redirect_url attribute field
+		} else if ($url != '') {
+			// Replace global keywords
+			replace_global_keywords($url);
+
 		// if there is no url, see if we have an asset selected
-		} else if (($url = $this->attr('redirect_url')) == '') {
+		} else {
 			$redirect_asset = $this->getRedirectAsset();
 			if (!is_null($redirect_asset)) {
 				if (($url = $redirect_asset->getURL()) == '') {
@@ -364,12 +368,29 @@ class Page_Redirect extends Page
 			return '';
 		}
 
-		$url .= trim($this->attr('url_suffix'));
+		$url_suffix = trim($this->attr('url_suffix'));
+
+		// Check if URL suffix attribute has a value
+		if ($url_suffix != '') {
+
+			// Replace globals keywords on URL suffix
+			replace_global_keywords($url_suffix);
+
+			// Append the suffix to the URL
+			$url .= $url_suffix;
+		}
 
 		// See if we need to append the query string and there is a query string
 		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
 			$url .= ((strpos($url, '?') === FALSE) ? '?' : '&').$_SERVER['QUERY_STRING'];
 		}
+
+		// Strip newlines (and other dodgy characters) from the $url that may have
+		// been inadvertently added by keywords or modifiers. They're not allowed in
+		// the 'Location' header and will cause an error.
+		$stripchars = array();
+		for ($i = 0; $i < 32; $stripchars[] = chr($i), $i++);
+		$url = str_replace($stripchars, '', $url);
 
 		return $url;
 
