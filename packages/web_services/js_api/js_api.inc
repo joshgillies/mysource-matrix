@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.34 2010/04/12 05:23:29 akarelia Exp $
+* $Id: js_api.inc,v 1.35 2010/04/15 23:43:50 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -821,12 +821,13 @@ class JS_Api extends Page
 					if ($wa) {
 						$status = (int) $_REQUEST['status'];
 						$cascade = isset($_REQUEST['cascade']) ? $_REQUEST['cascade'] : FALSE;
+						$workflow_stream = (isset($_REQUEST['workflow_stream']) && ($_REQUEST['workflow_stream'] != '') )? str_replace($replace_these, $replace_with, $_REQUEST['workflow_stream']) : 'SQ_USE_DEFAULT';
 
 						//let check if the status supplied is valid one
 						$desc = get_status_description($status);
 						$current_desc = ($status != $asset->status) ? get_status_description($asset->status) : $desc;
 
-						$response = $this->setAssetStatus($asset, $status, $cascade, $current_desc, $desc);
+						$response = $this->setAssetStatus($asset, $status, $cascade, $current_desc, $desc, $workflow_stream);
 						if (empty($response)) {
 							if (!$cascade) {
 								$data[] = 'Status for Asset "'.$asset->name.'" (#'.$asset->id.') has been changed successfully to '.$desc;
@@ -2001,7 +2002,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	public function setAssetStatus(Asset $asset, $status, $cascade, $current_status_desc, $to_be_status_desc)
+	public function setAssetStatus(Asset $asset, $status, $cascade, $current_status_desc, $to_be_status_desc, $workflow_stream)
 	{
 
 		$return_array = Array();
@@ -2020,6 +2021,10 @@ class JS_Api extends Page
                             'new_status'        => $status,
                             'dependants_only'   => !$cascade,
                         );
+		if ($workflow_stream !== 'SQ_USE_DEFAULT') {
+			$running_vars['workflow_stream'] = $workflow_stream;
+		}
+
 		$init_hipo->setRunningVars($running_vars);
 		$init_hipo->_steps = $init_hipo->getInitialStepData();
 		if (!$init_hipo->prepare()) {
@@ -2983,6 +2988,7 @@ function updateMultipleLinks(link_info, dataCallback)
 		sort_ord = isset(link_info.links[x].sort_order) ?  link_info.links[x].sort_order : '' ;
 		lock     = isset(link_info.links[x].link_lock) ?  link_info.links[x].link_lock : '' ;
 
+		q
 		parentid = parentid + link_info.links[x].parent + '\\,';
 		childid = childid + link_info.links[x].child + '\\,';
 		link_type = link_type + link_typ + '\\,';
@@ -3093,20 +3099,22 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 /**
 * This will set Asset to the status that is passed in
 *
-* @param string		asset_id		Id of the asset to get children of
+* @param string		asset_id		id of the asset to get children of
 * @param int		status			status tha asset is to be set to
 * @param boolean	cascade			if to cascade the status to non-dependant children
-* @param function	dataCallback	Custom callback function
+* @param string		workflow_stream workflow stream to be passed in
+* @param function	dataCallback	custom callback function
 *
 *
 */
-function setAssetStatus(asset_id, status, cascade, dataCallback)
+function setAssetStatus(asset_id, status, cascade, workflow_stream, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var  workflow_stream  = isset(workflow_stream) ? workflow_stream : '';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade + '&workflow_stream=' + workflow_stream.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
