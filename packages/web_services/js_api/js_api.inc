@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.35 2010/04/15 23:43:50 akarelia Exp $
+* $Id: js_api.inc,v 1.36 2010/04/15 23:47:14 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2988,7 +2988,6 @@ function updateMultipleLinks(link_info, dataCallback)
 		sort_ord = isset(link_info.links[x].sort_order) ?  link_info.links[x].sort_order : '' ;
 		lock     = isset(link_info.links[x].link_lock) ?  link_info.links[x].link_lock : '' ;
 
-		q
 		parentid = parentid + link_info.links[x].parent + '\\,';
 		childid = childid + link_info.links[x].child + '\\,';
 		link_type = link_type + link_typ + '\\,';
