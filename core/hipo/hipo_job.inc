@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.104 2009/08/17 01:10:15 bpearson Exp $
+* $Id: hipo_job.inc,v 1.104.2.1 2010/04/19 03:29:30 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -481,7 +481,8 @@ class HIPO_Job extends MySource_Object
 
 		try {
 			$bind_vars['code_name'] = $code_name;
-			$existing = MatrixDAL::executeOne('core', 'getHipoJobsUser', $bind_vars);
+			$result = MatrixDAL::executeAssoc('core', 'getHipoJobsUser', NULL, $bind_vars);
+			$existing =  array_get_index($result, 0, Array());
 		} catch (Exception $e) {
 			throw new Exception('Unable to get HIPO job code name: '.$code_name.' due to database error: '.$e->getMessage());
 		}
