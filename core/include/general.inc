@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.242 2010/04/19 05:34:35 mhaidar Exp $
+* $Id: general.inc,v 1.243 2010/04/19 23:31:47 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix
 */
 
@@ -1756,7 +1756,7 @@ function get_available_global_keywords()
 function replace_global_keywords(&$text)
 {
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
-	for ($c = 0; ($c < 2 && !stripos($text, '%globals_') === FALSE); $c++) {
+	for ($c = 0; ($c < 2 && !(stripos($text, '%globals_') === FALSE)); $c++) {
 		$keywords = retrieve_keywords_replacements($text);
 		if (!empty($keywords)) {
 			$replacements = Array();
