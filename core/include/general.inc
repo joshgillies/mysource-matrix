@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.241 2010/03/23 23:02:11 lwright Exp $
+* $Id: general.inc,v 1.242 2010/04/19 05:34:35 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.241 $
+* @version $Revision: 1.242 $
 * @package MySource_Matrix
 */
 
@@ -1756,193 +1756,195 @@ function get_available_global_keywords()
 function replace_global_keywords(&$text)
 {
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
+	for ($c = 0; ($c < 2 && !stripos($text, '%globals_') === FALSE); $c++) {
+		$keywords = retrieve_keywords_replacements($text);
+		if (!empty($keywords)) {
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$full_keyword = $keyword;
+				$keyword = parse_keyword($keyword, $modifiers);
 
-	$keywords = retrieve_keywords_replacements($text);
-	if (!empty($keywords)) {
-		$replacements = Array();
-		foreach ($keywords as $keyword) {
-			$full_keyword = $keyword;
-			$keyword = parse_keyword($keyword, $modifiers);
-
-			if (0 === strpos($keyword, 'globals_')) {
-				// Default replacement for global keywords is blank string
-				$replacements[$full_keyword] = '';
-				if (0 === strpos($keyword, 'globals_user_')) {
-					$user_keyword = 'asset_'.substr($keyword, 13);
-					$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-					if ((string)$user_replacement != "%$user_keyword%") {
-						$replacements[$full_keyword] = $user_replacement;
+				if (0 === strpos($keyword, 'globals_')) {
+					// Default replacement for global keywords is blank string
+					$replacements[$full_keyword] = '';
+					if (0 === strpos($keyword, 'globals_user_')) {
+						$user_keyword = 'asset_'.substr($keyword, 13);
+						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
+						if ((string)$user_replacement != "%$user_keyword%") {
+							$replacements[$full_keyword] = $user_replacement;
+						}
 					}
-				}
-				if (0 === strpos($keyword, 'globals_get_')) {
-					$sub_keyword = substr($keyword, 12);
-					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''), $modifiers);
-				}
-				if (0 === strpos($keyword, 'globals_post_')) {
-					$sub_keyword = substr($keyword, 13);
-					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''), $modifiers);
-				}
-				if (0 === strpos($keyword, 'globals_session_')) {
-					$sub_keyword = substr($keyword, 16);
-					$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', $modifiers);
-				}
-				if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
-					$sub_keyword = substr($keyword, 15);
-					$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), $modifiers);
-				}
-				if (0 === strpos($keyword, 'globals_server_')) {
-					$replacements[$full_keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
-					if (!is_scalar($replacements[$full_keyword])) {
-						$replacements[$full_keyword] = '';
+					if (0 === strpos($keyword, 'globals_get_')) {
+						$sub_keyword = substr($keyword, 12);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''), $modifiers);
 					}
-				}
-				if (0 === strpos($keyword, 'globals_date')) {
-					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					$date_keyword = readable_datetime();
-					$formatting = substr($keyword, 12);
-					$format = ltrim($formatting, '_');
-					if ($format == 'readable') {
+					if (0 === strpos($keyword, 'globals_post_')) {
+						$sub_keyword = substr($keyword, 13);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''), $modifiers);
+					}
+					if (0 === strpos($keyword, 'globals_session_')) {
+						$sub_keyword = substr($keyword, 16);
+						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', $modifiers);
+					}
+					if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
+						$sub_keyword = substr($keyword, 15);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), $modifiers);
+					}
+					if (0 === strpos($keyword, 'globals_server_')) {
+						$replacements[$full_keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
+						if (!is_scalar($replacements[$full_keyword])) {
+							$replacements[$full_keyword] = '';
+						}
+					}
+					if (0 === strpos($keyword, 'globals_date')) {
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$date_keyword = readable_datetime();
-					} else {
-						if (!empty($format)) {
-							$date_keyword = date($format);
+						$formatting = substr($keyword, 12);
+						$format = ltrim($formatting, '_');
+						if ($format == 'readable') {
+							$date_keyword = readable_datetime();
+						} else {
+							if (!empty($format)) {
+								$date_keyword = date($format);
+							}//end if
 						}//end if
+						$replacements[$full_keyword] = $date_keyword;
+					}
+					if (0 === strpos($keyword, 'globals_icon')) {
+						$type = substr($keyword, 12);
+						$type = ltrim($type, '_');
+						$type_icon_replace = '';
+						$type_icon_url = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type);
+						list($base_url, $type_icon_loc) = explode('__data/', $type_icon_url);
+						if (file_exists(SQ_DATA_PATH.'/public/'.$type_icon_loc)) {
+							$type_icon_replace = sq_get_icon($type_icon_url, 16, 16, $type);
+						}//end if
+						$replacements[$full_keyword] = $type_icon_replace;
 					}//end if
-					$replacements[$full_keyword] = $date_keyword;
-				}
-				if (0 === strpos($keyword, 'globals_icon')) {
-					$type = substr($keyword, 12);
-					$type = ltrim($type, '_');
-					$type_icon_replace = '';
-					$type_icon_url = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type);
-					list($base_url, $type_icon_loc) = explode('__data/', $type_icon_url);
-					if (file_exists(SQ_DATA_PATH.'/public/'.$type_icon_loc)) {
-						$type_icon_replace = sq_get_icon($type_icon_url, 16, 16, $type);
-					}//end if
-					$replacements[$full_keyword] = $type_icon_replace;
-				}//end if
 
-				if (0 === strpos($keyword, 'globals_site_')) {
-					// We must find the site before we can replace these keywords
-					$site = NULL;
-					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
-						$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
-					} else {
-						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
-							$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
-							$protocol_pos = strpos($asset_url, '://');
-							if ($protocol_pos !== FALSE) {
-								$asset_url = substr($asset_url, $protocol_pos + 3);
-							}
+					if (0 === strpos($keyword, 'globals_site_')) {
+						// We must find the site before we can replace these keywords
+						$site = NULL;
+						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
+							$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
 						} else {
-							$asset_url = current_url(FALSE, TRUE);
-						}
-						$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
-
-						$site_assetid = 0;
-						foreach ($asset_lineage as $asset_link) {
-							$asset_type = $asset_link['type_code'];
-							if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-								$site_assetid = $asset_link['assetid'];
-								break;
-							}
-						}
-						if (!empty($site_assetid)) {
-							$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
-						}
-					}//end if
-
-					if (!is_null($site)) {
-						$site_keyword = 'asset_'.substr($keyword, 13);
-						$site_replacement = $site->getKeywordReplacement($site_keyword);
-						if ((string)$site_replacement != "%$site_keyword%") {
-							$replacements[$full_keyword] = $site_replacement;
-						}
-					}//end if
-				}//end if
-
-				if (0 === strpos($keyword, 'globals_asset_')) {
-					$asset_keyword = 'asset_'.substr($keyword, 14);
-					preg_match('|(.*):([0-9]+)$|',$asset_keyword,$matches);
-
-					if (empty($matches[2])) {
-						$asset_replacement = '%'.$asset_keyword.'%';
-
-						$current_asset = NULL;
-						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
-							$current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
-						} else {
-							if (SQ_IN_LIMBO) {
-								if (isset($_REQUEST['limbo_assetid'])) {
-									$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
-								} else {
-									$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+							if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+								$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
+								$protocol_pos = strpos($asset_url, '://');
+								if ($protocol_pos !== FALSE) {
+									$asset_url = substr($asset_url, $protocol_pos + 3);
 								}
 							} else {
-								$current_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+								$asset_url = current_url(FALSE, TRUE);
 							}
-						}
+							$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
 
-						if ($current_asset) {
-							$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
-						}
+							$site_assetid = 0;
+							foreach ($asset_lineage as $asset_link) {
+								$asset_type = $asset_link['type_code'];
+								if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+									$site_assetid = $asset_link['assetid'];
+									break;
+								}
+							}
+							if (!empty($site_assetid)) {
+								$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+							}
+						}//end if
 
-						if ((string)$asset_replacement != "%$asset_keyword%") {
-							$replacements[$full_keyword] = $asset_replacement;
-						}
-					} else {
-						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
-						if ($asset_exist === TRUE) {
-							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
-							if ($asset->readAccess()) {
-								$asset_replacement = $asset->getKeywordReplacement($matches[1]);
-								if ((string)$asset_replacement != "%$matches[1]%") {
-									$replacements[$full_keyword] = $asset_replacement;
+						if (!is_null($site)) {
+							$site_keyword = 'asset_'.substr($keyword, 13);
+							$site_replacement = $site->getKeywordReplacement($site_keyword);
+							if ((string)$site_replacement != "%$site_keyword%") {
+								$replacements[$full_keyword] = $site_replacement;
+							}
+						}//end if
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_asset_')) {
+						$asset_keyword = 'asset_'.substr($keyword, 14);
+						preg_match('|(.*):([0-9]+)$|',$asset_keyword,$matches);
+
+						if (empty($matches[2])) {
+							$asset_replacement = '%'.$asset_keyword.'%';
+
+							$current_asset = NULL;
+							if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+								$current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+							} else {
+								if (SQ_IN_LIMBO) {
+									if (isset($_REQUEST['limbo_assetid'])) {
+										$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
+									} else {
+										$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+									}
+								} else {
+									$current_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+								}
+							}
+
+							if ($current_asset) {
+								$asset_replacement = $current_asset->getKeywordReplacement($asset_keyword);
+							}
+
+							if ((string)$asset_replacement != "%$asset_keyword%") {
+								$replacements[$full_keyword] = $asset_replacement;
+							}
+						} else {
+							$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
+							if ($asset_exist === TRUE) {
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+								if ($asset->readAccess()) {
+									$asset_replacement = $asset->getKeywordReplacement($matches[1]);
+									if ((string)$asset_replacement != "%$matches[1]%") {
+										$replacements[$full_keyword] = $asset_replacement;
+									}
 								}
 							}
 						}
-					}
-				}//end if
-				if (0 === strpos($keyword, 'globals_snippet_')) {
-					$replacements[$full_keyword] = '';
-					if ($GLOBALS['SQ_SYSTEM']->am->installed('content_type_snippet')) {
-						$snippet_info = explode('_', $keyword);
-						if (is_numeric($snippet_info[2])) {
-							// is this snippet id valid and current?
-							$all_snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords(TRUE);
-							if (in_array($snippet_info[2], array_keys($all_snippets))) {
-								$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_info[2]);
-								if (!is_null($snippet_asset)) {
-									// printBody will handle the permission
-									ob_start();
-										$snippet_asset->printBody();
-										$replacement = ob_get_contents();
-									ob_end_clean();
-									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($snippet_asset);
-									$replacements[$full_keyword] = $replacement;
+					}//end if
+					if (0 === strpos($keyword, 'globals_snippet_')) {
+						$replacements[$full_keyword] = '';
+						if ($GLOBALS['SQ_SYSTEM']->am->installed('content_type_snippet')) {
+							$snippet_info = explode('_', $keyword);
+							if (is_numeric($snippet_info[2])) {
+								// is this snippet id valid and current?
+								$all_snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords(TRUE);
+								if (in_array($snippet_info[2], array_keys($all_snippets))) {
+									$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_info[2]);
+									if (!is_null($snippet_asset)) {
+										// printBody will handle the permission
+										ob_start();
+											$snippet_asset->printBody();
+											$replacement = ob_get_contents();
+										ob_end_clean();
+										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($snippet_asset);
+										$replacements[$full_keyword] = $replacement;
+									}
 								}
 							}
 						}
-					}
-				}//end if
-				if (0 === strpos($keyword, 'globals_random')) {
-					if ($keyword == 'globals_random') {
-						$replacements[$full_keyword] = rand();
-					} else {
-						$sub_keyword = substr($keyword, 14);
-						if (preg_match('/^_(\d+)_(\d+)$/', $sub_keyword, $matches)) {
-							$replacements[$full_keyword] = rand((int)$matches[1], (int)$matches[2]);
+					}//end if
+					if (0 === strpos($keyword, 'globals_random')) {
+						if ($keyword == 'globals_random') {
+							$replacements[$full_keyword] = rand();
+						} else {
+							$sub_keyword = substr($keyword, 14);
+							if (preg_match('/^_(\d+)_(\d+)$/', $sub_keyword, $matches)) {
+								$replacements[$full_keyword] = rand((int)$matches[1], (int)$matches[2]);
+							}
 						}
-					}
-				}//end if
+					}//end if
 
-				apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
+					apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
 
-			}//end if is global keyword
+				}//end if is global keyword
 
-		}//end foreach keyword
-		replace_keywords($text, $replacements);
-	}//end if
+			}//end foreach keyword
+			replace_keywords($text, $replacements);
+		}//end if
+		
+	}//end for
 	return $text;
 
 }//end replace_global_keywords()
