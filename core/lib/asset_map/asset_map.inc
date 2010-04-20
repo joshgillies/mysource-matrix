@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.290 2009/10/07 04:57:21 ewang Exp $
+* $Id: asset_map.inc,v 1.291 2010/04/20 00:08:31 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290 $
+* @version $Revision: 1.291 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -786,18 +786,24 @@ class Asset_Map
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 					$userids = $user->getUserGroups();
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+					array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
+					$userid_cond = ' AND (p.userid IN (';
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$userids[$k] = MatrixDAL::quote((string) $userids[$k]);
+						$bind_vars[':userid_' . $k] = $userids[$k];
+						$userid_cond .= ':userid_' . $k . ',';
 					}
-					$userids_str = implode(',', $userids);
-					$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
+					$userid_cond = rtrim($userid_cond, ',') . ')';
 
 					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-						$userid_cond .= ' OR r.userid IN ('.$userids_str.')';
+						$userid_cond .= ' OR r.userid IN (';
+						for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+							$bind_vars[':role_userid_' . $k] = $userids[$k];
+							$userid_cond .= ':role_userid_' . $k . ',';
+						}
+						$userid_cond = rtrim($userid_cond, ',') . ')';
 					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 
 					$userid_cond .= ') ';
 				}
@@ -1003,23 +1009,31 @@ class Asset_Map
 			$db = MatrixDAL::getDb();
 			$assetid = (String)$assetid;
 			$userid_cond = '';
+			$bind_vars = array();
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$userids = $user->getUserGroups();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+
 				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
+				$userid_cond = ' AND (p.userid IN (';
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$userids[$k] = MatrixDAL::quote((string) $userids[$k]);
+					$bind_vars[':userid_' . $k] = $userids[$k];
+					$userid_cond .= ':userid_' . $k . ',';
 				}
-				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
+				$userid_cond = rtrim($userid_cond, ',') . ')';
 
 				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-					$userid_cond .= ' OR r.userid IN ('.$userids_str.')';
+					$userid_cond .= ' OR r.userid IN (';
+					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+						$bind_vars[':role_userid_' . $k] = $userids[$k];
+						$userid_cond .= ':role_userid_' . $k . ',';
+					}
+					$userid_cond = rtrim($userid_cond, ',') . ')';
 				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 
-				$userid_cond .= ')';
+				$userid_cond .= ') ';
 			}
 
 			// work out what protocol we are using to get here so we can get the most
@@ -1035,7 +1049,6 @@ class Asset_Map
 				$secondary_protocol = 'http';
 			}
 
-			$bind_vars = Array();
 			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
 						l.linkid, l.link_type, l.sort_order, ap.path, u.url,
 						(CASE u.'.$primary_protocol.'
