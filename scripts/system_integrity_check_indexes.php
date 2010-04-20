@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.9 2009/12/10 01:34:11 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.10 2010/04/20 00:40:38 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -353,11 +353,16 @@ foreach ($packages as $_pkgid => $pkg_details) {
 
 bam('Check complete');
 $extra_message_shown = false;
+$dbtype = _getDbType();
 if (!empty($bad_indexes)) {
 	$extra_message_shown = true;
 	$msg = "Some indexes had incorrect definitions.\n";
 	$msg .= "To fix these, you will need to drop the old indexes before re-adding them:\n\n";
 	foreach ($bad_indexes as $details) {
+		// oracle is case sensitive ..
+		if ($dbtype == 'oci') {
+			$details['index_name'] = strtoupper($details['index_name']);
+		}
 		if (isset($details['primary_key'])) {
 			$tablename = $details['table_name'];
 			if (substr($tablename, 0, 3) != 'sq_') {
