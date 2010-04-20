@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.9 2009/06/11 06:54:16 wszymanski Exp $
+* $Id: trigger_edit_fns.inc,v 1.10 2010/04/20 06:33:29 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -406,7 +406,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$delete_prefix = $condition_prefix.'['.$i.'][delete]';
 				$inverse_condition_prefix = $condition_prefix.'['.$i.'][inverse_condition]';
 
-				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access);
+				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access, $asset, $i);
 				$type_name = $tm->_getComponentName($type);
 				?>
 				<div class="sq-backend-triggers-component-wrapper">
@@ -631,7 +631,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$not_required = array_get_index($action, 'not_required', FALSE);
 				$ignore_permissions = array_get_index($action, 'ignore_permissions', FALSE);
 
-				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access);
+				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access, $asset, $i);
 				$type_name = $tm->_getComponentName($type);
 				?>
 				<div class="sq-backend-triggers-component-wrapper">
