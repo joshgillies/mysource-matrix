@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.13 2009/04/02 00:27:47 akarelia Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.13.6.1 2010/04/21 06:59:47 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -54,7 +54,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		if (isset($job_vars['iterator'])) {
 			$iterator =& $job_vars['iterator'];
 		} else {
-			$iterator =& $GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($meta['report']->logname, array_get_index($job_vars, 'rotation_index', NULL));
+			$iterator =& $GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($meta['report']->logname, 1);
 		}
 
 		// default to updating the terms
