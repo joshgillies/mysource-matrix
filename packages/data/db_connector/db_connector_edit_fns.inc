@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector_edit_fns.inc,v 1.4 2007/12/22 02:24:41 gsherwood Exp $
+* $Id: db_connector_edit_fns.inc,v 1.4.10.1 2010/04/21 05:31:27 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_db/data_source_db_edit_fns.inc'
 *     Edit functions for DB Connector
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -100,11 +100,12 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintDSNAlone(&$asset, &$o, $prefix)
 	{
-		$dsn = $asset->attr('dsn');
-		$wa = $asset->writeAccess('attributes');
-		$user = $asset->attr('user');
+		$dsn      = $asset->attr('dsn');
+		$wa       = $asset->writeAccess('attributes');
+		$user     = $asset->attr('user');
+		$database = $asset->attr('database');
 		if ($wa) {
-			text_area('dsn[dsn]', empty($user) ? $dsn : '', 70, 5);
+			text_area('dsn[dsn]', empty($database) ? $dsn : '', 70, 5);
 			return TRUE;
 		} else {
 			if (!empty($dsn)) {
