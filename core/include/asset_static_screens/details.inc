@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.44.2.4 2010/02/11 05:06:42 akarelia Exp $
+* $Id: details.inc,v 1.44.2.5 2010/04/21 07:24:36 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44.2.4 $
+* @version $Revision: 1.44.2.5 $
 * @package MySource_Matrix
 */
 
@@ -459,29 +459,32 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				var stream_wf_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_workflow");
 				var stream_byp_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_bypass");
 
-				if (stream_wf_cb.options.length == 0) {
-					stream_wf_cb.style.display = 'none';
-				} else {
-					stream_byp_cb.style.display = 'none';
-				}
-
-				status_cb.onchange = function() {
-					if ((this.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0) {
-						stream_wf_cb.disabled = false;
-						stream_wf_cb.style.display = 'inline';
-						stream_byp_cb.style.display = 'none';
-					} else {
-						stream_wf_cb.disabled = true;
-					}
-
-					if ((this.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?>) > 0) {
-						stream_byp_cb.disabled = false;
-						stream_byp_cb.style.display = 'inline';
+				if (stream_byp_cb !== null && stream_byp_cb !== undefined &&
+					 stream_wf_cb !== null && stream_wf_cb !== undefined) {
+					if (stream_wf_cb.options.length == 0) {
 						stream_wf_cb.style.display = 'none';
 					} else {
-						stream_byp_cb.disabled = true;
+						stream_byp_cb.style.display = 'none';
+					}//end if
+
+					status_cb.onchange = function() {
+						if ((this.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0) {
+							stream_wf_cb.disabled = false;
+							stream_wf_cb.style.display = 'inline';
+							stream_byp_cb.style.display = 'none';
+						} else {
+							stream_wf_cb.disabled = true;
+						}
+
+						if ((this.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?>) > 0) {
+							stream_byp_cb.disabled = false;
+							stream_byp_cb.style.display = 'inline';
+							stream_wf_cb.style.display = 'none';
+						} else {
+							stream_byp_cb.disabled = true;
+						}
 					}
-				}
+				}//end if
 			// ]]></script>
 			<?php
 		}
