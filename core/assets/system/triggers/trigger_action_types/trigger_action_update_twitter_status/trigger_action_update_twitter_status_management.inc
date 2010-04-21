@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status_management.inc,v 1.1 2010/04/20 06:33:29 lwright Exp $
+* $Id: trigger_action_update_twitter_status_management.inc,v 1.2 2010/04/21 06:57:12 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,9 +34,9 @@ class Trigger_Action_Update_Twitter_Status_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Trigger_Action_Add_Web_Path_Management(&$pm)
+	function __construct(&$pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 
