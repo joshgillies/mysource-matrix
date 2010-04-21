@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.5 2010/04/07 04:03:13 hnguyen Exp $
+* $Id: soap_api_link_service.inc,v 1.6 2010/04/21 01:48:45 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -606,7 +606,7 @@ class Soap_Api_Link_Service extends Soap_Api
                 $treeids[$index] = Array($treeid);
             }//end foreach
 
-            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
+            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids, 'name', TRUE);
             $lineageResult = Array();
 
             foreach ($lineages as $lineageDetail) {
@@ -725,7 +725,7 @@ class Soap_Api_Link_Service extends Soap_Api
                 }//end foreach
             }//end if
 
-            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
+            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids, 'name', TRUE);
             $lineages_result = array();
             foreach ($lineages as $lineage_info) {
                 $lineage_details = array();

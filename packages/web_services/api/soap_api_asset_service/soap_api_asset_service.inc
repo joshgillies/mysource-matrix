@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.9 2010/04/07 04:03:13 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.10 2010/04/21 01:48:45 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -338,7 +338,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			throw new SoapFault('Server', 'The URL must not be empty');
 		}//end else
 
-	}//end GetAssetURLs()
+	}//end GetAssetFromURL()
 
 
 	/**
@@ -625,6 +625,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 
     /**
+     * This function return the asset information (name, typecode, children assets, lineage) about the requested asset.
      *
      * @param $request
      * @return void
@@ -641,14 +642,17 @@ class Soap_Api_Asset_Service extends Soap_Api
         }//end if
 		if (!is_array($assetids)) {
 			$assetids = Array($assetids);
-		}//end
+		}//end if
 
         if (!empty($assetids) && !empty($attr_names)) {
             $assetsInfo = Array();
             if (in_array('children', $attr_names) === TRUE) {
                 foreach ($assetids as $assetid) {
-                    $childrenCount = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, '', TRUE, NULL, $sort_by=NULL, NULL, TRUE, 0, 1));
-                    $assetsInfo[$assetid]['AssetChildren'] = $childrenCount;
+                	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', TRUE, 'major', NULL, NULL, NULL, 'sort_order');
+                	$assetsInfo[$assetid]['AssetChildren'] = Array();
+                	foreach ($links as $link_info) {
+                		$assetsInfo[$assetid]['AssetChildren'][] = $link_info['minorid'];
+                	}//end foreach
                 }//end foreach
             }//end if
 
@@ -656,10 +660,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 			$info_results = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 			foreach ($info_results as $assetid => $result) {
-
 				if (in_array('lineage', $attr_names) === TRUE) {
 					$treeids = NULL;
-	
 					if (!empty($root_assetid)) {
 						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_assetid, SQ_LINK_TYPE_1, '', TRUE, 'minor');
 						foreach($root_links as $link) {
@@ -792,15 +794,19 @@ class Soap_Api_Asset_Service extends Soap_Api
 	{
 		$request_info = (Array) $request;
 		$assetid      = array_get_index($request_info, 'AssetID', '');
+		$root_path_id = array_get_index($request_info, 'RootNodeID', '');
 		if (!empty($assetid)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$descendantTypes = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset->type());
-			if (in_array('page', $descendantTypes)) {
+			if (in_array('page', $descendantTypes)) {	
+				$root_path_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($root_path_id);
+				$asset_url     = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid, $root_path_url);
+				$asset_url     = preg_replace('/http[s]?:\/\//i', '', $asset_url);
+				$layout_id     = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, 'paint_layout::system::frontend');
 				ob_start();
-				$asset->printBody();
+				$asset->printBodyWithPaintLayout($layout_id);
 				$content = ob_get_contents();
 				ob_end_clean();
-
 				return Array (
 						'PageContent'   => $content,
 						);
