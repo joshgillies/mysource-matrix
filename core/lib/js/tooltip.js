@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.21 2009/12/04 03:50:57 ewang Exp $
+* $Id: tooltip.js,v 1.22 2010/04/22 00:14:36 kmyothein Exp $
 *
 */
 
@@ -52,7 +52,7 @@ function tt_print()
 {
 	if (!document.getElementById("ToolBox"))
 	{
-		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
+		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" ></iframe>';
 		output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="border:' + this.border +
 				 ';color:' + this.normal_color +
 				 ';background:' + this.normal_bg +
