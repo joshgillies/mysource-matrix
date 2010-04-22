@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.120 2010/03/29 22:52:37 lwright Exp $
+* $Id: site.inc,v 1.121 2010/04/22 00:29:34 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -937,6 +937,44 @@ class Site extends Folder
 		return $site_network->getPrimaryURL();
 
 	}//end getNetworkPrimaryURL()
+
+
+	/**
+	* Get keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$replacement = NULL;
+
+		// Remove any modifiers from keyword
+		$keyword = parse_keyword($keyword, $modifiers);
+
+		$keyword_name = substr($keyword, 6);
+		if (0 === strpos($keyword_name, 'index_id') || 0 === strpos($keyword_name, 'not_found_id') || 0 === strpos($keyword_name, 'archive_id') ) {
+			$keyword_name = substr($keyword_name, 0, -3);
+			$asset = $this->getSpecialPage($keyword_name);
+			if (!is_null($asset)) $replacement = $asset->id;
+		}
+
+		if (count($modifiers) > 0) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+
+		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+
 
 
 	/**
