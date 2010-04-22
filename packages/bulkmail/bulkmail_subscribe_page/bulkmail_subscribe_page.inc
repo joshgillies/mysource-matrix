@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.28 2009/10/16 03:06:10 cupreti Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.28.2.1 2010/04/22 23:10:10 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -99,6 +99,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 													'card'		=> 'M',
 													'exclusive'	=> FALSE,
 												   ),
+									'paint_layout_page'     => Array(
+  	                                                'card'          => 'M',
+  	                                                'exclusive'     => FALSE,
+  	                                               ),
 								   ),
 			   );
 
