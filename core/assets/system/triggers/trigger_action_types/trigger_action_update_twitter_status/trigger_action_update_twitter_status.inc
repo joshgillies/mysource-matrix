@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.1 2010/04/20 06:33:29 lwright Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.2 2010/04/22 23:07:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		if (empty($settings['access_token']) === TRUE) {
 			// No access token
-			trigger_error('I don\'t have an access token', E_USER_WARNING);
+			trigger_localised_error('CORE0289', E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -79,7 +79,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		replace_global_keywords($tweet_format);
 
 		if (strlen($tweet_format) === 0) {
-			trigger_error('Tweet is zero characters long', E_USER_WARNING);
+			trigger_localised_error('CORE0290', E_USER_WARNING);
 			return FALSE;
 		}
 
@@ -96,7 +96,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		switch ($settings['if_tweet_too_long']) {
 			case 'fail':
 				if ($tweet_length > 140) {
-					trigger_error('Tweet length is greater than 140 characters', E_USER_WARNING);
+					trigger_localised_error('CORE0291', E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -108,7 +108,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 				// It's still too long?
 				if ($tweet_length > 140) {
-					trigger_error('Tweet length is greater than 140 characters, and the trigger cannot reasonably condense it', E_USER_WARNING);
+					trigger_localised_error('CORE0292', E_USER_WARNING);
 					return FALSE;
 				}
 
@@ -121,7 +121,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		$sxml = simplexml_load_string($return);
 		if ($sxml->error) {
-			trigger_error('Twitter returned error: '.(string)$sxml->error, E_USER_WARNING);
+			trigger_localised_error('CORE0293', E_USER_WARNING, (string)$sxml->error);
 			return FALSE;
 		} else {
 			// Get the time that Twitter reported it as
@@ -159,9 +159,6 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$settings['access_token']    = array_get_index($settings, 'access_token');
 		$settings['access_token_secret'] = array_get_index($settings, 'access_token_secret');
 
-		$credentials_provided = ((empty($settings['consumer_key']) === FALSE) && (empty($settings['consumer_secret']) === FALSE)) ? TRUE : FALSE;
-		$consumer_details_locked = ((empty($settings['access_token']) === TRUE) && (empty($_REQUEST['oauth_verifier']) === TRUE)) ? FALSE : TRUE;
-
 		if ((empty($_REQUEST['oauth_token']) === FALSE) && (empty($_REQUEST['oauth_verifier']) === FALSE)) {
 			// Check that this is the request for this token (and therefore,
 			// for this trigger action where there is more than one)
@@ -176,15 +173,63 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			}
 		}
 
-		if (($credentials_provided === TRUE) && ($consumer_details_locked === FALSE)) {
-				if ($write_access === TRUE) {
-					$trigger_actions = $trigger->attr('actions');
-					self::processRequestToken($settings);
-					$trigger_actions[$action_id]['data'] = $settings;
-					$trigger->setAttrValue('actions', $trigger_actions);
-					$trigger->saveAttributes();
+		if ((empty($_REQUEST['denied']) === FALSE)) {
+			// Our request token was denied (!) for some reason. Twitter
+			// returns a "denied" param in the link it gives to callback (it
+			// does not callback automatically).
+			if ($settings['request_token'] === $_REQUEST['denied']) {
+				trigger_localised_error('CORE0294', E_USER_WARNING);
+			}
+		}
+
+		// If we have an access token, ensure that we can still actually post
+		// with it!
+		// But calls to verifying credentials comes off our rate limit, so cache
+		// it momentarily (for 1 minute) so it doesn't use too many hits.
+		if (empty($settings['access_token']) === FALSE) {
+			$cache_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cache_key = strtolower(__CLASS__).'_creds_verified_'.$settings['access_token'];
+
+			$result = $cache_mgr->loadFromCache($trigger->id, 'trigger', $cache_key, FALSE);
+
+			if ($result !== '1') {
+				$creds_response = self::processVerify($settings);
+				$creds_sxml = simplexml_load_string($creds_response);
+
+				if ($creds_sxml->error) {
+					// No longer authenticated!
+					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '0', FALSE, 1);
+
+					// Authentication issue? We've probably been revoked.
+					if (((string)$creds_sxml->error) === 'Could not authenticate you.') {
+						$settings['access_token'] = NULL;
+						$settings['access_token_secret'] = NULL;
+						trigger_localised_error('CORE0295', E_USER_NOTICE);
+					} else {
+						// Think it's a temporary issue
+						trigger_localised_error('CORE0296', E_USER_NOTICE, (string)$creds_sxml->error);
+					}
+				} else {
+					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '1', FALSE, 60);
 				}
 			}
+		}
+
+		$credentials_provided = ((empty($settings['consumer_key']) === FALSE) && (empty($settings['consumer_secret']) === FALSE)) ? TRUE : FALSE;
+		$consumer_details_locked = ((empty($settings['access_token']) === TRUE) && (empty($_REQUEST['oauth_verifier']) === TRUE)) ? FALSE : TRUE;
+
+		// If the client credentials are there and we aren't in the middle of
+		// authentication (or completed), refresh the request token
+		if (($credentials_provided === TRUE) && ($consumer_details_locked === FALSE)) {
+			if ($write_access === TRUE) {
+				$trigger_actions = $trigger->attr('actions');
+				self::processRequestToken($settings);
+				$trigger_actions[$action_id]['data'] = $settings;
+				$trigger->setAttrValue('actions', $trigger_actions);
+				$trigger->saveAttributes();
+			}
+		}
+
 
 		$authorised = FALSE;
 
@@ -239,7 +284,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 				<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_status') ?></th>
 				<td><?php
 				if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
-					echo translate('trigger_action_update_twitter_status_client_credentials_no_consumer');
+					echo translate('trigger_action_update_twitter_status_client_credentials_status_no_consumer');
 				} else {
 					// We have a consumer key
 					if (empty($settings['access_token']) === FALSE) {
@@ -251,9 +296,9 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 					} else if (empty($settings['request_token']) === FALSE) {
 						if ($write_access === TRUE) {
 							$url = 'http://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
-							echo translate('trigger_action_update_twitter_status_client_credentials_no', $url);
+							echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
 						} else {
-							echo translate('trigger_action_update_twitter_status_client_credentials_no_unlocked');
+							echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
 						}
 					} else {
 						?><strong style="color: #f00">Error: failed to gain request token</strong><?php
@@ -471,11 +516,9 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 
 	/**
-	* Function that handles callback
+	* Calls verifying of credentials
 	*
 	* @param array	&$settings		a container for any data the action might want to save
-	* @param string	$request_data	array of data corresponding to this action as
-	*								specified by the $prefix in getInterface.
 	*
 	* @return boolean
 	* @access public

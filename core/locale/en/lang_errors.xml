@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.121 2010/03/30 03:37:28 bpearson Exp $
+* $Id: lang_errors.xml,v 1.122 2010/04/22 23:07:09 lwright Exp $
 *
 */
 
@@ -1783,6 +1783,17 @@ Full Node Contents :
 	<error code="CORE0287">Cannot export remap entries to CSV, there are no entries to export</error>
 	<error code="CORE0288">Cannot download log file "%1$s", it does not exist</error>
 
+	<!-- Update Twitter Status trigger action -->
+	<error code="CORE0289">Cannot post a tweet without being properly authenticated</error>
+	<error code="CORE0290">Cannot post a tweet that is zero characters long</error>
+	<error code="CORE0291">Tweet length is greater than 140 characters</error>
+	<error code="CORE0292">Tweet length is greater than 140 characters, and the trigger cannot reasonably condense it</error>
+	<error code="CORE0293">Twitter returned error while posting tweet: %s</error>
+	<error code="CORE0294">Cannot complete authentication from Twitter, you denied access to your account</error>
+	<error code="CORE0295">You revoked posting access from within Twitter, please restart authentication process</error>
+	<error code="CORE0296">Temporary issue with identifying credentials: %s</error>
+
+	<!-- File upload - virus scanning -->
 	<error code="CORE0300">Cannot use File. File (%1$s) was infected</error>
 
 	<error code="CORE0301">Cannot force secure/insecure on URL for asset %1$s; the new asset URL must share at least one protocol with parent's URL</error>
