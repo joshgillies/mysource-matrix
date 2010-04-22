@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.154.2.2 2010/03/01 06:49:52 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.154.2.3 2010/04/22 22:59:11 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.154.2.2 $
+* @version $Revision: 1.154.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -743,7 +743,7 @@ class Page_Asset_Builder extends Page
 									trigger_localised_error('CMS0034', E_USER_WARNING, $link_parentid);
 									continue;
 								}
-								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type)) {
+								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type, $link_value)) {
 									trigger_localised_error('CMS0035', E_USER_WARNING, $link_parent->id);
 									continue;
 								}
