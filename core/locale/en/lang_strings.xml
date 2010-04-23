@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.359 2010/04/13 00:18:23 lwright Exp $
+* $Id: lang_strings.xml,v 1.360 2010/04/23 03:54:46 lwright Exp $
 *
 */
 
@@ -512,7 +512,7 @@
 	<string source="never_published">This asset has never been published</string>
 	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
-	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%1$s</strong> - %2$s]]></string>
+	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%s</strong>]]></string>
 	<string source="logged_in">Logged in</string>
 	<string source="asset_search_default_keyword">Enter keywords, asset ID or URL</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
@@ -2517,9 +2517,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="safe_trash_child_message_links">Your asset currently contains links to other assets that are hidden to the asset map.</string>
 	<string source="safe_trash_child_message_status">Your asset is currently at a status of "%s".</string>
 
-	<string source="licence_type_gpl"><![CDATA[GPL version not warranted]]></string>
-	<string source="licence_type_ssv_valid"><![CDATA[Squiz Supported Version warranty valid]]></string>
-	<string source="licence_type_ssv_expired"><![CDATA[Squiz Supported Version warranty <u>EXPIRED</u>]]></string>
+	<string source="licence_type_warranty_valid"><![CDATA[system warranted by Squiz SLA]]></string>
+	<string source="licence_type_no_warranty"><![CDATA[system unwarranted (<a style="text-decoration: underline" href="http://squiz.com.au/mysource-matrix-cms/licencing/compare-gpl-and-ssv-features">what does this mean?</a>)]]></string>
 
 	<string source="print_this_page">Print this Page</string>
 
@@ -2760,7 +2759,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="oauth_consumer_secret">Consumer Secret</string>
 	<string source="oauth_consumer_key">Consumer Key</string>
 	<string source="oauth_request_token_url">Request Token Request URL</string>
-	<string source="oauth_authorisation_url">Authorisation Request URL</string>
+	<string source="oauth_authorization_url">Authorisation Request URL</string>
 	<string source="oauth_access_token_url">Access Token Request URL</string>
 	<string source="oauth_signature_method">Signature Method</string>
 	<string source="oauth_callback_url">Call Back URL</string>
@@ -2788,5 +2787,11 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<string source="core_schema_usage_no_assets"><![CDATA[<p>This schema is not applied to any assets.</p>]]></string>
 	<string source="core_design_usage_no_assets"><![CDATA[<p>This design is not applied to any assets.</p>]]></string>
+
+	<!-- Install and warranty key -->
+	<string source="install_and_warranty_key">Install and Warranty Key</string>
+	<string source="install_key">Install Key</string>
+	<string source="warranty_key">Warranty Key</string>
+	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
 
 </strings>
