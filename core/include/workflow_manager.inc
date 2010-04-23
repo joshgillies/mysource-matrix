@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.6 2010/04/12 23:56:28 csmith Exp $
+* $Id: workflow_manager.inc,v 1.144.2.7 2010/04/23 00:26:55 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.6 $
+* @version $Revision: 1.144.2.7 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1071,6 +1071,12 @@ class Workflow_Manager extends MySource_Object
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
 						$msg->body = trim($current_step['message_approve']);
 						$ms->enqueueMessage($msg);
+					} else if (isset($current_step['subject_approve']) && trim($current_step['subject_approve']) !== '') {
+						$msg = clone $base_msg;
+						$msg->to = $publishers_step;
+						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
+						$ms->enqueueMessage($msg);
 					} else {
 						$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
 					}
@@ -1147,10 +1153,14 @@ class Workflow_Manager extends MySource_Object
 
 					// Does this step have a custom message?
 					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+						$msg->body = trim($current_step['message_invitation']);
+					}//end if
+
+					// Does this step have a custom subject?
+					if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
 						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
 						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
-						$msg->body = trim($current_step['message_invitation']);
-					}
+					}//end if
 
 					$ms->enqueueMessage($msg);
 
@@ -1590,6 +1600,10 @@ class Workflow_Manager extends MySource_Object
 						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
 						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
 						$msg->body = trim($current_step['message_invitation']);
+					} else if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '') {
+						// This message has a custom subject. Just send it.
+						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
 					} else {
 						// This is the generic message. Make sure only one of these are sent out,
 						// regardless of how many schemas trigger it.
@@ -1754,6 +1768,9 @@ class Workflow_Manager extends MySource_Object
 					$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
 					$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
 					$msg->body = trim($current_step['message_reject']);
+				} else if (isset($current_step['subject_reject']) && trim($current_step['subject_reject']) !== '') {
+					$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
+					$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
 				} else {
 					// This is the generic message. Make sure only one of these are sent out,
 					// regardless of how many schemas trigger it.
@@ -1965,10 +1982,14 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message for stale workflow?
 			if (isset($current_step['message_stale']) && trim($current_step['message_stale']) !== '' ) {
-				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
-				$subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 				$msg->body = trim($current_step['message_stale']);
 			}
+
+			// Does this step have a custom subject for stale workflow?
+			if (isset($current_step['subject_stale']) && trim($current_step['subject_stale']) !== '' ) {
+				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
+				$subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
+			}//end if
 
 			$msg->send();
 
@@ -2058,9 +2079,13 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message for escalation?
 			if (isset($current_step['message_escalated']) && trim($current_step['message_escalated']) !== '' ) {
+				$msg->body = trim($step_before['message_escalated']);
+			}
+
+			// Does this step have a custom subject for escalation?
+			if (isset($current_step['subject_escalated']) && trim($current_step['subject_escalated']) !== '' ) {
 				$subject = trim(array_get_index($current_step, 'subject_escalated', 'Workflow Escalated'));
 				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Escalated';
-				$msg->body = trim($step_before['message_escalated']);
 			}
 
 			$ms->enqueueMessage($msg);
@@ -2115,9 +2140,13 @@ class Workflow_Manager extends MySource_Object
 
 			// Does this step have a custom message (for inviting users to the next step)?
 			if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+				$msg->body = trim($current_step['message_invitation']);
+			}
+
+			// Does this step have a custom subject (for inviting users to the next step)?
+			if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
 				$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
 				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
-				$msg->body = trim($current_step['message_invitation']);
 			}
 
 			$msg->replacements = $msg_reps;
