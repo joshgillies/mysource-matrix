@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.348.2.4 2010/04/12 07:42:01 cupreti Exp $
+* $Id: lang_strings.xml,v 1.348.2.5 2010/04/23 04:37:29 lwright Exp $
 *
 */
 
@@ -2729,13 +2729,13 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="oauth_consumer_secret">Consumer Secret</string>
 	<string source="oauth_consumer_key">Consumer Key</string>
 	<string source="oauth_request_token_url">Request Token Request URL</string>
-	<string source="oauth_authorisation_url">Authorisation Request URL</string>
+	<string source="oauth_authorization_url">Authorisation Request URL</string>
 	<string source="oauth_access_token_url">Access Token Request URL</string>
 	<string source="oauth_signature_method">Signature Method</string>
 	<string source="oauth_callback_url">Call Back URL</string>
 	<string source="oauth_request_token_failed">A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_request_token_not_found">A user authorisation has been request without a request token. URL: %1$s</string>
-	<string source="oauth_authorisation_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_authorization_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_access_token_missing_params">Missing paramters (authorised request token, token secret and/or verifier) required for an access token request. URL: %1$s</string>
 	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
