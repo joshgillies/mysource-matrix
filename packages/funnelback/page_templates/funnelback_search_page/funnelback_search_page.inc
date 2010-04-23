@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.1.1.1.2.3 2010/03/31 23:56:45 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.1.1.1.2.4 2010/04/23 03:02:09 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.3 $
+* @version $Revision: 1.1.1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -444,7 +444,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		if ($click == '1' && !empty($query) && !empty($rank) && !empty($url) && !empty($collection)) {
 			// Only for internal searches
 			$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
-			$binary = SQ_PACKAGES_PATH.'/funnelback/lib/bin/clix2anx';
+			$binary = $fm->getFunnelbackPath().'/bin/clix2anx';
 			$coll_path = $fm->getCollectionDataPath($collection);
 			$log_file = $fm->getCollectionDataPath($collection, 'log').'/click.log';
 			$command = $binary.' '.$query.' '.$url.' '.$rank.' '.$log_file;
@@ -2201,8 +2201,8 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 
 		// Get the params to work with
-		$nullquery = '!NOdfadksjflTERMSdsjdskfSUBMITTED';
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+		$nullquery = '!NOdfadksjflTERMSdsjdskfSUBMITTED';
 		$collection_id = $this->attr('collection');
 		$bin_path = $fm->getFunnelbackPath().'/bin/';
 		if (!$fm->isCollectionValid($collection_id)) {
