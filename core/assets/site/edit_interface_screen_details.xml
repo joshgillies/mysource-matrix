@@ -10,18 +10,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2008/07/03 05:35:21 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17.8.1 2010/04/23 01:22:42 hnguyen Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
 	</section>
-	<section name="Special Page Links" write_access="write:links">
+	<section name="Special Page Links" write_access="write:links" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintIndexPage"   />
