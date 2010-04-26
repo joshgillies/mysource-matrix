@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.290.2.1 2010/04/21 05:46:15 csmith Exp $
+* $Id: asset_map.inc,v 1.290.2.2 2010/04/26 23:44:51 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.1 $
+* @version $Revision: 1.290.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -790,7 +790,7 @@ class Asset_Map
 					array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 					$userid_cond = ' AND (p.userid IN (';
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$bind_vars[':userid_' . $k] = $userids[$k];
+						$bind_vars['userid_' . $k] = $userids[$k];
 						$userid_cond .= ':userid_' . $k . ',';
 					}
 					$userid_cond = rtrim($userid_cond, ',') . ')';
@@ -798,7 +798,7 @@ class Asset_Map
 					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
 						$userid_cond .= ' OR r.userid IN (';
 						for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-							$bind_vars[':role_userid_' . $k] = $userids[$k];
+							$bind_vars['role_userid_' . $k] = $userids[$k];
 							$userid_cond .= ':role_userid_' . $k . ',';
 						}
 						$userid_cond = rtrim($userid_cond, ',') . ')';
@@ -1018,7 +1018,7 @@ class Asset_Map
 				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 				$userid_cond = ' AND (p.userid IN (';
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$bind_vars[':userid_' . $k] = $userids[$k];
+					$bind_vars['userid_' . $k] = $userids[$k];
 					$userid_cond .= ':userid_' . $k . ',';
 				}
 				$userid_cond = rtrim($userid_cond, ',') . ')';
@@ -1026,7 +1026,7 @@ class Asset_Map
 				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
 					$userid_cond .= ' OR r.userid IN (';
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$bind_vars[':role_userid_' . $k] = $userids[$k];
+						$bind_vars['role_userid_' . $k] = $userids[$k];
 						$userid_cond .= ':role_userid_' . $k . ',';
 					}
 					$userid_cond = rtrim($userid_cond, ',') . ')';
