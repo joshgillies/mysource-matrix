@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.18 2009/10/07 05:19:40 bpearson Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.19 2010/04/26 23:23:14 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -498,8 +498,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			// get the immediate children of the root to start the stack
 			$assets_to_list	= Array();
 
-			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', FALSE, 'root');
-			$root_id = array_get_index($root_link,'minorid');
+			$root_id = $this->getRootAssetid($owner);
 			if (!$root_id) {
 				trigger_localised_error('RPRT0004', E_USER_WARNING);
 				return FALSE;
@@ -519,7 +518,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			// find the total number of children that we will eventually process
 			$asset_treeids = $am->getAssetTreeids($root_id);
 			$root_treeid = reset($asset_treeids);
-
+			$root_treeid = $root_treeid === '-' ? '' : $root_treeid;
+			
 			try {
 				$bind_vars['treeid'] = $root_treeid.'_%';
 				$total = MatrixDAL::executeOne('structured_asset_info', 'linkTreeCount', $bind_vars);
