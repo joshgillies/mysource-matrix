@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.5.8.1 2010/02/28 22:33:13 akarelia Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.5.8.2 2010/04/27 23:07:30 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5.8.1 $
+* @version $Revision: 1.5.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -237,7 +237,10 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 				if (strpos($id, ':') !== FALSE) continue;
 
 				if (isset($_POST[$prefix.'_existing_'.$id.'_delete'])) {
-					$GLOBALS['SQ_SYSTEM']->am->trashAsset($id);
+					if ($GLOBALS['SQ_SYSTEM']->am->trashAsset($id)) {
+						$instance = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+						$instance->saveWebPaths(Array(), FALSE);
+					}
 				} else {
 					$type = $type[0]['type_code'];
 					$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
