@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.43.2.2 2010/01/05 04:04:22 cupreti Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.43.2.3 2010/04/27 08:07:45 kmyothein Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.43.2.2 $
+* @version $Revision: 1.43.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,8 +383,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
 			}//end else
 
-			// If we have keyword modifiers
-			if ($full_keyword != $required_keyword) {
+            // If we have keyword modifiers AND
+            // the keyword is not starting with 'globals_' which will be taken care at the end of execution of start() in mysource.ini
+            if (($full_keyword != $required_keyword)  && (0 !== strpos($required_keyword, 'globals_'))) {
 				// Start with the plain keyword without modifier
 				$ret[$full_keyword] = $ret[$required_keyword];
 				apply_keyword_modifiers($ret[$full_keyword], $modifiers);
