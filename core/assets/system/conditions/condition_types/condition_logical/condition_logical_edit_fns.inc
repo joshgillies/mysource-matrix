@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.7 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.8 2010/04/27 01:08:40 kmyothein Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,15 +57,23 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @access public
 	*/
 	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
-	{
-		if (empty($condition_data)) {
+	{	
+        if (empty($condition_data)) {
 			$condition_data =  Array('logical_keywords' => Array('logical_keyword_1' => ''), 'operator' => 'ALL');
-		}
+        }
+
+		if (empty($allowed_keywords)) {
+		    // we don't know the type of the asset here so we add the keywords of the generic Asset object
+		    $dummy_asset = new Asset();
+		    $allowed_keywords =     array_keys($dummy_asset->getAvailableKeywords());
+		} 
+		$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
+
 		?>
 		<table class="no-borders">
 			<?php
-			$selected_keywords = array_keys($condition_data['logical_keywords']);
-			$selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
+			$selected_keywords = array_get_index($condition_data, 'logical_keywords');
+			$selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';						
 
 			$keyword_options = Array();
 			foreach ($allowed_keywords as $keyword) {
@@ -73,6 +81,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			}
 
 			$i = 0;
+						
 			if (!empty($allowed_keywords)) {
 				foreach ($selected_keywords as $keyword) {
 					$special_option = Array();
@@ -113,8 +122,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				<td><strong><?php echo translate('operator'); ?></strong></td>
 				<td>
 					<?php
-					if ($write_access) {
-						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, $condition_data['operator']);
+					if ($write_access) {					    				    
+						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, array_get_index($condition_data, 'operator'));
 					} else {
 						echo $condition_data['operator'];
 					}
@@ -138,8 +147,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	public static function processEditInterface(Backend_Outputter $o, $prefix, Array $allowed_keywords)
+	public static function processEditInterface(Backend_Outputter $o, $prefix, Array $allowed_keywords = Array())
 	{
+	    if (empty($allowed_keywords)) {
+	        // we don't know the type of the asset here so we add the keywords of the generic Asset object
+	        $dummy_asset = new Asset();
+	        $allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
+	    } 
+    	    
 		$logical_keywords = Array();
 
 		for ($i = 0; $i < 100; $i++) {
