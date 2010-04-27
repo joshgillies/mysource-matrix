@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp_edit_fns.inc,v 1.7 2010/04/27 01:11:10 kmyothein Exp $
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.8 2010/04/27 01:17:29 kmyothein Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,6 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 		return $ret;
 
 	}//end _getKeywordInfo()
-
 
 }//end class
 

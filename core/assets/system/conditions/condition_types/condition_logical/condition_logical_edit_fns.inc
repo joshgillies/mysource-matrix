@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.8 2010/04/27 01:08:40 kmyothein Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.9 2010/04/27 01:18:00 kmyothein Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,7 +228,6 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		return $ret;
 
 	}//end _getKeywordInfo()
-
 
 }//end class
 
