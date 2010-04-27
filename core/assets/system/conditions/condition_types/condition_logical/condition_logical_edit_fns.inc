@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.9 2010/04/27 01:18:00 kmyothein Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.10 2010/04/27 07:10:13 kmyothein Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @access public
 	*/
 	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
-	{	
+    {
         if (empty($condition_data)) {
 			$condition_data =  Array('logical_keywords' => Array('logical_keyword_1' => ''), 'operator' => 'ALL');
         }
@@ -72,16 +72,21 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		?>
 		<table class="no-borders">
 			<?php
-			$selected_keywords = array_get_index($condition_data, 'logical_keywords');
-			$selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';						
+			$selected_keywords = array();
+			if (isset($condition_data['logical_keywords'])) {
+                $selected_keywords = array_keys($condition_data['logical_keywords']);
+			}
+			if ($write_access) {
+			    $selected_keywords['-- none --'] = '-- '.strtolower(translate('none')).' --';
+			}						
 
 			$keyword_options = Array();
 			foreach ($allowed_keywords as $keyword) {
 				$keyword_options[$keyword] = $keyword;
 			}
 
-			$i = 0;
-						
+			$i = 0;						
+			
 			if (!empty($allowed_keywords)) {
 				foreach ($selected_keywords as $keyword) {
 					$special_option = Array();
@@ -122,10 +127,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				<td><strong><?php echo translate('operator'); ?></strong></td>
 				<td>
 					<?php
-					if ($write_access) {					    				    
-						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, array_get_index($condition_data, 'operator'));
+					$operator = '';
+					if(isset($condition_data['operator'])) {
+					   $operator = $condition_data['operator'];
+					}
+					if ($write_access) {		    
+						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, $operator);
 					} else {
-						echo $condition_data['operator'];
+						echo $operator;
 					}
 					?>
 				</td>
@@ -154,6 +163,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	        $dummy_asset = new Asset();
 	        $allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
 	    } 
+        $allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));	    
     	    
 		$logical_keywords = Array();
 
@@ -163,8 +173,8 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				if ($keyword_name != 'none') {
 					$keyword_info = self::_getKeywordInfo($keyword_name, $allowed_keywords);
 					if ($keyword_info['is_variable']) {
-						if (!empty($_POST[$prefix]['name_extension_'.$i])) {
-							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);
+						if (!empty($_POST[$prefix]['name_extension_'.$i])) {						    
+							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);							
 							if (!empty($name_extension)) {
 								$keyword_name = $keyword_info['constant_part'].$name_extension;
 							}
@@ -183,7 +193,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 					'logical_keywords'	=> $logical_keywords,
 					'operator'			=> $_POST[$prefix]['operator'],
 				   );
-
+				   
 		return $results;
 
 	}//end processEditInterface()
