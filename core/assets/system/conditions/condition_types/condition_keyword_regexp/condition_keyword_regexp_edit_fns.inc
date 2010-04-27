@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp_edit_fns.inc,v 1.6 2009/07/13 09:22:23 ata Exp $
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.6.4.1 2010/04/27 23:19:59 kmyothein Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,10 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 				<td><strong><?php echo translate('keyword'); ?></strong> </td>
 				<td>
 					<?php
-					$selected_keyword = $condition_data['keyword'];
+                    $selected_keyword = '';
+                    if (isset($condition_data['keyword'])) {                    
+                       $selected_keyword = $condition_data['keyword'];
+                    }
 
 					if (empty($allowed_keywords)) {
 						// we don't know the type of the asset here so we add the keywords of the generic Asset object
