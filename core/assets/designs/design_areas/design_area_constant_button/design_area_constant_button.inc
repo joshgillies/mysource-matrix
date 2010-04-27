@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.25 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area_constant_button.inc,v 1.25.10.1 2010/04/27 06:38:21 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,9 +51,9 @@ class Design_Area_Constant_Button extends Design_Area
 	* The protected version of this function, rather than this one, should be overridden by children
 	*
 	* @return void
-	* @access public
+	* @access protected
 	*/
-	public function printInitCode()
+	protected function _printInitCode()
 	{
 		$assetid = (int) $this->attr('assetid');
 		$url     = $this->attr('url');
@@ -70,7 +70,7 @@ class Design_Area_Constant_Button extends Design_Area
 			?', '>';
 		}// end if
 
-	}//end printInitCode()
+	}//end _printInitCode()
 
 
 	/**
