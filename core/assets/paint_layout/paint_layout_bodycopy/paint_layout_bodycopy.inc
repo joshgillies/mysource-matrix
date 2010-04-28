@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.46 2010/04/21 04:17:01 kmyothein Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.47 2010/04/28 23:43:39 bpearson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,8 +156,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 			// Change each ./?a= url to reference the sq_asset_url_list array, which
 			// is built from our container's notice links when content is printed.
-			$e = '|\./\?a=([0-9]+)([^0-9])|';
-			$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
+			$e = '|\./\?a=([0-9:]+)([^0-9])|';
+			$with = '<'.'?php echo ((strpos("\\1", ":") !== FALSE) ? "./?a=\\1" : $sq_asset_url_list["\\1"]); ?'.'>\\2';
 			$content = preg_replace($e, $with, $content);
 
 			$content_file .= '
