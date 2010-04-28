@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.21 2010/04/28 03:25:16 akarelia Exp $
+* $Id: authentication_ldap.inc,v 1.22 2010/04/28 03:28:07 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -137,7 +137,7 @@ class Authentication_LDAP extends Authentication
 	function &authenticateHttpUser($username)
 	{
 		$user = NULL;
-		return($user);
+
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
