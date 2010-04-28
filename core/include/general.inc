@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.237.2.3 2010/03/26 02:37:45 akarelia Exp $
+* $Id: general.inc,v 1.237.2.4 2010/04/28 04:06:41 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.237.2.3 $
+* @version $Revision: 1.237.2.4 $
 * @package MySource_Matrix
 */
 
@@ -1809,12 +1809,15 @@ function replace_global_keywords(&$text)
 				}//end if
 
 				if (0 === strpos($keyword, 'globals_site_')) {
+					$site_keyword = 'asset_'.substr($keyword, 13);
+					preg_match('|(.*):([0-9]+)$|',$site_keyword,$matches);
 					// We must find the site before we can replace these keywords
 					$site = NULL;
-					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
-						$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
-					} else {
-						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+					if(empty($matches[2])) {
+						if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
+							$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
+						} else {
+							if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
 							$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
 							$protocol_pos = strpos($asset_url, '://');
 							if ($protocol_pos !== FALSE) {
@@ -1823,26 +1826,36 @@ function replace_global_keywords(&$text)
 						} else {
 							$asset_url = current_url(FALSE, TRUE);
 						}
-						$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+							$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
 
-						$site_assetid = 0;
-						foreach ($asset_lineage as $asset_link) {
-							$asset_type = $asset_link['type_code'];
-							if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-								$site_assetid = $asset_link['assetid'];
-								break;
+							$site_assetid = 0;
+							foreach ($asset_lineage as $asset_link) {
+								$asset_type = $asset_link['type_code'];
+								if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+									$site_assetid = $asset_link['assetid'];
+									break;
+								}
+							}
+							if (!empty($site_assetid)) {
+								$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+							}
+						}//end if
+						if (!is_null($site)) {
+							$site_replacement = $site->getKeywordReplacement($site_keyword);
+							if ((string)$site_replacement != "%$site_keyword%") {
+								$replacements[$full_keyword] = $site_replacement;
 							}
 						}
-						if (!empty($site_assetid)) {
-							$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+					} else {
+						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
+						if ($asset_exist === TRUE) {
+							$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 						}
-					}//end if
-
-					if (!is_null($site)) {
-						$site_keyword = 'asset_'.substr($keyword, 13);
-						$site_replacement = $site->getKeywordReplacement($site_keyword);
-						if ((string)$site_replacement != "%$site_keyword%") {
-							$replacements[$full_keyword] = $site_replacement;
+						if (!is_null($site)) {
+							$site_replacement = $site->getKeywordReplacement($matches[1]);
+							if ((string)$site_replacement != "%$site_keyword%") {
+								$replacements[$full_keyword] = $site_replacement;
+							}
 						}
 					}//end if
 				}//end if
