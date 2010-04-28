@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.6.2.5 2010/03/22 05:46:13 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.6.2.6 2010/04/28 02:38:49 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6.2.5 $
+* @version $Revision: 1.6.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -404,7 +404,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($http_url)) {
 						$sitemap_xml = $this->_generateXML($http_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'http', &$asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'http:') === 0) {
 									$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
@@ -417,7 +417,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($https_url)) {
 						$sitemap_xml = $this->_generateXML($https_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'https', &$asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'https:') === 0) {
 									$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
