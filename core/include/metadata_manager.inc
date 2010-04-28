@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.207 2010/03/15 23:39:08 ewang Exp $
+* $Id: metadata_manager.inc,v 1.208 2010/04/28 03:37:17 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -2182,6 +2182,44 @@ class Metadata_Manager extends MySource_Object
 		return $result ? $result : $value;
 
 	}//end escapeMetadata()
+
+
+	/**
+	 * Given the ID of an asset that has metadata applied and the name of a
+	 * field that is applied to that asset, get the asset ID of that metadata field
+	 *
+	 * Returns FALSE if the asset ID does not exist, or if the asset doesn't
+	 * have a field matching the field name
+	 *
+	 * Throws an assertion exception if the asset ID is completely invalid, or
+	 * if the field name is not a string.
+	 *
+	 * @param string	$assetid			The ID of the asset we wish to check
+	 * @param string	$target_field_name	The name of the field we wish to find
+	 * 
+	 * @return mixed string|boolean
+	 */
+	public function getFieldAssetIdFromName($assetid, $target_field_name)
+	{
+		assert_valid_assetid($assetid);
+		assert_true(is_string($target_field_name));
+		
+		// Get a list of the applied schemas' field assets - first their IDs,
+		// then their names
+		$schemaids = $this->getSchemas($assetid, TRUE);
+		$fields = $this->getMetadataFields($schemaids);
+
+		$field_assetids = array_keys($fields);
+		$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($field_assetids, 'metadata_field', FALSE, 'name');
+
+		// Is the field name we want in this list?
+		// If found, it will return the key (asset ID) that we want. If not,
+		// it will return FALSE. Either way, return this to the function
+		$assetid = array_search($target_field_name, $field_names);
+
+		return $assetid;
+		
+	}//end getFieldAssetIdFromName()
 
 
 }//end class
