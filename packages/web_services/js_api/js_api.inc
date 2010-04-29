@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.37 2010/04/27 23:18:02 lwright Exp $
+* $Id: js_api.inc,v 1.38 2010/04/29 04:49:05 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -844,6 +844,57 @@ class JS_Api extends Page
 				} else {
 					$this->returnError('The setAssetStatus function must be activated');
 				}//end else
+			break;
+
+			case	'getWebPath':
+
+				if ($this->attr('get_web_path')) {
+					if($ra) {
+						$webpaths = $asset->getWebPaths();
+						if(!empty($webpaths)) {
+							$i = 0;
+							foreach($webpaths as $webpath) {
+								$data['webpath'][$i] = $webpath;
+								$i++;
+							}
+						} else {
+							$data ['webpath'] = Array();
+						}
+					} else {
+						$this->returnError('You do not have permission to access this asset');
+					}
+				} else {
+					$this->returnError('The getWebPath function must be activated');
+				}
+			break;
+
+			case	'setWebPath':
+
+				if ($this->attr('set_web_path')) {
+					if($wa) {
+						$webpaths = explode('\\,', $_REQUEST['webpath']);
+						if (!empty($webpaths)) {
+							$webpaths = explode('\\,', $_REQUEST['webpath']);
+							foreach ($webpaths as $index => $webpath) {
+								$webpaths[$index] = str_replace($replace_these, $replace_with, $webpath);
+							}
+							$auto_remap = (isset($_REQUEST['auto_remap']) && $_REQUEST['auto_remap'] != '') ? $_REQUEST['auto_remap'] : TRUE;
+							$response = $asset->saveWebpaths($webpaths, $auto_remap);
+							if($response) {
+								$this->updateLookupsforAsset($asset->id);
+								$data[] = 'Webpath for Asset "'.$asset->name.'" (# '.$asset->id.') had been updated sucessfully';
+							} else {
+								$data[] = 'Could not update webpath for Asset "'.$asset->name.'" (# '.$asset->id.') ';
+							}
+						} else {
+							$this->returnError('No webpaths provided');
+						}
+					} else {
+						$this->returnError('You do not have permission to access this asset');
+					}
+				} else {
+					$this->returnError('The getWebPath function must be activated');
+				}
 			break;
 
 			default:	$this->returnError('This is not a valid function name');
@@ -3145,6 +3196,62 @@ function getChildCount(asset_id, level, dataCallback)
 
 }//end getChildCount()
 
+
+/**
+* This will get webpath(s) of the assetid supplied
+*
+* @param string		asset_id		Id of the asset to get webpaths for
+* @param function	dataCallback	Custom callback function
+*
+*
+*/
+function getWebPath(asset_id, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getWebPath&id=' + asset_id;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getWebPath()
+
+
+/**
+* This will set webpath(s) of the assetid supplied
+*
+* @param string		asset_id		Id of the asset to get webpaths for
+* @param array		paths			new web paths to be assigned to asset
+* @param boolean	auto_remap		if we auto remaping(default to TRUE)
+* @param function	dataCallback	Custom callback function
+*
+*
+*/
+function setWebPath(asset_id, paths, auto_remap ,dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var autoRemap = (isset(auto_remap)) ? '1' : auto_remap;
+
+	var webpath = '';
+	for (var path in paths) {
+		// construct our query strings to be passed
+		webpath = webpath + paths[path].replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,';
+	}
+
+	// remove the trailing "\,"
+	webpath = webpath.substring(0, webpath.length-2);
+
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setWebPath&id=' + asset_id + '&webpath=' + webpath + '&auto_remap=' + auto_remap ;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getWebPath()
 
 
 	<?php

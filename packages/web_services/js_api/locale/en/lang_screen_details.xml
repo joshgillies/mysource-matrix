@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2010/03/17 04:48:05 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.9 2010/04/29 04:49:05 akarelia Exp $
 *
 */
 -->
@@ -119,6 +119,16 @@
             <display_name>Set Asset Status</display_name>
             <note />
         </field>
+		<field attribute="get_web_path">
+            <display_name>Get Asset WebPath(s)</display_name>
+            <note />
+        </field>
+		<field attribute="set_web_path">
+            <display_name>Set Asset WebPath</display_name>
+            <note />
+        </field>
+
+
     </section>
     <section name="Linking" write_access="write:attributes">
         <field attribute="create_link">

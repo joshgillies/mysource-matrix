@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2010/03/17 04:48:05 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2010/04/29 04:49:05 akarelia Exp $
 *
 */
 -->
@@ -95,6 +95,13 @@
 		<field attribute="set_asset_status">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="get_web_path">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="set_web_path">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+
 	</section>
     <section name="Linking" write_access="write:attributes">
 		<field attribute="create_link">
