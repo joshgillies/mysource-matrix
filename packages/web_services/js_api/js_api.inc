@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.5.2.12 2010/03/26 04:44:02 cupreti Exp $
+* $Id: js_api.inc,v 1.5.2.13 2010/04/29 00:22:47 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.5.2.12 $
+* @version $Revision: 1.5.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -105,7 +105,7 @@ class JS_Api extends Page
 
 		// Should we print our JS file, or send back some JSON?
 		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
-			header('Content-Type: text/plain');
+			header('Content-Type: text/javascript');
 			echo $this->printJs();
 			return;
 		}
