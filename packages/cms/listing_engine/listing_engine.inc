@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.301 2010/04/30 02:53:16 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.302 2010/04/30 02:56:14 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.301 $
+* @version $Revision: 1.302 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2334,7 +2334,7 @@ class Listing_Engine extends Page
 			// paint layout
 			if (in_array('asset_contents_raw', $bc_keywords)) {
 				ob_start();
-					if ($assetid != $this->id) $asset->printBody();
+					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents_raw'] = ob_get_contents();
 				ob_end_clean();
 
