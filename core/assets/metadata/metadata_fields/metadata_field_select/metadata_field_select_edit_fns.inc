@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.46 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.47 2010/05/02 23:04:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -443,7 +443,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (is_null($value_str)) {
 			$value_str = str_replace('; ', '\\; ', $asset->attr('default'));
 		}
-		$value_str = $asset->getValueFromKey($value_str);
+
+		// If we are showing the value, then go fetch it
+		if ($asset->attr('visible_part') === 'value') {
+			$value_str = $asset->getValueFromKey($value_str);
+		}
 
 		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
 

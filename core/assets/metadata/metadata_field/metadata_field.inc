@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.37 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field.inc,v 1.38 2010/05/02 23:04:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -374,6 +374,29 @@ class Metadata_Field extends Asset
 		return FALSE;
 
 	}//end delete()
+
+
+	/**
+	* Return any additional keyword that may be provided by the field
+	*
+	* This is mainly used in situations such as returning the current key and
+	* value for Select fields. Where a keyword is not supported, the function
+	* should return NULL.
+	*
+	* Note that if asset_metadata keywords conflict due to additional keywords,
+	* the one with the longest field name will prevail. For instance, a keyword
+	* 'asset_metadata_field_value' will select a field named 'field_value' over
+	* a field named 'field' with an additional keyword 'value'.
+	*
+	* @param string	$additional_keyword	The additional keyword requested
+	*
+	* @return mixed string|NULL
+	*/
+	public function getAdditionalKeywordReplacement($additional_keyword)
+	{
+		return NULL;
+
+	}//end getAdditionalKeywordReplacement()
 
 
 }//end class

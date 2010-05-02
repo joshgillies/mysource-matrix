@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.719 2010/03/03 00:22:54 akarelia Exp $
+* $Id: asset.inc,v 1.720 2010/05/02 23:04:50 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.719 $
+* @version $Revision: 1.720 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3700,16 +3700,74 @@ class Asset extends MySource_Object
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
 
-			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 			if (!isset($this->_tmp['mm_replacements'])) {
 				// generate all metadata keywords in one go
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$this->_tmp['mm_replacements'] = $mm->getMetadataFieldValues($this->id);
 			}
-			if (isset($this->_tmp['mm_replacements'][$metadata_keyword])) {
-				$replacement = $this->_tmp['mm_replacements'][$metadata_keyword];
-			} else if (isset($this->_tmp['mm_replacements'][$spaced_metadata_keyword])) {
-				$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
+
+			$additional_keyword = '';
+			$replacement = NULL;
+	
+			// With "additional" keywords, we don't know where our metadata
+			// field name ends and the additional keyword begins...so we will
+			// try and split it up by underscores
+			while (strlen($metadata_keyword) > 0) {
+				$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
+
+				if (isset($this->_tmp['mm_replacements'][$metadata_keyword]) === TRUE) {
+					if ($additional_keyword !== '') {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
+						
+						if ($field_assetid !== FALSE) {
+							$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+							$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+							unset($field);
+						}
+					} else {
+						$replacement = $this->_tmp['mm_replacements'][$metadata_keyword];
+					}
+
+				} else if (isset($this->_tmp['mm_replacements'][$spaced_metadata_keyword]) === TRUE) {
+					// Try it with metadata keyword underscores replaced with spaces
+					// (additional keyword never has its spaces removed when
+					// sent to the metadata field)
+					if ($additional_keyword !== '') {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $spaced_metadata_keyword);
+						if ($field_assetid !== FALSE) {
+							$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+							$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+							unset($field);
+						}
+					} else {
+						$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
+					}
+
+				}//end if
+
+				// Do we have a replacement?
+				if ($replacement !== NULL) break;
+
+				// There are no underscores to break apart, so we've run out of
+				// possibilities
+				$underscore_pos = strrpos($metadata_keyword, '_');
+				if ($underscore_pos === FALSE) break;
+
+				if (strlen($additional_keyword) > 0) {
+					$additional_keyword = '_'.$additional_keyword;
+				}
+
+				$additional_keyword = substr($metadata_keyword, $underscore_pos + 1).$additional_keyword;
+				$metadata_keyword = substr($metadata_keyword, 0, $underscore_pos);
+			}
+
+			// No replacement? Oh well, back to square one
+			if ($replacement === NULL) {
+				unset($replacement);
 			}
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
