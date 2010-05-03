@@ -1,5 +1,83 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.4
+
+Featured Changes
+==================================
+
+Workflow Step: Custom Subject Line for Email Notifications (further enhancements) [ Feature Request #4268 ]
+-----------------------------
+An extension of this functionality previously released. The custom subject line was previously set only if the custom message had also been set.
+This modification now allows the subject field can to be configured independently of the message text.
+
+
+Context-awareness for Multiple Page Page Keyword Replacements [ Feature Request #4286 ]
+-----------------------------
+A new keyword, %current_page_attribute_name% has been provided on the outer asset as a contexted equivalent to the existing %current_page_name% keyword.
+The %asset_attribute_name% keyword of inner assets now also returns page names from the current context.
+
+
+Make SOAP Call Form Action [ Feature Request #4314 ]
+-----------------------------
+A new Form Submission Action has been added to perform SOAP requests prior to logging the submission. This action provides a template of the function call used, to populate with keywords or static values.
+
+Keywords available for inclusion in requests are:
+  - Form Question responses -> %response_123_q1%
+  - Contents of File Upload responses -> %file_upload_123_q2%
+
+Results from the called function are stored in the session sandbox and are available from %globals_session_xx% variables.
+
+
+Global Keyword Replacements for Site Special Pages [Feature Request #4333]
+-----------------------------
+A set of Global Keywords has been introduced to return the asset ID of associated Site Special Pages. When not set, these keywords will return no result.
+
+The new keywords are:
+  - %globals_site_index_id%     : asset ID of the Index Page
+  - %globals_site_not_found_id% : asset ID of the Not Found Page
+  - %globals_site_archive_id%   : asset ID of the Archived Asset Page
+
+Colon notation, as above but with a Site asset ID specified (for Site ID 123):
+  - %globals_site_index_id:123%
+  - %globals_site_not_found_id:123%
+  - %globals_site_archive_id:123%
+
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Fixed Bug #4179: Text "Array" shown as attribute name on Search Fields screen when unlocked
+Fixed Bug #4197: Unable to deactivate Form submission actions
+Fixed Bug #4207: Javascript API: transferred with MIME type text/plain
+Fixed Bug #4241: Cannot apply paint layout to bulkmail subscribe page
+Fixed Bug #4247: Sending an attachment with custom form does not adhere the correct mime type
+Fixed Bug #4275: Metadata for newly created submission asset not getting indexed
+Fixed Bug #4272: Remap Manager Scalability issue
+Fixed Bug #4280: TO_CHAR conversion error on oracle : ORA-22835
+Fixed Bug #4285: Metadata Select Field Antics
+Fixed Bug #4295: urlencode modifier breaks globals keyword replacement when used in paint layout
+Fixed Bug #4299: Search Log Report does not contain any results
+Fixed Bug #4302: system_integrity_check_indexes outputs pgsql indexes
+Fixed Bug #4304: active directory dn's with backslashes don't retrieve permissions correctly
+Fixed Bug #4305: Cannot create instances on multi-date calendar event asset after deleting an instance
+Fixed Bug #4308: DB Connector: issue with displaying entered full DSN
+Fixed Bug #4311: PHP notice in Search Manager > Global Weights
+Fixed Bug #4313: Typo "Retrive" on Details screen of TRIM Saved Search
+Fixed Bug #4320: show if design area cannot show Logical Condition properly
+Fixed Bug #4321: customised constant button design area results in PHP notice when cache is enabled
+Fixed Bug #4327: Wrong function called for executing query in hipo_job.inc
+Fixed Bug #4328: Image varieties added via the WYSIWYG in paint layout do not render
+Fixed Bug #4329: REST Resource OAuth Session: missing translation
+Fixed Bug #4332: Details screen with no workflow - stream select JavaScript objects not found
+Fixed Bug #4334: Keyword for site section details not being evaluated by simple edit
+Fixed Bug #4335: Structured asset report couldn't generate report for entire system
+Fixed Bug #4339: Funnelback click logs not working
+Fixed Bug #4351: System Management folder fails to load asset map
++ (Core) Notice Linking to File Assets [Feature Request #4265]
+
+
+
 VERSION 3.26.3
 
 Featured Changes
@@ -8,7 +86,7 @@ Featured Changes
 Automatic Remaps to use closest available Lookup match [ Feature Request #4217 ]
 -----------------------------
 Remaps are now selected to more closely match by old URL. Previously remap destination URLs were determined to be the first URL in the lookup.
-This new functionality means that remaps should maintain within the same domain, as long as there is a matching URL for that domain. 
+This new functionality means that remaps should maintain within the same domain, as long as there is a matching URL for that domain.
 
 
 Web Paths Screen: Target URL display in Remaps List [ Feature Request #4220 ]
@@ -18,12 +96,12 @@ To retain consistency with Remap Manager, the Remaps section on the asset Web Pa
 
 Additional MIME Types added for Microsoft Office [ Feature Request #4105 ]
 -----------------------------
-MIME types for Microsoft Office documents, such as those with extensions "docx" and "pptm", have been added to enable these files to be served with the expected type header. 
+MIME types for Microsoft Office documents, such as those with extensions "docx" and "pptm", have been added to enable these files to be served with the expected type header.
 
 
 E-Commerce Order: New Keyword for Order Total [ Feature Request #4248 ]
 -----------------------------
-A new keyword, %order_grand_total%, has been added to E-Commerce Order assets to expose the total amount of orders on the frontend, and for listing and grouping purposes through Listing Engine. 
+A new keyword, %order_grand_total%, has been added to E-Commerce Order assets to expose the total amount of orders on the frontend, and for listing and grouping purposes through Listing Engine.
 
 
 SOAP API be able to set asset status and create a file asset [ Feature Request #4274 ]
@@ -81,7 +159,7 @@ Fixed Bug #4239: JS API not handling '?' characters
 Fixed Bug #4240: Some assets unable to be indexed by Funnelback with UTF8 metadata
 Fixed Bug #4242: Using db connector in 'Run db query' in form submission action will throw error
 Fixed Bug #4249: Radio buttons cleared after Save & Exit
-Fixed Bug #4253: No type checking on picking a collection 
+Fixed Bug #4253: No type checking on picking a collection
 Fixed Bug #4257: Cannot create assets in alternate context
 Fixed Bug #4259: DB data source asset creates many empty record sets for a update query
 Fixed Bug #4261: Funnelback Sitemap Generation fails on Oracle
@@ -111,7 +189,7 @@ Funnelback search integration is performed through interaction with external bin
 
 Search indexing functions differently to MySource Matrix Search, in that content is not immediately indexed when updated. Scripts are available within the Funnelback package which can be added to the cron to update the index periodically. The frequency at which the indexer should be run is dependent on the amount of content being indexed and the dynamic requirements of this content. Collections can be reindexed independently of each other.
 
-The MySource Matrix search system is still required for items such as backend search. 
+The MySource Matrix search system is still required for items such as backend search.
 
 
 TRIM Saved Search enhancements [ Feature Request #4180 ]
@@ -131,9 +209,9 @@ A Record Type Filter is now available in the "General Search Options" of TRIM Sa
 
 As record types can be custom-built, a list of these are retrieved from the TRIM server when synchronising the Saved Search page, which are then available for selection.
 
-For example, a saved search may be configured to return "Document" types, or both "Document" and "Folder" types. 
+For example, a saved search may be configured to return "Document" types, or both "Document" and "Folder" types.
 
-      
+
 Date/Time Keyword Modifier [ Feature Request #4181 ]
 --------------------------
 A new Keyword Modifier, "date_format", is available to format asset attributes which provide a UNIX timestamp. One argument is required to define the PHP date() format used for display.
@@ -363,7 +441,7 @@ Workflow Streams
 ----------------
 This functionality allows multiple sets of Workflow Steps per Workflow Schema, and allows Administrators to select which of these sets is to be used for any given Workflow process.
 
-Please note that new and existing Workflow Schema steps will be moved under a "Default Stream" which resides under the related Workflow Schema. This Default Stream cannot be moved or deleted. 
+Please note that new and existing Workflow Schema steps will be moved under a "Default Stream" which resides under the related Workflow Schema. This Default Stream cannot be moved or deleted.
 
 
 Replace Keywords option in Set Value Trigger Action
@@ -373,13 +451,13 @@ A checkbox "Replace keywords in the set value" is provided in the Set Metadata V
 
 Public User Trigger Condition
 -----------------------------
-A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
+A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in).
 
 
 Asset Lineage Design Area: Negative Start Level definition
 ----------------------------------------------------------
 The attribute value for "start_at_level" can now be specified as a negative number to refer to direct parent assets of the current asset.
-For example, -1 would refer to the direct parent, -n to the nth direct parent. Other positive numbers (0 = current asset, 1 direct child etc.) still continue to function as previously defined. 
+For example, -1 would refer to the direct parent, -n to the nth direct parent. Other positive numbers (0 = current asset, 1 direct child etc.) still continue to function as previously defined.
 
 
 Additional Asset Keyword Modifiers
@@ -393,7 +471,7 @@ New Keyword Modifiers have been added, which are:
 
 Some examples:
 	%asset_name^md5% (eg; fred becomes 08b622ddf7eb7c8e44cdb3bd6362f966)
-	%asset_attribute_price^number_format:2% (eg; takes 1.235 and shows it as 1.24) 
+	%asset_attribute_price^number_format:2% (eg; takes 1.235 and shows it as 1.24)
 
 
 PayPal Payment Gateway modifications
@@ -407,12 +485,12 @@ The PayPal Payment Button asset now supports "Donate", "Add to Cart" and "View C
 	This allows for cart-based transactions to be maintained by the PayPal environment. The "View Cart" button provides an option to open the cart contents either within the current browser window/tab or in a new window/tab.
 
 	- PayPal IPN Receiver modifications
-	This asset has been modified to accept the "Cart" transaction type and to populate the receipt of the generated PayPal Order. 
+	This asset has been modified to accept the "Cart" transaction type and to populate the receipt of the generated PayPal Order.
 
 
 Move Assets Script enhancements
 -------------------------------
-The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation. 
+The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation.
 
 
 System Update Lookups Script: Increased Verbosity
@@ -424,12 +502,12 @@ The system_update_lookups.php script now supports an optional "--verbose" argume
 
 Globals Site Keywords performance enhancement
 ---------------------------------------------
-Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map. 
+Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map.
 
 
 Get Lineage performance enhancement
 -----------------------------------
-Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit. 
+Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit.
 
 
 Purge Trash HIPO performance enhancement
