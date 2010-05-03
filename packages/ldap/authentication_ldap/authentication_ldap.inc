@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.20.6.1 2010/04/28 04:53:37 akarelia Exp $
+* $Id: authentication_ldap.inc,v 1.20.6.2 2010/05/03 00:12:12 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.6.1 $
+* @version $Revision: 1.20.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -76,7 +76,30 @@ class Authentication_LDAP extends Authentication
 
 			if (is_null($ldap)) continue;
 
-			$entry = $this->_getLdapEntries($username, $bridge, $ldap);
+			// the attribute mappings to the LDAP schemas
+			$attrs = $bridge->attr('attributes');
+
+			// we do the search instead of binding directly as the user because ldap->connect_as_user requires
+			// the full dn as the first arg and doing it this way doesn't limit you to having all the users in the
+			// same organisational unit in the ldap directory
+			if (trim($bridge->attr('auth_dn')) !== '') {
+				$auth_base_dn = $bridge->attr('auth_dn');
+			} else {
+				$auth_base_dn = $bridge->attr('root_dn');
+			}
+
+			// Check for extra LDAP filtering
+			$auth_filter = trim($bridge->attr('auth_filter'));
+			if (!empty($auth_filter)) {
+				$filter = '(&('.$auth_filter.')('.$attrs['uid'].'='.$username.'))';
+			} else {
+				$filter = '('.$attrs['uid'].'='.$username.')';
+			}//end if
+
+			$result = $ldap->search($auth_base_dn, $filter);
+			if (!$result) continue;
+
+			$entry = $ldap->getEntries($result);
 			if (!$entry || ($entry['count'] == 0)) {
 				continue;
 			}
@@ -137,7 +160,6 @@ class Authentication_LDAP extends Authentication
 	function &authenticateHttpUser($username)
 	{
 		$user = NULL;
-
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
@@ -146,7 +168,13 @@ class Authentication_LDAP extends Authentication
 			// if status is not live then skip this bridge
 			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
-			$entry = $this->_getLdapEntries($username, $bridge);
+			// Search for users matching the HTTP username
+			$ldap = $bridge->connectToLdap();
+			$attrs = $bridge->attr('attributes');
+			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$username.')');
+			if (!$result) continue;
+
+			$entry = $ldap->getEntries($result);
 			if (!$entry || ($entry['count'] == 0)) {
 				continue;
 			}
@@ -224,51 +252,5 @@ class Authentication_LDAP extends Authentication
 	}//end _getAllowedLinks()
 
 
-	/**
-	* Returns the results of a search for a given username on the supplied bridge
-	*
-	* @param string $username    The username to search for
-	* @param object &$bridge     The bridge to search for the user in
-	* @param object &$ldap_conn  LDAP connection to use, if not supplied, create a new one from the bridge.
-	*                            Prevents opening multiple connections when we need to continue working with one
-	*
-	* @return array
-	* @access private
-	*/
-	function &_getLdapEntries($username, &$bridge, &$ldap_conn=NULL)
-	{
-		$null = NULL;
-		$ldap = $ldap_conn ? $ldap_conn : $bridge->connectToLdap();
-		// the attribute mappings to the LDAP schemas
-		$attrs = $bridge->attr('attributes');
-
-		if (is_null($ldap)) return $null;
-
-		// we do the search instead of binding directly as the user because ldap->connect_as_user requires
-		// the full dn as the first arg and doing it this way doesn't limit you to having all the users in the
-		// same organisational unit in the ldap directory
-		if (trim($bridge->attr('auth_dn')) !== '') {
-			$auth_base_dn = $bridge->attr('auth_dn');
-		} else {
-			$auth_base_dn = $bridge->attr('root_dn');
-		}
-
-		// Check for extra LDAP filtering
-		$auth_filter = trim($bridge->attr('auth_filter'));
-		if (!empty($auth_filter)) {
-			$filter = '(&('.$auth_filter.')('.$attrs['uid'].'='.$username.'))';
-		} else {
-			$filter = '('.$attrs['uid'].'='.$username.')';
-		}//end if
-
-		$result = $ldap->search($auth_base_dn, $filter);
-		if (!$result) return $null;
-
-		$entry = $ldap->getEntries($result);
-		return $entry;
-	}//end _getLdapEntries()
-
-
 }//end class
-
 ?>
