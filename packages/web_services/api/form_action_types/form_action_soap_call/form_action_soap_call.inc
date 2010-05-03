@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.1.2.3 2010/04/29 04:11:48 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.1.2.4 2010/05/03 00:37:29 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -239,7 +239,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					foreach ($function_params as $param) {
 						// Get XML representation of params of the functions
 						$xml_param = self::_parse_type ($param, $types);
-						$parsed_params[$param] = self::_formatXmlString(empty($xml_param) ? $param : $xml_param->asXML());
+						$parsed_params[$param] = self::_formatXmlString(empty($xml_param) ? '' : $xml_param->asXML());
 					}
 					$function_list[$function_name] = $parsed_params;
 					
