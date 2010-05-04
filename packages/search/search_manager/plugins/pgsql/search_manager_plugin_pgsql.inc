@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.33 2009/09/02 23:36:25 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.34 2010/05/04 03:57:39 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -681,6 +681,19 @@ class Search_Manager_Plugin_PgSQL
 		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
 			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
 			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		
+		if ($data_type == 'float') {
+			$index_content[] = Array(
+								'value'			=> $contents,
+								'type_code'		=> $type_code,
+								'type'			=> $data_type,
+								'component'		=> $component,
+								'score'			=> $weighting,
+								'contextid'		=> $contextid,
+								'use_default'	=> $use_default,
+								);
+			return $index_content;				 
 		}
 
 		//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
