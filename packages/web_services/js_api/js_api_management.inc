@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.10 2010/04/29 04:49:05 akarelia Exp $
+* $Id: js_api_management.inc,v 1.11 2010/05/04 04:27:37 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -299,6 +299,15 @@ class JS_Api_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 														),
+						'force_simple_edit'		=> Array(
+														'added'			=> '0.5',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+														),
+
 
 
 
@@ -448,6 +457,8 @@ class JS_Api_Management extends Asset_Management
 					$asset->setAttrValue('get_web_path', FALSE);
 
 					$asset->setAttrValue('get_web_path', FALSE);
+
+					$asset->setAttrValue('force_simple_edit', FALSE);
 
 					if (!$asset->saveAttributes()) {
 						trigger_localised_error('CMS0026', E_USER_WARNING, '0.5');

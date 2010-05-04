@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.38 2010/04/29 04:49:05 akarelia Exp $
+* $Id: js_api.inc,v 1.39 2010/05/04 04:27:37 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -147,6 +147,10 @@ class JS_Api extends Page
 			restore_error_handler();
 			return;
 		}
+
+		// #4372  Feature Request : JS API ability to specify _admin/_edit access
+		// Lets populate our $_REQUEST var so that we can use it later :)
+		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
 
 		// Non asset based functions need to be handled separately
 		switch ($type) {

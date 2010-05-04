@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2010/04/29 04:49:05 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2010/05/04 04:27:37 akarelia Exp $
 *
 */
 -->
@@ -52,6 +52,10 @@
 		<field attribute="ignore_permissions">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="force_simple_edit">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+
 	</section>	
     <section name="API Settings" write_access="write:attributes">
         <field>
