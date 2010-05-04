@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.20 2009/12/08 06:46:34 cupreti Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.21 2010/05/04 03:34:07 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -193,9 +193,9 @@ class Search_Manager_Plugin_OCI
 				}
 
 				if ($attr_type == 'int') {
-					$base_query['where'][] = 'CAST (ai.value AS int) '.$search_compare;
+					$base_query['where'][] = 'CAST(CAST(ai.value AS varchar(255)) AS integer) '.$search_compare;
 				} else {
-					$base_query['where'][] = 'CAST(ai.value AS double precision) '.$search_compare;
+					$base_query['where'][] = 'CAST(CAST(ai.value AS varchar(255)) AS double precision) '.$search_compare;
 				}
 			break;
 
