@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.27 2009/10/19 22:35:23 lwright Exp $
+* $Id: tool_search_replace.inc,v 1.27.2.1 2010/05/04 06:19:28 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -205,6 +205,7 @@ class Tool_Search_Replace extends Tool
 					'search_string'		=> $_REQUEST[$type_code.'_search_string'],
 					'replace_string'	=> $_REQUEST[$type_code.'_replace_string'],
 					'match_case'		=> isset($_REQUEST[$type_code.'_match_case']),
+					'contextid'         => $GLOBALS['SQ_SYSTEM']->getContextId(),
 				);
 
 		// redirect data to the HIPO
