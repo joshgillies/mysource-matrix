@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.2 $
+* @version    $Revision: 1.3 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,7 +139,64 @@ class MP3_File_Edit_Fns extends File_Edit_Fns
 		return TRUE;
 
 	}// end processExtractID3()
+	
+	
+	/**
+	* Paint the interface for the "write ID3 metadata" field
+	*
+	* @param MP3_File			$asset	the asset whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	function paintWriteID3(MP3_File $asset, Backend_Outputter $o, $prefix)
+	{
+		// Write attributes
+		$wa = $asset->writeAccess('attributes');
 
+		if ($wa) {
+			check_box($prefix.'_write_id3', 1, FALSE);
+		} else {
+			?><em>Lock the asset to access this option</em><?php
+		}
+
+		if (!SQ_TOOL_GETID3_ENABLED) {
+			// Check to see if getID3 is installed and turned on
+			?><br/><span class="sq-backend-warning">ID3 Tag writing is not currently enabled</span><?php
+		}
+
+		return $wa;
+
+	}// end paintWriteID3()
+
+
+	/**
+	* Process the interface for the "write ID3 metadata" field
+	*
+	* If checked, set the write_id3 flag attribute to TRUE, so that the metadata
+	* will be extracted. If not, then DON'T set to FALSE, because it may have been
+	* set in the file upload.
+	*
+	* @param MP3_File			$asset	the asset whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processWriteID3(MP3_File $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$write = isset($_POST[$prefix.'_write_id3']);
+
+		if ($write) {
+			$asset->setAttrValue('write_mp3', TRUE);
+		}//end if
+
+		return TRUE;
+
+	}// end processExtractID3()
+	
 
 }// end class
 ?>

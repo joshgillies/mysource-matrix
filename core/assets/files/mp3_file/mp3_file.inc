@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.4 2009/10/20 06:33:42 cupreti Exp $
+* $Id: mp3_file.inc,v 1.5 2010/05/04 01:27:12 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.4 $
+* @version    $Revision: 1.5 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,6 +85,10 @@ class MP3_File extends File
 		$keywords['asset_attribute_year_dynamic'] = 'Dynamic MP3 Keyword for Year';
 		$keywords['asset_attribute_genre_dynamic'] = 'Dynamic MP3 Keyword for Genre';
 		$keywords['asset_attribute_samplerate_dynamic'] = 'Dynamic MP3 Keyword for Sample Rate';
+		$keywords['asset_attribute_composer_dynamic'] = 'Dynamic MP3 Keyword for Composer';
+		$keywords['asset_attribute_copyright_dynamic'] = 'Dynamic MP3 Keyword for Copyright';
+		$keywords['asset_attribute_comments_dynamic'] = 'Dynamic MP3 Keyword for Comments';
+		$keywords['asset_attribute_lyrics_dynamic'] = 'Dynamic MP3 Keyword for Lyrics';
 
 		return $keywords;
 
@@ -138,7 +142,6 @@ class MP3_File extends File
 			
 			// Get the actual attribute being dynamically requested
 			$sub_keyword = substr($keyword, 16, -8);
-
 			switch ($sub_keyword) {
 				case 'song':
 					$replacement = array_get_index($tags, 'title', '');
@@ -149,9 +152,13 @@ class MP3_File extends File
 				case 'track':
 				case 'genre':
 				case 'year':
+				case 'composer' :
+				case 'comments' :
+				case 'copyright' :
+				case 'lyrics' :
 					$replacement = array_get_index($tags, $sub_keyword, '');
 				break;
-
+				
 				case 'bitrate':
 					$bitrate = array_get_index($tags, $sub_keyword, '');
 					if (is_numeric($bitrate)) {
@@ -239,6 +246,10 @@ class MP3_File extends File
 						case 'track' :
 						case 'year' :
 						case 'genre' :
+						case 'composer' :
+						case 'copyright' :
+						case 'comments' :
+						case 'lyrics' :
 							// These just carry over to the respective attributes
 							$this->setAttrValue($tag_name, $tag_value);
 						break;
@@ -268,43 +279,71 @@ class MP3_File extends File
 
 			// Set our extraction ID3 option back to NO so that changed values don't get overwritten
 			$this->setAttrValue('extract_id3', FALSE);
-			
 		}//end if extract ID3 is true
-
+			
+			
+		// If we should write data back to the file
+		if ($this->attr('write_mp3') && SQ_TOOL_GETID3_ENABLED) {
+			
+			// Get our ID3 object and path
+			$id3 = $this->initID3();
+			$file_path = $this->getFilePath();
+			
+			// Set encoding
+			$format = 'UTF-8';
+			$id3->setOption(array('encoding'=>$format));
+			
+			// Initialize getID3 tag-writing module
+			require_once SQ_TOOL_GETID3_PATH.'/write.php';
+			$tagwriter = new getid3_writetags;
+			$tagwriter->filename       = $file_path;
+			$tagwriter->tagformats     = array('id3v1', 'id3v2.3');
+			
+			// set various options (optional)
+			$tagwriter->tag_encoding   = $format;
+			
+			// populate data array
+			$tag_data['title'][] = $this->attr('song');
+			$tag_data['album'][] = $this->attr('album');
+			$tag_data['artist'][] = $this->attr('artist');
+			$tag_data['track'][] = $this->attr('track');
+			$tag_data['year'][] = $this->attr('year');
+			$tag_data['genre'][] = $this->attr('genre');
+			$tag_data['composer'][] = $this->attr('composer');
+			$tag_data['copyright'][] = $this->attr('copyright');
+			$tag_data['comment'][] = $this->attr('comments');
+			$tag_data['unsynchronised_lyrics'][] = $this->attr('lyrics');
+			
+			$tagwriter->tag_data = $tag_data;
+			
+			// Write tags and check for errors
+			if ($tagwriter->WriteTags()) {
+				if (!empty($tagwriter->warnings)) {
+					trigger_error('There were some ID3 warnings:<br />'.implode('<br /><br />', $tagwriter->warnings), E_USER_WARNING);
+					return FALSE;
+				}
+			} else {
+				trigger_error('Failed to write ID3 tags:<br />'.implode('<br /><br />', $tagwriter->errors), E_USER_WARNING);
+				return FALSE;
+			}//end else
+			
+			// Set our write ID3 option back to NO so that changed values don't get overwritten
+			$this->setAttrValue('write_mp3', FALSE);
+		}//end if
+		
 		return parent::saveAttributes($dont_run_updated);
 		
 	}//end saveAttributes()
-
-
+	
+	
 	/**
-	* Pulls out metadata from a specified file using getID3() and
-	* returns them in a more friendly format
+	* Gets the correct file path
 	*
-	* Returns FALSE if extraction is disabled, or there was a
-	* problem with extraction.
+	* @param string	$file_name	An optional file name to pass
 	*
-	* ID3 tags returned: title, album, artist, track, year, genre.
-	* ID3v2 tags are checked first, if they don't exist then ID3v1 is.
-	* For ID3v2, the "content type" tag is either converted to an
-	* ID3v1 genre if in the correct format, or the whole field is
-	* returned as genre. Only those fields actually extracted are
-	* returned.
-	*
-	* Audio-related tags returned (these will be returned even if
-	* there is no ID3 data to return):
-	* - length: Duration of track in seconds. Probably fractional.
-	* - bitrate: The bitrate (or average bitrate if VBR) in bits/s.
-	*   Likely fractional if VBR.
-	* - sample_rate: The sample rate in Hz
-	* - is_vbr: TRUE if encoded with variable bit rate
-	* - channels: 1 for mono, 2 for stereo, 5/6 for MP3 Surround files
-	*
-	* @param string	$file_name	The file to check for metadata. Defaults
-	*							To the current file.
-	*
-	* @return mixed
+	* @return string
 	*/
-	public function extractID3Metadata($file_name=NULL)
+	public function getFilePath($file_name=NULL) 
 	{
 		if (is_null($file_name)) {
 			if ($this->usePublicPath()) {
@@ -312,7 +351,23 @@ class MP3_File extends File
 			} else {
 				$file_name = $this->data_path.'/'.$this->attr('name');
 			}	
-		}
+		}//end if
+		
+		return $file_name;
+		
+	}//end getFilePath()
+
+	
+	/**
+	* This function initialises getID3() and returns the id3 object
+	* It is useful so that we don't have to do this multiple times
+	*
+	* @return object
+	*/
+	public function initID3() 
+	{
+		
+		$file_name = $this->getFilePath();
 
 		// getID3 tool disabled in External Tools? Silently fail.
 		if (!SQ_TOOL_GETID3_ENABLED) return FALSE;
@@ -343,6 +398,44 @@ class MP3_File extends File
 			trigger_error('Cannot extract ID3 metadata; File path passed is not an MP3 file', E_USER_WARNING);
 			return FALSE;
 		}
+	
+		return $id3;
+		
+	}//end initID3()
+	
+	
+	/**
+	* Pulls out metadata from a specified file using getID3() and
+	* returns them in a more friendly format
+	*
+	* Returns FALSE if extraction is disabled, or there was a
+	* problem with extraction.
+	*
+	* ID3 tags returned: title, album, artist, track, year, genre.
+	* ID3v2 tags are checked first, if they don't exist then ID3v1 is.
+	* For ID3v2, the "content type" tag is either converted to an
+	* ID3v1 genre if in the correct format, or the whole field is
+	* returned as genre. Only those fields actually extracted are
+	* returned.
+	*
+	* Audio-related tags returned (these will be returned even if
+	* there is no ID3 data to return):
+	* - length: Duration of track in seconds. Probably fractional.
+	* - bitrate: The bitrate (or average bitrate if VBR) in bits/s.
+	*   Likely fractional if VBR.
+	* - sample_rate: The sample rate in Hz
+	* - is_vbr: TRUE if encoded with variable bit rate
+	* - channels: 1 for mono, 2 for stereo, 5/6 for MP3 Surround files
+	*
+	* @param string	$file_name	The file to check for metadata. Defaults
+	*							To the current file.
+	*
+	* @return mixed
+	*/
+	public function extractID3Metadata($file_name=NULL)
+	{
+		// Get our ID3 object
+		$id3 = $this->initID3();
 
 		// Data relating to the audio itself.
 		// Channels stored as number rather than "mono/stereo" flag - to accommodate
@@ -406,6 +499,18 @@ class MP3_File extends File
 			}
 			if (isset($tag['year'])) {
 				$id3_tag_data['year'] = $tag['year'];
+			}
+			if (isset($tag['composer'])) {
+				$id3_tag_data['composer'] = $tag['composer'];
+			}
+			if (isset($tag['copyright_message'])) {
+				$id3_tag_data['copyright'] = $tag['copyright_message'];
+			}
+			if (isset($tag['comments'])) {
+				$id3_tag_data['comments'] = $tag['comments'];
+			}
+			if (isset($tag['unsynchronised_lyric'])) {
+				$id3_tag_data['unsynchronised_lyric'] = $tag['unsynchronised_lyric'];
 			}
 		}
 

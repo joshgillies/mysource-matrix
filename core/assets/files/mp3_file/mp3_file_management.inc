@@ -19,7 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * MP3_File_Management
 *
 * @author  Nicholas Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,14 @@ class MP3_File_Management extends Asset_Management
                                                     'is_admin'      => '1',
 													'parameters'	=> Array('allow_empty' => FALSE),
                                                     'description'   => 'When set to TRUE in edit interface, will use getID3() to extract ID3 information from the MP3 file.',
+                                                   ),
+					 	'write_mp3'				=> Array(
+                                                    'added'         => '0.1',
+                                                    'type'          => 'boolean',
+                                                    'default'       =>  FALSE,
+                                                    'is_admin'      => '1',
+													'parameters'	=> Array('allow_empty' => FALSE),
+                                                    'description'   => 'When set to TRUE in edit interface, will use getID3() to write info to the MP3 file.',
                                                    ),
 					 	'album'					=> Array(
                                                     'added'         => '0.1',
@@ -91,28 +99,28 @@ class MP3_File_Management extends Asset_Management
                                                     'is_admin'      => '0',
                                                     'description'   => 'Bitrate of encoded file',
                                                    ),
-					  'length'					=> Array(
+					 	'length'				=> Array(
 						   							'added'         => '0.1',
 						   							'type'          => 'duration',
 						   							'default'       => 0,
 						   							'is_admin'      => '0',
 						   							'description'   => 'Length of audio file',
 						   							),
-					  'genre'					=> Array(
+					  	'genre'					=> Array(
 						   							'added'         => '0.1',
 						   							'type'          => 'text',
 						   							'default'       => '',
 						   							'is_admin'      => '0',
 						   							'description'   => 'Genre of this audio file',
 						   							),
-					  'samplerate'				=> Array(
+					  	'samplerate'			=> Array(
 						   							'added'         => '0.1',
 						   							'type'          => 'float',
 						   							'default'       => 0,
 						   							'is_admin'      => '0',
 						   							'description'   => 'Sample Rate of this audio file',
 						   							),
-					  'lyrics'					=> Array(
+					  	'lyrics'				=> Array(
 						   							'added'         => '0.1',
 						   							'type'          => 'text',
 						   							'default'       => '',
@@ -120,7 +128,30 @@ class MP3_File_Management extends Asset_Management
 						   							'description'   => 'Lyrics for this audio file',
 													'is_contextable'	=> TRUE,
 						   							),
-					);
+					 	'composer'				=> Array(
+                                                    'added'         => '0.1',
+                                                    'type'          => 'text',
+                                                    'default'       => '',
+                                                    'is_admin'      => '0',
+                                                    'description'   => 'Composer of this audio file',
+                                                   ),
+					 	'copyright'				=> Array(
+                                                    'added'         => '0.1',
+                                                    'type'          => 'text',
+                                                    'default'       => '',
+                                                    'is_admin'      => '0',
+                                                    'description'   => 'Copyright',
+                                                   ),
+					  	'comments'				=> Array(
+						   							'added'         => '0.1',
+						   							'type'          => 'text',
+						   							'default'       => '',
+						   							'is_admin'      => '0',
+						   							'description'   => 'Comments for this audio file',
+													'is_contextable'	=> TRUE,
+						   							),
+												   
+					);//end array
 
 	}// end constructor
 

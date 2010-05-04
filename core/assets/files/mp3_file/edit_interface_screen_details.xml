@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2009/03/13 03:20:22 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2010/05/04 01:27:12 mbrydon Exp $
 *
 */
 -->
@@ -43,6 +43,12 @@
 				<process_function name="processExtractID3" />
 			</function_call>
 		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintWriteID3"   />
+				<process_function name="processWriteID3" />
+			</function_call>
+		</field>
 		<field attribute="song">
 			<text width="40" />
 		</field>
@@ -69,6 +75,18 @@
 		</field>
 		<field attribute="samplerate">
 			<float width="7" />
+		</field>
+		<field attribute="composer">
+			<text width="40" />
+		</field>
+		<field attribute="copyright">
+			<text width="40" />
+		</field>
+		<field attribute="comments">
+			<text width="60" height="8" />
+		</field>
+		<field attribute="lyrics">
+			<text width="60" height="8" />
 		</field>
 	</section>
 </contents>
