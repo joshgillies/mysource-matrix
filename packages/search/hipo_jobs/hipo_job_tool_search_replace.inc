@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.18 2009/10/22 00:37:58 mbrydon Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.18.2.1 2010/05/04 06:23:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -796,7 +796,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
 
 		$asset_contents = $this->_running_vars['search_data'][$assetid]['contents'];
 		foreach ($asset_contents as $contents_id => $contents_value) {
@@ -847,7 +847,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
