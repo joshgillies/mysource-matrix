@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.10 2010/04/21 01:48:45 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.11 2010/05/04 23:57:00 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,6 +75,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'SetTag'					=> '1',
 				'SetAssetStatus'			=> '1',
 				'TrashAsset'				=> '1',
+				'LoginUser'					=> '1',
 			   );
 
     }//end getFunctionList()
@@ -964,6 +965,54 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	}//end GetAllStatus()
 
+
+	/**
+	* Description: This operation will return all statuses of the asset in Matrix
+	*
+	* @param string  $request  The request information
+    *
+	* @return void
+	* @access public
+	*/
+	function LoginUser($request)
+	{
+		$request_info = (Array) $request;
+		$username = array_get_index($request_info, 'Username', '');
+		$password = array_get_index($request_info, 'Password', '');
+
+		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
+		// try each auth system in order to see if we can load a user asset
+		$user = NULL;
+		$user_status = NULL;
+		foreach ($auth_systems as $systemid) {
+			$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			$user = $system->authenticateUser($username, $password);
+			if (!is_null($user)) $user_status = $user->status;
+			// check that the user exists AND that it can login
+			// (ie. it is not yet live, or has been locked)
+			if (!is_null($user) && $user->canLogin()) {
+				$GLOBALS['SQ_SYSTEM']->loginUser($user);
+				break;
+			}//end if
+		}
+
+		$session_id = session_id();
+		$session_key = $GLOBALS['SQ_SYSTEM']->getUniqueSOAPSessionKey();
+		$_SESSION['activated'] = 0;
+
+		return Array (
+				'SessionID'	 => $session_id,
+				'SessionKey' => $session_key,
+			   );
+
+	}//end LoginUser()
+
 	
 	/**
 	* Description: This operation will set status for an asset
@@ -1211,6 +1260,16 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                                'GetPageContentsResponse'=> Array (
                                                                                             'PageContent'       => self::$string_non_optional,
                                                                                            ),
+                                                              ),
+                            'LoginUser'         => Array (
+                                                               'LoginUser'        => Array (
+																							  'Username'		=> self::$string_non_optional,
+																							  'Password'		=> self::$string_non_optional,
+																						     ),
+                                                               'LoginUserResponse'=> Array (
+                                                                                           	  'SessionID'       => self::$string_non_optional,
+                                                                                           	  'SessionKey'      => self::$string_non_optional,
+                                                                                             ),
                                                               ),
 						  );
 
