@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.364 2010/05/05 04:27:06 lwright Exp $
+* $Id: lang_strings.xml,v 1.365 2010/05/05 06:49:34 lwright Exp $
 *
 */
 
@@ -2790,12 +2790,6 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<string source="core_schema_usage_no_assets"><![CDATA[<p>This schema is not applied to any assets.</p>]]></string>
 	<string source="core_design_usage_no_assets"><![CDATA[<p>This design is not applied to any assets.</p>]]></string>
-
-	<!-- Install and warranty key -->
-	<string source="install_and_warranty_key">Install and Warranty Key</string>
-	<string source="install_key">Install Key</string>
-	<string source="warranty_key">Warranty Key</string>
-	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
 
 	<!-- Install and warranty key -->
 	<string source="install_and_warranty_key">Install and Warranty Key</string>
