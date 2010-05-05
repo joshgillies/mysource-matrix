@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.360 2010/03/03 00:41:03 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.361 2010/05/05 00:59:57 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.360 $
+* @version $Revision: 1.361 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -399,7 +399,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			}//end foreach lock types
 
-			if (SQ_IN_LIMBO && $do_the_limbo_lock) {
+			if (SQ_IN_LIMBO && $do_the_limbo_lock && !SQ_DESIGN_NO_FRAME) {
 
 				  /////////////////////
 				 //  LIMBO LOCKING  //
@@ -1531,7 +1531,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 		ob_start();
 			$paint_function = 'paint'.$screen;
-
 			if ($paint_function($owner, $o, $this, $static_keywords, $layout_options)) {
 				$print_commit_button = TRUE;
 			}

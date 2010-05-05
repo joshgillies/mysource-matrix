@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.797 2010/05/04 04:42:22 akarelia Exp $
+* $Id: asset_manager.inc,v 1.798 2010/05/05 00:59:57 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.797 $
+* @version $Revision: 1.798 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9833,6 +9833,35 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end purgeAsset()
+
+
+	/**
+	* This function returns the hide frame value for a design.
+	*
+	* @param int	$asset_id	the asset ID of the asset to delete
+	*
+	* @return void
+	* @access public
+	*/
+	public function getDesignHideFrameValues($designid)
+	{
+		$db = MatrixDAL::getDb();
+		$sql = "SELECT v.custom_val
+				FROM sq_ast_attr_val v JOIN sq_ast_attr t ON v.attrid = t.attrid 
+				WHERE t.name = 'limbo_no_frames' and v.assetid = :designid";
+
+		$result = NULL;
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'designid', $designid);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+
+		return $result;
+
+	}//end getDesignHideFrameValues()
 
 
 }//end class

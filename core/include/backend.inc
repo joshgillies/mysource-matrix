@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.195 2009/10/07 04:35:36 bpearson Exp $
+* $Id: backend.inc,v 1.196 2010/05/05 00:59:57 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -148,6 +148,10 @@ class Backend extends MySource_Object
 				// note: SQ_BACKEND_PAGE can be frames, if the user enter the query string manually
 			}
 		}
+
+        if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
+            $_REQUEST['SQ_BACKEND_PAGE'] = 'main';
+        }//end if
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
@@ -1434,7 +1438,9 @@ class Backend extends MySource_Object
 			}
 			$extra = '/?'.$hide_frames.$limbo_assetid.$asset_ei_screen;
 			$redirect_url = strip_url(current_url()).$extra;
-			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
+			if (!SQ_DESIGN_NO_FRAME) {
+				$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
+			}//end if
 		}
 
 		switch ($_REQUEST['backend_section']) {

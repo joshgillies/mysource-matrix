@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.340 2010/04/13 00:18:23 lwright Exp $
+* $Id: mysource.inc,v 1.341 2010/05/05 00:59:57 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.340 $
+* @version $Revision: 1.341 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -255,7 +255,7 @@ class MySource extends MySource_Object
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
-			if (isset($_GET['SESSION_KEY']) && isset($_GET['SESSION_ID'])) {
+			if (isset($_GET['SESSION_ID']) && (isset($_GET['SESSION_KEY']) || isset($_GET['SOAP_SESSION_KEY']))) {
 				// asset map or someone has sent session key through the GET
 				session_id($_GET['SESSION_ID']);
 				$session_set = TRUE;
@@ -263,8 +263,41 @@ class MySource extends MySource_Object
 
 			session_start();
 
+			$restore_session = FALSE;
+			if (isset($_SESSION['activated']) === TRUE && $_SESSION['activated'] === 1) {
+				// This session is already activated.
+				// If we found the session is already activated.
+				session_regenerate_id(FALSE);
+				$new_session_id = session_id();
+				if (isset($_COOKIE['SQ_SYSTEM_SESSION'])) {
+					$new_session_id = $_COOKIE['SQ_SYSTEM_SESSION'];
+				}//end if
+				session_destroy();
+				$this->_clearSession();
+				session_id($new_session_id);
+				session_start();
+				$restore_session = TRUE;
+			}//end if
+
+			$invalid_key = TRUE;
+			if ($restore_session === FALSE) {
+				if (isset($_GET['SOAP_SESSION_KEY']) === TRUE) {
+					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_GET['SOAP_SESSION_KEY']);
+					if ($invalid_key === FALSE) {
+						$_SESSION['activated'] = 1;
+						define('SQ_SOAP_AUTH', '1');
+					}//end if
+				} else if (isset($_GET['SESSION_KEY']) === TRUE) {
+					$invalid_key = ($this->getUniqueSessionKey() != $_GET['SESSION_KEY']);
+				}//end if
+			}//end if
+
+			if (!defined('SQ_SOAP_AUTH')) {
+				define('SQ_SOAP_AUTH', '0');
+			}//end if
+
 			// check to see if the session key is the same as that used to login
-			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
+			if ($session_set && $invalid_key && !$restore_session) {
 				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms = $this->getMessagingService();
@@ -274,7 +307,7 @@ class MySource extends MySource_Object
 				$log->parameters['userid'] = $_SESSION['userid'];
 				$log->send();
 				exit();
-			}
+			}//end if
 
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
@@ -316,7 +349,6 @@ class MySource extends MySource_Object
 			$this->setupUser();
 			$this->_updateSessionCookie();
 			$_SESSION['user_last_access'] = time();
-
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
@@ -407,6 +439,31 @@ class MySource extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$this->backend = &$backend;
+
+				$current_url     = current_url(FALSE);
+				$designid        = $GLOBALS['SQ_SYSTEM']->am->getDesignFromUrl($current_url);
+				$design_no_frame = NULL;
+				if (!empty($designid)) {
+					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid['designid']);
+					if ($design->type() === 'design_customisation') {
+						// Get the design from the design customisation.
+						$parent_designs = $GLOBALS['SQ_SYSTEM']->am->getParents($designid['designid'], 'design', TRUE);
+						//$effective_designid = NULL;
+						if (count($parent_designs) == 1) {
+							$effective_designid = key($parent_designs);
+						}//end if
+					} else {
+						$effective_designid = $designid['designid'];
+					}//end else
+					$design_no_frame = $GLOBALS['SQ_SYSTEM']->am->getDesignHideFrameValues($effective_designid);
+				}//end if
+
+				if ($design_no_frame) {
+					define('SQ_DESIGN_NO_FRAME', 1);
+				} else {
+					define('SQ_DESIGN_NO_FRAME', 0);
+				}//end else
+
 				ob_start();
 					$backend->paint();
 				ob_end_flush();
@@ -619,6 +676,10 @@ class MySource extends MySource_Object
 			// report all the assets with a reference count > 0
 			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, FALSE);
 		}
+
+		if (!defined('SQ_DESIGN_NO_FRAME')) {
+			define('SQ_DESIGN_NO_FRAME', 0);
+		}//end if
 
 		$this->_setApacheNotes();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
@@ -1055,10 +1116,15 @@ class MySource extends MySource_Object
 	public function setupUser()
 	{
 		if (!SQ_CONF_ALLOW_IP_CHANGE && isset($_SESSION['remote_addr']) && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
-			// IP address has changed and we don't allow that
-			$this->loginPublicUser();
-			return;
-		}
+			// If not Using SOAP AUTH.
+			if (!SQ_SOAP_AUTH) {
+				if (isset($_SESSION['activated']) === FALSE || $_SESSION['activated'] != 1) {
+					// IP Address has changed, and we are not authenticating via SOAP.
+					$this->loginPublicUser();
+					return;
+				}//end if
+			}//end if
+		}//end if
 
 		$this->user = NULL;
 
@@ -1996,6 +2062,29 @@ class MySource extends MySource_Object
 
 
 	/**
+	* Returns a unique session key
+	*
+	* the key can be used to strengthen the sending of the
+	* session id as a $_GET variable
+	*
+	* @return string
+	* @access public
+	*/
+	public function getUniqueSOAPSessionKey()
+	{
+		$key =  $_SESSION['userid'].
+				$_SESSION['user_type_code'];
+
+		if (isset($_SESSION['SQ_LOGIN_KEY'])) {
+			$key .= $_SESSION['SQ_LOGIN_KEY'];
+		}//end if
+
+		return md5($key);
+
+	}//end getUniqueSOAPSessionKey()
+
+
+	/**
 	* Generates a new login key and returns it
 	*
 	* @param boolean	$force_new_key	if TRUE the key will regenerated even if
@@ -2105,6 +2194,7 @@ class MySource extends MySource_Object
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
 		}
+
 		header($header);
 
 	}//end _updateSessionCookie()
