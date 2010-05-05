@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.98.4.1 2010/01/26 22:12:00 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.98.4.2 2010/05/05 03:22:13 hnguyen Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.98.4.1 $
+* @version $Revision: 1.98.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1387,18 +1387,22 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if (!empty($_POST[$prefix.'_new']['name'])) {
 			$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($_POST[$prefix.'_new']['type_code']);
-			$default_attr = array_shift(array_keys($attributes));
-			$option = Array(
-						'type'		=> 'asset_attrib',
-						'name'		=> $_POST[$prefix.'_new']['name'],
-						'params'	=> Array(
-										'type_code'	=> $_POST[$prefix.'_new']['type_code'],
-										'attribute'	=> $default_attr,
-										'attr_type'	=> $attributes[$default_attr],
-									   ),
-					  );
-			$this->_addNewSortOption($val, $option);
-			$res = TRUE;
+			if (empty($attributes)) {
+				trigger_localised_error('CMS0110', E_USER_WARNING);
+			} else {
+				$default_attr = array_shift(array_keys($attributes));
+				$option = Array(
+							'type'		=> 'asset_attrib',
+							'name'		=> $_POST[$prefix.'_new']['name'],
+							'params'	=> Array(
+											'type_code'	=> $_POST[$prefix.'_new']['type_code'],
+											'attribute'	=> $default_attr,
+											'attr_type'	=> $attributes[$default_attr],
+										   ),
+						  );
+				$this->_addNewSortOption($val, $option);
+				$res = TRUE;
+			}//end if
 		}
 
 		if ($res) {
