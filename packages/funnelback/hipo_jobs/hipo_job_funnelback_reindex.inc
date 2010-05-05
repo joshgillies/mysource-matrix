@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_funnelback_reindex.inc,v 1.2 2010/03/02 00:16:41 bpearson Exp $
+* $Id: hipo_job_funnelback_reindex.inc,v 1.3 2010/05/05 03:45:25 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage funnelback
 */

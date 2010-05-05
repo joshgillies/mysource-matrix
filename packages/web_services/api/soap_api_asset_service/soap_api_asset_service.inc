@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.11 2010/05/04 23:57:00 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.12 2010/05/05 03:41:53 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api_file_retrieval_service/soap_api_file_retrieval_service.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

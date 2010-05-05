@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.29 2009/09/11 04:48:33 bpearson Exp $
+* $Id: data_source_graph.inc,v 1.30 2010/05/05 03:44:23 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

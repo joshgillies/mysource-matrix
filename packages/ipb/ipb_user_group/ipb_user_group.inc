@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user_group.inc,v 1.7 2009/07/22 04:09:46 lwright Exp $
+* $Id: ipb_user_group.inc,v 1.8 2010/05/05 03:45:45 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */

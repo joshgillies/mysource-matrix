@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_backend_user.inc,v 1.4 2007/06/05 02:07:57 lwright Exp $
+* $Id: ldap_backend_user.inc,v 1.5 2010/05/05 03:45:05 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_PACKAGES_PATH.'/ldap/ldap_user/ldap_user.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ldap/ldap_user/ldap_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

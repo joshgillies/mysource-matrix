@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.20 2007/12/04 05:08:48 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.21 2010/05/05 03:45:06 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

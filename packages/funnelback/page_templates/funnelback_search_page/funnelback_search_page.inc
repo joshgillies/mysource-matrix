@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.10 2010/04/23 03:00:03 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.11 2010/05/05 03:45:25 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */

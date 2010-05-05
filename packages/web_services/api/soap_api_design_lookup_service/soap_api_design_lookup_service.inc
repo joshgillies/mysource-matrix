@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.4 2009/05/28 22:46:05 hnguyen Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.5 2010/05/05 03:41:53 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

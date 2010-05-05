@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_location.inc,v 1.2 2009/11/27 05:47:03 bpearson Exp $
+* $Id: google_map_location.inc,v 1.3 2010/05/05 03:43:46 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 
 
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */

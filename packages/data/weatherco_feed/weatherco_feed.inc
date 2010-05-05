@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: weatherco_feed.inc,v 1.5 2008/12/10 05:49:41 bshkara Exp $
+* $Id: weatherco_feed.inc,v 1.6 2010/05/05 03:44:24 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 
 
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_xml/data_source_xml.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

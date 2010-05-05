@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector.inc,v 1.2 2009/12/17 23:26:00 ewang Exp $
+* $Id: trim_connector.inc,v 1.3 2010/05/05 03:42:53 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 
 
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */

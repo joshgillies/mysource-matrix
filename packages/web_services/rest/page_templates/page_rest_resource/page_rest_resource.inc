@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.3 2009/10/07 23:48:34 akarelia Exp $
+* $Id: page_rest_resource.inc,v 1.4 2010/05/05 03:41:53 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 

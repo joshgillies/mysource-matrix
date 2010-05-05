@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter_word.inc,v 1.5 2007/01/08 03:47:45 emcdonald Exp $
+* $Id: import_tool_converter_word.inc,v 1.6 2010/05/05 03:46:09 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_PACKAGES_PATH.'/import_tools/converters/import_tool_converter/import_tool_converter.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/import_tools/converters/import_tool_converter/im
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */

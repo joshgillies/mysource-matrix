@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector.inc,v 1.3 2009/11/27 05:43:18 bpearson Exp $
+* $Id: db_connector.inc,v 1.4 2010/05/05 03:44:24 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/data/data_source_db/data_source_db.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_db/data_source_db.inc';
 * 	Used by DB data sources to store DB connection settings and construct the DB object
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

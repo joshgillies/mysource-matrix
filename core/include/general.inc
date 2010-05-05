@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.244 2010/04/22 00:29:34 akarelia Exp $
+* $Id: general.inc,v 1.245 2010/05/05 03:46:56 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix
 */
 
@@ -2110,42 +2110,6 @@ function clean_div_attribute($attribute)
 
 }//end clean_div_attribute()
 
-
-/**
-* Check licence for Squiz Supported Version (SSV)
-*
-* If licence file does not exist, or this is not an SSV edition, then exit
-*
-* @return boolean
-* @access public
-*/
-function check_ssv_licence()
-{
-	if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
-		include_once SQ_DATA_PATH.'/private/conf/licence.inc';
-		if (SQ_LICENCE_TYPE == 'SSV') return TRUE;
-	}
-	// error text is not localised in case compile_locale has not been run before step 3
-	ob_start();
-?>
-You are attempting to use a Squiz.net MySource Module with the GPL version of
-MySource Matrix. These modules are not available under the GPL consequently
-MySource Matrix will not run.
-
-You may swap to the Squiz Supported Version licence (SSV) which will allow the
-modules to run by changing SQ_LICENCE_TYPE from GPL to SSV in the
-/path/to/matrix/data/private/conf/licence.inc file.
-
-Please ensure you have read and agree to the terms of this alternate license
-(available in /path/to/matrix/SSV.txt) before making the change. Alternatively,
-you may remove the MySource Modules and continue to run the application under
-the GPL.
-<?php
-	$licence_error =  ob_get_clean();
-
-	trigger_error($licence_error, E_USER_ERROR);
-
-}//end check_ssv_licence()
 
 
 /**
