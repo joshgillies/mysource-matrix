@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.24 2006/12/05 22:41:31 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.25 2010/05/05 01:16:53 hnguyen Exp $
 *
 */
 -->
@@ -19,6 +19,9 @@
 	<section name="Details" write_access="write:attributes">
 		<field attribute="id_name">
 			<text width="60" height="1" />
+		</field>
+		<field attribute="limbo_no_frames">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Parse File" write_access="write:parsing" read_access="write:">
