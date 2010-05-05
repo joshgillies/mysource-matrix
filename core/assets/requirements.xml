@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.10 2010/04/27 23:33:01 csmith Exp $
+* $Id: requirements.xml,v 1.11 2010/05/05 02:04:15 mbrydon Exp $
 *
 */
 -->
@@ -172,6 +172,12 @@
 	<requirement>
 		<php_file>markdownify.php</php_file>
 		<description> - allows users to use a simplified mark up language instead of needing to know HTML. This is provided by http://sourceforge.net/projects/markdownify/.</description>
+		<suggested>1</suggested>
+	</requirement>
+
+	<requirement>
+		<php_file>ogg.class.php</php_file>
+		<description> - provides OGG Metadata extraction for Video File assets. This is provided by http://opensource.grisambre.net/ogg/.</description>
 		<suggested>1</suggested>
 	</requirement>
 
