@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.50 2009/10/12 23:56:16 lwright Exp $
+* $Id: metadata.inc,v 1.51 2010/05/05 17:41:57 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 
@@ -392,7 +392,27 @@ function processMetadata(&$owner, &$o, $ei)
 	}
 	if ($save) {
 		$mm->setMetadata($owner->id, $new_values);
-		$mm->generateContentFile($owner->id);
+		
+		// All context metadata files need to be regenerated if there is a non-contextable field changed
+		$regen_all_contexts = FALSE;
+		foreach ($new_values as $fieldid => $field_data) {
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			if (!$field) continue;
+			
+			if ((boolean)$field->attr('is_contextable') === FALSE || $field instanceof Metadata_Field_Select) {
+				$regen_all_contexts = TRUE;
+				break;
+			}
+		}
+		
+		if ($regen_all_contexts) {
+			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			foreach ($all_contexts as $contextid => $context_data) {
+				$mm->generateContentFile($owner->id, FALSE, $contextid);
+			}
+		} else {
+			$mm->generateContentFile($owner->id);
+		}
 
 		// If the user has opted to cascade field values, we will handle these now
 		if (!empty($cascade_values_asset_ids)) {

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.208 2010/04/28 03:37:17 lwright Exp $
+* $Id: metadata_manager.inc,v 1.209 2010/05/05 17:41:33 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -869,7 +869,9 @@ class Metadata_Manager extends MySource_Object
 				// If the field is still being tested, check whether it's
 				// contextable or not, so it's appropriately handled
 				if (array_key_exists($fieldid, $metadata)) {
-					$contextable_value = ((boolean)$field->attr('is_contextable') === TRUE) ? 1 : 0;
+					// A field is non-contextatble if its attribute says so 
+					// or it is a Metadata Select Field 
+					$contextable_value = (!$field->attr('is_contextable') || ($field instanceof Metadata_Field_Select)) ? 0 : 1;
 					$contextable_fields[$contextable_value][] = (string)$fieldid;
 				}
 				continue;
@@ -928,6 +930,13 @@ class Metadata_Manager extends MySource_Object
 				$remaining[] = $fieldid;
 			}
 		}
+		
+		// We want to remove all non-contextable fields and then insert them again instead of updating
+		// because we want to add new records for contexts that do not have metadata fields set yet
+		// e.g. set metadata the first time for default context and alternate contexts still use metadata default values
+		$delete_fieldids = array_merge($delete_fieldids, $contextable_fields[0]);
+		// Get unique field IDs because non-contextable fields can be set to default value ('Use default' option in Metadata screen)
+		$delete_fieldids = array_unique($delete_fieldids);
 
 		if (!empty($delete_fieldids)) {
 			try {

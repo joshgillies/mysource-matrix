@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_field_values.inc,v 1.4 2009/10/12 23:56:15 lwright Exp $
+* $Id: hipo_job_edit_metadata_field_values.inc,v 1.5 2010/05/05 17:42:23 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit Metadata Field values
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -265,7 +265,15 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 								$field_name = $metadata_field->name;
 
 								$mm->setMetadata($assetid, $set_data['field_value']);
-								$mm->generateContentFile($assetid);
+								// All context metadata files need to be regenerated if this metadata field is non-contextable
+								if ((boolean)$metadata_field->attr('is_contextable') === FALSE || $metadata_field instanceof Metadata_Field_Select) {
+									$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+									foreach ($all_contexts as $contextid => $context_data) {
+										$mm->generateContentFile($assetid, FALSE, $contextid);
+									}
+								} else {
+									$mm->generateContentFile($assetid);
+								}
 							}
 						}
 
