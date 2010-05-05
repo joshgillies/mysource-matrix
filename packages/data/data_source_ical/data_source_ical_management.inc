@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical_management.inc,v 1.1 2009/08/16 23:05:21 bpearson Exp $
+* $Id: data_source_ical_management.inc,v 1.2 2010/05/05 07:11:14 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

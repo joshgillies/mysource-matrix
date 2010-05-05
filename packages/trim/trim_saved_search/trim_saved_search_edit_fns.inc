@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.10 2010/03/04 04:54:19 ewang Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.11 2010/05/05 07:15:42 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */

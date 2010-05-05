@@ -1,7 +1,7 @@
 <?php
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600													   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: web_folder_web_services_management.inc,v 1.3 2009/07/06 23:00:59 mbrydon Exp $
+* $Id: web_folder_web_services_management.inc,v 1.4 2010/05/05 07:16:13 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

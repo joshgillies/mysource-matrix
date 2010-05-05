@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_edit_fns.inc,v 1.3 2008/01/29 03:46:33 lwright Exp $
+* $Id: tool_clear_squid_cache_edit_fns.inc,v 1.4 2010/05/05 07:15:20 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool_edit_fns.inc';
 * Tool_Clear_Squis_Cache_Edit_Fns
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */

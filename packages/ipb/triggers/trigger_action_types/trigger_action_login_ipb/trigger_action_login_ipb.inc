@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_login_ipb.inc,v 1.6 2010/05/05 03:45:46 ewang Exp $
+* $Id: trigger_action_login_ipb.inc,v 1.7 2010/05/05 07:13:23 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

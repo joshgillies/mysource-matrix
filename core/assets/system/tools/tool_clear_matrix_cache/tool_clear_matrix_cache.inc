@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_matrix_cache.inc,v 1.7 2008/01/09 04:27:13 hnguyen Exp $
+* $Id: tool_clear_matrix_cache.inc,v 1.8 2010/05/05 07:20:13 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Matrix cache, and to schedule a clear cache cron job
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

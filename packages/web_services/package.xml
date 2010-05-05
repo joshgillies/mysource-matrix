@@ -4,7 +4,7 @@
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600                                                    |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: package.xml,v 1.5 2009/07/06 23:00:59 mbrydon Exp $
+* $Id: package.xml,v 1.6 2010/05/05 07:16:12 ewang Exp $
 *
 */
 -->
