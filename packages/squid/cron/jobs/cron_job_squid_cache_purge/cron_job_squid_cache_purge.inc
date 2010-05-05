@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_squid_cache_purge.inc,v 1.4 2008/01/29 03:46:32 lwright Exp $
+* $Id: cron_job_squid_cache_purge.inc,v 1.5 2010/05/05 03:27:42 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */

@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: sharepoint_connector.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: sharepoint_connector.inc,v 1.2 2010/05/05 03:26:50 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 
 
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */

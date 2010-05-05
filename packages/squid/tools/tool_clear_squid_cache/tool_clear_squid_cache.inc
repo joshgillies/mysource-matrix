@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.4 2008/01/29 03:46:32 lwright Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.5 2010/05/05 03:27:42 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 
 /**
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */

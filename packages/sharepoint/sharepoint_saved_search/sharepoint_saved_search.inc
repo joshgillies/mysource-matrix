@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.3 2009/01/09 04:07:04 hnguyen Exp $
+* $Id: sharepoint_saved_search.inc,v 1.4 2010/05/05 03:26:51 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */

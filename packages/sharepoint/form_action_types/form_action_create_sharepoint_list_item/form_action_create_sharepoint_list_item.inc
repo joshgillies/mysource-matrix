@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_create_sharepoint_list_item.inc,v 1.3 2009/01/09 04:07:04 hnguyen Exp $
+* $Id: form_action_create_sharepoint_list_item.inc,v 1.4 2010/05/05 03:26:50 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

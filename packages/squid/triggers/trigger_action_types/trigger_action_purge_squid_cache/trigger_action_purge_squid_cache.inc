@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.4 2008/01/29 03:46:33 lwright Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.5 2010/05/05 03:27:42 ewang Exp $
 *
 */
 
-check_ssv_licence();
+
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
