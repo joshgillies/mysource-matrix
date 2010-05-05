@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.245 2010/05/05 03:46:56 ewang Exp $
+* $Id: general.inc,v 1.246 2010/05/05 15:01:38 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix
 */
 
@@ -1948,6 +1948,20 @@ function replace_global_keywords(&$text)
 								$replacements[$full_keyword] = rand((int)$matches[1], (int)$matches[2]);
 							}
 						}
+					}//end if
+					if ($keyword == 'globals_context') {
+						$context_name = '';
+						// get current context ID
+						$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+						if (!is_null($contextid)) {
+							// get all available contexts and find the name of current context from ID
+							$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+							if (isset($all_contexts[$contextid]['name'])) {
+								$context_name = $all_contexts[$contextid]['name'];
+							}
+						}
+						
+						$replacements[$full_keyword] = $context_name;
 					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
