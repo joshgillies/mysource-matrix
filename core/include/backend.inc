@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.196 2010/05/05 00:59:57 hnguyen Exp $
+* $Id: backend.inc,v 1.197 2010/05/05 04:27:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -878,28 +878,26 @@ class Backend extends MySource_Object
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
-					<a class="sq-backend-header-item" style="text-decoration: none; margin-left: 9px" href="#" onclick="Javascript: reloadHeader(); return false;">
-
+					<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name); ?></a> -
 					<?php
 					// check warranty (if a warranty key exists)
-					if (defined('SQ_LICENCE_WARRANTY_KEY') && (SQ_LICENCE_TYPE === 'SSV')) {
+					if (defined('SQ_LICENCE_WARRANTY_KEY')) {
 						$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 6);
 						$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
 
 						$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 14);
 						$current_date = date('Ymd');
 						if ((SQ_LICENCE_WARRANTY_KEY === '') || ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet)) {
-							$message = translate('licence_type_ssv_expired');
+							$message = translate('licence_type_no_warranty');
 						} else {
-							$message = translate('licence_type_ssv_valid');
+							$message = translate('licence_type_warranty_valid');
 						}
 					} else {
 						// no warranty
-						$message = translate('licence_type_gpl');
+						$message = translate('licence_type_no_warranty');
 					}
+					echo $message;
 					?>
-
-					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, $message); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<?php
@@ -1006,7 +1004,7 @@ class Backend extends MySource_Object
 
 						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
 						if (isset($_SESSION['login_as_invoker_username'])) {
-							$logout_button_tooltip = translate('logout_and_resume', htmlentities($_SESSION['login_as_invoker_username'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));	
+							$logout_button_tooltip = translate('logout_and_resume', htmlentities($_SESSION['login_as_invoker_username'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 							$logout_icon = 'logout_and_resume.png';
 						}
 

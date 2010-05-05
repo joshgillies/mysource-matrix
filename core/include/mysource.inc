@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.341 2010/05/05 00:59:57 hnguyen Exp $
+* $Id: mysource.inc,v 1.342 2010/05/05 04:27:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.341 $
+* @version $Revision: 1.342 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1917,7 +1917,7 @@ class MySource extends MySource_Object
 
 		// check warranty (if a warranty key exists)
 		$decoded_wkey = base64_decode(SQ_LICENCE_WARRANTY_KEY);
-		if (defined('SQ_LICENCE_WARRANTY_KEY') && (substr_replace($decoded_wkey, '', 6, 8) !== 'abcdef00000000') && (SQ_LICENCE_TYPE === 'SSV')) {
+		if (defined('SQ_LICENCE_WARRANTY_KEY') && (substr_replace($decoded_wkey, '', 6, 8) !== 'abcdef00000000')) {
 			$wkey_snippet = substr($decoded_wkey, 0, 6);
 			$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
 

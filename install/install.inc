@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.89 2009/08/04 23:06:41 lwright Exp $
+* $Id: install.inc,v 1.90 2010/05/05 04:27:06 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -43,11 +43,6 @@ function regenerate_configs()
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg = new System_Config();
-	if (!$cfg->save(Array(), FALSE)) return FALSE;
-
-	// Re-generate the Licence Config to ensure it exists
-	require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-	$cfg = new Licence_Config();
 	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
@@ -654,17 +649,17 @@ function generate_lang_char_map()
 										'Ó' => 'o',
 										'Ś' => 's',
 										'Ż' => 'z',
-										'Ź' => 'z',	
+										'Ź' => 'z',
 									),
-				     );
-				     
+					 );
+
 	$str = '<'.'?php $lang_char_map = '.var_export($lang_char_map, TRUE).'; ?'.'>';
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/lang_char_map.inc')) {
 		return FALSE;
 	}
-	
+
 	return TRUE;
-	
+
 }//end generate_lang_char_map()
 
 
@@ -1767,11 +1762,14 @@ function generate_install_key($create_key_file=FALSE)
 	$install_key = md5($host.'-'.$ip.'-'.SQ_SYSTEM_ROOT);
 
 	if ($create_key_file) {
-		require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-		$cfg = new Licence_Config();
+		require_once SQ_INCLUDE_PATH.'/system_config.inc';
+		$cfg = new System_Config();
+		ob_start();
 		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
+			ob_end_clean();
 			return NULL;
 		}
+		ob_end_clean();
 	}
 
 	return $install_key;

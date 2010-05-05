@@ -11,7 +11,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: key_reminder.inc,v 1.7 2010/04/08 00:21:08 lwright Exp $
+* $Id: key_reminder.inc,v 1.8 2010/05/05 04:27:05 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 ?>
@@ -39,9 +39,7 @@
 			<div class="key-reminder-body">
 			<p class="key-reminder-warning">YOUR WARRANTY KEY IS INVALID CONSEQUENTLY YOUR SYSTEM IS CURRENTLY NOT WARRANTED.</p>
 
-			<p><em>Squiz Supported Versions</em> of MySource Matrix require a valid <em>Warranty Key</em> or this error message is displayed to any system-administrator logging in to the CMS.</p>
-
-			<h2>What is a Warranty Key?</h2>
+			<p>MySource Matrix is an open source product with the benefit of full commercial support provided through Squiz Service Level Agreements. A valid <em>Warranty Key</em> is a means to alert administrators of the presence or absence of a current Squiz Service Level agreement.</p>
 
 			<p>The <em>Warranty Key</em> is a code provided by Squiz that contains encoded information about when your system warranty will expire and a portion of your <em>Install Key</em>.  It is used by Squiz Support to provide you appropriate levels of support and warranty. It does not include any personal or other identifying information.</p>
 
@@ -49,17 +47,9 @@
 
 			<h2>Obtaining a Warranty Key</h2>
 
-			<p>The first step is to generate an <em>Install Key</em>. This is a unique code for each install of MySource Matrix that allows Squiz to issue a <em>Warranty Key</em> to match a particular installation of MySource Matrix.</p>
+			<p>To obtain a <em>Warranty Key</em> from Squiz, you need to obtain the <em>Install Key</em> for this system. You can find the install key from the <strong>System Administration</strong> screen.</p>
 
-			<p>The <em>Install Key</em> is created by running the following script from the command line (from the root directory of your MySource Matrix installation):</p>
-
-			<pre>$ php install/generate_install_key.php .</pre>
-
-			<p>Once you have created the <em>Install Key</em> you will need to send it to Squiz (contact details below) so that they may provide you with a <em>Warranty Key</em>.</p>
-
-			<p>If you forget your <em>Install Key</em>, you can access it by re-running the above command.</p>
-
-			<p>Squiz will provide you with instructions for installing the <em>Warranty Key</em> once they have received your <em>Install Key</em>.</p>
+			<p>Once you have obtained the <em>Install Key</em>, you will need to send it to Squiz (contact details below) so that they may provide you with a <em>Warranty Key</em>. Once you have received a <em>Warranty Key</em>, you enter this on the <strong>System Administration</strong> screen, next to where you obtained your <em>Install Key</em>.</p>
 
 			<h2>Contacting Squiz</h2>
 

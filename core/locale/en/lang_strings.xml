@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.363 2010/05/05 01:51:11 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.364 2010/05/05 04:27:06 lwright Exp $
 *
 */
 
@@ -515,7 +515,7 @@
 	<string source="never_published">This asset has never been published</string>
 	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
-	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%1$s</strong> - %2$s]]></string>
+	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%s</strong>]]></string>
 	<string source="logged_in">Logged in</string>
 	<string source="asset_search_default_keyword">Enter keywords, asset ID or URL</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
@@ -2520,9 +2520,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="safe_trash_child_message_links">Your asset currently contains links to other assets that are hidden to the asset map.</string>
 	<string source="safe_trash_child_message_status">Your asset is currently at a status of "%s".</string>
 
-	<string source="licence_type_gpl"><![CDATA[GPL version not warranted]]></string>
-	<string source="licence_type_ssv_valid"><![CDATA[Squiz Supported Version warranty valid]]></string>
-	<string source="licence_type_ssv_expired"><![CDATA[Squiz Supported Version warranty <u>EXPIRED</u>]]></string>
+ 	<string source="licence_type_warranty_valid"><![CDATA[system warranted by Squiz SLA]]></string>
+	<string source="licence_type_no_warranty"><![CDATA[system unwarranted]]></string>
 
 	<string source="print_this_page">Print this Page</string>
 
@@ -2769,7 +2768,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="oauth_callback_url">Call Back URL</string>
 	<string source="oauth_request_token_failed">A request for a request token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_request_token_not_found">A user authorisation has been request without a request token. URL: %1$s</string>
-	<string source="oauth_authorization_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
+	<string source="oauth_authorisation_request_failed">A user authorisation has encountered an error(s). URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_access_token_missing_params">Missing paramters (authorised request token, token secret and/or verifier) required for an access token request. URL: %1$s</string>
 	<string source="oauth_access_token_failed">A request for an access token failed. URL: %1$s, HTTP Code: %2$s, Error: %3$s</string>
 	<string source="oauth_user_data_missing_params">Missing parameters (request url, access token and/or access token secret) required to access user data. URL: %1$s</string>
@@ -2791,5 +2790,17 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<string source="core_schema_usage_no_assets"><![CDATA[<p>This schema is not applied to any assets.</p>]]></string>
 	<string source="core_design_usage_no_assets"><![CDATA[<p>This design is not applied to any assets.</p>]]></string>
+
+	<!-- Install and warranty key -->
+	<string source="install_and_warranty_key">Install and Warranty Key</string>
+	<string source="install_key">Install Key</string>
+	<string source="warranty_key">Warranty Key</string>
+	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
+
+	<!-- Install and warranty key -->
+	<string source="install_and_warranty_key">Install and Warranty Key</string>
+	<string source="install_key">Install Key</string>
+	<string source="warranty_key">Warranty Key</string>
+	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
 
 </strings>

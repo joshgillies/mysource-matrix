@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.87 2009/07/13 00:01:05 lwright Exp $
+* $Id: edit.css,v 1.88 2010/05/05 04:27:06 lwright Exp $
 *
 */
 
@@ -221,6 +221,11 @@ td.sq-backend-commit {
 	text-decoration:	none;
 	padding-left:		3px;
 	padding-right:		3px;
+}
+
+.sq-backend-header-item a {
+	color:				white;
+	text-decoration:	none;
 }
 
 .sq-backend-header-search-box {

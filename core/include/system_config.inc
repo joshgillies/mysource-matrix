@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.133 2009/09/21 04:46:50 lwright Exp $
+* $Id: system_config.inc,v 1.134 2010/05/05 04:27:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -102,6 +102,9 @@ class System_Config extends Config
 						'SQ_CONF_ENABLE_GLOBAL_ROLES'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_NO_ASSET_SELF_LINKS'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
+
+						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 					   );
 
 	/**
@@ -982,6 +985,23 @@ class System_Config extends Config
 					echo (SQ_CONF_NO_ASSET_SELF_LINKS) ? translate('yes') : translate('no');
 				}
 				$o->note(translate('remove_self_links_note'));
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('install_and_warranty_key'));
+
+			$o->openField(translate('install_key'));
+				echo SQ_LICENCE_INSTALL_KEY;
+				$o->note(translate('system_config_install_key_note'));
+			$o->closeField();
+
+			$o->openField(translate('warranty_key'));
+				if ($write_access) {
+					text_box($class.'[SQ_LICENCE_WARRANTY_KEY]', !defined('SQ_LICENCE_WARRANTY_KEY') ? '' : SQ_LICENCE_WARRANTY_KEY, 30);
+				} else {
+					echo SQ_LICENCE_WARRANTY_KEY;
+				}
 			$o->closeField();
 
 		$o->closeSection();
