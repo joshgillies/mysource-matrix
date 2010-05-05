@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_management.inc,v 1.4 2007/02/02 05:21:37 arailean Exp $
+* $Id: comment_management.inc,v 1.4.14.1 2010/05/05 00:09:09 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -47,7 +47,7 @@ class Comment_Management extends Asset_Management
 
 		$this->vars['rating'] = Array(
 									'added'		=> '0.3',
-									'type'		=> 'int',
+									'type'		=> 'float',
 									'default'	=> -1,
 									'is_admin'	=> FALSE,
 								);
