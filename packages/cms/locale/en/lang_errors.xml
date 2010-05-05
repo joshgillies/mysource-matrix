@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.22 2009/03/09 04:28:03 mbrydon Exp $
+* $Id: lang_errors.xml,v 1.23 2010/05/05 01:06:17 hnguyen Exp $
 *
 */
 -->
@@ -220,5 +220,8 @@
 
 	<!-- Custom Form and Asset Builder -->
 	<error code="CMS0109">The CAPTCHA Font specified was not a TrueType Font File (ie; did not have a .ttf extension)</error>
+
+	<!-- Asset Listing Sorting of Asset without any attributes -->
+	<error code="CMS0110">The selected asset type does not have any attributes to be used for sorting.</error>
 
 </errors>
