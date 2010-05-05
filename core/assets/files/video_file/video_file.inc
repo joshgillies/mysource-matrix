@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.3 2009/11/23 02:56:54 ewang Exp $
+* $Id: video_file.inc,v 1.4 2010/05/05 01:51:10 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.3 $
+* @version    $Revision: 1.4 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Video_File extends File
 {
 
 
-	public $allowed_extensions = Array('mov', 'avi', 'wmv', 'asf', 'flv', 'mp4', 'm4v', 'mpg', 'mpeg');
+	public $allowed_extensions = Array('mov', 'avi', 'wmv', 'asf', 'flv', 'mp4', 'm4v', 'mpg', 'mpeg', 'ogv', 'ogg');
 
 
 	/**
@@ -87,6 +87,13 @@ class Video_File extends File
 		$keywords['asset_attribute_fps_dynamic'] = 'Dynamic Keyword for Frames Per Second';
 		$keywords['asset_attribute_length_dynamic'] = 'Dynamic Keyword for Length (in Minutes:Seconds)';
 		$keywords['asset_attribute_length_seconds_dynamic'] = 'Dynamic Keyword for Length (in Seconds)';
+		$keywords['asset_attribute_video_title_dynamic'] = 'Dynamic Keyword for Video Title';
+		$keywords['asset_attribute_artist_dynamic'] = 'Dynamic Keyword for Artist';
+		$keywords['asset_attribute_album_dynamic'] = 'Dynamic Keyword for Album';
+		$keywords['asset_attribute_genre_dynamic'] = 'Dynamic Keyword for Genre';
+		$keywords['asset_attribute_comments_dynamic'] = 'Dynamic Keyword for Comments';
+		$keywords['asset_attribute_copyright_dynamic'] = 'Dynamic Keyword for Copyright';
+		$keywords['asset_attribute_year_dynamic'] = 'Dynamic Keyword for Year';
 
 		return $keywords;
 
@@ -148,18 +155,26 @@ class Video_File extends File
 				break;
 
 				case 'audio_codec':
-					$replacement = array_get_index($tags, 'audio_codec', '');
-				break;
-
 				case 'channels':
-					$replacement = array_get_index($tags, 'channels', '');
+				case 'sample_rate':
+				case 'video_codec':
+				case 'width':
+				case 'height':
+				case 'fps':
+				case 'video_title':
+				case 'artist':
+				case 'album':
+				case 'genre':
+				case 'comments':
+				case 'copyright':
+				case 'year':
+					$replacement = array_get_index($tags, $sub_keyword, '');
 				break;
 
 				case 'channel_mode':
 					$channel_mode = array_get_index($tags, 'channel_mode', '');
 					$channel_mode = ucfirst($channel_mode);
 					$replacement = $channel_mode;
-
 				break;
 
 				case 'bitrate':
@@ -172,10 +187,6 @@ class Video_File extends File
 					$replacement = $bitrate;
 				break;
 
-				case 'sample_rate':
-					$replacement = array_get_index($tags, 'sample_rate', '');
-				break;
-
 				case 'length_seconds':
 					$length = array_get_index($tags, 'length', '');
 					if (is_numeric($length)) {
@@ -185,28 +196,11 @@ class Video_File extends File
 					$replacement = $length;
 				break;
 
-				case 'video_codec':
-					$replacement = array_get_index($tags, 'video_codec', '');
-				break;
-
-				case 'width':
-					$replacement = array_get_index($tags, 'width', '');
-				break;
-
-				case 'height':
-					$replacement = array_get_index($tags, 'height', '');
-				break;
-
-				case 'fps':
-					$replacement = array_get_index($tags, 'fps', '');
-				break;
-
 				case 'length':
 					$length = array_get_index($tags, 'length', '');
 					if (is_numeric($length)) {
 						// Round off the number of seconds (up or down)
 						$length = round($length);
-
 						// Now format it
 						$minutes = floor($length / 60);
 						$seconds = $length % 60;
@@ -258,14 +252,6 @@ class Video_File extends File
 							$this->setAttrValue('file_format', ucfirst($tag_value));
 						break;
 
-						case 'audio_codec' :
-							$this->setAttrValue('audio_codec', $tag_value);
-						break;
-
-						case 'channels' :
-							$this->setAttrValue('channels', $tag_value);
-						break;
-
 						case 'channel_mode' :
 							$this->setAttrValue('channel_mode', ucfirst($tag_value));
 						break;
@@ -275,26 +261,24 @@ class Video_File extends File
 							// bitrate in kbit/s instead.
 							$this->setAttrValue($tag_name, floor($tag_value / 1000));
 						break;
-
+						
+						// These are all the same, run them through the same function
+						case 'channels' :
+						case 'audio_codec' :
 						case 'sample_rate' :
 							// Attribute had no underscore.
-							$this->setAttrValue('sample_rate', $tag_value);
-						break;
-
 						case 'video_codec' :
-							$this->setAttrValue('video_codec', $tag_value);
-						break;
-
 						case 'width' :
-							$this->setAttrValue('width', $tag_value);
-						break;
-
 						case 'height' :
-							$this->setAttrValue('height', $tag_value);
-						break;
-
 						case 'fps' :
-							$this->setAttrValue('fps', $tag_value);
+						case 'video_title' :
+						case 'artist' :
+						case 'album' :
+						case 'genre' :
+						case 'comments' :
+						case 'copyright' :
+						case 'year' :
+							$this->setAttrValue($tag_name, $tag_value);
 						break;
 
 						case 'length' :
@@ -302,7 +286,6 @@ class Video_File extends File
 							// or down) to the nearest whole second.
 							$this->setAttrValue($tag_name, round($tag_value));
 						break;
-
 					}//end switch
 
 				}//end foreach
@@ -368,12 +351,50 @@ class Video_File extends File
 		// Now get a new getID3() object and analyse the stored file
 		$id3 = new getID3;
 		$id3->Analyze($file_name);
+		$use_ogg = FALSE;
+		
+		$file_duration = 0;
+		$file_bitrate = 0;
+		$file_samplerate = 0;
 
-		// Data relating to the file itself.
+		// Check and see if we are using OGG, which getID3() does not support
+		if ($id3->info['fileformat'] == 'ogg') {
+			require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+
+			// Go away please
+			if (!SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED) return FALSE;
+
+			if (!is_file(SQ_TOOL_OGG_METADATA_EXTRACTION_PATH)) {
+				trigger_error('Cannot extract OGG metadata; path to OGG Metadata Extraction external tool does not exist or is not a file', E_USER_WARNING);
+				return FALSE;
+			}
+
+			$use_ogg = TRUE;
+
+			// Include our support file
+			require_once SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
+
+			// We don't want to use the cache option
+			$ogg = new Ogg($file_name, NOCACHING);
+			// Video
+			$theora = isset($ogg->Streams['theora']) ? $ogg->Streams['theora'] : NULL;
+			// Audio
+			$vorbis = isset($ogg->Streams['vorbis']) ? $ogg->Streams['vorbis'] : NULL;
+
+			// Data relating to the file itself.
+			$file_duration = $ogg->Streams['duration'];
+			$file_bitrate = isset($theora) ? $theora['nombr'] : 0;
+			$file_samplerate = isset($vorbis) ? $vorbis['samplerate'] : 0;
+		} else {
+			$file_duration = $id3->info['playtime_seconds'];
+			$file_bitrate = $id3->info['bitrate'];
+			$file_samplerate = isset($id3->info['audio']['sample_rate']) ? $id3->info['audio']['sample_rate'] : 0;
+		}
+		
 		$audio_data = Array(
-						'length'		=> $id3->info['playtime_seconds'],
-						'bitrate'		=> $id3->info['bitrate'],
-						'sample_rate'	=> isset($id3->info['audio']['sample_rate']) ? $id3->info['audio']['sample_rate'] : 0,
+						'length'		=> $file_duration,
+						'bitrate'		=> $file_bitrate,
+						'sample_rate'	=> $file_samplerate,
 						'file_format'	=> $id3->info['fileformat'],
 					  );
 
@@ -382,32 +403,114 @@ class Video_File extends File
 		// Set our vars to grab info from the audio and video arrays
 		$tag_audio =& $id3->info['audio'];
 		$tag_video =& $id3->info['video'];
+		
+		$tag_quicktime = NULL;
+		if (isset($id3->info['tags']['quicktime'])) {
+			$tag_quicktime =& $id3->info['tags']['quicktime'];
+		}
 
 		// Grab the data and put it into our array
-		if (isset($tag_audio['codec'])) {
-			$id3_tag_data['audio_codec'] = $tag_audio['codec'];
-		}
-		if (isset($tag_audio['channels'])) {
-			$id3_tag_data['channels'] = $tag_audio['channels'];
-		}
-		if (isset($tag_audio['channelmode'])) {
-			$id3_tag_data['channel_mode'] = $tag_audio['channelmode'];
-		}
-		if (isset($tag_video['codec'])) {
-			$id3_tag_data['video_codec'] = $tag_video['codec'];
-		}
-		if (isset($tag_video['resolution_x'])) {
-			$id3_tag_data['width'] = $tag_video['resolution_x'];
-		}
-		if (isset($tag_video['resolution_y'])) {
-			$id3_tag_data['height'] = $tag_video['resolution_y'];
-		}
-		// Support for FPS is sketchy across differnt video formats, but we will try
-		// getID3() v1.7.9 must be used to return correct frame rates for Quicktime
-		if (isset($tag_video['frame_rate'])) {
-			$id3_tag_data['fps'] = $tag_video['frame_rate'];
-		}
+		if ($use_ogg) {
+			if (!is_null($vorbis)) {
+				$id3_tag_data['audio_codec'] = $vorbis['vendor'];
+				$id3_tag_data['channels'] = $vorbis['channels'];
+				$id3_tag_data['channel_mode'] = $vorbis['channels'] == 2 ? 'Stereo' : 'Mono';
+			}
+			
+			if (!is_null($theora)) {
+				$id3_tag_data['video_codec'] = $theora['vendor'];
+				$id3_tag_data['width'] = $theora['width'];
+				$id3_tag_data['height'] = $theora['height'];
+				$id3_tag_data['fps'] = $theora['frate'];
 
+				// Extra data fields
+				if (isset($theora['comments'])) {
+					foreach($theora['comments'] as $comment) {
+						$comment_field = explode('=', $comment);
+						$cf = $comment_field[1];
+						switch ($comment_field[0]) {
+							case 'title' :
+								$id3_tag_data['video_title'] = $cf;
+							break;
+							case 'artist' :
+								$id3_tag_data['artist'] = $cf;
+							break;
+							case 'album' :
+								$id3_tag_data['album'] = $cf;
+							break;
+							case 'genre' :
+								$id3_tag_data['genre'] = $cf;
+							break;
+							case 'description' :
+								$id3_tag_data['comments'] = $cf;
+							break;
+							case 'copyright' :
+								$id3_tag_data['copyright'] = $cf;
+							break;
+							case 'year' :
+								$id3_tag_data['year'] = $cf;
+							break;
+						}//end switch
+						
+					}//end foreach
+					
+				}//end if (comments)
+				
+			}//end if (theora)
+			
+		} else {
+			// Not ogg format
+			
+			if (isset($tag_audio['codec'])) {
+				$id3_tag_data['audio_codec'] = $tag_audio['codec'];
+			}
+			if (isset($tag_audio['channels'])) {
+				$id3_tag_data['channels'] = $tag_audio['channels'];
+			}
+			if (isset($tag_audio['channelmode'])) {
+				$id3_tag_data['channel_mode'] = $tag_audio['channelmode'];
+			}
+			if (isset($tag_video['codec'])) {
+				$id3_tag_data['video_codec'] = $tag_video['codec'];
+			}
+			if (isset($tag_video['resolution_x'])) {
+				$id3_tag_data['width'] = $tag_video['resolution_x'];
+			}
+			if (isset($tag_video['resolution_y'])) {
+				$id3_tag_data['height'] = $tag_video['resolution_y'];
+			}
+			// Support for FPS is sketchy across differnt video formats, but we will try
+			// getID3() v1.7.9 must be used to return correct frame rates for Quicktime
+			if (isset($tag_video['frame_rate'])) {
+				$id3_tag_data['fps'] = $tag_video['frame_rate'];
+			}
+			// Extra data fields
+			if (!is_null($tag_quicktime)) {
+				if (isset($tag_quicktime['title'][0])) {
+					$id3_tag_data['video_title'] = $tag_quicktime['title'][0];
+				}
+				if (isset($tag_quicktime['artist'][0])) {
+					$id3_tag_data['artist'] = $tag_quicktime['artist'][0];
+				}
+				if (isset($tag_quicktime['album'][0])) {
+					$id3_tag_data['album'] = $tag_quicktime['album'][0];
+				}
+				if (isset($tag_quicktime['genre'][0])) {
+					$id3_tag_data['genre'] = $tag_quicktime['genre'][0];
+				}
+				if (isset($tag_quicktime['comment'][0])) {
+					$id3_tag_data['comments'] = $tag_quicktime['comment'][0];
+				}
+				if (isset($tag_quicktime['copyright'][0])) {
+					$id3_tag_data['copyright'] = $tag_quicktime['copyright'][0];
+				}
+				if (isset($tag_quicktime['creation_date'][0])) {
+					$id3_tag_data['year'] = $tag_quicktime['creation_date'][0];
+				}
+			}
+			
+		}//end else (ogg)
+		
 		$data = array_merge($audio_data, $id3_tag_data);
 		return $data;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/04/28 00:11:46 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2010/05/05 01:51:10 mbrydon Exp $
 *
 */
 -->
@@ -75,6 +75,27 @@
 		</field>
 		<field attribute="length">
 			<duration biggest_units="minutes" smallest_units="seconds" />
+		</field>
+		<field attribute="video_title">
+			<text width="50" />
+		</field>
+		<field attribute="artist">
+			<text width="40" />
+		</field>
+		<field attribute="album">
+			<text width="40" />
+		</field>
+		<field attribute="genre">
+			<text width="30" />
+		</field>
+		<field attribute="year">
+			<float width="4" />
+		</field>
+		<field attribute="copyright">
+			<text width="40" />
+		</field>
+		<field attribute="comments">
+			<text width="60" height="8" />
 		</field>
 	</section>
 </contents>

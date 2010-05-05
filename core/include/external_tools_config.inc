@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.34 2009/09/23 07:08:41 akarelia Exp $
+* $Id: external_tools_config.inc,v 1.35 2010/05/05 01:51:11 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -60,6 +60,8 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_VIRUS_CHECKER_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_VIRUS_CHECKER_TYPE'			=> Array('editable' => 1, 'default' => 'clam'),
 						'SQ_TOOL_JS_PATH'						=> Array('editable' => 1, 'default' => '/usr/bin/js'),
+						'SQ_TOOL_OGG_METADATA_EXTRACTION_PATH'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -228,6 +230,13 @@ class External_Tools_Config extends Config
 				echo (SQ_TOOL_GETID3_ENABLED) ? translate('yes') : translate('no');
 			}
 
+			$o->openField(translate('enable_ogg_metadata_extraction'));
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED);
+			} else {
+				echo (SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED) ? translate('yes') : translate('no');
+			}
+
 			$o->openField(translate('enable_virus_checker'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_VIRUS_CHECKER_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_VIRUS_CHECKER_ENABLED);
@@ -378,6 +387,26 @@ class External_Tools_Config extends Config
 			}
 
 			if (!is_dir(SQ_TOOL_GETID3_PATH)) {
+				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('ogg_metadata_extraction'));
+
+			$o->openField(translate('path_to_ogg_metadata_extraction'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_OGG_METADATA_EXTRACTION_PATH]', SQ_TOOL_OGG_METADATA_EXTRACTION_PATH, 60);
+			} else {
+				echo SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
+			}
+
+			$ogg_found = FALSE;
+			if (is_file(SQ_TOOL_OGG_METADATA_EXTRACTION_PATH)) {
+				include_once SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
+            	$ogg_found = method_exists('Ogg', 'Ogg');
+			}
+			if (!$ogg_found) {
 				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
 			}
 

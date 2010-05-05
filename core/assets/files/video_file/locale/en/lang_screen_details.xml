@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2009/04/28 00:11:47 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.2 2010/05/05 01:51:11 mbrydon Exp $
 *
 */
 -->
@@ -67,6 +67,34 @@
 		</field>
 		<field attribute="length">
 			<display_name>Duration of track</display_name>
+			<note />
+		</field>
+		<field attribute="video_title">
+			<display_name>Track Title</display_name>
+			<note />
+		</field>
+		<field attribute="artist">
+			<display_name>Artist</display_name>
+			<note />
+		</field>
+		<field attribute="album">
+			<display_name>Album</display_name>
+			<note />
+		</field>
+		<field attribute="genre">
+			<display_name>Genre</display_name>
+			<note />
+		</field>
+		<field attribute="year">
+			<display_name>Year</display_name>
+			<note />
+		</field>
+		<field attribute="copyright">
+			<display_name>Copyright</display_name>
+			<note />
+		</field>
+		<field attribute="comments">
+			<display_name>Comments</display_name>
 			<note />
 		</field>
 	</section>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.362 2010/04/23 04:35:35 lwright Exp $
+* $Id: lang_strings.xml,v 1.363 2010/05/05 01:51:11 mbrydon Exp $
 *
 */
 
@@ -166,6 +166,9 @@
 	<string source="enable_getid3_extraction">Enable getID3 Extraction</string>
 	<string source="getid3_extraction">getID3 Extraction</string>
 	<string source="path_to_getid3">Path to getID3</string>
+	<string source="enable_ogg_metadata_extraction">Enable OGG Metadata Extraction</string>
+	<string source="ogg_metadata_extraction">OGG Metadata Extraction</string>
+	<string source="path_to_ogg_metadata_extraction">Path to OGG Metadata library</string>
 	<string source="enable_virus_checker">Enable Virus Checker</string>
 	<string source="virus_checker">Virus Checker</string>
 	<string source="virus_checker_type">Virus Checker Type</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file_management.inc,v 1.1 2009/04/28 00:11:47 mbrydon Exp $
+* $Id: video_file_management.inc,v 1.2 2010/05/05 01:51:10 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * Video_File_Management
 *
 * @author  Nicholas Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,6 +138,58 @@ class Video_File_Management extends Asset_Management
 											'default'		=> 0,
 											'is_admin'		=> '0',
 											'description'	=> 'Length of this file',
+										   ),
+						'video_title'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Title of the video',
+										   ),
+						'artist'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Artist of the video',
+										   ),
+						'album'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Album of the video',
+										   ),
+						'genre'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Genre of the video',
+										   ),
+						'year'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'float',
+											'default'		=> 0,
+											'is_admin'		=> '0',
+											'description'	=> 'Year the video was created',
+											'parameters'	=> Array(
+																'decimal_places'	=> 0,
+															   ),
+										   ),
+						'copyright'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Copyright of the video',
+										   ),
+						'comments'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'is_admin'		=> '0',
+											'description'	=> 'Description of the video',
 										   ),
 					  );
 
