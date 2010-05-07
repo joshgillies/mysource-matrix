@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.342 2010/05/05 04:27:05 lwright Exp $
+* $Id: mysource.inc,v 1.343 2010/05/07 04:56:58 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.342 $
+* @version $Revision: 1.343 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -657,7 +657,7 @@ class MySource extends MySource_Object
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			$this->_replaceKeyword($content);
+			$this->replaceKeyword($content);
 
 			// parse out self links if configured so
 			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
@@ -838,9 +838,9 @@ class MySource extends MySource_Object
 	* @param array	$additional_replacements	extra replacements to add
 	*
 	* @return void
-	* @access private
+	* @access public
 	*/
-	protected function _replaceKeyword(&$content, $additional_replacements=Array())
+	public function replaceKeyword(&$content, $additional_replacements=Array())
 	{
 		// Replace any global keywords first
 		replace_global_keywords($content);
@@ -862,7 +862,7 @@ class MySource extends MySource_Object
 			replace_keywords($content, $additional_replacements);
 		}
 
-	}//end _replaceKeyword()
+	}//end replaceKeyword()
 
 
 //--        GLOBAL DEFINES        --//
@@ -3837,7 +3837,7 @@ class MySource extends MySource_Object
 			$site->paintAsset($asset);
 		$content = ob_get_clean();
 
-		$this->_replaceKeyword($content);
+		$this->replaceKeyword($content);
 
 		if (is_null($old_current_asset)) {
 			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
