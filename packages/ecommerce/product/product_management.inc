@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.16 2009/08/19 05:56:46 lwright Exp $
+* $Id: product_management.inc,v 1.17 2010/05/07 03:48:48 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -100,7 +100,42 @@ class Product_Management extends Asset_Management
 							'description'	=> 'Detailed specifications of the Product',
 							'is_admin'		=> false,
 							'is_contextable'	=> TRUE,
+						),						
+						'product_code' => array(
+							'added'			=> '0.2',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'	=> 'Product code of the Product',
+							'is_admin'		=> false,
+							'is_contextable'	=> FALSE,
 						),
+						'financial_code' => array(
+							'added'			=> '0.2',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'	=> 'Financial code of the Product',
+							'is_admin'		=> false,
+							'is_contextable'	=> FALSE,
+						),
+						'refund_type' => array(
+							'added'			=> '0.2',
+							'type'			=> 'selection',
+							'default'		=> 'NonRefundable',
+							'description'	=> 'If product is refundale',
+							'is_admin'		=> false,							
+                            'parameters'    => Array(
+                                        'multiple'      => FALSE,
+                                        'allow_empty'   => FALSE,
+                                        'options'       => Array(
+                                                'NonRefundable'     => 'Non-Refundable',
+                                                'Expires'           => 'Refund Period Expires in a Week',
+                                                'Custom'            => 'Custom',
+                                            ),
+                                        ),
+                            'is_contextable'	=> FALSE,
+                                    
+						),
+
 		);
 
 	}//end Product_Management()

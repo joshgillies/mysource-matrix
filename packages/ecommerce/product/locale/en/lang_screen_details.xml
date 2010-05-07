@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.5 2010/05/07 03:49:13 cupreti Exp $
 *
 */
 -->
@@ -27,8 +27,21 @@
 			<function_call>
 				<paint_function   name="paintProductPrice" />
 				<process_function name="processProductPrice" />
-			</function_call>
+			</function_call>			
 		</field>
+		<field attribute="product_code">
+			<display_name>Product Code</display_name>
+			<note>Product code attached to the product</note>
+		</field>
+		<field attribute="financial_code">
+			<display_name>Financial Code</display_name>
+			<note>Financial code attached to the product</note>
+		</field>		
+		<field attribute="refund_type">
+			<display_name>Refund Type</display_name>
+			<note>If product is refundable</note>
+		</field>
+		
 	</section>
 	<section name="Product Description">
 		<field attribute="description">
