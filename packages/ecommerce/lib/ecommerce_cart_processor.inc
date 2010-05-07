@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.27 2010/03/15 04:27:27 akarelia Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.28 2010/05/07 03:52:25 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -455,11 +455,19 @@ class Ecommerce_Cart_Processor
 			$taxable = FALSE;
 			$has_tax = FALSE;
 			$is_donation = FALSE;
+			$refund_type = 0;
+			$product_code = '';
+			$financial_code = '';
+
 			if ($asset instanceof Donation) {
 				$price = 1;
 				$is_donation = TRUE;
 			} else if ($asset instanceof Product) {
 				$price = $asset->attr('price');
+
+				$refund_type = $asset->attr('refund_type');
+				$product_code = $asset->attr('product_code');
+				$financial_code = $asset->attr('financial_code');
 
 				// get the taxable boolean
 				$tmp_price_obj = $asset->attr('price_obj');
@@ -476,12 +484,15 @@ class Ecommerce_Cart_Processor
 			}
 
 			$this->cart[$assetid] = Array(
-										'price'			=> $price,
-										'quantity'		=> $quantity,
-										'name'			=> $name,
-										'has_tax'		=> $has_tax,
-										'taxable'		=> $taxable,
-										'is_donation'	=> $is_donation,
+										'price'				=> $price,
+										'quantity'			=> $quantity,
+										'name'				=> $name,
+										'has_tax'			=> $has_tax,
+										'taxable'			=> $taxable,
+										'is_donation'		=> $is_donation,
+										'refund_type' 	    => $refund_type,
+										'product_code'		=> $product_code,
+										'financial_code'	=> $financial_code,
 									);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			
@@ -619,17 +630,18 @@ class Ecommerce_Cart_Processor
 	*
 	* Prints out the contents of the Ecommerce Cart
 	*
-	* @param string		$taxation_name	name of tax
-	* @param int		$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
-	* @param array		$flat_charges	flat charges Array('Name' => 'Price')
-	* @param boolean	$remove_tax		whether to remove tax from taxed products, i.e. if country is not defined as taxable
+	* @param string		$taxation_name		name of tax
+	* @param int		$taxation_rate		tax value (0.1 is 10%, 0.2 is 20%)
+	* @param array		$flat_charges		flat charges Array('Name' => 'Price')
+	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	* @param string		$currency_symbol	symbol to use as the currency for all prices
-	* @param int		$float_precision	precision of the floating numbers used for prices
+	* @param int		$float_precision	precision of the floating numbers used for prices	
+	* @param string	    $refund_info		refund info to include if some product in cart are non-refundable
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
+	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $refund_info='')
 	{
 		if (empty($this->cart)) return;
 
@@ -640,13 +652,22 @@ class Ecommerce_Cart_Processor
 		$name_length = 0;
 		$has_price = FALSE;
 		$has_products = FALSE;
-
+        
+        // TRUE if any item in cart is non-refundable
+        $non_refundable_flag = FALSE;
+        
 		// formatting preparation
 		foreach ($this->cart as $assetid => $details) {
 			// determine longest item name
 
 			$tmp_taxable = array_get_index($details, 'taxable', FALSE);
 			$product_name = array_get_index($details, 'name', '');
+			
+			if (!$non_refundable_flag) {
+                $refund_type = array_get_index($details, 'refund_type', 'NonRefundable');
+                $non_refundable_flag = ($refund_type === 'NonRefundable') ? TRUE : FALSE;
+			}
+			
 			if (strlen($product_name) > $name_length) {
 				$name_length = strlen(array_get_index($details, 'name', ''));
 			}
@@ -776,6 +797,10 @@ class Ecommerce_Cart_Processor
 				}
 				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, $grand_total_ex_delivery + $total_delivery_cost));
 			}
+            if (!empty($refund_info) && $non_refundable_flag) {
+                echo "\n".$refund_info."\n";
+            }
+            
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
 		}
