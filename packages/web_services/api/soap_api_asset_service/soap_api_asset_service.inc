@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.13 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.14 2010/05/07 04:54:28 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -801,15 +801,31 @@ class Soap_Api_Asset_Service extends Soap_Api
 			$descendantTypes = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset->type());
 			if (in_array('page', $descendantTypes)) {	
 				$root_path_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($root_path_id);
-				$asset_url     = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid, $root_path_url);
-				$asset_url     = preg_replace('/http[s]?:\/\//i', '', $asset_url);
-				$layout_id     = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, 'paint_layout::system::frontend');
+				$pro_asset_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid, $root_path_url);
+				$asset_url     = preg_replace('/http[s]?:\/\//i', '', $pro_asset_url);
+				$web_paths	   = $asset->getWebPaths();
+				$final_path	   = array_pop($web_paths);
+				foreach ($web_paths as $path) {
+					$pattern  = '/\/'.$path.'$/';
+        			preg_match($pattern, $url, $matches);
+					if (!empty($matches)) {
+						$final_path = $path;
+						break;
+					}//end if
+				}//end foreach
+
+				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, 'paint_layout::system::frontend');
 				ob_start();
 				$asset->printBodyWithPaintLayout($layout_id);
 				$content = ob_get_contents();
 				ob_end_clean();
+
+				// The remaining keywords, just clean them up because they didnt get replaced.
+				$GLOBALS['SQ_SYSTEM']->replaceKeyword($content);
 				return Array (
 						'PageContent'   => $content,
+						'PageURL'		=> $pro_asset_url,
+						'PageWebPath'	=> $final_path,
 						);
 			} else {
                 throw new SoapFault('Server', 'This asset is not of type page');
@@ -1256,9 +1272,12 @@ class Soap_Api_Asset_Service extends Soap_Api
                             'GetPageContents'           => Array (
                                                                'GetPageContents'        => Array (
                                                                                             'AssetID'       => self::$string_non_optional,
+																							'RootNodeID'	=> self::$string_non_optional,
                                                                                            ),
                                                                'GetPageContentsResponse'=> Array (
-                                                                                            'PageContent'       => self::$string_non_optional,
+                                                                                            'PageContent'   => self::$string_non_optional,
+                                                                                            'PageURL'       => self::$string_optional,
+																							'PageWebPath'	=> self::$string_optional,
                                                                                            ),
                                                               ),
                             'LoginUser'         => Array (
