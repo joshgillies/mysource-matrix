@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.798 2010/05/05 00:59:57 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.799 2010/05/07 00:22:22 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.798 $
+* @version $Revision: 1.799 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9307,11 +9307,22 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if (!empty($tree_result)) {
+				$trees_done = array();
 				$where = 't.treeid IN (';
 				foreach ($tree_result as $tree_row) {
 					$treeid = $tree_row['treeid'];
 					while (strlen($treeid) > 0) {
-						$where .= MatrixDAL::Quote($treeid) . ',';
+						$quoted_treeid = MatrixDAL::Quote($treeid);
+						/**
+						 * See if we've dealt with this id before.
+						 * It's not necessarily all the results from $tree_result we need to worry about
+						 * Rather the shared 'parent' tree id's.
+						 * eg they all have base tree id 0000, we only need to include that once.
+						 */
+						if (!in_array($quoted_treeid, $trees_done)) {
+							$where .= $quoted_treeid . ',';
+							$trees_done[] = $quoted_treeid;
+						}
 						$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
 					}
 				}
