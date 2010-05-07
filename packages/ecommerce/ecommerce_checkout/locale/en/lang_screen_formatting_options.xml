@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting_options.xml,v 1.5 2009/08/18 09:45:21 ata Exp $
+* $Id: lang_screen_formatting_options.xml,v 1.6 2010/05/07 03:44:57 cupreti Exp $
 *
 */
 -->
@@ -30,6 +30,10 @@
 		<field attribute="return_to_checkout_button_text">
 			<display_name>Go Back Button Text:</display_name>
 			<note />
+		</field>	
+		<field attribute="refund_info_text">
+			<display_name>Product Non-Refund Text:</display_name>
+			<note>Text to be displayed in summary if some products in cart are non-refundable</note>
 		</field>
 	</section>
 	<section name="Customise Receipt">

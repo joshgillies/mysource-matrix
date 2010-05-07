@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formatting_options.xml,v 1.6 2009/08/18 09:45:21 ata Exp $
+* $Id: edit_interface_screen_formatting_options.xml,v 1.7 2010/05/07 03:43:01 cupreti Exp $
 *
 */
 -->
@@ -32,6 +32,9 @@
 			<text width="40" height="1" />
 		</field>
 		<field attribute="return_to_checkout_button_text">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="refund_info_text">
 			<text width="40" height="1" />
 		</field>
 	</section>

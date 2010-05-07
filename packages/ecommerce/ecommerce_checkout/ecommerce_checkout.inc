@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.80 2010/03/15 04:27:26 akarelia Exp $
+* $Id: ecommerce_checkout.inc,v 1.81 2010/05/07 03:43:01 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -544,7 +544,7 @@ class Ecommerce_Checkout extends Page
 					if (!(isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order'])) {
 						// create the pending order
 						$order_asset = $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
-
+						
 						// so everyone knows that there is an existing pending order and to ensure that we do not create new ones unnecessarily
 						$_SESSION['sq_local_cart_contents']['pending_order_id'] = $order_asset->id;
 
@@ -1295,7 +1295,7 @@ class Ecommerce_Checkout extends Page
 
 			// if products are taxed, remove tax from final amount
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
+			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('refund_info_text'));
 
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
