@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.11 2010/04/09 02:16:18 csmith Exp $
+* $Id: asset_manager.inc,v 1.779.2.12 2010/05/10 00:59:50 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.11 $
+* @version $Revision: 1.779.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8339,10 +8339,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($asset_info as $assetid => $screen) {
 			$href = '';
 			if (SQ_IN_LIMBO) {
-				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen;
-				if (isset($_GET['limbo_assetid'])) {
-					$href = $href.'&limbo_assetid='.$assetid;
-				}
+				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen.'&limbo_assetid='.$assetid;
 			} else {
 				$frame = ($backend_page) ? 'SQ_BACKEND_PAGE=main&' : '';
 				$href = sq_web_path('admin').'/?'.$frame.'backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
