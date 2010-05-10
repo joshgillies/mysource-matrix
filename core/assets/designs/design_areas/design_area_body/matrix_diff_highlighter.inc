@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.5 2010/02/21 23:05:05 akarelia Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.6 2010/05/10 02:30:29 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,21 +92,74 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 		if ($need_traversal) {
 
 			$opened = FALSE;
-			$closed = FALSE;
 			foreach ($lines as $i => $line) {
 				if (preg_match('/<(td|th|li)([^>]*)>/i', $line)) {
-					$lines[$i] .= $prefix;
-					$opened = TRUE;
-				} else if (preg_match('/<\/(td|th|li)([^>]*)>/i', $line) && $opened) {
-					$lines[$i] = $suffix.$line;
+					//lets find the first closing tag (assuming valid html)
+					$end_index = $i + 1;
+					$pattern = '/<\/td>/i';
+					if (preg_match('/<th([^>]*)>/i', $line)) {
+						$pattern = '/<\/th>/i';
+					} else if (preg_match('/<li([^>]*)>/i', $line)) {
+						$pattern = '/<\/li>/i';
+					}
+					while ($end_index < count($lines)){
+						if (preg_match($pattern, $lines[$end_index])) {
+							$found = 1;
+							break;
+						}
+					$end_index++;
+					}
+					//if we find the closing (td,th,li) tag lets make sure tags such as <p> are nested  
+					//inside the <ins> and <del> tags which is what is causing tables to look distorted as per Bug #4384
+					if ($found){
+						$begin_index = $i + 1;
+						while ($this->_isOpenTag($lines[$begin_index]) && ($begin_index < $end_index)) {
+							$begin_index++;
+						}
+						$end_index--;
+						while ($this->_isCloseTag($lines[$end_index]) && ($end_index > 0)) {
+							$end_index--;
+						}
+					
+						$lines[$begin_index] = $prefix.$lines[$begin_index];
+						$lines[$end_index] .= $suffix;
+						$found = 0;
+					} else {
+						$lines[$i] .= $prefix;
+					}
+				
+					$opened = TRUE; //tracking if the last tag is an open tag
+					if (!isset($first)){ //tracking whether first tag is open or close
+						$first = "open";
+					}
+				} else if (preg_match('/<\/(td|th|li)([^>]*)>/i', $line)) {
 					$opened = FALSE;
+					if (!isset($first)){
+						$first = "closed";
+						//takes care of situations where the FIRST tag in the lines is an open and close tag
+						//in this case we want <ins> or <del> tags AFTER.
+						if ($this->_isOpenTag($lines[0]) || $this->_isCloseTag($lines[0])){
+							$lines[0] = $lines[0].$prefix;
+						} else {
+							$lines[0] = $prefix.$lines[0];
+						}		
+						$end_index = $i - 1;
+						while ($this->_isCloseTag($lines[$end_index]) && ($end_index > 0)) {
+							$end_index--;
+						}
+						$lines[$end_index] .= $suffix;
+					}
 				}
 			}
-			if ($closed && !$opened) {
-				$lines[0] = $prefix.$lines[0];
-			}
-			if ($opened && !$closed) {
-				$lines[count($lines)-1] .= $suffix;
+			
+			if ($opened) {
+				//takes care of situations where the LAST tag in the lines is an open and close tag
+				//in this case we don't want any <ins> or <del> tags.
+				if ($this->_isOpenTag($lines[count($lines)-1]) || $this->_isCloseTag($lines[count($lines)-1])){
+					$lines[count($lines)-2] = str_replace($prefix, '',$lines[count($lines)-2]);
+				} else {
+					$lines[count($lines)-1] .= $suffix;
+				}
 			}
 			return $this->_lines($lines, ' ', FALSE);
 
@@ -121,8 +174,19 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			while ($this->_isOpenTag($lines[$end_index]) && ($end_index > 0)) {
 				$end_index--;
 			}
-			$lines[$begin_index] = $prefix.$lines[$begin_index];
-			$lines[$end_index] .= $suffix;
+			//sometimes the lines don't begin with close tags but rather open tags 
+			//and once again we don't want these tags nested in <ins> or <del> tags.
+			if ($begin_index == 0 && $this->_isOpenTag($lines[$begin_index])){
+				$lines[$begin_index] .= $prefix;
+			} else {
+				$lines[$begin_index] = $prefix.$lines[$begin_index];
+			}
+			if ($end_index == (count($lines) - 1) && $this->_isCloseTag($lines[$end_index])){
+				$lines[$end_index] = $suffix.$lines[$end_index];
+			} else {
+				$lines[$end_index] .= $suffix;
+			}
+			
 			return $this->_lines($lines, ' ', FALSE);
 		}
 
@@ -267,7 +331,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 	*/
 	function _isCloseBlockTag($x)
 	{
-		return preg_match('/<\/(address|blockcode|blockquote|div|h|h1|h2|h3|h4|h5|h6|hr|p|pre|section)>/i', $x);
+		return preg_match('/<\/(address|blockcode|blockquote|div|h|h1|h2|h3|h4|h5|h6|hr|p|pre|section|a)>/i', $x);
 
 	}//end _isCloseBlockTag()
 
