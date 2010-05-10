@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.90 2010/05/05 04:27:06 lwright Exp $
+* $Id: install.inc,v 1.91 2010/05/10 23:15:02 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1765,7 +1765,7 @@ function generate_install_key($create_key_file=FALSE)
 		require_once SQ_INCLUDE_PATH.'/system_config.inc';
 		$cfg = new System_Config();
 		ob_start();
-		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
+		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE, FALSE)) {
 			ob_end_clean();
 			return NULL;
 		}
