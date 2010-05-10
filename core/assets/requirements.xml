@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.8 2009/10/02 04:29:59 csmith Exp $
+* $Id: requirements.xml,v 1.8.2.1 2010/05/10 03:27:10 csmith Exp $
 *
 */
 -->
@@ -136,7 +136,7 @@
 	<requirement>
 		<external_program>tidy</external_program>
 		<description> - this is used to check html content meets XHTML standards.</description>
-		<version>6 November 2007</version>
+		<version>14 June 2007</version>
 		<version_arguments>-v</version_arguments>
 		<suggested>1</suggested>
 	</requirement>
