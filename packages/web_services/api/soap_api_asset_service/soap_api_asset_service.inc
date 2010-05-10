@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.14 2010/05/07 04:54:28 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.15 2010/05/10 03:59:15 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1272,7 +1272,7 @@ class Soap_Api_Asset_Service extends Soap_Api
                             'GetPageContents'           => Array (
                                                                'GetPageContents'        => Array (
                                                                                             'AssetID'       => self::$string_non_optional,
-																							'RootNodeID'	=> self::$string_non_optional,
+																							'RootNodeID'	=> self::$string_optional,
                                                                                            ),
                                                                'GetPageContentsResponse'=> Array (
                                                                                             'PageContent'   => self::$string_non_optional,
