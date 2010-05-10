@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.800 2010/05/10 00:52:02 akarelia Exp $
+* $Id: asset_manager.inc,v 1.801 2010/05/10 17:50:17 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.800 $
+* @version $Revision: 1.801 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8100,11 +8100,12 @@ class Asset_Manager extends MySource_Object
 	*										for a whole bunch of them
 	* @param string		$base_url			the url that we are want to match closest to
 	* @param boolean	$ignore_rollback	ignore rollback checks
+	* @param int		$base_contextid		the id of the context that you want the url from
 	*
 	* @return mixed int|array
 	* @access public
 	*/
-	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE)
+	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE, $base_contextid = NULL)
 	{
 		if (!isset($this->_tmp['urls'])) {
 			$this->_tmp['urls'] = Array();
@@ -8127,12 +8128,12 @@ class Asset_Manager extends MySource_Object
 			if ($return_array) {
 				foreach ($assetids as $assetid) {
 					$asset = $this->getAsset($assetid);
-					$return_urls[$assetid] = $asset->getURL($base_url, TRUE);
+					$return_urls[$assetid] = $asset->getURL($base_url, TRUE, $base_contextid);
 				}
 				return $return_urls;
 			} else {
 				$asset = $this->getAsset($assetids[0]);
-				return $asset->getURL($base_url, TRUE);
+				return $asset->getURL($base_url, TRUE, $base_contextid);
 			}
 		}
 
@@ -8147,15 +8148,21 @@ class Asset_Manager extends MySource_Object
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
 
+		if (is_null($base_contextid)) {
+			$cache_index = $GLOBALS['SQ_SYSTEM']->getContextId();
+		} else {
+			$cache_index = $base_contextid;
+		}
+		
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
 			if (!isset($this->_tmp['urls'][$assetid])) {
 				$this->_tmp['urls'][$assetid] = Array();
 			}
 
-			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
+			if (isset($this->_tmp['urls'][$assetid][$base_url][$cache_index])) {
 				// use the cached version
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url][$cache_index];
 			}
 		}
 
@@ -8179,6 +8186,9 @@ class Asset_Manager extends MySource_Object
 				$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
 				$where = 'l.assetid '.$assetid_cond;
+				if (!is_null($base_contextid)) {
+					$where .= ' AND u.base_contextid = '.MatrixDAL::quote($base_contextid);
+				}
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 				$sql = 'SELECT l.assetid, l.url,
 					CASE WHEN l.'.$protocol.' = \'1\' THEN \''.$protocol.'\' ELSE \''.(($protocol == 'https') ? 'http' : 'https').'\' END as protocol,
@@ -8191,11 +8201,16 @@ class Asset_Manager extends MySource_Object
 					$sql .= ' +
 					(CASE WHEN SUBSTR(l.url || \'/\', 1, '.strlen($str).') = '.MatrixDAL::quote($str).' THEN 1 ELSE 0 END)';
 				}
+				
+				if (is_null($base_contextid)) {
+					$from = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l ';
+				} else {
+					$from = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u ON l.root_urlid = u.urlid ';
+				}
 
 				$sql .= '
 				) as weighting
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-				'.$where.'
+				'.$from.$where.'
 				ORDER BY weighting DESC, LENGTH(l.url) ASC';
 
 				$partial_result = MatrixDAL::executeSqlGroupedAssoc($sql);
@@ -8205,11 +8220,11 @@ class Asset_Manager extends MySource_Object
 
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
-					$this->_tmp['urls'][$assetid][$base_url] = '';
+					$this->_tmp['urls'][$assetid][$base_url][$cache_index] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$base_url][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url][$cache_index];
 			}
 		}//end if
 

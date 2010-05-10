@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.720 2010/05/02 23:04:50 lwright Exp $
+* $Id: asset.inc,v 1.721 2010/05/10 17:51:24 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.720 $
+* @version $Revision: 1.721 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4782,13 +4782,14 @@ class Asset extends MySource_Object
 	* @param string		$base_url			the url that we are want to match closest to
 	* @param boolean	$ignore_rollback	ignore rollback checks in asset manager?
 	*										this should only get set by the asset manager itself
+	* @param int		$base_contextid		the id of the context that we want the url from
 	*
 	* @return string
 	* @access public
 	*/
-	public function getURL($base_url=NULL, $ignore_rollback=FALSE)
+	public function getURL($base_url=NULL, $ignore_rollback=FALSE, $base_contextid = NULL)
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback);
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback, $base_contextid);
 
 	}//end getURL()
 

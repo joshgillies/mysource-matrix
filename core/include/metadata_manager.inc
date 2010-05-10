@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.209 2010/05/05 17:41:33 ata Exp $
+* $Id: metadata_manager.inc,v 1.210 2010/05/10 17:52:31 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1453,6 +1453,22 @@ class Metadata_Manager extends MySource_Object
 				}//end if
 			}//end foreach which loops through $prefix array
 
+			$base_contextid = NULL;
+			$full_keyword = $keyword;
+			if (0 === strpos($keyword, 'asset_url_')) {
+				// get the context id required from the name specified in the keyword
+				// if there is a '_' in the context name, take it as a space. so, 'Default Context' and 'Default_Context' are treated as the same.
+				$context_name = substr($keyword, 10);
+				$context_name = str_replace('_', ' ', $context_name);
+				$context_data = MatrixDAL::executeAll('core', 'getContextByName', Array('name' => Array($context_name)));
+
+				// set the base contextid used later to get a correct URL and re-set the keyword without the context name to retrieve the replacement value later
+				if (!empty($context_data)) {
+					$base_contextid = $context_data[0]['contextid'];
+					$keyword = 'asset_url';
+				}
+			}
+			
 			if (!$replaced) {
 				switch ($keyword) {
 					case 'asset_assetid' :
@@ -1479,7 +1495,7 @@ class Metadata_Manager extends MySource_Object
 					break;
 
 					case 'asset_url' :
-						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getURL();'."\n";
+						echo '$metadata_replacements['.var_export($full_keyword, 1).'] = $metadata_asset->getURL(NULL, FALSE, $base_contextid);'."\n";
 					break;
 
 					case 'asset_name_linked' :
