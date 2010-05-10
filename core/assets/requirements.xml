@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.12 2010/05/05 07:22:50 ewang Exp $
+* $Id: requirements.xml,v 1.13 2010/05/10 03:26:42 csmith Exp $
 *
 */
 -->
@@ -146,7 +146,7 @@
 	<requirement>
 		<external_program>tidy</external_program>
 		<description> - this is used to check html content meets XHTML standards.</description>
-		<version>6 November 2007</version>
+		<version>14 June 2007</version>
 		<version_arguments>-v</version_arguments>
 		<suggested>1</suggested>
 	</requirement>
