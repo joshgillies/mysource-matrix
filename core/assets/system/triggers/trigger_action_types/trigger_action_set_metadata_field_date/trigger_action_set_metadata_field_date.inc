@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Sets the a metadata field date with the curernt date time plus a variable offset
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,19 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 		$success = $mm->setMetadata($asset->id, $metadata);
 
 		// Regenerate Metadata File
-		if ($success) $mm->regenerateMetadata($asset->id);
+		if ($success) {
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['fieldid']);
+			// If this date field is contextable, regenerate the metadata file in the current context only;
+			// otherwise, regenerate all metadata files
+			if ($field->attr('is_contextable')) {
+				$mm->generateContentFile($asset->id);
+			} else {
+				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				foreach ($all_contexts as $contextid => $context_data) {
+					$mm->generateContentFile($asset->id, FALSE, $contextid);
+				}
+			}
+		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreContext();
 

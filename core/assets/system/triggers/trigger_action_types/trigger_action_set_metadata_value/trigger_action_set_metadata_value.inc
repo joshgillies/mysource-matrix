@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.35 2010/05/05 17:42:42 ata Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.36 2010/05/10 11:44:31 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,24 +161,16 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// Regenerate Metadata File
 		if ($success) {
-			// All context metadata files need to be regenerated if there is a non-contextable field changed
-			$regen_all_contexts = FALSE;
-			foreach ($metadata as $fieldid => $field_data) {
-				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
-				if (!$field) continue;
-				if ((boolean)$field->attr('is_contextable') === FALSE || $field instanceof Metadata_Field_Select) {
-					$regen_all_contexts = TRUE;
-					break;
-				}
-			}
-			
-			if ($regen_all_contexts) {
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['fieldid']);
+			// If the set field is contextable and is not a select field, regenerate the metadata file in the current context only;
+			// otherwise, regenerate all metadata files
+			if ($field->attr('is_contextable') && !($field instanceof Metadata_Field_Select)) {
+				$mm->generateContentFile($asset->id);
+			} else {
 				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 				foreach ($all_contexts as $contextid => $context_data) {
 					$mm->generateContentFile($asset->id, FALSE, $contextid);
 				}
-			} else {
-				$mm->generateContentFile($asset->id);
 			}
 		}
 

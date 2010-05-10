@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.40 2010/05/10 01:58:29 akarelia Exp $
+* $Id: js_api.inc,v 1.41 2010/05/10 11:51:10 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1634,6 +1634,8 @@ class JS_Api extends Page
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			$am->acquireLock($assetid, 'metadata');
+			// All context metadata files need to be regenerated if there is a non-contextable field changed
+			$regen_all_contexts = FALSE;
 			for ($i = 0; $i < count($fieldid); $i++ ) {
 
 				$field	= $am->getAsset($fieldid[$i]);
@@ -1641,6 +1643,10 @@ class JS_Api extends Page
 					$this->returnError('The Field ID provided does not belong to a metadata field');
 				}//end if
 
+				if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
+					$regen_all_contexts = TRUE;
+				}
+				
 				$field_name		= $field->attr('name');
 				$metadata_info	= Array (
 									$fieldid[$i]	=> Array (
@@ -1657,7 +1663,19 @@ class JS_Api extends Page
 			$am->releaseLock($assetid, 'metadata');
 
 			// instead for doing it for every field, lets regen content file just once here
-			if (!$mm->generateContentFile($assetid)) $g_result = FALSE;
+			
+			if ($regen_all_contexts) {
+				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				foreach ($all_contexts as $contextid => $context_data) {
+					if (!$mm->generateContentFile($assetid, FALSE, $contextid)) {
+						$g_result = FALSE;
+						break;
+					}
+				}
+			} else {
+				if (!$mm->generateContentFile($assetid)) $g_result = FALSE;
+			}
+			
 			if ($s_result && $g_result) {
 				return Array (
 						'success'	=> 'The metadata has been correctly set',

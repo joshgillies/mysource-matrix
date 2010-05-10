@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.19 2010/05/04 06:06:21 mhaidar Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.20 2010/05/10 11:48:01 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -956,12 +956,25 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset[$assetid]['name']);
 
 		$metadata = $mm->getMetadata($assetid);
+		// All context metadata files need to be regenerated if there is a non-contextable field changed
+		$regen_all_contexts = FALSE;
 		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
 			$metadata[$fieldid]['value'] = $new_data;
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
+				$regen_all_contexts = TRUE;
+			}
 		}
 		$mm->setMetadata($assetid, $metadata);
-		$mm->regenerateMetadata($assetid);
+		if ($regen_all_contexts) {
+			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			foreach ($all_contexts as $contextid => $context_data) {
+				$mm->generateContentFile($assetid, FALSE, $contextid);
+			}
+		} else {
+			$mm->generateContentFile($assetid);
+		}
 
 		unset($this->_running_vars['metadata_replacements'][$assetid]);
 

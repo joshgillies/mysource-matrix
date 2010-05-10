@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.10 2008/10/29 22:36:47 lwright Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.11 2010/05/10 11:46:53 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,20 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				if (array_intersect($schemas, array_keys($schemaid)) !== Array()) {
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					$success = $mm->setMetadata($parentid, $metadata);
-					if ($success) $mm->generateContentFile($parentid);
+					if ($success) {
+						$fieldid_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+						$totalid_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($totalid);
+						// If both of these two fields are contextable, regenerate the metadata file in the current context only;
+						// otherwise, regenerate all metadata files
+						if ($fieldid_field->attr('is_contextable') && $totalid_field->attr('is_contextable')) {
+							$mm->generateContentFile($parentid);
+						} else {
+							$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+							foreach ($all_contexts as $contextid => $context_data) {
+								$mm->generateContentFile($parentid, FALSE, $contextid);
+							}
+						}
+					}
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
 
