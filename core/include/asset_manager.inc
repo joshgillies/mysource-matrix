@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.799 2010/05/07 00:22:22 csmith Exp $
+* $Id: asset_manager.inc,v 1.800 2010/05/10 00:52:02 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.799 $
+* @version $Revision: 1.800 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8348,10 +8348,7 @@ class Asset_Manager extends MySource_Object
 			//Patch for #4372 Feature Request : JS API ability to specify _admin/_edit access
 			// if our $_REQUEST var is set then we are faking that we are in simple edit...so generate links accordingly
 			if (SQ_IN_LIMBO || (isset($_REQUEST['force_simple_edit']) && $_REQUEST['force_simple_edit']) ) {
-				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen;
-				if (isset($_GET['limbo_assetid'])) {
-					$href = $href.'&limbo_assetid='.$assetid;
-				}
+				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen.'&limbo_assetid='.$assetid;
 			} else {
 				$frame = ($backend_page) ? 'SQ_BACKEND_PAGE=main&' : '';
 				$href = sq_web_path('admin').'/?'.$frame.'backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
