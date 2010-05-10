@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.79 2009/11/13 00:44:49 lwright Exp $
+* $Id: image.inc,v 1.80 2010/05/10 02:01:02 kmyothein Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -530,7 +530,9 @@ class Image extends File implements Bridge
 			$varieties = $this->attr('varieties');
 
 			if (!isset($varieties['data'][$shadowid])) {
-				trigger_localised_error('CORE0073', E_USER_WARNING, $this->id, $shadowid);
+				if(!$mute_errors) {
+					trigger_localised_error('CORE0073', E_USER_WARNING, $this->id, $shadowid);
+				}
 				return $asset;
 			}
 
