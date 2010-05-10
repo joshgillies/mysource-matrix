@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.28 2010/05/10 05:16:03 mhaidar Exp $
+* $Id: logs.inc,v 1.29 2010/05/10 06:57:48 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -167,7 +167,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 					<tr>
 						<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
 						<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
-						<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo htmlentities(nl2br($log_data['body'])); ?></td>
+						<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo nl2br(htmlentities($log_data['body'])); ?></td>
 					</tr>
 					<?php
 					$num_printed++;
