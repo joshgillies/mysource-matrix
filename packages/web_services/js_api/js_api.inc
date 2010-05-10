@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.39 2010/05/04 04:27:37 akarelia Exp $
+* $Id: js_api.inc,v 1.40 2010/05/10 01:58:29 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -151,6 +151,31 @@ class JS_Api extends Page
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
 		// Lets populate our $_REQUEST var so that we can use it later :)
 		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
+
+		$temp_server_vars = $_SERVER['PHP_SELF'];
+
+		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+			$referer_url = str_replace(current_protocol().'://', '', $_SERVER['HTTP_REFERER']);
+
+			// if we are in Backend or limbo remove everything after _edit or _admin
+			// or else getAssetFromURL eill get confused and wont return us correct asset
+			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE) {
+				$referer_url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'(.)*/', '', $referer_url);
+			} else if (strpos($referer_url, SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
+				$referer_url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'(.)*/', '', $referer_url);
+			}
+
+			$url_asset_object = $am->getAssetFromURL(current_protocol(), $referer_url, TRUE, TRUE);
+			if (!is_null($url_asset_object) ) {
+				$_SERVER['PHP_SELF'] = str_replace(current_protocol().'://'.$_SERVER['HTTP_HOST'], '', $_SERVER['HTTP_REFERER']);
+			}
+
+			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE || $this->attr('force_simple_edit')) {
+				$_SERVER['PHP_SELF'] = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'(.)*/', '', $_SERVER['PHP_SELF']);
+				$_SERVER['PHP_SELF'] = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'(.)*/', '', $_SERVER['PHP_SELF']);
+				$_REQUEST['force_simple_edit'] = TRUE;
+			}
+		}
 
 		// Non asset based functions need to be handled separately
 		switch ($type) {
@@ -909,6 +934,10 @@ class JS_Api extends Page
 		if (isset($data)) {
 			$this->returnJSON($data, $type);
 		}//end if
+
+		// lets restor PHP_SELF just incase if Matrix is going to check if $_SERVER var is
+		// exactly the same when it went in THIS function and when i goes out
+		$_SERVER['PHP_SELF'] = $temp_server_vars;
 
 		// Restore error handler
 		restore_error_handler();
