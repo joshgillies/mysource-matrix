@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.49 2010/05/10 03:36:31 cupreti Exp $
+* $Id: form_ecommerce.inc,v 1.50 2010/05/10 03:39:10 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -559,7 +559,6 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		$bodycopy->setKeywordReplacements($replacements);
-
 
 		// all the output is here
 		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
