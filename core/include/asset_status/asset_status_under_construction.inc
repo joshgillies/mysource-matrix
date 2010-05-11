@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.53 2010/01/13 00:48:06 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.54 2010/05/11 23:01:50 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -88,7 +88,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because UNDER_CONSTRUCTION does not require workflow
-			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
+			pre_echo('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
 			$schemas = $wfm->getSchemas($this->owner->id, true);
@@ -137,16 +137,18 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
+				if ($mm->allowsMetadata($this->owner->id)) {
+                    
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+					$is_dependant = $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 					// In the case of multiple streams, we may need to provide
 					// BOTH 'approve' and 'apply for approval' if some streams
 					// can be approved bypassing workflow, and some can't.
-					if (($wf_complete === TRUE) && ($m_complete === TRUE)) {
+					if ($wf_complete === TRUE && (($m_complete === TRUE && !$is_dependant) || $is_dependant)) {
 						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
 					}
-					if (($needs_workflow === TRUE) || ($m_complete === FALSE)) {
+					if (($needs_workflow === TRUE) || ($m_complete === FALSE && !$is_dependant)) {
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
 					}
 				} else {
