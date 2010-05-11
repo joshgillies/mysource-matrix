@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.302 2010/04/30 02:56:14 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.303 2010/05/11 02:27:26 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.302 $
+* @version $Revision: 1.303 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2295,23 +2295,48 @@ class Listing_Engine extends Page
 
 		// by the time we reach this point we already have a bodycopy for this asset
 		$bc_keywords = $bodycopy->getKeywords();
-		$keywords = Array();
+		$keywords    = Array();
+		
+		// Asset contents keywords that we want contexted versions thereof
+		// These will be stored in the keywords array as "keyword^context:contextid"
+		// and accessed later on when we replace the keyword.
+		$context_bc_keywords      = Array();
+		$paint_layouts_to_resolve = Array();
+		$all_contexts             = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		// For each keyword starting with 'asset_contents', ensure there is an entry
 		// in $bc_keywords for both the plain keyword and any equivalents with modifiers.
 		//
 		// This way plain replacement works as expected, and the modifiers can be run
-		// later in this method..
+		// later in this method
 		foreach ($bc_keywords as $kw) {
-				if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
-						$kw = parse_keyword($kw);
+			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
+				$kw = parse_keyword($kw, $modifiers);
+				$contextid = extract_context_modifier($modifiers);
 
-						if (!in_array($kw, $bc_keywords)) {
-								 array_push($bc_keywords, $kw);
-						}
+				if (!in_array($kw, $bc_keywords)) {
+					array_push($bc_keywords, $kw);					
 				}
-		}
 
+				// Store which context we need to get this keyword for
+				if (array_key_exists($kw, $context_bc_keywords) === FALSE) {
+					$context_bc_keywords[$kw] = Array();
+				}
+
+				if ($contextid === NULL) {
+					$context_bc_keywords[$kw]['current'] = NULL;
+				} else {
+					$context_bc_keywords[$kw][$contextid] = $all_contexts[$contextid]['name'];
+				}
+
+				// Contents being generated with a paint layout - work out which ones
+				// we have to resolve (to get around bug #4374, which previously limited
+				// support to one arbitrary paint layout per bodycopy)
+				if (substr($kw, 0, strlen('asset_contents_paint_')) == 'asset_contents_paint_') {
+					$paint_layouts_to_resolve[] = substr($kw, strlen('asset_contents_paint_'));
+				}
+			}
+		}
 
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
@@ -2320,25 +2345,31 @@ class Listing_Engine extends Page
 			// Body with paint layout applied, if any (inherited from the
 			// listing engine asset, usually)
 			if (in_array('asset_contents', $bc_keywords)) {
-				ob_start();
-					if ($assetid != $this->id) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$asset->printBodyWithPaintLayout();
+				foreach ($context_bc_keywords['asset_contents'] as $contextid => $context_name) {
+					$kw = 'asset_contents';
+					if ($context_name !== NULL) {
+						$kw .= '^context:'.$context_name;
 					}
-					$keywords['asset_contents'] = ob_get_contents();
-				ob_end_clean();
+
+					$keywords[$kw] = $this->_getAssetContentsBCKeywordReplacement($asset, $contextid);
+				}
 
 			}
 
 			// %asset_contents_raw% will print the asset's body WITHOUT a
 			// paint layout
 			if (in_array('asset_contents_raw', $bc_keywords)) {
-				ob_start();
-					if ($asset->id != $this->id) $asset->printBody();
-					$keywords['asset_contents_raw'] = ob_get_contents();
-				ob_end_clean();
+				foreach ($context_bc_keywords['asset_contents_raw'] as $contextid => $context_name) {
+					$kw = 'asset_contents_raw';
+					if ($context_name !== NULL) {
+						$kw .= '^context:'.$context_name;
+					}
+
+					$keywords[$kw] = $this->_getAssetContentsRawBCKeywordReplacement($asset, $contextid);
+				}
 
 			}
+
 		} else {
 			$this_needs_asset = FALSE;
 			foreach ($bc_keywords as $keyword) {
@@ -2361,38 +2392,42 @@ class Listing_Engine extends Page
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
 				if (array_key_exists('asset_contents', $keywords)) {
-					ob_start();
-						if ($asset->id != $this->id) {
-							$asset->printBodyWithPaintLayout();
+					foreach ($context_bc_keywords['asset_contents'] as $contextid => $context_name) {
+						$kw = 'asset_contents';
+						if ($context_name !== NULL) {
+							$kw .= '^context:'.$context_name;
 						}
-						$keywords['asset_contents'] = ob_get_contents();
-					ob_end_clean();
+
+						$keywords[$kw] = $this->_getAssetContentsBCKeywordReplacement($asset, $contextid);
+					}
+
 				}
 
 				// Body with paint layout(%asset_contents_paint_ASSETID%) or user-defined paint layout(%asset_contents_paint_NAME%) applied
-				if (preg_match('|%asset_contents_paint_([^%]+)%|is', $bodycopy->getRawBodycopyContent(), $paint_layouts)) {
-					if ($assetid != $this->id) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$layout_id = $paint_layouts[1];
-						//layout code name must not be number, otherwise it will be considered as asset id
-						if (!assert_valid_assetid($layout_id, 'Not valid assetid', TRUE, FALSE)) {
-							$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
+				foreach ($paint_layouts_to_resolve as $paint_layout) {
+					$base_kw = 'asset_contents_paint_'.$paint_layout;
+					foreach ($context_bc_keywords[$base_kw] as $contextid => $context_name) {
+						$kw = $base_kw;
+						if ($context_name !== NULL) {
+							$kw .= '^context:'.$context_name;
 						}
-						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
-							ob_start();
-							$asset->printBodyWithPaintLayout($layout_id);
-							$keywords['asset_contents_paint_'.$paint_layouts[1]] = ob_get_clean();
-						}
+
+						$keywords[$kw] = $this->_getAssetContentsPaintBCKeywordReplacement($asset, $paint_layout, $contextid);
 					}
+
 				}
 
 				// %asset_contents_raw% will print the asset's body WITHOUT a
 				// paint layout
 				if (array_key_exists('asset_contents_raw', $keywords)) {
-					ob_start();
-						if ($asset->id != $this->id) $asset->printBody();
-						$keywords['asset_contents_raw'] = ob_get_contents();
-					ob_end_clean();
+					foreach ($context_bc_keywords['asset_contents_raw'] as $contextid => $context_name) {
+						$kw = 'asset_contents_raw';
+						if ($context_name !== NULL) {
+							$kw .= '^context:'.$context_name;
+						}
+
+						$keywords[$kw] = $this->_getAssetContentsRawBCKeywordReplacement($asset, $contextid);
+					}
 
 				}
 
@@ -2611,6 +2646,15 @@ class Listing_Engine extends Page
 			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
 				$plain_keyword = parse_keyword($kw, $modifiers);
 				if (!empty($modifiers)) {
+						// If this is a keyword with modifiers, first see if context
+						// is one of them, and if so, augment the plain keyword
+						// so we get the version in the correct context
+						$contextid = extract_context_modifier($modifiers);
+
+						if ($contextid !== NULL) {
+							$plain_keyword .= '^context:'.$all_contexts[$contextid]['name'];
+						}
+
 						// Start the modified keyword off with the plain replaced value
 						$keywords[$kw] = $keywords[$plain_keyword];
 
@@ -2630,6 +2674,149 @@ class Listing_Engine extends Page
 		}
 
 	}//end _printAsset()
+
+
+	/**
+	 * Get the "asset_contents" bodycopy keyword replacement
+	 *
+	 * This is the asset contents being printed with the "default" inherited
+	 * bodycopy. In most cases, this will be inherited from the listing engine.
+	 *
+	 * @param Asset		$asset			Asset being painted
+	 * @param int		$contextid		Return keyword from a different context.
+	 *									Leave NULL (or omit) for current context.
+	 *
+	 * @return string
+	 */
+	protected function _getAssetContentsBCKeywordReplacement(Asset $asset, $contextid=NULL)
+	{
+		$replacement = '';
+
+		// Protect against infinite recursion by blocking re-printing of the
+		// Listing Engine asset
+		if ($asset->id !== $this->id) {
+			// Change to alternate context?
+			if ($contextid !== NULL) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}
+
+			ob_start();
+				$asset->printBodyWithPaintLayout();
+			$replacement = ob_get_clean();
+
+			// Restore context, and clean the asset from the cache
+			if ($contextid !== NULL) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+
+		}//end if asset is not Listing Engine itself
+
+		return $replacement;
+
+	}//end _getAssetContentsBCKeywordReplacement()
+
+
+	/**
+	 * Get the "asset_contents_raw" bodycopy keyword replacement
+	 *
+	 * This is the contents of the asset without any paint layout applied at all.
+	 *
+	 * @param Asset		$asset			Asset being painted
+	 * @param int		$contextid		Return keyword from a different context.
+	 *									Leave NULL (or omit) for current context.
+	 *
+	 * @return string
+	 */
+	protected function _getAssetContentsRawBCKeywordReplacement(Asset $asset, $contextid=NULL)
+	{
+		$replacement = '';
+
+		// Protect against infinite recursion by blocking re-printing of the
+		// Listing Engine asset
+		if ($asset->id !== $this->id) {
+			// Change to alternate context?
+			if ($contextid !== NULL) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}
+
+			ob_start();
+				$asset->printBody();
+			$replacement = ob_get_clean();
+
+			// Restore context, and clean the asset from the cache
+			if ($contextid !== NULL) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+			
+		}//end if asset is not Listing Engine itself
+
+		return $replacement;
+
+	}//end _getAssetContentsRawBCKeywordReplacement()
+
+
+	/**
+	 * Get the "asset_contents_paint_*" bodycopy keyword replacement
+	 *
+	 * The paint layout (represented by "*" above) can be an asset ID of a Paint
+	 * Layout Page asset if it exists, or the name of a User Defined paint
+	 * layout (as defined on the Lookup Settings page of the painted asset).
+	 * If it looks like an asset ID, it will always interpret it as that.
+	 *
+	 * If the $paint_layout does not resolve to a valid paint layout either way,
+	 * an empty string will be returned.
+	 *
+	 * @param Asset		$asset			Asset being painted
+	 * @param string	$paint_layout	Asset ID of a paint layout asset, OR
+	 *									name of a User Defined paint layout for
+	 *									the painted asset
+	 * @param int		$contextid		Return keyword from a different context.
+	 *									Leave NULL (or omit) for current context.
+	 *
+	 * @return string
+	 */
+	protected function _getAssetContentsPaintBCKeywordReplacement(Asset $asset, $paint_layout, $contextid=NULL)
+	{
+		$replacement = '';
+
+		// Protect against infinite recursion by blocking re-printing of the
+		// Listing Engine asset
+		if ($asset->id !== $this->id) {
+			// Change to alternate context?
+			if (($contextid !== NULL) && ($contextid !== 'current')) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			}			
+
+			//layout code name must not be number, otherwise it will be considered as asset id
+			if (!assert_valid_assetid($paint_layout, 'Not valid assetid', TRUE, FALSE)) {
+				$paint_layout = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layout);
+			}
+
+			if (!empty($paint_layout) && $GLOBALS['SQ_SYSTEM']->am->assetExists($paint_layout)) {
+				ob_start();
+					$asset->printBodyWithPaintLayout($paint_layout);
+				$replacement = ob_get_clean();
+			}
+
+			// Restore context, and clean the asset from the cache
+			if (($contextid !== NULL) && ($contextid !== 'current')) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+
+		}//end if asset is not Listing Engine itself
+
+		return $replacement;
+
+	}//end _getAssetContentsPaintBCKeywordReplacement()
 
 
 	/**
