@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.47 2010/04/28 23:43:39 bpearson Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.48 2010/05/11 01:55:41 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -370,26 +370,44 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		foreach ($required_keywords as $required_keyword) {
 			$full_keyword = $required_keyword;
 			$required_keyword = parse_keyword($required_keyword, $modifiers);
+			$context_array = extract_context_modifier($modifiers, 'both');
+			$contextid = $context_array['id'];
+			
+			if ($contextid !== NULL) {
+				// Save the required keyword with the context name
+				$required_keyword .= '^context:'.$context_array['name'];
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+			} else {
+				$contexted_asset = $asset;
+			}
 
 			// 1. asset content
 			if ($required_keyword == 'asset_contents') {
 				if (!isset($ret['asset_contents'])) {
 					ob_start();
-						$asset->printBody();
+						$contexted_asset->printBody();
 						$ret['asset_contents'] = ob_get_contents();
 					ob_end_clean();
 				}
 			} else {
-				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
+				$ret[$required_keyword] = $contexted_asset->getKeywordReplacement($required_keyword);
 			}//end else
 
-            // If we have keyword modifiers AND
+			if ($contextid !== NULL) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+			
+			unset($contexted_asset);
+
+			// If we have keyword modifiers AND
 		    // the keyword is not starting with 'globals_' which will be taken care at the end of execution of start() in mysource.ini
 		    if (($full_keyword != $required_keyword)  && (0 !== strpos($required_keyword, 'globals_'))) {
 		 		// Start with the plain keyword without modifier
 				$ret[$full_keyword] = $ret[$required_keyword];
 				apply_keyword_modifiers($ret[$full_keyword], $modifiers);
-			}
+			}			
 		}//end foreach
 
 		// asset lineage
