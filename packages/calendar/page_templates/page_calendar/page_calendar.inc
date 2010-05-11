@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.231.2.2 2010/05/11 06:16:02 akarelia Exp $
+* $Id: page_calendar.inc,v 1.231.2.3 2010/05/11 06:18:39 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.231.2.2 $
+* @version $Revision: 1.231.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1590,7 +1590,7 @@ class Page_Calendar extends Page
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
-					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'&SQ_CALENDAR_DATE='.$event_link_date;
+					$event_href = $this->_getEventLinkHref($assetid, $event_link_date);
 					$event_classes = $this->_getClasses($event['treeid']);
 					$event_classes[] = 'event';
 					$onclick_code = $event_href ? ' onclick="sq_cal_redirect(this)"' : '';
