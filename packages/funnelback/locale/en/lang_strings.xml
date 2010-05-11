@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2010/05/05 07:12:14 ewang Exp $
+* $Id: lang_strings.xml,v 1.4 2010/05/11 07:40:06 bpearson Exp $
 *
 *
 * Funnelback Search Package Localised Strings File
@@ -28,4 +28,14 @@
 	<string source="fnb_hipo_reindex">Funnelback Reindex</string>
 	<string source="fnb_hipo_reindex_step_name0">Reindexing</string>
 	<string source="fnb_hipo_reindexing_url">Reindexing URL: "%s"</string>
+
+	<!-- Funnelback Search Log Report -->
+	<string source="fnb_log_popular_queries">Popular Search Queries</string>
+	<string source="fnb_log_total_queries">Total Queries</string>
+	<string source="fnb_log_total_results">Total Results</string>
+	<string source="fnb_log_avg_results">Average Results</string>
+	<string source="fnb_log_no_successful_queries">No successful queries found</string>
+	<string source="fnb_log_no_failed_queries">No failed queries found</string>
+	<string source="fnb_log_failed_queries">Failed Queries</string>
+	<string source="fnb_log_total_failed_queries">Total Failed Queries</string>
 </strings>

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.12 2010/05/05 07:12:14 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.13 2010/05/11 07:40:06 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2202,7 +2202,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Get the params to work with
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
-		$nullquery = '!NOdfadksjflTERMSdsjdskfSUBMITTED';
+		$nullquery = $fm->getNullQueryKeyword();
 		$collection_id = $this->attr('collection');
 		$bin_path = $fm->getFunnelbackPath().'/bin/';
 		if (!$fm->isCollectionValid($collection_id)) {

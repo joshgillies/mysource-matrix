@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.12 2010/05/05 07:12:14 ewang Exp $
+* $Id: funnelback_manager.inc,v 1.13 2010/05/11 07:40:06 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -820,6 +820,23 @@ class Funnelback_Manager extends Asset
 
 
 	/**
+	 * Get the collection name of the collection passed in
+	 *
+	 * @param string	$collection_id	The id of the collection to find the name for
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function getCollectionName($collection_id)
+	{
+		$collections = $this->attr('collections');
+		$collection  = array_get_index($collections, $collection_id, Array());
+		return array_get_index($collection, 'name', '');
+
+	}//end getCollectionName()
+
+
+	/**
 	* Get the data path of the collection
 	*
 	* @param string	$collection_id	The ID of the collection to get the data path for
@@ -1505,11 +1522,25 @@ class Funnelback_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function getFunnelbackPath()
+	public function getFunnelbackPath()
 	{
 		return '/opt/funnelback-oem';
 
 	}//end getFunnelbackPath()
+
+
+	/**
+	 * Return the keyword to perform a NULL query search
+	 * (Bascially, a long gobbly-gook word with a NOT operator)
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function getNullQueryKeyword()
+	{
+		return '!NOdfadksjflTERMSdsjdskfSUBMITTED';
+
+	}//end getNullQueryKeyword()
 
 
 	/**
@@ -1518,7 +1549,7 @@ class Funnelback_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function checkInstalled()
+	public function checkInstalled()
 	{
 		$installed = TRUE;
 		$search_dir = $this->getFunnelbackPath();
@@ -1541,7 +1572,7 @@ class Funnelback_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getRequiredFiles($path=FALSE)
+	public function getRequiredFiles($path=FALSE)
 	{
 		$indexer  = (($path) ? 'bin/' : '').'padre-iw';
 		$search   = (($path) ? 'bin/' : '').'padre-sw';
