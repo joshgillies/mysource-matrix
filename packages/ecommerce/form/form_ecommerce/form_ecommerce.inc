@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.48 2009/09/07 16:31:40 ata Exp $
+* $Id: form_ecommerce.inc,v 1.48.2.1 2010/05/11 23:12:32 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -564,6 +564,7 @@ class Form_Ecommerce extends Form_Email
 		// all the output is here
 		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
 		echo $javascript;
+		echo hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);
 		$bodycopy->printBody();
 		echo '</form>';
 
@@ -1304,7 +1305,7 @@ class Form_Ecommerce extends Form_Email
 		$keyword_list = $body->getKeywords();
 		$replacements = Array();
 		foreach ($keyword_list as $keyword) {
-			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword == 'form_summary' ? 'form_summary_text' : $keyword);
 		}
 
 		$body->setKeywordReplacements($replacements);
@@ -1326,7 +1327,7 @@ class Form_Ecommerce extends Form_Email
 
 		$keyword_list = $body->getKeywords();
 		foreach ($keyword_list as $keyword) {
-			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword == 'form_summary' ? 'form_summary_text' : $keyword);
 		}
 
 		$body->setKeywordReplacements($replacements);
