@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.232 2009/12/22 21:49:26 cupreti Exp $
+* $Id: page_calendar.inc,v 1.233 2010/05/11 05:47:37 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2964,7 +2964,7 @@ class Page_Calendar extends Page
 			$res[$event_date]['_overlap_'] = $this->_countOverlappingEvents($events, $first_time, $last_time, $time_partition);
 			foreach ($events as $id => $details) {
 				if (isset($res[$event_date])) {
-					if (is_null($details['start_date_hours'])) {
+					if (is_null($details['start_date_hours']) || ($details['start_date_hours'] == '--')) {
 						$res[$event_date]['all_day'][$id] = $details;
 					} else {
 						$this->_trimEvent($details, $start_ts, $end_ts);
@@ -3104,7 +3104,7 @@ class Page_Calendar extends Page
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
-				if (is_null($details['start_date_hours'])) {
+				if (is_null($details['start_date_hours']) || $details['start_date_hours'] == '--') {
 					$res['all_day'][$id] = $details;
 				} else {
 					$this->_trimEvent($details, $start_ts, $end_ts);
