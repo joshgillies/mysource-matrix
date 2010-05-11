@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.152 2010/04/12 06:10:36 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.153 2010/05/11 03:29:03 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1253,7 +1253,9 @@ class Workflow_Manager extends MySource_Object
 		} else {
 			// Keep the schema workflow format consistent
 			foreach($schema_workflows as $schemaid => &$schema_workflow) {
-				$schema_workflow = Array($schema_workflow['stream_assetid'] => $schema_workflow);
+				// Handle pre-3.26 schema without a stream ID
+				$streamid = array_get_index($schema_workflow, 'stream_assetid', 0);
+				$schema_workflow = Array($streamid => $schema_workflow);
 			}
 		}
 
