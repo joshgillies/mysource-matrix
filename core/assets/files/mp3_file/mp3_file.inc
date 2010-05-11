@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.5 2010/05/04 01:27:12 mbrydon Exp $
+* $Id: mp3_file.inc,v 1.6 2010/05/11 02:08:04 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.5 $
+* @version    $Revision: 1.6 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,31 @@ class MP3_File extends File
 		$replacement = NULL;
 
 		// Remove any modifiers from keyword
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
+		$contextid = extract_context_modifier($modifiers);
+
+		if ($contextid !== NULL) {
+			// If we were able to extract a context ID to change to, and it's
+			// different to our current one, then change and then reload a copy
+			// of the asset in that context (as we would need to do anyway)
+
+			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+
+				// Get the keyword without any modifiers
+				$replacement = $contexted_asset->getKeywordReplacement($keyword);
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// Then apply the ones we had remaining, then return it
+				apply_keyword_modifiers($replacement, $modifiers);
+				return $replacement;
+
+			}//end if contextid is not the currently active context
+
+		}//end if contextid is not NULL
 
 		// Static/overriding keywords
 		switch ($keyword)
@@ -207,7 +231,8 @@ class MP3_File extends File
 		if (isset($replacement)) {
 			return $replacement;
 		} else {
-			return parent::getKeywordReplacement($keyword);
+			// Use the full keyword so that the modifiers still get used
+			return parent::getKeywordReplacement($full_keyword);
 		}
 
 	}// end getKeywordReplacement()

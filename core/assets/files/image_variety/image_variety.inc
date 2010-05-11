@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.50 2009/10/20 06:33:16 cupreti Exp $
+* $Id: image_variety.inc,v 1.51 2010/05/11 02:08:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -784,9 +784,35 @@ class Image_Variety extends Asset
 		$replacement = NULL;
 		
 		// Remove any modifiers from keyword
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
+		$contextid = extract_context_modifier($modifiers);
+
+		if ($contextid !== NULL) {
+			// If we were able to extract a context ID to change to, and it's
+			// different to our current one, then change and then reload a copy
+			// of the asset in that context (as we would need to do anyway)
+
+			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+
+				// Get the keyword without any modifiers
+				$replacement = $contexted_asset->getKeywordReplacement($keyword);
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// Then apply the ones we had remaining, then return it
+				apply_keyword_modifiers($replacement, $modifiers);
+				return $replacement;
+
+			}//end if contextid is not the currently active context
+
+		}//end if contextid is not NULL
 
 		// additional shadow asset keyword replacement
+		// Note: using the full keyword is NOT wanted here, since the modifiers
+		// are still being applied below.
 		$replacement = parent::getKeywordReplacement($keyword);
 		if (empty($replacement)) {
 			 switch ($keyword) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.80 2010/05/10 02:01:02 kmyothein Exp $
+* $Id: image.inc,v 1.81 2010/05/11 02:08:04 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -909,8 +909,33 @@ class Image extends File implements Bridge
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword...saving the full keyword for
+		// later in case we have to pass it to the parent asset type
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
+		$contextid = extract_context_modifier($modifiers);
+
+		if ($contextid !== NULL) {
+			// If we were able to extract a context ID to change to, and it's
+			// different to our current one, then change and then reload a copy
+			// of the asset in that context (as we would need to do anyway)
+
+			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+
+				// Get the keyword without any modifiers
+				$replacement = $contexted_asset->getKeywordReplacement($keyword);
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// Then apply the ones we had remaining, then return it
+				apply_keyword_modifiers($replacement, $modifiers);
+				return $replacement;
+
+			}//end if contextid is not the currently active context
+
+		}//end if contextid is not NULL
 
 		if (0 === strpos($keyword, 'image_v_')) {
 			$varieties = $this->attr('varieties');
@@ -944,11 +969,16 @@ class Image extends File implements Bridge
 			$replacement = $this->_getEmbeddedKeywordReplacement($embedded_key);
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// Use the full keyword to send up, so modifiers still get respected
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
@@ -1093,38 +1123,42 @@ class Image extends File implements Bridge
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset = $this->getAsset($assetid);
+			$asset = $this->getAsset($assetid, '', TRUE);
 
-			if (!empty($field)) {
-				if ($field == 'assetid') {
-					$info[$assetid] = $assetid;
-				} else if ($field == 'type_code') {
-					$info[$assetid] = $asset->type();
-				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
-					$info[$assetid] = $asset->$field;
+			// Only add if there is an asset to get info for
+			if ($asset !== NULL) {
+				if (!empty($field)) {
+					if ($field == 'assetid') {
+						$info[$assetid] = $assetid;
+					} else if ($field == 'type_code') {
+						$info[$assetid] = $asset->type();
+					} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+						$info[$assetid] = $asset->$field;
+					} else {
+						$info[$assetid] = $this->$field;
+					}
 				} else {
-					$info[$assetid] = $this->$field;
+					$info[$assetid] = Array(
+										'assetid'				=> $assetid,
+										'type_code'				=> $asset->type(),
+										'version'				=> $asset->version,
+										'name'					=> $asset->name,
+										'short_name'			=> $asset->short_name,
+										'status'				=> $asset->status,
+										'languages'				=> $asset->languages,
+										'charset'				=> $asset->charset,
+										'force_secure'			=> $this->force_secure,
+										'created'				=> $asset->created,
+										'created_userid'		=> $asset->created_userid,
+										'updated'				=> $asset->updated,
+										'updated_userid'		=> $asset->updated_userid,
+										'published'				=> $asset->published,
+										'published_userid'		=> $asset->published_userid,
+										'status_changed'		=> $asset->status_changed,
+										'status_changed_userid'	=> $asset->status_changed_userid,
+									  );
 				}
-			} else {
-				$info[$assetid] = Array(
-									'assetid'				=> $assetid,
-									'type_code'				=> $asset->type(),
-									'version'				=> $asset->version,
-									'name'					=> $asset->name,
-									'short_name'			=> $asset->short_name,
-									'status'				=> $asset->status,
-									'languages'				=> $asset->languages,
-									'charset'				=> $asset->charset,
-									'force_secure'			=> $this->force_secure,
-									'created'				=> $asset->created,
-									'created_userid'		=> $asset->created_userid,
-									'updated'				=> $asset->updated,
-									'updated_userid'		=> $asset->updated_userid,
-									'published'				=> $asset->published,
-									'published_userid'		=> $asset->published_userid,
-									'status_changed'		=> $asset->status_changed,
-									'status_changed_userid'	=> $asset->status_changed_userid,
-								  );
+
 			}
 
 		}//end foreach

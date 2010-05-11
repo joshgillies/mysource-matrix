@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.121 2010/04/22 00:29:34 akarelia Exp $
+* $Id: site.inc,v 1.122 2010/05/11 02:12:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -957,7 +957,10 @@ class Site extends Folder
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword - no need to get context here,
+		// since the only keywords we are giving (index, not found, archived
+		// page asset IDs) are saved in links, which aren't contextable
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		$keyword_name = substr($keyword, 6);
@@ -967,11 +970,16 @@ class Site extends Folder
 			if (!is_null($asset)) $replacement = $asset->id;
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// Use full keyword, so modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
