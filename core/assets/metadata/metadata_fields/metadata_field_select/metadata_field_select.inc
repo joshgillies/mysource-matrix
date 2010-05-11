@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.31 2010/05/02 23:04:50 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.32 2010/05/11 05:10:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -353,7 +353,7 @@ class Metadata_Field_Select extends Metadata_Field
 				// We need to get custom values from the metadata value table,
 				// then default values from the default value table where they
 				// don't exist in the custom value table.
-				$sql = 'SELECT value FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';				
+				$sql = 'SELECT value FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';
 				$where = 'assetid = :host_assetid AND fieldid = :fieldid AND contextid = :contextid';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 				$sql .= $where;
@@ -373,7 +373,7 @@ class Metadata_Field_Select extends Metadata_Field
 					$union_where = str_replace('%tuple_keyword%', 'ROW', $union_where);
 				}
 				$union_sql .= $union_where;
-				$sql = '('.$sql.') UNION ('.$union_sql.')';
+				$sql = '('.$sql.') UNION ALL ('.$union_sql.')';
 
 				// Go go go!
 				$bind_vars = Array(
@@ -383,7 +383,7 @@ class Metadata_Field_Select extends Metadata_Field
 								'fieldid_1'		=> (string)$this->id,
 								'contextid_1'	=> (int)$contextid,
 							 );
-				
+
 				$query = MatrixDAL::preparePdoQuery($sql);
 				foreach ($bind_vars as $bind_var => $bind_value) {
 					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
