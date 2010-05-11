@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.246 2010/05/05 15:01:38 ata Exp $
+* $Id: general.inc,v 1.247 2010/05/11 01:42:03 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix
 */
 
@@ -1763,6 +1763,11 @@ function replace_global_keywords(&$text)
 			foreach ($keywords as $keyword) {
 				$full_keyword = $keyword;
 				$keyword = parse_keyword($keyword, $modifiers);
+				$contextid = extract_context_modifier($modifiers);
+
+				if ($contextid !== NULL) {
+					$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				}
 
 				if (0 === strpos($keyword, 'globals_')) {
 					// Default replacement for global keywords is blank string
@@ -1872,7 +1877,7 @@ function replace_global_keywords(&$text)
 								}
 							}
 						}//end if
-					}//end if 
+					}//end if
 
 
 					if (0 === strpos($keyword, 'globals_asset_')) {
@@ -1968,14 +1973,75 @@ function replace_global_keywords(&$text)
 
 				}//end if is global keyword
 
+
+				if ($contextid !== NULL) {
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				}
+
 			}//end foreach keyword
 			replace_keywords($text, $replacements);
 		}//end if
-		
+
 	}//end for
 	return $text;
 
 }//end replace_global_keywords()
+
+
+/**
+ * Extracts the appropriate context ID from modifiers
+ *
+ * Will remove all "context" modifier keywords from the list of modifiers,
+ * and return the ID matching the LAST one found (if multiple are found).
+ *
+ * If the "return part" is "id", it will return the context ID (int).
+ * If "name", it will return the context name (string).
+ * If "both" it will return an array indexed by "id" and "name".
+ *
+ * Context ID part will be NULL if no valid context modifier was found.
+ * Context name part will be NULL if no modifier at all was found. If a modifier
+ * was found but not valid, this will still be returned (but with a NULL
+ * context ID).
+ *
+ * @param array		$modifiers		The list of modifiers to inspect
+ * @param string	$return_part	The data item of the context that you want
+ *									to return ('id', 'name' or 'both')
+ *
+ * @return mixed
+ */
+function extract_context_modifier(&$modifiers, $return_part='id')
+{
+	$context = NULL;
+	foreach (array_keys($modifiers) as $modifier_key) {
+		if ($modifiers[$modifier_key]['modifier'] === 'context') {
+			if (isset($modifiers[$modifier_key]['args']) === TRUE) {
+				$context = $modifiers[$modifier_key]['args'][0];
+			}
+			// remove the context modifier no matter what
+			unset($modifiers[$modifier_key]);
+		}
+	}
+
+	if ($context !== NULL) {
+		$contextid = MatrixDAL::executeOne('core', 'getContextByName', Array('name' => $context));
+		if ($contextid === FALSE) $contextid = NULL;
+	} else {
+		$contextid = NULL;
+	}
+
+	if ($return_part === 'name') {
+		return $context;
+	} else if ($return_part === 'both') {
+		return Array(
+				'id'	=> $contextid,
+				'name'	=> $context,
+			   );
+	} else {
+		// return ID by default
+		return $contextid;
+	}
+
+}//end extract_context_modifier()
 
 
 /**
@@ -2123,7 +2189,6 @@ function clean_div_attribute($attribute)
 	return str_replace('"', '&quot;', $attribute);
 
 }//end clean_div_attribute()
-
 
 
 /**
