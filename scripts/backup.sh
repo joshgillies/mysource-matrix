@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.33 2010/04/12 04:13:44 csmith Exp $
+#* $Id: backup.sh,v 1.34 2010/05/11 02:18:48 csmith Exp $
 #*
 #*/
 #
@@ -219,6 +219,7 @@ pg_dbdump()
 		print_error "${output}"
 		print_error ""
 		print_verbose ""
+		return 1
 	else
 		print_verbose "Finished dumping database."
 	fi
@@ -465,7 +466,6 @@ oracle_dbdump()
 		schema_only=0
 	fi
 
-
 	# The oracle dsn is in the format of:
 	# //localhost|ip.addr/dbname
 	# Split it up so we just get the dbname, then set the oracle_sid to the right thing.
@@ -488,7 +488,7 @@ oracle_dbdump()
 			print_error "To do remote oracle backups, please supply '--remotedb=username@hostname'"
 			print_error "The database has not been included in the backup."
 			print_verbose ""
-			return
+			return 1
 		fi
 	fi
 
@@ -509,7 +509,7 @@ oracle_dbdump()
 		print_error "Make sure 'exp' is in your path."
 		print_error "The database has not been included in the backup."
 		print_verbose ""
-		return
+		return $rc
 	fi
 
 	if [ "x${remote_user}" = "x" ]; then
@@ -523,7 +523,7 @@ oracle_dbdump()
 		print_error "Make sure the 'ORACLE_HOME' environment variable is set"
 		print_error "The database has not been included in the backup."
 		print_verbose ""
-		return
+		return 1
 	fi
 
 	print_verbose "Creating oracle db dump .. "
@@ -576,7 +576,7 @@ oracle_dbdump()
 			print_error "Tried to run"
 			print_error "scp ${remote_user}:${dumpfile} ${SYSTEM_ROOT}/${dumpfile}"
 			print_error "The database has not been included in the backup."
-			return
+			return 1
 		fi
 		ssh "${remote_user}" 'rm -f ${outputfile} ${dumpfile}'
 	fi
@@ -586,25 +586,41 @@ oracle_dbdump()
 	fi
 
 	print_verbose "Finished dumping database."
+	return 0
 }
 
+# this will be the return code for the backup script
+# if the db dump fails, we'll give a non-zero exit code
+rc=0
 case "${DB_TYPE}" in
 	"pgsql")
 		pg_dbdump "${backupdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
+		if [ $? -gt 0 ]; then
+			rc=7
+		fi
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
 			pg_dbdump "${backupdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+			if [ $? -gt 0 ]; then
+				rc=7
+			fi
 		fi
 	;;
 
 	"oci")
 		oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
+		if [ $? -gt 0 ]; then
+			rc=7
+		fi
 
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
 			oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+			if [ $? -gt 0 ]; then
+				rc=7
+			fi
 		fi
 	;;
 
@@ -618,7 +634,7 @@ if [ "${database_only}" = "1" ]; then
 	if [ -f "${SYSTEM_ROOT}/.extra_backup_files" ]; then
 		rm -f "${SYSTEM_ROOT}/.extra_backup_files"
 	fi
-	exit
+	exit $rc
 fi
 
 #
@@ -730,7 +746,6 @@ else
 			# Minor Error - probably "file changed as we read it"
 			# Don't print to stderr unless in verbose mode.
 			if [ "${VERBOSE}" -eq 1 ]; then
-				echo "\$TMPFILE=$TMPFILE"
 				cat $TMPFILE >&2
 			fi
 			;;
@@ -776,5 +791,5 @@ print_info ""
 print_info "Your system is backed up to ${backupdir}/${backupfilename}"
 print_info ""
 
-exit 0
+exit $rc
 
