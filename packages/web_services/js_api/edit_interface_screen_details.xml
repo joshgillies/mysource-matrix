@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2010/05/04 04:27:37 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2010/05/11 00:01:15 akarelia Exp $
 *
 */
 -->
@@ -105,8 +105,8 @@
 		<field attribute="set_web_path">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-
 	</section>
+
     <section name="Linking" write_access="write:attributes">
 		<field attribute="create_link">
 			<boolean true_text="yes" false_text="no" />
@@ -128,7 +128,14 @@
 		<field attribute="get_permissions">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-	</section>	
+	</section>
+
+	<section name="Workflow" write_access="write:attributes">
+		<field attribute="get_workflow_schema">
+			<boolean true_text="yes" false_text="no" />
+        </field>
+	</section>
+
     <section name="Traversing" write_access="write:attributes">
 		<field attribute="get_parents">
 			<boolean true_text="yes" false_text="no" />

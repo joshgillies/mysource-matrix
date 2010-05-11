@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10 2010/05/04 04:27:37 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.11 2010/05/11 00:01:15 akarelia Exp $
 *
 */
 -->
@@ -133,7 +133,6 @@
             <note />
         </field>
 
-
     </section>
     <section name="Linking" write_access="write:attributes">
         <field attribute="create_link">
@@ -163,6 +162,12 @@
             <note />
         </field>
     </section>
+	<section name="Workflow" write_access="write:attributes">
+		<field attribute="get_workflow_schema">
+            <display_name>Get Workflow Schema</display_name>
+            <note>Gets applied workflow schema for an asset (gets running and/or not running schema)</note>
+        </field>
+	</section>
     <section name="Traversing" write_access="write:attributes">
         <field attribute="get_parents">
             <display_name>Get Parents</display_name>

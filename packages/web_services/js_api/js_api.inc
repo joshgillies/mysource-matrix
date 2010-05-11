@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.41 2010/05/10 11:51:10 ata Exp $
+* $Id: js_api.inc,v 1.42 2010/05/11 00:01:15 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -147,6 +147,8 @@ class JS_Api extends Page
 			restore_error_handler();
 			return;
 		}
+
+		$temp_server_vars = $_SERVER['PHP_SELF'];
 
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
 		// Lets populate our $_REQUEST var so that we can use it later :)
@@ -922,9 +924,53 @@ class JS_Api extends Page
 						$this->returnError('You do not have permission to access this asset');
 					}
 				} else {
-					$this->returnError('The getWebPath function must be activated');
+					$this->returnError('The setWebPath function must be activated');
 				}
 			break;
+
+			case	'getWorkflowSchema':
+
+				if ($this->attr('get_workflow_schema')) {
+					if($ra) {
+						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$granted = isset($_REQUEST['granted']) && $_REQUEST['granted'] != '' ? $_REQUEST['granted'] : NULL;
+						$running = isset($_REQUEST['running']) && $_REQUEST['running'] != '' ? $_REQUEST['running'] : FALSE;
+						$schemas = $wfm->getSchemas($asset->id, $granted, $running);
+						if(empty($schemas)) {
+							$message = 'No Workflow Schema ';
+							if ($running) {
+								$message .= 'currently running for ';
+							} else {
+								if (is_null($granted)) {
+									$message .= 'currently applied to';
+								} else {
+									$message .= $granted ? 'granted on ' : 'denied on ';
+								}
+							}
+							$data[] = $message.'Asset "'.$asset->name.'" (# '.$asset->id.')';
+						} else {
+							foreach ($schemas as $index => $info) {
+								if ($running) {
+									$data['running'][] = $info;
+								} else {
+									if (is_null($granted)) {
+										$status = $info ? 'granted' : 'denied';
+										$data[$status][] = $index;
+									} else {
+										$status = $granted ? 'granted' : 'denied';
+										$data[$status][] = $info;
+									}
+								}
+							}
+						}
+					} else {
+						$this->returnError('You do not have permission to access this asset');
+					}
+				} else {
+					$this->returnError('The getWorkflowSchema function must be activated');
+				}
+			break;
+
 
 			default:	$this->returnError('This is not a valid function name');
 
@@ -1483,6 +1529,11 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
+			$direct_dependant_child = $am->getChildren($child->id, '', TRUE, TRUE, NULL, NULL, TRUE, NULL, 1);
+			$show['direct_dependant_child'] = count($direct_dependant_child);
+			$direct_non_dependant_child = $am->getChildren($child->id, '', TRUE, FALSE, NULL, NULL, TRUE, NULL, 1);
+			$show['direct_non_dependant_child'] = count($direct_non_dependant_child);
+
 			$children_arr[$child->id] = array_merge($this->getGeneralInfo($child), $show);
 
 		}//end foreach
@@ -2259,7 +2310,7 @@ function createRequest()
 function isset(obj)
 {
 	// Check to see if a variable or array item is set
-	if (typeof(obj) == 'undefined') {
+	if (typeof(obj) == 'undefined' || obj == null) {
 		return false;
 	} else {
 		return true;
@@ -2794,10 +2845,29 @@ function getLocksInfo(asset_id, screen_name, dataCallback)
 */
 function acquireLock(asset_id, screen_name, dependants_only, force_acquire, dataCallback)
 {
-	if (!isset(dependants_only)) dependants_only = '1';
-	if (!isset(force_acquire)) force_acquire = '0';
+	var dependants_only = isset(dependants_only) && ( dependants_only.toString().toLowerCase() != 'null' && dependants_only != '' ) ? dependants_only : 1;
+	var force_acquire = isset(force_acquire) && ( force_acquire.toString().toLowerCase() != 'null' && force_acquire != '' ) ? force_acquire : 0;
+
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
+	// but try conversion only if its a string still
+	if (typeof(dependants_only) == 'string') {
+		if (dependants_only.toLowerCase() == 'false') {
+			dependants_only = 0;
+		} else if (dependants_only.toLowerCase() == 'true') {
+			dependants_only = 1;
+		}
+	}
+
+	if (typeof(force_acquire) == 'string') {
+		if (force_acquire.toLowerCase() == 'false') {
+			force_acquire = 0;
+		} else if (force_acquire.toLowerCase() == 'true') {
+			force_acquire = 1;
+		}
+	}
 
 	// If the user does not set it, we get all locks
 	if (!isset(screen_name) || screen_name == '') screen_name = 'all';
@@ -3202,7 +3272,7 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 *
 * @param string		asset_id		id of the asset to get children of
 * @param int		status			status tha asset is to be set to
-* @param boolean	cascade			if to cascade the status to non-dependant children
+* @param boolean	cascade			if to cascade the status to non-dependant children(false by default)
 * @param string		workflow_stream workflow stream to be passed in
 * @param function	dataCallback	custom callback function
 *
@@ -3212,7 +3282,18 @@ function setAssetStatus(asset_id, status, cascade, workflow_stream, dataCallback
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	var  workflow_stream  = isset(workflow_stream) ? workflow_stream : '';
+	var workflow_stream  = isset(workflow_stream) ? workflow_stream : '';
+	var cascade = isset(cascade) && ( cascade.toString().toLowerCase() != 'null' && cascade != '' ) ?  cascade : 0;
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
+	// but try conversion only if its a string still
+	if (typeof(cascade) == 'string') {
+		if (cascade.toLowerCase() == 'false') {
+			cascade = 0;
+		} else if (cascade.toLowerCase() == 'true') {
+			cascade = 1;
+		}
+	}
 
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=setAssetStatus&id=' + asset_id + '&status=' + status + '&cascade=' + cascade + '&workflow_stream=' + workflow_stream.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
@@ -3284,7 +3365,17 @@ function setWebPath(asset_id, paths, auto_remap ,dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	var autoRemap = (isset(auto_remap)) ? '1' : auto_remap;
+	var auto_remap = isset(auto_remap) && ( auto_remap.toString().toLowerCase() != 'null' && auto_remap != '' ) ?  auto_remap : 1;
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
+	// but try conversion only if its a string still
+	if (typeof(auto_remap) == 'string') {
+		if (auto_remap.toLowerCase() == 'false') {
+			auto_remap = 0;
+		} else if (auto_remap.toLowerCase() == 'true') {
+			auto_remap = 1;
+		}
+	}
 
 	var webpath = '';
 	for (var path in paths) {
@@ -3303,6 +3394,51 @@ function setWebPath(asset_id, paths, auto_remap ,dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end getWebPath()
+
+
+/**
+* This function will tell us if we have a runnig workflow on the passed assetid
+*
+* @param string		asset_id		Id of the asset to get webpaths for
+* @param boolean	granted			what is the status of workflow we are trying to get (default to NULL)
+*									TRUE => granted, FALSE => denied, NULLL => get all
+* @param boolean	running			if we only are getting wokflows that are running (default to FALSE)
+* @param function	dataCallback	Custom callback function
+*
+*
+*/
+function getWorkflowSchema(asset_id, granted, running, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var granted = isset(granted) && ( granted.toString().toLowerCase() != 'null' && granted != '' ) ? granted : '';
+	var running = isset(running) && ( running.toString().toLowerCase() != 'null' && running != '' ) ? running : 0;
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion 
+	// but try conversion only if its a string still
+	// but try conversion only if its a string still
+	if (typeof(granted) == 'string') {
+		if (granted.toLowerCase() == 'false') {
+			granted = 0;
+		} else if (granted.toLowerCase() == 'true') {
+			granted = 1;
+		}
+	}
+	if (typeof(running) == 'string') {
+		if (running.toLowerCase() == 'false') {
+			running = 0;
+		} else if (running.toLowerCase() == 'true') {
+			running = 1;
+		}
+	}
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getWorkflowSchema&id=' + asset_id + '&granted=' + granted + '&running=' + running;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getWorkflowSchema()
 
 
 	<?php
