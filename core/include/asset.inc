@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.721 2010/05/10 17:51:24 ata Exp $
+* $Id: asset.inc,v 1.722 2010/05/11 01:51:48 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.721 $
+* @version $Revision: 1.722 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3637,12 +3637,36 @@ class Asset extends MySource_Object
 	protected function _getKeywordReplacement($keyword)
 	{
 		if (empty($keyword)) return '';
+		
 		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
 			return "%$keyword%";
 		}
-
-		// Remove any modifiers from keyword, and keep them for later..
+		
+		// Remove any modifiers from keyword, and keep them for later.
 		$keyword = parse_keyword($keyword, $modifiers);
+		$contextid = extract_context_modifier($modifiers);
+		
+		if ($contextid !== NULL) {
+			// If we were able to extract a context ID to change to, and it's
+			// different to our current one, then change and then reload a copy
+			// of the asset in that context (as we would need to do anyway)
+			
+			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+
+				// Get the keyword without any modifiers
+				$replacement = $contexted_asset->getKeywordReplacement($keyword);
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// Then apply the ones we had remaining, then return it
+				apply_keyword_modifiers($replacement, $modifiers);
+				return $replacement;
+
+			}//end if contextid is not the currently active context
+
+		}//end if contextid is not NULL
 
 		$replacement = NULL;
 		$tmp_keyword = strtr($keyword, '_', ' ');
@@ -3771,10 +3795,10 @@ class Asset extends MySource_Object
 			}
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
-			return ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
+			$replacement = ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
 
 		} else if (0 === strpos($keyword, 'asset_languages')) {
-			return ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
+			$replacement = ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
 
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
