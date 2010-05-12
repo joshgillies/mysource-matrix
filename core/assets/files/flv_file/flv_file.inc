@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.4 2009/10/20 06:32:36 cupreti Exp $
+* $Id: flv_file.inc,v 1.4.2.1 2010/05/12 04:01:14 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,17 +39,17 @@ class FLV_File extends File
 	* @var Array(string)
 	*/
 	public $allowed_extensions = Array('flv');
-	
-	
+
+
 	/**
 	 * This is the list of FLV metadata names (the names of the metadata in the FLV file), their corresponding attribute
 	 * names (the attribute names of this asset in flv_file_management.inc file) and default values. It has the following
 	 * format:
-	 * 
+	 *
 	 * Array (
 	 * 			metadata name => Array (attribute name, default value),
 	 * 		)
-	 * 
+	 *
 	 * @var Array
 	 */
 	private $_stored_metadata = Array(
@@ -76,7 +76,7 @@ class FLV_File extends File
 	{
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
-		
+
 		//make asset_attribute_<metadata_name> keywords available
 		$metadata = $this->attr('attributes');
 		foreach ($metadata as $meta_name => $meta_val) {
@@ -105,7 +105,7 @@ class FLV_File extends File
 		$keywords = parent::getAvailableKeywords();
 
 		$keywords['asset_attribute_duration_string'] = 'Duration of the FLV file (in Minutes:Seconds)';
-		
+
 		$keywords['asset_attribute_duration_int'] = 'Rounded duration of the FLV file in seconds';
 		$keywords['asset_attribute_width_int'] = 'The rounded width of the video in pixels';
 		$keywords['asset_attribute_height_int'] = 'The rounded height of the video in pixels';
@@ -119,18 +119,18 @@ class FLV_File extends File
 
 		$keywords['asset_attribute_XXX'] = 'Generic FLV metadata keyword';
 		$keywords['asset_attribute_XXX_int'] = 'Generic rounded FLV metadata keyword';
-		
+
 		return $keywords;
 
 	}// end getAvailableKeywords()
-	
-	
+
+
 	/**
 	* Get bodycopy keyword replacement
-	* 
+	*
 	* The keywords begin with flv_metadata_ will return the FLV metadata from this asset attributes if they exist, otherwise
 	* fresh metadata from the FLV file will be returned.
-	* 
+	*
 	* The keywords begin with dynamic_flv_metadata_ always return fresh metadata from the FLV file.
 	*
 	* @param string	$keyword	Keyword to find a replacement for
@@ -143,7 +143,9 @@ class FLV_File extends File
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword; save full keyword for later in
+		// case we need to pass up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		//only process keywords that start with asset_attribute_
@@ -151,7 +153,7 @@ class FLV_File extends File
 			if ($keyword == 'asset_attribute_duration_string') {
 				//want a duration string Minutes:Seconds
 				$replacement =  self::convertTimeToString($this->attr('duration'));
-				
+
 			} else {
 				$is_int = FALSE;
 				if ('_int' == substr($keyword, -4)) {
@@ -160,13 +162,13 @@ class FLV_File extends File
 				}
 				//get the replacement for keyword from parent asset
 				$replacement = parent::getKeywordReplacement($keyword);
-				
+
 				if (is_numeric($replacement)) { //the replacement is a number
-					//if the keyword ends with _int, round it 
+					//if the keyword ends with _int, round it
 					if ($is_int) {
 						$replacement = (int)(round($replacement));
 					}
-					
+
 				} else { //the replacement is a string
 					//replace HTML special characters so that malicious users can not use FLV metadata to make a XSS attack
 					$replacement = nl2br(htmlspecialchars($replacement));
@@ -174,21 +176,26 @@ class FLV_File extends File
 			}
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
-		
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
-		
+
+		return $replacement;
+
 	}//end getKeywordReplacement()
-	
-	
+
+
 	/**
 	* Save attributes set with setAttrValue to the database
-	* 
+	*
 	* This method is overrided here because we want to use the freshly extracted metadata if the checkbox Extract Metadata
-	* in the details screen is checked. Setting the extract_metadata attribute to TRUE will trigger this asset to get 
-	* fresh metadata from the FLV file and store them in its attributes. 
+	* in the details screen is checked. Setting the extract_metadata attribute to TRUE will trigger this asset to get
+	* fresh metadata from the FLV file and store them in its attributes.
 	*
 	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
@@ -215,23 +222,23 @@ class FLV_File extends File
 				//save the rest of metadata to the attribute "attributes"
 				$this->setAttrValue('attributes', $metadata);
 			}
-			
+
 			//set the extract metadata attribute to FALSE again so that the default value of extract metadata checkbox is unchecked
 			$this->setAttrValue('extract_metadata', FALSE);
 		}
-		
+
 		return parent::saveAttributes($dont_run_updated);
-		
+
 	}//end saveAttributes()
-	
-	
+
+
 	/**
 	 * Return the metadata of the FLV file of this asset. The result array has the following format
-	 * 
+	 *
 	 * Array (
 	 * 			metadata name => metadata value
 	 * 		 )
-	 * 
+	 *
 	 * @return	mixed	Return FALSE if the getID3() tool is disabled or there is no FLV file; otherwise, return the array of FLV metadata
 	 * @access	public
 	 */
@@ -241,31 +248,31 @@ class FLV_File extends File
 		if (!SQ_TOOL_GETID3_ENABLED || !is_file(SQ_TOOL_GETID3_PATH.'/getid3.php')) {
 			return FALSE;
 		}
-		
+
 		require_once SQ_TOOL_GETID3_PATH.'/getid3.php';
-		
+
 		//get file info
 		$file_info = $this->getExistingFile();
 		if (empty($file_info)) {
 			return FALSE;
 		}
-		
+
 		$getID3 = new getID3();
 		$file_info = $getID3->analyze($file_info['path']);
-		
+
 		$metadata = Array();
-		
+
 		if (isset($file_info['meta']['onMetaData'])) {
 			foreach ($file_info['meta']['onMetaData'] as $key => $value) {
 				$metadata[$key] = $value;
 			}
 		}
-		
+
 		//if duration metadata does not exist, use playtime_seconds instead
 		if (!array_key_exists('duration', $metadata) && isset($file_info['playtime_seconds'])) {
 			$metadata['duration'] = $file_info['playtime_seconds'];
 		}
-		
+
 		//if there are no width or height metadata, try to use video resolution instead
 		if (!array_key_exists('width', $metadata) && isset($file_info['video']['resolution_x'])) {
 			$metadata['width'] = $file_info['video']['resolution_x'];
@@ -273,20 +280,20 @@ class FLV_File extends File
 		if (!array_key_exists('height', $metadata) && isset($file_info['video']['resolution_y'])) {
 			$metadata['height'] = $file_info['video']['resolution_y'];
 		}
-		
+
 		//if framerate metadata does not exist, use video frame rate instead
 		if (!array_key_exists('framerate', $metadata) && isset($file_info['video']['frame_rate'])) {
 			$metadata['framerate'] = $file_info['video']['frame_rate'];
 		}
-		
+
 		return $metadata;
-		
+
 	}//end extractMetadata()
-	
-	
+
+
 	/**
 	 * Convert a float time in seconds to a time string with the format Minutes:Second
-	 * 
+	 *
 	 * @param $time		the input time in float
 	 * @return string	the return time
 	 * @access public
@@ -295,11 +302,11 @@ class FLV_File extends File
 	{
 		$minutes = floor($time / 60);
 		$seconds = floor($time % 60);
-		
+
 		return $minutes.':'.str_pad($seconds, 2, '0', STR_PAD_LEFT);
-		
+
 	}//end convertTimeToString
-	
-	
+
+
 }//end class
 ?>

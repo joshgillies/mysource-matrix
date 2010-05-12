@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.119.2.2 2010/04/28 04:06:41 akarelia Exp $
+* $Id: site.inc,v 1.119.2.3 2010/05/12 04:01:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.2 $
+* @version $Revision: 1.119.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -957,7 +957,9 @@ class Site extends Folder
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword; save the full keyword in case we
+		// have to pass the keyword further up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		$keyword_name = substr($keyword, 6);
@@ -967,11 +969,16 @@ class Site extends Folder
 			if (!is_null($asset)) $replacement = $asset->id;
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+		return $replacement;
 
 	}//end getKeywordReplacement()
 

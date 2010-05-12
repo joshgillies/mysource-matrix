@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.79.2.1 2010/05/10 04:28:45 kmyothein Exp $
+* $Id: image.inc,v 1.79.2.2 2010/05/12 04:01:14 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79.2.1 $
+* @version $Revision: 1.79.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -909,7 +909,9 @@ class Image extends File implements Bridge
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword - save the full keyword in case it
+		// needs to be passed higher up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		if (0 === strpos($keyword, 'image_v_')) {
@@ -944,11 +946,16 @@ class Image extends File implements Bridge
 			$replacement = $this->_getEmbeddedKeywordReplacement($embedded_key);
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
+		return $replacement;
 
 	}//end getKeywordReplacement()
 

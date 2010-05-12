@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.135 2009/11/26 00:00:47 cupreti Exp $
+* $Id: user.inc,v 1.135.2.1 2010/05/12 04:01:15 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.135.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -258,7 +258,7 @@ class User extends Asset
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							break;
 						}
-						
+
 						// Check if another user has the same username
 						$name = $this->getValidUsername($owning_attributeid, $this->attr('username'));
 
@@ -1071,7 +1071,9 @@ class User extends Asset
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword; save the full keyword in case we
+		// have to pass it further up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		if ($keyword == 'asset_attribute_email_image') {
@@ -1084,12 +1086,17 @@ class User extends Asset
 			$replacement = $email_image_link;
 		}
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		return $replacement ? $replacement : parent::getKeywordReplacement($keyword);
-	
+		return $replacement;
+
 	}//end getKeywordReplacement()
 
 
@@ -1117,7 +1124,7 @@ class User extends Asset
 
 		return (!empty($current_values));
 	}//end _uniqueAttributeExists()
-	
+
 }//end class
 
 ?>

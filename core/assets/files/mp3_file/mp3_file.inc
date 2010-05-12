@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.4 2009/10/20 06:33:42 cupreti Exp $
+* $Id: mp3_file.inc,v 1.4.2.1 2010/05/12 04:01:14 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.4 $
+* @version    $Revision: 1.4.2.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,8 @@ class MP3_File extends File
 		parent::__construct($assetid);
 
 	}// end constructor
-	
-	
+
+
 	/**
 	* Return the keywords for this asset type.
 	*
@@ -89,8 +89,8 @@ class MP3_File extends File
 		return $keywords;
 
 	}// end getAvailableKeywords()
-	
-	
+
+
 	/**
 	* Get bodycopy keyword replacement
 	*
@@ -108,7 +108,9 @@ class MP3_File extends File
 	{
 		$replacement = NULL;
 
-		// Remove any modifiers from keyword
+		// Remove any modifiers from keyword; save full keyword in case we have
+		// to pass it further up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		// Static/overriding keywords
@@ -135,7 +137,7 @@ class MP3_File extends File
 			// Extract tag information - if failed then pretend it returned nothing
 			$tags = $this->extractID3Metadata();
 			if ($tags === FALSE) $tags = Array();
-			
+
 			// Get the actual attribute being dynamically requested
 			$sub_keyword = substr($keyword, 16, -8);
 
@@ -161,11 +163,11 @@ class MP3_File extends File
 					}
 					$replacement = $bitrate;
 				break;
-		
+
 				case 'samplerate':
 					$replacement = array_get_index($tags, 'sample_rate', '');
 				break;
-	
+
 				case 'length_seconds':
 					$length = array_get_index($tags, 'length', '');
 					if (is_numeric($length)) {
@@ -193,15 +195,16 @@ class MP3_File extends File
 
 		}//end if dynamic keyword
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		if (isset($replacement)) {
-			return $replacement;
-		} else {
-			return parent::getKeywordReplacement($keyword);
-		}
+		return $replacement;
 
 	}// end getKeywordReplacement()
 
@@ -259,7 +262,7 @@ class MP3_File extends File
 							// or down) to the nearest whole second.
 							$this->setAttrValue($tag_name, round($tag_value));
 						break;
-	
+
 					}//end switch
 
 				}//end foreach
@@ -268,11 +271,11 @@ class MP3_File extends File
 
 			// Set our extraction ID3 option back to NO so that changed values don't get overwritten
 			$this->setAttrValue('extract_id3', FALSE);
-			
+
 		}//end if extract ID3 is true
 
 		return parent::saveAttributes($dont_run_updated);
-		
+
 	}//end saveAttributes()
 
 
@@ -311,7 +314,7 @@ class MP3_File extends File
 				$file_name = $this->data_path_public.'/'.$this->attr('name');
 			} else {
 				$file_name = $this->data_path.'/'.$this->attr('name');
-			}	
+			}
 		}
 
 		// getID3 tool disabled in External Tools? Silently fail.
@@ -328,7 +331,7 @@ class MP3_File extends File
 			trigger_error('Cannot extract ID3 metadata; path to getID3() external tool does not point to a valid getID3() install', E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		if (!is_file($file_name)) {
 			trigger_error('Cannot extract ID3 metadata; MP3 file path provided does not exist', E_USER_WARNING);
 		}
@@ -375,11 +378,11 @@ class MP3_File extends File
 			}
 
 			if (isset($tag['track_number'])) {
-        		$tag['track'] = $tag['track_number'];
+				$tag['track'] = $tag['track_number'];
 			}
 		} else if (isset($id3->info['tags']['id3v1'])) {
 			$tag =& $id3->info['tags']['id3v1'];
-			
+
 			// Only use the first listed entry for each tag
 			foreach	($tag as $tag_index => $tag_value) {
 				if (is_array($tag_value)) {

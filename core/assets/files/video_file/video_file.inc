@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.3 2009/11/23 02:56:54 ewang Exp $
+* $Id: video_file.inc,v 1.3.2.1 2010/05/12 04:01:14 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.3 $
+* @version    $Revision: 1.3.2.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,9 +108,11 @@ class Video_File extends File
 	*/
 	function getKeywordReplacement($keyword)
 	{
-		$replacement = NULL; 
-		
-		// Remove any modifiers from keyword
+		$replacement = NULL;
+
+		// Remove any modifiers from keyword; save full keyword in case we have
+		// to pass it further up the hierarchy
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		// Static/overriding keywords
@@ -219,15 +221,16 @@ class Video_File extends File
 
 		}//end if dynamic keyword
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
+		} else {
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
-		if (isset($replacement)) {
-			return $replacement;
-		} else {
-			return parent::getKeywordReplacement($keyword);
-		}
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
