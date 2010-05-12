@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.6 2010/05/11 02:08:04 lwright Exp $
+* $Id: mp3_file.inc,v 1.7 2010/05/12 03:51:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.6 $
+* @version    $Revision: 1.7 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,8 @@ class MP3_File extends File
 		parent::__construct($assetid);
 
 	}// end constructor
-	
-	
+
+
 	/**
 	* Return the keywords for this asset type.
 	*
@@ -93,8 +93,8 @@ class MP3_File extends File
 		return $keywords;
 
 	}// end getAvailableKeywords()
-	
-	
+
+
 	/**
 	* Get bodycopy keyword replacement
 	*
@@ -163,7 +163,7 @@ class MP3_File extends File
 			// Extract tag information - if failed then pretend it returned nothing
 			$tags = $this->extractID3Metadata();
 			if ($tags === FALSE) $tags = Array();
-			
+
 			// Get the actual attribute being dynamically requested
 			$sub_keyword = substr($keyword, 16, -8);
 			switch ($sub_keyword) {
@@ -182,7 +182,7 @@ class MP3_File extends File
 				case 'lyrics' :
 					$replacement = array_get_index($tags, $sub_keyword, '');
 				break;
-				
+
 				case 'bitrate':
 					$bitrate = array_get_index($tags, $sub_keyword, '');
 					if (is_numeric($bitrate)) {
@@ -192,11 +192,11 @@ class MP3_File extends File
 					}
 					$replacement = $bitrate;
 				break;
-		
+
 				case 'samplerate':
 					$replacement = array_get_index($tags, 'sample_rate', '');
 				break;
-	
+
 				case 'length_seconds':
 					$length = array_get_index($tags, 'length', '');
 					if (is_numeric($length)) {
@@ -224,15 +224,13 @@ class MP3_File extends File
 
 		}//end if dynamic keyword
 
-		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
-		}
-
-		if (isset($replacement)) {
-			return $replacement;
+		if ($replacement !== NULL) {
+			if (count($modifiers) > 0) {
+				apply_keyword_modifiers($replacement, $modifiers);
+			}
 		} else {
-			// Use the full keyword so that the modifiers still get used
-			return parent::getKeywordReplacement($full_keyword);
+			// use full keyword so the modifiers still get used
+			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
 
 	}// end getKeywordReplacement()
@@ -295,7 +293,7 @@ class MP3_File extends File
 							// or down) to the nearest whole second.
 							$this->setAttrValue($tag_name, round($tag_value));
 						break;
-	
+
 					}//end switch
 
 				}//end foreach
@@ -305,28 +303,28 @@ class MP3_File extends File
 			// Set our extraction ID3 option back to NO so that changed values don't get overwritten
 			$this->setAttrValue('extract_id3', FALSE);
 		}//end if extract ID3 is true
-			
-			
+
+
 		// If we should write data back to the file
 		if ($this->attr('write_mp3') && SQ_TOOL_GETID3_ENABLED) {
-			
+
 			// Get our ID3 object and path
 			$id3 = $this->initID3();
 			$file_path = $this->getFilePath();
-			
+
 			// Set encoding
 			$format = 'UTF-8';
 			$id3->setOption(array('encoding'=>$format));
-			
+
 			// Initialize getID3 tag-writing module
 			require_once SQ_TOOL_GETID3_PATH.'/write.php';
 			$tagwriter = new getid3_writetags;
 			$tagwriter->filename       = $file_path;
 			$tagwriter->tagformats     = array('id3v1', 'id3v2.3');
-			
+
 			// set various options (optional)
 			$tagwriter->tag_encoding   = $format;
-			
+
 			// populate data array
 			$tag_data['title'][] = $this->attr('song');
 			$tag_data['album'][] = $this->attr('album');
@@ -338,9 +336,9 @@ class MP3_File extends File
 			$tag_data['copyright'][] = $this->attr('copyright');
 			$tag_data['comment'][] = $this->attr('comments');
 			$tag_data['unsynchronised_lyrics'][] = $this->attr('lyrics');
-			
+
 			$tagwriter->tag_data = $tag_data;
-			
+
 			// Write tags and check for errors
 			if ($tagwriter->WriteTags()) {
 				if (!empty($tagwriter->warnings)) {
@@ -351,16 +349,16 @@ class MP3_File extends File
 				trigger_error('Failed to write ID3 tags:<br />'.implode('<br /><br />', $tagwriter->errors), E_USER_WARNING);
 				return FALSE;
 			}//end else
-			
+
 			// Set our write ID3 option back to NO so that changed values don't get overwritten
 			$this->setAttrValue('write_mp3', FALSE);
 		}//end if
-		
+
 		return parent::saveAttributes($dont_run_updated);
-		
+
 	}//end saveAttributes()
-	
-	
+
+
 	/**
 	* Gets the correct file path
 	*
@@ -368,30 +366,30 @@ class MP3_File extends File
 	*
 	* @return string
 	*/
-	public function getFilePath($file_name=NULL) 
+	public function getFilePath($file_name=NULL)
 	{
 		if (is_null($file_name)) {
 			if ($this->usePublicPath()) {
 				$file_name = $this->data_path_public.'/'.$this->attr('name');
 			} else {
 				$file_name = $this->data_path.'/'.$this->attr('name');
-			}	
+			}
 		}//end if
-		
+
 		return $file_name;
-		
+
 	}//end getFilePath()
 
-	
+
 	/**
 	* This function initialises getID3() and returns the id3 object
 	* It is useful so that we don't have to do this multiple times
 	*
 	* @return object
 	*/
-	public function initID3() 
+	public function initID3()
 	{
-		
+
 		$file_name = $this->getFilePath();
 
 		// getID3 tool disabled in External Tools? Silently fail.
@@ -408,7 +406,7 @@ class MP3_File extends File
 			trigger_error('Cannot extract ID3 metadata; path to getID3() external tool does not point to a valid getID3() install', E_USER_WARNING);
 			return FALSE;
 		}
-		
+
 		if (!is_file($file_name)) {
 			trigger_error('Cannot extract ID3 metadata; MP3 file path provided does not exist', E_USER_WARNING);
 		}
@@ -423,12 +421,12 @@ class MP3_File extends File
 			trigger_error('Cannot extract ID3 metadata; File path passed is not an MP3 file', E_USER_WARNING);
 			return FALSE;
 		}
-	
+
 		return $id3;
-		
+
 	}//end initID3()
-	
-	
+
+
 	/**
 	* Pulls out metadata from a specified file using getID3() and
 	* returns them in a more friendly format
@@ -493,11 +491,11 @@ class MP3_File extends File
 			}
 
 			if (isset($tag['track_number'])) {
-        		$tag['track'] = $tag['track_number'];
+				$tag['track'] = $tag['track_number'];
 			}
 		} else if (isset($id3->info['tags']['id3v1'])) {
 			$tag =& $id3->info['tags']['id3v1'];
-			
+
 			// Only use the first listed entry for each tag
 			foreach	($tag as $tag_index => $tag_value) {
 				if (is_array($tag_value)) {
