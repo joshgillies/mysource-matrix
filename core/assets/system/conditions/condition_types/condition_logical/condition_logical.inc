@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.7 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_logical.inc,v 1.8 2010/05/12 07:46:33 kmyothein Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,6 +90,17 @@ class Condition_Logical extends Condition
 		$ret = FALSE;
 
 		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {
+			// replace global and non-global keywords
+			foreach ($condition_data['logical_keywords'] as $keyword => $value) {
+				if (preg_match('/^globals_/', $keyword)) {
+					$value = '%'.$keyword.'%';
+					replace_global_keywords($value);  
+				} else {
+					$value = $asset->getKeywordReplacement($keyword);
+				}
+				$condition_data['logical_keywords'][$keyword] = $value;
+			}		
+			
 			switch ($condition_data['operator']) {
 				case 'ALL':
 					$ret = TRUE;
