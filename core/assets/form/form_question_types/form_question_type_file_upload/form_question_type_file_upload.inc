@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.43 2009/11/25 03:36:13 ewang Exp $
+* $Id: form_question_type_file_upload.inc,v 1.44 2010/05/12 01:56:07 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -684,46 +684,48 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getUploadedFileId()
 	{
 		$existing_file = NULL;
-		if (!empty($this->extra_data)) {
-			// We have a permanent filesystem path, ie. we don't have create location
-			if (isset($this->extra_data['filesystem_path'])) {
-				return NULL;
+		if ($this->value != translate('core_form_file_upload_none') && !empty($this->value)){
+			if (!empty($this->extra_data)) {
+				// We have a permanent filesystem path, ie. we don't have create location
+				if (isset($this->extra_data['filesystem_path'])) {
+					return NULL;
+				}
+				$existing_file = array_get_index($this->extra_data, 'new_file_assetid', NULL);
+				if (is_null($existing_file)) {
+					$existing_file = array_get_index($this->extra_data, 'existing_file_assetid', NULL);
+				}
 			}
-			$existing_file = array_get_index($this->extra_data, 'new_file_assetid', NULL);
+
+			// No extra data, so use the old method
 			if (is_null($existing_file)) {
-				$existing_file = array_get_index($this->extra_data, 'existing_file_assetid', NULL);
-			}
-		}
+				$create_loc = $this->attr('create_location');
+				$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+				if (is_null($create_loc_asset)) return NULL;
 
-		// No extra data, so use the old method
-		if (is_null($existing_file)) {
-			$create_loc = $this->attr('create_location');
-			$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-			if (is_null($create_loc_asset)) return NULL;
+				$db = MatrixDAL::getDb();
+				// Check that we are not going to have web path conflicts
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				$valid_names = make_valid_web_paths(Array($this->getValue()));
+				$name = array_shift($valid_names);
 
-			$db = MatrixDAL::getDb();
-			// Check that we are not going to have web path conflicts
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$valid_names = make_valid_web_paths(Array($this->getValue()));
-			$name = array_shift($valid_names);
+				$sql = 'SELECT
+							a.assetid
+						FROM
+							'.SQ_TABLE_RUNNING_PREFIX.'ast a
+								JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+								ON a.assetid = l.minorid
+						WHERE
+							l.majorid = :create_loc
+							AND a.name = :name';
 
-			$sql = 'SELECT
-						a.assetid
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast a
-							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-							ON a.assetid = l.minorid
-					WHERE
-						l.majorid = :create_loc
-						AND a.name = :name';
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'create_loc', $create_loc);
-				MatrixDAL::bindValueToPdo($query, 'name', $name);
-				$existing_file = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get the uploaded file assetid due to database error: '.$e->getMessage());
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'create_loc', $create_loc);
+					MatrixDAL::bindValueToPdo($query, 'name', $name);
+					$existing_file = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get the uploaded file assetid due to database error: '.$e->getMessage());
+				}
 			}
 		}
 
