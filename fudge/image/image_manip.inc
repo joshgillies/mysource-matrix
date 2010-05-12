@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.6 2007/11/15 23:32:36 lwright Exp $
+* $Id: image_manip.inc,v 1.6.10.1 2010/05/12 23:42:23 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.10.1 $
 * @package Fudge
 * @subpackage Image
 */
@@ -143,16 +143,23 @@ class Image_Manip
 		// NOTE: $s_* = source image vars, $d_* = destination image vars
 		$s_img = Image_Manip::fromFile($input);
 
-		// can't use true colour for gif's
-		if (get_file_type($output) == 'gif') {
+		// transparency needs to be handled separately for GIF/PNG
+		switch (get_file_type($output)) {
+		case 'gif':
 			$d_img = imageCreate($w, $h);
-
 			// preserve GIF transparency
 			$colorTransparent = imagecolortransparent($s_img);
 			imagepalettecopy($d_img,$s_img);
 			imagefill($d_img,0,0,$colorTransparent);
 			imagecolortransparent($d_img, $colorTransparent);
-		} else {
+			break;
+		case 'png':
+			// preserve PNG transparency
+			$d_img = imageCreateTrueColor($w, $h);
+			imagealphablending( $d_img, false );
+			imagesavealpha( $d_img, true );
+			break;
+		default:
 			$d_img = imageCreateTrueColor($w, $h);
 		}
 
