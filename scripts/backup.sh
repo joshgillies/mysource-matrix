@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.30.2.2 2010/02/03 05:57:28 csmith Exp $
+#* $Id: backup.sh,v 1.30.2.3 2010/05/12 02:12:59 csmith Exp $
 #*
 #*/
 #
@@ -46,6 +46,12 @@ This is used for oracle backups since the 'exp' and 'expdb' utilities are server
 $0 /path/to/matrix [/path/to/backup/folder] [--verbose] --remotedb=username@hostname
 
 It will try to ssh to the remote server using username@hostname
+
+You can specify whether to create a database dump only by specifying the --database-only switch.
+The database dump filenames are still named after the date the script was run.
+This will not create a tar file containing the matrix files.
+
+$0 /path/to/matrix [/path/to/backup/folder] [--verbose] --database-only
 
 EOF
 	exit 1
@@ -100,20 +106,21 @@ file_exists()
 }
 
 # Usage:
-# pg_dbdump $dbname $username $pass $host $port [$schema_only]
+# pg_dbdump $dumpdir $dbname $username $pass $host $port [$schema_only]
 #
 # even if pass/host/port are empty.
 # If $schema_only is not supplied, a full database dump is created.
 pg_dbdump()
 {
-	db=$1
-	username=$2
-	pass=$3
-	host=$4
-	port=$5
+	dumpdir=$1
+	db=$2
+	username=$3
+	pass=$4
+	host=$5
+	port=$6
 
 	schema_only=1
-	if [ "x$6" = "x" ]; then
+	if [ "x$7" = "x" ]; then
 		schema_only=0
 	fi
 
@@ -187,7 +194,7 @@ pg_dbdump()
 		print_verbose "Doing a complete dump of ${db}"
 	fi
 
-	dumpfile=${SYSTEM_ROOT}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
+	dumpfile=${dumpdir}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
 
 	echo "${dumpfile}" >> "${SYSTEM_ROOT}/.extra_backup_files"
 
@@ -212,6 +219,7 @@ pg_dbdump()
 		print_error "${output}"
 		print_error ""
 		print_verbose ""
+		return 1
 	else
 		print_verbose "Finished dumping database."
 	fi
@@ -256,10 +264,15 @@ fi
 backupfilename_prefix=`basename $SYSTEM_ROOT`
 backupfilename="${backupfilename_prefix}-`date +%Y-%m-%d_%H-%M`-backup.tar.gz"
 
+database_only=0
+
 while true; do
 	case "$1" in
 		--verbose)
 			VERBOSE=1
+		;;
+		--database-only)
+			database_only=1
 		;;
 		--remotedb=*)
 			# /bin/sh doesnt expand *) and put it into $1
@@ -436,22 +449,22 @@ else
 fi
 
 # Usage:
-# oracle_dbdump $remote_user $user $pass $hostspec
+# oracle_dbdump $dumpdir $remote_user $user $pass $hostspec
 # the hostspec is
 # //localhost|ip.addr/dbname
 # which is broken up inside the fn to do the right thing.
 oracle_dbdump()
 {
-	remote_user=$1
-	username=$2
-	pass=$3
-	hostspec=$4
+	dumpdir=$1
+	remote_user=$2
+	username=$3
+	pass=$4
+	hostspec=$5
 
 	schema_only=1
-	if [ "x$5" = "x" ]; then
+	if [ "x$6" = "x" ]; then
 		schema_only=0
 	fi
-
 
 	# The oracle dsn is in the format of:
 	# //localhost|ip.addr/dbname
@@ -475,7 +488,7 @@ oracle_dbdump()
 			print_error "To do remote oracle backups, please supply '--remotedb=username@hostname'"
 			print_error "The database has not been included in the backup."
 			print_verbose ""
-			return
+			return 1
 		fi
 	fi
 
@@ -496,7 +509,7 @@ oracle_dbdump()
 		print_error "Make sure 'exp' is in your path."
 		print_error "The database has not been included in the backup."
 		print_verbose ""
-		return
+		return $rc
 	fi
 
 	if [ "x${remote_user}" = "x" ]; then
@@ -510,7 +523,7 @@ oracle_dbdump()
 		print_error "Make sure the 'ORACLE_HOME' environment variable is set"
 		print_error "The database has not been included in the backup."
 		print_verbose ""
-		return
+		return 1
 	fi
 
 	print_verbose "Creating oracle db dump .. "
@@ -557,13 +570,13 @@ oracle_dbdump()
 	if [ "x${remote_user}" = "x" ]; then
 		rm -f ${outputfile}
 	else
-		scp -q "${remote_user}:${dumpfile}" "${SYSTEM_ROOT}/${dumpfile}"
+		scp -q "${remote_user}:${dumpfile}" "${dumpdir}/${dumpfile}"
 		if [ $? -gt 0 ]; then
 			print_error "Unable to copy the oracle dump file back."
 			print_error "Tried to run"
 			print_error "scp ${remote_user}:${dumpfile} ${SYSTEM_ROOT}/${dumpfile}"
 			print_error "The database has not been included in the backup."
-			return
+			return 1
 		fi
 		ssh "${remote_user}" 'rm -f ${outputfile} ${dumpfile}'
 	fi
@@ -573,25 +586,41 @@ oracle_dbdump()
 	fi
 
 	print_verbose "Finished dumping database."
+	return 0
 }
 
+# this will be the return code for the backup script
+# if the db dump fails, we'll give a non-zero exit code
+rc=0
 case "${DB_TYPE}" in
 	"pgsql")
-		pg_dbdump "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
+		pg_dbdump "${backupdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
+		if [ $? -gt 0 ]; then
+			rc=7
+		fi
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
-			pg_dbdump "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+			pg_dbdump "${backupdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+			if [ $? -gt 0 ]; then
+				rc=7
+			fi
 		fi
 	;;
 
 	"oci")
-		oracle_dbdump "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
+		oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
+		if [ $? -gt 0 ]; then
+			rc=7
+		fi
 
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
-			oracle_dbdump "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+			oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+			if [ $? -gt 0 ]; then
+				rc=7
+			fi
 		fi
 	;;
 
@@ -599,6 +628,14 @@ case "${DB_TYPE}" in
 		print_error "ERROR: DATABASE TYPE '${DB_TYPE}' NOT KNOWN"
 		exit 6
 esac
+
+# We've specified database-only, so stop
+if [ "${database_only}" = "1" ]; then
+	if [ -f "${SYSTEM_ROOT}/.extra_backup_files" ]; then
+		rm -f "${SYSTEM_ROOT}/.extra_backup_files"
+	fi
+	exit $rc
+fi
 
 #
 # We do the tar and gzip separately so systems like Solaris
@@ -709,7 +746,6 @@ else
 			# Minor Error - probably "file changed as we read it"
 			# Don't print to stderr unless in verbose mode.
 			if [ "${VERBOSE}" -eq 1 ]; then
-				echo "\$TMPFILE=$TMPFILE"
 				cat $TMPFILE >&2
 			fi
 			;;
@@ -755,5 +791,5 @@ print_info ""
 print_info "Your system is backed up to ${backupdir}/${backupfilename}"
 print_info ""
 
-exit 0
+exit $rc
 
