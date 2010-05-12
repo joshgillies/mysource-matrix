@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.10 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: html_width.inc,v 1.10.16.1 2010/05/12 01:06:33 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <html_width />
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.16.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -108,7 +108,7 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 			$value = (int) $_REQUEST[$prefix];
 		}
 
-		if ((string)$this->value != $value && $this->setValue($value)) {
+		if ((string)$this->value != (string) $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
