@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.44 2010/05/12 01:56:07 mhaidar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.45 2010/05/12 04:24:46 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -699,6 +699,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			// No extra data, so use the old method
 			if (is_null($existing_file)) {
 				$create_loc = $this->attr('create_location');
+				if ($create_loc == 0) return NULL;
 				$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 				if (is_null($create_loc_asset)) return NULL;
 
