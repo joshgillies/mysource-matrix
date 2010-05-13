@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: generate_install_key.php,v 1.3 2007/11/27 03:27:08 hnguyen Exp $
+* $Id: generate_install_key.php,v 1.4 2010/05/13 06:46:14 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -51,7 +51,9 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-define ('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+if (!defined('SQ_SYSTEM_ROOT')) {
+	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+}
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';

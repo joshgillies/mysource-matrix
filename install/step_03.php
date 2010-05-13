@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.74 2009/05/22 03:12:01 wszymanski Exp $
+* $Id: step_03.php,v 1.75 2010/05/13 06:46:14 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -86,7 +86,6 @@ if ($cli) {
 	}
 }
 
-require_once $SYSTEM_ROOT.'/install/generate_install_key.php';
 if (!defined('SQ_SYSTEM_ROOT')) {
 	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 }
@@ -118,6 +117,7 @@ foreach ($packages as $package) {
 if (!regenerate_configs()) {
 	trigger_error('Config Generation Failed', E_USER_ERROR);
 }
+require_once $SYSTEM_ROOT.'/install/generate_install_key.php';
 
 // check if the $packageList variable has been defined at all
 if (!isset($package_list)) $package_list = Array();
