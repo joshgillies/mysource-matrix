@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.46.4.1 2010/01/11 07:09:34 mbrydon Exp $
+* $Id: asset_status_pending_approval.inc,v 1.46.4.2 2010/05/13 04:17:48 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46.4.1 $
+* @version $Revision: 1.46.4.2 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -99,10 +99,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
+				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+					$is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
-					if ($wf_complete && $m_complete) {
+					if ($wf_complete && (($m_complete && !$is_dependant) || $is_dependant)) {
 						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
 					} else if (in_array($userid, $publishers)) {
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
@@ -119,7 +120,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		} else {
 			// workflow is not currently running for this asset
 			// but it should be because we are waiting for it to complete
-			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
+			pre_echo('FIXME: SOMETHING HAS GONE WRONG HERE');
 		}//end if workflow running
 
 		return $statii;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.44.2.2 2010/01/13 03:12:44 lwright Exp $
+* $Id: asset_status_editing.inc,v 1.44.2.3 2010/05/13 04:17:48 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.2.2 $
+* @version $Revision: 1.44.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -87,12 +87,14 @@ class Asset_Status_Editing extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because EDITING does not require workflow
-			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
+			pre_echo('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
-				if ($mm->requiredFieldsComplete($this->owner->id)) {
+			if ($mm->allowsMetadata($this->owner->id)) {
+                $is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
+				
+				if (($mm->requiredFieldsComplete($this->owner->id) && !$is_dependant) || $is_dependant) {
 					// metadata is complete
 					$schemas = $wfm->getSchemas($this->owner->id, true);
 					if (empty($schemas)) {
@@ -139,7 +141,7 @@ class Asset_Status_Editing extends Asset_Status
 						}
 					}
 				} else {
-					// can't grant approval yet because metadata incomplete
+					// can't grant approval yet because owner is a independent asset with incomplete metadata
 					$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 				}
 
