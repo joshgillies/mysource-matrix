@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.210 2010/05/10 17:52:31 ata Exp $
+* $Id: metadata_manager.inc,v 1.211 2010/05/17 05:39:25 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210 $
+* @version $Revision: 1.211 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -869,8 +869,8 @@ class Metadata_Manager extends MySource_Object
 				// If the field is still being tested, check whether it's
 				// contextable or not, so it's appropriately handled
 				if (array_key_exists($fieldid, $metadata)) {
-					// A field is non-contextatble if its attribute says so 
-					// or it is a Metadata Select Field 
+					// A field is non-contextatble if its attribute says so
+					// or it is a Metadata Select Field
 					$contextable_value = (!$field->attr('is_contextable') || ($field instanceof Metadata_Field_Select)) ? 0 : 1;
 					$contextable_fields[$contextable_value][] = (string)$fieldid;
 				}
@@ -930,7 +930,7 @@ class Metadata_Manager extends MySource_Object
 				$remaining[] = $fieldid;
 			}
 		}
-		
+
 		// We want to remove all non-contextable fields and then insert them again instead of updating
 		// because we want to add new records for contexts that do not have metadata fields set yet
 		// e.g. set metadata the first time for default context and alternate contexts still use metadata default values
@@ -1230,7 +1230,7 @@ class Metadata_Manager extends MySource_Object
 
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.(isset($metadata_replacements["\1"]) ? $metadata_replacements["\1"] : "%\1%" ).\'', $v2);				
+				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.(isset($metadata_replacements["\1"]) ? $metadata_replacements["\1"] : "%\1%" ).\'', $v2);
 				echo "'$n' => '$v2',\n";
 			}
 			echo ");\n\n";
@@ -1439,12 +1439,12 @@ class Metadata_Manager extends MySource_Object
 						if (array_key_exists($format_name, $date_formats)) {
 							$format_expr = str_replace('/', '//', $date_formats[$format_name]);
 							if ($keyword == 'asset_published') {
-								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\''.$format_expr.'\', $metadata_asset->published);'."\n";
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : format_date($metadata_asset->published, \''.$format_name.'\');'."\n";
 							} else {
 								if ($format_name == 'iso8601') {
 									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$format_expr.'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
 								} else {
-									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$format_expr.'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).');'."\n";
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = format_date($metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).', \''.$format_name.'\');'."\n";
 								}
 							}
 							$replaced = TRUE;
@@ -1468,7 +1468,7 @@ class Metadata_Manager extends MySource_Object
 					$keyword = 'asset_url';
 				}
 			}
-			
+
 			if (!$replaced) {
 				switch ($keyword) {
 					case 'asset_assetid' :
@@ -2193,7 +2193,7 @@ class Metadata_Manager extends MySource_Object
 		// we are for now just checking for it not to be utf-8 but can append other encoding
 		// we might want to skip later on
 		if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
-		 	// escape everything else (chars > 126)
+			// escape everything else (chars > 126)
 			for ($i = 0; $i < strlen($value); ++$i) {
 				$ord = ord($value[$i]);
 				if ($ord > 126) {
@@ -2221,14 +2221,14 @@ class Metadata_Manager extends MySource_Object
 	 *
 	 * @param string	$assetid			The ID of the asset we wish to check
 	 * @param string	$target_field_name	The name of the field we wish to find
-	 * 
+	 *
 	 * @return mixed string|boolean
 	 */
 	public function getFieldAssetIdFromName($assetid, $target_field_name)
 	{
 		assert_valid_assetid($assetid);
 		assert_true(is_string($target_field_name));
-		
+
 		// Get a list of the applied schemas' field assets - first their IDs,
 		// then their names
 		$schemaids = $this->getSchemas($assetid, TRUE);
@@ -2243,7 +2243,7 @@ class Metadata_Manager extends MySource_Object
 		$assetid = array_search($target_field_name, $field_names);
 
 		return $assetid;
-		
+
 	}//end getFieldAssetIdFromName()
 
 
