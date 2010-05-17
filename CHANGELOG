@@ -1,76 +1,248 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.26.0 RC1
+VERSION 3.28.0
 
 Featured Changes
------------------------------------
+==================================
 
-Workflow Streams
-	This functionality allows multiple sets of Workflow Steps per Workflow Schema, and allows Administrators to select which of these sets is to be used for any given Workflow process.
-
-Please note that new and existing Workflow Schema steps will be moved under a "Default Stream" which resides under the related Workflow Schema. This Default Stream cannot be moved or deleted. 
-
-
-Replace Keywords option in Set Value Trigger Action
-	A checkbox "Replace keywords in the set value" is provided in the Set Metadata Value and Set Attribute Value Trigger Actions to indicate whether keywords supplied in these fields are to be replaced upon evaluation rather than being treated as literal text. This can be used with both asset-level and Global Keywords.
+ALLOW MULTIPLE "asset_contents_paint_#" KEYWORDS IN TYPE FORMAT BODYCOPY [ Feature Request #4347 ]
+-----------------------------
+When printing an asset in a Listing Engine, the type format only supports one instance of printing asset contents with an arbitrary bodycopy, using "asset_contents_paint_#".
+This feature allows multiple arbitrary paint layout keywords be used in the one type format.
 
 
-User Group System Preference for Context ID for session
-	The "Preferences" screen of User Group assets now provides the ability to assign a Context ID to be used for User Group members for a Matrix session.
+ALLOW ACCESS TO ASSET KEYWORDS FROM ALTERNATE CONTEXTS [ Feature Request #4373 ]
+-----------------------------
+This new keyword feature allows you to draw a keyword replacement from a context other than the currently used one.
+The new feature works like a keyword modifier, using the name of the context as its parameter. For instance, %asset_keyword^context:Context_Name%. If a keyword is not contextable, this modifier will have no effect. 
 
 
-Public User Trigger Condition
-	A Trigger Condition has been added to evaluate whether or not the user who caused the associated Trigger to fire was the Public User (ie; not logged in). 
+ALLOW ACCESS TO ASSET KEYWORDS FROM ALTERNATE CONTEXTS [ Feature Request #4316 ]
+-----------------------------
+Allow you to update the status of a Twitter account from a trigger, based on the content of the triggering asset.
+Global keywords and keywords of the triggering asset are supported in the Tweet format.
+The Set Twitter Status Trigger Action which were added to this release requires the I18N_UnicodeNormalizer PEAR package, version 1.0.0 to be installed.
 
 
-Asset Lineage Design Area: Negative Start Level definition
-	The attribute value for "start_at_level" can now be specified as a negative number to refer to direct parent assets of the current asset.
-For example, -1 would refer to the direct parent, -n to the nth direct parent. Other positive numbers (0 = current asset, 1 direct child etc.) still continue to function as previously defined. 
+JS API FUNCTION TO GET APPLIED WORKFLOW [ Feature Request #4395 ]
+-----------------------------
+Added a JS API function which could return applied/denied workflow schema on a asset.
+Alternately we could pass in an extra argument to see if the applied workflow (if any) is currently running on the asset. 
 
 
-Additional Asset Keyword Modifiers
-	New Keyword Modifiers have been added, which are:
-
-	- md5 (return the computed MD5 hash of the value)
-	- sha1 (return the computed SHA1 hash of the value)
-	- stripdecl (strips an XML declaration <?xml ... > from the value)
-	- number_format (formats a number with grouped thousands and rounded to x significant digits, defaulting to 0)
-
-Some examples:
-	%asset_name^md5% (eg; fred becomes 08b622ddf7eb7c8e44cdb3bd6362f966)
-	%asset_attribute_price^number_format:2% (eg; takes 1.235 and shows it as 1.24) 
+%asset_url_CONTEXT% KEYWORD [ Feature Request #4348 ]
+-----------------------------
+When a site has multiple URLs with different base contexts, this keyword will only return the asset URL of a Context if that Context is set as a Base Context of the Site URL. 
+e.g. %asset_url_Default_Context% will return the asset URL in default context and %asset_url_French% will return the asset URL for French context.   
 
 
-PayPal Payment Gateway modifications
-	The PayPal Payment Button asset now supports "Donate", "Add to Cart" and "View Cart" button types, in addition to "Buy Now". The options for each Button Type are available by toggling the Button Type from the "Details" screen and clicking "Commit".
-
-	- Donate Button
-	This button allows the name of the Organisation or purpose of the donation to be supplied, as well as the ability to specify a fixed amount.
-
-    - Add To Cart and View Cart buttons
-	This allows for cart-based transactions to be maintained by the PayPal environment. The "View Cart" button provides an option to open the cart contents either within the current browser window/tab or in a new window/tab.
-
-	- PayPal IPN Receiver modifications
-	This asset has been modified to accept the "Cart" transaction type and to populate the receipt of the generated PayPal Order. 
+%globals_context% KEYWORD [ Feature Request #4350 ]
+-----------------------------
+A new global keyword %globals_context% which returns the name of the current context.
 
 
-Move Assets Script enhancements
-	The Create Links HIPO Job is now used in this script to perform "move" operations, rather than direct asset manipulation. 
+MAKE METADATA SELECTION FIELD CONSISTENT IN DIFFERENT CONTEXTS [ Feature Request #4341 ]
+-----------------------------
+Assume that you have 2 contexts in your Matrix system, a default context in English and an alternate context in French.
+Create a new Metadata Schema with a Selection Field named Title with 2 options in 2 contexts:mr => Mr (English) and Monsieur (French), ms => Ms (English) and Mademoiselle (French) 
+This feature will work in a way that if Mr is selected in English, Monsieur would be selected automatically in French.
 
 
-System Update Lookups Script: Increased Verbosity
-	The system_update_lookups.php script now supports an optional "--verbose" argument to display any errors which may occur as a result of updating lookups. The script can now be executed from the Matrix System Root directory as follows:
-
-	php scripts/system_update_lookups.php . 123 --verbose
-
-
-Globals Site Keywords performance enhancement
-	Modifications have been made to the Matrix core to provide improvements in the evaluation speed of %globals_site_..% keywords and when site-based options are selected from the Parameter Map. 
+JS API ABILLITY TO SPECIFY _admin/_edit ACCESS [ Feature Request #4372 ]
+-----------------------------
+Right now when JS API function call is made it behaves like called in the backend. For example if the status of an asset is changed and if this results in workflow email to be generated, then the links in the email will have _admin links.
+This feature allows function call can be made to act as if it was made from Simple Edit Interface. So in the case like above example we could have an _edit link in the emails instead.
 
 
-Get Lineage performance enhancement
-	Instead of loading each asset in the lineage to determine whether they are in Safe Edit, this is now only performed upon assets in the lineage which are in Safe Edit. This should show a slight improvement on the initial load on long lineages with many assets not in Safe Edit. 
+HIDE FRAMES IN SIMPLE EDIT MODE [ Feature Request #4347 ]
+-----------------------------
+In simple edit mode, there is always the top bar frame and side bar asset map frame which is hidden. 
+This new option of design asset would allow user to remove this frames completely and only display the main frame. This option is per design.
 
 
-Purge Trash HIPO performance enhancement
-	A query has been optimised in the Purge Trash HIPO to return assets in "sort order". This modification removes the need to update the sort order of nearby assets, which may result in a performance increase when running this HIPO.
+
+EXIT DESIGN AREA [ Feature Request #4378 ]
+-----------------------------
+New design area called "exit". This design area is used when the design needed to stop printing the ignore the rest of the body. Can be used in conjunction with design area if condition.
+
+
+NEW SOAP AUTHENTICATION FEATURE ALLOW USER TO LOGIN [ Feature Request #4377 ]
+-----------------------------
+A new API function is added to SOAP Asset Service to allow authentication to MySource Matrix using username and password. Upon logging in, the API function will produce a session id and a session key, which can be used to authenticate cross domain.
+
+
+DISPLAY KEY OR VALUE OF METADATA SELECTION FIELD [ Feature Request #1404 ]
+-----------------------------
+New keywords are added to display the key to a selection metadata on one screen and the value on another. The keywords will be %asset_metadata_X_key%  and %asset_metadata_X_value%
+
+
+ADDITIONAL FEATURES FOR SOAP API [ Feature Request #4307 ]
+-----------------------------
+A number of SOAP API functions has been added to the web services package. Here is the summary:
+Asset service new features:
+- Get page content
+- Get asset type descendants
+- Get assets children, lineages, typecode, name in batch
+- Get Asset Urls by root node
+Link service new features:
+- Get parent assets under particular tree
+- Get lineages under a particular root node
+File service new feature:
+- Get image information: title, size, width, height, mimetype
+
+
+WYSIWYG SNIPPETS PERFORMANCE ENHANCEMENT [ Feature Request #4127 ]
+-----------------------------
+Queries related to permission checking when loading Snippet keywords can now be disabled when rended in the drop-down list of keywords shown when printing the WYSIWYG container.
+This can provide a noticable performance enhancement. The option to configure permission checking is available under Global Preferences for the Snippet Content Type.
+
+
+TARGET REMAP URL ON WEB PATHS SCREEN [ Feature Request #4220 ]
+-----------------------------
+In line with the display in Remap Manager, the asset Web Paths screen now shows the Target URL in the Remaps list.
+
+
+REFACTORING OF CLEAR CACHE CODE FOR SYSTEM CACHE TYPES [ Feature Request #4243 ]
+-----------------------------
+Code to handle clearing caches has been moved into the cache type, in order to prevent unnecessary calls to the MySource Matrix database for systems using non-default caching mechanisms such as Memcache.
+
+
+BULKMAIL ALLOWS MULTIPLE SUBSCRIPTION OF AN EMAIL ADDRESS [ Feature Request #3131 ]
+-----------------------------
+An "already subscribed" message is sent to users via email, when an email address is submitted to a Bulkmail Subscription Page for which this address already exists on the relevant lists.
+This functionality is only available when Subscribe Verification is enabled to the subscription page, and is applicable to both public and Matrix users.
+
+
+USAGE SCREEN FOR SCHEMAS [ Feature Request #3871 ]
+-----------------------------
+A "Usage" screen is now available for Metadata and Workflow Schemas, to show where these are referenced in the system. This is implemented similarly to the existing "Usage" screen for Designs.
+
+
+EXPIRED MATRIX CACHE CRON JOB [ Feature Request #4004 ]
+-----------------------------
+An "Expired Matrix Cache" Cron Job has been added to clean up expired cache entries on invocation of the Matrix cron script run.php. This is set to every 15 minutes by default on new installations.
+
+
+ABILITY TO DOWNLOAD CURRENT LOG FROM THE LOG MANAGER [ Feature Request #4267 ]
+-----------------------------
+A "Download File" button is now available to download current logs (ie; those which have not been rotated).
+
+
+NEW KEYWORDS FOR DATETIME FIELDS [ Feature Request #4276 ]
+-----------------------------
+Additional formats are available for Datetime field types which allow these values to be displayed relative to the current date, and with or without a time component.
+The keywords to use this functionality are as follows (using %asset_created% as an example):
+- %asset_created_relative%     -> "3 days ago"
+- %asset_created_relative-dow% -> "5pm on Tuesday"
+
+
+FILESYSTEM BRIDGE [ Feature Request #4290 ]
+-----------------------------
+A Filesystem Bridge asset is now available which provides shadow  assets representing a server file system. A path to the filesystem location is provided, and files and directories are represented by Physical File and Physical Folder asset types.
+This allows files to be browsed from within MySource Matrix, even though they are not real assets.
+An "Import File" tool is also available under Tools, to allow the referenced files to be imported as solid assets into MySource Matrix.
+
+
+XML/XSL FILE ASSETS [ Feature Request #4291 ]
+-----------------------------
+XML and XSL File assets are now available. The XML File asset allows an association with an XSL File asset for extensible stylesheet language styling of the file upon preview.
+
+
+STATUS, PERMISSION AND HIPO SCRIPTS [ Feature Request #4292 ]
+-----------------------------
+Command-line scripts have been added to manipulate asset status and permissions en masse, as well as to manage running of HIPO Jobs.
+The script usage for each is as follows:
+php scripts/status_change.php [matrix_dir] [root_node] [status_code] [child_nodes]
+-[root_node]   the assetid of the asset from which to apply status changes
+-[status_code] a valid status number (eg; 16 for Live etc.)
+-[child_nodes] optional and will decend to children if specified as 'y'
+php scripts/permission_change.php [matrix_dir] [root_node] [user_id] [permission] [grant] [child_nodes]
+-[root_node]   the assetid of the asset from which to apply/deny permissions
+-[user_id]     the assetid of the user
+-[permission]  specified as either 'read', 'write' or 'admin'
+-[grant]       will grant permissions when specified as 'y', deny when specified as 'n'
+-[child_nodes] will include child nodes when specified as 'y', or won't (ie; apply only to the root_node) when specified as 'n'
+php scripts/hipo_management.php [matrix_dir]
+-This script provides user prompts for all operations 
+
+
+REMAP MANAGER: TOTAL REMAPS [ Feature Request #3432 ]
+-----------------------------
+The total number of Remaps displayed in Remap Manager is now shown within the list.
+
+
+REMAP MANAGER: EXPORT TO CSV [ Feature Request #3449 ]
+-----------------------------
+A "Download File" button is provided within the Remap Manager to export Remap entries to CSV format.
+
+
+LINK ASSET: ALLOW LINKING UNDER STANDARD PAGE ASSETS[ Feature Request #4281 ]
+-----------------------------
+Link Assets can now be linked under Standard Pages. 
+
+
+PASSWORD CHANGE SCREEN: FORCE SECURE LOGIN FUNCTIONALITY [ Feature Request #4306 ]
+-----------------------------
+The Force Secure Login rules applied to a Site are now respected when a user is presented with a Matrix-generated Password Change screen.
+
+
+BACKUP SCRIPT: "DATABASE BACKUP ONLY" OPTION [ Feature Request #4310 ]
+-----------------------------
+A new switch --database-only is available in the Matrix backup script which will create a database dump only instead of a combined database and filesystem backup. 
+      
+
+DIFFERENTIATE BETWEEN MATRIX REMAPS AND CUSTOM REMAPS [ Feature Request #474 ]
+-----------------------------
+A new column "Type" is now available in the asset Remap List and Remap Manager, to denote whether the remap was created by MySource Matrix (specified as "Automatic") or by the user (specified as "Manual").
+
+
+WHAT'S NEW PAGE: PRE-CONFIGURED TIME FRAMES [ Feature Request #2062 ]
+-----------------------------
+The Date Range specifications for What's New Page now allows selection from a:
+- Fixed date and time (dd-mm-yyyy hh:ii:ss)
+- Period relative to the current date and time (x [time period] in the [past/future])
+- Period relative to a fixed time on current date (x [time period] [before/after] today at hh:ii:ss) 
+
+
+JS API: SET ASSET STATUS [ Feature Request #4252 ]
+-----------------------------
+A new Javascript function has been added to the JS API to set the status of an asset and dependent assets. This status can be optionally cascaded to non-dependent child assets.
+E.g. setAssetStatus([asset_id], [status], [cascade], [dataCallback]);
+      
+
+JS API ENHANCEMENTS [ Feature Request #4200 ]
+-----------------------------
+Configurable number of asset levels in call to getParents()
+-The getParents() asset function in the JS API has been modified to allow a second argument referring to the number of levels to return, similar to getChildren(). When omitted, or set to 0, all parent asset IDs will be returned. Previous functionality of getParents() was to return only the first level, equivalent to setting levels to 1.
+Multiple Set Attribute function
+-A new function "setMultipleAttributes()" is now available in the JS API. This function takes a single array of attribute names and their corresponding values to enable updating multiple attributes for an asset in one request. 
+
+
+JS API: LOOKUPS UPDATED WHEN PERFORMING WEBPATH ACTIONS [ Feature Request #4142 ]
+-----------------------------
+JS API functions which manipulate or remove asset links, as given below, will update related lookups to ensure these actions are completed in accordance with normal backend operation.
+The modified JS API functions are moveLinks(), trashAsset(), removeLink(), createLink().
+Implementations should include an "in progress" or spinner device as these actions will take some time to complete and return.
+
+
+JS API: PROVISION OF ASSET, GLOBAL AND SIMPLE EDIT KEYWORD REPLACEMENTS [ Feature Request #4210 ]
+-----------------------------
+A new function, getKeywordsReplacements(), has been added to the JS API to return keyword replacements for requested asset, global and Simple Edit keywords.
+The function signature is: getKeywordsReplacements(asset_id, keywords_array, dataCallback)
+
+
+JS API: ASSET LOCK EXTENDED FUNCTIONALITY [ Feature Request #4238 ]
+-----------------------------
+The asset lock acquisition and release functionality has been improved
+- new function getLocksInfo() to return information about locks acquired, the user holding locks, and lock expiry time
+- any other error that might have occurred during processing of locks
+- locks may be acquired on dependent or non-dependent child assets
+- locks can now be forcibly acquired
+- new function getLocksInfo() which will return
+
+
+JS API: UPDATE AND TRASH MULTIPLE ASSET LINKS, GET CHILD COUNT FUNCTIONALITY [ Feature Request #4271 ]
+-----------------------------
+A new function updateMultipleLinks() has been added, as well as an extension to the trashAsset() function to provide the ability to perform these operations upon multiple assets. The trashAsset() function can still operate on a single asset as given by current functionality.
+Link sort order, type, value, and locking can be controlled from the link update functions. Another new function getChildCount() has been included to obtain the number of direct children and/or dependents.
+
