@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.211 2010/05/17 05:39:25 lwright Exp $
+* $Id: metadata_manager.inc,v 1.212 2010/05/17 05:48:35 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.211 $
+* @version $Revision: 1.212 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1434,6 +1434,9 @@ class Metadata_Manager extends MySource_Object
 						}
 						$replaced = TRUE;
 					} else {
+						// Does the keyword match a certain date format? If so, replace
+						// here; if not, then it will gets replaced further down (using date()
+						// function).
 						$date_formats = get_date_formats();
 						$format_name = substr($keyword, strlen($name.'_'));
 						if (array_key_exists($format_name, $date_formats)) {
