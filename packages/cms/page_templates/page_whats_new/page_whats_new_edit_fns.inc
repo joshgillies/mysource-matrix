@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.19 2010/03/09 23:31:53 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.19.2.1 2010/05/18 23:31:06 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,8 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			if ($write_access === TRUE) {
 				combo_box($prefix.'_range_type', $range_types, FALSE, $range);
 			} else {
-				echo $range_types[$range];
+				if(!empty($range))
+					echo $range_types[$range];
 			}
 		$o->note(translate('cms_whats_new_range_type_note'));
 		$o->closeField();
