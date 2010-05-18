@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.4 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_metadata_service.inc,v 1.5 2010/05/18 11:52:14 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -243,6 +243,8 @@ class Soap_Api_Metadata_Service extends Soap_Api
 			$field_asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			$field_name		= $field_asset->attr('name');
 
+			// Encode value before setting metadata
+			$new_value = Metadata_Field::encodeValueString($new_value, Array());
 
 			$metadata_info	= Array (
 								$fieldid	=> Array (
