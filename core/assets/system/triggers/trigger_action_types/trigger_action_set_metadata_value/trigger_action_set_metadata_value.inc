@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.36 2010/05/10 11:44:31 ata Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.37 2010/05/18 12:07:27 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			//
 			// Sanitise the value for equal signs (=)
 			// As per Bug #2951 HTML Submitted becomes malformed due to a simple equals sign
-			$value = str_replace('=', '\=', $value);
+			$value = Metadata_Field::encodeValueString($value, Array());
 		} else {
 			$value = $settings['value'];
 		}
