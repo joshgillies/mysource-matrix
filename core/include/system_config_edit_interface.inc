@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.40.2.1 2010/01/06 05:05:47 cupreti Exp $
+* $Id: system_config_edit_interface.inc,v 1.40.2.2 2010/05/18 00:42:45 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -411,6 +411,10 @@ class System_Config_Edit_Interface extends MySource_Object
 			$lockid = substr($lockid, 6);
 			$lock_type = substr($lockid, strrpos($lockid, '.') + 1);
 			$assetid = substr($lockid, 0, strrpos($lockid, '.'));
+			
+			// Using assetExists() will not work for shadow assets to check if asset exists in system
+			if (!$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE)) continue;
+
 			$active_locks[$lock['userid']]['locks'][$assetid][$lock_type] = $lock['expires'];
 
 			if (!isset($active_locks[$lock['userid']]['num_locks'])) $active_locks[$lock['userid']]['num_locks'] = 0;
