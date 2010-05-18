@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_execute_database_query.inc,v 1.4 2009/11/30 01:29:59 cupreti Exp $
+* $Id: trigger_action_execute_database_query.inc,v 1.5 2010/05/18 07:02:16 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -137,6 +137,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		$patterns = Array();
 		$replacements = Array();
 		$bind_vars = Array();
+		$includes_globals = FALSE;
 		foreach ($keywords as $id => $keyword) {
 			$value = '';
 			if (!is_null($state['asset'])) {
@@ -147,7 +148,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 			if (0 === strpos($keyword, 'globals_')) {
 				$whole_keyword = $keyword_wrapper.$keyword.$keyword_wrapper;
 				$sql = str_replace($whole_keyword, MatrixDAL::quote($whole_keyword), $sql);
-				$sql = replace_global_keywords($sql);
+				$includes_globals = TRUE;
 			} else {
 				if ($value != $keyword_wrapper.$keyword.$keyword_wrapper) {
 					// Keyword cannot be found, don't bother doing anything else
@@ -160,6 +161,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		}//end foreach
 
 		$sql = preg_replace($patterns, $replacements, $sql, '1');
+		if($includes_globals) $sql = replace_global_keywords($sql);
 
 		// Check for wildcards on the bind vars
 		foreach ($bind_vars as $bind_var => $bind_value) {
