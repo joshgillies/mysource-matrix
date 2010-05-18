@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303 2010/05/11 02:27:26 lwright Exp $
+* $Id: listing_engine.inc,v 1.304 2010/05/18 06:20:31 kmyothein Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303 $
+* @version $Revision: 1.304 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2451,7 +2451,16 @@ class Listing_Engine extends Page
 						$show_self = $this->attr('self_in_lineage');
 						$first = TRUE;
 
-						if (!$show_self) array_pop($lineage_array);
+						if (!$show_self) {
+							if ($asset instanceof File && $asset->attr('allow_unrestricted') && $asset->status == SQ_STATUS_LIVE) {							
+								// do nothing because there's no asset itself in lineage
+								// in this case, the url of the file asset would change  
+								// from example.com/demo-page/child-of-demo-page/grandchild-of-demo-page/demo.pdf
+								// to   example.com/__data/assets/pdf_file/0005/230/demo.pdf															
+							} else {							
+								array_pop($lineage_array);
+							}
+						}
 						foreach ($lineage_array as $lineage_item) {
 							if ($first && !$show_root) {
 								$first = FALSE;
