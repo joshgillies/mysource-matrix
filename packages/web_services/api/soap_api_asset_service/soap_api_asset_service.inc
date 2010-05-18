@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.15 2010/05/10 03:59:15 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.16 2010/05/18 23:17:57 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -450,6 +450,11 @@ class Soap_Api_Asset_Service extends Soap_Api
 				throw new SoapFault('Server', 'Asset is already in trash');
 			} else {
 				$result	= $GLOBALS['SQ_SYSTEM']->am->trashAsset($assetid);
+				if ($result) {
+					$del_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$del_asset->updateLookups();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($del_asset);
+				}
 			}//end else
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
