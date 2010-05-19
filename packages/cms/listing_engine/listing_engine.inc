@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.1 2010/05/19 03:54:53 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.303.2.2 2010/05/19 04:35:03 kmyothein Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.1 $
+* @version $Revision: 1.303.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2455,7 +2455,9 @@ class Listing_Engine extends Page
 						$show_self = $this->attr('self_in_lineage');
 						$first = TRUE;
 
-						if (!$show_self) array_pop($lineage_array);
+						if (!$show_self && strpos($matches[2], '/__data/') === FALSE) {							
+							array_pop($lineage_array);							
+						}
 						foreach ($lineage_array as $lineage_item) {
 							if ($first && !$show_root) {
 								$first = FALSE;
