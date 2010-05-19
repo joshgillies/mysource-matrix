@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.2 2010/04/22 23:07:09 lwright Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.2.2.1 2010/05/19 01:26:12 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,6 +158,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$settings['request_token_secret'] = array_get_index($settings, 'request_token_secret');
 		$settings['access_token']    = array_get_index($settings, 'access_token');
 		$settings['access_token_secret'] = array_get_index($settings, 'access_token_secret');
+		$settings['access_token_acct_for'] = array_get_index($settings, 'access_token_acct_for');
 
 		if ((empty($_REQUEST['oauth_token']) === FALSE) && (empty($_REQUEST['oauth_verifier']) === FALSE)) {
 			// Check that this is the request for this token (and therefore,
