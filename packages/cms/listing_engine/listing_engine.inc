@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303 2010/05/11 02:27:26 lwright Exp $
+* $Id: listing_engine.inc,v 1.303.2.1 2010/05/19 03:54:53 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303 $
+* @version $Revision: 1.303.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2350,7 +2350,9 @@ class Listing_Engine extends Page
 					if ($context_name !== NULL) {
 						$kw .= '^context:'.$context_name;
 					}
-
+					if (empty($asset)) {
+  	                    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+  	                }
 					$keywords[$kw] = $this->_getAssetContentsBCKeywordReplacement($asset, $contextid);
 				}
 
@@ -2364,7 +2366,9 @@ class Listing_Engine extends Page
 					if ($context_name !== NULL) {
 						$kw .= '^context:'.$context_name;
 					}
-
+					if (empty($asset)) {
+  	                    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+  	                }
 					$keywords[$kw] = $this->_getAssetContentsRawBCKeywordReplacement($asset, $contextid);
 				}
 
