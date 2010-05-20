@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.13 2010/05/11 07:40:06 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.14 2010/05/20 23:20:52 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1499,9 +1499,9 @@ class Funnelback_Search_Page extends Listing_Engine
 					}
 				break;
 
-				case 'results_per_page':
-					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-					$field_name = 'results_per_page_text_box';
+				case 'results_per_page':					
+					$field_name = 'results_per_page';
+					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, $field_name, $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$this->registerFormField($field_name);
 					$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.results_per_page.value = this.value;
