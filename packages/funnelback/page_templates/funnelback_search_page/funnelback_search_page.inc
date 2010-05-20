@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.1.1.1.2.4 2010/04/23 03:02:09 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.1.1.1.2.5 2010/05/20 23:41:54 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.4 $
+* @version $Revision: 1.1.1.1.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1500,8 +1500,8 @@ class Funnelback_Search_Page extends Listing_Engine
 				break;
 
 				case 'results_per_page':
-					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-					$field_name = 'results_per_page_text_box';
+					$field_name = 'results_per_page';
+                    $results_per_page = htmlspecialchars(array_get_index($_REQUEST, $field_name, $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$this->registerFormField($field_name);
 					$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.results_per_page.value = this.value;
