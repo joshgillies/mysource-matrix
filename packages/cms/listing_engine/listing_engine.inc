@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.2 2010/05/19 04:35:03 kmyothein Exp $
+* $Id: listing_engine.inc,v 1.303.2.3 2010/05/20 05:27:00 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.2 $
+* @version $Revision: 1.303.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -648,11 +648,9 @@ class Listing_Engine extends Page
 
 		if($this->attr('exclude_current_asset')) {
 			foreach ($children as $assetid => $data) {
-				$result_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$url = $result_asset->getURL();
-				$requester = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-				$result_url_parts = parse_url($url);
-				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
+				$url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid));
+				$requester = strip_url(current_url());
+				if ($requester === $url) {
 					unset($children[$assetid]);
 				}
 			}
@@ -1969,7 +1967,7 @@ class Listing_Engine extends Page
 								$group_name = $group_level;
 							}
 						break;
-						
+
 						case 'keyword':
 							$group_name = $group_level;
 						break;
@@ -2183,6 +2181,7 @@ class Listing_Engine extends Page
 		foreach ($bc_keywords as $key => $keyword) {
 			$keywords[$keyword] = $shadow_asset->getKeywordReplacement($keyword);
 		}
+
 		return $keywords;
 
 	}//end _getShadowAssetKeywordReplacements()
@@ -2296,7 +2295,7 @@ class Listing_Engine extends Page
 		// by the time we reach this point we already have a bodycopy for this asset
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords    = Array();
-		
+
 		// Asset contents keywords that we want contexted versions thereof
 		// These will be stored in the keywords array as "keyword^context:contextid"
 		// and accessed later on when we replace the keyword.
@@ -2315,7 +2314,7 @@ class Listing_Engine extends Page
 				$contextid = extract_context_modifier($modifiers);
 
 				if (!in_array($kw, $bc_keywords)) {
-					array_push($bc_keywords, $kw);					
+					array_push($bc_keywords, $kw);
 				}
 
 				// Store which context we need to get this keyword for
@@ -2759,7 +2758,7 @@ class Listing_Engine extends Page
 				unset($asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 			}
-			
+
 		}//end if asset is not Listing Engine itself
 
 		return $replacement;
@@ -2798,7 +2797,7 @@ class Listing_Engine extends Page
 			if (($contextid !== NULL) && ($contextid !== 'current')) {
 				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			}			
+			}
 
 			//layout code name must not be number, otherwise it will be considered as asset id
 			if (!assert_valid_assetid($paint_layout, 'Not valid assetid', TRUE, FALSE)) {
@@ -3270,7 +3269,7 @@ class Listing_Engine extends Page
 								$value = '';
 							}
 					break;
-					
+
 					case 'attribute':
 						// implementation reserved
 					break;
@@ -3662,7 +3661,7 @@ class Listing_Engine extends Page
 				if (!empty($group_order) )$results = $group_order;
 				//dont break here, just go with the flow ;)
 			case 'standard_asset':
-			case 'keyword':	
+			case 'keyword':
 				// metadata and standard asset field groups are sorted just on
 				// the key's value, because the key IS the value
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {

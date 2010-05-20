@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.244 2010/01/19 21:18:14 cupreti Exp $
+* $Id: search_page.inc,v 1.244.2.1 2010/05/20 05:30:34 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.244.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -468,11 +468,9 @@ class Search_Page extends Listing_Engine
 
 		if($this->attr('exclude_current_asset')) {
 			foreach ($results as $assetid => $data) {
-				$result_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$url = $result_asset->getURL();
-				$requester = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-				$result_url_parts = parse_url($url);
-				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
+				$url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid));
+				$requester = strip_url(current_url());
+				if ($requester === $url) {
 					unset($results[$assetid]);
 				}
 			}
@@ -1088,7 +1086,7 @@ class Search_Page extends Listing_Engine
 			}
 			replace_global_keywords($query);
 		}
-		
+
 		ob_start();
 
 			if (empty($fields[$field_name]['data_sources']) || $this->_hasMixedFieldTypes($fields[$field_name])) {
