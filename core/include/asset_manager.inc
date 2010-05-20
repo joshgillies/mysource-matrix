@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.13 2010/05/10 04:06:49 csmith Exp $
+* $Id: asset_manager.inc,v 1.779.2.14 2010/05/20 23:34:16 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.13 $
+* @version $Revision: 1.779.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5890,7 +5890,6 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
-			$set_clauses['updated_userid']	= MatrixDAL::quote($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= MatrixDAL::quote(MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601(time()))));
 
 			$set_array = Array();
@@ -5904,6 +5903,7 @@ class Asset_Manager extends MySource_Object
 			$sql = 'UPDATE
 						sq_shdw_ast_lnk
 					SET
+						updated_userid = :updated_userid,
 						'.$set_string.'
 					WHERE
 							linkid	= :linkid
@@ -5913,6 +5913,7 @@ class Asset_Manager extends MySource_Object
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'linkid', $linkid);
 				MatrixDAL::bindValueToPdo($query, 'majorid', $major->id);
+				MatrixDAL::bindValueToPdo($query, 'updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
@@ -5970,7 +5971,6 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
-			$set_clauses['updated_userid']	= MatrixDAL::quote($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= MatrixDAL::quote(MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601(time()))));
 
 			$set_array = Array();
@@ -5984,6 +5984,7 @@ class Asset_Manager extends MySource_Object
 			$sql = 'UPDATE
 						sq_ast_lnk
 					SET
+						updated_userid = :updated_userid,
 						'.$set_string.'
 					WHERE
 							linkid	= :linkid
@@ -5993,6 +5994,7 @@ class Asset_Manager extends MySource_Object
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'linkid', $linkid);
 				MatrixDAL::bindValueToPdo($query, 'majorid', $major->id);
+				MatrixDAL::bindValueToPdo($query, 'updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
