@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.16 2010/05/18 23:17:57 mhaidar Exp $
+* $Id: soap_api_asset_service.inc,v 1.17 2010/05/20 17:20:40 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -87,14 +87,17 @@ class Soap_Api_Asset_Service extends Soap_Api
     * @param array  $request	The request information
     * <pre>
     * Array (
-	*		 'TypeCode'		=> [type code of new asset],
-	*		 'Name'			=> [name for new asset],
-	*		 'ParentID'		=> [parentid of the new parent],
-    *        'LinkType'		=> [LinkType],
-    *        'LinkValue'	=> [link value],
-    *        'SortOrder'	=> [link sort order],
-    *        'IsDependant'	=> [0|1],
-    *        'IsExclusive'	=> [0|1]
+	*        'TypeCode'				=> [type code of new asset],
+	*        'Name'					=> [name for new asset],
+	*        'ParentID'				=> [parentid of the new parent],
+    *        'LinkType'				=> [LinkType],
+    *        'LinkValue'			=> [link value],
+    *        'SortOrder'			=> [link sort order],
+    *        'IsDependant'			=> [0|1],
+    *        'IsExclusive'			=> [0|1],
+    *        'FileName'				=> [name of the file],
+    *        'FileContentBase64'	=> [base64 encoded file content],
+    *        'AttributeInfo'		=> [attribute name/value pairs]
     *        )
     * </pre>
 	*
@@ -115,13 +118,19 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$is_exclusive	= array_get_index($request_info, 'IsExclusive', '0');
 		$file_content	= array_get_index($request_info, 'FileContentBase64', '');
 		$file_name		= array_get_index($request_info, 'FileName', '');
-
+		$attributes		= array_get_index($request_info, 'AttributeInfo', Array());
+		
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
 		$asset = new $object_name();
-
+		
+		// Set attribute values for the new asset
+		foreach ($attributes as $attribute_info) {
+			$attribute_info = (Array) $attribute_info;
+			$asset->setAttrValue($attribute_info['AttributeName'], $attribute_info['AttributeValue']);
+		}
 
 		$request_info['asset']	= $parent_asset;
 
@@ -1098,6 +1107,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 	{
 		$asset_type							= self::getArgType('AssetType', 1, 1);
 		$asset_types                        = self::getArgType('AssetType', 0, 'unbounded');
+		$attribute_info						= self::getArgType('AttributeInfo', 0, 'unbounded', TRUE);
 		$attribute_detail					= self::getArgType('AttributeDetail', 0, 'unbounded', TRUE);
 		$attribute_properties				= self::getArgType('AttributeProperty', 0, 'unbounded', TRUE);
 		$attribute_values_by_name_result	= self::getArgType('AttributeValueInfo', 0, 'unbounded', TRUE);
@@ -1121,6 +1131,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'IsExclusive'		=> self::$string_optional,
 																						'FileName'			=> self::$string_optional,
 																						'FileContentBase64'	=> self::$string_optional,
+																						'AttributeInfo'		=> $attribute_info,
 																					  ),
 															'CreateAssetResponse'	=> Array (
 																						'NewAssetID'		=> self::$string_optional,
@@ -1316,6 +1327,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$lineages_details = self::getArgType('LineagesDetails', 0, 'unbounded');
 		$lineage          = self::getArgType('Lineage', 0, 'unbounded');
         $complex_types    = Array (
+							'CreateAsset'				=> Array (
+														   	'AttributeInfo'				=> Array (
+															   								'AttributeName'		=> self::$string_non_optional,
+															   								'AttributeValue'	=> self::$string_non_optional,
+															   							   ),
+													  	   ),
 							'GetAllStatuses'			=> Array (
 															'StatusDescription'			=> Array (
 													   	   							  	 	'StatusValue'		=> self::$string_optional,

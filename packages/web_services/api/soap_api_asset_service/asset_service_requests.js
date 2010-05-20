@@ -10,21 +10,24 @@
 * @param array  $request	The request information
 * <pre>
 * Array (
-*		 'TypeCode'		=> [type code of new asset],
-*		 'Name'			=> [name for new asset],
-*		 'ParentID'		=> [parentid of the new parent],
-*        'LinkType'		=> [LinkType],
-*        'LinkValue'	=> [link value],
-*        'SortOrder'	=> [link sort order],
-*        'IsDependant'	=> [0|1],
-*        'IsExclusive'	=> [0|1]
+*        'TypeCode'				=> [type code of new asset],
+*        'Name'					=> [name for new asset],
+*        'ParentID'				=> [parentid of the new parent],
+*        'LinkType'				=> [LinkType],
+*        'LinkValue'			=> [link value],
+*        'SortOrder'			=> [link sort order],
+*        'IsDependant'			=> [0|1],
+*        'IsExclusive'			=> [0|1],
+*        'FileName'				=> [name of the file],
+*        'FileContentBase64'	=> [base64 encoded file content],
+*        'AttributeInfo'		=> [attribute name/value pairs]
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function CreateAsset(parentid, type_code, name, link_type, link_value, sort_order, is_dependant, is_exclusive)
+function CreateAsset(parentid, type_code, name, link_type, link_value, sort_order, is_dependant, is_exclusive, file_name, file_content_base64, attribute_info)
 {
 	var soapBody	= "\
 <ns1:CreateAsset>\
@@ -36,8 +39,21 @@ function CreateAsset(parentid, type_code, name, link_type, link_value, sort_orde
 <SortOrder>"+sort_order+"</SortOrder>\
 <IsDependant>"+is_dependant+"</IsDependant>\
 <IsExclusive>"+is_exclusive+"</IsExclusive>\
-</ns1:CreateAsset>";
+<FileName>"+file_name+"</FileName>\
+<FileContentBase64>"+file_content_base64+"</FileContentBase64>";
 	
+	var attr_str = "";
+	for (var i in attribute_info) {
+		attr_str += "\
+<AttributeInfo>\
+<AttributeName>"+attribute_info[i][0]+"</AttributeName>\
+<AttributeValue>"+attribute_info[i][1]+"</AttributeValue>\
+</AttributeInfo>";
+	}
+
+	soapBody += attr_str+"\
+</ns1:CreateAsset>";
+
 	return soapBody;
 	
 }//end CreateAsset
