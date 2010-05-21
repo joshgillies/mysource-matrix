@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.60 2009/06/17 23:19:31 akarelia Exp $
+* $Id: image_edit_fns.inc,v 1.61 2010/05/21 05:42:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,8 +235,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$this->_paintApplet($asset, $o, $prefix);
 			return TRUE;
 		} else {
+			$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
 			?>
-			<img src="<?php echo $GLOBALS['SQ_SYSTEM']->am->getRootURL().'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
+			<img src="<?php echo current_protocol().'://'.$root_url['url'].'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
 			<?php
 			return FALSE;
 		}
@@ -564,8 +565,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 			forms = document.getElementsByTagName('FORM');
 			if (forms[0].onsubmit) {
 				var otherOnSubmit = forms[0].onsubmit;
-				forms[0].onsubmit = 
-				function() 
+				forms[0].onsubmit =
+				function()
 				{
 					if (getAppletName()) {
 						otherOnSubmit();
