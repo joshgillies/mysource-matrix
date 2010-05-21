@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.54 2009/11/25 03:49:55 cupreti Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.54.2.1 2010/05/21 05:39:21 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -428,7 +428,27 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function requiredFieldsComplete(Metadata_Section $asset, $values, $type_code=NULL)
 	{
+		$inherited_restriction = Array();
 		$restrictions = $asset->attr('restrict');
+
+		foreach($restrictions as $restriction => $inheritance) {
+			$inherited_types = Array();
+			if ($inheritance) {
+				$inherited_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($restriction);
+				foreach($inherited_types as $inherited_type) {
+					if (!array_key_exists($inherited_type, $restrictions)) {
+						$inherited_restriction = array_merge($inherited_restriction, Array($inherited_type));
+					}
+				}
+			}
+		}
+
+		if(!empty($inherited_restriction)) {
+			$inherited_restriction = array_flip($inherited_restriction);
+			$restrictions = array_merge($restrictions, $inherited_restriction);
+		}
+
+
 		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 			foreach ($current_links as $link) {
