@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.292.2.11 2010/05/19 04:31:45 kmyothein Exp $
+* $Id: listing_engine.inc,v 1.292.2.12 2010/05/21 04:06:59 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.292.2.11 $
+* @version $Revision: 1.292.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -648,11 +648,9 @@ class Listing_Engine extends Page
 
 		if($this->attr('exclude_current_asset')) {
 			foreach ($children as $assetid => $data) {
-				$result_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$url = $result_asset->getURL();
-				$requester = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-				$result_url_parts = parse_url($url);
-				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
+				$url = strip_url($GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid));
+				$requester = strip_url(current_url());
+				if ($requester === $url) {
 					unset($children[$assetid]);
 				}
 			}
@@ -1969,7 +1967,7 @@ class Listing_Engine extends Page
 								$group_name = $group_level;
 							}
 						break;
-						
+
 						case 'keyword':
 							$group_name = $group_level;
 						break;
@@ -2183,6 +2181,7 @@ class Listing_Engine extends Page
 		foreach ($bc_keywords as $key => $keyword) {
 			$keywords[$keyword] = $shadow_asset->getKeywordReplacement($keyword);
 		}
+
 		return $keywords;
 
 	}//end _getShadowAssetKeywordReplacements()
@@ -3082,7 +3081,7 @@ class Listing_Engine extends Page
 								$value = '';
 							}
 					break;
-					
+
 					case 'attribute':
 						// implementation reserved
 					break;
