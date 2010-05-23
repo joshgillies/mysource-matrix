@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.93 2009/09/28 07:34:04 cupreti Exp $
+* $Id: bulk_mailer.inc,v 1.93.4.1 2010/05/23 22:52:27 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.93 $
+* @version $Revision: 1.93.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -214,8 +214,9 @@ class Bulk_Mailer
 	*/
 	function processJob($job_id)
 	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$this->_reconnectDB();
-		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
 		$job_path = $bm->getJobDataPath($job_id);
 		$progress_path = $job_path.'/progress_info';
@@ -230,7 +231,7 @@ class Bulk_Mailer
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($details['subject']);
 		$replacements = Array();
-		$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
+		$content_asset = $am->getAsset($details['content_id']);
 
 		// If the content asset has a different character set to the default,
 		// then use that instead, otherwise use the default set in System Config
@@ -254,7 +255,7 @@ class Bulk_Mailer
 				$replacements[$word] = $content_asset->getKeywordReplacement($word);
 			}
 		}
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
+		$am->forgetAsset($content_asset);
 
 		replace_keywords($details['subject'], $replacements);
 		$header_details['subject'] = $details['subject'];
@@ -348,7 +349,7 @@ class Bulk_Mailer
 							if (is_array($email)) {
 								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
 							} else {
-								$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
+								$user = $am->getAsset($user_id);
 								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
 							}//end if
 
@@ -383,8 +384,8 @@ class Bulk_Mailer
 									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 									$message->parameters['assetid'] = $job_id;
 									$message->send();
-									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($message);
-									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
+									$am->forgetAsset($message);
+									$am->forgetAsset($ms);
 								} else {
 									$headers = @$mime->headers($header_details);
 									$mail_id = $mail_queue->put('', $email, $headers, $body);
@@ -478,11 +479,11 @@ class Bulk_Mailer
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($message);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
+				$am->forgetAsset($message);
+				$am->forgetAsset($ms);
 			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_post_office);
+			$am->forgetAsset($job);
+			$am->forgetAsset($current_post_office);
 
 		}
 		return TRUE;
@@ -633,8 +634,8 @@ class Bulk_Mailer
 						foreach ($map_links as $map_link) {
 							// We only add this asset if it is a user or bulkmail user
 							$all_user_types	= Array();
-							$user_types				= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
-							$bulkmail_user_types	= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('bulkmail_user', TRUE);
+							$user_types				= $am->getTypeDescendants('user', TRUE);
+							$bulkmail_user_types	= $am->getTypeDescendants('bulkmail_user', TRUE);
 							$all_user_types	= array_merge($user_types, $bulkmail_user_types);
 							if (in_array($map_link['type_code'], $all_user_types)) {
 								$id_parts		= explode(':', $map_link['assetid']);
@@ -662,7 +663,7 @@ class Bulk_Mailer
 		$recipients = Array();
 		$recipients_query = Array();
 		$permission_denied = $am->getPermission($asset_to_send_id, SQ_PERMISSION_READ, FALSE, FALSE);
-		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_user = $am->getSystemAsset('public_user');
 		$public_user_id = $public_user->id;
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
 			//if it has right permission, but it is not an email address
