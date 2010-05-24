@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.60.6.1 2010/05/24 23:13:51 lwright Exp $
+* $Id: image_edit_fns.inc,v 1.60.6.2 2010/05/24 23:55:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.60.6.1 $
+* @version $Revision: 1.60.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$this->_paintApplet($asset, $o, $prefix);
 			return TRUE;
 		} else {
-			$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+			$asset_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($asset->id);
+			$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL(strip_url($asset_url, TRUE));
 			?>
 			<img src="<?php echo current_protocol().'://'.$root_url['url'].'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
 			<?php
