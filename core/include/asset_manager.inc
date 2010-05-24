@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.14 2010/05/20 23:34:16 csmith Exp $
+* $Id: asset_manager.inc,v 1.779.2.15 2010/05/24 06:39:37 lwright Exp $
 *
 */
 
@@ -25,7 +25,8 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.14 $
+* @version $Revision: 1.779.2.15 $
+>>>>>>> 1.804
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5673,8 +5674,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($minor);
 			return 0;
 		}
-
-
+		
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$success = TRUE;
@@ -8142,15 +8142,19 @@ class Asset_Manager extends MySource_Object
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
 
+		// URL index for the URL cache should include protocol that we are looking
+		// for, even if we return a forced secure/insecure URL.
+		$url_index = $protocol.'://'.$base_url;
+
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
 			if (!isset($this->_tmp['urls'][$assetid])) {
 				$this->_tmp['urls'][$assetid] = Array();
 			}
 
-			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
+			if (isset($this->_tmp['urls'][$assetid][$url_index])) {
 				// use the cached version
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$url_index];
 			}
 		}
 
@@ -8200,11 +8204,11 @@ class Asset_Manager extends MySource_Object
 
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
-					$this->_tmp['urls'][$assetid][$base_url] = '';
+					$this->_tmp['urls'][$assetid][$url_index] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$url_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$url_index];
 			}
 		}//end if
 
