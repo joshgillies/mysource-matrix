@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.37 2009/01/27 04:41:28 mbrydon Exp $
+* $Id: matrix_insert_image.inc,v 1.38 2010/05/24 03:12:22 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -70,6 +70,7 @@ class matrix_insert_image extends wysiwyg_plugin
 				var width    = "";
 				var height   = "";
 				var alt      = "";
+				var title    = "";
 				var longdesc = "";
 				var hspace   = "";
 				var vspace   = "";
@@ -109,6 +110,7 @@ class matrix_insert_image extends wysiwyg_plugin
 					url			= image_tag.src;
 					align		= image_tag.align;
 					alt			= image_tag.alt;
+					title		= image_tag.title;
 					image_class	= image_tag.className;
 					image_id	= image_tag.id;
 					width		= (!image_tag.width)	? ""  : image_tag.width;
@@ -154,7 +156,7 @@ class matrix_insert_image extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_longdesc=" + escape(longdesc) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&f_image_class=" + escape(image_class) + "&f_image_id=" + escape(image_id) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_title=" + escape(title) + "&f_longdesc=" + escape(longdesc) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&f_image_class=" + escape(image_class) + "&f_image_id=" + escape(image_id) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				var popup_height = 600;
 
@@ -196,6 +198,9 @@ class matrix_insert_image extends wysiwyg_plugin
 					}
 					if (param["f_alt"] != "") {
 						html += ' alt="' + param["f_alt"] + '"';
+					}
+					if (param["f_title"] != "") {
+						html += ' title="' + param["f_title"] + '"';
 					}
 					if (param["f_image_id"] != "") {
 						html += ' id="' + param["f_image_id"] + '"';

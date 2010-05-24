@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.367 2010/05/17 05:33:21 ewang Exp $
+* $Id: lang_strings.xml,v 1.368 2010/05/24 03:12:36 mhaidar Exp $
 *
 */
 
@@ -1851,6 +1851,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="definition">Definition</string>
 	<string source="insert_abbreviation">Insert Abbreviation</string>
 	<string source="insert_acronym">Insert Acronym</string>
+	<string source="title_text">Image Title</string>
 	<string source="alternate_text">Alternate text</string>
 	<string source="longdesc_text">Long Description URL</string>
 	<string source="positioning_of_this_image">Positioning of this image</string>

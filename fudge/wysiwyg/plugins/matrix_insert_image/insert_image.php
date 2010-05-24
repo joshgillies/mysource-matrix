@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.49 2009/04/08 00:42:22 ewang Exp $
+* $Id: insert_image.php,v 1.50 2010/05/24 03:12:22 mhaidar Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -99,7 +99,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					}
 				}
 				// pass data back to the calling window
-				var fields = ["f_alt", "f_align", "f_border", "f_image_class", "f_image_id",
+				var fields = ["f_alt", "f_title", "f_align", "f_border", "f_image_class", "f_image_id",
 							"f_horiz", "f_vert", "f_width", "f_height"];
 				var param = new Object();
 				for (var i in fields) {
@@ -502,6 +502,12 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
 													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
+												</td>
+											</tr>
+											<tr>
+												<td class="label" nowrap="nowrap"><?php echo translate('title_text'); ?>:</td>
+												<td>
+													<input type="text" name="title" id="f_title" style="width:100%" title="Your Image Title" value="<?php echo $_REQUEST['f_title']?>" />
 												</td>
 											</tr>
 											<tr>
