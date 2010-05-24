@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.1 2010/05/20 23:24:26 csmith Exp $
+* $Id: asset_manager.inc,v 1.801.2.2 2010/05/24 06:09:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.1 $
+* @version $Revision: 1.801.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3245,7 +3245,7 @@ class Asset_Manager extends MySource_Object
 			}
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
-			
+
 			if (!empty($links_query)) {
 				$sql = implode(' ', $links_query['sql_array']);
 				$query = MatrixDAL::preparePdoQuery($sql);
@@ -5681,7 +5681,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($minor);
 			return 0;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$success = TRUE;
@@ -8149,21 +8149,25 @@ class Asset_Manager extends MySource_Object
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
 
+		// URL index for the URL cache should include protocol that we are looking
+		// for, even if we return a forced secure/insecure URL.
+		$url_index = $protocol.'://'.$base_url;
+
 		if (is_null($base_contextid)) {
 			$cache_index = $GLOBALS['SQ_SYSTEM']->getContextId();
 		} else {
 			$cache_index = $base_contextid;
 		}
-		
+
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
 			if (!isset($this->_tmp['urls'][$assetid])) {
 				$this->_tmp['urls'][$assetid] = Array();
 			}
 
-			if (isset($this->_tmp['urls'][$assetid][$base_url][$cache_index])) {
+			if (isset($this->_tmp['urls'][$assetid][$url_index][$cache_index])) {
 				// use the cached version
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url][$cache_index];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$url_index][$cache_index];
 			}
 		}
 
@@ -8202,7 +8206,7 @@ class Asset_Manager extends MySource_Object
 					$sql .= ' +
 					(CASE WHEN SUBSTR(l.url || \'/\', 1, '.strlen($str).') = '.MatrixDAL::quote($str).' THEN 1 ELSE 0 END)';
 				}
-				
+
 				if (is_null($base_contextid)) {
 					$from = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l ';
 				} else {
@@ -8221,11 +8225,11 @@ class Asset_Manager extends MySource_Object
 
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
-					$this->_tmp['urls'][$assetid][$base_url][$cache_index] = '';
+					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
-				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url][$cache_index];
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$url_index][$cache_index];
 			}
 		}//end if
 
@@ -8329,7 +8333,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function clearLookupsCache($assetid)
-	{	
+	{
 		if (isset($this->_tmp['urls'])) {
 			unset($this->_tmp['urls'][$assetid]);
 		}
@@ -8719,7 +8723,7 @@ class Asset_Manager extends MySource_Object
 						'having'	=> $having,
 						'order_by'	=> $order_by,
 					);
-		
+
 		return Array(
 				'sql_array'	=> $sql_array,
 				'bind_vars'	=> $bind_vars,
@@ -9435,7 +9439,7 @@ class Asset_Manager extends MySource_Object
 				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
 				$userids = $current_user->getUserGroups();
 				$this->forgetAsset($current_user);
-				
+
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
@@ -9682,7 +9686,7 @@ class Asset_Manager extends MySource_Object
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}
-	
+
 				$safe_name = make_valid_web_paths(Array($container_name));
 				if ($more_info) {
 					$sql = 'select custom_val as attributes from sq_ast_attr_val a_value, sq_ast_attr a where a_value.attrid = a.attrid and a.name = :attr_name and a_value.assetid = :asset_id';
@@ -9871,7 +9875,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 		$sql = "SELECT v.custom_val
-				FROM sq_ast_attr_val v JOIN sq_ast_attr t ON v.attrid = t.attrid 
+				FROM sq_ast_attr_val v JOIN sq_ast_attr t ON v.attrid = t.attrid
 				WHERE t.name = 'limbo_no_frames' and v.assetid = :designid";
 
 		$result = NULL;
