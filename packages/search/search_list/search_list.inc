@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.21 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_list.inc,v 1.22 2010/05/24 22:40:16 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -145,7 +145,7 @@ class Search_List extends Listing_Engine
 		}
 		if (is_null($search_page)) return;
 
-		$this->_tmp['search_url'] = $search_page->getURL().'?mode=results&queries_'.$search_field_name.'_query=';
+		$this->_tmp['search_url'] = $search_page->getURL().'?mode=results&amp;queries_'.$search_field_name.'_query=';
 
 		$this->_printAssetList($todo);
 
