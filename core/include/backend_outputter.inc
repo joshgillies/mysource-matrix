@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.167 2009/10/07 04:35:36 bpearson Exp $
+* $Id: backend_outputter.inc,v 1.167.4.1 2010/05/25 01:59:12 mhaidar Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.167.4.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -979,7 +979,7 @@ class Backend_Outputter
 				// If print_view is not enabled show the commit button code
 				if (!isset($_REQUEST['print_view'])) {
 				?>
-				<!--[if lte IE 7]>
+				<!--[if gte IE 6]>
 					<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
 				<![endif]-->
 				<?php
