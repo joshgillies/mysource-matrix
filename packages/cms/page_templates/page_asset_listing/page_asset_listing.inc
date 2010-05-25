@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.133 2009/07/30 04:39:06 cupreti Exp $
+* $Id: page_asset_listing.inc,v 1.134 2010/05/25 23:20:51 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -549,6 +549,8 @@ class Page_Asset_Listing extends Listing_Engine
 						$assets[$root_node] = Array(
 												Array(
 													'type_code'	=> $asset->type(),
+													'sort_value'=> $asset->short_name,
+													'first_letter'=> substr($asset->short_name, 0 , 1),
 												),
 											  );
 					}//end if
