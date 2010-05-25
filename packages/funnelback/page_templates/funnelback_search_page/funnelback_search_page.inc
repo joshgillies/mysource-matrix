@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.14 2010/05/20 23:20:52 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.15 2010/05/25 23:24:08 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -61,6 +61,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						'initial'			=> Array(
 													'current_query_term',
 													'search_query',
+                                                    'search_logic',
 													'search_scope',
 													'search_sort',
 													'search_button',
@@ -498,6 +499,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$pmap = $this->getAttribute('dynamic_parameters');
 		$pmap_params = $pmap->getParameters();
 		$jump_to_result = FALSE;
+
 		if (is_array($pmap_params) && !empty($pmap_params)) {
 			foreach ($pmap_params as $params) {
 				switch ($params) {
@@ -590,7 +592,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	* @access public
 	*/
 	public function processSearch($search)
-	{
+	{	
 		// Defaults
 		$search_summary = Array('summary' => Array(), 'fluster' => Array(), 'spell' => Array());
 		$search_results = Array('results' => Array(), 'summary' => $search_summary);
@@ -1357,13 +1359,21 @@ class Funnelback_Search_Page extends Listing_Engine
 		} else if (strpos($keyword, 'metadata_logic') === 0) {
 			$class = str_replace('metadata_logic_', '', $keyword);
 			$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+			$all_metadata_config = array_get_index($fm->attr('metamap'), $this->attr('collection'), Array());
+			$metadata_config = Array();
+			foreach($all_metadata_config as $config) {
+				if (isset($config['alias']) && $config['alias'] == $class) {
+                    $metadata_config = $config;
+                    break;
+                }
+			}
 			$all_class = $fm->getMetadataAliases();
 			if (array_key_exists($class, $all_class)) {
 				// Print the interface if a valid class
-				$current_logic = '1';
+				$current_logic = array_get_index($metadata_config, 'word_logic', 2);
 				$all_current_logic = array_get_index($_GET, $prefix.'_metadata_logic', Array());
 				if (isset($all_current_logic[$class])) $current_logic = $all_current_logic[$class];
-				$logic_options = Array('Exclude', 'Include');
+				$logic_options = Array('Exclude', 'Include any', 'Include all');
 				ob_start();
 					combo_box($prefix.'_metadata_logic['.$class.']', $logic_options, FALSE, $current_logic);
 					$replacement = ob_get_contents();
@@ -1390,6 +1400,15 @@ class Funnelback_Search_Page extends Listing_Engine
 					$this->registerFormField($field_name);
 
 					$replacement = '<input type="text" name="'.$field_name.'" id="'.$field_name.'" value="'.$current_value.'" />';
+				break;
+
+				case 'search_logic':
+					$current_sort_logic = array_get_index($_GET, $prefix.'_search_logic', $this->attr('word_logic'));
+					$logic_options = Array('Exclude' ,'Include any', 'Include all');
+					ob_start();
+						combo_box($this->getPrefix().'_search_logic', $logic_options, FALSE, $current_sort_logic);
+						$replacement = ob_get_contents();
+					ob_end_clean();
 				break;
 
 				case 'search_scope':
@@ -1499,7 +1518,8 @@ class Funnelback_Search_Page extends Listing_Engine
 					}
 				break;
 
-				case 'results_per_page':					
+				case 'results_per_page':
+					
 					$field_name = 'results_per_page';
 					$results_per_page = htmlspecialchars(array_get_index($_REQUEST, $field_name, $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					$this->registerFormField($field_name);
@@ -2225,7 +2245,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Build the command line based on params set above
 		$command  = 'echo ';
-		$query = trim($search_term);
+		$query = $this->_getSearchQuery($search_term);
 		if (empty($query)) {
 			if ($this->attr('allow_empty')) {
 				// 'NULL' query (basically use a string with no meaning and use ! - which match everything else)
@@ -2265,7 +2285,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				// Default to rank, already handled by default by Funnelback
 			break;
 		}//end switch
-
+		
 		// Searching... Searching... Searching...
 		$status = $fm->runCommand($command, $output, NULL, NULL, $data_path, Array('SITE_SEARCH_ROOT' => $coll_path));
 
@@ -2363,23 +2383,67 @@ class Funnelback_Search_Page extends Listing_Engine
 	 * @access private
 	 */
 	private function _getMetadataScope()
-	{
+	{	
 		$scope = '';
 		$metadata_scope = array_get_index($_GET, $this->getPrefix().'_metadata_scope', Array());
 		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', Array());
-		foreach ($metadata_scope as $index => $value) {
-			$logic = array_get_index($metadata_logic, $index, '1');
-			$value = trim($value);
-			if (!empty($value)) {
-				$scope .= ' '.(($logic == '0') ? '-' : '|').$index.':'.$value;
-			}//end if
+		foreach ($metadata_scope as $index => $metadata_terms) {
+			
+			$keywords = explode(' ', $metadata_terms);
+			$logic = array_get_index($metadata_logic, $index, '2');			
+
+			foreach($keywords as $value) {			
+				$value = trim($value);
+				if (!empty($value)) {
+                	if ($logic == '0') {
+            	        $scope .= ' -'.$index.':'.$value;
+        	        } else if ($logic == '1') {
+    	                $scope .= ' '.$index.':'.$value;
+	                } else {
+                    	$scope .= ' |'.$index.':'.$value;
+                	}				
+				}//end if
+			}//end foreach $keywords
 		}//end foreach
 
-		return $scope;
+		return trim($scope);
 
 	}//end _getMetadataScope()
 
 
+	/**
+	 * Get the search query 
+	 *
+	 * @parm string $search_term
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function _getSearchQuery($search_term)
+	{
+		$keywords = explode(' ', $search_term);		
+		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', 1);
+		
+		$search_query = '';
+		foreach ($keywords as $keyword) {
+			$keyword = trim($keyword);
+
+			if (!empty($keyword)) {
+                if ($logic == '0') {
+                    $search_query .= ' -'.$keyword;
+                } else if ($logic == '1') {
+                    $search_query .= ' '.$keyword;
+                } else {
+                    $search_query .= ' |'.$keyword;
+                }				
+			}//end if
+		}//end foreach
+		
+		return trim($search_query);
+
+	}//end _getSearchQuery()
+
+	
 	/**
 	* Output the event javascript
 	*
