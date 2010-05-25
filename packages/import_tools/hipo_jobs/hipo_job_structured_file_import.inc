@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.24 2010/05/05 07:12:57 ewang Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.24.2.1 2010/05/25 08:02:06 kmyothein Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -232,7 +232,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		}
 
 		$title_matches = Array();
-		preg_match('/<title>(.*)<\/title>/i', $file_data, $title_matches);
+		preg_match('/<title[^>]*>([^<]*)<\/\s*title>/i', $file_data, $title_matches);
 		if (!empty($title_matches)) {
 			$this->_running_vars['site_title'] = $title_matches[1];
 		} else {
@@ -569,6 +569,11 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	*/
 	function processScanning(&$step_data, $prefix)
 	{
+		if ($this->_running_vars['fix_anchors']) {
+			// Setup some variables for storing our anchor gear
+			$this->_running_vars['anchor_links'] = Array();
+			$this->_running_vars['anchor_names'] = Array();
+		}		
 		if (!$this->_running_vars['use_headings']) {
 			// Lets get our stuff setup so we can get out of here quickly
 			$initial_data = Array();
@@ -654,11 +659,6 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if ($this->_running_vars['running_count'] >= $this->_running_vars['top_level_count']) {
 			$step_data['complete'] = TRUE;
 			$this->_running_vars['running_count'] = 0;
-			if ($this->_running_vars['fix_anchors']) {
-				// Setup some variables for storing our anchor gear
-				$this->_running_vars['anchor_links'] = Array();
-				$this->_running_vars['anchor_names'] = Array();
-			}
 		}
 		$step_data['message'] = 'Scanning Page: '.$data['name'].' and it\'s children';
 		$step_data['percent_done'] = ($this->_running_vars['top_level_count'] == 0) ? 100 : round($this->_running_vars['running_count'] / $this->_running_vars['top_level_count']  * 100);
