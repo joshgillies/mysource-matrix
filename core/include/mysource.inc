@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.344 2010/05/13 06:45:10 lwright Exp $
+* $Id: mysource.inc,v 1.344.2.1 2010/05/26 04:49:51 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.344 $
+* @version $Revision: 1.344.2.1 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1153,7 +1153,7 @@ class MySource extends MySource_Object
 			}
 		}
 
-		if (is_null($this->user)) {
+		if (is_null($this->user) || $this->user instanceof Public_User) {
 			// See if we can log in an http-authenticated user
 			if (defined('SQ_CONF_ALLOW_HTTP_LOGIN') && SQ_CONF_ALLOW_HTTP_LOGIN) {
 				$this->_loginHttpAuthenticatedUser();
