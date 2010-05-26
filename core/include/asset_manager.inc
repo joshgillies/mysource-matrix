@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.2 2010/05/24 06:09:32 lwright Exp $
+* $Id: asset_manager.inc,v 1.801.2.3 2010/05/26 00:44:22 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.2 $
+* @version $Revision: 1.801.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6130,11 +6130,13 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param Array		$link			the link we are supposed to delete
 	* @param boolean	$check_locked	Check if the link is locked or not
+	* @param boolean	$aborting	    set to TRUE when link to be deleted belongs an asset 
+										that was just aborted (TRUE when called by Asset->_abortCreate())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLinkByLink(Array $link, $check_locked=TRUE)
+	function deleteAssetLinkByLink(Array $link, $check_locked=TRUE, $aborting=FALSE)
 	{
 		if (empty($link)) {
 			return FALSE;
@@ -6152,47 +6154,51 @@ class Asset_Manager extends MySource_Object
 		if (is_null($major) || is_null($minor)) {
 			return FALSE;
 		}
+        
+        $asset_was_locked = FALSE;
+        $parent_was_locked = FALSE;
+		
+		if (!$aborting) {
+            // Acquire some locks if necessary
+            if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+                // Keep a record of the locking state beforehand so we can leave it as we found it
+                $lock_info = @$this->getLockInfo($major->id, 'links');
+                $parent_was_locked = !empty($lock_info);
+                if (!$this->acquireLock($major->id, 'links')) {
+                    trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
+                    return FALSE;
+                }
+                // To check if we can delete this link, we need to lock current asset
+                $minor_lock_info = @$this->getLockInfo($minor->id, 'links');
+                $asset_was_locked = !empty($minor_lock_info);
+                if (!$this->acquireLock($minor->id, 'links')) {
+                    trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
+                    return FALSE;
+                }
+            }
 
-		// Acquire some locks if necessary
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// Keep a record of the locking state beforehand so we can leave it as we found it
-			$lock_info = @$this->getLockInfo($major->id, 'links');
-			$parent_was_locked = !empty($lock_info);
-			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
-				return FALSE;
-			}
-			// To check if we can delete this link, we need to lock current asset
-			$minor_lock_info = @$this->getLockInfo($minor->id, 'links');
-			$asset_was_locked = !empty($minor_lock_info);
-			if (!$this->acquireLock($minor->id, 'links')) {
-				trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
-				return FALSE;
-			}
-		}
-
-		// Check permissions if necessary
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
-			if ($link['link_type'] == SQ_LINK_NOTICE) {
-				// to delete a notice link we need effective write access to the major asset
-				if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
-					trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
-					return FALSE;
-				}
-			} else {
-				// to delete a significant link we need write permission (but not
-				// necessarily effective write access) to both assets
-				if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
-					trigger_localised_error('SYS0318', E_USER_WARNING, $linkid, $minor->id, $minor->name, $err_msg);
-					return FALSE;
-				}
-				if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
-					trigger_localised_error('SYS0302', E_USER_WARNING, $linkid, $major->id, $major->name, $err_msg);
-					return FALSE;
-				}
-			}
-		}
-
+            // Check permissions if necessary
+            if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
+                if ($link['link_type'] == SQ_LINK_NOTICE) {
+                    // to delete a notice link we need effective write access to the major asset
+                    if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
+                        trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
+                        return FALSE;
+                    }
+                } else {
+                    // to delete a significant link we need write permission (but not
+                    // necessarily effective write access) to both assets
+                    if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
+                        trigger_localised_error('SYS0318', E_USER_WARNING, $linkid, $minor->id, $minor->name, $err_msg);
+                        return FALSE;
+                    }
+                    if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
+                        trigger_localised_error('SYS0302', E_USER_WARNING, $linkid, $major->id, $major->name, $err_msg);
+                        return FALSE;
+                    }
+                }
+            }
+        }
 		$minorid_parts = explode(':', $link['minorid']);
 		if (isset($minorid_parts[1])) {
 			// Shadow asset found
@@ -6236,51 +6242,52 @@ class Asset_Manager extends MySource_Object
 					}
 				}
 			}
+            if (!$aborting) {
+                // we create a new link to the trash if this is the last significant link
+                // being deleted and if we are not purging the trash. We check the moving
+                // flag so that if we are the last significant link, we dont create a link
+                // to the trash as the move operation will re-create the link elsewhere
+                if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
 
-			// we create a new link to the trash if this is the last significant link
-			// being deleted and if we are not purging the trash. We check the moving
-			// flag so that if we are the last significant link, we dont create a link
-			// to the trash as the move operation will re-create the link elsewhere
-			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+                    if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 
-				if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
+                        // some assets may not be able to have their last significant link
+                        // deleted, so lets check first before going ahead
+                        if (!$minor->canDelete()) {
+                            trigger_localised_error('SYS0069', E_USER_WARNING, $minor->name);
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+                            return FALSE;
+                        }
 
-					// some assets may not be able to have their last significant link
-					// deleted, so lets check first before going ahead
-					if (!$minor->canDelete()) {
-						trigger_localised_error('SYS0069', E_USER_WARNING, $minor->name);
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-						return FALSE;
-					}
+                        $trash_folder = $this->getSystemAsset('trash_folder');
+                        if (is_null($trash_folder)) {
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+                            return FALSE;
+                        }
 
-					$trash_folder = $this->getSystemAsset('trash_folder');
-					if (is_null($trash_folder)) {
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-						return FALSE;
-					}
+                        // this asset is destined for the trash, so we need to set its permissions to
+                        // whatever it is inheriting right now so it keeps them while in the trash
+                        $perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+                        foreach ($perms as $perm) {
+                            $all_permissions = $this->getPermission($minor->id, $perm, NULL, FALSE, FALSE, TRUE);
+                            foreach ($all_permissions as $userid => $granted) {
+                                // we are deliberatly not checking for the return value here
+                                // because if for some reason the permission can't be set that is really just
+                                // bad luck
+                                @$this->setPermission($minor->id, $userid, $perm, $granted);
+                            }
+                        }
 
-					// this asset is destined for the trash, so we need to set its permissions to
-					// whatever it is inheriting right now so it keeps them while in the trash
-					$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-					foreach ($perms as $perm) {
-						$all_permissions = $this->getPermission($minor->id, $perm, NULL, FALSE, FALSE, TRUE);
-						foreach ($all_permissions as $userid => $granted) {
-							// we are deliberatly not checking for the return value here
-							// because if for some reason the permission can't be set that is really just
-							// bad luck
-							@$this->setPermission($minor->id, $userid, $perm, $granted);
-						}
-					}
-
-					if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-						return FALSE;
-					}
-				}//end if
-			}//end if last significant link
+                        if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+                            return FALSE;
+                        }
+                    }//end if
+                }//end if last significant link
+			}
 
 			//// UPDATE THE TREE ////
 
@@ -6391,35 +6398,36 @@ class Asset_Manager extends MySource_Object
 			if (!$asset_was_locked) {
 				$this->releaseLock($minor->id, 'links');
 			}
-		}
+		}        
+        if (!$aborting) {
+            // Send Internal Message
+            $ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+            $msg_reps = Array(
+                            'major_name'	=> $major->name,
+                            'minor_name'	=> $minor->name,
+                        );
+            $message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
+            $message->parameters['majorid'] = $major->id;
+            $message->parameters['minorid'] = $minor->id;
+            $message->parameters['linkid']  = $linkid;
+            $message->send();
 
-		// Send Internal Message
-		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$msg_reps = Array(
-						'major_name'	=> $major->name,
-						'minor_name'	=> $minor->name,
-					);
-		$message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
-		$message->parameters['majorid'] = $major->id;
-		$message->parameters['minorid'] = $minor->id;
-		$message->parameters['linkid']  = $linkid;
-		$message->send();
+            // Broadcast Event
+            $em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+            $em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
 
-		// Broadcast Event
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
-
-		// Fire triggers
-		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
-			$event_data = Array('link_info' => $link, 'linkid' => $linkid);
-			if (!$this->assetInTrash($minor->id, TRUE)) {
-				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $minor, $event_data);
-			}
-			if (!$this->assetInTrash($major->id, TRUE)) {
-				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $major, $event_data);
-			}
-		}
-
+            // Fire triggers
+            if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
+                $event_data = Array('link_info' => $link, 'linkid' => $linkid);
+                if (!$this->assetInTrash($minor->id, TRUE)) {
+                    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $minor, $event_data);
+                }
+                if (!$this->assetInTrash($major->id, TRUE)) {
+                    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $major, $event_data);
+                }
+            }
+        }
+        
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // finished with db2
 
 		return TRUE;
