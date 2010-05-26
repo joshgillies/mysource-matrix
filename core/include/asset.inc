@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.712.2.5 2010/03/10 22:47:35 lwright Exp $
+* $Id: asset.inc,v 1.712.2.6 2010/05/26 00:43:06 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.712.2.5 $
+* @version $Revision: 1.712.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -598,10 +598,38 @@ class Asset extends MySource_Object
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
-		if ($linkid != 0) $link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		if ($linkid != 0) {
+			// Get the asset's link and its immediate children info before we rollback
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+			
+			$children_assets = Array();
+			if (isset($link['minorid'])) { 
+				$children_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], '', TRUE, NULL, NULL, NULL, TRUE, NULL, 1);
+			}
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		if (!empty($link)) $GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($link);
+		
+		if (!empty($link) && isset($link['linkid']) && isset($link['majorid'])) {
+			// Clear the asset's link left on the link table
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($link, TRUE, TRUE);
+      		
+			// If there were children created by this asset successfully (that didn't got aborted),
+			// even though those childern will be rolledback when parent asset aborts itself,
+			// however those children will leave links in link table
+			foreach($children_assets as $child_assetid => $val) {
+				$child_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($link['minorid'], $child_assetid);
+				
+				if (isset($child_link['linkid'])) {
+					$child_link['majorid'] = $link['minorid'];
+					$child_link['major_type_code'] = $this->type();
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($child_link, TRUE, TRUE);
+				}
+			}//end foreach
+
+		}//end if
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
 		if ($this->id) {
