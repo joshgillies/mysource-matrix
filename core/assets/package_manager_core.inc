@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.43 2010/03/21 21:58:00 lwright Exp $
+* $Id: package_manager_core.inc,v 1.43.2.1 2010/05/27 06:12:36 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -126,6 +126,7 @@ class Package_Manager_Core extends Package_Manager
 				'cache_manager',
 				'designs_folder',
 				'login_design',
+				'ees_login_design',
 				'password_change_design',
 				'cron_job_expired_workflow',
 				'cron_job_generate_log_reports',
@@ -520,6 +521,30 @@ class Package_Manager_Core extends Package_Manager
 	}//end createLoginDesign()
 
 
+	/**
+	* Create the login design system asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &createEESLoginDesign()
+	{
+		$designs_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('ees_login_design');
+		$login_design = new EES_Login_Design();
+		$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$login_design->setAttrValue('id_name', 'ees_login_design');
+		if (!$login_design->create($login_design_link)) {
+			trigger_localised_error('CORE0001', E_USER_ERROR, 'EES Login Design');
+		}
+		pre_echo('EES Login Design Asset Id : '.$login_design->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('ees_login_design', $login_design->id);
+		return $login_design;
+
+	}//end createLoginDesign()
+	
 	/**
 	* Create the password change design system asset
 	*
