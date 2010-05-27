@@ -1,0 +1,187 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: index.html,v 1.1 2010/05/27 05:15:46 ewang Exp $
+*
+*/
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MySource Matrix Login</title>
+
+<style type="text/css">
+/* Taken from http://mini.squiz.net/_edit */
+body {
+    background:url(mysource_files/diag_lines_bg.gif) repeat scroll left top #8FB7DB;
+    font-family:arial,helvetica,sans-serif;
+    margin:40px 0 0;
+    padding:0;
+}
+
+#login-container {
+    left:50%;
+    margin-left:-225px;
+    margin-top:-161px;
+    position:absolute;
+    top:50%;
+    width:450px;
+}
+
+#title-bar {
+    border-bottom:1px dotted #CCCCCC;
+    padding-left:10px;
+    background:#333333 url(mysource_files/titlebar-bg.png) left top repeat-x;
+}
+
+.content-wrapper {
+    background:url(mysource_files/transparent_white_20pc.png) repeat scroll 0 0 transparent;
+    font-size:76%;
+    margin:0 auto;
+    padding:10px 47px;
+    width:356px;
+}
+
+.content-wrapper p {
+    margin:0.5em 0;
+    padding:0 0 0 6px;
+    width:350px;
+}
+
+#login-container p {
+    width:326px;
+}
+
+#login-container form {
+    background:url(mysource_files/login_form_bg.png) repeat scroll 0 0 transparent;
+    margin:0;
+    padding:10px 0;
+    width:356px;
+}
+
+#login-container .error {
+    color:#FF0000;
+    font-size:0.9em;
+    font-weight:bold;
+    padding-left:20px;
+}
+
+#login-container form input,
+#login-container form label {
+    margin:10px 0 0 10px;
+}
+
+#login-container form label {
+    float:left;
+    padding-left:10px;
+    width:100px;
+}
+
+#login-container form input {
+    background-color:#F3F3F3;
+    border:1px solid #CCCCCC;
+    padding:2px;
+    width:198px;
+}
+
+#login-container #login-button {
+    padding-right:25px;
+    text-align:right;
+}
+
+#form-top {
+    background:url(mysource_files/login_form_top.png) repeat scroll 0 0 transparent;
+    height:13px;
+    width:356px;
+}
+
+#form-bottom {
+    background:url(mysource_files/login_form_bottom.png) repeat scroll 0 0 transparent;
+    height:13px;
+    width:356px;
+}
+
+#login-container form input#log_in_out_button {
+    background:url(mysource_files/button_login.png) left top no-repeat;
+    width:64px;
+    height:22px;
+    border:none;
+    margin:0px;
+    padding:0px;
+    color:#fff;
+    font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+<div id="login-container">
+
+    <div id="title-bar">
+        <img src="mysource_files/matrix-logo.png" alt="Matrix Logo" />
+    </div>
+    <!-- End div.title-bar -->
+    
+    <div class="content-wrapper">
+    
+        <p><strong>Enter your username and password to log in</strong></p>
+        
+        <div id="form-top"></div>
+        
+        <!-- Start CMS Login -->
+        <MySource_AREA id_name="login_form" design_area="login_form">
+        
+            <MySource_LOGIN_SECTION>
+            
+                <MySource_SET name="give_username_focus" value="true" />
+                <MySource_SET name="forward_www_vars" value="true" />
+                
+                <MySource_PRINT var="form_open" /> 
+            
+                <p id="login-error" class="error">
+                   <MySource_PRINT var="login_message" />. 
+                   <MySource_PRINT var="system_messages" />
+                </p>
+            
+                <label for="SQ_LOGIN_USERNAME">Username</label>
+                <MySource_PRINT var="username_box" maxlength="60" size="20" />
+            
+                <br />
+            
+                <label for="SQ_LOGIN_PASSWORD">Password</label>
+                <MySource_PRINT var="password_box" maxlength="60" size="30" />
+            
+                <p id="login-button">
+                    <MySource_PRINT var="submit_button" value="Login" />
+                </p>
+                
+                <MySource_PRINT var="form_close" />
+                
+            </MySource_LOGIN_SECTION>
+            
+        </MySource_AREA>
+        <!-- End CMS Login -->
+        
+        <div id="form-bottom"></div>
+        
+        <p>&nbsp;</p>
+        
+    </div>
+    <!-- End div.content-wrapper -->
+    
+</div>
+<!-- End login-container -->
+
+</body>
+
+</html>
