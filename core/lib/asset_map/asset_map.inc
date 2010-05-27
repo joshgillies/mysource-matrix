@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.290.2.2 2010/04/26 23:44:51 csmith Exp $
+* $Id: asset_map.inc,v 1.290.2.3 2010/05/27 23:01:17 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.2 $
+* @version $Revision: 1.290.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -180,6 +180,7 @@ class Asset_Map
 
 			$assetids = '';
 			$sort_orders = '';
+			$sort_orders_append = '';
 
 			$db = MatrixDAL::getDb();
 
@@ -304,11 +305,11 @@ class Asset_Map
 						throw new Exception('Unable to get sort order for majorid: '.$previd.' and minorid: '.$currentid.' due to database error: '. $e->getMessage());
 					}
 
-					$sort_orders = '|'.$sort_order.$sort_orders;
+					$sort_orders_append .= '|'.$sort_order;
 					$i++;
 				}
 			}
-
+			$sort_orders = $sort_orders_append.$sort_orders; //Bug #4413 Fix
 			$assetids = trim($assetids, '|');
 			$sort_orders = trim($sort_orders, '|');
 
