@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.806 2010/05/26 05:28:45 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.807 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.806 $
+* @version $Revision: 1.807 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7163,7 +7163,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE)
 	{
-		if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') return Array();
+		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') return Array();
 
 		$db = MatrixDAL::getDb();
 
@@ -7292,7 +7292,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setRole($assetid, $roleid, $userid)
 	{
-		if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') return FALSE;
+		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') return FALSE;
 
 		// check if we have permission to set roles
 		$asset = $this->getAsset($assetid);
@@ -7343,7 +7343,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
 	{
-		if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') return FALSE;
+		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') return FALSE;
 
 		// check if we have permission to set roles
 		$asset = $this->getAsset($assetid);

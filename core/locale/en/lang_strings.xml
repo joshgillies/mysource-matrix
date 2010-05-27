@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.368 2010/05/24 03:12:36 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.369 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -2299,7 +2299,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<!-- Roles configuration strings -->
 	<string source="roles_configuration_section_name">Roles Configuration</string>
 	<string source="roles_configuration_enable_global_roles">Enable Global Roles</string>
-	<string source="roles_configuration_enable_roles_system">Enable Roles System</string>
+	<string source="roles_configuration_enable_roles_perm_system">Enable Permission Roles System</string>
+	<string source="roles_configuration_enable_roles_wf_system">Enable Workflow Roles System</string>
 
 	<!-- Search Engine Optimization strings -->
 	<string source="search_engine_optimizations">Search Engine Optimizations</string>

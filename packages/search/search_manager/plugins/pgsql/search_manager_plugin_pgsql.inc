@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.34 2010/05/04 03:57:39 mhaidar Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.35 2010/05/27 06:33:28 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -461,7 +461,7 @@ class Search_Manager_Plugin_PgSQL
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 			}
 
@@ -480,7 +480,7 @@ class Search_Manager_Plugin_PgSQL
 			}
 			$usrids_str = implode(',', $userids);
 			$where = 'p.userid  IN ('.$usrids_str.')';
-			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 				$where .= ' OR '.'r.userid  IN ('.$usrids_str.')';
 			}
 			$query['where'][] = $where;
@@ -490,7 +490,7 @@ class Search_Manager_Plugin_PgSQL
 									p.userid <> '.MatrixDAL::quote($public_userid).'
 									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = \'1\')';
 
-			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 				$where .= '				OR r.userid <> '.MatrixDAL::quote($public_userid).'
 									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = \'1\')';
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.73 2008/11/12 00:59:15 mbrydon Exp $
+* $Id: step_02.php,v 1.74 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -132,9 +132,24 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 * disabled as at this point Matrix will have the default definitions.
 */
 
+//TODO : change the comment later
+if (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM')) {
+	if(defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && SQ_CONF_ENABLE_ROLES_SYSTEM == '1' ) {
+		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '1';
+		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '1';
+	} else {
+		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '0';
+		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '0';
+	}
+	$cfg->save($vars, FALSE);
+}
+
+
+
 // Install the applicable views from the common_views_roles.xml file
 echo "\n".'Configuring Roles Views... ';
-$roles_configured = $cfg->configureRoleTables(SQ_CONF_ENABLE_ROLES_SYSTEM, SQ_CONF_ENABLE_GLOBAL_ROLES);
+$enabled = (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM || SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
+$roles_configured = $cfg->configureRoleTables($enabled, SQ_CONF_ENABLE_GLOBAL_ROLES);
 if ($roles_configured) {
 	echo "done\n\n";
 } else {

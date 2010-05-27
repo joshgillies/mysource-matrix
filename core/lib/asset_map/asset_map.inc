@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.293 2010/04/23 02:05:00 csmith Exp $
+* $Id: asset_map.inc,v 1.294 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.293 $
+* @version $Revision: 1.294 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -795,7 +795,7 @@ class Asset_Map
 					}
 					$userid_cond = rtrim($userid_cond, ',') . ')';
 
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 						$userid_cond .= ' OR r.userid IN (';
 						for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 							$bind_vars['role_userid_' . $k] = $userids[$k];
@@ -849,7 +849,7 @@ class Asset_Map
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid';
 
 
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 						$sql .= '				LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = l2.assetid)';
 					}
 
@@ -858,13 +858,13 @@ class Asset_Map
 								(p.permission = :p_permission AND (
 										p.userid <> :p_userid';
 
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 						$sql .= '				OR r.userid <> :r_userid';
 					}
 
 					$sql .= '					OR (p.userid = :p_userid_1 AND p.granted = \'1\')';
 
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 						$sql .= '				OR (r.userid = :r_userid_1 AND p.granted = \'1\')';
 					}
 
@@ -880,7 +880,7 @@ class Asset_Map
 					$bind_vars['p_userid'] = $public_userid;
 					$bind_vars['p_userid_1'] = $public_userid;
 
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 						$bind_vars['r_userid'] = $public_userid;
 						$bind_vars['r_userid_1'] = $public_userid;
 					}
@@ -1023,7 +1023,7 @@ class Asset_Map
 				}
 				$userid_cond = rtrim($userid_cond, ',') . ')';
 
-				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 					$userid_cond .= ' OR r.userid IN (';
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 						$bind_vars['role_userid_' . $k] = $userids[$k];
@@ -1071,7 +1071,7 @@ class Asset_Map
 										FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid';
 
-				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 					$sql .=					' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = l2.assetid)';
 				}
 
@@ -1080,13 +1080,13 @@ class Asset_Map
 							(p.permission = :p_permission AND (
 									p.userid <> :p_userid';
 
-				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 					$sql .=				' OR r.userid <> :r_userid';
 				}
 
 				$sql .=					' OR (p.userid = :p_userid_1 AND p.granted = \'1\')';
 
-				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 					$sql .=				' OR (r.userid = :r_userid_1 AND p.granted = \'1\')';
 				}
 
@@ -1103,7 +1103,7 @@ class Asset_Map
 				$bind_vars['p_userid'] = $public_userid;
 				$bind_vars['p_userid_1'] = $public_userid;
 
-				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 					$bind_vars['r_userid'] = $public_userid;
 					$bind_vars['r_userid_1'] = $public_userid;
 				}

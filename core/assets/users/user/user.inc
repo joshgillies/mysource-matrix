@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.136 2010/05/11 02:12:33 lwright Exp $
+* $Id: user.inc,v 1.137 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -783,7 +783,7 @@ class User extends Asset
 		if (!isset($_SESSION['sq_user_groups'][$this->id])) {
 			// we store userid as key in this array to make sure we have the right user,
 			// but to avoid invalidity we clear any other userids out
-			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
+			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_PERM_SYSTEM  == '1' || SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
 			$group_types = Array('user', 'user_group', 'system_user_group');
 			if ($fetch_roles) $group_types[] = 'role';
 			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $group_types, TRUE));
@@ -806,7 +806,7 @@ class User extends Asset
 		// cache the result so that we dont do this more than once in an execution
 		if (!isset($_SESSION['sq_effective_user_groups'][$this->id])) {
 			$_SESSION['sq_effective_user_groups'][$this->id] = Array();
-			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
+			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_PERM_SYSTEM  == '1' || SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
 			$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', FALSE);
 			foreach ($groupids as $groupid => $type_code) {
 				// if we pass the conditions, let us belong to this group

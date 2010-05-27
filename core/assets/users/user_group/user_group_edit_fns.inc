@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.45 2008/08/01 01:45:34 bpearson Exp $
+* $Id: user_group_edit_fns.inc,v 1.46 2010/05/27 06:33:18 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -598,7 +598,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$o->openSection(translate('role_directly_assigned_section_'.$string_code_suffix));
 			$o->openRaw();
 
-			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') {
+			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') {
 				echo translate('roles_system_disabled');
 			} else {
 				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE, FALSE, FALSE, FALSE);
