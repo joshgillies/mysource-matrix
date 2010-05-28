@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.85 2010/05/19 05:00:21 lwright Exp $
+* $Id: wysiwyg.inc,v 1.86 2010/05/28 01:34:27 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1419,10 +1419,10 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					for(var code in entities_array) {
 						entity = entities_array[code];
 
-						reg = new RegExp("&#" + code + ";", "ig");
+						reg = new RegExp("&#" + code + ";", "g");
 						html_code = html_code.replace(reg, entity);
 
-						reg = new RegExp(String.fromCharCode(code), "ig");
+						reg = new RegExp(String.fromCharCode(code), "g");
 						html_code = html_code.replace(reg, entity);
 					}
 
