@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.69 2009/11/24 23:55:04 bpearson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.70 2010/05/30 23:57:58 kmyothein Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -745,6 +745,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					bodycopy_nested_doc.clip.height    = h - border;
 					bodycopy_nested_doc.clip.bottom    = h - border;
 					bodycopy_nested_doc.load(file, w - 5);
+				}
+				if (is_linux && is_gecko) {
+					// On Ubuntu Firefox, fonts and buttons are bigger so they need to expand.
+					bodycopy_nested_doc.height = '100%';
 				}
 
 				// how far down the page we want to display this popup
