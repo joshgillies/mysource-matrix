@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image_frames.php,v 1.1 2006/12/27 21:52:17 lwright Exp $
+* $Id: insert_image_frames.php,v 1.2 2010/05/31 00:24:52 kmyothein Exp $
 *
 */
 ?>
@@ -22,7 +22,7 @@
 <title>Insert Image</title>
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
-	<frameset cols="*, 350"  frameborder="0" border="0">
+	<frameset cols="*, 400"  frameborder="0" border="0">
 		<frame src="insert_image_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="insert_image_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>

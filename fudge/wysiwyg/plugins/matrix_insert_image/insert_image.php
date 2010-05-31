@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.50 2010/05/24 03:12:22 mhaidar Exp $
+* $Id: insert_image.php,v 1.51 2010/05/31 00:23:16 kmyothein Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 
@@ -35,7 +35,7 @@ $url_protocol_options = Array(
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?>
 
-<html style="width: 740px; height: 580px;">
+<html style="width: 800px; height: 600px;">
 	<head>
 		<title>Insert Image</title>
 
