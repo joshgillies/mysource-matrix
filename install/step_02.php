@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.74 2010/05/27 06:33:18 akarelia Exp $
+* $Id: step_02.php,v 1.75 2010/05/31 00:16:58 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -137,18 +137,20 @@ if (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROL
 	if(defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && SQ_CONF_ENABLE_ROLES_SYSTEM == '1' ) {
 		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '1';
 		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '1';
+		$enabled = TRUE;
 	} else {
 		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '0';
 		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '0';
+		$enabled = FALSE;
 	}
 	$cfg->save($vars, FALSE);
+} else {
+	$enabled = ((SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1' ) || (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1'));
 }
-
 
 
 // Install the applicable views from the common_views_roles.xml file
 echo "\n".'Configuring Roles Views... ';
-$enabled = (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM || SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
 $roles_configured = $cfg->configureRoleTables($enabled, SQ_CONF_ENABLE_GLOBAL_ROLES);
 if ($roles_configured) {
 	echo "done\n\n";
