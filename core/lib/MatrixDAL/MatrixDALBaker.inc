@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.14 2009/07/27 04:41:45 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.14.4.1 2010/06/01 06:55:41 ewang Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -142,7 +142,7 @@ class MatrixDALBaker extends DALBaker
         }
 
         $dir = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($assetType, 'dir');
-        $filename = $dir.'/db/queries.xml';
+        $filename = SQ_SYSTEM_ROOT.'/'.$dir.'/db/queries.xml';
 
         if (file_exists($filename)) {
             self::processQueriesFile($assetType, $filename);
