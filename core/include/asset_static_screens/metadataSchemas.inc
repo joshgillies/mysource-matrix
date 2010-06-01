@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.31 2009/10/19 01:20:45 cupreti Exp $
+* $Id: metadataSchemas.inc,v 1.32 2010/06/01 01:54:47 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -214,7 +214,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		if (count($kiddies)) {
 			$o->openSection(translate('cascade_options'));
 				$o->openField('Note');
-					echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
+					echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
@@ -248,7 +248,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.29 2010/05/10 06:57:48 mhaidar Exp $
+* $Id: logs.inc,v 1.30 2010/06/01 01:54:47 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -137,9 +137,9 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	if (empty($logs)) {
 		$o->openRaw();
 			if (!( empty($type_options) && empty($selected_base_url) )) {
-				echo '<b>'.translate('no_logged_messages', $owner->name).'</b>';
+				echo '<b>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
 			} else {
-				echo '<b>'.translate('no_logged_messages_found', $owner->name).'</b>';
+				echo '<b>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
 			}
 		$o->closeRaw();
 	} else {
