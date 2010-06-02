@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.81 2010/05/05 07:13:52 ewang Exp $
+* $Id: ldap_bridge.inc,v 1.82 2010/06/02 01:47:25 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -60,6 +60,7 @@ class LDAP_Bridge extends Asset implements Bridge
 	var $_user_types = Array(
 						'organizationalperson'	=> 'cn',
 						'inetorgperson'			=> 'cn',
+						'userproxy'				=> 'cn',
 					   );
 
 	/**
