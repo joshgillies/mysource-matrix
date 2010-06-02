@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash.inc,v 1.5 2009/09/18 01:16:02 mbrydon Exp $
+* $Id: payment_gateway_datacash.inc,v 1.6 2010/06/02 17:15:21 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/datacash_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -222,6 +222,9 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 				if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
 					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 				}
+				
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+				
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
@@ -275,6 +278,9 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_payment_completed', $broadcaster);
 				}
 			}
+			
+			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		} else {
 			// Notify that the payment was declined
@@ -382,6 +388,9 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		$processor->setMerchantReference(md5(session_id().time()));
 		//get the merchant reference number back, it was changed because Datacash requires that merchant reference number length must be between 6 and 30 alphanumeric characters
 		$_SESSION['SQ_ECOM_REF_NO'] = $processor->getMerchantReference();
+		
+		//store the merchant reference number to the pending order asset before processing
+		$this->setPendingOrderMerchantReference($_SESSION['SQ_ECOM_REF_NO']);
 		
 		//SET CARD NUMBER
 		if (empty($card_info['number'])) {
