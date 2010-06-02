@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2009/09/16 01:05:39 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.7 2010/06/02 17:04:11 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -22,8 +22,11 @@
 	<string source="ecom_order_status_processing">Processing</string>
 	<string source="ecom_order_status_failed">Failed</string>
 	<string source="ecom_order_status_success">Completed</string>
+    <string source="ecom_payment_no_amount">Payment has no amount</string>
     <string source="ecom_payment_attempted_gateway_contacted">Payment Attempted (gateway contacted)</string>
+    <string source="ecom_payment_succeeded">Payment is successful</string>
     <string source="ecom_payment_declined">Payment Declined</string>
+    <string source="ecom_ref_num_recorded_before_processing">Order reference number recorded before processing</string>
 
 	<!-- Error Strings -->
 	<string source="ecom_checkout_error_unable_to_move_order">Unable to move ecommerce order asset to folder: "%s"</string>

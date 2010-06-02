@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.9 2009/09/18 01:16:02 mbrydon Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.10 2010/06/02 17:05:00 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_LINE_IN_ADDRESS', 3);
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -304,6 +304,9 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				if (isset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS'])) {
 					unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 				}
+				
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+				
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
@@ -339,6 +342,8 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_PASS_THROUGH_VARS']);
 			}
 		
+			$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+			
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		} else {
 			if ($card_info) {
@@ -446,6 +451,9 @@ class Payment_Gateway_SagePay extends Payment_Gateway
 		//get the merchant reference number back, it might be changed because SagePay requires that merchant reference number length must be less than 40 characters
 		//it is not changed with the above md5 function which generates 32 character string, but we use it as general way here
 		$_SESSION['SQ_ECOM_REF_NO'] = $processor->getMerchantReference();
+		
+		//store the merchant reference number to the pending order asset before processing
+		$this->setPendingOrderMerchantReference($_SESSION['SQ_ECOM_REF_NO']);
 		
 		//SET CARD NAME
 		if (empty($card_info['name'])) {

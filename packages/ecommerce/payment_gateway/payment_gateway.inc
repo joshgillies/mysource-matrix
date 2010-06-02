@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.12 2009/11/27 05:46:06 bpearson Exp $
+* $Id: payment_gateway.inc,v 1.13 2010/06/02 17:04:40 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -133,6 +133,25 @@ class Payment_Gateway extends Page
 			$pending_order->appendAuditLog($msg);
 		}
 	}
+	
+	
+	/**
+	 * Set the merchant reference number to the currently-pending Order
+	 * 
+	 * @param string $ref_no	The merchant reference number to set
+	 * @returns void
+	 * @access protected
+	 */
+	protected function setPendingOrderMerchantReference($ref_no)
+	{
+		if (isset($_SESSION['sq_local_cart_contents']['pending_order_id'])) {
+			$pending_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
+		
+			$pending_order->setAttrValue('ecom_ref_no', $ref_no);
+			$pending_order->appendAuditLog(translate('ecom_ref_num_recorded_before_processing'));
+		}
+		
+	}//end setPendingOrderMerchantReference()
 
 
 }//end class
