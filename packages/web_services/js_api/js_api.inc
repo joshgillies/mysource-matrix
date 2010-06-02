@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.42 2010/05/11 00:01:15 akarelia Exp $
+* $Id: js_api.inc,v 1.42.2.1 2010/06/02 00:24:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1529,10 +1529,15 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
-			$direct_dependant_child = $am->getChildren($child->id, '', TRUE, TRUE, NULL, NULL, TRUE, NULL, 1);
-			$show['direct_dependant_child'] = count($direct_dependant_child);
-			$direct_non_dependant_child = $am->getChildren($child->id, '', TRUE, FALSE, NULL, NULL, TRUE, NULL, 1);
-			$show['direct_non_dependant_child'] = count($direct_non_dependant_child);
+
+			$direct_dependant_childern = $am->getLinks($child->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, TRUE);
+			$show['direct_dependant_childern'] = count($direct_dependant_childern);
+
+			$direct_non_dependant_childern = $am->getLinks($child->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, FALSE);
+			$show['direct_non_dependant_childern'] = count($direct_non_dependant_childern);
+
+			$direct_shadow_children = $am->getLinks($child->id, SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE);
+			$show['direct_notice_linked_children'] = count($direct_shadow_children);
 
 			$children_arr[$child->id] = array_merge($this->getGeneralInfo($child), $show);
 
