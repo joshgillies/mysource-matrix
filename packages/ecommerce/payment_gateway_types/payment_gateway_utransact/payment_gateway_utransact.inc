@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_utransact.inc,v 1.1 2010/05/07 03:34:43 cupreti Exp $
+* $Id: payment_gateway_utransact.inc,v 1.2 2010/06/02 17:37:07 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/utransact_processor.inc';
 * Interface for online credit card processing using Utransact payment gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -214,6 +214,8 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
 			unset($_SESSION['SQ_ECOM_GST']);
 			
+			$this->appendPendingOrderAuditLog(translate('ecom_payment_no_amount'));
+			
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
@@ -245,6 +247,9 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 						$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_payment_completed', $broadcaster);
 					}
 				}
+				
+				$this->appendPendingOrderAuditLog(translate('ecom_payment_succeeded'));
+				
 				$this->returnToCaller('SUCCESS');
 				
 			} else {
