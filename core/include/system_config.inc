@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.134 2010/05/05 04:27:05 lwright Exp $
+* $Id: system_config.inc,v 1.134.2.1 2010/06/02 04:22:10 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.134.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -98,11 +98,11 @@ class System_Config extends Config
 						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
 						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_CUSTOM_SESSION_SAVE_PATH'		=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_ENABLE_ROLES_SYSTEM'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENABLE_ROLES_WF_SYSTEM'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ENABLE_GLOBAL_ROLES'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_NO_ASSET_SELF_LINKS'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
-
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 					   );
@@ -952,15 +952,23 @@ class System_Config extends Config
 
 		$o->openSection(translate('roles_configuration_section_name'));
 
-			$o->openField(translate('roles_configuration_enable_roles_system'));
+			$o->openField(translate('roles_configuration_enable_roles_perm_system'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ENABLE_ROLES_SYSTEM]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_ROLES_SYSTEM);
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_PERM_SYSTEM]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_ROLES_PERM_SYSTEM);
 				} else {
-					echo (SQ_CONF_ENABLE_ROLES_SYSTEM) ? translate('yes') : translate('no');
+					echo (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM) ? translate('yes') : translate('no');
 				}
 			$o->closeField();
 
-			if ((defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && (SQ_CONF_ENABLE_ROLES_SYSTEM == '1')) || (!defined('SQ_CONF_ENABLE_ROLES_SYSTEM'))) {
+			$o->openField(translate('roles_configuration_enable_roles_wf_system'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_WF_SYSTEM]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_ROLES_WF_SYSTEM);
+				} else {
+					echo (SQ_CONF_ENABLE_ROLES_WF_SYSTEM) ? translate('yes') : translate('no');
+				}
+			$o->closeField();
+
+			if ( ((defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1')) || (defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') && (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1')) ) || (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM') )) {
 				$o->openField(translate('roles_configuration_enable_global_roles'));
 					if ($write_access && $is_root) {
 						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
@@ -1040,17 +1048,22 @@ class System_Config extends Config
 			$_POST[$class][$list_setting] = $option_list->value;
 		}
 
-		$roles_changed = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']));
-		$enable_roles_system_setting = SQ_CONF_ENABLE_ROLES_SYSTEM;
+		$roles_changed = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_WF_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']));
+
+		$enable_roles_perm_system_setting = SQ_CONF_ENABLE_ROLES_PERM_SYSTEM; 
+		$enable_roles_wf_system_setting = SQ_CONF_ENABLE_ROLES_WF_SYSTEM;
 		$enable_global_roles_setting = SQ_CONF_ENABLE_GLOBAL_ROLES;
 
 		if ($roles_changed) {
-			$enable_roles_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM'])) ? $_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM'] : $enable_roles_system_setting;
+			$enable_roles_perm_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'])) ? $_POST['system_config']['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] : $enable_roles_perm_system_setting;
+			$enable_roles_wf_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'])) ? $_POST['system_config']['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] : $enable_roles_wf_system_setting;
+
 			$enable_global_roles_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES'])) ? $_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES'] : $enable_global_roles_setting;
 		}
 
-		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_system_setting != SQ_CONF_ENABLE_ROLES_SYSTEM)) {
-			$this->configureRoleTables($enable_roles_system_setting, $enable_global_roles_setting);
+		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_perm_system_setting != SQ_CONF_ENABLE_ROLES_PERM_SYSTEM) || $enable_roles_wf_system_setting != SQ_CONF_ENABLE_ROLES_WF_SYSTEM) {
+			$enabled = ($enable_roles_perm_system_setting || $enable_roles_wf_system_setting);
+			$this->configureRoleTables($enabled, $enable_global_roles_setting);
 		}
 
 		return parent::processBackend($o);

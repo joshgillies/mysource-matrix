@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.73 2008/11/12 00:59:15 mbrydon Exp $
+* $Id: step_02.php,v 1.73.10.1 2010/06/02 04:22:11 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.10.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -132,9 +132,27 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 * disabled as at this point Matrix will have the default definitions.
 */
 
+// With respect to #4440 Feature Request : Spliting System Roles into System Permission Roles and System Workflow Roles
+// lets eplit up the constants and regenerate the config file. Also in this block decide if we have to crereate views
+if (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM')) {
+	if(defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && SQ_CONF_ENABLE_ROLES_SYSTEM == '1' ) {
+		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '1';
+		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '1';
+		$enabled = TRUE;
+	} else {
+		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '0';
+		$vars['SQ_CONF_ENABLE_ROLES_WF_SYSTEM'] = '0';
+		$enabled = FALSE;
+	}
+	$cfg->save($vars, FALSE);
+} else {
+	$enabled = ((SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1' ) || (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1'));
+}
+
+
 // Install the applicable views from the common_views_roles.xml file
 echo "\n".'Configuring Roles Views... ';
-$roles_configured = $cfg->configureRoleTables(SQ_CONF_ENABLE_ROLES_SYSTEM, SQ_CONF_ENABLE_GLOBAL_ROLES);
+$roles_configured = $cfg->configureRoleTables($enabled, SQ_CONF_ENABLE_GLOBAL_ROLES);
 if ($roles_configured) {
 	echo "done\n\n";
 } else {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.12 2008/03/12 02:55:02 mbrydon Exp $
+* $Id: roles.inc,v 1.12.10.1 2010/06/02 04:22:11 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.10.1 $
 * @package MySource_Matrix
 */
 
@@ -140,7 +140,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') {
+		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM  == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') {
 			$o->openField('');
 			ob_start();
 			echo translate('roles_system_disabled');

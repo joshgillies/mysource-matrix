@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.153 2010/05/11 03:29:03 ewang Exp $
+* $Id: workflow_manager.inc,v 1.153.2.1 2010/06/02 04:22:10 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.153.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -589,7 +589,7 @@ class Workflow_Manager extends MySource_Object
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
 					// check if this is a roleid rather than a user_groupid or userid
-					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+					if (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') {
 						$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 						$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, $fetch_global_roles);
 						if (!empty($role)) {
@@ -765,7 +765,7 @@ class Workflow_Manager extends MySource_Object
 						$can_publish_cond[] = $asset->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
 						// expand global users
-						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+						if (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') {
 							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
 							foreach ($roles as $roleid => $userids) {
@@ -1324,7 +1324,7 @@ class Workflow_Manager extends MySource_Object
 					if ($am->isTypeDecendant($asset_class, 'user')) {
 						$can_publish[] = $publisher->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+						if (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1') {
 							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, $fetch_global_roles, TRUE);
 							foreach ($roles as $roleid => $userids) {
