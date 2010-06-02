@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.2 2008/11/28 00:04:46 csmith Exp $
+* $Id: oci_functions.xml,v 1.2.10.1 2010/06/02 01:13:58 csmith Exp $
 *
 */
 -->
@@ -43,7 +43,11 @@
 				-- It also removes any special characters within the token
 				-- Modifed from the code written by Mark McIntyre <mmcintyre@squiz.net>
 				TYPE splitValuesTable IS TABLE OF VARCHAR2(500);
-				FUNCTION split(str VARCHAR2, delim VARCHAR2) RETURN splitValuesTable PIPELINED;
+				-- FUNCTION split(str VARCHAR2, delim VARCHAR2) RETURN splitValuesTable PIPELINED;
+				FUNCTION split(str CLOB, delim VARCHAR2) RETURN splitValuesTable PIPELINED;
+
+				-- escape "reserved words" for oracle "contains" queries.
+				FUNCTION escape_word(str VARCHAR2) RETURN VARCHAR2;
 
 			END sq_search_pkg;
 		]]>
@@ -51,6 +55,46 @@
 	<sql_element display_name="Search Package Body">
 		<![CDATA[
 			CREATE OR REPLACE PACKAGE BODY sq_search_pkg AS
+
+				-- escape "reserved words" for oracle "contains" queries.
+				-- see http://download.oracle.com/docs/cd/B10500_01/text.920/a96518/cqspcl.htm
+				-- for an up to date list of keywords that need to be handled.
+				FUNCTION escape_word(str VARCHAR2)
+				RETURN VARCHAR2
+				IS
+				BEGIN
+					IF
+						str = 'about'   OR
+						str = 'accum'   OR
+						str = 'and'     OR
+						str = 'bt'      OR
+						str = 'btg'     OR
+						str = 'bti'     OR
+						str = 'btp'     OR
+						str = 'fuzzy'   OR
+						str = 'haspath' OR
+						str = 'inpath'  OR
+						str = 'minus'   OR
+						str = 'near'    OR
+						str = 'not'     OR
+						str = 'nt'      OR
+						str = 'ntg'     OR
+						str = 'nti'     OR
+						str = 'ntp'     OR
+						str = 'or'      OR
+						str = 'pt'      OR
+						str = 'rt'      OR
+						str = 'sqe'     OR
+						str = 'syn'     OR
+						str = 'tr'      OR
+						str = 'trsyn'   OR
+						str = 'tt'      OR
+						str = 'within'
+					THEN
+						RETURN '{' || str || '}';
+					END IF;
+					return str;
+				END escape_word;
 
 				-- This is the main function which returns the word and its hit counts to be used in
 				-- search list page.
@@ -64,18 +108,26 @@
 					hits PLS_INTEGER;
 					out_rec wordHitInfo;
 				BEGIN
-					sql_str := 'SELECT UNIQUE COLUMN_VALUE FROM table(sq_search_pkg.get_search_list_word_list(''' ||
+					-- this gets rid of
+					-- tabs, newlines, carriage returns
+					-- which cause problems for get_search_list_word_list
+					sql_str := 'SELECT UNIQUE REPLACE(REPLACE(REPLACE(COLUMN_VALUE, CHR(10)), CHR(13)), CHR(9)) FROM table(sq_search_pkg.get_search_list_word_list(''' ||
 								cond ||	''', ''' ||
 								min_length || ''', ''' ||
 								noise_words || ''', ''' ||
 								white_words || '''))';
 					OPEN c FOR sql_str;
+
 					LOOP
 						FETCH c INTO token;
+
 						EXIT WHEN c%NOTFOUND;
+
+						IF LENGTH(token) > 0 THEN
 							out_rec.hits := sq_search_pkg.get_word_hits_count(cond, token);
 							out_rec.word := token;
 							PIPE ROW (out_rec);
+						END IF;
 					END LOOP;
 					RETURN;
 				END get_search_list;
@@ -88,7 +140,7 @@
 				BEGIN
 					sql_str :=	'SELECT COUNT(ai.VALUE) AS hits FROM sq_sch_idx ai WHERE ' ||
 								cond ||
-								' AND CONTAINS(ai.value, "' || word ||  '" , 1) > 0';
+								' AND CONTAINS(ai.value, "' || escape_word(word) ||  '" , 1) > 0';
 					sql_str := replace(sql_str, '"', '''');
 					EXECUTE IMMEDIATE sql_str INTO c;
 					RETURN c;
@@ -104,12 +156,13 @@
 					curl_2 cur_typ;
 					sql_str VARCHAR2(2000);
 					assetid VARCHAR2(255);
-					value VARCHAR2(32767);
+					value CLOB;
 					word VARCHAR2(500);
 				BEGIN
 					sql_str :=	'SELECT ai.value FROM sq_sch_idx ai WHERE ' || cond;
 
 					sql_str := replace(sql_str, '"', '''');
+
 					OPEN curl_1 FOR sql_str;
 					LOOP
 						FETCH curl_1 INTO value;
@@ -132,6 +185,7 @@
 							END IF;
 
 							sql_str := REPLACE(sql_str, '"', '''');
+
 							OPEN curl_2 FOR sql_str USING value;
 							LOOP
 								FETCH curl_2 INTO word;
@@ -148,7 +202,7 @@
 				-- This function splits the given text into individual tokens.
 				-- It also removes any special characters within the token
 				-- Modifed from the code written by Mark McIntyre <mmcintyre@squiz.net>
-				FUNCTION split(str VARCHAR2, delim VARCHAR2) RETURN splitValuesTable PIPELINED
+				FUNCTION split(str CLOB, delim VARCHAR2) RETURN splitValuesTable PIPELINED
 				IS
 					idx     PLS_INTEGER;
 					idx_end	BOOLEAN := FALSE;
