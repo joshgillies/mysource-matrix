@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.34 2010/05/11 02:18:48 csmith Exp $
+#* $Id: backup.sh,v 1.34.2.1 2010/06/02 01:08:55 csmith Exp $
 #*
 #*/
 #
@@ -441,7 +441,7 @@ if (SQ_CONF_DB_DSN !== SQ_CONF_DBCACHE_DSN) {
 ";
 
 if [ -f ${SYSTEM_ROOT}/data/private/conf/db.inc ]; then
-	print_verbose "Found a 3.18/3.20 system"
+	print_verbose "Found a 3.18+ system"
 	eval `echo "${matrix_318_php_code}" | $PHP`
 else
 	print_verbose "Found a 3.16 system"
@@ -589,19 +589,24 @@ oracle_dbdump()
 	return 0
 }
 
+dumpdir="${SYSTEM_ROOT}"
+if [ "${database_only}" -eq 1 ]; then
+	dumpdir="${backupdir}"
+fi
+
 # this will be the return code for the backup script
 # if the db dump fails, we'll give a non-zero exit code
 rc=0
 case "${DB_TYPE}" in
 	"pgsql")
-		pg_dbdump "${backupdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
+		pg_dbdump "${dumpdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
 		if [ $? -gt 0 ]; then
 			rc=7
 		fi
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
-			pg_dbdump "${backupdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+			pg_dbdump "${dumpdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
 			if [ $? -gt 0 ]; then
 				rc=7
 			fi
@@ -609,7 +614,7 @@ case "${DB_TYPE}" in
 	;;
 
 	"oci")
-		oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
+		oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
 		if [ $? -gt 0 ]; then
 			rc=7
 		fi
@@ -617,7 +622,7 @@ case "${DB_TYPE}" in
 		# If the cache db variable is set,
 		# do a schema only dump of the cache db.
 		if [ "${CACHE_DB_DBNAME}" ]; then
-			oracle_dbdump "${backupdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+			oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
 			if [ $? -gt 0 ]; then
 				rc=7
 			fi
