@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.15 2010/05/25 23:24:08 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.16 2010/06/02 10:10:27 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2384,7 +2384,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	 */
 	private function _getMetadataScope()
 	{	
+		$group_scope = '';
 		$scope = '';
+
 		$metadata_scope = array_get_index($_GET, $this->getPrefix().'_metadata_scope', Array());
 		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', Array());
 		foreach ($metadata_scope as $index => $metadata_terms) {
@@ -2398,13 +2400,15 @@ class Funnelback_Search_Page extends Listing_Engine
                 	if ($logic == '0') {
             	        $scope .= ' -'.$index.':'.$value;
         	        } else if ($logic == '1') {
-    	                $scope .= ' '.$index.':'.$value;
+    	                $group_scope .= ' '.$index.':'.$value;
 	                } else {
                     	$scope .= ' |'.$index.':'.$value;
                 	}				
 				}//end if
 			}//end foreach $keywords
 		}//end foreach
+
+		$scope = trim($group_scope) ? '|['.trim($group_scope).']'.trim($scope) : trim($scope);
 
 		return trim($scope);
 
