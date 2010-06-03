@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2010/06/02 17:04:11 ata Exp $
+* $Id: lang_strings.xml,v 1.8 2010/06/03 16:10:43 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -29,6 +29,7 @@
     <string source="ecom_ref_num_recorded_before_processing">Order reference number recorded before processing</string>
 
 	<!-- Error Strings -->
+	<string source="ecom_checkout_error_no_payment_gateway_specified">No Payment Gateway specified for the Delivery Method</string>
 	<string source="ecom_checkout_error_unable_to_move_order">Unable to move ecommerce order asset to folder: "%s"</string>
 
 	<!-- Ecommerce Order History -->

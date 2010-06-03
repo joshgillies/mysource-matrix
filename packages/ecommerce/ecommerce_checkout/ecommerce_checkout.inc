@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.82 2010/06/03 10:50:57 ata Exp $
+* $Id: ecommerce_checkout.inc,v 1.83 2010/06/03 16:10:58 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -638,33 +638,37 @@ class Ecommerce_Checkout extends Page
 					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
 					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')));
 
-					return;
+				} else {
+					$this->_tmp['delivery_method_errors'][] = translate('ecom_checkout_error_no_payment_gateway_specified');
+					$this->print_context = 'failure';
 				}
-			} else if ($payment_response) {
-				// customer has just paid for this order
-				// complete the order whatever happens and flag if quantity was incorrect in the end
-				// e.g. customer pays for order, in the meantime quantity changes, by the time payment goes through, the quantity may be incorrect
-				// but we don't want the order to fail because the customer has already paid
+				
+				return;
+			}
+			
+			// we only come here if customer has just paid for this order
+			// complete the order whatever happens and flag if quantity was incorrect in the end
+			// e.g. customer pays for order, in the meantime quantity changes, by the time payment goes through, the quantity may be incorrect
+			// but we don't want the order to fail because the customer has already paid
 
-				// unset this because the payment experience was just completed for this session
-				unset($_SESSION['SQ_ECOM_RESPONSE']);
+			// unset this because the payment experience was just completed for this session
+			unset($_SESSION['SQ_ECOM_RESPONSE']);
 
-				// check quantities
-				if ($this->attr('enforce_quantities')) {
-					if (!$this->_updateQuantities(FALSE)) {
-						// product quantity was negative
-						// set keyword replacement message for email(s) to be sent
-						ob_start();
-						foreach ($this->insufficient_quantity_assets as $quantity => $asset_name) {
-							echo $asset_name.":\t -> \t".abs($quantity)."\n";
-						}
-						$neg_quantity_list = ob_get_clean();
-						$review_order = TRUE;
-						// the order has to go through because it has been paid for
-						$this->print_context = 'receipt';
-
-						$this->_logOrderAction(translate('ecom_order_history_review_insufficient_quantities'));
+			// check quantities
+			if ($this->attr('enforce_quantities')) {
+				if (!$this->_updateQuantities(FALSE)) {
+					// product quantity was negative
+					// set keyword replacement message for email(s) to be sent
+					ob_start();
+					foreach ($this->insufficient_quantity_assets as $quantity => $asset_name) {
+						echo $asset_name.":\t -> \t".abs($quantity)."\n";
 					}
+					$neg_quantity_list = ob_get_clean();
+					$review_order = TRUE;
+					// the order has to go through because it has been paid for
+					$this->print_context = 'receipt';
+
+					$this->_logOrderAction(translate('ecom_order_history_review_insufficient_quantities'));
 				}
 			}
 
