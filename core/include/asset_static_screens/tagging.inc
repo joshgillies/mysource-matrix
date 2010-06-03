@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.23 2009/10/21 06:28:34 cupreti Exp $
+* $Id: tagging.inc,v 1.23.2.1 2010/06/03 01:00:28 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix
 */
 
@@ -203,7 +203,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 
 							$o->openSection(translate('cascade_options'));
 								$o->openField('Note');
-									echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
+									echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 								$o->closeField();
 								$o->openField('&nbsp;');
 									check_box($prefix.'_tagging[cascade_changes]', '1', TRUE);

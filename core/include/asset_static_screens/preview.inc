@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.35.2.1 2010/03/16 07:00:17 cupreti Exp $
+* $Id: preview.inc,v 1.35.2.2 2010/06/03 01:00:28 mhaidar Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix
 */
 
@@ -364,7 +364,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				ob_end_clean();
 				?>
 				<p class="sq-backend-field">
-					<?php echo translate('currently_previewing', $owner->name, $replacements_link); ?>
+					<?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
 				</p>
 				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
