@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.81 2010/05/07 03:43:01 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.82 2010/06/03 10:50:57 ata Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -305,6 +305,7 @@ class Ecommerce_Checkout extends Page
 				unset($_SESSION['sq_local_cart_contents']['delivery_id']);
 				unset($_SESSION['sq_local_cart_contents']['delivery_state']);
 				unset($_SESSION['sq_local_cart_contents']['editing_order']);
+				unset($_SESSION['sq_local_cart_contents']['success_order_id']);
 
 				$local_cart_empty = empty($_SESSION['sq_local_cart_contents']['cart_contents']);
 
@@ -757,6 +758,7 @@ class Ecommerce_Checkout extends Page
 
 			// order processing successful!
 			$this->print_context = 'receipt';
+			$_SESSION['sq_local_cart_contents']['success_order_id'] = $order_asset->id;
 			$this->_tmp['delete_all_orders_after_printing'] = TRUE;
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 		}
@@ -1542,7 +1544,8 @@ class Ecommerce_Checkout extends Page
 
 		$keywords['receipt_summary']	= translate('ecom_checkout_keyword_receipt_summary');
 		$keywords['cart_summary']		= translate('ecom_checkout_keyword_cart_summary');
-
+		$keywords['order_xml']			= translate('ecom_checkout_keyword_order_xml');
+		
 		return $keywords;
 
 	}//end _getReceiptContextKeywords()
@@ -1810,6 +1813,24 @@ class Ecommerce_Checkout extends Page
 	}//end getCartSummaryKeywordReplacement()
 
 
+	/**
+	* Get order_xml keyword replacement for the success order
+	*
+	* @return string
+	* @access public
+	*/
+	function getOrderXmlKeywordReplacement()
+	{
+		$order = NULL;
+		if (isset($_SESSION['sq_local_cart_contents']['success_order_id'])) {
+			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['success_order_id']);
+		}
+		
+		return is_null($order)? '' : $order->attr('order_xml');
+		
+	}//end getOrderXmlKeywordReplacement()
+	
+	
 	/**
 	* Get Keyword Replacement for 'error_messages' keyword
 	*

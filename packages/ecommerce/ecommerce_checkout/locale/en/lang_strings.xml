@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.15 2010/06/03 10:49:54 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -26,6 +26,7 @@
 
 	<string source="ecom_checkout_keyword_cart_summary">Cart Summary</string>
 	<string source="ecom_checkout_keyword_confirmation_summary">Confirmation Summary</string>
+	<string source="ecom_checkout_keyword_order_xml">Order XML</string>
 
 	<string source="ecom_checkout_keyword_go_to_confirmation_button">Go To Confirmation Button</string>
 
