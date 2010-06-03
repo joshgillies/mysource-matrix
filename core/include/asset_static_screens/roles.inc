@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.12.10.1 2010/06/02 04:22:11 akarelia Exp $
+* $Id: roles.inc,v 1.12.10.2 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12.10.1 $
+* @version $Revision: 1.12.10.2 $
 * @package MySource_Matrix
 */
 
@@ -286,7 +286,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			if (count($kiddies)) {
 				$o->openSection(translate('cascade_roles'));
 					$o->openField(translate('note'));
-						$o->note(translate('cascade_roles_note', $owner->name, count($kiddies)));
+						$o->note(translate('cascade_roles_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_cascade_roles', TRUE, TRUE);
@@ -296,7 +296,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 
 				$o->openSection(translate('manually_cascade_roles'));
 					$o->openField(translate('note'));
-						$o->note(translate('manually_cascade_roles_note', $owner->name, count($kiddies)));
+						$o->note(translate('manually_cascade_roles_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 					$o->closeField();
 					$o->openField('&nbsp;');
 						check_box($prefix.'_manually_cascade_roles', TRUE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.56 2009/10/01 04:46:38 mbrydon Exp $
+* $Id: settings.inc,v 1.56.4.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.4.1 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 	$created = FALSE;
 
 	if (count($root->children()) == 0) {
-		$o->openSection(translate('no_asset_settings', $owner->name));
+		$o->openSection(translate('no_asset_settings', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		$o->closeSection();
 	}
 
@@ -310,7 +310,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 						?></table><?php
 					} else {
-						echo translate('no_language_set', $owner->name);
+						echo translate('no_language_set', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					}
 
 					$o->closeField();
@@ -347,9 +347,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						if (isset($standards_lists_character_sets[$owner->charset])) {
 							echo $standards_lists_character_sets[$owner->charset];
 						} else if ($owner->charset == '') {
-							echo translate('no_character_set', $owner->name);
+							 echo translate('no_character_set', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 						} else {
-							echo '<i>'.translate('no_charactet_set_set', $owner->charset, $owner->name).'</i>';
+							echo '<i>'.translate('no_charactet_set_set', $owner->charset, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</i>';
 						}
 					}
 					$o->closeField();

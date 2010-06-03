@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.13 2007/11/29 05:18:52 bshkara Exp $
+* $Id: dependants.inc,v 1.13.12.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.12.1 $
 * @package MySource_Matrix
 */
 
@@ -90,13 +90,13 @@ function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo translate('status_dependence_higher', $owner->name); ?>
+				<?php echo translate('status_dependence_higher', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
 			</td>
 		</tr>
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo translate('status_dependence_lower', $owner->name); ?>
+				<?php echo translate('status_dependence_lower', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?>
 			</td>
 		</tr>
 	</table>

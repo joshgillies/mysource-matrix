@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.18 2009/06/10 04:31:34 ewang Exp $
+* $Id: history.inc,v 1.18.6.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.6.1 $
 * @package MySource_Matrix
 */
 
@@ -74,7 +74,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 		$o->openRaw();
 
 			if (SQ_ROLLBACK_VIEW) {
-				?><p class="sq-backend-data"><b><i><?php echo translate('history_viewed_row', $owner->name); ?></i></b></p>
+				?><p class="sq-backend-data"><b><i><?php echo translate('history_viewed_row', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></i></b></p>
 				<?php
 			}
 

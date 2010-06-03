@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.59 2009/11/27 05:39:53 lwright Exp $
+* $Id: workflow.inc,v 1.59.4.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.4.1 $
 * @package MySource_Matrix
 */
 
@@ -669,9 +669,9 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 									?>
 									<p class="sq-backend-data">
 										<span class="sq-backend-warning">
-											<b><?php echo translate('metadata_in_approval_requires_fields_completion', $owner->name); ?></b>
+											<b><?php echo translate('metadata_in_approval_requires_fields_completion', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></b>
 										</span>
-										<?php echo translate('metadata_fields_only_completed_by_administrator', $owner->name, '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
+										 <?php echo translate('metadata_fields_only_completed_by_administrator', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
 									</p>
 									<?php
 
@@ -831,7 +831,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
-								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name).'<br /><br />';
+								echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'<br /><br />';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
 								echo ' ';

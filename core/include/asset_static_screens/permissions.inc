@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.41 2009/04/21 06:29:11 lwright Exp $
+* $Id: permissions.inc,v 1.41.6.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.6.1 $
 * @package MySource_Matrix
 */
 
@@ -266,7 +266,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		if (count($kiddies)) {
 			$o->openSection(translate('cascade_permission_changes'));
 				$o->openField(translate('note'));
-					$o->note(translate('cascade_permissions_note', $owner->name, count($kiddies)));
+					$o->note(translate('cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_permissions[cascade_changes]', '1', TRUE);
@@ -276,7 +276,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 
 			$o->openSection(translate('manually_cascade_permissions'));
 				$o->openField(translate('note'));
-					$o->note(translate('manually_cascade_permissions_note', $owner->name, count($kiddies)));
+					 $o->note(translate('manually_cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_permissions[manual_cascade]');
@@ -438,7 +438,7 @@ function processPermissions(&$owner, &$o, &$ei)
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 

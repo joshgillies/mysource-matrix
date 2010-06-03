@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.47 2010/02/21 23:10:19 akarelia Exp $
+* $Id: linking.inc,v 1.47.2.1 2010/06/03 00:59:44 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix
 */
 
@@ -365,7 +365,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->writeAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 		exit();
 	}
 
@@ -640,14 +640,14 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 			foreach ($link_tree as $tree_data) {
 				$asset_lineage_ids[] = $tree_data['assetid'];
 				if ($tree_data['assetid'] == $majorid) continue;
-				$asset_lineage .= $tree_data['name'].' &gt; ';
+				 $asset_lineage .= htmlspecialchars($tree_data['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' &gt; ';
 			}
 			
 			if(!$display_reverse)
 				$asset_lineage_ids[] = $owner->id;
 
 			if (!empty($parent_data)) {
-				$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
+				$asset_lineage .= '<b>'.htmlspecialchars($parent_data['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</b>';
 			}
 			if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
 				return '';
