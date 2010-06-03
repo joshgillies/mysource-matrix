@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.247 2010/05/11 01:42:03 lwright Exp $
+* $Id: general.inc,v 1.247.2.1 2010/06/03 03:25:24 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247 $
+* @version $Revision: 1.247.2.1 $
 * @package MySource_Matrix
 */
 
@@ -1415,7 +1415,9 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 		$real_assetid = $assetid;
 	}
-
+	
+	$asset_info['name'] = htmlspecialchars($asset_info['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+	
 	if (empty($asset_info)) {
 		ob_start();
 			echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$assetid.')</span>';
@@ -1504,6 +1506,11 @@ function get_asset_tag_line($assetid, $screen='')
 					$lineage_names = $lineage['lineage'];
 					array_splice($lineage_names, 2, -1, Array('...'));
 				}
+				
+				foreach ($lineage_names as $id => $name){
+  	                $lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);						 
+				}
+				
 				$lineage_names[$assetid] = $asset_info['name'];
 				$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
 				?><tr>
@@ -1530,6 +1537,9 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (count($lineages) == 1) {
 			sort($lineages);
 			$lineage_names = $lineages[0]['lineage'];
+			foreach ($lineage_names as $id => $name){
+  	            $lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+  	        }
 			$lineage_names[$assetid] = $asset_info['name'];
 
 			$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);

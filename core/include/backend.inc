@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.197 2010/05/05 04:27:05 lwright Exp $
+* $Id: backend.inc,v 1.197.2.1 2010/06/03 03:25:24 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.197 $
+* @version $Revision: 1.197.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -686,7 +686,7 @@ class Backend extends MySource_Object
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
 
 			if (!empty($messages)) {
-				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', $GLOBALS['SQ_SYSTEM']->user->name, $messages), 'new-message', 'mail', 31, 37);
+				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
 				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
 			}
 
@@ -878,7 +878,7 @@ class Backend extends MySource_Object
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
-					<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name); ?></a> -
+					<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a> -
 					<?php
 					// check warranty (if a warranty key exists)
 					if (defined('SQ_LICENCE_WARRANTY_KEY')) {

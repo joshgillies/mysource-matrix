@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.44 2009/07/29 00:34:48 wszymanski Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.44.6.1 2010/06/03 03:34:55 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -375,7 +375,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							$lineage_names = $lineage['lineage'];
 							array_splice($lineage_names, 2, -1, Array('...'));
 						}
-					$lineage_names[$asset->id] = $asset_info[$asset->id]['name'];
+						foreach ($lineage_names as $id => $name){
+  	                        $lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+  	                    }
+  	                    $lineage_names[$asset->id] = htmlspecialchars($asset_info[$asset->id]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					require_once SQ_INCLUDE_PATH.'/general.inc';
 					?><tr><td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if (self.name == 'hipo_job') {am = opener;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 					</tr>
