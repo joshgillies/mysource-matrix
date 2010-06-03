@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.362 2010/06/01 03:28:41 mhaidar Exp $
+* $Id: asset_edit_interface.inc,v 1.363 2010/06/03 03:53:24 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.362 $
+* @version $Revision: 1.363 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1143,6 +1143,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}//end foreach
 
+		// paint the choosing link section when creating a new asset
+		if($creating) {
+			$o->openSection(translate('link'));
+			$this->_edit_fns->paintCreateLink($owner, $o, $prefix);
+			$o->closeSection();
+		}
 		return $print_commit_button;
 
 	}//end printEditInterface()

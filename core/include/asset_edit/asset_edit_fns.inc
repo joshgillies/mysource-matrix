@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.83 2010/03/14 23:29:00 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.84 2010/06/03 03:51:41 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -732,6 +732,30 @@ class Asset_Edit_Fns extends MySource_Object
 
 		}//end paintAutomaticRemapSetting()
 
+		
+	/**
+	* Paint the interface for the choosing link type when creating assets
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateLink(&$asset, &$o, $prefix)
+	{
+		$editable_link_types = Array(
+							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
+							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+						   );
+		$o->closeField();
+		$o->openField(translate('link_type'));
+		combo_box('link_type', $editable_link_types, FALSE, isset($_REQUEST['link_type']) ? $_REQUEST['link_type'] : SQ_LINK_TYPE_1);
+		$o->closeField();
+		return TRUE;
+
+	}//end paintCreateLink()
 
 }//end class
 ?>
