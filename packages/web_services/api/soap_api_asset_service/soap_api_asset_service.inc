@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.15.2.1 2010/05/19 00:23:40 mhaidar Exp $
+* $Id: soap_api_asset_service.inc,v 1.15.2.2 2010/06/03 02:10:40 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1023,6 +1023,14 @@ class Soap_Api_Asset_Service extends Soap_Api
 			}//end if
 		}
 
+		if ($user === NULL) {
+			// We couldn't find a user to login as.
+			return Array (
+					'SessionID'  => '',
+					'SessionKey' => '',
+				);
+		}
+		
 		$session_id = session_id();
 		$session_key = $GLOBALS['SQ_SYSTEM']->getUniqueSOAPSessionKey();
 		$_SESSION['activated'] = 0;
