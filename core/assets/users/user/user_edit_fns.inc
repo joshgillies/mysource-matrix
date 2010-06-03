@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.37 2009/09/21 06:36:04 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.37.2.1 2010/06/03 03:29:50 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -373,7 +373,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$num_locks = count($current_locks);
 		$write_access = $asset->writeAccess('attributes');
 		$o->openField(translate('current_locks'));
-			echo translate('user_held_locks', $asset->name, $num_locks);
+			echo translate('user_held_locks', htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $num_locks);
 			?>
 			<script type="text/javascript">
 			function sq_user_held_locks_info()

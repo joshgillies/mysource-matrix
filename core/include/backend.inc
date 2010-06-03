@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.195 2009/10/07 04:35:36 bpearson Exp $
+* $Id: backend.inc,v 1.195.2.1 2010/06/03 03:24:47 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.195.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -682,7 +682,7 @@ class Backend extends MySource_Object
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
 
 			if (!empty($messages)) {
-				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', $GLOBALS['SQ_SYSTEM']->user->name, $messages), 'new-message', 'mail', 31, 37);
+				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
 				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
 			}
 
@@ -895,7 +895,7 @@ class Backend extends MySource_Object
 					}
 					?>
 
-					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, $message); ?></a>
+					<?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $message); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<?php

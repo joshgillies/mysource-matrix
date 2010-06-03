@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.103 2008/08/07 03:55:09 bpearson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.103.8.1 2010/06/03 03:24:47 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.103.8.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -285,7 +285,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 		$o->openSection(translate('forcibly_acquire'));
 			$o->openField('');
-				$o->note(translate('forcibly_acquire_lock_can_cause_losses', $asset->name, $asset->name));
+				$o->note(translate('forcibly_acquire_lock_can_cause_losses', htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 			$o->openField('');
 		?>
 		<table border="0">
@@ -350,7 +350,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					?>
 					<p class="sq-backend-locked-by-someone-else">
-						Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br>
+						Held by user "<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" at "<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>".<br>
 						<?php echo $expires_in; ?>
 					</p>
 				</td>
@@ -366,7 +366,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_info['assetid']);
 								continue;
 							}
-							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
+							echo '<li class="sq-backend-data">'.htmlspecialchars($chained_asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li>';
 						}//end foreach
 						echo '</ul>';
 					}//end if
