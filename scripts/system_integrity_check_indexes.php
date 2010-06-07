@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.6.2.2 2010/04/20 01:01:28 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.6.2.3 2010/06/07 06:53:53 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -94,6 +94,7 @@ $dbtype = _getDbType();
 $index_info = getIndexes();
 $full_index_list = $index_info['index_list'];
 $parallel_list = $index_info['parallel_list'];
+$constraint_list = $index_info['constraint_list'];
 
 bam('Checking Indexes');
 
@@ -363,7 +364,18 @@ if (!empty($bad_indexes)) {
 		if ($dbtype == 'oci') {
 			$details['index_name'] = strtoupper($details['index_name']);
 		}
-		if (isset($details['primary_key'])) {
+
+		/**
+		 * if it's a postgres db, check if it's a primary key.
+		 * if it's oracle, see if it's an explicit constraint
+		 *
+		 * if either is true, we need to drop the constraint.
+		 * otherwise we can drop the index.
+		 */
+		if (
+			($dbtype == 'pgsql' && isset($details['primary_key'])) ||
+			($dbtype == 'oci' && isset($constraint_list[$details['index_name']]))
+		) {
 			$tablename = $details['table_name'];
 			if (substr($tablename, 0, 3) != 'sq_') {
 				$tablename = 'sq_' . $tablename;
@@ -373,7 +385,6 @@ if (!empty($bad_indexes)) {
 		}
 		$msg .= "DROP INDEX " . $details['index_name'] . ";\n";
 	}
-
 	bam($msg);
 }
 
@@ -661,12 +672,14 @@ function getIndexes()
 
 	switch ($dbtype) {
 		case 'oci':
-			$sql = "SELECT u.table_name as tablename, u.index_name as indexname, DBMS_METADATA.GET_DDL('INDEX',u.index_name) AS indexdef, TRIM(degree) AS parallel FROM USER_INDEXES u WHERE TABLE_NAME LIKE 'SQ_%' ORDER BY table_name";
+			$sql = "SELECT u.table_name as tablename, u.index_name as indexname, DBMS_METADATA.GET_DDL('INDEX',u.index_name) AS indexdef, TRIM(u.degree) AS parallel, CASE WHEN c.constraint_name IS NULL THEN 0 ELSE 1 END AS constraint FROM USER_INDEXES u LEFT JOIN user_constraints c ON (u.index_name=c.constraint_name) WHERE u.TABLE_NAME LIKE 'SQ_%' ORDER BY u.table_name";
 		break;
 		case 'pgsql':
 			$sql = 'SELECT tablename, indexname, indexdef from pg_indexes where tablename like \'sq_%\'';
 		break;
 	}
+
+	$constraint_list = array();
 
 	$idx_list = array();
 
@@ -701,6 +714,14 @@ function getIndexes()
 					$idx_list[$tablename][$idx_name] = $idx_columns;
 
 					$parallel_list[$tablename][$idx_name] = $value['parallel'];
+
+					/**
+					 * if there's a constraint in user_constraints
+					 * remember that for later in case it needs to be dropped.
+					 */
+					if ($value['constraint'] == 1) {
+						$constraint_list[strtoupper($idx_name)] = 1;
+					}
 				break;
 
 				case 'pgsql':
@@ -727,6 +748,7 @@ function getIndexes()
 	return array (
 		'index_list' => $idx_list,
 		'parallel_list' => $parallel_list,
+		'constraint_list' => $constraint_list,
 	);
 }
 
