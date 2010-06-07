@@ -1,5 +1,96 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.28.1
+
+Featured Changes
+===================================
+
+Easy Edit Suite Login Design [ Feature Request #4439 ]
+-----------------------------------------------------
+
+A new EES Login Design asset has been added to MySource Matrix to complement the new Easy Edit Suite interface, providing a login page that is visually consistent with the EES's sleek MySource Mini-style design.
+
+When no alternate Login Design has been set for a Site using the Easy Edit Suite, the default MySource Matrix login box will be displayed - styled to resemble the system's Administration interface. The majority of users of the Easy Edit Suite will not be familiar with the Matrix backend, so it is important to provide a smooth user experience by creating a consistent look and feel in all aspects of the EES interface. This is helped achieved using the EES Login Design.
+
+The ees_login_design asset is located in the System Designs Folder, under the System Configuration Folder in the Asset Map. This design can be applied on the Settings screen of the Site you have enabled the Easy Edit Suite for. To do this, select the design in the System Defined Login Design field.
+
+Once the design has been committed, the new Login Design will be used for the Easy Edit Suite's login page on your Site. This login page will be displayed when users who are not logged in attempt to access the /_edit interface.
+
+
+Separate Permission Role and Workflow Role Systems [ Feature Request #4440 ]
+-----------------------------------------------------
+
+When enabling Roles on a system, users previously only had the option of enabling Roles on the entire system, meaning that Roles for both Permissions and Workflow were enabled.
+
+As Roles can be quite performance intensive, this feature allows users to enable Roles individually for both Permissions and Workflow. This means that if, for example, only Workflow Roles were enabled, the system's performance would not be affected when dealing with Permissions.
+
+These fields are located on the system's System Configuration screen.
+
+
+New "userProxy" objectClass Supported in LDAP [ Feature Request #4449 ]
+-----------------------------------------------------
+
+Previously, the LDAP package only supported the organizationalPerson and intOrgPerson objectClasses for User objects. This feature introduces the userProxy objectClass, allowing User objects using this objectClass to be expanded in the Asset Map. Such Users would have previously been discarded by the system and excluded from the Asset Map's LDAP tree.
+
+
+JS API: getChildren() Function Enhancements [ Feature Request #4446 ]
+-----------------------------------------------------
+
+Enhancements have been made to the JS API's getChildren() function to return NOTICE linked children in the JS API's response. Previously, NOTICE linked children were grouped as Non-Dependant children.
+
+direct_dependant_child => 1
+direct_non_dependant_child => 6
+
+This feature enables the JS API to differentiate between these child types, returning values for both Non-Dependant and NOTICE children, as well as for the Dependant children of the asset.
+
+direct_dependant_children => 1
+direct_non_dependant_children => 2
+direct_notice_linked_children => 4
+
+These enhancements have been added to provide a more comprehensive response from the JS API, assisting in the development of Phase 2 of the Easy Edit Suite.
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4218: Editing an image under a site doesn't preview the image
+Fixed Bug #4437: Scripts not escaped from attribute values in Admin Interface
+Fixed Bug #4447: backup script not including db dump if you backup to an explicit location
+Fixed Bug #4445: Baking asset type specific queries does not work on non-root path
+Fixed Bug #4364: Root node asset is put under "Other" in A-Z asset listings
+Fixed Bug #4413: Could not locate asset (#nnnnn)
+Fixed Bug #4297: Character Encoding Issue With &ouml; characters in "Insert Special Character" button in WYSIWYG
+Fixed Bug #4359: asset creation can leave unwanted records on sq_ast_lnk and sq_ast_lnk_tree tables
+Fixed Bug #4222: IE8 backend bug with Commit Button Position
+Fixed Bug #4376: asset_manager.inc::getAssetURL() does not cache the URL with correct protocol
+Fixed Bug #4366: Unable to update link due to database error (Invalid Timestamp)
+Fixed Bug #4416: Trigger Execute Database Query fails if there are more then 1 globals keyword used in them
+Fixed Bug #4319: expired lock causing error on active locks page
+
+CMS
+Fixed Bug #4254: Undefined variable warnings on asset listings when using shadow assets
+
+Search
+Fixed Bug #4367: Search list links don't validate
+Fixed Bug #4422: "Exclude this asset" option in search page excludes parent assets
+
+Bulkmail
+Fixed Bug #4425: Bulkmail Job never completing
+
+Import Tools
+Fixed Bug #4434: Ticking 'Import as a Single Page' and 'Fix Anchor Tags and Footnotes' without Anchor Tag in html Raises Matrix Error
+
+Web Services
+Fixed Bug #4371: Assets Deleted by web service don't release the URLs
+
+Other
+Fixed Bug #3714: Error using Language Character Mapping when creating a new asset
+Fixed Bug #4414: Metadata 'Restriction' seems to allow an asset with Required metadata fields to be pushed live
+Fixed Bug #4419: Undefined Index PHP Notice on What's New asset
+
+
+
 VERSION 3.28.0
 
 Featured Changes
