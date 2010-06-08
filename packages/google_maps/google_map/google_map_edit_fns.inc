@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_edit_fns.inc,v 1.5 2010/05/05 07:12:35 ewang Exp $
+* $Id: google_map_edit_fns.inc,v 1.5.2.1 2010/06/08 04:12:42 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -761,12 +761,12 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 										   ?></p></td>
 								</tr>
 								<tr>
-									<td width="100"><p></p>Latitute keyword</td>
+									<td width="100"><p></p>Latitude keyword</td>
 									<td><p><?php
 												if (!$wa) {
 													echo array_get_index($keywords_list[$type_code], 'latitude_keyword', '');
 												} else {
-													text_box($prefix.'_'.$type_code.'_latitute_keyword', array_get_index($keywords_list[$type_code], 'latitude_keyword', ''), 50);
+													text_box($prefix.'_'.$type_code.'_latitude_keyword', array_get_index($keywords_list[$type_code], 'latitude_keyword', ''), 50);
 												}//end if
 										   ?></p></td>
 								</tr>
@@ -845,7 +845,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			if ($type_code !== 'google_map_location') {
 				// Now we check for everything in POST
 				$keywords_list[$type_code]['name_keyword']			= array_get_index($_POST, $prefix.'_'.$type_code.'_name_keyword', NULL);
-				$keywords_list[$type_code]['latitude_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_latitute_keyword', NULL);
+				$keywords_list[$type_code]['latitude_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_latitude_keyword', NULL);
 				$keywords_list[$type_code]['longitude_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_longitude_keyword', NULL);
 				$keywords_list[$type_code]['description_keyword']	= array_get_index($_POST, $prefix.'_'.$type_code.'_description_keyword', NULL);
 				$keywords_list[$type_code]['icon_url_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_icon_url_keyword', NULL);
