@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.2 2010/06/09 04:08:44 akarelia Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.3 2010/06/09 04:51:00 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,9 +210,9 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 					WHERE
 						mv.fieldid IN ('.$mdfieldids_str.')';
 			if (MatrixDAL::getDbType() === 'oci') {
-				$sql .= ' AND CAST(mv.value AS varchar(255)) < :min_date AND CAST(mv.value AS varchar(255)) > :max_date';
+				$sql .= ' AND CAST(mv.value AS varchar(255)) > :min_date AND CAST(mv.value AS varchar(255)) < :max_date';
 			} else {
-				$sql .= ' AND mv.value < :min_date AND mv.value > :max_date';
+				$sql .= ' AND mv.value > :min_date AND mv.value < :max_date';
 			}
 
 			try {
