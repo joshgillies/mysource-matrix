@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_rename_thesaurus_term.inc,v 1.3.6.1 2010/06/09 05:48:13 akarelia Exp $
+* $Id: hipo_job_rename_thesaurus_term.inc,v 1.3.6.2 2010/06/09 06:11:31 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.6.1 $
+* @version $Revision: 1.3.6.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -332,9 +332,6 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 				// bug fix #4430 Thesaurus Terms Update this term system wide Issue
 				// if we have more than one term applied, then we do it differently
 				$sql = "SELECT value, assetid, fieldid, contextid FROM sq_ast_mdata_val WHERE value like '$old_term,%' OR value like '%,$old_term' OR value like '%,$old_term,%'";
-				if (!empty($this->_running_vars['assetids'])) {
-					$sql .= ' AND assetid IN ('.implode(',', $this->_running_vars['assetids']).')';
-				}
 
 				$results = MatrixDAL::executeSqlAssoc($sql);
 				if (!empty($results)) {
@@ -363,21 +360,37 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 
 						// Run the Query against the current assetid
 						if (MatrixDAL::getDbType() === 'oci') {
-							$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_value WHERE TO_CHAR(value)=:old_value AND assetid=:assetid AND contextid=:contextid AND fieldid=:fieldid';
+							$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_value WHERE TO_CHAR(value)=:old_value AND contextid=:contextid AND fieldid=:fieldid AND assetid=:assetid';
 						} else {
-							$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_value WHERE value=:old_value AND assetid=:assetid AND contextid=:contextid AND fieldid=:fieldid';
+							$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_value WHERE value=:old_value AND contextid=:contextid AND fieldid=:fieldid AND assetid=:assetid';
 						}//end if
 
-						try{
-							$query = MatrixDAL::preparePdoQuery($sql);
-							MatrixDAL::bindValueToPdo($query, 'new_value', $new_value);
-							MatrixDAL::bindValueToPdo($query, 'old_value', $value);
-							MatrixDAL::bindValueToPdo($query, 'assetid', $asset_id);
-							MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
-							MatrixDAL::bindValueToPdo($query, 'fieldid', $field_id);
-							MatrixDAL::execPdoQuery($query);
-						} catch (Exception $e) {
-							throw new Exception('DB Error: '.$e->getMessage());
+						if(!empty($this->_running_vars['assetids'])) {
+							foreach ($this->_running_vars['assetids'] as $assetid) {
+								try{
+									$query = MatrixDAL::preparePdoQuery($sql);
+									MatrixDAL::bindValueToPdo($query, 'new_value', $new_value);
+									MatrixDAL::bindValueToPdo($query, 'old_value', $value);
+									MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
+									MatrixDAL::bindValueToPdo($query, 'fieldid', $field_id);
+									MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+									MatrixDAL::execPdoQuery($query);
+								} catch (Exception $e) {
+									throw new Exception('DB Error: '.$e->getMessage());
+								}
+							}
+						} else {
+							try{
+								$query = MatrixDAL::preparePdoQuery($sql);
+								MatrixDAL::bindValueToPdo($query, 'new_value', $new_value);
+								MatrixDAL::bindValueToPdo($query, 'old_value', $value);
+								MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
+								MatrixDAL::bindValueToPdo($query, 'fieldid', $field_id);
+								MatrixDAL::bindValueToPdo($query, 'assetid', $asset_id);
+								MatrixDAL::execPdoQuery($query);
+							} catch (Exception $e) {
+								throw new Exception('DB Error: '.$e->getMessage());
+							}
 						}
 					}
 				}
