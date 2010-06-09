@@ -16,7 +16,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
-@require_once 'HTTP/Client.php';
+require_once 'HTTP/Client.php';
 
 
 /**
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
