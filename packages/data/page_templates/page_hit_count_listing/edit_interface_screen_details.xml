@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2009/08/06 03:32:34 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2010/06/09 03:51:48 mhaidar Exp $
 *
 */
 -->
@@ -58,6 +58,12 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page">
+			<text width="30" />
+		</field>
+		<field attribute="a_z_style">
+			<selection style="list" />
+		</field>
+		<field attribute="a_z_letter_format">
 			<text width="30" />
 		</field>
 		<field attribute="min_hitcount">

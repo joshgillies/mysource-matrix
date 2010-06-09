@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.80 2009/08/20 06:04:06 ewang Exp $
+* $Id: listing_engine_management.inc,v 1.81 2010/06/09 03:51:43 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -230,19 +230,40 @@ class Listing_Engine_Management extends Asset_Management
 														'multiple'		=> FALSE,
 														'allow_empty'	=> FALSE,
 														'options'		=> Array(
-																			'number'	=> 'Standard',
-																			'letter'	=> 'A-Z listing',
-																			'grouped'	=> 'Custom Grouping',
-																			'random'	=> 'Random',
+																			'number'		=> 'Standard',
+																			'letter'		=> 'A-Z listing',
+																			'grouped'		=> 'Custom Grouping',
+																			'random'		=> 'Random',
 																		   ),
 													   ),
 								  );
+								  
+		$this->vars['a_z_style'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'selection',
+									'default'		=> 'multiple',
+									'parameters'	=> Array(
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
+														'options'		=> Array(
+																			'single'	=> 'Single Page',
+																			'multiple'	=> 'Multiple Pages',
+																		   ),
+													   ),
+								  );
+								  
+		$this->vars['a_z_letter_format'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> ' <h3> %letter_group% </h3> ',
+										);						  
 
 		$this->vars['num_per_page'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',
 										'default'	=> 0,
 									  );
+									  
 
 		$this->vars['column_layout'] = Array(
 										'added'		=> '0.1',

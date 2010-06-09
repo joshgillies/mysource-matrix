@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.308 2010/05/23 23:46:50 kmyothein Exp $
+* $Id: listing_engine.inc,v 1.309 2010/06/09 03:51:43 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.308 $
+* @version $Revision: 1.309 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1599,72 +1599,92 @@ class Listing_Engine extends Page
 				if (isset($todo[$other_letter])) {
 					$all_letters[$other_letter] = $other_letter_value;
 				}
-
-				// here we generate a list of only active letters
-				$letters = Array();
-				foreach ($all_letters as $one_letter => $text) {
-					if (isset($todo[$one_letter])) {
-						$letters[] = $one_letter;
+				
+				if ($this->attr('a_z_style') == 'single') {
+					$page_list = '';
+					$page_list_without_unused = '';
+					foreach ($all_letters as $one_letter => $text_value) {
+						if (isset($todo[$one_letter])) {
+							$letter_link			   = ' <a href="#letter_'.$one_letter.'">'.$text_value.'</a> ';
+							$page_list				  .= $letter_link;
+							$page_list_without_unused .= $letter_link;
+						} else {
+							$page_list .= ' '.$text_value.' ';
+						}
 					}
-				}
+					
+					$this->_tmp['result_page'] = (int)$result_page;
+					$replacements['page_list'] = $page_list;
+					$replacements['page_list_without_unused'] = $page_list_without_unused;
+					
+				} else {
 
-				$first_available_letter = $letters[0];
+					// here we generate a list of only active letters
+					$letters = Array();
+					foreach ($all_letters as $one_letter => $text) {
+						if (isset($todo[$one_letter])) {
+							$letters[] = $one_letter;
+						}
+					}
 
-				// have [assetid]_result_page take precedence over result_page
-				$result_page = $first_available_letter;
-				if (isset($_REQUEST[$generic_result_page_var])) {
-					$result_page = $_REQUEST['result_page'];
-				}
-				if (isset($_REQUEST[$asset_result_page_var])) {
-					$result_page = $_REQUEST[$asset_result_page_var];
-				}
+					$first_available_letter = $letters[0];
 
-				// by default, result letter is the first letter
-				if (!isset($todo[$result_page])) {
+					// have [assetid]_result_page take precedence over result_page
 					$result_page = $first_available_letter;
-				}
-
-				$this_letter_key = array_search($result_page, $letters);
-
-				// previous page link
-				$prev_page_text = $this->attr('prev_page_text');
-				$prev_page_link = '';
-				if ($this_letter_key > 0) {
-					$prev_page_link = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key - 1]), NULL, NULL, TRUE);
-					$prev_page_text = '<a href="'.$prev_page_link.'">'.$prev_page_text.'</a>';
-				}
-				$replacements['previous_page'] = $prev_page_text;
-				$replacements['previous_page_href'] = $prev_page_link;
-
-				// next page link
-				$next_page_text = $this->attr('next_page_text');
-				$next_page_href = '';
-				if ($this_letter_key < (sizeof($letters) - 1)) {
-					$next_page_href = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key + 1]), NULL, NULL, TRUE);
-					$next_page_text = '<a href="'.$next_page_href.'">'.$next_page_text.'</a>';
-				}
-				$replacements['next_page'] = $next_page_text;
-				$replacements['next_page_href'] = $next_page_href;
-
-				$replacements['total_pages'] = count($letters);
-				$this->_tmp['result_page'] = $this_letter_key + 1;
-
-				// list of pages and links to them
-				$page_list = '';
-				$page_list_without_unused = '';
-				foreach ($all_letters as $one_letter => $text_value) {
-					if (isset($todo[$one_letter])) {
-						$letter_link			   = ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
-						$page_list				  .= $letter_link;
-						$page_list_without_unused .= $letter_link;
-					} else {
-						$page_list .= ' '.$text_value.' ';
+					if (isset($_REQUEST[$generic_result_page_var])) {
+						$result_page = $_REQUEST['result_page'];
 					}
-				}
+					if (isset($_REQUEST[$asset_result_page_var])) {
+						$result_page = $_REQUEST[$asset_result_page_var];
+					}
 
-				$todo = $todo[$result_page];
-				$replacements['page_list'] = $page_list;
-				$replacements['page_list_without_unused'] = $page_list_without_unused;
+					// by default, result letter is the first letter
+					if (!isset($todo[$result_page])) {
+						$result_page = $first_available_letter;
+					}
+
+					$this_letter_key = array_search($result_page, $letters);
+
+					// previous page link
+					$prev_page_text = $this->attr('prev_page_text');
+					$prev_page_link = '';
+					if ($this_letter_key > 0) {
+						$prev_page_link = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key - 1]), NULL, NULL, TRUE);
+						$prev_page_text = '<a href="'.$prev_page_link.'">'.$prev_page_text.'</a>';
+					}
+					$replacements['previous_page'] = $prev_page_text;
+					$replacements['previous_page_href'] = $prev_page_link;
+
+					// next page link
+					$next_page_text = $this->attr('next_page_text');
+					$next_page_href = '';
+					if ($this_letter_key < (sizeof($letters) - 1)) {
+						$next_page_href = replace_query_string_vars(Array($asset_result_page_var => $letters[$this_letter_key + 1]), NULL, NULL, TRUE);
+						$next_page_text = '<a href="'.$next_page_href.'">'.$next_page_text.'</a>';
+					}
+					$replacements['next_page'] = $next_page_text;
+					$replacements['next_page_href'] = $next_page_href;
+
+					$replacements['total_pages'] = count($letters);
+					$this->_tmp['result_page'] = $this_letter_key + 1;
+
+					// list of pages and links to them
+					$page_list = '';
+					$page_list_without_unused = '';
+					foreach ($all_letters as $one_letter => $text_value) {
+						if (isset($todo[$one_letter])) {
+							$letter_link			   = ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
+							$page_list				  .= $letter_link;
+							$page_list_without_unused .= $letter_link;
+						} else {
+							$page_list .= ' '.$text_value.' ';
+						}
+					}
+
+					$todo = $todo[$result_page];
+					$replacements['page_list'] = $page_list;
+					$replacements['page_list_without_unused'] = $page_list_without_unused;
+				}
 
 			break;
 
@@ -2075,6 +2095,7 @@ class Listing_Engine extends Page
 	* track of what position in the list we are printing
 	*
 	* @param array	$todo	an array of assets to list in the same format as the return value of getAssetList()
+	* unless we have a single paged A-Z asset listing which is an array of letter grouped assets to print.
 	*
 	* @return void
 	* @access private
@@ -2091,73 +2112,158 @@ class Listing_Engine extends Page
 		$num_items = count($todo);
 
 		$list_position = 1;
-	 //if table style is used to generate the column
-		if ($using_columns && $column_layout_type === 'table') {
-			$num_rows = max(array_keys($column_layout)) + 1;
-			$num_columns = max(array_values($column_layout));
+		$a_z_letter_format = $this->attr('a_z_letter_format');
+		if ($this->attr('group_by') == 'letter' && $this->attr('a_z_style') == 'single') {
+			if ($using_columns && $column_layout_type === 'table') {
 
-			$current_row = 1;
+				foreach ($todo as $letter => $assets) {
+					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
+					echo $anchor;
+					echo '<table width="100%">';
+					$num_rows = max(array_keys($column_layout)) + 1;
+					$num_columns = max(array_values($column_layout));
+					$current_row = 1;
+					for (reset($assets); NULL !== ($assetid = key($assets));) {	
+						echo '<tr>';
+						$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+						$each_colspan = (int)($num_columns / $cols_in_row);
+						$first_colspan = $each_colspan + $num_columns - ($cols_in_row * $each_colspan);
 
-			echo '<table width="100%">';
+						for ($c = 1; $c <= $cols_in_row; $c++) {
+							$colspan = ($c == 1) ? $first_colspan : $each_colspan;
+							?>
+							<td <?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
+								<?php
+								if ($assetid == NULL) {
+									echo '&nbsp;';
+								} else {
+									$this->_printAsset($assetid, $list_position, $num_items);
+									next($assets);
+									$assetid = key($assets);
+									$list_position++;
+								}
+								?>
+							</td>
+							<?php
+						}
+						echo '</tr>';
+						$current_row++;
+					}//end for
 
-			for (reset($todo); NULL !== ($assetid = key($todo));) {
+					echo '</table>';
+				}
+			} 		
+			//if div is used to generate the column
+			else if ($using_columns && $column_layout_type === 'div') { 
+				foreach ($todo as $letter => $assets) {
+					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
+					echo $anchor;
+					$num_rows = max(array_keys($column_layout)) + 1;
+					$num_columns = max(array_values($column_layout));
+					$row_class = $this->attr('div_row_class');
+					$current_row = 1;
 
-				echo '<tr>';
-				$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
-				$each_colspan = (int)($num_columns / $cols_in_row);
-				$first_colspan = $each_colspan + $num_columns - ($cols_in_row * $each_colspan);
+					for (reset($assets); NULL !== ($assetid = key($assets));) {
+						echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
+						$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
 
-				for ($c = 1; $c <= $cols_in_row; $c++) {
-					$colspan = ($c == 1) ? $first_colspan : $each_colspan;
-					?>
-					<td<?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
+						for ($c = 1; $c <= $cols_in_row; $c++) {
+							if ($assetid != NULL) {
+								$this->_printAsset($assetid, $list_position, $num_items);
+								next($assets);
+								$assetid = key($assets);
+								$list_position++;
+							}
+						}
+						$current_row++;
+						 echo '</div>';
+						 echo "\n\n";
+					}//end for
+				}
+			
+			} else {
+				foreach ($todo as $letter => $assets) {
+					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
+					echo $anchor;
+					foreach ($assets as $assetid => $type_code) {
+						$this->_printAsset($assetid, $list_position, $num_items);
+						$list_position++;
+					}
+				}
+			}
+		
+		} else {
+			//if table style is used to generate the column
+			if ($using_columns && $column_layout_type === 'table') {
+				$num_rows = max(array_keys($column_layout)) + 1;
+				$num_columns = max(array_values($column_layout));
+
+				$current_row = 1;
+
+				echo '<table width="100%">';
+
+				for (reset($todo); NULL !== ($assetid = key($todo));) {
+
+					echo '<tr>';
+					$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+					$each_colspan = (int)($num_columns / $cols_in_row);
+					$first_colspan = $each_colspan + $num_columns - ($cols_in_row * $each_colspan);
+
+					for ($c = 1; $c <= $cols_in_row; $c++) {
+						$colspan = ($c == 1) ? $first_colspan : $each_colspan;
+						?>
+						<td<?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
+							<?php
+							if ($assetid == NULL) {
+								echo '&nbsp;';
+							} else {
+								$this->_printAsset($assetid, $list_position, $num_items);
+								next($todo);
+								$assetid = key($todo);
+								$list_position++;
+							}
+							?>
+						</td>
 						<?php
-						if ($assetid == NULL) {
-							echo '&nbsp;';
-						} else {
+					}
+					echo '</tr>';
+					$current_row++;
+				}//end for
+
+				echo '</table>';
+			}
+			//if div is used to generate the column
+			else if ($using_columns && $column_layout_type === 'div') {
+				$num_rows = max(array_keys($column_layout)) + 1;
+				$num_columns = max(array_values($column_layout));
+				$row_class = $this->attr('div_row_class');
+				$current_row = 1;
+
+				for (reset($todo); NULL !== ($assetid = key($todo));) {
+					echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
+					$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+
+					for ($c = 1; $c <= $cols_in_row; $c++) {
+						if ($assetid != NULL) {
 							$this->_printAsset($assetid, $list_position, $num_items);
 							next($todo);
 							$assetid = key($todo);
 							$list_position++;
 						}
-						?>
-					</td>
-					<?php
-				}
-				echo '</tr>';
-				$current_row++;
-			}//end for
-
-			echo '</table>';
-		}
-		//if div is used to generate the column
-		else if ($using_columns && $column_layout_type === 'div') {
-			$num_rows = max(array_keys($column_layout)) + 1;
-			$num_columns = max(array_values($column_layout));
-			$row_class = $this->attr('div_row_class');
-			$current_row = 1;
-
-			for (reset($todo); NULL !== ($assetid = key($todo));) {
-				echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
-				$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
-
-				for ($c = 1; $c <= $cols_in_row; $c++) {
-					if ($assetid != NULL) {
-						$this->_printAsset($assetid, $list_position, $num_items);
-						next($todo);
-						$assetid = key($todo);
-						$list_position++;
 					}
-				}
-				$current_row++;
-				 echo '</div>';
-				 echo "\n\n";
-			}//end for
+					$current_row++;
+					 echo '</div>';
+					 echo "\n\n";
+				}//end for
 
-		} else {
-			foreach ($todo as $assetid => $type_code) {
-				$this->_printAsset($assetid, $list_position, $num_items);
-				$list_position++;
+			} else {
+				foreach ($todo as $assetid => $type_code) {
+					$this->_printAsset($assetid, $list_position, $num_items);
+					$list_position++;
+				}
 			}
 		}
 
