@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13 2010/05/11 07:40:06 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.1 2010/06/09 07:11:04 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -669,14 +669,14 @@ class Funnelback_Manager extends Asset
 				$sql .= ') ORDER BY f.url, f.xml';
 			} else {
 				// Oracle fun n games
-				$sql = 'SELECT DISTINCT f.url, CAST(f.xml AS VARCHAR2(1000)) AS xml 
+				$sql = 'SELECT f.url, f.xml 
 						 FROM sq_fnb_idx f 
 						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
 							WHERE l.is_dependant=:dependant';
 				if ($public) $sql .= ' AND f.live=:live';
 				$sql .= ' AND (';
 				$sql .= rtrim(implode(' OR ', $where), 'OR');
-				$sql .= ') ORDER BY f.url, CAST(f.xml AS VARCHAR2(1000))';
+				$sql .= ') ORDER BY f.url';
 			}//end if
 			$query = MatrixDAL::preparePDOQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'dependant', '0');
