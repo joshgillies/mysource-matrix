@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_management.inc,v 1.8 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_list_management.inc,v 1.8.8.1 2010/06/09 23:19:31 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -49,6 +49,20 @@ class Search_List_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> '',
 										);
+										
+		$this->vars['group_by'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'selection',
+									'default'		=> 'number',
+									'parameters'	=> Array(
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
+														'options'		=> Array(
+																			'number'		=> 'Standard',
+																			'random'		=> 'Random',
+																		   ),
+													   ),
+								  );
 
 	}//end constructor
 
