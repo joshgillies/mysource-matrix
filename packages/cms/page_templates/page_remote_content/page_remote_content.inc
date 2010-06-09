@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.82 2009/10/19 02:50:21 akarelia Exp $
+* $Id: page_remote_content.inc,v 1.82.2.1 2010/06/09 06:33:59 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.82.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -363,6 +363,8 @@ class Page_Remote_Content extends Page
 
 			if ($this->attr('allow_redirect')) {
 				$HTTP_Client->setMaxRedirects(SQ_REMOTE_MAX_REDIRECTS);
+			} else {
+				$HTTP_Client->setMaxRedirects(0);
 			}
 			$HTTP_Client->enableHistory(FALSE);
 		}
