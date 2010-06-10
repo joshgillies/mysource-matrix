@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
+* $Id: funnelback_search_page_management.inc,v 1.1.1.1.2.2 2010/06/10 05:32:21 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1.2.1 $
+* @version $Revision: 1.1.1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -214,6 +214,22 @@ class Funnelback_Search_Page_Management extends Asset_Management
 										'type'		=> 'text',
 										'default'	=> 10,
 									  );
+									  
+        $this->vars['word_logic'] = Array(
+										'added'			=> '0.1',
+										'type'			=> 'selection',
+										'default'		=> '1',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				0 => 'Exclude',
+																				1 => 'Include any',
+																				2 => 'Include all',
+																			),
+											),
+									  );									  
+									  
 	}//end constructor
 
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.6 2010/04/13 23:30:57 mhaidar Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.7 2010/06/10 05:30:56 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4.2.6 $
+* @version $Revision: 1.4.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1436,31 +1436,42 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				}//end if
 				$config = $asset->readConfiguration($metadata_config, 'metadata', ',');
 			}//end if
-
 			if (!empty($config)) {
 				// Set the current collection, so if collection picker changes, we do not save this config to a different collection
 				hidden_field($prefix.'_metamap_collection_id', $collection_id);
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" width="20%"><?php echo translate('funnelback_mclass'); ?></td>
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_mclass'); ?></td>					
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_word_logic'); ?></td>
 					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_flag'); ?></td>
-					<td class="sq-backend-table-header" width="60%"><?php echo translate('funnelback_tag_name'); ?></td>
+					<td class="sq-backend-table-header" width="60%"><?php echo translate('funnelback_tag_name'); ?></td>					
 					<td class="sq-backend-table-header" width="5%"><?php echo translate('delete'); ?></td>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-row"><?php echo translate('fb_mclass', 'S'); ?></td>
-					<td class="sq-backend-table-row" colspan="4"><?php echo translate('funnelback_reserved_class'); ?></td>
+					<td class="sq-backend-table-row" colspan="5"><?php echo translate('funnelback_reserved_class'); ?></td>
 				</tr>
 				<?php
 				$alias_options = $asset->getMetadataAliases();
 				$flag_options = Array(0=>translate('fb_noindex'),1=>translate('fb_index'));
+				$word_logic_options = Array(
+										0 => translate('fb_logic_exclude'),
+										1 => translate('fb_logic_include_any'),
+										2 => translate('fb_logic_include_all'),
+									);
+
 				if (isset($alias_options['S'])) unset($alias_options['S']);
+
+				$alias_word_logic = Array();
+				$metadata_class_count = 0;
 				foreach ($config as $line) {
 					$alias = array_get_index($line, 'alias', '');
 					$content = array_get_index($line, 'content', '');
-					$metatag = array_get_index($line, 'metatag', '');
+					$metatag = array_get_index($line, 'metatag', '');					
+					$word_logic = array_get_index($line, 'word_logic', 2);
 					$system = array_get_index($line, 'system', FALSE);
+					
 
 					// This alias is reserved for Squiz authtentication keys, and for this reason
 					// the keys represented by 'S' will be shown as reserved
@@ -1476,6 +1487,15 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					} else {
 						combo_box($prefix.'_metamap_alias[]', $alias_options, FALSE, $alias);
 					}//end if
+					echo '</td>';					
+					echo '<td class="sq-table-row">';	
+					if (!isset($alias_word_logic[$alias])) {
+						combo_box($prefix.'_metamap_word_logic[]', $word_logic_options, FALSE, $word_logic);
+						$alias_word_logic[$alias] = $word_logic;
+					} else {
+						echo $word_logic_options[$alias_word_logic[$alias]];
+						hidden_field($prefix.'_metamap_word_logic[]', $alias_word_logic[$alias]);
+					}
 					echo '</td>';
 					echo '<td class="sq-table-row">';
 					if ($system) {
@@ -1493,15 +1513,17 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 						text_box($prefix.'_metamap_metatag[]', $metatag, 30);
 					}//end if
 					hidden_field($prefix.'_metamap_system[]', (string) $system);
-					echo '</td>';
+					echo '</td>';			
 					echo '<td class="sq-table-row">';
 					if ($system) {
-						hidden_field($prefix.'_metamap_delete[]', '0');
+						hidden_field($prefix.'_metamap_delete['.$metadata_class_count.']', '0');
 					} else {
-						check_box($prefix.'_metamap_delete[]', '1');
+						check_box($prefix.'_metamap_delete['.$metadata_class_count.']', '1');
 					}//end if
 					echo '</td>';
 					echo '</tr>';
+
+					$metadata_class_count++;
 				}//end foreach
 
 				// Add new entries
@@ -1509,6 +1531,9 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					echo '<tr>';
 					echo '<td class="sq-table-row">';
 					combo_box($prefix.'_metamap_alias[]', $alias_options, FALSE, '');
+					echo '</td>';					
+					echo '<td class="sq-table-row">';
+					combo_box($prefix.'_metamap_word_logic[]', $word_logic_options, FALSE, 2);
 					echo '</td>';
 					echo '<td class="sq-table-row">';
 					combo_box($prefix.'_metamap_content[]', $flag_options, FALSE, 0);
@@ -1518,7 +1543,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					hidden_field($prefix.'_metamap_system[]', '0');
 					echo '</td>';
 					echo '<td class="sq-table-row">';
-					check_box($prefix.'_metamap_delete[]', '1');
+					check_box($prefix.'_metamap_delete['.($metadata_class_count+$i).']', '0');
 					echo '</td>';
 					echo '</tr>';
 				}//end for
@@ -1556,7 +1581,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$data = Array();
 				$alias = array_get_index($_POST, $prefix.'_metamap_alias', Array());
 				$content = array_get_index($_POST, $prefix.'_metamap_content', Array());
-				$metatags = array_get_index($_POST, $prefix.'_metamap_metatag', Array());
+				$metatags = array_get_index($_POST, $prefix.'_metamap_metatag', Array());				
+				$word_logic = array_get_index($_POST, $prefix.'_metamap_word_logic', Array());
 				$system = array_get_index($_POST, $prefix.'_metamap_system', Array());
 				$delete = array_get_index($_POST, $prefix.'_metamap_delete', Array());
 
@@ -1565,13 +1591,15 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$metadata_index = array_get_index($content, $index, 0);
 					$metadata_metag = array_get_index($metatags, $index, '');
 					$metadata_system = array_get_index($system, $index, FALSE);
+					$metadata_word_logic = array_get_index($word_logic, $index, 2);
 					$metadata_delete = array_get_index($delete, $index, '0');
 					if (!empty($metadata_metag) && !(!$metadata_system && $metadata_delete)) {
 						$data[] = Array(
-									'alias'		=> $metadata_class,
-									'content'	=> $metadata_index,
-									'metatag'	=> $metadata_metag,
-									'system'	=> $metadata_system,
+									'alias'			=> $metadata_class,
+									'content'		=> $metadata_index,
+									'metatag'		=> $metadata_metag,									
+									'word_logic'	=> $metadata_word_logic,
+									'system'		=> $metadata_system,
 								  );
 					}//end if
 				}//end foreach

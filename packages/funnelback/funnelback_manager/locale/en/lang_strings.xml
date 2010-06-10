@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.2.2 2010/03/08 06:08:50 bpearson Exp $
+* $Id: lang_strings.xml,v 1.1.2.3 2010/06/10 05:31:11 cupreti Exp $
 *
 *
 * Funnelback Package Localised Strings File
@@ -52,6 +52,7 @@
 <string source="funnelback_mclass">Metadata Class</string>
 <string source="funnelback_flag">Flag</string>
 <string source="funnelback_tag_name">Tag Name</string>
+<string source="funnelback_word_logic">Word Logic</string>
 <string source="funnelback_reserved_class">Reserved Metadata Class</string>
 
 <!-- Words, words, words -->
@@ -69,4 +70,7 @@
 <string source="fb_mclass">Metadata Class %s</string>
 <string source="fb_index">Index</string>
 <string source="fb_noindex">No Index</string>
+<string source="fb_logic_exclude">Exclude</string>
+<string source="fb_logic_include_any">Include any</string>
+<string source="fb_logic_include_all">Include all</string>
 </strings>

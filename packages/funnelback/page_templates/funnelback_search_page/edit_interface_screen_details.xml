@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1.2.1 2010/03/08 05:50:11 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1.2.2 2010/06/10 05:32:21 cupreti Exp $
 *
 */
 -->
@@ -56,6 +56,9 @@
 				<process_function	name="processDefaultScope" />
 			</function_call>
 		</field>
+        <field attribute="word_logic">
+            <selection width="35" height="1" />
+        </field>		
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes"  limbo_access="1">
 		<field attribute="dynamic_parameters">
