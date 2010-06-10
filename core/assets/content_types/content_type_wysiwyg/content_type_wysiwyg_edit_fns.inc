@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.54 2009/11/24 23:55:04 bpearson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.55 2010/06/10 06:39:43 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,11 +99,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
 
 			$wysiwyg->open_group();
+
 				if ($iap || in_array('format_text', $ap)) {
 					$wysiwyg->add_plugin('format_text');
 				}
 				if ($iap || in_array('replace_text', $ap)) {
 					$wysiwyg->add_plugin('replace_text');
+				}
+				if ($iap || in_array('search_and_replace', $ap)) {
+					$wysiwyg->add_plugin('search_and_replace');
 				}
 				if ($iap || in_array('format_font', $ap)) {
 					$wysiwyg->add_plugin('format_font');
