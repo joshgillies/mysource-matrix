@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.4.1 2010/06/10 05:34:29 cupreti Exp $
+* $Id: lang_strings.xml,v 1.1.4.2 2010/06/10 23:24:06 ewang Exp $
 *
 *
 * Funnelback Package Localised Strings File
@@ -32,7 +32,9 @@
 <!-- Collections -->
 <string source="funnelback_collections">Collections</string>
 <string source="funnelback_collection_id">Collection ID</string>
+<string source="funnelback_collection_id_note">This is an internal identifier that will be used to uniquely name your collection. It cannot contain spaces.</string>
 <string source="funnelback_collection_name">Collection Name</string>
+<string source="funnelback_collection_name_note">This is the title for the collection that will appear in the search results.</string>
 <string source="funnelback_collection_type">Collection Type</string>
 <string source="funnelback_collection_source">Collection Source Asset</string>
 <string source="funnelback_collection_url">Collection URL</string>
