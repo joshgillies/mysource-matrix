@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.8 2010/05/25 23:21:52 cupreti Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.9 2010/06/10 23:20:35 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -296,10 +296,10 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($wa) {
 			// New collection
 			$js = 'onChange="javascript:funnelbackDisableURL(this);"';
-			$o->openField(translate('funnelback_collection_id'));
+			$o->openField(translate('funnelback_collection_id'), '', translate('funnelback_collection_id_note'));
 				text_box($prefix.'_new_collection'); 	
 			$o->closeField();
-			$o->openField(translate('funnelback_collection_name'));
+			$o->openField(translate('funnelback_collection_name'), '', translate('funnelback_collection_name_note'));
 				text_box($prefix.'_new_collection_name'); 	
 			$o->closeField();
 			$o->openField(translate('funnelback_collection_type'));
