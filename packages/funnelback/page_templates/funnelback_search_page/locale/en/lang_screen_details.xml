@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2010/05/05 07:12:14 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.3.2.1 2010/06/10 05:35:31 cupreti Exp $
 *
 */
 -->
@@ -65,6 +65,10 @@
 				<process_function	name="processDefaultScope" />
 			</function_call>
 		</field>
+        <field attribute="word_logic">
+            <display_name>Word Logic</display_name>
+            <note />
+        </field>		
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes"  limbo_access="1">
 		<field attribute="dynamic_parameters">

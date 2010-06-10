@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.3 2010/05/05 07:12:14 ewang Exp $
+* $Id: funnelback_search_page_management.inc,v 1.3.2.1 2010/06/10 05:34:51 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -214,6 +214,20 @@ class Funnelback_Search_Page_Management extends Asset_Management
 										'type'		=> 'text',
 										'default'	=> 10,
 									  );
+		$this->vars['word_logic'] = Array(
+										'added'			=> '0.1',
+										'type'			=> 'selection',
+										'default'		=> '1',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				0 => 'Exclude',
+																				1 => 'Include any',
+																				2 => 'Include all',
+																			),
+											),
+									  );									  
 	}//end constructor
 
 
