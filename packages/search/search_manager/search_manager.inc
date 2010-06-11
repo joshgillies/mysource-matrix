@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.234 2010/05/27 06:33:27 akarelia Exp $
+* $Id: search_manager.inc,v 1.235 2010/06/11 07:44:26 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.234 $
+* @version $Revision: 1.235 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -978,7 +978,7 @@ class Search_Manager extends Asset
 							}
 						}
 						MatrixDAL::bindValueToPdo($query, 'assetid_1', $bind_vars['assetid']);
-						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);						
+						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
 						MatrixDAL::bindValueToPdo($query, 'value_1', $bind_vars['value']);
 						MatrixDAL::execPdoQuery($query);
 						
@@ -2732,12 +2732,17 @@ class Search_Manager extends Asset
 		$query_comps['select'][] = 'distinct ai.assetid';
 		$query_comps['select'][] = '1 as weight';
 
+		$bind_vars = array_get_index($query_comps, 'bind_vars', Array());
 		$search_sql = implode_sql($query_comps);
+		$query = MatrixDAL::preparePDOQuery($search_sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 
 		$search_results = Array();
 
 		try {
-			$search_results = MatrixDAL::executeSqlGroupedAssoc($search_sql);
+			$search_results = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to process basic search due to database error: '.$e->getMessage());
 		}
@@ -2986,11 +2991,14 @@ class Search_Manager extends Asset
 
 			$userids = array_unique($userids);
 
+			$query['bind_vars'] = Array();
+			$bind_vars = Array();
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = MatrixDAL::quote($userids[$i]);
+				$bind_vars[] = ':user'.$i;
+				$query['bind_vars']['user'.$i] = $userids[$i];
 			}
 
-			$usrids_str = implode(',', $userids);
+			$usrids_str = implode(',', $bind_vars);
 
 			$userid_check = '(
 								p.userid IN ('. $usrids_str . ')';

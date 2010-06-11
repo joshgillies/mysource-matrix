@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.35 2010/05/27 06:33:28 akarelia Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.36 2010/06/11 07:44:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -154,11 +154,16 @@ class Search_Manager_Plugin_PgSQL
 
 		}//end switch
 
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -242,11 +247,16 @@ class Search_Manager_Plugin_PgSQL
 
 		}//end switch $data_source['type']
 
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -329,11 +339,16 @@ class Search_Manager_Plugin_PgSQL
 			$base_query['where'][] = 'ai.value BETWEEN '.MatrixDAL::quote($date_range['from']).' AND '.MatrixDAL::quote($date_range['to']);
 		}
 
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -383,10 +398,15 @@ class Search_Manager_Plugin_PgSQL
 		$new_base['where'][] = 'ai.value LIKE \''.($sm->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($sm->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
 		$new_base['select'] = Array('asset_check.assetid');
 		$new_base['group_by'] = Array('asset_check.assetid');
+		$bind_vars = array_get_index($new_base, 'bind_vars', Array());
 		$sql = implode_sql($new_base);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 
 		try {
-			$result = MatrixDAL::executeSqlGrouped($sql);
+			$result = MatrixDAL::executePdoGrouped($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to process exclude query due to database error: '.$e->getMessage());
 			return Array();
@@ -871,9 +891,14 @@ class Search_Manager_Plugin_PgSQL
 		$query_comps['group_by'][] = 'ai.assetid';
 
 		$sql = implode_sql($query_comps);
+		$bind_vars = array_get_index($sql, 'bind_vars', Array());
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 
 		try {
-			$results = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$results = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get search list assets due to database error: '.$e->getMessage());
 			return Array();

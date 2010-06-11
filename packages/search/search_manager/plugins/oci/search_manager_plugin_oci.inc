@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.21 2010/05/04 03:34:07 mhaidar Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.22 2010/06/11 07:44:26 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -121,11 +121,16 @@ class Search_Manager_Plugin_OCI
 			break;
 
 		}//end switch
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -208,11 +213,16 @@ class Search_Manager_Plugin_OCI
 			break;
 
 		}//end switch $data_source['type']
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -290,11 +300,16 @@ class Search_Manager_Plugin_OCI
 		if ($date_range['to'] != '---------- --:--:--') {
 			$base_query['where'][] = $this->_getDateCompareWithClobSql('ai.value', MatrixDAL::quote($date_range['to']),  '<=');
 		}
+		$bind_vars = array_get_index($base_query, 'bind_vars', Array());
 		$sql = implode_sql($base_query);
+		$query = MatrixDAL::preparePDOQuery($sql);
+		foreach ($bind_vars as $bind_var => $value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+		}//end foreach
 		if (count($base_query['select']) > 2) {
-			$result = MatrixDAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
 		} else {
-			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 			// (3.18) only selecting assetid and search score
 			// use old format and don't worry about result format later
 			$result_old_format = Array();
@@ -348,8 +363,13 @@ class Search_Manager_Plugin_OCI
 			$new_base['where'][] = $contains_str;
 			$new_base['select'] = Array('ai.assetid');
 			$new_base['group_by'] = Array('ai.assetid');
+			$bind_vars = array_get_index($new_base, 'bind_vars', Array());
 			$sql = implode_sql($new_base);
-			$result = MatrixDAL::executeSqlAssoc($sql, 0);
+			$query = MatrixDAL::preparePDOQuery($sql);
+			foreach ($bind_vars as $bind_var => $value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $value);
+			}//end foreach
+			$result = MatrixDAL::executePdoAssoc($query, 0);
 		} else {
 			$result = Array();
 		}
