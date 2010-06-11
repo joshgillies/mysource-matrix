@@ -262,10 +262,10 @@ class Page_Hit_Count_Listing extends Listing_Engine
 
 		foreach ($links as $link_info) {
 			if ($group_by == 'letter') {
-				$assets_to_list[$link_info[$side_of_link.'id']] = Array(
+				$assets_to_list[$link_info[$side_of_link.'id']] = Array( Array (
 																	'type_code'		=> $link_info['type_code'],
 																	'first_letter'	=> $link_info['first_letter'],
-																  );
+																  ));
 			} else {
 				$assets_to_list[$link_info[$side_of_link.'id']] = Array(Array('type_code' => $link_info['type_code']));
 			}
