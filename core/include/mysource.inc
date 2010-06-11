@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.345 2010/05/26 04:48:19 ewang Exp $
+* $Id: mysource.inc,v 1.346 2010/06/11 06:37:05 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.345 $
+* @version $Revision: 1.346 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -625,7 +625,6 @@ class MySource extends MySource_Object
 			// See if caching is enabled for the asset
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
-
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -633,11 +632,10 @@ class MySource extends MySource_Object
 					// Gather assetids from cache table
 					$url = strip_url(current_url(TRUE, TRUE));
 					$cm->clearCachedAssetsByUrl($url);
-
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && ($cache_enabled || $cm->sendCacheableHeaders())) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -647,10 +645,8 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
-					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cache_enabled) {
-
+					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && ($cache_enabled || $cm->sendCacheableHeaders())) {
 					$this->_sendHTTPHeaders($asset);
-
 				} else {
 					$asset->printFrontend();
 				}

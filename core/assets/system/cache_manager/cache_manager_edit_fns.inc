@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.19 2009/09/11 03:53:16 lwright Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.20 2010/06/11 06:34:53 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -1272,6 +1272,110 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('cache_storage_type', $type);
 
 	}//end processCacheStorageType()
+
+
+//--        ROOT URL SPECEFIC        --//
+
+
+	/**
+	* Paint the interface for choosing root URLs that would send 
+	* cacheable headers regardless of other Matrix cache settings
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCacheableHeadersRootURLs(&$asset, &$o, $prefix)
+	{
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$cacheable_header_urls = $asset->attr('non_cacheable_header_urls');
+		$wa = $asset->writeAccess('attributes');
+		?>
+		<table class="sq-backend-table" style="width: auto">
+			<thead>
+				<tr>
+					<th><?php echo translate('url'); ?></th>
+					<th><?php echo "Send Headers"; ?></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($root_urls as $i => $url) {
+				?>
+				<tr>
+					<td><?php echo $url; ?></td>
+					<td>
+						<?php
+						if ($wa) {
+							check_box($prefix.'_url_'.$i, 1, !in_array($url, $cacheable_header_urls));
+						} else {
+							$filename = in_array($url, $cacheable_header_urls) ? 'cross' : 'tick';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+		
+		return $wa;
+
+	}//end processCacheableHeadersRootURLs()
+
+
+	/**
+	* Process the interface for root URLs to send cacheable URLS
+	* regardless of other Matrix cahce settings
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCacheableHeadersRootURLs(&$asset, &$o, $prefix)
+	{
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$cachable = Array();
+		foreach ($root_urls as $i => $url) {
+			if (!empty($_POST[$prefix.'_url_'.$i])) {
+				$cachable[] = $url;
+			}
+		}
+		// NOTE: Though it might look little confusing, we save the root URLs that shouldn't send cacheable headers, 
+		// so that any new URLs send cacheable headers by default. 
+		$non_cachable = array_diff($root_urls, $cachable);
+		
+		return $asset->setAttrValue('non_cacheable_header_urls', $non_cachable);
+
+	}//end processCacheableHeadersRootURLs()
+	
+	
+	/**
+	* Displays the current "Send Cacheable Header" settings
+	*
+	* @param object	&$asset	the asset we are working on
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCacheableHeadersSettings(&$asset, &$o, $prefix)
+	{   
+        $o->openField(translate('http_header_cacheable_field'));
+            echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
+        $o->note(translate('cache_manager_send_cacheable_headers_settings_node'));
+        $o->closeField();
+	}
 
 
 }//end class

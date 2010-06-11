@@ -1,0 +1,34 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_root_url_specific.xml,v 1.1 2010/06/11 06:35:53 cupreti Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Send Cacheable Headers Settings">
+		<function_call>
+			<paint_function name="paintCacheableHeadersSettings" />
+        </function_call>
+	</section>
+	<section name="Root URLs to Send Cacheable Headers">
+		<field>
+			<function_call>
+				<paint_function name="paintCacheableHeadersRootURLs" />
+				<process_function name="processCacheableHeadersRootURLs" />
+            </function_call>
+            <display_name />
+			<note>Choose the system root URLs for which cacheable header should be sent regardless of other Matrix cache settings</note>			
+		</field>
+	</section>	
+</contents>

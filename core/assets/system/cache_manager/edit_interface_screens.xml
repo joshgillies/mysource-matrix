@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2009/01/14 00:54:03 bshkara Exp $
+* $Id: edit_interface_screens.xml,v 1.6 2010/06/11 06:34:53 cupreti Exp $
 *
 */
 -->
@@ -20,4 +20,5 @@
 	<screen code_name="refresh_cache" display_name="Refresh Cache" icon="create" lock_type="attributes" force_unlock="0" />
 	<screen code_name="type_code_specific" display_name="Type Code Specific" icon="create" lock_type="attributes" force_unlock="0" />
 	<screen code_name="root_node_specific" display_name="Root Node Specific" icon="create" lock_type="attributes" force_unlock="0" />
+	<screen code_name="root_url_specific" display_name="Root URL Specific" icon="create" lock_type="attributes" force_unlock="0" />
 </screens>

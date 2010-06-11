@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.81 2010/04/01 05:50:22 cupreti Exp $
+* $Id: cache_manager.inc,v 1.82 2010/06/11 06:34:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -519,6 +519,45 @@ class Cache_Manager extends Asset
 		return $this->attr('enabled');
 
 	}//end cacheEnabled()
+
+
+	/**
+	* Returns TRUE if cachaeable headers needs to be send (regardless of other Matrix cache settings)
+	* This function doesn't actually sends the headers of course
+	*
+	* @return boolean
+	* @access public
+	*/
+	function sendCacheableHeaders()
+	{
+		// first check some obvious things
+		if (SQ_ROLLBACK_VIEW) return FALSE;
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
+			return FALSE;
+		}
+		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {
+			return FALSE;
+		}
+
+		// check if the current URL is excluded
+		$current_url = current_url(FALSE, TRUE);
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$current_root_url = '';
+		foreach ($root_urls as $url) {
+			if (0 === strpos($current_url, $url)) {
+				if (strlen($url) > strlen($current_root_url)) {
+					$current_root_url = $url;
+				}
+			}
+		}
+		
+		if (in_array($current_root_url, $this->attr('non_cacheable_header_urls'))) {
+			return FALSE;
+		}
+		
+		return TRUE;
+
+	}//end sendCacheableHeaders()
 
 
 	/**
