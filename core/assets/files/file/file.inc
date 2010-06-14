@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.182.2.1 2010/02/25 01:24:38 bpearson Exp $
+* $Id: file.inc,v 1.182.2.2 2010/06/14 23:27:11 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.182.2.1 $
+* @version $Revision: 1.182.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,6 +294,23 @@ class File extends Asset
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
+		
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($contexts as $contextid => $context_data) { 
+			if ($contextid === 0) {
+				$files_to_copy = Array('metadata.php', 'metadata_field_values.php');
+			} else {
+				$files_to_copy = Array('metadata.'.$contextid.'.php', 'metadata_field_values.'.$contextid.'.php');
+			}
+			foreach ($files_to_copy as $filename) {
+				if (file_exists($this->data_path.'/'.$filename) === TRUE) {  
+					if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)){
+						trigger_localised_error('SYS0166', E_USER_WARNING, $this->name, $filename);
+						return FALSE;
+					}
+				}
+			}
+		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
@@ -345,7 +362,8 @@ class File extends Asset
 		}
 
 		// clear the private data directory to get rid of the new uploaded file we had there
-		if (!clear_directory($this->data_path)) {
+		// but we should not clear the meta data files (see Bug #4460)
+  	    if (!clear_directory($this->data_path, Array('metadata.php', 'metadata_field_values.php'))){
 			trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
