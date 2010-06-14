@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.46 2009/09/29 00:25:04 bpearson Exp $
+* $Id: file_system.inc,v 1.46.4.1 2010/06/14 23:26:47 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.4.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -360,11 +360,12 @@ function delete_directory($path)
 * Deletes all contents of a directory without system calls
 *
 * @param string	$path	the directory whose contents to delete
+* @param array	$file_excl	filenames in the directory you don't want to delete	
 *
 * @return boolean
 * @access public
 */
-function clear_directory($path)
+function clear_directory($path, $file_excl = Array())
 {
 	$path  = ereg_replace('/$','',$path);
 	if (!is_dir($path)) {
@@ -374,7 +375,7 @@ function clear_directory($path)
 	}
 	$dir = opendir($path);
 	while (FALSE !== ($filename = readdir($dir))) {
-		if ($filename == '.' || $filename == '..') {
+		if ($filename == '.' || $filename == '..' || in_array($filename, $file_excl)) {
 			continue;
 		}
 		$filename = $path.'/'.$filename;
