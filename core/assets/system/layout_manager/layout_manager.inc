@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.20 2009/03/02 03:02:35 bpearson Exp $
+* $Id: layout_manager.inc,v 1.21 2010/06/15 02:12:28 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,7 +313,7 @@ class Layout_Manager extends Asset
 	*/
 	public function _hasAssetLayout($asset, $screen='details')
 	{
-		$layout = $asset->getLookupValues(TRUE, 'layout::'.$asset->type());
+		$layout = $asset->getLookupValues(TRUE, 'layout::'.$asset->type().'::'.$screen);
 
 		if (!empty($layout)) return TRUE;
 
