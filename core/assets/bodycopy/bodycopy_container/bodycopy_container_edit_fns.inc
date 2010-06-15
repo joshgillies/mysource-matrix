@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.70 2010/05/30 23:57:58 kmyothein Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.71 2010/06/15 23:57:22 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -825,11 +825,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			if (empty($default)) $default = $code;
 		}
 		echo hidden_field($prefix.'_insert_container_type', $default);
+		
 		?>
 
 		<style type="text/css">
 			#bodycopyPopupDiv {
-				color: #fffff;
+				color: #ffffff;
 				position:absolute;
 				left:100;
 				top:120;
