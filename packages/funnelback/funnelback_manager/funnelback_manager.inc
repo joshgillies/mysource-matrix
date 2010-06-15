@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.14 2010/06/09 07:09:40 ewang Exp $
+* $Id: funnelback_manager.inc,v 1.15 2010/06/15 00:36:00 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -537,6 +537,16 @@ class Funnelback_Manager extends Asset
 	 */
 	public function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml)
 	{
+		/**
+		 * Make sure the url we're looking at starts with the right root_url
+		 * If it doesn't, the site may have multiple urls and we're looking
+		 * at the wrong one.
+		 * In which case we can ignore this one.
+		 */
+		if (strpos($url, $root_url) !== 0) {
+			return FALSE;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
