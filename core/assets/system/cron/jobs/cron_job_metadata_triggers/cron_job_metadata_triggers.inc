@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.1 2008/08/21 11:55:38 gnoel Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.1.10.1 2010/06/15 00:37:11 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,6 +167,30 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 			}
 		}
 
+		$period_options = Array(
+							'i' => translate('minutes'),
+							'h' => translate('hours'),
+							'd' => translate('days'),
+							'w' => translate('weeks'),
+							'm' => translate('months'),
+							'y' => translate('years'),
+						  );
+
+		// check to see if the $ignore_time is relative or fixed. If relative lets make a proper time out of it
+		$found = preg_match('/^([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])$/', $ignore_date, $matches);
+
+		if($found === 1) {
+			$ignore_date = date('Y-m-d H:i:s', strtotime($max_date.' '.$matches[1].$matches[2].$period_options[$matches[3]]));
+		}
+
+		// if we are having the cut off date in past then we should swap min_date <=> max_date or else the
+		// sql will be wrong and we would not get desired results
+		if(strtotime($ignore_date) < strtotime($max_date) || ($found === 1 && $matchs[1] == '-')) {
+			$temp = $ignore_date;
+			$ignore_date = $max_date;
+			$max_date = $temp;
+		}
+
 		// 2. get all the asset which have an expired date for those mdata fields
 		if (!empty($mdfieldids)) {
 			$mdfieldids_str = '';
@@ -184,10 +208,13 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 					FROM
 						sq_ast_mdata_val mv
 					WHERE
-						mv.fieldid IN ('.$mdfieldids_str.')
-						AND mv.value > :min_date
-						AND mv.value < :max_date
-					';
+						mv.fieldid IN ('.$mdfieldids_str.')';
+
+			if (MatrixDAL::getDbType() === 'oci') {
+				$sql .= ' AND CAST(mv.value AS varchar(255)) < :min_date AND CAST(mv.value AS varchar(255)) > :max_date';
+			} else {
+				$sql .= ' AND mv.value < :min_date AND mv.value > :max_date';
+			}
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
