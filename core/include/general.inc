@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.247.2.1 2010/06/03 03:25:24 mhaidar Exp $
+* $Id: general.inc,v 1.247.2.2 2010/06/16 00:08:38 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247.2.1 $
+* @version $Revision: 1.247.2.2 $
 * @package MySource_Matrix
 */
 
@@ -1492,7 +1492,7 @@ function get_asset_tag_line($assetid, $screen='')
 		ob_start();
 		?>
 		<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-		<table style="sq-backend-table"><?php
+		<table><?php
 		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 				$lineage_assetids = array_keys($lineage['lineage']);
