@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.86 2010/05/28 01:34:27 mhaidar Exp $
+* $Id: wysiwyg.inc,v 1.87 2010/06/16 05:15:43 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -433,7 +433,11 @@ class wysiwyg
 						}
 						if (el) {
 							container.appendChild(el);
-						} else {
+						} else if (txt != 'addkeyword') {
+                         	// Do not throw error if the missing plugin is "add keyword" because
+                            // its possible for plugin to get miss out from js code if a div content having keywords
+                            // is linked (new link) elsewhere next to the div content without any keywords
+							// See bug #4475
 							alert(js_translate('unknown_toolbar_item', txt));
 						}
 						return el;
