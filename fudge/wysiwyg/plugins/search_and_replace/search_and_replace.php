@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.php,v 1.1 2010/06/10 06:37:18 cupreti Exp $
+* $Id: search_and_replace.php,v 1.2 2010/06/16 07:21:42 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Search and replaces given text in the WYSIWYG
 *
 * @author	Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version 	$Revision: 1.1 $
+* @version 	$Revision: 1.2 $
 * @package 	MySource_Matrix
 */
 
@@ -51,13 +51,18 @@ $_GET['name'] = array_get_index($_GET, 'name', '');
 			};
 
 			function onOK(action_type) {
+
+				var search_str = document.getElementById("search_str").value;
+				var replace_str = document.getElementById("replace_str").value;
 				
-				var confirm_str = "WARNING!\nThe appearance of the content may be affected and the action cannot be undone.\nAre you sure you want to apply the replacement?";
+				if (document.getElementById("rep_type4").checked) {
+                    var confirm_str = "WARNING!\nUnlike other match options, regular expression replacement will be applied to the actual html content, therefore appearance of the content may be affected and also the action cannot be undone.\nAre you sure you want to apply the replacement?";
+				} else {
+                    var confirm_str = "WARNING!\nAll the occurance of the search string will be replaced and the action cannot be undone.\nAre you sure you want to apply the replacement?";
+				}
 
 				if ((action_type != "replace_all" && action_type != "replace_selection") || confirm(confirm_str)) {
 					var parameter_types = new Array();
-					var search_str = document.getElementById("search_str").value;
-					var replace_str = document.getElementById("replace_str").value;
 
 					parameter_types.push(action_type);
 					parameter_types.push(search_str);

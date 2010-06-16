@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.inc,v 1.1 2010/06/10 06:37:18 cupreti Exp $
+* $Id: search_and_replace.inc,v 1.2 2010/06/16 07:21:42 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * A WYSIWYG plugin to search and replace the text
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -39,7 +39,7 @@ class Search_And_Replace extends WYSIWYG_Plugin
 	*/
 	function Search_And_Replace()
 	{
-		$this->_add_button('searchandreplace','SearchAndReplace','Search And Replace','true','69');
+		$this->_add_button('searchandreplace','SearchAndReplace','Search And Replace','false','69');
 
 	}//end Search_And_Replace()
 
@@ -59,7 +59,7 @@ class Search_And_Replace extends WYSIWYG_Plugin
 		var global_text_nodes = Array();
 		
 		// Selects the given text in the supplied textnode
-		HTMLArea.prototype._selectTextContent = function(node, keyword, index, mcase, moption, direction) {
+		HTMLArea.prototype._selectTextContent = function(node, keyword, index, mcase, moption, direction, find_only) {
     		
 			textNode = this._getTextNode(node);
 			if (textNode === null || textNode.nodeType != 3) return -1; 
@@ -71,70 +71,61 @@ class Search_And_Replace extends WYSIWYG_Plugin
     		text = mcase ? text : text.toLowerCase();
     		keyword = mcase ? keyword : keyword.toLowerCase();
 
-			// Check if we are end of or the start of the text content
+			// Check if we are at end of or the start of the text content
 			if (direction === undefined) direction = true;
-			if ((direction && (index + keyword.length) > text) || (!direction && (index - keyword.length) < 0)) return -1;
+			if ((direction && (index + keyword.length) > text) || (!direction && (index - keyword.length) < 0)) return -1;    
+    		
+			if (index === undefined || index < 0) index = 0;
 
+			keyword = this._escapeRegexChars(keyword);
     
-			var non_word_chars = '[^A-Za-z0-9]';
-    		var keyword_reg;
-			
-			keyword_escaped_reg = this._escapeRegexChars(keyword);
-			// Word match options
-    		if (moption == 'whole') {
-        		keyword_reg = non_word_chars + keyword_escaped_reg + non_word_chars;
-    		} else if (moption == 'start') {
-        		keyword_reg = non_word_chars + keyword_escaped_reg;
-   			} else if (moption == 'end') {
-        		keyword_reg = keyword_escaped_reg + non_word_chars;
-    		} else {
-        		keyword_reg = keyword_escaped_reg;
-    		}
-    
-    		if (index === undefined || index < 0) index = 0;
-    		// Search the word
-
     		var word_pos;
-			var whole_keyword;
-
-			// To pad space around the text if its at the start or the end of a text node
-			var empty_left;
-			var empty_right;
-
-			if (direction) {
-        		do {
-					word_pos = text.indexOf(keyword, index);
-					empty_left = !text.charAt(word_pos - 1) ? 1 : 0;
-					empty_right = !text.charAt(word_pos + keyword.length) ?  1 : 0;
-					whole_keyword = (empty_left ? ' ' : '') + text.substr(word_pos - 1 + empty_left, keyword.length + 2 - empty_left - empty_right) + (empty_right ? ' ' : '');
-					index += keyword.length;
-				} while (index < text.length && word_pos > -1 && !whole_keyword.match(keyword_reg));
+			var correct_match = false;
+			var left_char_empty;
+			var right_char_empty;
+			
+			// Search the keyword
+        	do {
+				word_pos = direction ?  text.indexOf(keyword, index) : text.lastIndexOf(keyword, index - keyword.length);
+				if (word_pos > -1) {
+					// So we found the keyword. Now make sure it adheres the partial/whole word condition thing
+					left_char_empty = text.charAt(word_pos - 1).match(/[a-z0-9]/i) === null ? true : false;
+					right_char_empty = text.charAt(word_pos + keyword.length).match(/[a-z0-9]/i) === null ? true: false;
+					
+					correct_match = (moption == 'whole' && left_char_empty && right_char_empty) ||
+									(moption == 'start' && left_char_empty) ||
+									(moption == 'end' 	&& right_char_empty) ||
+									(moption == 'none');
+				}
+				// Move the index
+				index = direction ? index + keyword.length : index - keyword.length;
+			} while (!correct_match && index < text.length && index >= 0);
 				
-    		} else {
-        		do {
-        			word_pos = text.lastIndexOf(keyword, index - keyword.length);
-					empty_left = !text.charAt(word_pos - 1) ? 1 : 0;
-					empty_right = !text.charAt(word_pos + keyword.length) ?  1 : 0;
-					whole_keyword = (empty_left ? ' ' : '') + text.substr(word_pos - 1 + empty_left, keyword.length + 2 - empty_left - empty_right) + (empty_right ? ' ' : '');
-					index -= keyword.length;
-				} while (index > 0 && word_pos > -1 && !whole_keyword.match(keyword_reg));
-				
-    		}
 			
 			// If text was not found then we needn't select anything
-   			if (word_pos < 0) return -1;
+   			if (!correct_match) return -1;
+
+			// If we just need the word position then we needn't proceed further
+			if (find_only !== undefined && find_only) return word_pos;
 			
 			var range;
     		if (HTMLArea.is_ie) {        		
 				range = this._createTextRange();
-				// Can't move range to the individual text nodes in IE for some weirdest reasons
-				// Hence the "previous text nodes counting" workaround
-				range.moveToElementText(this._getTextNode(0).parentNode);
+				// Can't move range to the individual text nodes in IE for some reasons
+				// So to workarond this, create and place an empty span element right before the text node
+				// and then move the range to this span element
+				var span_el = document.createElement("span");
+				textNode.parentNode.insertBefore(span_el, textNode);
+				range.moveToElementText(span_el);
+				
 				range.collapse(true);        		
-				var real_pos = word_pos + this._previousTextNodesLength(node);
-				range.moveStart("character", real_pos);
+				range.moveStart("character", word_pos);
         		range.moveEnd("character", keyword.length);
        			range.select();
+				range.scrollIntoView();
+
+				// Once done selecting, get rid of the span element created above
+				textNode.parentNode.removeChild(span_el);
     		} else {
         		var sel = this._getSelection();
         		range = this._doc.createRange();
@@ -142,9 +133,8 @@ class Search_And_Replace extends WYSIWYG_Plugin
         		range.setEnd(textNode, word_pos + keyword.length);
         		sel.removeAllRanges();
         		sel.addRange(range);
+				textNode.parentNode.scrollIntoView();
     		}
-
-    		
 			return direction ? word_pos + keyword.length : word_pos;
 		};
 
@@ -165,10 +155,11 @@ class Search_And_Replace extends WYSIWYG_Plugin
 
 
 		// DOM tree walker to get all the text nodes
-		HTMLArea.prototype._getTextNodes = function() {
+		HTMLArea.prototype._getTextNodes = function(refresh) {
 			
+			refresh = refresh === undefined || !refresh ? false : true;
 			// If the we have parsed the DOM tree before for the text nodes
-			if (global_text_nodes.length > 0) {
+			if (!refresh  && global_text_nodes.length > 0) {
 				return global_text_nodes;
 			}
 		
@@ -217,25 +208,6 @@ class Search_And_Replace extends WYSIWYG_Plugin
 		}
 
 
-		// Get the total length of the value of all textnodes preceeding given one
-		HTMLArea.prototype._previousTextNodesLength = function(index){
-			
-			if (index <= 0) return 0;
-
-    		var node = null;
-			var count = 0;
-			var length = 0;
-    		var child_nodes = this._getTextNodes();
-			while(node = child_nodes[count]) {
-				if (count >= index) break;
-				length += node.nodeValue.length;
-
-				count++;
-    		}
-			return length;
-		}
-
-
 		// Returns the index of the last text node from the WYSIWYG body
 		HTMLArea.prototype._getLastTextNodeIndex = function(){
 			var count = 0;
@@ -267,7 +239,7 @@ class Search_And_Replace extends WYSIWYG_Plugin
 
 
 	/**
-	* Open the Replace Text plugin dialog
+	* Open the Search and Replace Text plugin dialog
 	*
 	* @return void
 	* @access public
@@ -326,8 +298,6 @@ class Search_And_Replace extends WYSIWYG_Plugin
 						case "replace_current":
 							if (start_pos != -1 && selected_content.length > 0) {
 								editor.insertHTML(replace_str);
-								editor.deleteEmpty();
-								
 								editor._refreshStoredTextNodes();
 							}
 							break;
@@ -336,55 +306,87 @@ class Search_And_Replace extends WYSIWYG_Plugin
 							
 						case "replace_selection":
 							if (selected_content.length > 0 || action_type === "replace_all") {
-
-								var new_content = (action_type === "replace_all") ? whole_content : selected_content;
-								var regex_modifier = "g"+ (match_case ? "" : "i");
 								
-								var regex_search_str = search_str;
-								var regex_replace_str = replace_str;
+								var match_count = 0;
 
-								if (match_option != "regex") {
-									new_content = " "+new_content+" ";
-									search_str = editor._escapeRegexChars(search_str);
-								}
+								if (match_option != 'regex') {
+									var text_nodes = editor._getTextNodes(true);
+									var node_count = 0
+									var index = 0;
+									var node_value;
+
+									// If selection is made then only include the textnodes inside the selection
+									if (action_type === "replace_selection") {
+										
+										if (selected_content.length > 0) {
+											var sel = editor._getSelection();
+											var selected_nodes = Array();
+											var start_selection = false;
+											alert(sel.anchorNode.nodeValue);	
+											for(var count=0; count < text_nodes.length; count++) {
+												if (!start_selection && sel.anchorNode == text_nodes[count])
+													start_selection = true;
+	
+												selected_nodes[count] = start_selection ? text_nodes[count] : null;
+												if (sel.focusNode == text_nodes[count]) break;
+											}
+											text_nodes = selected_nodes;
+											// Start and end offset of anchor and focus node respectively
+											index = sel.anchorOffset;
+											var endOffset = sel.focusOffset;
+
+										} else {
+											text_nodes = Array();
+										}
+										
+									}//end if replace_selection 
+
+									while(node_count < text_nodes.length) {
+										
+										if (text_nodes[node_count] === null) {
+											node_count++;
+											continue;
+										}
+										index = editor._selectTextContent(node_count, search_str, index, match_case, match_option, true, true);
+										
+										// If text was selected, make sure we dont get across the unselected portion of the focus node
+										if (endOffset !== undefined && index+search_str.length > endOffset && node_count == text_nodes.length - 1) break;
+										
+										if (index > -1) {
+											node_value = text_nodes[node_count].nodeValue;
+											node_value = 	(index > 0 ? node_value.substring(0, index) : '')
+															+ replace_str
+															+ node_value.substring(index+search_str.length, node_value.length);
+											// Update the node value with the replacement
+											text_nodes[node_count].nodeValue = node_value
+											index += replace_str.length;
+											match_count++;
+										} else {
+											// No more match in this node, move to the next
+											node_count++;
+											index = 0;
+										}
+									}
 								
-								// Characters that speperates the word (might need add more later)								
-								var non_word_chars = '[^A-Za-z0-9]';
+									alert(match_count+" occurrences of the given text have been replaced");
 
-								if (match_option == "whole") {
-									regex_search_str = "("+non_word_chars+")" + search_str + "("+non_word_chars+")";
-									regex_replace_str = "$1"+replace_str+"$2";
-								} else if (match_option == "start") {							
-									regex_search_str = "("+non_word_chars+")" + search_str;
-									regex_replace_str = "$1"+replace_str;
-								} else if (match_option == "end") {								
-									regex_search_str = search_str + "("+non_word_chars+")";
-									regex_replace_str = replace_str+"$1";
-								} else if (match_option == "none") {									
-									regex_search_str = search_str;
-									regex_replace_str = replace_str;
-								}
-
-								replace_regex = new RegExp(regex_search_str, regex_modifier);
-								replacement_count = editor._countWord(new_content, replace_regex);
-								new_content = new_content.replace(replace_regex, regex_replace_str);
-
-								if (match_option != "regex") {
-									new_content = new_content.replace(/^\s(.*)\s$/, "$1");
-								}
-								
-								if (action_type === "replace_all") {
-									editor.setHTML(new_content);
 								} else {
-									editor.insertHTML(new_content);
+									var wysiwyg_content = (action_type === "replace_all") ? whole_content : selected_content;	
+									search_regex = new RegExp(search_str, match_case ? 'g' : 'gi');
+                                	match_count = editor._countWord(wysiwyg_content, search_regex);
+                                	wysiwyg_content = wysiwyg_content.replace(search_regex, replace_str);
+
+                                	if (action_type === "replace_all") {
+                                    	editor.setHTML(wysiwyg_content);
+                                	} else {
+                                    	editor.insertHTML(wygiwyg_content);
+                                	}
+
+									alert(match_count+" number of matching occurrences for given regular expression have been replaced");
 								}
-								editor.deleteEmpty();
-								editor._refreshStoredTextNodes();
 								
-								if (match_option == "regex") {
-									alert(replacement_count+" number of matching occurrences for given regular expression have been replaced");
-								} else {								
-									alert(replacement_count+" occurrences of the given text have been replaced");
+								if (match_count > 0) {
+									editor._refreshStoredTextNodes();
 								}
 
 								return false;
@@ -393,15 +395,6 @@ class Search_And_Replace extends WYSIWYG_Plugin
 
 					}//end switch
 
-					
-					var match_option = 'none';
-					if (types[4]) {
-						match_option = 'whole';
-					} else if (types[5]) {
-						match_option = 'start';
-					} else if (types[6]) {
-						match_option = 'end';
-					}
 					
 					// Select and highlight the selected text in the document body					
 					var node;
