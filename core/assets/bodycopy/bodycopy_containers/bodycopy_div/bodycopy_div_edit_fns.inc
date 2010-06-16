@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.44.4.1 2010/06/03 03:34:29 mhaidar Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.44.4.2 2010/06/16 00:09:30 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.4.1 $
+* @version $Revision: 1.44.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,7 +362,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				</span>
 				
 				<div id="asset-tag-line-<?php echo $asset->id ?>-lineages-linked" style="display:none">
-				<table style="sq-backend-table"><tr><td>
+				<table><tr><td>
 				<?php
 				echo 'This DIV is linked to <strong><i>'.$count_linked_to.'</i></strong> assets'; ?></td></tr><?php
 				foreach ($lineages as $lineage_key => $lineage) {
