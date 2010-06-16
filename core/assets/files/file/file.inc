@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.184.2.1 2010/06/14 23:26:43 mhaidar Exp $
+* $Id: file.inc,v 1.184.2.2 2010/06/16 22:44:04 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.184.2.1 $
+* @version $Revision: 1.184.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1154,6 +1154,7 @@ class File extends Asset
 			if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
 				// strip file versioning suffix from the file extension, e.g. 'pdf,ffv5' becomes 'pdf'
 				$ext = preg_replace('/,ffv\d+$/', '', $ext);
+				$existing['filename'] = preg_replace('/,ffv\d+$/', '', $existing['filename']);
 			}
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 
