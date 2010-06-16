@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.69 2009/11/24 23:55:04 bpearson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.69.2.1 2010/06/16 00:12:11 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -825,7 +825,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		<style type="text/css">
 			#bodycopyPopupDiv {
-				color: #fffff;
+				color: #ffffff;
 				position:absolute;
 				left:100;
 				top:120;
