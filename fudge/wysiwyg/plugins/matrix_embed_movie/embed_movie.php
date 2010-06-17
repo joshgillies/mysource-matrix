@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.28 2007/09/27 05:51:19 bshkara Exp $
+* $Id: embed_movie.php,v 1.29 2010/06/17 04:38:16 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -74,13 +74,16 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
-				if (document.getElementById('url_link').value.substring(0, 5) != './?a=') {
+				if (document.getElementById('url_link').value && document.getElementById('url_link').value.substring(0, 5) != './?a=') {
+					if (!document.getElementById('url_protocol').value) {
+						alert("Please specify the protocol for external url");
+						return false;
+					}
 					param['use_external'] = true;
 					param["external_url"] = document.getElementById('url_protocol').value + document.getElementById('url_link').value;
-				param["url"] = document.getElementById('url_protocol').value + document.getElementById('url_link').value;
 				} else {
 					param['use_external'] = false;
-					param["f_fileid"] = document.getElementById('url_link').value.substring(5);
+					param["f_fileid"] = document.getElementById('assetid[assetid]').value;
 				}
 				for (var i in chk_fields) {
 					var id = chk_fields[i];
@@ -388,7 +391,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'I'), '', false, 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), '', false, 'setUrl'); ?></td>
 														</tr>
 													</table>
 												</td>
