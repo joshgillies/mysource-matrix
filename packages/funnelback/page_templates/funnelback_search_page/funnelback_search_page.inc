@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.1.1.1.2.6 2010/06/10 05:32:21 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.1.1.1.2.7 2010/06/17 03:48:49 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.6 $
+* @version $Revision: 1.1.1.1.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2221,7 +2221,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Get the params to work with
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
-		$nullquery = '!NOdfadksjflTERMSdsjdskfSUBMITTED';
+		$nullquery = $fm->getNullQueryKeyword();
 		$collection_id = $this->attr('collection');
 		$bin_path = $fm->getFunnelbackPath().'/bin/';
 		if (!$fm->isCollectionValid($collection_id)) {

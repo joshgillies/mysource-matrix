@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_funnelback_log_rotation.inc,v 1.1.2.2 2010/03/08 06:07:12 bpearson Exp $
+* $Id: cron_job_funnelback_log_rotation.inc,v 1.1.2.3 2010/06/17 03:48:49 bpearson Exp $
 *
 */
 
@@ -22,9 +22,10 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 * This cron job handles the log rotation for funnelback's query logs in the OEM version.
 * The log rotation cannot be handled by log manager as the logs are location in the $SITE_SEARCH_HOME directory
+* Also after log rotation, it handles the report generation
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -164,6 +165,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 
 		$collections = $fm->getCollections();
+		$rotated = Array();
 
 		// Rotate the logs for each collection
 		foreach ($collections as $collection_id => $collection) {
@@ -189,6 +191,9 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 					move_file($log_file, $archive_path);
 					touch($log_file);
 
+					// Keep a list for the report to work against
+					$rotated[$collection_id] = $archive_path;
+
 					// Clean up
 					$period = $fm->attr('keep_log_period');
 					if (!empty($period)) {
@@ -203,6 +208,11 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 								if ($log_date_expiry < $expiry_date) {
 									// Log expired, removing....
 									unlink($archive_log);
+									
+									// Also remember to remove from rotated (no point trying to generate a report if a log is missing)
+									if (isset($rotated[$collection_id]) && $rotated[$collection_id] == $found_archive_log_name) {
+										unset($rotated[$collection_id]);
+									}//end if
 								}//end if
 							}//end if
 						}//end foreach
@@ -210,6 +220,24 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 				}//end foreach
 			}//end if
 		}//end foreach
+
+		if (!empty($rotated)) {
+			// Logs were rotated, now to generate some reports
+			$log_reports  = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('funnelback_search_log_report', FALSE, TRUE);
+	
+			// start up a hipo for each report
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+	
+			foreach ($log_reports as $reportid => $info) {
+					$report = $GLOBALS['SQ_SYSTEM']->am->getAsset($reportid);
+					$vars   = Array(
+								'assetid'	=> $reportid,
+								'asset'		=> $report,
+								'logs'		=> $rotated,
+							  );
+					$status = $hh->freestyleHIPO('hipo_job_generate_report', $vars);
+			}//end foreach
+		}//end if
 
 		return SQ_CRON_JOB_COMPLETED;
 
