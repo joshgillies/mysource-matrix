@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.51 2010/05/11 23:01:50 cupreti Exp $
+* $Id: asset_status_live_approval.inc,v 1.52 2010/06/17 01:39:41 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -121,9 +121,12 @@ class Asset_Status_Live_Approval extends Asset_Status
 				$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
 			}
 		} else {
-			// now running workflow means that anyone with admin access can
+			// no running workflow means that anyone with admin access can
 			// make this live (up for review is just a flag in this case)
 			$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+			if ($this->owner->adminAccess('')) {
+				$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
+			}		
 
 		}//end if workflow running
 
