@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.5 2009/11/10 04:29:01 lwright Exp $
+* $Id: matrix_embed_youtube.inc,v 1.6 2010/06/17 04:41:28 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -89,7 +89,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					var div = this._doc.createElement("div");
 					div.innerHTML = this.getSelectedHTML();
 					while (div.firstChild) {
-						if (div.firstChild.tagName == "IMG" && div.firstChild.getAttribute('sq_embeded') == "1") {
+						if (div.firstChild.tagName == "IMG" && div.firstChild.getAttribute('sq_youtube_embeded') == "1") {
 							is_file = true;
 							var embed_tag = div.firstChild;
 							break;
@@ -99,7 +99,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					}
 				} else if (HTMLArea.is_ie) {
 					if (range.length) {
-						if (range.item(0).tagName == "IMG" && range.item(0).getAttribute('sq_embeded') == "1") {
+						if (range.item(0).tagName == "IMG" && range.item(0).getAttribute('sq_youtube_embeded') == "1") {
 							is_file = true;
 							var embed_tag = range.item(0);
 						}
@@ -148,7 +148,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 						// user must have pressed Cancel
 						return false;
 					}
-					var html = '<img sq_embeded="1" src="<?php echo $this->_img_url; ?>"';
+					var html = '<img sq_youtube_embeded="1" src="<?php echo $this->_img_url; ?>"';
 					html += ' style="width: ' + param["f_width"] + 'px; height: ' + param["f_height"] + 'px; border: 2px dashed black;"';
 					html += ' width="'        + param["f_width"] + '"';
 					html += ' height="'       + param["f_height"] + '"';
@@ -211,7 +211,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 	function process(&$html)
 	{
 		$matches = Array();
-		preg_match_all('|(<img[^\>]+sq_embeded="1"([^\>]+)?>)|i', $html, $matches);
+		preg_match_all('|(<img[^\>]+sq_youtube_embeded="1"([^\>]+)?>)|i', $html, $matches);
 
 		foreach ($matches[1] as $match) {
 			$old_html = $match;
