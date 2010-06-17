@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2010/06/10 23:21:22 ewang Exp $
+* $Id: lang_strings.xml,v 1.4 2010/06/17 06:07:46 bpearson Exp $
 *
 *
 * Funnelback Package Localised Strings File
@@ -18,6 +18,11 @@
 -->
 
 <strings>
+<!-- General -->
+<string source="funnelback_no_assets">No assets selected</string>
+<string source="funnelback_no_asset_types_selected">No asset types selected</string>
+<string source="funnelback_no_root_nodes">No root nodes selected</string>
+
 <!-- Funnelback Indexer -->
 <string source="funnelback_index_whole_system">Index the whole system</string>
 <string source="funnelback_indexing_not_enabled">Indexing is not enabled</string>

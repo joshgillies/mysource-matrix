@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.9 2010/06/10 23:20:35 ewang Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.10 2010/06/17 06:07:46 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1691,6 +1691,208 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $status;
 
 	}//end processPassword()
+
+
+// --- ASSET EXCLUSIONS SCREEN FUNCTIONS --- //
+
+
+	/**
+	* Paints the interface for choosing Asset IDs to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExcludeAssetid(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = array_get_index($asset->attr('global_exclude'), 'assetid', Array());
+		if ($wa) {
+			multiple_asset_finder($prefix.'_global_assetid_exclusions', $exclusions);	
+		} else {
+			if (empty($exclusions)) {
+				echo translate('funnelback_no_assets');
+			} else {
+				?><ul style="margin:1px 15px;"><?php
+				foreach ($exclusions as $assetid) {
+					echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				?></ul><?php
+			}//end if
+		}//end if
+
+		return TRUE;
+
+	}//end paintExcludeAssetid()
+
+
+	/**
+	* Processes the interface for processing Asset IDs to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExcludeAssetid(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = $asset->attr('global_exclude');
+		$user_set = array_get_index($_POST, $prefix.'_global_assetid_exclusions', Array());
+
+		if ($wa) {
+			$global_assetid_exclude = Array();
+			foreach ($user_set as $asset_info) {
+				$assetid = array_get_index($asset_info, 'assetid', 0);
+				if (empty($assetid)) continue;
+				$global_assetid_exclude[] = $assetid;
+			}//end foreach
+			$exclusions['assetid'] = $global_assetid_exclude;
+			$asset->setAttrValue('global_exclude', $exclusions);
+		}//end if
+
+		return TRUE;
+
+	}//end processExcludeAssetid()
+
+
+	/**
+	* Paints the interface for choosing Asset Types to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExcludeAssetType(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = array_get_index($asset->attr('global_exclude'), 'type', Array());
+		if ($wa) {
+			asset_type_chooser($prefix.'_global_type_exclusions', TRUE, $exclusions);
+		} else {
+			// print the read-only version
+			if (empty($exclusions)) {
+				echo '<p class="sq-backend-warning">'.translate('funnelback_no_asset_types_selected').'</p>';
+			} else {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($exclusions, 'name');
+				?><ul style="margin:1px 15px;"><?php
+				foreach ($exclusions as $type) {
+					echo '<li>';
+					echo get_asset_type_icon($type);
+					echo $type_names[$type];
+					echo '</li>';
+				}
+				?></ul><?php
+			}//end if
+		}//end if
+
+		return TRUE;
+
+	}//end paintExcludeAssetType()
+
+
+	/**
+	* Processes the interface for processing Asset Types to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExcludeAssetType(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = $asset->attr('global_exclude');
+		$user_set = array_get_index($_POST, $prefix.'_global_type_exclusions', Array());
+
+		if ($wa) {
+			$types = Array();
+			foreach ($user_set as $type_code) {
+				if (empty($type_code)) continue;
+				$types[] = $type_code;
+			}//end foreach
+			$exclusions['type'] = $types;
+			$asset->setAttrValue('global_exclude', $exclusions);
+		}//end if
+
+		return TRUE;
+
+	}//end processExcludeAssetType()
+
+
+	/**
+	* Paints the interface for choosing Tree Node to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExcludeTreeNode(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = array_get_index($asset->attr('global_exclude'), 'tree', Array());
+		if ($wa) {
+			multiple_asset_finder($prefix.'_global_tree_exclusions', $exclusions);	
+		} else {
+			if (empty($exclusions)) {
+				echo translate('funnelback_no_root_nodes');
+			} else {
+				?><ul style="margin:1px 15px;"><?php
+				foreach ($exclusions as $assetid) {
+					echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				?></ul><?php
+			}//end if
+		}//end if
+
+		return TRUE;
+
+	}//end paintExcludeTreeNode()
+
+
+	/**
+	* Processes the interface for processing Tree Node to exclude
+	*
+	* @param object	&$asset	the funnelback manager asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExcludeTreeNode(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$exclusions = $asset->attr('global_exclude');
+		$user_set = array_get_index($_POST, $prefix.'_global_tree_exclusions', Array());
+
+		if ($wa) {
+			$global_tree_exclude = Array();
+			foreach ($user_set as $asset_info) {
+				$assetid = array_get_index($asset_info, 'assetid', 0);
+				if (empty($assetid)) continue;
+				$global_tree_exclude[] = $assetid;
+			}//end foreach
+			$exclusions['tree'] = $global_tree_exclude;
+			$asset->setAttrValue('global_exclude', $exclusions);
+		}//end if
+
+		return TRUE;
+
+	}//end processExcludeTreeNode()
 
 
 // --- PRIVATE FUNCTIONS --- //

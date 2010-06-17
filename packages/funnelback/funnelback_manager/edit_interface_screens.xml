@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2010/03/01 04:47:37 bpearson Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2010/06/17 06:07:46 bpearson Exp $
 *
 */
 -->
@@ -20,5 +20,6 @@
 	<screen code_name="feature" display_name="Feature Pages" icon="page" lock_type="attributes" force_unlock="0"/>
 	<screen code_name="fluster" display_name="Contextual Navigation" icon="page" lock_type="attributes" force_unlock="0"/>
 	<screen code_name="metamap" display_name="Metadata Mapping" icon="page" lock_type="attributes" force_unlock="0"/>
+	<screen code_name="exclude" display_name="Asset Exclusions" icon="page" lock_type="attributes" force_unlock="0"/>
 	<screen code_name="reindex" display_name="Funnelback Indexer" icon="page" lock_type="attributes" force_unlock="0"/>
 </screens>

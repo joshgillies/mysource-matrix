@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.16 2010/06/16 23:31:52 csmith Exp $
+* $Id: funnelback_manager.inc,v 1.17 2010/06/17 06:07:46 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -358,6 +358,39 @@ class Funnelback_Manager extends Asset
 		// If the action is delete, just delete and do not worry about the rest
 		if ($action == 'delete') {
 			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclusions
+		$exclusions = $this->attr('global_exclude');
+		$excluded_assets = array_get_index($exclusions, 'assetid', Array());
+		$excluded_types = array_get_index($exclusions, 'type', Array());
+		$excluded_nodes = array_get_index($exclusions, 'tree', Array());
+		$asset_type = $asset->type();
+
+		// Exclude By Assetid
+		if (in_array($asset->id, $excluded_assets)) {
+			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclude By Type
+		if (in_array($asset_type, $excluded_types)) {
+			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclude By Root Node
+		if (!empty($excluded_nodes)) {
+			foreach ($excluded_nodes as $excluded_node) {
+				// The asset is the root node
+				if ($asset->id == $excluded_node) {
+					return $this->_cleanupEntriesByAssetid($asset->id);
+				}//end if
+
+				// The asset is under the root node
+				$excluded_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($excluded_node);
+				if (array_key_exists($asset->id, $excluded_children)) {
+					return $this->_cleanupEntriesByAssetid($asset->id);
+				}//end if
+			}//end foreach
 		}//end if
 
 		// Geeez, if the action is a status change, we *need* to hack the status, otherwise it doesn't register
@@ -1360,9 +1393,9 @@ class Funnelback_Manager extends Asset
 					0	=> Array(
 								'pipe',
 								'r',
-						    ),					// stdin is a pipe that the child will read from
-					1	=> $log, 				// stdout is a pipe that the child will write to
-					2	=> $log,  				// stderr is a file to write to
+						   ),					// stdin is a pipe that the child will read from
+					1	=> $log,				// stdout is a pipe that the child will write to
+					2	=> $log,				// stderr is a file to write to
 				);
 
 		$process = proc_open($command, $spec, $pipes, $cwd, $environment);
