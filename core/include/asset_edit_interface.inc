@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.364 2010/06/04 02:09:19 ewang Exp $
+* $Id: asset_edit_interface.inc,v 1.365 2010/06/17 00:27:12 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.364 $
+* @version $Revision: 1.365 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1267,7 +1267,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page, 
 		// its will give 'undefined function call' js error.
 		//
-		// See bug #3698
+		// See bug #3698 + bug #4458 Conflicting WYSIWYG's
 		$layout_keywords_order = $this->_getLayoutKeywordsOrder($layout);
 
 		$this->getKeywordsReplacementsForPaint($owner, $o, $layout, $layout_keywords_order);
@@ -2809,8 +2809,9 @@ class Asset_Edit_Interface extends MySource_Object
 	function _getLayoutKeywordsOrder($layout)
 	{
 		// Check which of screen or custom keywords are placed before in raw content
-		$custom_pos = 0;
-		$screen_pos = 0;
+		// This should be FALSE instead of 0 because making it 0, we mean that it is actually found already
+		$custom_pos = FALSE;
+		$screen_pos = FALSE;
 
 		// Defaut order 
 		$layout_keywords_order = Array(
@@ -2833,12 +2834,10 @@ class Asset_Edit_Interface extends MySource_Object
 			$screen_pos_metadata = strpos($raw_content, '%metadata');
 			$screen_pos_lookups = strpos($raw_content, '%lookupvalues-');
 
-			if ($screen_pos_metadata !== FALSE)
-				$screen_pos = $screen_pos_metadata;
+			if ($screen_pos_metadata !== FALSE) $screen_pos = $screen_pos_metadata;
 
-			if (($screen_pos_lookups !== FALSE) && ($sceen_pos_metadata > $screen_pos_loopups))
-				$screen_pos = $screen_pos_lookups;
-			
+			if (($screen_pos_lookups !== FALSE) && ($screen_pos_metadata > $screen_pos_lookups)) $screen_pos = $screen_pos_lookups;
+
 			// If any of the keywords are found then exit, as we are checking their first occurance only
 			if ($custom_pos || $screen_pos) {
 				break;
@@ -2846,13 +2845,16 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// Check which of screen or custom keywords are placed before in raw content
-		if ($screen_pos > $custom_pos) {
+		// if we just find a custom keyword and no screen keyword we should make sure we 
+		// still place 'custom' before 'screen' in layout_keywords_order
+		// Bug #4458 Conflicting WYSIWYG's
+		if (($screen_pos > $custom_pos && $custom_pos !== FALSE) || ($custom_pos !== FALSE && $screen_pos === FALSE)) {
 			$layout_keywords_order = Array(
 					0 => 'custom',
 				 	1 => 'screen'
 				);
 		}
-	
+
 		return $layout_keywords_order;
 
 	}// end function
