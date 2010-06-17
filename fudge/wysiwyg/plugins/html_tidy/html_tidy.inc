@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.71 2010/02/12 06:34:38 cupreti Exp $
+* $Id: html_tidy.inc,v 1.71.2.1 2010/06/17 01:08:31 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -145,7 +145,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			//////////////////////
 
 			// Remove weird tags MS Word leaves in its output
-			$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
+			$html = preg_replace('|<([\w]+)([^>]+?)class="?mso[^">]+"?([^>]+)?>|is', '<\\1>', $html);
 			$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
 			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
 			$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
