@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.53 2010/03/11 22:47:51 cupreti Exp $
+* $Id: text.inc,v 1.54 2010/06/18 05:10:44 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package Fudge
 * @subpackage Text
 */
@@ -143,6 +143,7 @@ function apply_keyword_modifiers(&$text, $modifiers)
  */
 function apply_keyword_modifier($text, $modifier)
 {
+
 	switch ($modifier['modifier']) {
 
 	case "urlencode":
@@ -395,6 +396,27 @@ function apply_keyword_modifier($text, $modifier)
 		$format = array_get_index($modifier['args'], 0, '');
 		return date($format, strtotime($text));						   	 
 	
+	case "replace":
+		$toReplace   = array_get_index($modifier['args'], 0, NULL);
+		$replaceWith = array_get_index($modifier['args'], 1, NULL);
+		
+		if ($toReplace && $replaceWith) {
+			return preg_replace('/'.$toReplace.'/', $replaceWith, $text);
+		}
+		return $text;
+                               
+	case "contains":
+		$toMatch = array_get_index($modifier['args'], 0, NULL);
+		$success = array_get_index($modifier['args'], 1, NULL);
+		$failure = array_get_index($modifier['args'], 2, NULL);
+
+		if ($toMatch && preg_match_all('/'.$toMatch.'/', $text, $matches)) {
+			if (isset($matches[0]) && count($matches[0]) > 0) {
+				return $success ? $success : count($matches[0]);
+			}
+		}
+		return $failure ? $failure : 0;
+		
 	default:
 		return $text;
 
