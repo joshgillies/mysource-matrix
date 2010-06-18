@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.6.2.8 2010/06/17 03:48:49 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.6.2.9 2010/06/18 07:27:50 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6.2.8 $
+* @version $Revision: 1.6.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -358,6 +358,39 @@ class Funnelback_Manager extends Asset
 		// If the action is delete, just delete and do not worry about the rest
 		if ($action == 'delete') {
 			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclusions
+		$exclusions = $this->attr('global_exclude');
+		$excluded_assets = array_get_index($exclusions, 'assetid', Array());
+		$excluded_types = array_get_index($exclusions, 'type', Array());
+		$excluded_nodes = array_get_index($exclusions, 'tree', Array());
+		$asset_type = $asset->type();
+
+		// Exclude By Assetid
+		if (in_array($asset->id, $excluded_assets)) {
+			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclude By Type
+		if (in_array($asset_type, $excluded_types)) {
+			return $this->_cleanupEntriesByAssetid($asset->id);
+		}//end if
+
+		// Exclude By Root Node
+		if (!empty($excluded_nodes)) {
+			foreach ($excluded_nodes as $excluded_node) {
+				// The asset is the root node
+				if ($asset->id == $excluded_node) {
+					return $this->_cleanupEntriesByAssetid($asset->id);
+				}//end if
+
+				// The asset is under the root node
+				$excluded_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($excluded_node);
+				if (array_key_exists($asset->id, $excluded_children)) {
+					return $this->_cleanupEntriesByAssetid($asset->id);
+				}//end if
+			}//end foreach
 		}//end if
 
 		// Geeez, if the action is a status change, we *need* to hack the status, otherwise it doesn't register

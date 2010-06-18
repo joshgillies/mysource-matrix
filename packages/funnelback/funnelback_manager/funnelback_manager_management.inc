@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_management.inc,v 1.1.2.4 2010/03/08 06:30:07 bpearson Exp $
+* $Id: funnelback_manager_management.inc,v 1.1.2.5 2010/06/18 07:27:50 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.4 $ - 0.1
+* @version $Revision: 1.1.2.5 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -142,6 +142,15 @@ class Funnelback_Manager_Management extends Asset_Management
 												'type'			=> 'serialise',
 												'default'		=> Array(),
 												'description'	=> 'List of Funnelback Metadata Mapping',
+												'parameters'	=> Array(
+																	'allow_empty'	=> TRUE,
+																   ),
+											   ),
+						'global_exclude'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'List of global exclusions from funnelback indexing',
 												'parameters'	=> Array(
 																	'allow_empty'	=> TRUE,
 																   ),
