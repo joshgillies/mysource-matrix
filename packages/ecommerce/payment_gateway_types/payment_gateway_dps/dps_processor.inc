@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.1 2009/09/01 06:57:37 ewang Exp $
+* $Id: dps_processor.inc,v 1.1.4.1 2010/06/20 23:37:25 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -333,7 +333,7 @@ class Dps_Processor
 	*/
 	public function setAmount($amount)
 	{
-		$this->_amount = $amount;
+		$this->_amount = sprintf('%01.2f',$amount);
 		
 	}//end setAmount()
 	
