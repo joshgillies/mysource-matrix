@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.84 2010/06/21 03:32:09 bpearson Exp $
+* $Id: ldap_bridge.inc,v 1.85 2010/06/21 03:51:16 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -633,7 +633,10 @@ class LDAP_Bridge extends Asset implements Bridge
 			$type_code = Array($type_code);
 		}
 
-		if (!in_array('user_group', $type_code)) {
+		// Bug Fix #4487 - allowing 'ldap_user_group' as a valid type code to return data
+		$valid_types = Array('user_group', 'ldap_user_group');
+		$found_type = array_intersect($valid_types, $type_code);
+		if (empty($found_type)) {
 			return Array();
 		}
 
