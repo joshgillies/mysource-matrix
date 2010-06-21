@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.83 2010/06/21 02:22:11 bpearson Exp $
+* $Id: ldap_bridge.inc,v 1.84 2010/06/21 03:32:09 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -861,7 +861,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					if (!empty($type_code) && empty($found_ug)) {
 						continue(2);
 					}
-					$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
+					$children[$this->id.':'.$data['dn']][0]['type_code'] = 'ldap_user_group';
 				} else if (isset($this->_user_types[$class])) {
 					if (!empty($type_code) && empty($found)) {
 						continue(2);
