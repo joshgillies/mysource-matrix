@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.88.2.2 2009/12/11 03:40:14 cupreti Exp $
+* $Id: calendar_event.inc,v 1.88.2.3 2010/06/21 00:07:21 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.88.2.2 $
+* @version $Revision: 1.88.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -713,6 +713,7 @@ class Calendar_Event extends Asset
 
 			case 'delete':
 				$GLOBALS['SQ_SYSTEM']->am->trashAsset($this->id);
+				$this->updateLookups();
 			break;
 
 			default:
