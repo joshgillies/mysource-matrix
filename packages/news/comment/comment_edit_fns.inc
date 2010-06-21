@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.15 2009/01/13 23:44:04 ewang Exp $
+* $Id: comment_edit_fns.inc,v 1.15.8.1 2010/06/21 00:03:07 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -214,8 +214,12 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function paintAuthor(&$asset, &$o, $prefix)
-	{
-		echo get_asset_tag_line($asset->created_userid, 'details');
+	{	
+		if (!empty($asset->created_userid)) {
+			echo get_asset_tag_line($asset->created_userid, 'details');
+		} else {
+			echo isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user->name : '';
+		}
 		return TRUE;
 
 	}//end paintAuthor()
