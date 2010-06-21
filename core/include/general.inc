@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.237.2.6 2010/06/16 00:09:30 mhaidar Exp $
+* $Id: general.inc,v 1.237.2.7 2010/06/21 00:10:39 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.237.2.6 $
+* @version $Revision: 1.237.2.7 $
 * @package MySource_Matrix
 */
 
@@ -1402,14 +1402,14 @@ function get_asset_tag_line($assetid, $screen='')
 		$real_assetid = $assetid;
 	}
 	
-	$asset_info['name'] = htmlspecialchars($asset_info['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-
 	if (empty($asset_info)) {
 		ob_start();
 			echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$assetid.')</span>';
 		$contents = ob_get_clean();
 		return $contents;
 	}
+
+	$asset_info['name'] = htmlspecialchars($asset_info['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 	if (empty($screen)) {
 		$screen_url = '';
