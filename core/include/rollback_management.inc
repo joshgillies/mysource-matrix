@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.5 2010/05/05 07:24:55 ewang Exp $
+* $Id: rollback_management.inc,v 1.6 2010/06/22 23:50:42 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ function delete_rollback_entries($table_name, $date)
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'date1', $date);
-		$affected_rows = MatrixDAL::executePdoQuery($query);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
