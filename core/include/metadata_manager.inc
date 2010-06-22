@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.212 2010/05/17 05:48:35 lwright Exp $
+* $Id: metadata_manager.inc,v 1.213 2010/06/22 01:03:40 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -2248,6 +2248,46 @@ class Metadata_Manager extends MySource_Object
 		return $assetid;
 
 	}//end getFieldAssetIdFromName()
+
+
+
+	/**
+	 * For given asset with metadata schema(s) applied, this function returns 
+	 * the value for all metadata fields of given type in following format:
+	 *
+	 * 	Array( 
+	 *		'<fieldname>' => '<metadata_value>'
+	 * 	)
+	 *
+	 * @param string	$assetid				The ID of the asset we wish to get metadata value of
+	 * @param string	$metadata_field_type	The asset type of the field we wish to get
+	 * @param boolean	$contextid
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public function getMetadataFieldTypeValues($assetid, $metadata_field_type, $contextid=NULL) 
+	{
+		$schemas = $this->getSchemas($assetid, TRUE);
+		if (empty($schemas)) return Array();
+
+		$metadata_field_type = strtolower($metadata_field_type);
+		$field_values = Array();
+		
+		foreach($schemas as $schemaid) {
+			$fields = $this->getMetadataFields($schemaid);
+			
+			foreach($fields as $fieldid => $field_type) {
+				if ($field_type[0]['type_code'] != $metadata_field_type) continue;
+				$field_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($fieldid);
+				if (empty($field_info)) continue;
+
+				$field_values[$field_info[$fieldid]['name']] = $this->getMetadataValueByAssetid($assetid, $fieldid, FALSE, FALSE, $contextid);
+			}
+		}
+
+		return $field_values;
+	}
 
 
 }//end class
