@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_call_rest_resource.inc,v 1.5 2010/05/05 07:16:13 ewang Exp $
+* $Id: form_action_call_rest_resource.inc,v 1.6 2010/06/22 04:25:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
@@ -193,10 +193,14 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		$replacements = Array();
 		foreach ($keywords_list as $keyword) {
 			$keyword_value = $form->_getThankYouKeywordReplacement($keyword);
-			if (!empty($keyword_value)) {
+			if (strlen($keyword_value) > 0) {
 				$replacements[$keyword] = $keyword_value;
 			} else {
 				$replacements[$keyword] = $form->getKeywordReplacement($keyword);
+				//Fix #4336
+				if ($replacements[$keyword] == "%$keyword%" && 0 !== strpos($keyword, 'globals_')) {
+					$replacements[$keyword] = '';
+				}
 			}
 		}
 
