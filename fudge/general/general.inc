@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.51 2009/10/27 00:36:05 cupreti Exp $
+* $Id: general.inc,v 1.52 2010/06/22 01:05:04 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package Fudge
 * @subpackage General
 */
@@ -857,5 +857,59 @@ function check_char_encoding($string, $string_encoding = NULL)
 	return mb_convert_encoding($string, $string_encoding, $string_encoding);
 
 }//end check_char_encoding()
+
+
+/**
+* The callback comparision function defination for array_sort_by_length()
+* for descending order
+* 
+* @param string $str1
+* @param string $str2
+*
+* @return int
+* @access private
+*/
+function _cmp_dsort($str1, $str2) 
+{
+	return strcasecmp($str2, $str1);
+}
+
+
+/**
+* The callback comparision function defination for array_sort_by_length()
+* for ascending order
+* 
+* @param string $str1
+* @param string $str2
+*
+* @return int
+* @access private
+*/
+function _cmp_asort($str1, $str2) 
+{
+	return strcasecmp($str1, $str2);
+}
+
+/**
+* Sorts the array based on the string length of array values or keys
+*
+* For example:
+*	Input: 	Array("zero", "two", "three") (sort by value, ascending order)
+*	Output: Array("two", "zero", "three")
+*
+* @param array 		$array 		Array to sort
+* @param boolean	$order		Sort by ascending order if TRUE, descending order otherwise
+* @param boolean 	$value_sort Sort-by-value if TRUE, sort-by-key otherwise
+*
+* @return boolean
+* @access public
+*/
+function array_sort_by_length(&$array, $sort_order=TRUE, $value_sort=TRUE)
+{	
+	$cmp_function = $sort_order ? '_cmp_asort' : '_cmp_dsort';
+	$sort_function = $value_sort ? 'uasort' : 'uksort';
+
+	return $sort_function($array, $cmp_function);
+}
 
 ?>
