@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13.2.2 2010/06/18 07:24:37 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.3 2010/06/22 00:45:19 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.2 $
+* @version $Revision: 1.13.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -570,6 +570,36 @@ class Funnelback_Manager extends Asset
 	 */
 	public function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml)
 	{
+		/**
+		 * Make sure the url we're looking at starts with the right root_url
+		 * If it doesn't, the site may have multiple urls and we're looking
+		 * at the wrong one.
+		 * In which case we can ignore this one.
+		 *
+		 * We check for the root_url first. If that's not found, strip a "sub-dir" off
+		 * and try again.
+		 * This is required if you have a matrix site like http://www.example.com/mysite
+		 * and the url we're trying to add is http://www.example.com/__data/..../file.pdf
+		 *
+		 * Repeat that until base_url is back to a '.' (which of course means it won't match).
+		 */
+		$found_url = false;
+		$base_url = $root_url;
+		while ($base_url !== '.') {
+			if (strpos($url, $base_url) === 0) {
+				$found_url = true;
+				break;
+			}
+			$base_url = dirname($base_url);
+		}
+
+		/**
+		 * Well, we tried. They don't match. Don't add the entry.
+		 */
+		if (!$found_url) {
+			return FALSE;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
