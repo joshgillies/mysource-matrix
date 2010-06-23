@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2010/04/14 04:30:43 ewang Exp $
+* $Id: asset.xml,v 1.2 2010/06/23 07:18:39 ewang Exp $
 *
 */
 -->
@@ -22,8 +22,8 @@
 	<package>web_services</package>
 	<type_code>form_action_soap_call</type_code>
 	<version>0.1</version>
-	<name>Make SOAP Call Before Submit</name>
-	<description>Form Action that sends SOAP message to remote SOAP server and store response to session before form gets submitted</description>
+	<name>Make SOAP Call</name>
+	<description>Form Action that sends SOAP message to remote SOAP server and stores response to session before form gets submitted</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>form_action</parent_type>
