@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.41 2010/06/09 03:51:43 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.42 2010/06/23 01:57:44 cupreti Exp $
 *
 */
 -->
@@ -104,6 +104,9 @@
 		<field attribute="num_per_page">
 			<text width="30" />
 		</field>
+		<field attribute="start_position">
+			<text width="30" />
+		</field>		
 		<field attribute="a_z_style">
 			<selection style="list" />
 		</field>

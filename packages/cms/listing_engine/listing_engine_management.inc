@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.81 2010/06/09 03:51:43 mhaidar Exp $
+* $Id: listing_engine_management.inc,v 1.82 2010/06/23 01:55:32 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -454,6 +454,13 @@ class Listing_Engine_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> ' %page_number% ',
 										);
+		$this->vars['start_position'] = Array(
+											'added'			=> '0.16',
+											'type'			=> 'text',
+											'default'		=> 0,
+											'description' 	=> 'Defines which position in the list to start at',
+										);
+										
 										
 										
 	}//end constructor

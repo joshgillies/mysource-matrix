@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.309 2010/06/09 03:51:43 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.310 2010/06/23 01:55:32 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.309 $
+* @version $Revision: 1.310 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -690,6 +690,7 @@ class Listing_Engine extends Page
 			$format_bodycopy->printBody();
 			return;
 		}
+		
 
 		// this flag can be set if getAssetList() function returns different format of array.
 		// you can find the example in Search List. Also see getAssetList()'s comment
@@ -703,7 +704,21 @@ class Listing_Engine extends Page
 			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
+		
+		// Which position in the list to start from
+		$start_pos = $this->attr('start_position') - 1;
+		if ($start_pos > 0) {
+			if ($this->attr('group_by') != 'grouped') {
+				$children = $start_pos < count($children) ? array_slice($children, $start_pos, count($children) - $start_pos , TRUE) : Array();
+			} else {
+				// For groups, set the start position for the individual group listing
+				foreach($children as $group_id => $child_group) {
+					$children[$group_id] = $start_pos < count($child_group) ? array_slice($child_group, $start_pos, count($child_group) - $start_pos, TRUE) : Array();
+				}//end foreach
+			}//end else
 
+		}//end if start position
+		
 		$num_per_page = $this->_getNumPerPage();
 
 		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
@@ -1066,7 +1081,6 @@ class Listing_Engine extends Page
 			foreach ($asset_list as $assetid => $type) {
 				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
 				$field_value = $field_default_val;
-
 				if (isset($meta_field_val)) {
 					$field_value = $meta_field_val;
 
