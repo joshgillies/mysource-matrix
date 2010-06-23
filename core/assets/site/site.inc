@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.122 2010/05/11 02:12:33 lwright Exp $
+* $Id: site.inc,v 1.123 2010/06/23 05:26:13 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -788,10 +788,11 @@ class Site extends Folder
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 				MatrixDAL::bindValueToPdo($query, 'url', $url.'%');
 				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::system::frontend');
-				$result = MatrixDAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query);
+				$result = $result[0];
 			} catch (Exception $e) {
 				throw new Exception('Unable to get default design for asset: '.$asset->id.' due to database error: '.$e->getMessage());
 			}
