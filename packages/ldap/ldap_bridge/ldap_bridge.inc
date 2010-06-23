@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.81.2.1 2010/06/02 01:48:18 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.81.2.2 2010/06/23 01:07:35 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81.2.1 $
+* @version $Revision: 1.81.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -61,7 +61,6 @@ class LDAP_Bridge extends Asset implements Bridge
 						'organizationalperson'	=> 'cn',
 						'inetorgperson'			=> 'cn',
 						'userproxy'				=> 'cn',
-
 					   );
 
 	/**
@@ -634,7 +633,10 @@ class LDAP_Bridge extends Asset implements Bridge
 			$type_code = Array($type_code);
 		}
 
-		if (!in_array('user_group', $type_code)) {
+		// Bug Fix #4487 - allowing 'ldap_user_group' as a valid type code to return data
+		$valid_types = Array('user_group', 'ldap_user_group');
+		$found_type = array_intersect($valid_types, $type_code);
+		if (empty($found_type)) {
 			return Array();
 		}
 
@@ -849,7 +851,9 @@ class LDAP_Bridge extends Asset implements Bridge
 							'ldap_user',
 						 );
 		}
+		$user_groups = Array('user_group', 'ldap_user_group');
 		$found = array_intersect($all_types, $type_code);
+		$found_ug = array_intersect($user_groups, $type_code);
 
 		foreach ($entries as $data) {
 			if ($data['dn'] == $assetid) continue;
@@ -857,10 +861,10 @@ class LDAP_Bridge extends Asset implements Bridge
 			foreach ($data['objectclass'] as $class) {
 				$class = strtolower($class);
 				if (isset($this->_group_types[$class])) {
-					if (!empty($type_code) && !in_array('user_group', $type_code)) {
+					if (!empty($type_code) && empty($found_ug)) {
 						continue(2);
 					}
-					$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
+					$children[$this->id.':'.$data['dn']][0]['type_code'] = 'ldap_user_group';
 				} else if (isset($this->_user_types[$class])) {
 					if (!empty($type_code) && empty($found)) {
 						continue(2);
