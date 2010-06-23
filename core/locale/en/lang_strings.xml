@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.366.2.2 2010/06/02 04:22:11 akarelia Exp $
+* $Id: lang_strings.xml,v 1.366.2.3 2010/06/23 00:58:21 bpearson Exp $
 *
 */
 
@@ -1231,7 +1231,7 @@
 	<string source="clone_broadcasting_asset">Clone broadcasting asset</string>
 	<string source="link_to_broadcasting_asset">Link to broadcasting asset</string>
 
-	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s&lt;br /&gt;and constrain by: %2$s and size it to: (width) %3$s by (height) %4$s</string>
+	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s</string>
 	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s&lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
 
 	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
@@ -1396,6 +1396,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="height">Height</string>
 	<string source="width">Width</string>
 	<string source="dimension">Dimension</string>
+	<string source="both">Both</string>
+	<string source="neither">Neither</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>

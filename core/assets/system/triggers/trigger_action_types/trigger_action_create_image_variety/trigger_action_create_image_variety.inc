@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.20 2007/12/13 02:52:10 rong Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.20.12.1 2010/06/23 00:57:31 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,45 +126,148 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	{
 		// set defaults
 		$settings['name']      = array_get_index($settings, 'name', '');
-		$settings['constrain'] = array_get_index($settings, 'constrain', 'width');
+		$settings['constrain'] = (string) array_get_index($settings, 'constrain', 'width');
 		$settings['width']     = array_get_index($settings, 'width', 0);
 		$settings['height']    = array_get_index($settings, 'height', 0);
+		$width_display_style = 'none';
+		$width_section_display_style = 'none';
+		$height_display_style = 'none';
+		$height_section_display_style = 'none';
+		$dimension_display_style = 'none';
 
+		switch ($settings['constrain']) {
+			case 'width':
+				$width_display_style = 'inline';
+				$width_section_display_style = 'block';
+				$height_display_style = 'none';
+				$height_section_display_style = 'none';
+				$dimension_display_style = 'none';
+			break;
 
-		if (!$write_access) {
-			$form_element_extras = 'disabled="disabled"';
-		} else {
-			$form_element_extras = '';
-		}
+			case 'height':
+				$width_display_style = 'none';
+				$width_section_display_style = 'none';
+				$height_display_style = 'inline';
+				$height_section_display_style = 'block';
+				$dimension_display_style = 'none';
+			break;
 
-		// begin buffering basic options
+			case 'dimension':
+				$width_display_style = 'none';
+				$width_section_display_style = 'none';
+				$height_display_style = 'none';
+				$height_section_display_style = 'block';
+				$dimension_display_style = 'inline';
+			break;
+
+			case 'none':
+				$width_display_style = 'inline';
+				$width_section_display_style = 'block';
+				$height_display_style = 'inline';
+				$height_section_display_style = 'block';
+				$dimension_display_style = 'none';
+			break;
+		}//end switch
+
+		// Name box
 		ob_start();
-			text_box($prefix.'[name]', $settings['name'], '', '', FALSE, $form_element_extras);
+			if ($write_access) {
+				text_box($prefix.'[name]', $settings['name']);
+			} else {
+				echo $settings['name'];
+			}//end if
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
+		// Painting the interface
 		ob_start();
+			echo translate('trigger_create_image_variety_basic', $basic_part_1);
+			echo '<br />';
+
+			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
+			?>
+			<script type="text/javascript">
+				<!-- //
+
+				function <?php echo $js_prefix; ?>_update_visible_fields() {
+
+					var constrain    = get_form_element_value("<?php echo $prefix; ?>[constrain]");
+					if (constrain == 'width') {
+						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
+					} else if (constrain == 'height') {
+						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
+					} else if (constrain == 'dimension') {
+						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline";
+					} else if (constrain == 'none') {
+						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
+					}//end if
+					return true;
+					
+				}// end <?php echo $prefix; ?>_update_visible_fields()
+
+				// -->
+			</script>
+		<?php
+			$javascript = 'onchange="return '.$js_prefix.'_update_visible_fields();"';
 			$options = Array(
-						'width'		=> 'Width',
-						'height'	=> 'Height',
-						'dimension' => 'Both',
-						'none'		=> 'Neither',
+						'width'		=> translate('width'),
+						'height'	=> translate('height'),
+						'dimension' => translate('both'),
+						'none'		=> translate('neither'),
 					   );
-			combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $form_element_extras);
-			$basic_part_2 = ob_get_contents();
+			echo translate('constrain_by').' ';
+			if ($write_access) {
+				combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $javascript);
+			} else {
+				echo $options[$settings['constrain']];
+			}//end if
+			echo '<br />';
+
+			echo '<div id="'.$prefix.'_width_section" style="display:'.$width_section_display_style.'">';
+			echo '<span id="'.$prefix.'_width_label" style="display:'.$width_display_style.'">';
+			echo translate('width');
+			echo '&nbsp;  </span>';
+			if ($write_access) {
+				int_text_box($prefix.'[width]', $settings['width'], FALSE);
+			} else {
+				echo $settings['width'];
+			}//end if
+			echo '</div>';
+
+			echo '<div id="'.$prefix.'_height_section" style="display:'.$height_section_display_style.'">';
+			echo '<span id="'.$prefix.'_height_label" style="display:'.$height_display_style.'">';
+			echo translate('height');
+			echo ' </span>';
+			echo '<span id="'.$prefix.'_dimension_label" style="display:'.$dimension_display_style.'">';
+			echo translate('dimension');
+			echo ' </span>';
+			if ($write_access) {
+				int_text_box($prefix.'[height]', $settings['height'], FALSE);
+			} else {
+				echo $settings['height'];
+			}//end if
+			echo '</div>';
+
+			$html = ob_get_contents();
 		ob_end_clean();
 
-		ob_start();
-			int_text_box($prefix.'[width]', $settings['width'], FALSE, '', NULL, NULL, '', FALSE, FALSE, $form_element_extras);
-			$basic_part_3 = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-			int_text_box($prefix.'[height]', $settings['height'], FALSE, '', NULL, NULL, '', FALSE, FALSE, $form_element_extras);
-			$basic_part_4 = ob_get_contents();
-		ob_end_clean();
-
-		return translate('trigger_create_image_variety_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4);
+		return $html;
 
 	}//end getInterface()
 
