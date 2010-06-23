@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.50 2010/05/10 03:39:10 cupreti Exp $
+* $Id: form_ecommerce.inc,v 1.51 2010/06/23 05:06:34 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -243,6 +243,16 @@ class Form_Ecommerce extends Form_Email
 		$action = array_get_index($_REQUEST, $this->getPrefix().'_action');
 		if (isset($_REQUEST[$this->getPrefix().'_submit'])) {
 			if ($this->processPage(1) && empty($action)) {
+					// Save Values for File Uploads, i.e save the file to temp folder
+					$questions =& $this->getAllQuestionAssets();
+					for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+						if($question instanceof Form_Question_Type_File_Upload) {
+							$question->saveValue($this);
+							$this->current_answers[$question->id]      = $question->getValue();
+							$this->extra_data[$question->id]      = $question->getExtraData();
+						}
+						
+					}
 				$action = $this->confirm_view;
 			}
 		} else if (!empty($order)) {
@@ -372,6 +382,8 @@ class Form_Ecommerce extends Form_Email
 					header('Location: '.$this->getUrl());
 					return TRUE;
 				}
+				
+
 
 				unset($_SESSION['SQ_ECOM_RESPONSE']);
 				$this->_tmp['GATEWAY_RESPONSE'] = $response;
@@ -386,9 +398,66 @@ class Form_Ecommerce extends Form_Email
 				// re-populate the active submissions
 				$this->repopulate();
 
+				// create the actual file asset for file upload questions if required
+				$questions =& $this->getAllQuestionAssets();	
+				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+					if (method_exists($question, 'onSubmitForm')) {
+						$question->onSubmitForm($this);
+						$this->extra_data[$question->id]      = $question->getExtraData();
+						if (!empty($question->failed_rules)) {
+							if (!is_array($this->submission_errors)) $this->submission_errors = Array();
+							$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+						}
+					}
+				}
+				
 				// CREATE SUBMISSION
 				$this->_saveOrderAsset();
 
+				// Does two things, depending on whether a create location is set:
+				// Create Location: create a NOTICE link between the File asset and the submission.
+				// No Create Location: Move file upload to the order asset's data directory.
+				$order_asset = $this->order;
+				$file_uploads     = $this->getAllQuestionAssets('form_question_type_file_upload');
+
+				foreach (array_keys($file_uploads) as $assetid) {
+					$file_upload = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$extra_data = $file_upload->getExtraData();
+		
+					$create_location = $file_upload->attr('create_location');
+					if (empty($create_location)) {
+						if (!empty($extra_data['temp_filesystem_path'])) {
+							$filename   = $file_upload->getValue();
+							$perm_path  = $order_asset->data_path.'/attachments/'.str_replace(':', '_', $file_upload->id);
+		
+							// Move it using Fudge file_system function
+							create_directory($perm_path);
+							move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
+							$extra_data = Array(
+											'filesystem_path'	=> $perm_path.'/'.$filename,
+										  );
+		
+							$file_upload->setExtraData($extra_data);
+							// update order asset with uploaded file path
+							$this->_saveOrderAsset();
+						}
+					} else {
+						// create a notice link so we can keep track of uploaded file						
+						$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL));
+						if (!empty($uploaded_assetid)) {
+							$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
+		
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+							$order_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
+					}
+					// clean up tmp file path since it has been either imported to order asset dir or created as a file asset
+					$file_upload->cleanUp($this);
+				}
+		
+				
+		
 				// log order to file
 				if ($this->attr('log_to_file')) {
 					$this->_logOrderToFile();
@@ -952,6 +1021,7 @@ class Form_Ecommerce extends Form_Email
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 			$order->setAnswer(key($questions), $question->getValue());
 			$order->setSummary(key($questions), $question->attr('name'), $question->getSummary());
+			$order->setExtraData(key($questions), $question->getExtraData());
 		}
 
 		$order->setIP($_SERVER['REMOTE_ADDR']);
