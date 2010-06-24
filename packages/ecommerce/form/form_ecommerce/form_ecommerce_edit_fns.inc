@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.19 2009/09/07 16:31:40 ata Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.19.4.1 2010/06/24 00:08:31 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -463,6 +463,47 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 	}//end paintLogFileInfo()
 
+	/**
+	* Paints the interface for creating a new action for ecommerce form
+	*
+	* @param Form_Email			$asset	The form whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintNewAction(Form_Email $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		
+		// Currently we only have this action available in eCommerce
+		// We may need to create a new ecom_submission_action sub class in the feature 
+		$types = Array('form_action_soap_call');
+		
+		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
 
+		
+
+		$o->openField('');
+			if ($write_access) {
+				?><p><?php
+					check_box($prefix.'_new', '1', FALSE, 'this.form.'.$prefix.'_new_type.disabled = !this.checked; return true;');
+					?><label for="<?php echo $prefix ?>_new">Create a new action of type:</label> <?php
+					$names = Array('' => 'Select action type...') + $names;
+					combo_box($prefix.'_new_type', $names, FALSE, '', 0, 'disabled="disabled"');
+					?></p><?php
+			} else {
+				?><p>This screen must be locked before you can create a new action.</p><?php
+			}
+
+			// If we have a new action, are we
+		$o->closeField();
+
+		$o->sectionNote('If you create a new action, the new action will be displayed immediately for you to edit. If you already have an action open to edit, the changes to that action will be saved when you commit before the new action is created.');
+
+		return $write_access;
+
+	}//end paintNewAction()
+	
 }//end class
 ?>

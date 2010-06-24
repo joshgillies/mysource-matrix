@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.2 2010/04/29 04:09:43 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.2.2.1 2010/06/24 00:09:02 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -133,7 +133,7 @@ class Form_Action_SOAP_Call extends Form_Action
 				</tr>
 				<tr>
 					<td colspan="2">
-						<?php echo translate('request_message_note'); ?>
+						Question keywords can be used in the message, for example, %response_100_q1%, %question_name_100_q1%, %file_upload_100_q2%
 					</td>
 				</tr>
 			</table>
@@ -234,6 +234,9 @@ class Form_Action_SOAP_Call extends Form_Action
 					$function_params = explode(', ', preg_replace('/^\w+ \w+\((.*)\)/', '$1', $function));
 					$function_response = preg_replace('/^(\w+) \w+\(.*\)/', '$1', $function);
 					
+					// Fixed duplicate function definition issue of PHP SoapClient
+					if(isset($function_list[$function_name])) continue;
+					
 					// parse parameters
 					$parsed_params = Array();
 					foreach ($function_params as $param) {
@@ -316,6 +319,9 @@ class Form_Action_SOAP_Call extends Form_Action
 	*/
 	public static function execute(Form $form, $settings)
 	{
+		if(!isset($form->submission_errors)) {
+			$form->submission_errors = Array();
+		}
 		
 		if(!isset($settings['actions'][$settings['action']])) {
 			$form->submission_errors = array_merge($form->submission_errors, Array(translate('no_soap_action')));
@@ -603,10 +609,20 @@ class Form_Action_SOAP_Call extends Form_Action
 			}
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 			if(empty($question_asset) || get_class($question_asset) != 'Form_Question_Type_File_Upload') return $content;
+			// is the file an asset or just raw file in data dir?
 			if(isset($question_asset->extra_data['filesystem_path'])) {
 				$content = file_get_contents($question_asset->extra_data['filesystem_path']);
 			}
-		}//end foreach	
+			else {
+				$uploaded_assetid = array_get_index($question_asset->extra_data, 'existing_file_assetid', array_get_index($question_asset->extra_data, 'new_file_assetid', NULL));
+				if (!empty($uploaded_assetid)) {
+					$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
+					$info = $file->getExistingFile();
+					if(isset($info['path']))
+						$content = file_get_contents($info['path']);
+				}
+			}
+		}//end if
 		return $content;
 	}//end getKeywordReplacementsFromForm()
 
