@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.50.2.2 2010/06/24 00:08:31 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.50.2.3 2010/06/24 01:40:05 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.50.2.2 $
+* @version $Revision: 1.50.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -418,8 +418,7 @@ class Form_Ecommerce extends Form_Email
 				$order_asset = $this->order;
 				$file_uploads     = $this->getAllQuestionAssets('form_question_type_file_upload');
 
-				foreach (array_keys($file_uploads) as $assetid) {
-					$file_upload = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				foreach ($file_uploads as $assetid => $file_upload) {
 					$extra_data = $file_upload->getExtraData();
 		
 					$create_location = $file_upload->attr('create_location');
