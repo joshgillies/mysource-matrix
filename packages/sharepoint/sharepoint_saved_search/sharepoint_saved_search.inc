@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.5 2010/05/05 07:15:02 ewang Exp $
+* $Id: sharepoint_saved_search.inc,v 1.6 2010/06/24 07:05:06 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -133,8 +133,10 @@ class Sharepoint_Saved_Search extends Data_Source
 					$search_logic	= $this->attr('search_logic');
 					$row_limit		= $this->attr('row_limit');
 					$search_crit	= isset($search_crits[$data_list]) ? $search_crits[$data_list] : Array();
+					$download_file 	= $this->attr('download_file');
+					$bridge_info	= $download_file ? Array('data_path' => $this->data_path, 'url' => $this->getURL()) : Array();
 
-					$result = Sharepoint_Common::getListItems($connection, $data_list, $search_crit, $search_logic, $row_limit);
+					$result = Sharepoint_Common::getListItems($connection, $data_list, $search_crit, $search_logic, $row_limit, $download_file, $bridge_info);
 					if (!empty($result)) sort($result);
 					$this->cacheResult($result, $hash);
 
@@ -301,7 +303,7 @@ class Sharepoint_Saved_Search extends Data_Source
 	* @access public
 	*/
 	public function printFrontend()
-	{
+	{	
 		// We are only doing synching in this asset, there's no need to check for update
 		if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
 			if ($this->adminAccess()) {
@@ -312,6 +314,13 @@ class Sharepoint_Saved_Search extends Data_Source
 				}//end if
 			}//end if
 		}//end else if
+		
+		// Get the sharepoint document from local server
+		if (isset($_GET['file_uri']) && !empty($_GET['file_uri'])) {
+			if (!$this->getAttachment($_GET['file_uri'])) {
+				trigger_error('Cannot find the given file '.$_GET['file_uri'], E_USER_WARNING);
+			}
+		}
 
 	}//end printFrontend()
 
@@ -331,7 +340,7 @@ class Sharepoint_Saved_Search extends Data_Source
     */
 	public function setAttrValue($name, $value)
 	{
-		if ($name == 'data_list' || $name == 'row_limit' || $name == 'search_logic') {
+		if ($name == 'data_list' || $name == 'row_limit' || $name == 'search_logic' || $name == 'download_file') {
 			$res_val	= parent::setAttrValue($name, $value);
 			$this->updateCachedResult(TRUE);
 			return $res_val;
@@ -371,6 +380,56 @@ class Sharepoint_Saved_Search extends Data_Source
 
 		return $asset;
 	}//end getAsset()
+
+
+    /**
+    * This function get attached file for a particular URI
+	*
+	* @param string $uri
+    *
+    * @return void
+    * @access public
+    */
+    public function getAttachment($uri)
+    {
+        require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+
+        $GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
+        
+        $file_path = $this->data_path.'/'.$uri;
+        if (!file_exists($file_path)) {
+			return FALSE;
+        }//end else
+		
+		$file_info = pathinfo($file_path);
+        if (empty($file_info)) {
+            return FALSE;
+        }//end if
+
+        $ext = strtolower($file_info['extension']);
+        $type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
+
+        // Fix for IE caching
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Cache-Control: private",false);
+
+        // We'll be outputting a file
+        header('Content-Type: '.$type);
+
+        // Set the name of the file
+        header('Content-Disposition: attachment; filename="'.$file_info['basename'].'";');
+        header('Content-Length: '.filesize($file_path));
+
+        // Get the source file
+        readfile($file_path);
+
+        return TRUE;
+        @ob_flush();
+
+    }//end getAttachment()
+
 
 
 }//end class

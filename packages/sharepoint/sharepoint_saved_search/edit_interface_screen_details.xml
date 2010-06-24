@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2010/05/05 07:15:02 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2010/06/24 07:05:06 cupreti Exp $
 *
 */
 -->
@@ -54,6 +54,12 @@
     			<process_function name="processListSelection"	/>
     		</function_call>
     	</field>
+        <field>
+			<function_call>
+    			<paint_function   name="paintDownloadFile"/>
+    			<process_function name="processDownloadFile"/>
+    		</function_call>
+        </field>
     </section>
     <section name="Use a Connector Asset" write_access="write:attributes">
         <field>

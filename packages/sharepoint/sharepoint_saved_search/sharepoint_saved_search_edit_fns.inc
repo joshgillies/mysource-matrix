@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_edit_fns.inc,v 1.6 2010/05/05 07:15:02 ewang Exp $
+* $Id: sharepoint_saved_search_edit_fns.inc,v 1.7 2010/06/24 07:05:06 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -612,6 +612,60 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 
 	}//end processSynchCheck()
+
+	
+	/**
+	* Paint function for Download File
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDownloadFile(&$asset, $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		
+		$download_file_attr = $asset->attr('download_file');
+		$options = Array (
+					0 => "No",
+					1 => "Yes",
+				);
+		if (!$write_access) {			
+			echo $download_file_attr ? "Yes" : "No";			
+		} else {
+			combo_box($prefix.'_download_file', $options, FALSE, $download_file_attr);
+		}//end else
+
+	}//end paintDownloadFile
+
+
+	/**
+	* Process function for Download File
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDownloadFile(&$asset, $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if (!$write_access) return FALSE;
+		$download_file_attr	= array_get_index($_POST, $prefix.'_download_file', 1);
+		$current_download_file_attr = $asset->attr('download_file');
+
+		if ($current_download_file_attr != $download_file_attr) {
+			$asset->setAttrValue('download_file', $download_file_attr);
+		}//end if
+
+		return TRUE;
+
+	}//end processDownloadFile()
 
 
 }//end class
