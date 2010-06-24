@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.53.2.1 2010/06/18 05:11:18 ewang Exp $
+* $Id: text.inc,v 1.53.2.2 2010/06/24 01:04:41 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53.2.1 $
+* @version $Revision: 1.53.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -398,8 +398,8 @@ function apply_keyword_modifier($text, $modifier)
 	case "replace":
 		$toReplace   = array_get_index($modifier['args'], 0, NULL);
 		$replaceWith = array_get_index($modifier['args'], 1, NULL);
-		
-		if ($toReplace && $replaceWith) {
+
+		if (!is_null($toReplace) && !is_null($replaceWith)) {
 			return preg_replace('/'.$toReplace.'/', $replaceWith, $text);
 		}
 		return $text;
@@ -409,7 +409,7 @@ function apply_keyword_modifier($text, $modifier)
 		$success = array_get_index($modifier['args'], 1, NULL);
 		$failure = array_get_index($modifier['args'], 2, NULL);
 
-		if ($toMatch && preg_match_all('/'.$toMatch.'/', $text, $matches)) {
+		if (!is_null($toMatch) && preg_match_all('/'.$toMatch.'/', $text, $matches)) {
 			if (isset($matches[0]) && count($matches[0]) > 0) {
 				return $success ? $success : count($matches[0]);
 			}
