@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.48.2.2 2010/06/23 23:04:14 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.48.2.3 2010/06/24 00:07:01 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.48.2.2 $
+* @version $Revision: 1.48.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -464,13 +464,19 @@ class Form_Ecommerce extends Form_Email
 				// send emails
 				$this->mailReceipt();
 				$this->mailRecipients();
-
+				
+				// perform submission actions before showing the receipt
+				$this->performSubmissionActions(TRUE);
+  	            
 				$this->printReceiptView();
 
 				// clear the cart
 				$_SESSION[$this->getPrefix()]['items'] = Array();
 				$_SESSION[$this->getPrefix()]['order'] = Array();
-
+				
+				// perform submission actions
+				$this->performSubmissionActions();
+				
 				return TRUE;
 
 		}//end switch

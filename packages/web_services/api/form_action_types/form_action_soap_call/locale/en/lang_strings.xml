@@ -17,7 +17,6 @@
 	<string source="no_parameter">Request parameters not set</string>
 	<string source="response_message">SOAP Response Message</string>
 	<string source="response_message_note">Response will be stored in global session vars.They can be printed using keywords as below.</string>
-	<string source="request_message_note">Question keywords can be used in the message, for example, response_100_q1, question_name_100_q1, file_upload_100_q2 (binary content of file upload question)</string>
 	<string source="response_keywords">Keywords Available</string>
 	<string source="no_cert">No certificate file found</string>
 </strings>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.6 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screens.xml,v 1.6.8.1 2010/06/24 00:07:01 ewang Exp $
 *
 */
 -->
@@ -21,4 +21,5 @@
 	<screen code_name="email" display_name="Email Options" icon="web" />
 	<screen code_name="formatting" display_name="Display Formatting" force_unlock="0" limbo_access="0"  />
 	<screen code_name="order_logging" display_name="Order Logging" force_unlock="0" limbo_access="0"  />
+	<screen code_name="actions" display_name="Submission Actions" icon="web" force_unlock="0" />
 </screens>
