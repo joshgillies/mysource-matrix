@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.16 2010/06/02 10:10:27 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.17 2010/06/25 07:16:33 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2387,13 +2387,21 @@ class Funnelback_Search_Page extends Listing_Engine
 		$group_scope = '';
 		$scope = '';
 
+		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+		$all_metadata_config = array_get_index($fm->attr('metamap'), $this->attr('collection'), Array());
 		$metadata_scope = array_get_index($_GET, $this->getPrefix().'_metadata_scope', Array());
-		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', Array());
+		
+		$default_metadata_logic = Array();
+		foreach($all_metadata_config as $metamap) {
+			if (array_get_index($metadata_scope, $metamap['alias'], FALSE) !== FALSE) {
+				$default_metadata_logic[$metamap['alias']] = $metamap['word_logic'];
+			}
+		}
+		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', $default_metadata_logic);
 		foreach ($metadata_scope as $index => $metadata_terms) {
 			
 			$keywords = explode(' ', $metadata_terms);
-			$logic = array_get_index($metadata_logic, $index, '2');			
-
+			$logic = array_get_index($metadata_logic, $index, array_get_index($default_metadata_logic, $index, 2));
 			foreach($keywords as $value) {			
 				$value = trim($value);
 				if (!empty($value)) {
@@ -2410,7 +2418,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		$scope = trim($group_scope) ? '|['.trim($group_scope).']'.trim($scope) : trim($scope);
 
-		return trim($scope);
+		return $scope;
 
 	}//end _getMetadataScope()
 
@@ -2426,7 +2434,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	private function _getSearchQuery($search_term)
 	{
 		$keywords = explode(' ', $search_term);		
-		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', 1);
+		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', $this->attr('word_logic'));
 		
 		$search_query = '';
 		foreach ($keywords as $keyword) {
