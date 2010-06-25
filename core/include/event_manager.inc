@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.32 2010/01/13 05:35:34 csmith Exp $
+* $Id: event_manager.inc,v 1.32.2.1 2010/06/25 00:41:15 bpearson Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -103,7 +103,7 @@ class Event_Manager extends MySource_Object
 			$event_name = trim($event_name);
 			if (empty($event_name)) continue;
 
-			if (!in_array($event_name, $this->_runtime_event_listeners)) {
+			if (!array_key_exists($event_name, $this->_runtime_event_listeners)) {
 				$this->_runtime_event_listeners[$event_name] = Array();
 			}
 			$index = count($this->_runtime_listener_objects);
