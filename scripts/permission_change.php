@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permission_change.php,v 1.1 2010/03/29 23:27:59 bpearson Exp $
+* $Id: permission_change.php,v 1.1.2.1 2010/06/25 03:14:07 bpearson Exp $
 *
 */
 ini_set('mem_limit', '-1');
@@ -37,7 +37,7 @@ if (empty($USER)) {
 }
 $available_permissions = Array('read'=>SQ_PERMISSION_READ, 'write'=>SQ_PERMISSION_WRITE, 'admin'=>SQ_PERMISSION_ADMIN);
 $PERMISSION = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
-if (empty($PERMISSION) && array_key_exists($PERMISSION, $available_permissions)) {
+if (empty($PERMISSION) || !array_key_exists($PERMISSION, $available_permissions)) {
 	trigger_error("You need to supply a permission as the fourth argument\n", E_USER_ERROR);
 }
 $GRANTED  = (isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == 'y') ? '1' : '0';
