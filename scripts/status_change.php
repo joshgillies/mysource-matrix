@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: status_change.php,v 1.1 2010/03/29 23:27:03 bpearson Exp $
+* $Id: status_change.php,v 1.2 2010/06/25 03:11:12 bpearson Exp $
 *
 */
 ini_set('mem_limit', '-1');
@@ -25,16 +25,19 @@ $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
 }
+
+define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 $ROOT_NODE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($ROOT_NODE)) {
 	trigger_error("You need to supply a root node as the second argument\n", E_USER_ERROR);
 }
 $STATUS = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
-if (empty($STATUS) && in_array($STATUS, $available_status_codes)) {
+if (empty($STATUS) || !in_array($STATUS, $available_status_codes)) {
 	trigger_error("You need to supply a status code as the third argument\n", E_USER_ERROR);
 }
 $CHILDREN = (isset($_SERVER['argv'][4]) && $_SERVER['argv'][4] == 'y') ? FALSE : TRUE;
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
