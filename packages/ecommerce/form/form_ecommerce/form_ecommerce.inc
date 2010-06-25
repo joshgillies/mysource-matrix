@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.50.2.3 2010/06/24 01:40:05 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.50.2.4 2010/06/25 04:10:17 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.50.2.3 $
+* @version $Revision: 1.50.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -243,17 +243,27 @@ class Form_Ecommerce extends Form_Email
 		$action = array_get_index($_REQUEST, $this->getPrefix().'_action');
 		if (isset($_REQUEST[$this->getPrefix().'_submit'])) {
 			if ($this->processPage(1) && empty($action)) {
-				// Save Values for File Uploads, i.e save the file to temp folder
+				// Save Values for File Uploads and the create File asset if create location is specified
 				$questions =& $this->getAllQuestionAssets();
 				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 					if($question instanceof Form_Question_Type_File_Upload) {
 						$question->saveValue($this);
 						$this->current_answers[$question->id]      = $question->getValue();
 						$this->extra_data[$question->id]      = $question->getExtraData();
+
+						if (method_exists($question, 'onSubmitForm')) {
+							$question->onSubmitForm($this);
+							$this->extra_data[$question->id]      = $question->getExtraData();
+							if (!empty($question->failed_rules)) {
+								if (!is_array($this->submission_errors)) $this->submission_errors = Array();
+								$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+							}
+						}		
 					}
-					
+
 				}
-				$action = $this->confirm_view;
+				if(empty($this->submission_errors))
+					$action = $this->confirm_view;
 			}
 		} else if (!empty($order)) {
 			//only get the current answers from session variables if we do not process after the submit button is clicked
@@ -396,19 +406,7 @@ class Form_Ecommerce extends Form_Email
 				// re-populate the active submissions
 				$this->repopulate();
 
-				// create the actual file asset for file upload questions if required
-				$questions =& $this->getAllQuestionAssets();	
-				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-					if (method_exists($question, 'onSubmitForm')) {
-						$question->onSubmitForm($this);
-						$this->extra_data[$question->id]      = $question->getExtraData();
-						if (!empty($question->failed_rules)) {
-							if (!is_array($this->submission_errors)) $this->submission_errors = Array();
-							$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
-						}
-					}
-				}
-				
+							
 				// CREATE SUBMISSION
 				$this->_saveOrderAsset();
 
