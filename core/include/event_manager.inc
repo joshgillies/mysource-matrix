@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.31 2008/03/12 01:38:57 bshkara Exp $
+* $Id: event_manager.inc,v 1.31.8.1 2010/06/25 00:43:02 bpearson Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.8.1 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -70,7 +70,6 @@ class Event_Manager extends MySource_Object
 	* The listener objects
 	*/
 	var $_runtime_listener_objects = Array();
-
 
 	/**
 	* Constructor
@@ -104,7 +103,7 @@ class Event_Manager extends MySource_Object
 			$event_name = trim($event_name);
 			if (empty($event_name)) continue;
 
-			if (!in_array($event_name, $this->_runtime_event_listeners)) {
+			if (!array_key_exists($event_name, $this->_runtime_event_listeners)) {
 				$this->_runtime_event_listeners[$event_name] = Array();
 			}
 			$index = count($this->_runtime_listener_objects);
@@ -170,6 +169,7 @@ class Event_Manager extends MySource_Object
 	*/
 	function broadcastEvent(&$broadcaster, $event_name='', $vars=Array())
 	{
+
 		// note: event names should be cammel topped (first letter of each word is a capital, excluding the first word).
 		// the listener needs to have a function of the event name prepended with 'on'
 		// eg. for an event name contentsUpdated the listener needs a function called onContentsUpdated()
@@ -210,13 +210,11 @@ class Event_Manager extends MySource_Object
 				$options['global'] = false;
 			}
 
-
 			$side_of_link = (isset($options['side_of_link']) && ($options['side_of_link'] == 'minor')) ? 'major' : 'minor';
 
 			if ($options['global']) {
 				// Global: all global events should be heard even if outside the chain
 				$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($listener_type_code, true);
-
 			} else if ($options['indirect']) {
 
 				// no point continuing if this object does not inherit from asset
