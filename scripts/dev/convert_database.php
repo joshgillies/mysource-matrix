@@ -10,19 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.7 2009/07/27 04:13:47 csmith Exp $
+* $Id: convert_database.php,v 1.8 2010/06/25 05:48:14 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
 
-ini_set('memory_limit', -1);
 error_reporting(E_ALL);
+ini_set('memory_limit', '256M');
 
 /**
  * This script will copy data from an existing system into a new db
@@ -121,6 +121,7 @@ if (empty($source_dsn['DSN']) || empty($destination_dsn['DSN'])) {
 }
 
 require_once $SYSTEM_ROOT.'/fudge/dev/dev.inc';
+require_once $SYSTEM_ROOT.'/fudge/db_extras/db_extras.inc';
 require_once $SYSTEM_ROOT.'/core/include/general.inc';
 require_once $SYSTEM_ROOT.'/core/lib/DAL/DAL.inc';
 require_once $SYSTEM_ROOT.'/core/lib/MatrixDAL/MatrixDAL.inc';
@@ -207,7 +208,7 @@ foreach ($xml_files as $xml_filename) {
 	MatrixDAL::restoreDb();
 
 	if ($first_run) {
-		bam('Dropping destination sequences');
+		pre_echo('Dropping destination sequences');
 
 		$del_seqs = getSequences();
 
@@ -222,7 +223,7 @@ foreach ($xml_files as $xml_filename) {
 			printUpdateStatus('OK');
 		}
 
-		bam('Dropping destination indexes');
+		pre_echo('Dropping destination indexes');
 
 		$del_indexes = getIndexes();
 		foreach($del_indexes as $index) {
@@ -240,7 +241,7 @@ foreach ($xml_files as $xml_filename) {
 	}
 
 	// Empty out the destination tables
-	bam('Truncating destination tables');
+	pre_echo('Truncating destination tables');
 
 	foreach ($info['tables'] as $tablename => $table_info) {
 		printName('Truncating: sq_'.$tablename);
@@ -260,94 +261,154 @@ foreach ($xml_files as $xml_filename) {
 	 */
 	foreach ($info['tables'] as $tablename => $table_info) {
 		if ($tablename === 'sch_idx') {
-			bam('Skipping search table - you will need to re-index');
+			pre_echo('Skipping search table - you will need to re-index');
 			continue;
 		}
 
-		bam('Starting table: sq_'.$tablename);
+		pre_echo('Starting table: sq_'.$tablename);
 
 		$columns = array_keys($table_info['columns']);
 		$sql = generateSQL($tablename, $columns);
-
-		printName('Grabbing source data');
 
 		/**
 		 * Switch to the source db connector to get the data..
 		 */
 		MatrixDAL::changeDb($source_db);
 
-		$source_data = MatrixDAL::executeSqlAll('SELECT * FROM sq_' . $tablename);
-		printUpdateStatus('OK');
+		if (!isset($table_info['primary_key'])) {
+			$msg  = "This table (sq_${tablename}) cannot be converted since it doesn't have a primary key.\n";
+			$msg .= "A primary key is required to guarantee the chunking of data doesn't\n";
+			$msg .= "miss anything and all data is fetched correctly from the table.\n";
+			$msg .= "Skipping table.\n";
+			pre_echo($msg);
 
-		MatrixDAL::restoreDb();
+			/**
+			 * 'restore' to the dest db
+			 * even though we switch straight back to the source
+			 * otherwise dal gets confused about which is which.
+			 */
+			MatrixDAL::restoreDb();
+			continue;
+		}
+
+		$start = 0;
+		$num_to_fetch = 10000;
+
+		$primary_key = implode(',', $table_info['primary_key']);
+
+		$source_sql = 'SELECT * FROM sq_' . $tablename . ' ORDER BY ' . $primary_key;
+
+		$fetch_source_sql = db_extras_modify_limit_clause($source_sql, $source_dsn['type'], $num_to_fetch, $start);
+
+		$source_data = MatrixDAL::executeSqlAll($fetch_source_sql);
 
 		if (empty($source_data)) {
 			printName('Table is empty');
 			printUpdateStatus('OK');
+
+			/**
+			 * 'restore' to the dest db
+			 * even though we switch straight back to the source
+			 * otherwise dal gets confused about which is which.
+			 */
+			MatrixDAL::restoreDb();
 			continue;
 		}
 
-		MatrixDAL::beginTransaction();
+		$count = count($source_data);
 
-		$trans_count = 0;
+		while (!empty($source_data)) {
+			MatrixDAL::restoreDb();
 
-		printName('Preparing SQL INSERT Query');
+			MatrixDAL::beginTransaction();
 
-		$prepared_sql = MatrixDAL::preparePdoQuery($sql);
+			$trans_count = 0;
 
-		printUpdateStatus('OK');
+			$prepared_sql = MatrixDAL::preparePdoQuery($sql);
 
-		printName('Inserting Data ('.count($source_data).' rows)');
+			printName('Inserting Data (' . number_format($start) . ' - ' . number_format($start + $count) . ' rows)');
 
-		foreach($source_data as $key => $data) {
-			foreach ($data as $data_key => $data_value) {
-				// ignore 0 based indexes..
-				if (is_numeric($data_key)) {
-					continue;
+			printUpdateStatus("..", "\r");
+
+			foreach($source_data as $key => $data) {
+				foreach ($data as $data_key => $data_value) {
+					// ignore 0 based indexes..
+					if (is_numeric($data_key)) {
+						continue;
+					}
+
+					/**
+					 * if the key isn't in the new tables columns, skip it.
+					 * this causes a problem with the sq_thes_lnk table
+					 * where the 'relation' column was renamed to 'relid'
+					 * but this change is not in the upgrade guides anywhere.
+					 */
+					if (!in_array($data_key, $columns)) {
+						continue;
+					}
+
+					/**
+					 * bytea fields from postgres are returned as resources
+					 * Convert them from resources into actual text content
+					 *
+					 * See http://www.php.net/manual/en/pdo.lobs.php
+					 */
+					if (is_resource($data_value)) {
+						$stream = $data_value;
+						$data_value = stream_get_contents($stream);
+						fclose($stream);
+					}
+
+					MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
 				}
+				MatrixDAL::execPdoQuery($prepared_sql);
 
-				/**
-				 * if the key isn't in the new tables columns, skip it.
-				 * this causes a problem with the sq_thes_lnk table
-				 * where the 'relation' column was renamed to 'relid'
-				 * but this change is not in the upgrade guides anywhere.
-				 */
-				if (!in_array($data_key, $columns)) {
-					continue;
+				$trans_count++;
+
+				if ($trans_count % 10000 == 0) {
+					MatrixDAL::commit();
+					MatrixDAL::beginTransaction();
+					$trans_count = 0;
 				}
-
-				/**
-				 * bytea fields from postgres are returned as resources
-				 * Convert them from resources into actual text content
-				 *
-				 * See http://www.php.net/manual/en/pdo.lobs.php
-				 */
-				if (is_resource($data_value)) {
-					$stream = $data_value;
-					$data_value = stream_get_contents($stream);
-					fclose($stream);
-				}
-
-				MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
 			}
-			MatrixDAL::execPdoQuery($prepared_sql);
 
-			$trans_count++;
+			printName('Inserting Data (' . number_format($start) . ' - ' . number_format($start + $count) . ' rows)');
+			printUpdateStatus('OK', "\r");
 
-			if ($trans_count % 5000 == 0) {
-				MatrixDAL::commit();
-				MatrixDAL::beginTransaction();
-				$trans_count = 0;
+			MatrixDAL::commit();
+
+			/**
+			 * Switch to the source db connector to get the data..
+			 */
+			MatrixDAL::changeDb($source_db);
+
+			/**
+			 * we got less than the limit?
+			 * no point hitting the db again, we won't get anything.
+			 */
+			if (count($source_data) < $num_to_fetch) {
+				break;
 			}
+
+			$start += $num_to_fetch;
+
+			$fetch_source_sql = db_extras_modify_limit_clause($source_sql, $source_dsn['type'], $num_to_fetch, $start);
+
+			$source_data = MatrixDAL::executeSqlAll($fetch_source_sql);
+
+			$count = count($source_data);
 		}
 
-		printUpdateStatus('OK');
+		printUpdateStatus(null, "\n");
 
-		MatrixDAL::commit();
+		/**
+		 * switch back to the dest db
+		 */
+		MatrixDAL::restoreDb();
 
 	}//end foreach
 
-	bam('Rebuilding Indexes');
+	pre_echo('Rebuilding Indexes');
 
 	foreach($info['tables'] as $tablename => $table_info) {
 		if (!empty($table_info['indexes'])) {
@@ -375,7 +436,7 @@ foreach ($xml_files as $xml_filename) {
 		}//end if
 	}
 
-	bam('Rebuilding Sequences');
+	pre_echo('Rebuilding Sequences');
 
 	foreach ($info['sequences'] as $sequence) {
 		$new_seq_start = $sequence_values[$sequence];
@@ -400,7 +461,7 @@ MatrixDAL::restoreDb();
 MatrixDAL::dbClose($dest_db);
 MatrixDAL::dbClose($source_db);
 
-bam('Conversion is complete');
+pre_echo('Conversion is complete');
 
 /**
  * parse_tables_xml
@@ -615,9 +676,12 @@ function printName($name)
 }//end printName()
 
 
-function printUpdateStatus($status)
+function printUpdateStatus($status, $newline="\n")
 {
-	echo "[ $status ]\n";
+	if ($status !== null) {
+		echo "[ $status ]";
+	}
+	echo $newline;
 
 }//end printUpdateStatus()
 
