@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2010/05/05 01:51:10 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2010/06/25 03:11:32 cupreti Exp $
 *
 */
 -->
@@ -96,6 +96,11 @@
 		</field>
 		<field attribute="comments">
 			<text width="60" height="8" />
+		</field>
+	</section>
+	<section name="Accessibility" write_access="write:attributes" limbo_access="1">
+		<field attribute="alt_asset">
+			<assetid type_codes="video_file:D" />
 		</field>
 	</section>
 </contents>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file_management.inc,v 1.2 2010/05/05 01:51:10 mbrydon Exp $
+* $Id: video_file_management.inc,v 1.3 2010/06/25 03:11:32 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * Video_File_Management
 *
 * @author  Nicholas Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,6 +191,14 @@ class Video_File_Management extends Asset_Management
 											'is_admin'		=> '0',
 											'description'	=> 'Description of the video',
 										   ),
+						'alt_asset'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'assetid',
+											'default'		=> '',
+											'description'	=> 'Alternate Asset Reference for Accessibility',
+											'update_fn'		=> '',
+											'is_admin'		=> FALSE,
+											),
 					  );
 
 	}//end constructor
