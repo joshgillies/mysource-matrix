@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2010/05/05 01:51:11 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.2.2.1 2010/06/28 07:32:56 cupreti Exp $
 *
 */
 -->
+
 
 <contents>
 	<section name="Video Metadata">
@@ -95,6 +96,12 @@
 		</field>
 		<field attribute="comments">
 			<display_name>Comments</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Accessibility">
+		<field attribute="alt_asset">
+			<display_name>Alternate Video File Asset</display_name>
 			<note />
 		</field>
 	</section>

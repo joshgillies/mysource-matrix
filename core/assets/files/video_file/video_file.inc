@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.5 2010/05/11 02:08:04 lwright Exp $
+* $Id: video_file.inc,v 1.5.2.1 2010/06/28 07:32:22 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.5 $
+* @version    $Revision: 1.5.2.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,9 @@ class Video_File extends File
 
 		$keywords['asset_attribute_length'] = 'Length of File (in Minutes:Seconds)';
 		$keywords['asset_attribute_length_seconds'] = 'Length of File (in Seconds)';
+		
+		// Add Alt Asset Keyword
+		$keywords['asset_attribute_alt_asset_X'] = 'Alternate Asset Reference for Accessibility (replace X with keyword)';
 
 		$keywords['asset_attribute_file_format_dynamic'] = 'Dynamic Keyword for File Format';
 		$keywords['asset_attribute_audio_codec_dynamic'] = 'Dynamic Keyword for Audio Codec';
@@ -94,7 +97,15 @@ class Video_File extends File
 		$keywords['asset_attribute_comments_dynamic'] = 'Dynamic Keyword for Comments';
 		$keywords['asset_attribute_copyright_dynamic'] = 'Dynamic Keyword for Copyright';
 		$keywords['asset_attribute_year_dynamic'] = 'Dynamic Keyword for Year';
-
+		
+		// Remove set Alt Asset Keyword, replace with alternate keyword
+		foreach ($keywords as $key => $val) {
+			if ($key == 'asset_attribute_alt_asset') {
+				unset($keywords[$key]);
+				break;
+			}//end if
+		}//end foreach
+		
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -161,6 +172,20 @@ class Video_File extends File
 			break;
 
 		}//end switch
+		
+		// Keywords for alternate video file asset
+		if (strpos($keyword, 'asset_attribute_alt_asset_') !== FALSE) {
+			$alt_asset_key = substr($keyword, 26);
+			// Set our new asset object
+			$alt_assetid = $this->attr('alt_asset');
+			// Make sure we have an asset id
+			if ($alt_assetid != '' && is_numeric($alt_assetid)) {
+				$alt_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($alt_assetid);
+				$replacement = !empty($alt_asset) ? $alt_asset->getKeywordReplacement($alt_asset_key) : '';
+			} else {
+				$replacement = '';
+			}//end else
+		}//end if
 
 		// Dynamic keywords lie below here. These strip the video information direct from
 		// the files, ignoring what is currently stored in the asset.
