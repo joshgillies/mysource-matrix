@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.11 2010/06/07 06:51:08 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.12 2010/06/28 00:32:02 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -96,7 +96,7 @@ $full_index_list = $index_info['index_list'];
 $parallel_list = $index_info['parallel_list'];
 $constraint_list = $index_info['constraint_list'];
 
-bam('Checking Indexes');
+pre_echo('Checking Indexes');
 
 $sql_commands = array();
 $bad_indexes = array();
@@ -352,9 +352,24 @@ foreach ($packages as $_pkgid => $pkg_details) {
 	}
 }
 
-bam('Check complete');
 $extra_message_shown = false;
 $dbtype = _getDbType();
+if ($dbtype === 'pgsql') {
+	pre_echo('Checking locale settings');
+	$locale_query = "select setting from pg_settings where name='lc_ctype'";
+	$locale_info = MatrixDAL::executeSqlAll($locale_query);
+	$locale = $locale_info[0]['setting'];
+	if ($locale !== 'C') {
+		$extra_message_shown = true;
+		$msg = "Your database 'locale' setting is " . $locale . "\n";
+		$msg .= "You may get some performance improvements changing this to 'C'\n";
+		$msg .= "However changing this requires re-initializing the whole db cluster.\n";
+		$msg .= "See http://www.postgresql.org/docs/8.1/static/charset.html for more information.\n\n";
+		pre_echo($msg);
+	}
+}
+
+pre_echo('Check complete');
 if (!empty($bad_indexes)) {
 	$extra_message_shown = true;
 	$msg = "Some indexes had incorrect definitions.\n";
@@ -385,14 +400,14 @@ if (!empty($bad_indexes)) {
 		}
 		$msg .= "DROP INDEX " . $details['index_name'] . ";\n";
 	}
-	bam($msg);
+	pre_echo($msg);
 }
 
 if (!empty($sql_commands)) {
 	$extra_message_shown = true;
 	$msg = "Some expected indexes were missing or incorrect.\n";
 	$msg .= "To fix the database, please run the following queries:\n\n" . implode("\n", $sql_commands);
-	bam($msg);
+	pre_echo($msg);
 }
 
 if (!empty($parallel_warnings)) {
@@ -413,7 +428,7 @@ if (!empty($parallel_warnings)) {
 			$msg .= "ALTER INDEX " . $idx_name . " REBUILD PARALLEL 1;\n";
 		}
 	}
-	bam($msg);
+	pre_echo($msg);
 }
 
 if (!empty($postgres_primary_key_warnings)) {
@@ -429,10 +444,10 @@ if (!empty($postgres_primary_key_warnings)) {
 		$msg .= "ALTER TABLE " . $tablename . " ADD CONSTRAINT " . $details['expected'] . " PRIMARY KEY (" . implode(',', $details['fields']) . ");\n";
 	}
 	$msg .= "COMMIT;\n";
-	bam($msg);
+	pre_echo($msg);
 }
 if (!$extra_message_shown) {
-	bam('Everything has been checked and no problems were found.');
+	pre_echo('Everything has been checked and no problems were found.');
 }
 
 
