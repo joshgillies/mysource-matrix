@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.12 2010/06/28 00:32:02 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.13 2010/06/28 00:34:06 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -364,7 +364,7 @@ if ($dbtype === 'pgsql') {
 		$msg = "Your database 'locale' setting is " . $locale . "\n";
 		$msg .= "You may get some performance improvements changing this to 'C'\n";
 		$msg .= "However changing this requires re-initializing the whole db cluster.\n";
-		$msg .= "See http://www.postgresql.org/docs/8.1/static/charset.html for more information.\n\n";
+		$msg .= "See http://www.postgresql.org/docs/8.1/static/charset.html for more information.\n";
 		pre_echo($msg);
 	}
 }
