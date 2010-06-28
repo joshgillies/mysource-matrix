@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.17 2010/06/25 07:16:33 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.18 2010/06/28 07:39:02 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -476,7 +476,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$mode  = array_get_index($_REQUEST, 'mode', '');
 
 		$search_vars = Array();
-		$search_vars['query'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_query', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['query'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_query', ''), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['scope'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_scope', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['sort'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_sort', $this->attr('sort_order')), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['page'] = htmlspecialchars(array_get_index($_REQUEST, 'current_result_page', 1), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
