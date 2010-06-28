@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.8 2007/12/07 06:00:04 bshkara Exp $
+* $Id: form_question_edit_fns.inc,v 1.8.10.1 2010/06/28 06:36:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -290,7 +290,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-			The "Attributes" lock to the <?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?> is held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br/>
+			The "Attributes" lock to the <?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?> is held by user "<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" at "<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>".<br/>
 			<?php echo $expires_in; ?>
 			</p>
 			<?php
