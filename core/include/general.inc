@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.250 2010/06/18 06:35:24 cupreti Exp $
+* $Id: general.inc,v 1.251 2010/06/28 06:18:59 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix
 */
 
@@ -1466,7 +1466,7 @@ function get_asset_tag_line($assetid, $screen='')
 					if (empty($user_name) || !isset($user_name[$asset_info[$time_type.'_userid']]) || empty($user_name[$asset_info[$time_type.'_userid']])) {
 						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
 					} else {
-						$user_name = $user_name[$asset_info[$time_type.'_userid']];
+						$user_name = htmlspecialchars($user_name[$asset_info[$time_type.'_userid']], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 					}
 				}
 

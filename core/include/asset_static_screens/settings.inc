@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.57 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: settings.inc,v 1.58 2010/06/28 06:18:59 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 
@@ -208,7 +208,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								$info[$userid] = Array('name' => '&lt;unknown&gt;');
 							}
 
-							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y H:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.htmlspecialchars($info[$userid]['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' '.strtolower(translate('on')).' '.date('d M Y H:i:s', strtotime($date_field->value));
 
 						}
 					}
