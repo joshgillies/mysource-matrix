@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.1 2009/09/23 06:57:48 akarelia Exp $
+* $Id: http_request.inc,v 1.2 2010/06/28 04:21:59 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -820,26 +820,23 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					$cache_ext = split('=', $directive);
 
 					// no-cache and equivalents override max-age
-					if (isset($cache_ext[1])) {
-						switch (strtolower(trim($cache_ext[0]))) {
-						case 'no-cache':
-						case 'must-revalidate':
-						case 'no-store':
-						case 'private':
-							$response['expiry'] = 0;
-							break;
-						case 'public':
-						case 's-maxage':
-							// s-maxage overrides max-age
-							$response['expiry'] = (int) $cache_ext[1];
-							break;
-						case 'max-age':
-							$response['expiry'] = (int) $cache_ext[1];
-							break;
-						default:
-							$response['expiry'] = 0;
-						}
+					
+					switch (strtolower(trim($cache_ext[0]))) {
+					case 'no-cache':
+					case 'must-revalidate':
+					case 'no-store':
+					case 'private':
+						$response['expiry'] = 0;
+						break;
+					case 's-maxage':
+						// s-maxage overrides max-age
+						$response['expiry'] = isset($cache_ext[1]) ? $cache_ext[1] : NULL;
+						break;
+					case 'max-age':
+						$response['expiry'] = isset($cache_ext[1]) ? $cache_ext[1] : NULL;
+						break;
 					}
+					
 				}
 
 			} elseif (!is_null($expires)) {
@@ -847,9 +844,12 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				$time = (strtotime($expires) - time());
 				if ($time < 0) $time = 0;
 				$response['expiry'] = $time;
-			} else {
-				$response['expiry'] = 0; 
 			}
+			// If we still don't have an expiry.. then we can't cache.
+			if (empty($response['expiry'])) {
+				$response['expiry'] = 0;
+			}
+			
 			break;
 
 		case 'DEFAULT':
