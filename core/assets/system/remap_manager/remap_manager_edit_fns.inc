@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.35 2010/03/23 23:25:21 csmith Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.36 2010/06/29 05:51:58 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -370,13 +370,20 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				$bind_vars = Array(
 								'never_delete'		=> '0',
 								'urls_to_update'	=> $urls_to_uncheck,
-								  );
+								'inverse_never_delete' => '1',
+							);
 				$bind_vars_add = Array(
-									'never_delete'		=> '1',
-									'urls_to_update'	=> $urls_to_check,
-								  );
-				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
-				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars_add);
+								'never_delete'		=> '1',
+								'urls_to_update'	=> $urls_to_check,
+								'inverse_never_delete' => '0',
+							);
+
+				if (!empty($urls_to_uncheck)) {
+					MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
+				}
+				if (!empty($urls_to_check)) {
+					MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars_add);
+				}
 			} catch (DALException $e) {
 				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
@@ -388,7 +395,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 							$bind_vars = Array(
 								'never_delete'		=> '0',
 								'urls_to_update'	=> $urls_in_current_page,
-								  );
+								'inverse_never_delete' => '1',
+							);
+
 				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
 
 			} catch (Exception $e) {
