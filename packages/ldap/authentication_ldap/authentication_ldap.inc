@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.24 2010/05/05 07:13:52 ewang Exp $
+* $Id: authentication_ldap.inc,v 1.25 2010/06/30 04:29:09 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -160,9 +160,46 @@ class Authentication_LDAP extends Authentication
 		}
 
 		return $user;
-
+		
 	}//end authenticateHttpUser()
 
+	
+	/**
+	* Given a username, attempts to locate and return a user object.
+	*
+	* @param string	$username	The username of the user to locate
+	*
+	* @return object
+	* @access public
+	*/
+	function &locateUser($username)
+	{
+		$user = NULL;
+
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
+		foreach ($bridges as $bridgeid => $type_code) {
+			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			if (is_null($bridge)) continue;
+
+			// if status is not live then skip this bridge
+			if ($bridge->status != SQ_STATUS_LIVE) continue;
+
+			$entry = $this->_getLdapEntries($username, $bridge);
+			if (!$entry || ($entry['count'] == 0)) {
+				continue;
+			}
+			if (isset($entry[0])) {
+				$entry = $entry[0];
+				$user_type = $bridge->attr('user_type');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+				$user = new $user_type($bridge->id, $entry);
+				break;
+			}
+		}
+
+		return $user;
+		
+	}//end locateUser()
 
 	/**
 	* Registers that an invalid login attempt has been made
@@ -266,7 +303,7 @@ class Authentication_LDAP extends Authentication
 
 		$entry = $ldap->getEntries($result);
 		return $entry;
-	}
+	}//end _getLdapEntries()
 
 
 }//end class
