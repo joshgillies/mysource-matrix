@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.24 2009/08/12 00:05:06 ewang Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.24.2.1 2010/06/30 04:06:07 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -317,7 +317,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		} else {
 			echo translate(($mins < 0) ? 'before' : 'after');
 		}
-		echo ' '.translate('specified_value').'<br /><br /></p>';
+		echo ' '.translate('specified_value').'<br /><i>'.translate('offset_field_note').'</i><br /><br /></p>';
 
 		if ($write_access) {
 			check_box($prefix.'_cascade_all', '1', $settings['cascade']);
