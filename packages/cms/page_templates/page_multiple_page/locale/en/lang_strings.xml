@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2010/06/29 10:19:12 ata Exp $
+* $Id: lang_strings.xml,v 1.5 2010/06/30 16:02:33 ata Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -29,8 +29,8 @@
 <string source="cms_page_multiple_page_page_href_x">Specific Page Href</string>
 <string source="cms_page_multiple_page_page_link_x">Specific Page Link</string>
 <string source="cms_page_multiple_page_page_assetid_x">Specific Page Asset ID</string>
-<string source="cms_page_multiple_page_current_page_name">Current Page Name (in the Default Context)</string>
-<string source="cms_page_multiple_page_current_page_attribute_name">Current Page Name (in the Current Context)</string>
+<string source="cms_page_multiple_page_current_page_name">Current Page Name</string>
+<string source="cms_page_multiple_page_current_page_attribute_name">Current Page Name (for compatibility only)</string>
 <string source="cms_page_multiple_page_current_page_number">Current Page Number</string>
 <string source="cms_page_multiple_page_current_page_assetid">Current Page Asset ID</string>
 <string source="cms_page_multiple_page_toc_unordered">Table of Contents - Unordered</string>

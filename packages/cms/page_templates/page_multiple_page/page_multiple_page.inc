@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.28 2010/04/08 01:52:41 bpearson Exp $
+* $Id: page_multiple_page.inc,v 1.29 2010/06/30 16:02:55 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -574,20 +574,20 @@ class Page_Multiple_Page extends Page
 			break;
 			case 'next_page_name':
 				if (!empty($next_page_id)) {
-					$info = current($am->getAssetInfo(Array($next_page_id)));
-					if (isset($info['name'])) {
-						$replacement = $info['name'];
+					$next_page_asset = $am->getAsset($next_page_id);
+					if (!is_null($next_page_asset)) {
+						$replacement = $next_page_asset->_getName();
 					}
 				}
 			break;
 			case 'next_page_link':
 				if (!empty($next_page_id)) {
-					$name = '';
-					$info = current($am->getAssetInfo(Array($next_page_id)));
-					if (isset($info['name'])) $name = $info['name'];
-					$href = current($am->getAssetUrl(Array($next_page_id)));
-					if (!empty($name) && !empty($href)) {
-						$replacement = '<a href="'.$href.'">'.$name.'</a>';
+					$next_page_asset = $am->getAsset($next_page_id);
+					if (!is_null($next_page_asset)) {
+						$href = $next_page_asset->getURL();
+						if (!empty($href)) {
+							$replacement = '<a href="'.$href.'">'.$next_page_asset->_getName().'</a>';
+						}
 					}
 				}
 			break;
@@ -600,20 +600,20 @@ class Page_Multiple_Page extends Page
 			break;
 			case 'previous_page_name':
 				if (!empty($prev_page_id)) {
-					$info = current($am->getAssetInfo(Array($prev_page_id)));
-					if (isset($info['name'])) {
-						$replacement = $info['name'];
+					$prev_page_asset = $am->getAsset($prev_page_id);
+					if (!is_null($prev_page_asset)) {
+						$replacement = $prev_page_asset->_getName();
 					}
 				}
 			break;
 			case 'previous_page_link':
 				if (!empty($prev_page_id)) {
-					$name = '';
-					$info = current($am->getAssetInfo(Array($prev_page_id)));
-					if (isset($info['name'])) $name = $info['name'];
-					$href = current($am->getAssetUrl(Array($prev_page_id)));
-					if (!empty($name) && !empty($href)) {
-						$replacement = '<a href="'.$href.'">'.$name.'</a>';
+					$prev_page_asset = $am->getAsset($prev_page_id);
+					if (!is_null($prev_page_asset)) {
+						$href = $prev_page_asset->getURL();
+						if (!empty($href)) {
+							$replacement = '<a href="'.$href.'">'.$prev_page_asset->_getName().'</a>';
+						}
 					}
 				}
 			break;
@@ -626,7 +626,10 @@ class Page_Multiple_Page extends Page
 			// Provides individual links for
 			case 'page_link_':
 			if (!is_null($page_number_asset)) {
-				$replacement = '<a href="'.$page_number_asset->getHref().'">'.$page_number_asset->name.'</a>';
+				$href = $page_number_asset->getURL();
+				if (!empty($href)) {
+					$replacement = '<a href="'.$href.'">'.$page_number_asset->_getName().'</a>';
+				}
 			}
 			break;
 			case 'page_href_':
@@ -636,7 +639,7 @@ class Page_Multiple_Page extends Page
 			break;
 			case 'page_name_':
 			if (!is_null($page_number_asset)) {
-				$replacement = $page_number_asset->name;
+				$replacement = $page_number_asset->_getName();
 			}
 			break;
 			case 'page_assetid_':
@@ -647,11 +650,6 @@ class Page_Multiple_Page extends Page
 
 			// current page details
 			case 'current_page_name':
-				if (!is_null($this->_tmp['current_page_asset'])) {
-					$replacement = $this->_tmp['current_page_asset']->name;
-				}
-			break;
-
 			case 'current_page_attribute_name':
 				if (!is_null($this->_tmp['current_page_asset'])) {
 					$replacement = $this->_tmp['current_page_asset']->_getName();
@@ -723,14 +721,7 @@ class Page_Multiple_Page extends Page
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
-		$current_id = $links[intval($current) - 1]['minorid'];
-		$assetids = Array();
-		foreach ($links as $id => $data) {
-			$assetids[] = $data['minorid'];
-		}
-		$toc = '';
-		$urls = $am->getAssetUrl($assetids);
-		$infos = $am->getAssetInfo($assetids);
+		$current_assetid = $links[intval($current) - 1]['minorid'];
 		ob_start();
 		if ($ordered) {
 			echo '<ol>';
@@ -738,29 +729,28 @@ class Page_Multiple_Page extends Page
 			echo '<ul>';
 		}
 		foreach ($links as $link_data) {
-			$id = $link_data['minorid'];
-			$data = $infos[$id];
-			?>
-			<li>
-			<?php
-			if ($id == $current_id && !$link_current) {
-				echo $data['name'];
-			} else {
-				?>
-				<a href="<?php echo $urls[$id]; ?>"><?php echo $data['name']; ?></a>
-				<?php
+			$assetid = $link_data['minorid'];
+			$page_asset = $am->getAsset($assetid);
+			if (is_null($page_asset)) {
+				continue;
 			}
-			?>
-			</li>
-			<?php
+			
+			$name = $page_asset->_getName();
+			echo '<li>';
+			if ($assetid == $current_assetid && !$link_current) {
+				echo $name;
+			} else {
+				$href = $page_asset->getURL();
+				echo '<a href="'.$href.'">'.$name.'</a>';
+			}
+			echo '</li>';
 		}
 		if ($ordered) {
 			echo '</ol>';
 		} else {
 			echo '</ul>';
 		}
-		$toc = ob_get_contents();
-		ob_end_clean();
+		$toc = ob_get_clean();
 
 		return $toc;
 
@@ -780,33 +770,29 @@ class Page_Multiple_Page extends Page
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
-		$current_id = $links[intval($current) - 1]['minorid'];
-		$assetids = Array();
-		foreach ($links as $id => $data) {
-			$assetids[] = $data['minorid'];
-		}
-		$nav = '';
-		$urls = $am->getAssetUrl($assetids);
-		$infos = $am->getAssetInfo($assetids);
+		$current_assetid = $links[intval($current) - 1]['minorid'];
 		ob_start();
 		echo '<select id="'.$this->getPrefix().'nav_selection_list'.'" onchange="location.href=this.options[selectedIndex].value">';
 
 		foreach ($links as $link_data) {
-			$id = $link_data['minorid'];
-			$data = $infos[$id];
-			if ($id == $current_id && !$link_current) {
-				echo '<option value="" selected="selected">'.$data['name'];
-			} else {
-				echo '<option value="'.$urls[$id].'">'.$data['name'];
+			$assetid = $link_data['minorid'];
+			$page_asset = $am->getAsset($assetid);
+			if (is_null($page_asset)) {
+				continue;
 			}
-			?>
-			</option>
-			<?php
+			
+			$name = $page_asset->_getName();
+			if ($assetid == $current_assetid && !$link_current) {
+				echo '<option value="" selected="selected">'.$name;
+			} else {
+				$href = $page_asset->getURL();
+				echo '<option value="'.$href.'">'.$name;
+			}
+			echo '</option>';
 		}
 
 		echo '</select>';
-		$nav = ob_get_contents();
-		ob_end_clean();
+		$nav = ob_get_clean();
 
 		return $nav;
 
