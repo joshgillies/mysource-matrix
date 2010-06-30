@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.2 2010/06/28 04:21:59 mhaidar Exp $
+* $Id: http_request.inc,v 1.3 2010/06/30 22:51:37 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -830,13 +830,12 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						break;
 					case 's-maxage':
 						// s-maxage overrides max-age
-						$response['expiry'] = isset($cache_ext[1]) ? $cache_ext[1] : NULL;
+						$response['expiry'] = isset($cache_ext[1]) ? (int) $cache_ext[1] : NULL;
 						break;
 					case 'max-age':
-						$response['expiry'] = isset($cache_ext[1]) ? $cache_ext[1] : NULL;
+						$response['expiry'] = isset($cache_ext[1]) ? (int) $cache_ext[1] : NULL;
 						break;
 					}
-					
 				}
 
 			} elseif (!is_null($expires)) {
