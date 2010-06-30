@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2009/02/16 00:53:22 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.2 2010/06/30 04:04:45 cupreti Exp $
 *
 */
 
@@ -22,4 +22,5 @@
 	<string source="as_determined_from_asset_attribute">as determined from Asset Attribute</string>
 	<string source="as_determined_from_metadata_field">as determined from Metadata Field</string>
 	<string source="specified_value">the specified value</string>
+	<string source="offset_field_note">(NB: Offset settings will not apply when exact time is selected to set the future status via option "at exactly")</string>
 </strings>
