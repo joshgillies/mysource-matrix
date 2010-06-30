@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Sets the a metadata field date with the curernt date time plus a variable offset
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 		// If no context ID is set at ALL, then presume it's an old trigger, and
 		// that we use the current context instead.
 		if (array_key_exists('contextid', $settings) === FALSE) {
-			$settings['contextid'] === NULL;
+			$settings['contextid'] = NULL;
 		}
 
 		if ($settings['contextid'] === NULL) {
