@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.47 2010/06/11 04:53:05 mhaidar Exp $
+* $Id: file_system.inc,v 1.48 2010/06/30 01:44:43 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package Fudge
 * @subpackage General
 */
@@ -488,6 +488,27 @@ function move_file($from, $to)
 	return TRUE;
 
 }//end move_file()
+
+
+/**
+* Truncate a file 
+*
+* @param string	$file	path of the file
+*
+* @return boolean
+* @access public
+*/
+function truncate_file($file)
+{
+	$fp = fopen($file, 'r+');
+	if ($fp) {
+		if (!ftruncate($fp, 0)) return FALSE;
+		fclose($fp);
+		return TRUE;
+	}//end if
+	return FALSE;
+
+}//end truncate_file()
 
 
 /**
