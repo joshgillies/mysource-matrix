@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.11.2.1 2010/06/30 06:34:43 bpearson Exp $
+* $Id: soap_server.inc,v 1.11.2.2 2010/07/01 01:51:01 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -901,6 +901,10 @@ class Soap_Server extends Page
 	{
 		// Loop through the complex types came from all the APIs.
 		foreach ($this->complex_elements as $func_io => $sub_args_info) {
+
+				// Hiding unknown complex elements
+				$func_name_safe = str_replace('Response', '', $func_io);
+				if (!array_key_exists($func_name_safe, $this->function_list)) continue;
 
 				// Specify the REQUEST - RESPONSE for each function, point them to the definition of the complex type.
 				$element_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
