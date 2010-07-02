@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.9 2010/06/18 07:27:50 bpearson Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.4.2.10 2010/07/02 01:25:39 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4.2.9 $
+* @version $Revision: 1.4.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1585,14 +1585,24 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$word_logic = array_get_index($_POST, $prefix.'_metamap_word_logic', Array());
 				$system = array_get_index($_POST, $prefix.'_metamap_system', Array());
 				$delete = array_get_index($_POST, $prefix.'_metamap_delete', Array());
+				$metamap_word_logic = Array();
 
 				foreach ($alias as $index => $mclass) {
 					$metadata_class = $mclass;
 					$metadata_index = array_get_index($content, $index, 0);
 					$metadata_metag = array_get_index($metatags, $index, '');
 					$metadata_system = array_get_index($system, $index, FALSE);
-					$metadata_word_logic = array_get_index($word_logic, $index, 2);
 					$metadata_delete = array_get_index($delete, $index, '0');
+					
+					// Once the word logic for the particular metadata class is set, 
+					// use same value for other metadata in same class
+					if (isset($metamap_word_logic[$mclass])) {
+						$metadata_word_logic = $metamap_word_logic[$mclass];
+					} else {
+						 $metadata_word_logic = array_get_index($word_logic, $index, 2);
+						 $metamap_word_logic[$mclass] = $metadata_word_logic; 
+					}
+
 					if (!empty($metadata_metag) && !(!$metadata_system && $metadata_delete)) {
 						$data[] = Array(
 									'alias'			=> $metadata_class,
@@ -1621,7 +1631,6 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $status;
 
 	}//end processMetamap()
-
 
 // --- OTHER MISCELLANEOUS FUNCTION --- //
 
