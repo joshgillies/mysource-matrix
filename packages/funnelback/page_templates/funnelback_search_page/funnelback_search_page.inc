@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.13.2.3 2010/06/29 07:55:00 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.13.2.4 2010/07/02 01:31:21 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.3 $
+* @version $Revision: 1.13.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2386,22 +2386,39 @@ class Funnelback_Search_Page extends Listing_Engine
 		$group_scope = '';
 		$scope = '';
 
+		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+		$all_metadata_config = array_get_index($fm->attr('metamap'), $this->attr('collection'), Array());
 		$metadata_scope = array_get_index($_GET, $this->getPrefix().'_metadata_scope', Array());
-		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', Array());
+		
+		$default_metadata_logic = Array();
+		foreach($all_metadata_config as $metamap) {
+			if (array_get_index($metadata_scope, $metamap['alias'], FALSE) !== FALSE) {
+				$default_metadata_logic[$metamap['alias']] = $metamap['word_logic'];
+			}
+		}
+		$metadata_logic = array_get_index($_GET, $this->getPrefix().'_metadata_logic', $default_metadata_logic);
 		foreach ($metadata_scope as $index => $metadata_terms) {
-			
-			$keywords = explode(' ', $metadata_terms);
-			$logic = array_get_index($metadata_logic, $index, '2');			
-
+			$keywords = preg_split('/([\s\+\-\|\*]*"[^"]+")[\s]*|'.'([\s\+\-\|\*]*`[^`]+`)[\s]*|'.'[\s]+/', $metadata_terms, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			// The query having search operator overrides the default word logic settings
+			// NOTE: A search operator inside double quotes is part of the search keyword and does not overrides the word logic
+			$contains_op = FALSE;
+			foreach($keywords as $keyword) {
+				if (preg_match('/^\s*[\+\-\|\*]\s*/', $keyword)) {
+					$contains_op = TRUE;
+				}
+			}
+			$logic = array_get_index($metadata_logic, $index, array_get_index($default_metadata_logic, $index, 2));
 			foreach($keywords as $value) {			
 				$value = trim($value);
 				if (!empty($value)) {
-                	if ($logic == '0') {
+					if ($contains_op) {
+						$scope .= ' '.preg_replace('/^([\+\-\|\*]?)'.'([^\+\-\|\*]+)'.'|(".+?")|(`.+?`)$/','$1'.$index.':$2', $value);
+					} else if ($logic == '0') {
             	        $scope .= ' -'.$index.':'.$value;
         	        } else if ($logic == '1') {
     	                $group_scope .= ' '.$index.':'.$value;
 	                } else {
-                    	$scope .= ' |'.$index.':'.$value;
+                    	$scope .= ' +'.$index.':'.$value;
                 	}				
 				}//end if
 			}//end foreach $keywords
@@ -2409,7 +2426,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		$scope = trim($group_scope) ? '|['.trim($group_scope).']'.trim($scope) : trim($scope);
 
-		return trim($scope);
+		return $scope;
 
 	}//end _getMetadataScope()
 
@@ -2423,9 +2440,17 @@ class Funnelback_Search_Page extends Listing_Engine
 	 * @access private
 	 */
 	private function _getSearchQuery($search_term)
-	{
-		$keywords = explode(' ', $search_term);		
-		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', 1);
+	{	
+		$keywords = preg_split('/([\s\+\-\|\*]*"[^"]+")[\s]*|'.'([\s\+\-\|\*]*`[^`]+`)[\s]*|'.'[\s]+/', $search_term, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+		// Query having search operator overrides the word logic settings
+		foreach($keywords as $keyword) {
+			if (preg_match('/^\s*[\+\-\|\*]\s*/', $keyword)) {
+				return $search_term;
+			}
+		}
+
+		$logic = array_get_index($_GET, $this->getPrefix().'_search_logic', $this->attr('word_logic'));
 		
 		$search_query = '';
 		foreach ($keywords as $keyword) {
@@ -2437,7 +2462,7 @@ class Funnelback_Search_Page extends Listing_Engine
                 } else if ($logic == '1') {
                     $search_query .= ' '.$keyword;
                 } else {
-                    $search_query .= ' |'.$keyword;
+                    $search_query .= ' +'.$keyword;
                 }				
 			}//end if
 		}//end foreach
