@@ -1,5 +1,116 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.6
+
+Featured Changes
+===================================
+
+Funnelback Search Log Report [ Feature Request #4403 ]
+-----------------------------------------------------
+
+A new log report asset is now available for the Funnelback Search package, providing statistics of searches on a system. This includes details on the most popular search queries and queries which failed to return any results.
+
+The Funnelback Search log report displays the statistics for each collection on a system, as well as a tally of the system-wide total results.
+
+The log report can be configured to display search statistics on either a daily, weekly or monthly basis, with archived reports available on the asset's Report screen.
+
+Word Logic for Funnelback Search [ Feature Request #4410 ]
+-----------------------------------------------------
+
+Word logic options are now available on the Funnelback Search page to allocate whether searched terms should be excluded or included (any or all) from the search results. These settings can be configured on the backend or on the frontend (via user selection).
+
+The Word Logic field, on the Details screen of the Funnelback Search page, allows you to set the default word logic for the search page.
+
+By default, this is Include any, meaning that results will be displayed if containing at least one of the searched terms. The options Include all (all searched terms must be included in results) and Exclude (search results must not contain the search term) are also available.
+
+The %search_logic% and %metadata_logic_X% keyword replacements can be used to display the word logic options on the frontend of your site. This allows users to define the parameters of their search themselves.
+
+
+Asset Exclusions from Funnelback Indexing [ Feature Request #4474 ]
+-----------------------------------------------------
+
+A new Asset Exclusions screen is available on the Funnelback Manager to enable to exclusion of assets during Funnelback indexing.
+
+Assets can be specified for exclusion by Asset ID, Type or Root Node. Please note that these exclusions extend across ALL collections. When an exclusion is added, changed or deleted, you will have to run the rebuild cache and reindexing for Funnelback to acknowledge the changes.
+
+File Upload Questions Available For Ecommerce Form Pages [ Feature Request #4497 ]
+-----------------------------------------------------
+
+This feature allows you to use File Upload question types on an Ecommerce Form Page enabling users with the ability to upload a file during their form submission.
+
+The File Upload question type works the similarly to the Custom Form's File Upload question type - For more information, refer to the Custom Form manual (http://manuals.matrix.squiz.net/custom-form/chapters/file-upload-question-type).
+
+
+Enable Make SOAP Call Submission Action in E-Commerce Form [ Feature Request #4498 ]
+-----------------------------------------------------
+
+A Make SOAP Call submission action has been added to the Ecommerce Form Page, accessed on a new Submission Actions screen (via the Ecommerce Form Contents asset).
+
+This submission action works in a similar manner to the existing Make SOAP Call submission action of a Custom Form (see the Custom Form manual for more information), sending a message to a remote SOAP server on the submission of a form. Question keyword replacements can be used in the SOAP request message to set form answers as parameter values.
+
+The parameter values returned from the SOAP call are then stored as global session variables and can be printed using global keyword replacements.
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4303: HTTP_Request attribute not calculating cache expiry properly, throws a notice
+Fixed Bug #4188: SQ_DESIGN_NAME=system::frontend does not work on Site assets
+Fixed Bug #4502: Trigger Action Set Metadata Field Date prints Undefined index: contextid
+Fixed Bug #4499: Log rotation deletes log files that are in use
+Fixed Bug #4488: Event Manager fails to register runtime event listeners properly
+Fixed Bug #4494: Create Image Variety Trigger: Constrain by options not displaying appropriate fields
+Fixed Bug #4493: Rollback management fails
+Fixed Bug #4458: Conflicting WYSIWYG's
+Fixed Bug #4474: Content-Disposition header on file asset in safe edit contains .ffv[0-9]* in name
+Fixed Bug #4472: BodyCopy Code Errors
+Fixed Bug #4464: Screen Menu Keyword fully populated in Simple Edit
+Fixed Bug #4459: Metadata Triggers Cron Job fails on oracle
+Fixed Bug #4460: Putting files in safe edit is losing metadata on live file
+Fixed Bug #4369: Backslash in user DN can break searches in Search Manager
+Fixed Bug #4457: check index script doesn't distinguish between constraints and indexes correctly.
+Fixed Bug #4481: Embed Movie functionality not working within WYSIWYG
+Fixed Bug #4476: WYSIWYG HTML Tidy requires extra commit to complete tidy
+Fixed Bug #4475: WYSIWYG throws Unknown toolbar item 'addkeyword' FIXME error
+Fixed Bug #4430: Thesaurus Terms 'Update this term system wide' Issue
+
+CMS
+Fixed Bug #4462: Unnecessary Screens/Attribute Fields for Asset Listing related assets
+Fixed Bug #4441: Asset Remote Content Page breaks if the webpage being accessed has <noscript> tag with redirect
+
+Search
+Fixed Bug #4443: Search listing breaks with lots of indexed content and certain keywords in that content
+
+LDAP
+Fixed Bug #4514: The Login As feature does not work for Active Directory Users
+Fixed Bug #4483: LDAP getChildren() returning the wrong format
+Fixed Bug #4486: Unable to list LDAP User Groups with Asset Listing
+Fixed Bug #4487: LDAP getParents() does not return the LDAP user groups unless the 'user_group' type code is passed.
+
+Calendar
+Fixed Bug #4480: Lookups not updated when calendar event deleted via calendar page
+
+News
+Fixed Bug #4481: Asset builder with customised layout for comments breaks page rendering
+
+E-Commerce
+Fixed Bug #4465: default_delivery_method mutes error when doing require_once HTTP_Client
+Fixed Bug #4484: Ecommerce DPS gateway produces Invalid Amount error
+
+Data
+Fixed Bug #4463: Undefined offset error in Hit Count Listing Page for A-Z Listing
+
+Web Services
+Fixed Bug #4515: No permission to SOAP server sends XML content with HTML headers
+Fixed Bug #4336: Custom form printing keyword when empty in rest submission action
+
+Funnelback Package
+Fixed Bug #4510: Quotes not working in Funnelback search query
+Fixed Bug #4426: Result Per Page not working in Funnelback search page
+Fixed Bug #4469: Add meaningful descriptions to fields on Collections screen of Funnelback Manager
+Fixed Bug #4455: Funnelback reindexer on oracle db breaks if metadata value is over 1000 chars
+
+
 VERSION 3.26.5
 
 Complete Changelog
