@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.213 2010/06/22 01:03:40 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.214 2010/07/05 06:42:37 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -331,15 +331,7 @@ class Metadata_Manager extends MySource_Object
 			//TODO:
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($all_contexts as $all_contextid => $context_data) {
-				if ($all_contextid === 0) {
-					// always generate a plain metadata.php
-					$this->generateContentFile($assetid, FALSE, $all_contextid);
-				} else {
-					$context_metadata = $this->getMetadata($assetid, 0, $all_contextid);
-					if (empty($context_metadata) === FALSE) {
-						$this->generateContentFile($assetid, FALSE, $all_contextid);
-					}
-				}
+				$this->generateContentFile($assetid, FALSE, $all_contextid);
 			}
 		}
 
