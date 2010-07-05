@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.24 2009/09/24 00:10:51 lwright Exp $
+* $Id: page_upcoming_events_list.inc,v 1.25 2010/07/05 06:46:27 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -501,6 +501,10 @@ class Page_Upcoming_Events_List extends Page
 			$event_list .= $entry;
 
 		}//end foreach events
+		
+		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+			unset($_REQUEST['SQ_CALENDAR_DATE']);
+		}
 
 		return Array('event_list' => $event_list);
 
