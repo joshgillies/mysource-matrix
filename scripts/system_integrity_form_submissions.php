@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_form_submissions.php,v 1.1 2010/02/07 23:34:31 mbrydon Exp $
+* $Id: system_integrity_form_submissions.php,v 1.2 2010/07/05 14:46:34 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * system_integrity_form_submissions.php SYSTEM_ROOT [list|delete]
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -66,16 +66,25 @@ $custom_forms = $am->getChildren(1, 'page_custom_form');
 $delete = (isset($_SERVER['argv'][2]) && ($_SERVER['argv'][2] == 'delete')) ? TRUE : FALSE;
 
 if ($delete) {
-	echo "\nThe following Form Submissions will be deleted:\n";
+	echo "\nThe following invalid Form Submissions will be deleted:\n";
 } else {
-	echo "\nThe following Form Submissions will be deleted if you run this script with delete option:\n";
+	echo "\nThe following invalid Form Submissions will be deleted if you run this script with delete option:\n";
 }
+
+// Total Form Submission number
+$total_form_submission_count = 0;
+// The number of Form Submission assets that are in wrong places 
+$invalid_form_submission_count = 0;
 
 foreach ($custom_forms as $custom_form_id => $custom_form_details) {
 	// Only process the assets that are not in trash
 	if (!$am->assetInTrash($custom_form_id, TRUE)) {
 		$custom_form = $am->getAsset($custom_form_id);
-
+		if (is_null($custom_form)) {
+			echo "Warning: the custom form #$custom_form_id does not exist\n";
+			continue;
+		}
+		
 		// Get Form Contents
 		$form = $custom_form->getForm();
 		if (is_null($form)) {
@@ -99,13 +108,19 @@ foreach ($custom_forms as $custom_form_id => $custom_form_details) {
 			continue;
 		}
 
-		// Get Form Submission asset IDs
-		$form_submissions = $am->getChildren($submissions_folder->id, 'form_submission', TRUE);
-		foreach ($form_submissions as $form_submission_id => $form_submission_details) {
+		// Form Submission assets are linked as TYPE 3 under Submission folder if they were submitted by users
+		$form_submission_links = $am->getLinks($submissions_folder->id, SQ_LINK_TYPE_3, 'form_submission', TRUE);
+		foreach ($form_submission_links as $form_submission_link) {
+			$total_form_submission_count++;
+			echo "Processing the form submission $total_form_submission_count...\n";
+			
+			// Get form submission asset
+			$form_submission_id = $form_submission_link['minorid'];
 			$form_submission = $am->getAsset($form_submission_id);
 
 			// Ensure this is a Form Submission
-			if (!($form_submission instanceof Form_Submission)) {
+			if (is_null($form_submission) || !($form_submission instanceof Form_Submission)) {
+				echo "Warning: the form submission asset #$form_submission_id does not exist\n";
 				continue;
 			}
 
@@ -128,32 +143,41 @@ foreach ($custom_forms as $custom_form_id => $custom_form_details) {
 				}//end for each answer
 			}//end if empty answers
 
-			//if the form submission is not in the right place, list or delete it
+			//if the form submission is not in the right place or does not have answers, list or delete it
 			if (!$in_right_place) {
-				$link = $am->getLinkByAsset($submissions_folder->id, $form_submission_id);
-				//The Form Submission asset is linked as TYPE 3 to Submission folder if it is submitted by user
-				if ($link['link_type'] == SQ_LINK_TYPE_3) {
-					$submission_answer_str = is_null($temp_qid) ? 'There is no answer in the submission.' : "The submission answers the question #$temp_qid which is not under the Form Contents #{$form->id}";
-					echo "The form submission #$form_submission_id is in the wrong place under #{$submissions_folder->id}. $submission_answer_str\n";
+				$invalid_form_submission_count++;
+				$submission_answer_str = is_null($temp_qid) ? 'There is no answer in the submission.' : "The submission answers the question #$temp_qid which is not under the Form Contents #{$form->id}";
+				echo "The form submission #$form_submission_id is in the wrong place under #{$submissions_folder->id}. $submission_answer_str\n";
 
-					// Delete the link if this script is run with delete option
-					if ($delete) {
-						if ($am->deleteAssetLink($link['linkid'], FALSE)) {
-							echo "DELETED: The form submission #$form_submission_id is deleted from the Submissions folder #{$submissions_folder->id}\n";
-						} else {
-							echo "ERROR: The form submission #$form_submission_id can not be deleted from the Submissions folder #{$submissions_folder->id}\n";
-						}//end delete asset link
-					}//end if delete
-				} else {
-					echo "Warning: the form submission #$form_submission_id is not linked as TYPE_3 under the Submission folder #{$submissions_folder->id}\n";
-				}//end if link type = type 3
-			}//end if question ids[0] = form id
+				// Delete the link if this script is run with delete option
+				if ($delete) {
+					echo "The {$invalid_form_submission_count}th invalid form submission asset is being deleted...\n";
+					if ($am->deleteAssetLink($form_submission_link['linkid'], FALSE)) {
+						echo "DELETED: The form submission #$form_submission_id is deleted from the Submissions folder #{$submissions_folder->id}\n";
+					} else {
+						echo "ERROR: The form submission #$form_submission_id can not be deleted from the Submissions folder #{$submissions_folder->id}\n";
+					}//end delete asset link
+				}//end if delete
+			}
+			
+			// Remove the form submission reference so that the gabage collector can delete it from memory because this script can use up all memory available if there are a lot of form submission assets
+			$am->forgetAsset($form_submission, TRUE);
+			
 		}//end foreach form submission
+		
+		// Remove the assets that are not likely to be used again in the script
+		$am->forgetAsset($submissions_folder, TRUE);
+		$am->forgetAsset($form, TRUE);
+		$am->forgetAsset($custom_form, TRUE);
 
 	}//end if assetInTrash
 }
 
-echo "\nDone\n";
+if ($delete) {
+	echo "\nDone.\n";
+} else {
+	echo "\nThere are $invalid_form_submission_count invalid form submission assets in the total of $total_form_submission_count.\n";
+}
 
 $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
