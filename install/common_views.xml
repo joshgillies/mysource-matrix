@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.14 2009/09/14 03:50:26 bpearson Exp $
+* $Id: common_views.xml,v 1.14.2.1 2010/07/06 23:12:00 mhaidar Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 					INNER JOIN sq_ast a ON l.minorid  = a.assetid
 			UNION ALL
 				SELECT
-					s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
+					s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', s.locked,
 					s.minorid, null, null, null, null, null, null,
 					null, null, null, null, null, null,
 					null, null, null, null
@@ -52,7 +52,7 @@
 					INNER JOIN sq_ast a ON l.majorid = a.assetid
 				UNION ALL
 					SELECT
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', s.locked,
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null
@@ -78,7 +78,7 @@
 					SELECT
 						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
 						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', s.locked,
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null
@@ -104,7 +104,7 @@
 					SELECT
 						s.sq_eff_from AS lnk_sq_eff_from, s.sq_eff_to AS lnk_sq_eff_to,
 						s.sq_eff_from AS ast_sq_eff_from, s.sq_eff_to AS ast_sq_eff_to,
-						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', '0',
+						s.linkid, s.majorid, s.minorid, s.value, s.link_type, null, '0', '0', s.locked,
 						s.majorid, null, null, null, null, null, null,
 						null, null, null, null, null, null,
 						null, null, null, null
