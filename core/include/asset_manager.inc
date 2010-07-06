@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.4 2010/06/02 04:22:10 akarelia Exp $
+* $Id: asset_manager.inc,v 1.801.2.5 2010/07/06 23:08:02 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.4 $
+* @version $Revision: 1.801.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3160,6 +3160,7 @@ class Asset_Manager extends MySource_Object
 								l.minorid,
 								l.value,
 								l.link_type,
+								l.locked,
 								a.type_code AS major_type_code
 							FROM
 								'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
@@ -3204,6 +3205,7 @@ class Asset_Manager extends MySource_Object
 											'is_dependant'		=> '0',
 											'is_exclusive'		=> '0',
 											'sort_order'		=> 0,
+											'locked'            => $shdw_link['locked'],
 										);
 
 					}

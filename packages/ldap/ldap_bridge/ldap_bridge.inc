@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.81.2.2 2010/06/23 01:07:35 bpearson Exp $
+* $Id: ldap_bridge.inc,v 1.81.2.3 2010/07/06 23:08:08 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81.2.2 $
+* @version $Revision: 1.81.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -383,6 +383,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								'is_dependant'		=> FALSE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
+								'locked'            => 0,
 							   );
 
 				} else {
@@ -414,6 +415,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								'is_dependant'		=> FALSE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
+								'locked'            => 0,
 							   );
 				}
 
@@ -593,6 +595,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								'is_dependant'		=> FALSE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> $i,
+								'locked'            => 0,
 							   );
 					$i++;
 
@@ -1106,6 +1109,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								'is_dependant'		=> FALSE,
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
+								'locked'            => 0,
 							);
 		} else if ($type_code == 'user' && $side_of_link == 'minor') {
 			$id_parts = explode(':', $assetid);
@@ -1120,6 +1124,7 @@ class LDAP_Bridge extends Asset implements Bridge
 									'is_dependant'		=> FALSE,
 									'is_exclusive'		=> FALSE,
 									'sort_order'		=> 0,
+									'locked'            => 0,
 								);
 			}
 		}
