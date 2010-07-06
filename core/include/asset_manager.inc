@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.809 2010/07/05 06:45:25 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.810 2010/07/06 01:05:16 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.809 $
+* @version $Revision: 1.810 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5602,11 +5602,12 @@ class Asset_Manager extends MySource_Object
 	* @param int	$to_parentid	the asset id of the new parent asset
 	* @param int	$link_type		the type of the new link
 	* @param int	$to_parent_pos	the position under the new parent
+	* @param string $link_value		the value of the new link
 	*
 	* @return int
 	* @access public
 	*/
-	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
+	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos, $link_value='')
 	{
 		// parent position type must be numeric
 		if (!is_numeric($to_parent_pos)) {
@@ -5691,7 +5692,7 @@ class Asset_Manager extends MySource_Object
 		$success = TRUE;
 
 		// now create the new link, it's non-exclusive + non-dependent, skip canCreateLink() checks
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos, '0', '0', TRUE);
+		$new_linkid = $new_parent->createLink($minor, $link_type, $link_value, $to_parent_pos, '0', '0', TRUE);
 		if (!$new_linkid) $success = FALSE;
 
 		// let's try and delete the old link
