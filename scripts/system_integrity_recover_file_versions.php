@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.4 2008/11/25 06:57:47 ata Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.4.8.1 2010/07/06 04:58:26 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -135,6 +135,9 @@ foreach ($assetids as $assetid => $asset_info) {
 			}
 			//if the error is fixed, count it
 			if ($is_fixed) {
+				//Fix #4532. Use this public function to access _checkFileState function which
+				//Look's after the placing and removing of out files in the public directory
+				$asset->permissionsUpdated();
 				$error_fixed++;
 			}
 		}
