@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.722.2.1 2010/05/26 00:44:22 cupreti Exp $
+* $Id: asset.inc,v 1.722.2.2 2010/07/06 23:38:19 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.722.2.1 $
+* @version $Revision: 1.722.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3752,10 +3752,10 @@ class Asset extends MySource_Object
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
 
-			if (!isset($this->_tmp['mm_replacements'])) {
+			if (!isset($this->_tmp['mm_replacements'][$current_context])) {
 				// generate all metadata keywords in one go
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$this->_tmp['mm_replacements'] = $mm->getMetadataFieldValues($this->id);
+				$this->_tmp['mm_replacements'][$current_context] = $mm->getMetadataFieldValues($this->id);
 			}
 
 			$additional_keyword = '';
@@ -3767,7 +3767,7 @@ class Asset extends MySource_Object
 			while (strlen($metadata_keyword) > 0) {
 				$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 
-				if (isset($this->_tmp['mm_replacements'][$metadata_keyword]) === TRUE) {
+				if (isset($this->_tmp['mm_replacements'][$current_context][$metadata_keyword]) === TRUE) {
 					if ($additional_keyword !== '') {
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
@@ -3779,10 +3779,10 @@ class Asset extends MySource_Object
 							unset($field);
 						}
 					} else {
-						$replacement = $this->_tmp['mm_replacements'][$metadata_keyword];
+						$replacement = $this->_tmp['mm_replacements'][$current_context][$metadata_keyword];
 					}
 
-				} else if (isset($this->_tmp['mm_replacements'][$spaced_metadata_keyword]) === TRUE) {
+				} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
 					// Try it with metadata keyword underscores replaced with spaces
 					// (additional keyword never has its spaces removed when
 					// sent to the metadata field)
@@ -3796,7 +3796,7 @@ class Asset extends MySource_Object
 							unset($field);
 						}
 					} else {
-						$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
+						$replacement = $this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword];
 					}
 
 				}//end if
