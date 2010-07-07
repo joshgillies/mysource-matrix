@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.295 2010/05/27 06:52:47 mhaidar Exp $
+* $Id: asset_map.inc,v 1.296 2010/07/07 01:57:30 kmyothein Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.295 $
+* @version $Revision: 1.296 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1298,7 +1298,7 @@ class Asset_Map
 					$type_code = $asset['type_code'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 					if (implements_interface($type_code, 'bridge')) {
-						$default_kids = -1;
+						$num_kids[$asset['assetid']] = -1;
 					}
 				}
 				$asset['num_kids'] = array_get_index($num_kids, $asset['assetid'], $default_kids);
@@ -1349,7 +1349,7 @@ class Asset_Map
 						'url'			=> urlencode($asset['url']),
 						'web_path'		=> urlencode($asset['path']),
 					 );
-
+					 
 			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
