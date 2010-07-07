@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.47 2010/03/14 23:29:00 lwright Exp $
+* $Id: remap_manager.inc,v 1.48 2010/07/07 06:54:45 kmyothein Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -402,6 +402,54 @@ class Remap_Manager extends Asset
 
 	}//end loadRemapFromURL()
 
+	/**
+	* Attempts to get remap from url
+	*
+	* @param string	$protocol	the protocol that the url is using
+	* @param string	$url		the url to remap from
+	*
+	* @return string|FALSE
+	* @access public
+	*/
+	public function getRemapFromURL($protocol=NULL, $url=NULL)
+	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		if (is_null($protocol)) $protocol = current_protocol();
+		if (is_null($url)) {
+			$url = strip_url(current_url(FALSE, TRUE));
+		}
+
+		$url = $protocol.'://'.$url;
+
+		try {
+			$bind_vars = Array(
+								'date_value' => ts_iso8601(time()),
+							  );
+			$time = MatrixDAL::executeOne('core', 'toDate', $bind_vars);
+			$bind_vars = Array(
+							'url'  => $url,
+							'time' => $time,
+						 );
+			$remap_url = MatrixDAL::executeOne('remap_manager', 'getCurrentRemapURL', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
+		}
+
+		// if remap is found, keeping finding its remap until the final remap 
+		if (!empty($remap_url)) {
+			$protocol = parse_url($remap_url, PHP_URL_SCHEME);	
+			$search = '#'.$protocol.'\\://#';		
+			$url = preg_replace($search, '', $remap_url);
+			
+			// find the final remap url recursively
+    		$final_url = $this->getRemapFromURL($protocol, $url);
+    		if ($final_url !== FALSE) $remap_url = $final_url;				
+			return $remap_url;
+		}
+		return FALSE;
+
+	}//end getRemapFromURL()
 
 	/**
 	* Returns the asset that has been chosen to
