@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_edit_fns.inc,v 1.3 2009/11/12 04:25:11 bpearson Exp $
+* $Id: js_api_edit_fns.inc,v 1.4 2010/07/07 00:46:20 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -171,9 +171,22 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		$roots = array_get_index($_POST, $prefix.'_roots', Array());
 		$root_nodes   = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', TRUE, 'major', 'root');
 		$curr_list    = Array();
+
 		foreach ($root_nodes as $node) {
 			$node_id = array_get_index($node, 'minorid', 0);
-			if (!empty($node_id)) $curr_list[] = $node_id;
+			//while we are looping through each root node, lets remove if we are clearing any of the root node
+			$found = FALSE;
+			foreach ($roots as $root) {
+				if($node_id !== 0 && in_array($node_id, $root)) {
+					$found = TRUE;
+				}
+			}
+
+			if ($node_id !== 0 && !$found) {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($node['linkid']);
+			} else if ($node_id !== 0 && $found) {
+				$curr_list[] = $node_id;
+			}
 		}//end foreach
 
 		foreach ($roots as $root) {
@@ -184,6 +197,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($node, TRUE);
 				}//end if
 			}//end if
+
 		}//end foreach
 
 		return TRUE;
