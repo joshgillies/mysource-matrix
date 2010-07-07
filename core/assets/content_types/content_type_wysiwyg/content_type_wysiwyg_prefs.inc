@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.25 2009/08/26 00:09:12 mbrydon Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.26 2010/07/07 01:11:38 kmyothein Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -88,6 +88,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																							'template'	=> 'rtsp://%%link%%',
 																						   ),
 																				   ),
+																'protected'		=> FALSE,
+															   ),
+						'SQ_LIVE_LINK_ONLY'						=> Array (
+																'name'			=> 'live_link_only',
+																'description'	=> 'To allow links pointing only to live asset',
+																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 					 );
@@ -387,7 +393,26 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 			$o->note(translate('core_ct_wysiwyg_link_type_templates_note'));
 			if (is_null($pref)) $o->closeField();
-		}
+		}// end if show SQ_WYSIWYG_LINK_TYPES
+		
+		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {			
+						
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_LIVE_LINK_ONLY']['name']));
+			}
+						
+			$pref_var =& $this->pref_vars['SQ_LIVE_LINK_ONLY']['default'];
+			if ($have_lock && $is_admin) {
+				$options = Array(1 => 'Yes', 0 => 'No');
+				combo_box('prefs[SQ_LIVE_LINK_ONLY]', $options, FALSE, $pref_var);
+				echo $o->note(translate('live_link_only_note'));
+			} else {
+				echo ($pref_var) ? translate('yes') : translate('no');
+			}
+						
+			if (is_null($pref)) $o->closeField();
+			
+		}//end if show SQ_LIVE_LINK_ONLY	
 
 		return TRUE;
 
@@ -491,6 +516,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					// Then re-order the rest so that we start from zero again
 					$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
 				}
+			}
+		}
+		
+		// LIVE LINK ONLY
+		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
+			if (isset($_POST['prefs']['SQ_LIVE_LINK_ONLY'])) {
+				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY']['default'];
 			}
 		}
 

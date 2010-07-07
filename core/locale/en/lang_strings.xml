@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.370 2010/06/23 00:43:20 bpearson Exp $
+* $Id: lang_strings.xml,v 1.371 2010/07/07 01:09:58 kmyothein Exp $
 *
 */
 
@@ -2800,5 +2800,11 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="install_key">Install Key</string>
 	<string source="warranty_key">Warranty Key</string>
 	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
+	
+	<!-- Live Link Only -->
+	<string source="live_link_only">In Live Asset, Only Allow Creating Hyperlink to Live Asset </string>
+	<string source="live_link_only_note">If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.</string>
+	<string source="live_link_only_error">Creating hyperlink from live asset to non-live asset is forbidden by Preference. The anchor tags for the following link have been removed.</string>
+	<string source="no_base_url_error">Unable to determine the base url.</string>
 
 </strings>

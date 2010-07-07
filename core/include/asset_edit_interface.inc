@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.365 2010/06/17 00:27:12 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.366 2010/07/07 01:08:53 kmyothein Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.365 $
+* @version $Revision: 1.366 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2043,7 +2043,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (!$attr->setEditParams($last_child)) continue;
 
 								$revert_attr = $attr;
-								$attr->process($prefix.'_'.$attr->id);
+								$attr->process($prefix.'_'.$attr->id, $owner->id);
 								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
 									$ret_val = TRUE;
 								} else {

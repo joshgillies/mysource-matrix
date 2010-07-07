@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.35 2009/06/24 22:32:47 cupreti Exp $
+* $Id: www.inc,v 1.36 2010/07/07 01:08:05 kmyothein Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package Fudge
 * @subpackage General
 */
@@ -283,5 +283,180 @@ function valid_ipaddress($address)
 
 }//end valid_ipaddress()
 
+
+/**
+ * It checks for the links pointing to only Matrix assets which are not live.
+ * If found, opening and closing anchor tags will be removed keeping the link name.
+ *
+ * @param string $html html content to be checked
+ * @param int	 $owner_id  id of the asset such as standard page and news item which own that html content 
+ *
+ * @return string|FALSE
+ * @access public
+ */
+function check_non_live_link($html, $owner_id)
+{	
+	$am = $GLOBALS['SQ_SYSTEM']->am;
+	$pattern = '#<a(?:\s+)href(?:\s*)=(?:\s*)(?:\'|")([^\'"]*?)(?:\'|")>(.*?)</a>#msi';	
+	$error_link = Array();
+	$error_found = FALSE;
+
+	preg_match_all($pattern, $html, $match);
+	if (!empty($match)) {	
+		/* 
+		 * find base url from the owner or its parents 
+		 */		
+		$owner = $am->getAsset($owner_id);
+		if ($owner instanceof Content_Type) {
+			$parent   = $am->getParents($owner_id, 'page', FALSE);
+			if (!empty($parent)) {
+				foreach ($parent as $one_parent_id => $one_parent_type_code) {
+					$parent_id = $one_parent_id;
+					break 1;
+				}
+				$base_url = $am->getAssetURL($parent_id);
+			}
+		} else {
+			$base_url = $am->getAssetURL($owner_id);	
+		}
+	
+		if (empty($base_url)) {
+			$no_base_url_error = translate('no_base_url_error');
+			trigger_error($no_base_url_error, E_USER_WARNING);
+			return FALSE;
+		}		
+		
+		foreach ($match[1] as $index => $url) {			
+			$whole_link = $match[0][$index];
+			$href 	    = $match[1][$index];
+			$link_name  = $match[2][$index];			
+
+			if (empty($url)) continue;
+
+			if (empty($link_name)) $error_message = $href;			
+			
+			$pattern = '#\\?.*a=([\s0-9:v]+).*?#msi';
+			preg_match($pattern, $url, $asset_id);			
+			// if url is like './?a=250:v1'
+			if (!empty($asset_id[0])) {							
+				$asset = $am->getAsset(trim($asset_id[1]), '', TRUE);
+			} else {				
+				// if there is no protocol, the url must be relative.			
+				if (parse_url($url, PHP_URL_SCHEME) === NULL) {																		
+					$url = relative_to_absolute_url($url, $base_url);
+				}
+							
+	    		// parse base URL and convert to local variables: $scheme, $host, $path
+    			extract(parse_url($url));
+    			$host_path = $host.$path;
+				if ($scheme === 'http' || $scheme === 'https') {
+					$root_url = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);  
+					$is_matrix_url = FALSE;
+					foreach($root_url as $one_root_url) {
+						if (strpos($host_path, $one_root_url) === 0) {
+							$is_matrix_url = TRUE;
+							break 1;
+						}
+					}				
+
+					if ($is_matrix_url) {							
+						/* 					
+						* find out whether url is remapped 	
+						*/
+						$rm = $am->getSystemAsset('remap_manager');
+												
+						$search = '#'.$scheme.'\\://#';						
+						// This URL may contain parameters
+						$url_with_params = preg_replace($search, '', $url);									
+						// This URL is without parameters
+						$url_without_params = $host_path;
+	
+						// Firstly, look for an exact match in the database
+						$final_url = $rm->getRemapFromURL($scheme, $url_with_params);						
+						if ($final_url === FALSE && ($url_with_params !== $url_without_params)) {
+							// Fall back to the URL without parameters if there is no a match
+							$final_url = $rm->getRemapFromURL($scheme, $url_without_params);						
+						}
+
+						if ($final_url !== FALSE) {
+							$url = $final_url;
+	    					// parse base URL again and convert to local variables: $scheme, $host, $path
+    						extract(parse_url($url));														
+						}
+
+						$asset =  $am->getAssetFromURL($scheme, $host_path, TRUE, TRUE);
+					} else {
+						// don't worry about non-Matrix url or incorrect url
+						continue;
+					} // end if ($is_matrix_url)
+
+				} else {
+					// don't worry about other protocol or incorrect url
+					continue;
+				}// end if ($scheme === 'http' || $scheme === 'https')
+			}							
+
+			if (!empty($asset) && $asset->status != SQ_STATUS_LIVE) {
+				$error_found = TRUE;						
+				$error_link[] = ($link_name === '') ? $error_message : $link_name;
+				$html  = str_replace($whole_link, $link_name, $html);				
+			}									
+		}// end checking each url
+	}
+
+	if ($error_found) {		
+		$live_link_only_error = translate('live_link_only_error');
+		foreach ($error_link as $one_link) {
+			$error_message = $live_link_only_error.' \''.$one_link.'\'';					
+			trigger_error($error_message, E_USER_WARNING);
+		}
+	}
+	return $html;
+
+}//end check_non_live_link()
+
+
+/**
+ * It converts the provided relative url to absolute url using the provided base url.
+ * 
+ * NEED TO KNOW: 
+ * 1. Conversion only works for Matrix relative url which needs to be processed one level below. 
+ *    e.g. base url of http://www.google.com/a/contact and relative url of ../info
+ *    Normal absolute url should be http://www.google.com/info
+ *    But Matrix absolute url would be http://www.google.com/a/info
+ * 
+ * @param string $relative relative url 
+ * @param string $base     base url to be used to convert relative url to absolute url 
+ *
+ * @return string
+ * @access public
+ */
+function relative_to_absolute_url($relative, $base)
+{
+    /* return if already absolute URL */
+    if (parse_url($relative, PHP_URL_SCHEME) != '') return $relative;   
+
+    /* queries and anchors */
+    if ($relative[0]=='#' || $relative[0]=='?') return $base.$relative;    
+    if (strpos($relative, './?') === 0) return $base.substr($relative, 1);
+
+    /* parse base URL and convert to local variables:
+       $scheme, $host, $path */
+    extract(parse_url($base));
+
+    /* destroy path if relative url points to root */
+    if ($relative[0] == '/') $path = '';   
+
+    /* dirty absolute URL */
+    $absolute = "$host$path/$relative"; 
+
+    /* replace '//' or '/./' or '/foo/../' with '/' */
+    $re = Array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
+    for ($n=1; $n>0; $absolute=preg_replace($re, '/', $absolute, -1, $n)) {}  
+
+    /* absolute URL is ready! */
+    return $scheme.'://'.$absolute;
+
+}
 
 ?>
