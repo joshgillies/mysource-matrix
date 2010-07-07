@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.20 2010/06/23 07:14:20 ewang Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.21 2010/07/07 04:32:50 kmyothein Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -122,12 +122,20 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo '</td>';
 			echo '<td>';
 			$ecom_enabled_prefix = $prefix.'_ecom_enabled['.$q_id.']';
-			check_box($ecom_enabled_prefix, $q_id, $ecom_enabled);
+			if ($write_access) {
+				check_box($ecom_enabled_prefix, $q_id, $ecom_enabled);
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($ecom_enabled ? 'tick' : 'cross').'.gif" />';
+			}
 			echo '</td>';
 			echo '<td>';
 			$taxable = array_get_index($taxable_rules, $q_id, FALSE);
 			$taxable_prefix = $prefix.'_taxable['.$q_id.']';
-			check_box($taxable_prefix, $q_id, $taxable);
+			if ($write_access) {
+				check_box($taxable_prefix, $q_id, $taxable);
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($taxable ? 'tick' : 'cross').'.gif" />';
+			}
 			echo '</td>';
 			echo '<td>';
 			if ($ecom_enabled) {
@@ -261,14 +269,26 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo '</td>';
 			echo '<td>';
 			$var_enabled_name = $prefix.'_var_enabled['.$q_id.']';
-			check_box($var_enabled_name, $q_id, $var_enabled);
+			if ($write_access) {
+				check_box($var_enabled_name, $q_id, $var_enabled);
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($var_enabled ? 'tick' : 'cross').'.gif" />';
+			}
 			echo '</td>';
 			echo '<td>';
-			if ($var_enabled) {
-				$pass_through_key_name = $prefix.'_pass_through_key['.$q_id.']';
-				text_box($pass_through_key_name, array_get_index($var_rules[$q_id], 'key', ''));
+			$pass_through_key_name = $prefix.'_pass_through_key['.$q_id.']';
+			if ($write_access) {
+				if ($var_enabled) {
+					text_box($pass_through_key_name, array_get_index($var_rules[$q_id], 'key', ''));
+				} else {
+					echo '<em style="color: grey;">None</em>';
+				}
 			} else {
-				echo '<em style="color: grey;">None</em>';
+				if ($var_enabled) {
+					echo array_get_index($var_rules[$q_id], 'key', '');
+				} else {
+					echo '<em style="color: grey;">None</em>';
+				}
 			}
 			echo '</td>';
 			echo '<td>';
