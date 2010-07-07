@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.26 2009/11/27 05:37:14 bpearson Exp $
+* $Id: content_type.inc,v 1.27 2010/07/07 00:58:43 kmyothein Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,7 +266,27 @@ class Content_Type extends Asset
 		return $content_types;
 		
 	}//end getAvailableContentTypes()
-	
+
+	/**
+    * This function only takes care of 'html' attribute by checking for hyperlinks pointing to non-live assets and 
+    * by passing to the parent function. Other attributes will be passed directly to the parent function.   
+    *
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value)
+	{	
+		$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');				
+		if ($live_link_only && $this->status == SQ_STATUS_LIVE && $name === 'html') {
+			require_once SQ_FUDGE_PATH.'/general/www.inc';
+			$outcome = check_non_live_link($value, $this->id);
+			if ($outcome !== FALSE) $value = $outcome;
+		}
+		return parent::setAttrValue($name, $value);
+	}//end setAttrValue()
 
 }//end class
 

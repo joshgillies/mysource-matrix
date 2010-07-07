@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.32 2009/10/22 23:04:16 mbrydon Exp $
+* $Id: wysiwyg.inc,v 1.33 2010/07/07 01:01:45 kmyothein Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -211,12 +211,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*
 	* @access public
 	*/
-	function process($prefix)
+	function process($prefix, $owner_id)
 	{
 		$wysiwyg = $this->_createEditor($prefix);
 		$html = $wysiwyg->process();
 		$this->processed = FALSE;
-		if ($html !== FALSE && $html !== $this->value && $this->setValue($html)) {
+		if ($html !== FALSE && $html !== $this->value && $this->setValue($html, $owner_id)) {
 			$this->processed = TRUE;
 		}
 
@@ -277,6 +277,28 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 	}//end getKeywordValue()
 
+	/**
+	* Checks for hyperlinks pointing to non-live Matrix assets
+	* Sets the value of this attribute after validating
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setValue(&$value, $owner_id = NULL)
+	{		
+		if (!empty($owner_id)) {
+			$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner_id);			
+			if ($asset_info[$owner_id]['status'] == SQ_STATUS_LIVE && $live_link_only) {
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				$outcome = check_non_live_link($value, $owner_id);
+				if ($outcome !== FALSE) $value = $outcome;
+			}
+		}
+		return parent::setValue($value);
+	}//end setValue()
 
 }//end class
 
