@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.36 2010/07/07 01:08:05 kmyothein Exp $
+* $Id: www.inc,v 1.37 2010/07/07 02:18:45 kmyothein Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage General
 */
@@ -297,7 +297,7 @@ function valid_ipaddress($address)
 function check_non_live_link($html, $owner_id)
 {	
 	$am = $GLOBALS['SQ_SYSTEM']->am;
-	$pattern = '#<a(?:\s+)href(?:\s*)=(?:\s*)(?:\'|")([^\'"]*?)(?:\'|")>(.*?)</a>#msi';	
+	$pattern = '#<a(?:.*?)href(?:\s*)=(?:\s*)(?:\'|")([^\'"]*?)(?:\'|")>(.*?)</a>#msi';	
 	$error_link = Array();
 	$error_found = FALSE;
 
