@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.106 2009/12/06 23:27:32 ewang Exp $
+* $Id: hipo_herder.inc,v 1.106.4.1 2010/07/08 22:46:43 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.106.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -656,6 +656,7 @@ class HIPO_Herder extends MySource_Object
 		if ($job_threshold > 0) {
 			if (($this->threshold + $job_threshold) <= SQ_HIPO_TOTAL_THRESHOLD) {
 				$this->threshold += $job_threshold;
+				$init_hipo->_steps = $init_hipo->getInitialStepData();
 				return $init_hipo->freestyle();
 			}
 		}
