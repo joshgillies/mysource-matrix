@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.11 2010/06/25 07:17:00 cupreti Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.12 2010/07/08 03:48:43 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -527,7 +527,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					default:
 						$o->openField(translate('funnelback_collection_source'));
-							asset_finder($prefix.'_edit_collection_source', $current_assetid, Array('site'=>'D')); 	
+							asset_finder($prefix.'_edit_collection_source', $current_assetid); 	
 						$o->closeField();
 						$o->openField(translate('funnelback_collection_url'));
 							$urls = Array();
@@ -539,6 +539,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 										$http  = array_get_index($possible_url, 'http', FALSE);
 										$https = array_get_index($possible_url, 'https', FALSE);
 										$purl  = array_get_index($possible_url, 'url', '');
+
 										if ($http && !empty($purl)) {
 											$urls[] = 'http://'.$purl;
 										}
@@ -619,13 +620,21 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (!empty($source)) {
 					$source_assetid = array_get_index($source, 'assetid', 0);
 					if (!empty($source_assetid)) {
-						$source_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($source_assetid, Array(), TRUE, 'type_code');
-						if (!isset($source_asset_info[$source_assetid]) || !$GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($source_asset_info[$source_assetid], 'site')) {
-							$source_assetid = 0;
+						$source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+						if (!empty($source_asset)) {
+							$asset_url = $source_asset->getURL();
+							$unrestricted_asset = strpos($asset_url, '/__data/') !== FALSE || 
+												(SQ_CONF_STATIC_ROOT_URL && strpos($asset_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($source_asset);
+
+							if ($unrestricted_asset) {
+								trigger_localised_error('FNB0015', E_USER_WARNING);
+								return FALSE;
+							}
+							$collections[$collection_id]['asset'] = $source_assetid;
+							$changed = TRUE;
 						}//end if
 					}//end if
-					$collections[$collection_id]['asset'] = $source_assetid;
-					$changed = TRUE;
 				}//end if
 				if ($current_type == 'web') {
 					$collections[$collection_id]['url'] = $url;
