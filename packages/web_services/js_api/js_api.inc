@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.44 2010/06/03 05:53:51 akarelia Exp $
+* $Id: js_api.inc,v 1.45 2010/07/08 03:54:53 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2244,6 +2244,7 @@ class JS_Api extends Page
 				}//end else
 
 				// Send our JSON
+				$output = preg_replace('/(%){1}([globals_snippet_][_A-Za-z0-9\-]*)(%){1}/','&#37;$2&#37;', $output);
 				echo $output;
 
 			}//end if
