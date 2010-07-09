@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.712.2.7 2010/07/06 23:38:55 cupreti Exp $
+* $Id: asset.inc,v 1.712.2.8 2010/07/09 05:07:37 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.712.2.7 $
+* @version $Revision: 1.712.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3727,6 +3727,11 @@ class Asset extends MySource_Object
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
+
+			$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+			if ($current_context === NULL) {
+				$current_context = 0;
+			}
 
 			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 			if (!isset($this->_tmp['mm_replacements'][$current_context])) {
