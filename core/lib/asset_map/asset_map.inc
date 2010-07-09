@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.297 2010/07/07 03:46:50 kmyothein Exp $
+* $Id: asset_map.inc,v 1.298 2010/07/09 05:38:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.297 $
+* @version $Revision: 1.298 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1291,7 +1291,6 @@ class Asset_Map
 		}//end if is a bridge
 
 		foreach ($result as $asset) {
-
 			if (!isset($asset['num_kids'])) {
 				$default_kids = 0;
 				if (isset($asset['type_code']) && !empty($asset['type_code'])) {
@@ -1322,7 +1321,7 @@ class Asset_Map
 			// then its a shadow asset linked underneath a real asset, so we
 			// will need some information about the asset
 			$id_parts = explode(':', $asset['assetid']);
-			if (isset($id_parts[0]) && !$implements_shadow_assets) {
+			if (isset($id_parts[1]) && !$implements_shadow_assets) {
 				$bridge     = $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
 				$shdw_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
 
@@ -1335,6 +1334,7 @@ class Asset_Map
 					$asset['type_code']  = '';
 				}
 				$asset['status']     = $bridge->status;
+				$asset['num_kids']	 = -1;
 			}
 
 			$attrs = Array(
