@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.37 2010/07/07 02:18:45 kmyothein Exp $
+* $Id: www.inc,v 1.38 2010/07/09 04:04:10 kmyothein Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage General
 */
@@ -345,7 +345,10 @@ function check_non_live_link($html, $owner_id)
 				if (parse_url($url, PHP_URL_SCHEME) === NULL) {																		
 					$url = relative_to_absolute_url($url, $base_url);
 				}
-							
+
+				$scheme = '';
+				$host   = '';
+				$path   = '';
 	    		// parse base URL and convert to local variables: $scheme, $host, $path
     			extract(parse_url($url));
     			$host_path = $host.$path;
@@ -379,7 +382,10 @@ function check_non_live_link($html, $owner_id)
 						}
 
 						if ($final_url !== FALSE) {
-							$url = $final_url;
+							$url    = $final_url;
+							$scheme = '';
+							$host   = '';
+							$path   = '';
 	    					// parse base URL again and convert to local variables: $scheme, $host, $path
     						extract(parse_url($url));														
 						}
