@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.79.2.2 2010/07/06 23:12:05 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.79.2.3 2010/07/09 06:06:14 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79.2.2 $
+* @version $Revision: 1.79.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -436,6 +436,8 @@ class LDAP_Bridge extends Asset implements Bridge
 						$entries = Array();
 						foreach ($members as $dn) {
 							$user = $this->getAsset($this->id.':'.$dn);
+							// dn of user group was stripped out in construction, but we need it this time
+							$user->vars['dn'] = $dn;
 							$entries[$dn] = $user->vars;
 						}
 					}
