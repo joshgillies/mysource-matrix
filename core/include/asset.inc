@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.722.2.2 2010/07/06 23:38:19 cupreti Exp $
+* $Id: asset.inc,v 1.722.2.3 2010/07/09 05:07:02 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.722.2.2 $
+* @version $Revision: 1.722.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3751,6 +3751,11 @@ class Asset extends MySource_Object
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
+
+			$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+			if ($current_context === NULL) {
+				$current_context = 0;
+			}
 
 			if (!isset($this->_tmp['mm_replacements'][$current_context])) {
 				// generate all metadata keywords in one go
