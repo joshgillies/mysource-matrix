@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.30 2006/12/06 05:11:11 bcaldwell Exp $
+* $Id: table_editing.inc,v 1.30.16.1 2010/07/09 01:50:41 kmyothein Exp $
 *
 */
 
@@ -191,6 +191,9 @@ class Table_Editing extends WYSIWYG_Plugin
 								// Mozilla likes to see something
 								// inside the cell.
 								td.appendChild(doc.createElement("br"));
+							} else if (HTMLArea.is_ie) {
+								// to overcome that IE will not close with </th> tag for empty content
+								td.appendChild(doc.createTextNode(''));								
 							}
 						}
 					}
