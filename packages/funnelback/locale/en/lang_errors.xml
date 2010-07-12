@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.4 2010/05/05 07:12:14 ewang Exp $
+* $Id: lang_errors.xml,v 1.4.2.1 2010/07/12 06:34:23 cupreti Exp $
 *
 */
 
@@ -35,6 +35,7 @@
 	<error code="FNB0012">The Funnelback installation has incorrect permissions</error>
 	<error code="FNB0013">Unable to create the collection path</error>
 	<error code="FNB0014">Invalid Password: Incorrect user or password, correct for proper use</error>
+	<error code="FNB0015">Cannot use an unrestrict asset as a collection</error>	
 
 	<!-- Scripts -->
 	<error code="FNB0019">Lockfile found. Scripts cannot be run concurrently.</error>

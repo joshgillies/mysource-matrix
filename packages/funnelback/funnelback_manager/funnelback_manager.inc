@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13.2.3 2010/06/22 00:45:19 csmith Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.4 2010/07/12 06:33:56 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.3 $
+* @version $Revision: 1.13.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -708,17 +708,38 @@ class Funnelback_Manager extends Asset
 			return Array();
 		}//end if
 
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$is_site_asset = !empty($asset) ? ($asset->type() == 'site') : TRUE;
+
 		$where = Array();
 		$bind_vars = Array();
+		$include_collection_sql = '';
+
 		foreach ($url as $index => $single_url) {
+			if (!$is_site_asset) {
+				$suburl = substr($single_url, strpos($single_url, '://') + 3);
+				$root_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($suburl);
+				$root_url = array_get_index($root_url_info, 'url', '');
+				$assetid = array_get_index($root_url_info, 'assetid', $assetid);
+				
+				// If the collection is not site, include the collection asset as well
+				$bind_vars['asset_url'.$index] = $single_url;
+				$include_collection_sql = ' OR f.url LIKE :asset_url'.$index;
+			} else {
+				$root_url = $single_url;
+			}
+
 			$single_url = rtrim($single_url, '/');
+			$root_url = rtrim($root_url, '/');
 			$protocol = parse_url($single_url, PHP_URL_SCHEME);
-			$where[] = '(f.url LIKE :url'.$index.' AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR (f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\')';
+			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR (f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\')';
 			$bind_vars['url'.$index] = $single_url.'/%';
 			$bind_vars['assetid'.$index] = $assetid;
-			$bind_vars['root_url'.$index] = $single_url;
+			$bind_vars['root_url'.$index] = $root_url;
 		}//end foreach
-
+		
+		if (isset($root_url_info)) unset($root_url_info);
+		
 		$db = MatrixDAL::getDb();
 		try {
 			if (MatrixDAL::getDbType() == 'pgsql') { 
