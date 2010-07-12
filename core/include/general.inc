@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.237.2.8 2010/06/28 06:20:08 mhaidar Exp $
+* $Id: general.inc,v 1.237.2.9 2010/07/12 05:03:54 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.237.2.8 $
+* @version $Revision: 1.237.2.9 $
 * @package MySource_Matrix
 */
 
@@ -1482,7 +1482,7 @@ function get_asset_tag_line($assetid, $screen='')
 		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 				$lineage_assetids = array_keys($lineage['lineage']);
-				$lineage_assetids[] = $assetid;
+				$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
 
 				$lineage_names = $lineage['lineage'];
 
@@ -1518,7 +1518,7 @@ function get_asset_tag_line($assetid, $screen='')
 			?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
 				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
 			?></div><?php
-			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.$assetid.'-cancel-icon\').innerHTML)';
+			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
 			$lineages_name = translate('show_lineages');
 		} else if (count($lineages) == 1) {
 			sort($lineages);
@@ -1532,7 +1532,7 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineages_name = translate('show_in_asset_map');
 		}
 
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 
 		if (count($lineages) > 0) {
 			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
