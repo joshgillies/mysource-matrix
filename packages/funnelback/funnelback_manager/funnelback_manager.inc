@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.18 2010/07/08 03:48:43 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.19 2010/07/12 06:25:59 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -737,7 +737,7 @@ class Funnelback_Manager extends Asset
 			$bind_vars['root_url'.$index] = $root_url;
 		}//end foreach
 		
-		unset($root_url_info);
+		if (isset($root_url_info)) unset($root_url_info);
 
 		$db = MatrixDAL::getDb();
 		try {
