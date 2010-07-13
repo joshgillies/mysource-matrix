@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.38 2010/07/09 04:04:10 kmyothein Exp $
+* $Id: www.inc,v 1.39 2010/07/13 07:05:55 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package Fudge
 * @subpackage General
 */
@@ -297,7 +297,7 @@ function valid_ipaddress($address)
 function check_non_live_link($html, $owner_id)
 {	
 	$am = $GLOBALS['SQ_SYSTEM']->am;
-	$pattern = '#<a(?:.*?)href(?:\s*)=(?:\s*)(?:\'|")([^\'"]*?)(?:\'|")>(.*?)</a>#msi';	
+	$pattern = '#<a .*?href\s*=\s*(?:\'|")([^\'"]*?)(?:\'|")[^>]*>([^<]*)</a>#msi';	
 	$error_link = Array();
 	$error_found = FALSE;
 
@@ -320,12 +320,6 @@ function check_non_live_link($html, $owner_id)
 			$base_url = $am->getAssetURL($owner_id);	
 		}
 	
-		if (empty($base_url)) {
-			$no_base_url_error = translate('no_base_url_error');
-			trigger_error($no_base_url_error, E_USER_WARNING);
-			return FALSE;
-		}		
-		
 		foreach ($match[1] as $index => $url) {			
 			$whole_link = $match[0][$index];
 			$href 	    = $match[1][$index];
@@ -341,6 +335,11 @@ function check_non_live_link($html, $owner_id)
 			if (!empty($asset_id[0])) {							
 				$asset = $am->getAsset(trim($asset_id[1]), '', TRUE);
 			} else {				
+				
+				if (empty($base_url)) {
+					continue;
+				}
+
 				// if there is no protocol, the url must be relative.			
 				if (parse_url($url, PHP_URL_SCHEME) === NULL) {																		
 					$url = relative_to_absolute_url($url, $base_url);
