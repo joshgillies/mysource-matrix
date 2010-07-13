@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.75 2010/05/13 06:46:14 lwright Exp $
+* $Id: step_03.php,v 1.76 2010/07/13 06:26:08 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -91,6 +91,11 @@ if (!defined('SQ_SYSTEM_ROOT')) {
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// Clean up any remembered data.
+require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
+$deja_vu = new Deja_Vu();
+if ($deja_vu->enabled()) $deja_vu->forgetAll();
 
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';

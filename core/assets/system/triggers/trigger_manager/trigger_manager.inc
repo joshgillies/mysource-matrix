@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.68 2010/04/20 06:33:29 lwright Exp $
+* $Id: trigger_manager.inc,v 1.69 2010/07/13 06:15:14 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,24 @@ class Trigger_Manager extends Asset implements Bridge
 		$this->_loadComponent('trigger_event');
 
 	}//end constructor
+	
+
+	/**
+	* Wakeup.
+	*
+	* It's important to load components when restored from a serialised
+	* state by Deja Vu.
+	*
+	* @access public
+	*/
+	function __wakeup() 
+	{
+		// include base classes for conditions, actions, events
+		$this->_loadComponent('trigger_condition');
+		$this->_loadComponent('trigger_action');
+		$this->_loadComponent('trigger_event');
+		
+	}//end __wakeup()
 
 
 	/**
@@ -1399,6 +1417,7 @@ class Trigger_Manager extends Asset implements Bridge
 	function _executeTrigger($trigger_data, &$state_data)
 	{
 		$status = SQ_TRIG_RESULT_SUCCESS;
+
 
 		$conditions  = $trigger_data['conditions'];
 		$actions     = $trigger_data['actions'];

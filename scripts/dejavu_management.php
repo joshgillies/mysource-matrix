@@ -1,0 +1,130 @@
+<?php
+/**
+* Adds entries into rollback tables where there are no entries. This will occur
+* when rollback has been enabled sometime after the system was installed.
+*
+* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+*/
+error_reporting(E_ALL);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
+
+require_once 'Console/Getopt.php';
+
+$shortopt = 's:';
+$longopt = Array('enable', 'disable', 'forget', 'status');
+
+$args = Console_Getopt::readPHPArgv();
+array_shift($args);
+$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+
+if ($options instanceof PEAR_Error) {
+	usage();
+}
+
+if (empty($options[0])) usage();
+
+$SYSTEM_ROOT = '';
+$ACTION = '';
+
+foreach ($options[0] as $option) {
+	switch ($option[0]) {
+		case 's':
+			if (empty($option[1])) usage();
+			if (!is_dir($option[1])) usage();
+			$SYSTEM_ROOT = $option[1];
+		break;
+		
+		default:
+			$ACTION = $option[0];
+		break;
+	}
+}
+
+if (empty($SYSTEM_ROOT)) usage();
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
+
+$deja_vu = new Deja_Vu();
+
+switch ($ACTION) {
+	case '--status':
+		if ($deja_vu->enabled() == FALSE) {
+			echo "Deja Vu is currently disabled.\n";
+		} else {
+			echo "Deja Vu is currently enabled.\n";
+		}
+		break;
+	case '--enable':
+		if ($deja_vu->enabled() == TRUE) {
+			echo "Deja Vu is already enabled.\n";
+		} else {
+			echo "Enabling Deja Vu...\n";
+			if ($deja_vu->enable()) {
+				$d_vu = new Deja_Vu();;
+				if ($d_vu) {
+					echo "Forgetting everything previously remembered...\n";
+					if ($d_vu->forgetAll()) {
+						echo "[DONE]\n";
+						break;
+					}
+				} else{
+					echo "what?\n";
+				}
+			}
+			echo "[FAILED]\n";
+		}
+		break;
+	case '--disable':
+		if ($deja_vu->enabled() == FALSE) {
+			echo "Deja Vu is already disabled.\n";
+		} else {
+			echo "Disabling Deja Vu...\n";
+			if ($deja_vu->disable()) {
+				echo "[DONE]\n";
+			} else {
+				echo "[FAILED]\n";
+			}
+		}
+		break;
+	case '--forget':
+		if ($deja_vu->enabled() == FALSE) {
+			echo "Deja Vu is currently disabled.\n";
+		} else {
+			echo "Forgetting everything in Deja Vu...\n";
+			if ($deja_vu->forgetAll()) {
+				echo "[DONE]\n";
+			} else {
+				echo "[FAILED]\n";
+			}
+		}
+		break;
+	default:
+		usage();
+		break;
+}
+
+
+/**
+* Prints the usage for this script and exits
+*
+* @return void
+* @access public
+*/
+function usage()
+{
+	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget]\n".
+		"--enable  Enables Deja Vu in MySource Matrix\n".
+		"--disable Disables Deja Vu in MySource Matrix\n".
+		"--forget  Forgets all Deja Vu data in MySource Matrix\n".
+		"--status  Checks the current Deja Vu status\n".
+		"\nNOTE: only one of [--enable --disable --flush] option is allowed to be specified\n";
+	exit();
+
+}//end usage()
+?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.811 2010/07/09 01:20:38 cupreti Exp $
+* $Id: asset_manager.inc,v 1.812 2010/07/13 06:17:27 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.811 $
+* @version $Revision: 1.812 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -106,7 +106,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$this->_asset_types = Array();
 
-		if (file_exists(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
+		if (is_file(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 			include(SQ_DATA_PATH.'/private/db/asset_types.inc');
 			$this->_asset_types = $asset_types;
 		} else {
@@ -333,7 +333,7 @@ class Asset_Manager extends MySource_Object
 		$field = trim($field);
 
 		// if the file does not exist, then we must be installing so get the info from the database
-		if (!file_exists(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
+		if (!is_file(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 
 			if (empty($type_code)) {
 				// No type code specified
@@ -778,7 +778,7 @@ class Asset_Manager extends MySource_Object
 	function validAttributeType($attr_type)
 	{
 		$file = SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
-		if (!is_file($file)) return FALSE;
+		if (!file_exists($file)) return FALSE;
 		require_once($file);
 		return class_exists('Asset_Attribute_'.$attr_type);
 
@@ -1090,6 +1090,18 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		$asset = $this->_asset_cache->get($contextid.'\\'.$assetid);
 
+		if (empty($asset)) {
+			// Try Deja vu
+			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+			if ($deja_vu) {
+				$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $assetid);
+				if (!empty($asset)) {
+					// We still want asset cache to do its thing.
+					$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+				}
+			}
+		}
+
 		/**
 		 * We got the asset from the cache
 		 */
@@ -1157,7 +1169,14 @@ class Asset_Manager extends MySource_Object
 
 		}//end if
 
-		if (isset($asset)) $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+		if (isset($asset)) {
+			$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+			
+			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+			if ($deja_vu) {
+				$deja_vu->remember(SQ_DEJA_VU_ASSET, $asset->id, $asset);
+			}
+		}
 
 		return $asset;
 

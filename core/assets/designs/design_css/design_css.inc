@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.39 2010/03/26 00:15:38 cupreti Exp $
+* $Id: design_css.inc,v 1.40 2010/07/13 06:11:26 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,6 +48,17 @@ class Design_Css extends Design
 		$this->_tmp['updated_cache'] = FALSE;
 
 	}//end constructor
+
+
+	/**
+	 * Wakeup.
+	 */
+	function __wakeup()
+	{
+		// Ensure this is reinitialised when restored from a serialised state.
+		$this->_tmp['updated_cache'] = FALSE;
+		
+	}//end wakeup
 
 
 	/**

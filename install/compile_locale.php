@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.17 2007/11/27 03:29:24 hnguyen Exp $
+* $Id: compile_locale.php,v 1.18 2010/07/13 06:26:08 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,6 +80,11 @@ if (empty($locale_list)) {
 
 define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// Clean up any remembered data.
+require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
+$deja_vu = new Deja_Vu();
+if ($deja_vu->enabled()) $deja_vu->forgetAll();
 
 // get the list of functions used during install
 

@@ -28,6 +28,7 @@ $memcache_conf = Array (
 					'cache_manager'		=> Array('mc1' => 1),
 					'session_handling'	=> Array(),
 					'locking'			=> Array(),
+					'deja_vu'			=> Array(),
 				   ),
 );
 

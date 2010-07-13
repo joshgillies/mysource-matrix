@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.214 2010/07/05 06:42:37 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.215 2010/07/13 06:23:24 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.214 $
+* @version $Revision: 1.215 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -535,7 +535,6 @@ class Metadata_Manager extends MySource_Object
 
 		if (empty($schemas)) return Array();
 
-
 		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
 		// Instead of doing any thinking...let them do it all for us and use it in our query
 		$sql = 'SELECT
@@ -699,6 +698,46 @@ class Metadata_Manager extends MySource_Object
 
 	}//end getSchemaDefaultValues()
 
+	
+	/**
+	 * Load metadata values, principally from $metadata_filename
+	 * but trying Deja Vu first for performance.
+	 *
+	 * @param string $assetid
+	 * @param string $metadata_filename
+	 *
+	 * @return Array
+	 * @access public
+	 */
+	function loadMetadataFile($assetid, $metadata_filename)
+	{
+		// Try Deja vu
+		$metadata = Array();
+		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		if ($deja_vu) {
+			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid);
+		}
+
+		// If nothing in Deja Vu, include the file
+		if (empty($metadata)) {
+			// include the file but must not display anything
+			ob_start();
+				include $metadata_filename;
+			ob_end_clean();
+			
+			$metadata['values'] = $metadata_values;
+			$metadata['value_components'] = $metadata_value_components;
+			$metadata['warnings'] = $metadata_warnings;
+			
+			// Try and rememeber for next time
+			if ($deja_vu) {
+				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $metadata);
+			}
+		}
+		return $metadata;
+		
+	}//end loadMetadata
+
 
 	/**
 	* Generate an array of current values for the passed metadata field names
@@ -717,7 +756,7 @@ class Metadata_Manager extends MySource_Object
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
-
+		
 		if ($contextid === 0) {
 			$metadata_basename = 'metadata.php';
 		} else {
@@ -750,36 +789,38 @@ class Metadata_Manager extends MySource_Object
 		// this will enhance the speed of this function and will replace any keyword
 		$_metadata_filename = $asset->data_path.'/'.$metadata_basename;
 
-		if (!file_exists($_metadata_filename)) {
+		if (!is_file($_metadata_filename)) {
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return $field_values;
 		}
-
-		// include the file but must not display anything
-		ob_start();
-			include $_metadata_filename;
-		ob_end_clean();
-
-		// if the field_names is not empty return the value asked
-		// else return all the values
-		if (!empty($field_names)) {
-			foreach ($field_names as $key => $value) {
-				if (isset($metadata_values[$value])) {
-					$field_values[$value] = $metadata_values[$value];
-				} else if (isset($metadata_values[str_replace('_', ' ', $value)])) {
-					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)];
-				} else {
-					$field_values[$value] = '';
+		
+		$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
+		
+		if (isset($metadata['values'])) {
+			$metadata_values = $metadata['values'];
+			
+			// if the field_names is not empty return the value asked
+			// else return all the values
+			if (!empty($field_names)) {
+				foreach ($field_names as $key => $value) {
+					if (isset($metadata_values[$value])) {
+						$field_values[$value] = $metadata_values[$value];
+					} else if (isset($metadata_values[str_replace('_', ' ', $value)])) {
+						$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)];
+					} else {
+						$field_values[$value] = '';
+					}
 				}
+			} else {
+				$field_values = $metadata_values;
 			}
-		} else {
-			$field_values = $metadata_values;
 		}
 
 		$am->forgetAsset($asset);
 		unset($asset);
 
 		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
 		return $field_values;
 
 	}//end getMetadataFieldValues()
@@ -1833,6 +1874,15 @@ class Metadata_Manager extends MySource_Object
 	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, &$has_errors=FALSE, $contextid=NULL)
 	{
 		if (empty($assetid)) return NULL;
+		
+		// Try Deja Vu to avoid repeated getParents calls etc.
+		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		if ($deja_vu) {
+			$deja_metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid, $contextid);
+			if (isset($deja_metadata['fields'][$field_assetid])) {
+				return $deja_metadata['fields'][$field_assetid];
+			}
+		}
 
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
@@ -1882,9 +1932,16 @@ class Metadata_Manager extends MySource_Object
 			throw new Exception(translate_error('SYS0343', $field_assetid, $assetid, $contextid, $e->getMessage()));
 		}//end try catch
 
+
 		// Matrix DAL returns FALSE when no rows found, for consistancy we should return NULL
 		if ($value === FALSE) {
 			$value = NULL;
+		} else {
+			// Remember..
+			if ($deja_vu) {
+				$deja_metadata['fields'][$field_assetid] = $value;
+				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $deja_metadata, $contextid);
+			}
 		}
 
 		return $value;
@@ -1937,15 +1994,14 @@ class Metadata_Manager extends MySource_Object
 			$_metadata_filename = $asset->data_path.'/'.$metadata_basename;
 
 			// if the file exists then retrieve the value of the metadata field
-			if (file_exists($_metadata_filename)) {
-				// include the file but must not display anything
-				ob_start();
-				include $_metadata_filename;
-				ob_end_clean();
+			if (is_file($_metadata_filename)) {
+				$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
 
-				$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
-
-				$value = $metadata_values[$field_names[$field_assetid]];
+				if (isset($metadata['values'])) {
+					$metadata_values = $metadata['values'];
+					$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
+					$value = $metadata_values[$field_names[$field_assetid]];
+				}	
 			}
 		}
 

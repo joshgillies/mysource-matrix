@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.346 2010/06/11 06:37:05 cupreti Exp $
+* $Id: mysource.inc,v 1.347 2010/07/13 06:24:41 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.346 $
+* @version $Revision: 1.347 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -195,6 +195,14 @@ class MySource extends MySource_Object
 	*/
 	protected $_global_defines;
 
+	
+	/**
+	 * Deja Vu
+	 *
+	 * @var object Deja_Vu
+	 */
+	protected $_deja_vu;
+
 
 	/**
 	* Constructor
@@ -204,8 +212,30 @@ class MySource extends MySource_Object
 	{
 
 	}//end constructor
+	
 
-
+	
+	/**
+	 * Destructor
+	 *
+	 * Attempts to save locale manager in Deja Vu to improve performance.
+	 *
+	 * @return void
+	 */
+	function __destruct()
+	{
+		if (!empty($this->lm) && array_get_index($this->lm->_tmp, 'strings_modified', FALSE)) {
+			$this->lm->locale_stack = Array();
+			// Attempt to store me so that I don't have to go through all that again.
+			$deja_vu = $this->getDejaVu();
+			if ($deja_vu) {
+				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this->lm);
+			}
+		}
+		
+	}//end destructor
+	
+	
 	/**
 	* This initialises all the objects that we need to use, the reason that we can't do
 	* this in the constructor is that the Asset_Manager uses the DB in it's constructor
@@ -223,9 +253,18 @@ class MySource extends MySource_Object
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
-		// Same with the locale manager; translations will be all around us
-		$this->lm = new Locale_Manager();
-
+		// Same with the locale manager; translations will be all around us. 
+		// Loading them is slow though, so first try deja_vu.
+		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		if ($deja_vu) {
+			$this->lm = $deja_vu->recall(SQ_DEJA_VU_LOCALE);
+		}
+		
+		// If nothing, start from scratch.
+		if (empty($this->lm)) {
+			$this->lm = new Locale_Manager();
+		}
+		
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -3180,6 +3219,30 @@ class MySource extends MySource_Object
 		return $this->log_manager;
 
 	}//end getLogManager()
+	
+	
+	/**
+	* Get Deja Vu for that eerie "have me not met before?" feeling.
+	*
+	* Always call this function to get Deja Vu, dont use $this->_deja_vu directly
+	*
+	* @return object
+	* @access public
+	*/
+	function getDejaVu()
+	{
+		if (!isset($this->_deja_vu) || (get_class($this->_deja_vu) != 'Deja_Vu')) {
+			require_once SQ_INCLUDE_PATH.'/deja_vu.inc';
+			$this->_deja_vu = new Deja_Vu();
+		}
+		
+		if ($this->_deja_vu->enabled()) {
+			return $this->_deja_vu;
+		} else {
+			return NULL;
+		}
+
+	}//end getDejaVu()
 
 
 //--        RUN LEVELS        --//

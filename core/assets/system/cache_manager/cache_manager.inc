@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.82 2010/06/11 06:34:53 cupreti Exp $
+* $Id: cache_manager.inc,v 1.83 2010/07/13 06:13:07 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,6 +55,19 @@ class Cache_Manager extends Asset
 		$this->_loadCacheStorage($storage_type);
 
 	}//end constructor
+	
+	
+	/**
+	* Wakeup.
+	*
+	* @access public
+	*/
+	function __wakeup() 
+	{
+		$storage_type = $this->attr('cache_storage_type');
+		$this->_loadCacheStorage($storage_type);
+		
+	}//end wakeup
 
 
 	/**
@@ -201,8 +214,9 @@ class Cache_Manager extends Asset
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE, $expiry_override='')
 	{
 		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
-
+		
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
+		
 		if (empty($perm_key)) return FALSE;
 
 		if ($use_url) {
@@ -226,7 +240,6 @@ class Cache_Manager extends Asset
 		} else {
 			$expiry = $now + $this->getExpiry($asset_type, $assetid);
 		}
-
 		return $this->_storage->store($cache_key, $perm_key, $url, $assetid, $contents, $expiry);
 
 	}//end saveToCache()

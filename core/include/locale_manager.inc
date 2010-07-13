@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.18 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: locale_manager.inc,v 1.19 2010/07/13 06:21:56 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -39,7 +39,7 @@ class Locale_Manager extends MySource_Object
 	* @var Array
 	* @access public
 	*/
-	var $locale_stack = Array();
+	public $locale_stack = Array();
 
 
 	/**
@@ -48,7 +48,7 @@ class Locale_Manager extends MySource_Object
 	* @var Array
 	* @access public
 	*/
-	var $_strings = Array();
+	public $_strings = Array();
 
 
 	/**
@@ -57,7 +57,7 @@ class Locale_Manager extends MySource_Object
 	* @var Array
 	* @access public
 	*/
-	var $_errors = Array();
+	public $_errors = Array();
 
 
 	/**
@@ -66,20 +66,71 @@ class Locale_Manager extends MySource_Object
 	* @var Array
 	* @access public
 	*/
-	var $_internal_messages = Array();
+	public $_internal_messages = Array();
 
 
+	/**
+	 * keep track of which assets have been included so we don't include
+	 * a certain set of strings more than once for each locale
+	 *
+	 * @var Array
+	 * @access private
+	 */
+	private $_assets_included = Array();
+	
+	
+	/**
+	 * keep track of which packages have been included so we don't include
+	 * a certain set of strings more than once for each locale
+	 *
+	 * @var Array
+	 * @access private
+	 */
+	private $_packages_included = Array();
+	
+	
+	/**
+	 * keep track of whether we've included the core strings already
+	 * (for this locale at least)
+	 *
+	 * @var Array
+	 * @access private
+	 */
+	private $_core_included = Array();
+	
+	
 	/**
 	* Constructor
 	*
 	* @return void
 	* @access public
 	*/
-	function Locale_Manager()
+	function __construct()
 	{
 		$this->MySource_Object();
 
 	}//end constructor
+	
+	
+	/**
+	 * Destructor
+	 *
+	 * Attempts to save state in Deja Vu to improve performance.
+	 *
+	 * @return void
+	 */
+	function __destruct()
+	{
+		if (array_get_index($this->_tmp, 'strings_modified', FALSE) && isset($GLOBALS['SQ_SYSTEM'])) {
+			$this->locale_stack = Array();
+			// Attempt to store me so that I don't have to go through all that again.
+			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+			if ($deja_vu) {
+				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this);
+			}
+		}
+		
+	}//end destructor
 
 
 	/**
@@ -90,7 +141,7 @@ class Locale_Manager extends MySource_Object
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function getCurrentLocale()
+	public function getCurrentLocale()
 	{
 		if (count($this->locale_stack) <= 0) return FALSE; // no locale is current
 		return $this->locale_stack[0];
@@ -107,7 +158,7 @@ class Locale_Manager extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getLocaleName($locale_code=NULL)
+	public function getLocaleName($locale_code=NULL)
 	{
 		if (is_null($locale_code)) {
 			$locale_code = $this->getCurrentLocale();
@@ -126,10 +177,11 @@ class Locale_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setCurrentLocale($locale)
+	public function setCurrentLocale($locale)
 	{
 		array_unshift($this->locale_stack, $locale);
 		$this->includeCoreStrings($locale);
+		
 		return TRUE;
 
 	}//end setCurrentLocale()
@@ -141,7 +193,7 @@ class Locale_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function restoreCurrentLocale()
+	public function restoreCurrentLocale()
 	{
 		if (count($this->locale_stack) <= 0) return FALSE; // stack would underflow if we tried to shift this out
 		array_shift($this->locale_stack);
@@ -162,7 +214,7 @@ class Locale_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLocaleParts($locale)
+	public function getLocaleParts($locale)
 	{
 		$locale_parts = Array(NULL, NULL, NULL);
 
@@ -212,7 +264,7 @@ class Locale_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@')
+	public function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@')
 	{
 		$locale_parts = $this->getLocaleParts($locale);
 
@@ -240,7 +292,7 @@ class Locale_Manager extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getString($string_code)
+	public function getString($string_code)
 	{
 		$locale = $this->getCurrentLocale();
 
@@ -272,23 +324,20 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function includeAssetStrings($type_code, $locale=NULL)
+	public function includeAssetStrings($type_code, $locale=NULL)
 	{
-
-		// keep track of which assets have been included so we don't include
-		// a certain set of strings more than once for each locale
-		static $assets_included = Array();
-
-		if (!isset($assets_included[$type_code])) {
-			$assets_included[$type_code] = Array();
+		if (!isset($this->_assets_included[$type_code])) {
+			$this->_assets_included[$type_code] = Array();
 		}
-
-		if (!array_get_index($assets_included[$type_code], $locale, FALSE)) {
-
-			$assets_included[$type_code][$locale] = TRUE;
-			if ($locale == NULL) {
-				$locale = $this->getCurrentLocale();
-			}
+		
+		if ($locale == NULL) {
+			$locale = $this->getCurrentLocale();
+		}
+		
+		
+		if (!array_get_index($this->_assets_included[$type_code], $locale, FALSE)) {
+			$this->_tmp['strings_modified'] = TRUE; // So that we know we've changed.
+			$this->_assets_included[$type_code][$locale] = TRUE;
 
 			// include packages, changing \ for / so it works on Windows systems
 			if ($type_code != 'asset') {
@@ -311,11 +360,11 @@ class Locale_Manager extends MySource_Object
 					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
 			}
-
+			
 			foreach ($locales as $this_locale) {
 				$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$this_locale;
 
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_strings[$locale])) {
@@ -338,22 +387,19 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function includePackageStrings($package_name, $locale=NULL)
+	public function includePackageStrings($package_name, $locale=NULL)
 	{
-		// keep track of which packages have been included so we don't include
-		// a certain set of strings more than once for each locale
-		static $packages_included = Array();
-
-		if (!isset($packages_included[$package_name])) {
-			$packages_included[$package_name] = Array();
+		if (!isset($this->_packages_included[$package_name])) {
+			$this->_packages_included[$package_name] = Array();
+		}
+		
+		if ($locale == NULL) {
+			$locale = $this->getCurrentLocale();
 		}
 
-		if (!array_get_index($packages_included[$package_name], $locale, FALSE)) {
-			$packages_included[$package_name][$locale] = TRUE;
-
-			if ($locale == NULL) {
-				$locale = $this->getCurrentLocale();
-			}
+		if (!array_get_index($this->_packages_included[$package_name], $locale, FALSE)) {
+			$this->_tmp['strings_modified'] = TRUE; // So that we know we've changed.
+			$this->_packages_included[$package_name][$locale] = TRUE;
 
 			list($lang, $country, $variant) = $this->getLocaleParts($locale);
 			$locales = Array($lang);
@@ -376,7 +422,7 @@ class Locale_Manager extends MySource_Object
 				}
 
 				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$this_locale;
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_errors[$locale])) {
@@ -386,7 +432,7 @@ class Locale_Manager extends MySource_Object
 				}
 
 				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$this_locale;
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_internal_messages[$locale])) {
@@ -408,18 +454,15 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function includeCoreStrings($locale=NULL)
+	public function includeCoreStrings($locale=NULL)
 	{
-		// keep track of whether we've included the core strings already
-		// (for this locale at least)
-		static $core_included = Array();
+		if ($locale == NULL) {
+			$locale = $this->getCurrentLocale();
+		}
 
-		if (!array_get_index($core_included, $locale, FALSE)) {
-			$core_included[$locale] = TRUE;
-
-			if ($locale == NULL) {
-				$locale = $this->getCurrentLocale();
-			}
+		if (!array_get_index($this->_core_included, $locale, FALSE)) {
+			$this->_tmp['strings_modified'] = TRUE; // So that we know we've changed.
+			$this->_core_included[$locale] = TRUE;
 
 			list($lang, $country, $variant) = $this->getLocaleParts($locale);
 			$locales = Array($lang);
@@ -432,7 +475,7 @@ class Locale_Manager extends MySource_Object
 
 			foreach ($locales as $this_locale) {
 				$file = SQ_DATA_PATH.'/private/system/core/strings.'.$this_locale;
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_strings[$locale])) {
@@ -442,7 +485,7 @@ class Locale_Manager extends MySource_Object
 				}
 
 				$file = SQ_DATA_PATH.'/private/system/core/errors.'.$this_locale;
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_errors[$locale])) {
@@ -452,7 +495,7 @@ class Locale_Manager extends MySource_Object
 				}
 
 				$file = SQ_DATA_PATH.'/private/system/core/internal_messages.'.$this_locale;
-				if (file_exists($file)) {
+				if (is_file($file)) {
 					$strings = unserialize(file_get_contents($file));
 
 					if (!isset($this->_internal_messages[$locale])) {
@@ -481,7 +524,7 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function raiseError($code, $error_level)
+	public function raiseError($code, $error_level)
 	{
 		$locale = $this->getCurrentLocale();
 
@@ -514,7 +557,7 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function getErrorMessage($code)
+	public function getErrorMessage($code)
 	{
 		$locale = $this->getCurrentLocale();
 
@@ -561,7 +604,7 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function getInternalMessageSubject($type, $keywords, $locale=NULL)
+	public function getInternalMessageSubject($type, $keywords, $locale=NULL)
 	{
 		if (is_null($locale)) {
 			$locale = $this->getCurrentLocale();
@@ -598,7 +641,7 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function getInternalMessageBody($type, $keywords, $locale=NULL)
+	public function getInternalMessageBody($type, $keywords, $locale=NULL)
 	{
 		if (is_null($locale)) {
 			$locale = $this->getCurrentLocale();
@@ -631,7 +674,7 @@ class Locale_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function getJavascriptIncludes()
+	public function getJavascriptIncludes()
 	{
 		$res = Array(sq_web_path('lib').'/js/translation.js'); // we always need this one
 		list($lang, $country, $variant) = $this->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
