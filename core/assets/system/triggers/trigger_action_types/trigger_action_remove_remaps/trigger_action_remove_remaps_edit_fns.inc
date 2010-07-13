@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_remaps_edit_fns.inc,v 1.1 2008/11/12 22:57:57 bpearson Exp $
+* $Id: trigger_action_remove_remaps_edit_fns.inc,v 1.2 2010/07/13 06:05:58 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Trigger_Action_Remove_Remaps_Edit_Fns
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,8 +34,7 @@ class Trigger_Action_Remove_Remaps_Edit_Fns extends Trigger_Action_Edit_Fns
 	*/
 	function Trigger_Action_Remove_Remaps_Edit_Fns()
 	{
-		$this->Trigger_Action_Edit_Fns();
-
+		parent::__construct();
 	}//end constructor
 
 

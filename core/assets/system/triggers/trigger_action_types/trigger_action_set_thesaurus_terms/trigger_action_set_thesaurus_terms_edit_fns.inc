@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thesaurus_terms_edit_fns.inc,v 1.2 2006/12/06 00:00:30 bcaldwell Exp $
+* $Id: trigger_action_set_thesaurus_terms_edit_fns.inc,v 1.3 2010/07/13 06:05:58 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,8 +36,7 @@ class Trigger_Action_Set_Thesaurus_Terms_Edit_Fns extends Trigger_Action_Edit_Fn
 	*/
 	function Trigger_Action_Set_Thesaurus_Terms_Edit_Fns()
 	{
-		$this->Trigger_Action_Edit_Fns();
-
+		parent::__construct();
 	}//end constructor
 
 

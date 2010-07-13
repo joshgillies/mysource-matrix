@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.5 2008/11/12 23:58:20 lwright Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.6 2010/07/13 06:05:58 csmith Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,8 +49,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 	*/
 	function Trigger_Action_Set_Session_Var($assetid=0)
 	{
-		$this->Trigger_Action($assetid);
-
+		parent::__construct($assetid);
 	}//end constructor
 
 

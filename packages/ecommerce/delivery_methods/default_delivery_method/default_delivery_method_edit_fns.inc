@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: default_delivery_method_edit_fns.inc,v 1.8 2009/09/08 10:55:22 ata Exp $
+* $Id: default_delivery_method_edit_fns.inc,v 1.9 2010/07/13 06:08:10 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_me
 * Purpose
 *
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -40,8 +40,7 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 	*/
 	function Default_Delivery_Method_Edit_Fns()
 	{
-		$this->Ecommerce_Delivery_Method_Edit_Fns();
-
+		parent::__construct();
 	}//end constructor
 
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status_edit_fns.inc,v 1.1 2010/04/20 06:33:29 lwright Exp $
+* $Id: trigger_action_update_twitter_status_edit_fns.inc,v 1.2 2010/07/13 06:05:58 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Trigger_Action_Add_Web_Path_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,7 +35,6 @@ class Trigger_Action_Update_Twitter_Status_Edit_Fns extends Trigger_Action_Edit_
 	function __construct()
 	{
 		parent::__construct();
-
 	}//end constructor
 
 
