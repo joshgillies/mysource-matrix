@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.48 2010/06/30 01:44:43 bpearson Exp $
+* $Id: file_system.inc,v 1.49 2010/07/14 03:54:27 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package Fudge
 * @subpackage General
 */
@@ -334,7 +334,7 @@ function create_directory($path)
 */
 function delete_directory($path)
 {
-	$path  = ereg_replace('/$','',$path);
+	$path  = rtrim($path, '/');
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for deletion).', E_USER_WARNING);
 		clearstatcache();
@@ -367,7 +367,7 @@ function delete_directory($path)
 */
 function clear_directory($path, $file_excl = Array())
 {
-	$path  = ereg_replace('/$','',$path);
+	$path  = rtrim($path, '/');
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for clearing).');
 		clearstatcache();
@@ -407,8 +407,8 @@ function clear_directory($path, $file_excl = Array())
 */
 function copy_directory($path, $new_path)
 {
-	$path     = ereg_replace('/$','',$path);
-	$new_path = ereg_replace('/$','',$new_path);
+	$path     = rtrim($path, '/');
+	$new_path = rtrim($new_path, '/');
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for copying.)');
 		clearstatcache();
