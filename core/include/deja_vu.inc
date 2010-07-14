@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.1 2010/07/13 06:25:03 ewang Exp $
+*$Id: deja_vu.inc,v 1.2 2010/07/14 00:27:42 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -136,13 +136,15 @@ class Deja_Vu extends MySource_Object
 	*/
 	public function recall($type, $assetid = NULL, $contextid = NULL)
 	{
+		//ignore shadow assets
+		if(strpos($assetid, ':') !== FALSE) return NULL;
 		$cache_key = $this->_getCacheKey($type, $assetid, $contextid);
 		switch ($type) {
 		case 'asset':
 			$obj = $this->_memcache->get($cache_key);
 			if (!$obj) {
 			//	log_error("Cache miss for $cache_key");
-				return null;
+				return NULL;
 			}
 			
 			// If $obj is an undefined object, it's an asset stored without the class being included yet.
@@ -162,7 +164,7 @@ class Deja_Vu extends MySource_Object
 					// Should never happen, but just in case..
 					log_error('Deja Vu could not load asset type "'.$type_code.'" for #'.$assetid.'. Assuming the asset type has been uninstalled, so forgetting this asset.');
 					$this->forget($assetid, $type);
-					return null;
+					return NULL;
 				}
 			}//end if
 			
@@ -173,7 +175,7 @@ class Deja_Vu extends MySource_Object
 			$data = $this->_memcache->get($cache_key);
 
 			if (!$data) {
-				return null;
+				return NULL;
 			} else {
 				return $data;
 			}
@@ -196,6 +198,8 @@ class Deja_Vu extends MySource_Object
 	*/
 	public function remember($type, $assetid, $object, $contextid = NULL)
 	{
+		//ignore shadow assets
+		if(strpos($assetid, ':') !== FALSE) return NULL;
 		return $this->_memcache->set($this->_getCacheKey($type, $assetid, $contextid), $object);
 	}//end remember()
 
@@ -210,20 +214,6 @@ class Deja_Vu extends MySource_Object
 	*/
 	public function forget($type, $assetid = NULL)
 	{	
-		// Delete cache of shadow children assets as well
-		if($type === 'asset' && $assetid) {
-			$cache_key = $this->_getCacheKey($type, $assetid);
-			$obj = $this->_memcache->get($cache_key);
-			if($obj) {
-				if($obj instanceof Bridge) {
-					$children = $obj->getChildren($assetid);
-					foreach ($children as $id => $info) {
-						if(strpos($id, ':') !== FALSE)
-							$this->_memcache->delete($this->_getCacheKey('asset', $id));
-					}
-				}
-			}
-		}
 		return $this->_memcache->delete($this->_getCacheKey($type, $assetid));
 	}//end forget()
 	
