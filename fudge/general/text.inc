@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.55 2010/06/24 01:04:10 ewang Exp $
+* $Id: text.inc,v 1.56 2010/07/14 23:35:10 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package Fudge
 * @subpackage Text
 */
@@ -102,7 +102,7 @@ function _replace_keywords_recursive(&$text, &$replacements)
 function parse_keyword($keyword, &$modifiers = NULL)
 {
 	$modifiers = Array();
-	$parts = split('\^', $keyword);
+	$parts = explode('^', $keyword);
 	$keyword = array_shift($parts);
 
 	foreach ($parts as &$p) {
