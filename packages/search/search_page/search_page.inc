@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.246 2010/07/05 06:56:45 akarelia Exp $
+* $Id: search_page.inc,v 1.247 2010/07/14 07:30:08 csmith Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1601,7 +1601,7 @@ class Search_Page extends Listing_Engine
 		$categories = $this->attr('categories');
 
 		foreach ($keywords as $keyword) {
-			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
 				$options = Array(
 							'AND'	=> translate('sch_page_format_logic_and'),
@@ -1612,9 +1612,9 @@ class Search_Page extends Listing_Engine
 					combo_box($keyword, $options, FALSE, $current_logic);
 					$replaces[$keyword] = ob_get_contents();
 				ob_end_clean();
-			} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			} else if (preg_match('/(.+)_query_(.+)$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replaces[$keyword] = $this->getFieldReplacement($matches[1], $matches[2]);
-			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			} else if (preg_match('/(.+)_query$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
 			} else if (substr($keyword, -17) == '_category_chooser') {
 				$cat_name = substr($keyword, 0, -17);
@@ -1647,9 +1647,9 @@ class Search_Page extends Listing_Engine
 
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
-			if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			if (preg_match('/(.+)_query_terms$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replacements[$keyword] = $this->getSearchedFieldReplacement($matches[1]);
-			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			} else if (preg_match('/(.+)_query$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				if ($form_name == 'sis_form') {
 					$replacements[$keyword] = $this->getSisFieldReplacement($matches[1]);
 				} else {
@@ -1918,7 +1918,7 @@ class Search_Page extends Listing_Engine
 				default:
 					$fields = $this->attr('fields');
 
-					if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					if (preg_match('/(.+)_query_logic$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
 						$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
@@ -1928,21 +1928,21 @@ class Search_Page extends Listing_Engine
 							$replacement = ob_get_contents();
 						ob_end_clean();
 
-					} else if (ereg('(.+)_query_terms_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_terms_(.+)$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1], $matches[2]);
 
-					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_terms$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
 
-					} else if (ereg('(.+)_query_synonym_search_message$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_synonym_search_message$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						if (!empty($this->_tmp['auto_synonym_search_used'])) {
 							$replacement = $this->attr('auto_synonym_string');
 						}
 
-					} else if (ereg('(.+)_query_suggestions(_message)?$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_suggestions(_message)?$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						// spell-checking suggestions
 						$field_name = $matches[1];
@@ -1962,7 +1962,7 @@ class Search_Page extends Listing_Engine
 							}
 						}
 
-					} else if (ereg('(.+)_query_synonyms(_message)?$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_synonyms(_message)?$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						// synonym searching
 						$field_name = $matches[1];
@@ -1986,11 +1986,11 @@ class Search_Page extends Listing_Engine
 							}
 						}
 
-					} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query_(.+)$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getFieldReplacement($matches[1], $matches[2]);
 
-					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (preg_match('/(.+)_query$/', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getFieldReplacement($matches[1]);
 

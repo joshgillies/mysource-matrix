@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.37 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: preview.inc,v 1.38 2010/07/14 07:28:27 csmith Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 
@@ -465,8 +465,8 @@ function printSize(&$owner)
 	foreach ($array_types as $key => $type_asset) {
 		foreach ($type_asset[1] as $key_value => $url) {
 			$url = str_replace("'",'',$url);
-			$basename = split('/',$url);
-			$protocol = split(':',$url);
+			$basename = explode('/',$url);
+			$protocol = explode(':',$url);
 			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 							assetid
@@ -499,18 +499,18 @@ function printSize(&$owner)
 		// get default times so that we can restore them later
 		$default_execution_time = ini_get('max_execution_time');
 		$default_socket_time = ini_get('default_socket_timeout');
-		$type_asset[0] = split('~',$type_asset[0]);
+		$type_asset[0] = explode('~',$type_asset[0]);
 		if (sizeof($type_asset[0]) != 1) {
 			foreach ($type_asset[0] as $key => $url) {
 				$url = str_replace("'",'',$url);
-				if (ereg('__data',$url) && $url != '') {
-					$parts = split('__data',$url);
+				if (strpos($url, '__data') !== FALSE && $url != '') {
+					$parts = explode('__data',$url);
 					$url = SQ_DATA_PATH.'/public'.$parts[1];
 					$total_js_size_here = filesize($url);
 					$total_js_size += $total_js_size_here;
 				} else {
-					if ( $url != '' && ereg('__lib',$url)) {
-						$parts = split('__lib',$url);
+					if (strpos($url, '__lib') !== FALSE && $url != '') {
+						$parts = explode('__lib',$url);
 						$url = SQ_INCLUDE_PATH.'/../lib'.$parts[1];
 						$total_js_size_here = filesize($url);
 						$total_js_size += $total_js_size_here;
@@ -528,7 +528,7 @@ function printSize(&$owner)
 						} else {
 							$total_other_size += $headers['Content-Length'];
 						}
-						if (ereg('404',$headers[0]) || !($headers)) {
+						if (strpos($headers[0], '404') !== FALSE || !($headers)) {
 							$element_unknown = $element_unknown.$url.'~';
 						}
 						set_time_limit($default_execution_time);
@@ -554,7 +554,7 @@ function printSize(&$owner)
 
 	echo $output;
 
-	$element_unknown = split('~',$element_unknown);
+	$element_unknown = explode('~',$element_unknown);
 	if (sizeof($element_unknown)!= 1) {
 		echo '<br><span class="sq-backend-warning ">Could not get data for</span>';
 		foreach ($element_unknown as $key => $unknown_url) {

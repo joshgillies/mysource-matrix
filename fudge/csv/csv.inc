@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.17 2010/03/23 23:27:26 csmith Exp $
+* $Id: csv.inc,v 1.18 2010/07/14 07:29:18 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -385,7 +385,7 @@ class CSV
 			if (is_array($val)) {
 				$line .= '"'.$this->formatLine($val,$deliminator).'"'.$deliminator;
 			} else {
-				if (ereg("[$deliminator\"\n\r]", $val)) {
+				if (preg_match("/[".preg_quote($deliminator, $deliminator) . "\"\n\r]/", $val)) {
 					$val = '"'.str_replace('"', '""', $val).'"';
 				}
 				$line .= $val.$deliminator;
@@ -421,7 +421,7 @@ class CSV
 					$this_val = $array[$key];
 				}
 
-				if (ereg("[$deliminator\"\n\r]", $this_val)) {
+				if (preg_match("/[".preg_quote($deliminator, $deliminator) . "\"\n\r]/", $this_val)) {
 					$this_val = '"'.str_replace('"', '""', $this_val).'"';
 				}
 			}
