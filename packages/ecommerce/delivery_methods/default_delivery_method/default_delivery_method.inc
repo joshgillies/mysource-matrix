@@ -25,7 +25,7 @@ require_once 'HTTP/Client.php';
 * Purpose
 *
 *
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -144,7 +144,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		// create the keyword replacements with values entered by the user
 		foreach ($confirmation_keywords as $keyword) {
-			$key_parts = split('_', $keyword);
+			$key_parts = explode('_', $keyword);
 			if ((count($key_parts) == 2 ) && ($key_parts[0] == 'form')) {
 
 				$keyword_remplacements[$keyword] = $form_values[$key_parts[1]];
@@ -226,7 +226,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		$question_values = $form->getQuestions();
 		foreach ($question_values as $key => $value) {
-			$key_parts = split( ':', $key);
+			$key_parts = explode( ':', $key);
 			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
 		}
 		return $keywords;
@@ -247,7 +247,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		$question_values = $form->getQuestions();
 		foreach ($question_values as $key => $value) {
-			$key_parts = split( ':', $key);
+			$key_parts = explode( ':', $key);
 			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
 		}
 		return $keywords;
@@ -268,7 +268,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		$question_values = $form->getQuestions();
 		foreach ($question_values as $key => $value) {
-			$key_parts = split( ':', $key);
+			$key_parts = explode( ':', $key);
 			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
 		}
 		return $keywords;
@@ -344,7 +344,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$answers = unserialize($_SESSION['order_extra_information']);
 		
 		foreach ($questions as $q_id => $question_data) {
-			$id_parts = split(':', $q_id);
+			$id_parts = explode(':', $q_id);
 			$answer = array_get_index($answers, $id_parts[1], '');
 			
 			$xml_str .= <<<HEREDOC
@@ -386,7 +386,7 @@ HEREDOC;
 		$question_values = $form->getQuestions();
 		$answers = unserialize($_SESSION['order_extra_information']);
 		foreach ($question_values as $key => $value) {
-			$key_parts = split(':', $key);
+			$key_parts = explode(':', $key);
 			if ($html) {
 				echo '<li>'.$value['name'].' ('.$key_parts[1].') : '.$answers[$key_parts[1]].'</li>';
 			} else {
@@ -426,7 +426,7 @@ HEREDOC;
 			$form_values = $tmp_order->attr('order_form_value');
 			$keyword_replacements = Array();
 			foreach ($keywords as $keyword) {
-				$key_parts = split('_', $keyword);
+				$key_parts = explode('_', $keyword);
 				if ((count($key_parts) == 2) && ($key_parts[0] == 'form')) {
 					$keyword_replacements[$keyword] = $form_values[$key_parts[1]];
 				}
@@ -526,7 +526,7 @@ HEREDOC;
 			} else if (!empty($answers[$key]['value'])) {
 				$tmp_value = $answers[$key]['value'];
 			}
-			$key_parts = split(':', $key);
+			$key_parts = explode(':', $key);
 			$order_extra_info[$key_parts[1]] = $tmp_value;
 			//if the question is a country question, stores the value for pass-through variables later
 			if ($answers[$key]['type_code'] == 'form_question_type_country') {
@@ -765,7 +765,7 @@ HEREDOC;
 			$tmp_form =& $this->getForm();
 			$tmp_questions = $tmp_form->getQuestions();
 			foreach ($tmp_questions as $key => $value) {
-				$key_parts = split(':', $key);
+				$key_parts = explode(':', $key);
 				$keywords_to_replace[] = 'response_'.$key_parts[1].'';
 				if (!empty($form_values[$key_parts[1]])) {
 					$keywords_replacements[] = $form_values[$key_parts[1]];
@@ -884,7 +884,7 @@ HEREDOC;
 						}
 					}
 				} else {
-					$key_parts = split(':', $q_id);
+					$key_parts = explode(':', $q_id);
 					if (!empty($current_answers[$key_parts[1]])) {
 						$val = $current_answers[$key_parts[1]];
 					}

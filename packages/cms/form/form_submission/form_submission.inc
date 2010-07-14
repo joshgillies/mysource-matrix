@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.41 2010/03/29 04:59:49 cupreti Exp $
+* $Id: form_submission.inc,v 1.42 2010/07/14 23:16:44 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -444,7 +444,7 @@ class Form_Submission extends Asset
 			if (!isset($attrs['summary'])) return '';
 
 			foreach ($attrs['summary'] as $name => $value) {
-				$q_ids = split(':q', $name);
+				$q_ids = explode(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
 					return $value['name'];
 				}
@@ -465,7 +465,7 @@ class Form_Submission extends Asset
 			if (!isset($attrs['summary'])) return '';
 
 			foreach ($attrs['summary'] as $name => $value) {
-				$q_ids = split(':q', $name);
+				$q_ids = explode(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
 					return $value['answer'];
 				}
@@ -484,7 +484,7 @@ class Form_Submission extends Asset
 		if (preg_match('/question\_answer\_key\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');			
 			foreach ($attrs['answers'] as $name => $value) {
-				$q_ids = split(':q', $name);
+				$q_ids = explode(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
 					if (!is_scalar($value['answer'])) {
 						$value = array_get_index($attrs['summary'], $name, Array('answer' => ''));

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.18 2010/05/05 07:13:22 ewang Exp $
+* $Id: ipb_bridge.inc,v 1.19 2010/07/14 23:16:50 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -992,7 +992,7 @@ class IPB_Bridge extends Asset implements Bridge
 	{
 		$lineage = Array();
 
-		$shadow_ids = split(',', $assetid);
+		$shadow_ids = explode(',', $assetid);
 		foreach ($shadow_ids as $id) {
 			$asset =& $this->getAsset($this->id.':'.$id);
 			$url = substr($asset->getURL(), strlen(current_protocol()) +3);

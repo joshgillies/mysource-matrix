@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.21 2010/05/05 07:12:35 ewang Exp $
+* $Id: google_map.inc,v 1.22 2010/07/14 23:16:48 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -1025,7 +1025,7 @@ class Google_Map extends Page_Asset_Listing
 			if (strcmp($status, "200") == 0) {
 				$geocode_pending = false;
 				$coordinates = $xml->Response->Placemark->Point->coordinates;
-				$coordinates_array = split(",", $coordinates);
+				$coordinates_array = explode(",", $coordinates);
 				$lat = $coordinates_array[1];
 				$lng = $coordinates_array[0];
 			} else if (strcmp($status, "620") == 0) {

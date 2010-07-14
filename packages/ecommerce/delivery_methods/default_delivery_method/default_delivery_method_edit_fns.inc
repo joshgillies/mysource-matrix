@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: default_delivery_method_edit_fns.inc,v 1.9 2010/07/13 06:08:10 csmith Exp $
+* $Id: default_delivery_method_edit_fns.inc,v 1.10 2010/07/14 23:16:46 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_me
 * Purpose
 *
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -66,7 +66,7 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 			echo '<style type="text/css">#keyword_table td {border:1px solid #B3B3B3;}  #keyword_table {border:1px solid #000}</style>';
 			echo '<table id="keyword_table"><tr><td><strong>Keyword</strong></td><td><strong>Description</strong></td></tr>';
 			foreach ($availableKeywords as $key => $value) {
-				$key_parts = split(':', $key);
+				$key_parts = explode(':', $key);
 				echo '<tr><td>%response_'.$key_parts[1].'%</td><td>print field value <strong>"'.$value['name'].'"</strong> </td></tr>';
 			}
 			echo '<tr><td>%customised_receipt%</td><td>print the customised receipt (if enabled via the checkout asset)</td></tr>';

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.5 2010/05/05 07:16:13 ewang Exp $
+* $Id: page_rest_resource.inc,v 1.6 2010/07/14 23:16:54 csmith Exp $
 *
 */
 
@@ -179,7 +179,7 @@ class Page_REST_Resource extends Page
 		if (substr($keyword, 0, strlen('asset_rest_contents'))  == 'asset_rest_contents') {
 
 			$params = substr($keyword, strlen('asset_rest_contents') + 1);
-			$params = split('_', $params);
+			$params = explode('_', $params);
 
 			$i = 1;
 			foreach ($params as $p) {
@@ -219,7 +219,7 @@ class Page_REST_Resource extends Page
 		if (isset($array[$keyword])) return $array[$keyword];
 
 		// Otherwise, split the keyword into parts, and try the first part, recursing if there's a match.
-		$parts = split('_', $keyword);
+		$parts = explode('_', $keyword);
 		$part = array_shift($parts);
 	
 		if (isset($array[$part])) {
