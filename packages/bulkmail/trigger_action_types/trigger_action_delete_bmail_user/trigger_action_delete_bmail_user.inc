@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * A trigger action that deletes bulkmail users*
 *
 * @author  Wojciech Szymanski <wojtek@squiz.pl>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -182,7 +182,7 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 		ob_end_clean();
 
 		// attribute friendly prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// parameter map options
@@ -222,7 +222,7 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 			return 'Asset ID not specified';
 		}
 
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		$attr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$attr_parameter_map->process($new_prefix.'_parameter_map');
 		$settings['parameter_map_target_asset'] = $attr_parameter_map->value;

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_call_rest_resource.inc,v 1.5 2010/05/05 07:16:13 ewang Exp $
+* $Id: trigger_action_call_rest_resource.inc,v 1.6 2010/07/14 05:23:09 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
@@ -134,7 +134,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 	{
 		ob_start();
 		
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 
 		$http_request_value = array_get_index($settings, 'http_request', Array());
 		$http_request_attr = new Asset_Attribute_HTTP_Request(0, $http_request_value);
@@ -168,7 +168,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 		}
 
 		$http_request_attr = new Asset_Attribute_HTTP_Request(0, $http_request_value);
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 
 		$http_request_attr->process($new_prefix.'_http_request');
 		$settings['http_request'] = $http_request_attr->value;

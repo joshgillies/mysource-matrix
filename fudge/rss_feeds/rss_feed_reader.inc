@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.17 2009/11/03 00:38:36 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.18 2010/07/14 05:27:50 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -153,9 +153,9 @@ class RSS_Feed_Reader
 			//  feed:http://[/]
 			//  feed://[/]
 			//  feed://http://[/]
-			$file = preg_replace('/^feed:(\/\/)?(http:\/\/)?/','http://',$file);	
-			
-			if (eregi('^(http|ftp)://', substr($file, 0, 10))) {
+			$file = preg_replace('/^feed:(\/\/)?(http:\/\/)?/','http://',$file);
+
+			if (preg_match('%^(http[s]*|ftp)://%', substr($file, 0, 10))) {
 				if (!ini_get('allow_url_fopen')) {
 					trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
 					return FALSE;
