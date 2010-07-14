@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rebake.php,v 1.2 2009/11/16 05:18:54 lwright Exp $
+* $Id: rebake.php,v 1.3 2010/07/14 01:15:07 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *    php install_queries.php /system/root
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -186,11 +186,11 @@ function get_console_list($options)
 		if ($option[0] != '--package') continue;
 
 		// Now process the list
-		$parts = split('-', $option[1]);
+		$parts = explode('-', $option[1]);
 
 		$types = Array();
 		if (count($parts) == 2 && strlen($parts[1])) {
-			$types = split(',', $parts[1]);
+			$types = explode(',', $parts[1]);
 		}
 
 		$list[$parts[0]] = $types;

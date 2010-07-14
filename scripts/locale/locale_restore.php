@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_restore.php,v 1.2 2006/12/06 05:42:21 bcaldwell Exp $
+* $Id: locale_restore.php,v 1.3 2010/07/14 01:15:07 csmith Exp $
 *
 */
 
@@ -38,7 +38,7 @@
 *	XML file has locale info that this script uses..
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -178,11 +178,11 @@ function get_console_list($options)
 			case '--locale':
 				if (!isset($option[1])) continue;
 				// Now process the list
-				$parts = split('-', $option[1]);
+				$parts = explode('-', $option[1]);
 
 				$types = Array();
 				if ((count($parts) == 2) && strlen($parts[1])) {
-					$types = split(',', $parts[1]);
+					$types = explode(',', $parts[1]);
 				} else {
 					$types = Array('all');
 				}

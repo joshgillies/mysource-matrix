@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.7 2006/12/06 05:42:21 bcaldwell Exp $
+* $Id: locale_backup.php,v 1.8 2010/07/14 01:15:07 csmith Exp $
 *
 */
 
@@ -45,7 +45,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -404,11 +404,11 @@ function get_console_list($options)
 		switch($option[0]) {
 			case '--locale':
 				// Now process the list
-				$parts = split('-', $option[1]);
+				$parts = explode('-', $option[1]);
 
 				$types = Array();
 				if ((count($parts) == 2) && strlen($parts[1])) {
-					$types = split(',', $parts[1]);
+					$types = explode(',', $parts[1]);
 				} else {
 					$types = Array('all');
 				}
