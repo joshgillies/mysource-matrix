@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.76 2010/06/02 04:03:43 akarelia Exp $
+* $Id: step_02.php,v 1.77 2010/07/14 01:14:20 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -65,7 +65,7 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // Re-generate the Config to make sure that we get any new defines that may have been issued
 
-$cfg =& new System_Config();
+$cfg = new System_Config();
 $cfg->save(Array(), FALSE);
 
 // check that we have valid DEFAULT and TECH email addresses - warn if missing

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.18 2010/07/13 06:26:08 ewang Exp $
+* $Id: compile_locale.php,v 1.19 2010/07/14 01:14:20 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -382,11 +382,11 @@ function get_console_list($options)
 		if ($option[0] != '--locale') continue;
 
 		// Now process the list
-		$parts = split('-', $option[1]);
+		$parts = explode('-', $option[1]);
 
 		$types = Array();
 		if (count($parts) == 2 && strlen($parts[1])) {
-			$types = split(',', $parts[1]);
+			$types = explode(',', $parts[1]);
 		} else {
 			$types = Array('all');
 		}

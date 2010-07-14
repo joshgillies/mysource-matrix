@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.76 2010/07/13 06:26:08 ewang Exp $
+* $Id: step_03.php,v 1.77 2010/07/14 01:14:20 csmith Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -76,7 +76,7 @@ if ($cli) {
 	$shortopt = '';
 	$longopt = Array('package=');
 
-	$con =& new Console_Getopt;
+	$con = new Console_Getopt;
 	$args = $con->readPHPArgv();
 	array_shift($args);
 	$options = $con->getopt($args, $shortopt, $longopt);
@@ -178,11 +178,11 @@ function get_console_list($options)
 		if ($option[0] != '--package') continue;
 
 		// Now process the list
-		$parts = split('-', $option[1]);
+		$parts = explode('-', $option[1]);
 
 		$types = Array();
 		if (count($parts) == 2 && strlen($parts[1])) {
-			$types = split(',', $parts[1]);
+			$types = explode(',', $parts[1]);
 		}
 
 		$list[$parts[0]] = $types;
