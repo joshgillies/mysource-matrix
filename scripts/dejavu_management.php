@@ -5,7 +5,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -16,7 +16,7 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:';
-$longopt = Array('enable', 'disable', 'forget', 'status');
+$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -47,11 +47,17 @@ foreach ($options[0] as $option) {
 
 if (empty($SYSTEM_ROOT)) usage();
 
+if($ACTION === '--disable_force') {
+	// forcibly disable deja vu before even include init.inc
+	file_put_contents($SYSTEM_ROOT.'/data/private/conf/.dejavu', '0');
+	echo "Deja Vu is forcibly disabled.\n";
+	exit();
+}
+
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
 
 $deja_vu = new Deja_Vu();
-
 switch ($ACTION) {
 	case '--status':
 		if ($deja_vu->enabled() == FALSE) {
@@ -64,9 +70,21 @@ switch ($ACTION) {
 		if ($deja_vu->enabled() == TRUE) {
 			echo "Deja Vu is already enabled.\n";
 		} else {
+			// Make sure memcache is setup properly before enable deja vu. 
+			assert_true(extension_loaded('memcache'), 'Cannot use Deja Vu; it requires the memcache PECL extension installed within , which is not installed');
+			assert_true(is_file(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Deja Vu; the Memcache configuration file is not set');
+
+			$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
+			$hosts =& $memcache_conf['hosts'];
+			$services =& $memcache_conf['services'];
+
+			assert_true(count($hosts) > 0, 'Cannot use Deja Vu; no hosts are defined in the Memcache configuration file');
+			assert_true(array_key_exists('deja_vu', $services) === TRUE, 'Cannot use Deja Vu; no Memcache hosts are assigned');
+			assert_true(count($services['cache_manager']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
+			
 			echo "Enabling Deja Vu...\n";
 			if ($deja_vu->enable()) {
-				$d_vu = new Deja_Vu();;
+				$d_vu = new Deja_Vu();
 				if ($d_vu) {
 					echo "Forgetting everything previously remembered...\n";
 					if ($d_vu->forgetAll()) {
@@ -119,10 +137,11 @@ switch ($ACTION) {
 function usage()
 {
 	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget]\n".
-		"--enable  Enables Deja Vu in MySource Matrix\n".
-		"--disable Disables Deja Vu in MySource Matrix\n".
-		"--forget  Forgets all Deja Vu data in MySource Matrix\n".
-		"--status  Checks the current Deja Vu status\n".
+		"--enable  			Enables Deja Vu in MySource Matrix\n".
+		"--disable 			Disables Deja Vu in MySource Matrix\n".
+		"--disable_force	Forcibly disables Deja Vu by editing control file\n".
+		"--forget			Forgets all Deja Vu data in MySource Matrix\n".
+		"--status			Checks the current Deja Vu status\n".
 		"\nNOTE: only one of [--enable --disable --flush] option is allowed to be specified\n";
 	exit();
 
