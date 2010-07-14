@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.157 2010/04/22 22:55:47 hnguyen Exp $
+* $Id: page_asset_builder.inc,v 1.158 2010/07/14 00:29:35 kmyothein Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1019,10 +1019,20 @@ class Page_Asset_Builder extends Page
 	function getAdditionalCreateLocations()
 	{
 		$res = Array();
+		$additional_locs = '';
+
 		$parameter_map = $this->getAttribute('parameter_map');
 		if (isset($_REQUEST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
-			// set the assetids and link types from the query
-			foreach (explode(';', $_REQUEST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
+			$additional_locs = $_REQUEST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'];
+		} else if ($parameter_map->getParameterValue('additional_locations') != NULL) {
+			// As per Bug #2982, the POST var was not registering here, so here we check for the value
+			// and allow asset builder to create the asset.
+			$additional_locs = $parameter_map->getParameterValue('additional_locations');
+		}
+
+		if (!empty($additional_locs)) {
+			// get the assetids and link types
+			foreach (explode(';', $additional_locs) as $loc_code) {
 				if (FALSE === strpos($loc_code, '-')) {
 					// no link type specified, use the default
 					$link_type = $this->attr('additional_location_default_link_type');
@@ -1053,18 +1063,7 @@ class Page_Asset_Builder extends Page
 					if (empty($matches)) unset($res[$assetid]);
 				}
 			}
-		} else if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
-			// As per Bug #2982, the POST var was not registering here, so here we check for the value
-			// and allow asset builder to create the asset.
-			if (is_array($additional_locs)) {
-				foreach ($additional_locs as $key => $value) {
-					$res[$key] = $value;
-				}
-			} else {
-				$res[$additional_locs] = '1';
-			}
-
-		}//end if
+		} // end if (!empty($additional_locs))
 		return $res;
 
 	}//end getAdditionalCreateLocations()
