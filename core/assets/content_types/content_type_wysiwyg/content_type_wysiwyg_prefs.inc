@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.26 2010/07/07 01:11:38 kmyothein Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.27 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -152,7 +152,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if (!is_numeric($wysiwyg_style['width'])) {
-							$wysiwyg_style['width'] = ereg_replace('[^0-9]', '', $wysiwyg_style['width']);
+							$wysiwyg_style['width'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['width']);
 						}
 						if ($have_lock && $is_admin) {
 							int_text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width'], FALSE, 5);
@@ -179,7 +179,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if (!is_numeric($wysiwyg_style['height'])) {
-							$wysiwyg_style['height'] = ereg_replace('[^0-9]', '', $wysiwyg_style['height']);
+							$wysiwyg_style['height'] = preg_replace('/[^0-9]/', '', $wysiwyg_style['height']);
 						}
 						if ($have_lock && $is_admin) {
 							int_text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height'], FALSE, 5);

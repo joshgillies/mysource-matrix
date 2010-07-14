@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.6 2010/07/13 06:05:58 csmith Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.7 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 		$settings['value']	= $request_data['value'];
 		$settings['value_map'] = '';
 
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		if ($new_prefix) {
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 			$atr_parameter_map->process($new_prefix.'_parameter_map');
@@ -166,7 +166,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 
 		ob_start();
 			echo '<div>';
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.46 2010/01/27 22:25:59 cupreti Exp $
+* $Id: bodycopy_container.inc,v 1.47 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -422,7 +422,7 @@ class Bodycopy_Container extends Asset
 				ob_start();
 					$edit->paint($this, FALSE, FALSE);
 					$output = ob_get_contents();
-				ob_end_clean();
+					ob_end_clean();
 
 				// replace ./?a=xxx style links within the content
 				foreach ($sq_asset_url_list as $assetid => $href) {
@@ -430,8 +430,8 @@ class Bodycopy_Container extends Asset
 						$s = './?a='.$assetid.'$';
 						$output = str_replace($s, $href, $output);
 					} else {
-						$e = "(/?\./\\?a=$assetid)([^0-9:])";
-						$output = ereg_replace($e, $href.'\\2', $output);
+						$e = "!(/?\./\\?a=$assetid)([^0-9:])!";
+						$output = preg_replace($e, $href.'\\2', $output);
 					}
 				}
 

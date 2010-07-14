@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.37 2010/05/18 12:07:27 ata Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.38 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,7 +239,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				hidden_field($prefix.'[form_printed]', 1);
 
 				// attribute friendly prefix
-				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				$new_prefix = str_replace(array('[',']'), '_', $prefix);
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
@@ -358,7 +358,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$settings['field_name']	= $metadata_field->name;
 			$settings['value']		= $result;
 
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+			$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 			if ($new_prefix) {
 				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');

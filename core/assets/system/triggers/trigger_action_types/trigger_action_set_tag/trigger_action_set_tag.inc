@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.11 2009/07/10 05:53:58 wszymanski Exp $
+* $Id: trigger_action_set_tag.inc,v 1.12 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -331,7 +331,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			// prints the parameter map to accept dynamic values
 			if ($write_access) {
 				// attribute friendly prefix
-				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				$new_prefix = str_replace(array('[',']'), '_', $prefix);
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 				$param_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 				$param_map_attr = new Asset_Attribute_Parameter_Map(0, $param_map_value);
@@ -374,7 +374,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		$settings['manual_cascade'] = (bool) array_get_index($request_data, 'manual_cascade', FALSE);
 
 		// parameter map to accept dynamic value
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		if ($new_prefix) {
 			$param_map_attr = new Asset_Attribute_Parameter_Map();
 			$param_map_attr->process($new_prefix.'_parameter_map');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_links.inc,v 1.4 2009/02/04 06:46:41 mbrydon Exp $
+* $Id: trigger_action_remove_links.inc,v 1.5 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *	- Direct Links Only
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,7 +341,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 
 		// attribute friendly prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[', ']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// parameter map options
@@ -416,7 +416,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 			return 'Link Type not specified';
 		}
 
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[', ']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		$attr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$attr_parameter_map->process($new_prefix.'_parameter_map');
 		$settings['parameter_map_target_asset'] = $attr_parameter_map->value;

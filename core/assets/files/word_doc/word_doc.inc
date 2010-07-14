@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.22 2008/10/08 01:14:47 lwright Exp $
+* $Id: word_doc.inc,v 1.23 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Word_Doc extends File
 		$file_info = $this->getExistingFile();
 		if (empty($file_info)) return '';
 		$file = $file_info['path'];
-		$file = ereg_replace('\"', '\\\"', $file);
+		$file = str_replace('"', '\\\"', $file);
 
 		$content = '';
 		if (SQ_TOOL_ANTIWORD_ENABLED) {

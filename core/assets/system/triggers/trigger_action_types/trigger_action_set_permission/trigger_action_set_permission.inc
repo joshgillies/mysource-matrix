@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.25 2009/07/28 14:10:42 jhurst Exp $
+* $Id: trigger_action_set_permission.inc,v 1.26 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,7 +154,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		ob_start();
 
 		// attribute friendly prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// print the grant/deny selection
@@ -272,7 +272,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	public static function processInterface(&$settings, $request_data)
 	{
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 
 		// check if the permission is valid
 		$permission = array_get_index($request_data, 'permission', FALSE);

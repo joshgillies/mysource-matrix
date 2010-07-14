@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.22 2009/08/07 11:30:21 ata Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.23 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -243,7 +243,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			}
 
 			echo '<div>';
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
@@ -308,7 +308,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				$settings['attribute'] = '';
 			}
 
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+			$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 			if ($new_prefix) {
 				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');

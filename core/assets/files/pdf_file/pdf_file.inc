@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.31 2007/12/13 04:54:34 gsherwood Exp $
+* $Id: pdf_file.inc,v 1.32 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class PDF_File extends File
 			$content = shell_exec($cmd);
 		}
 
-		$file = ereg_replace('\"','\\\"',$file);
+		$file = str_replace('"','\\\"',$file);
 
 		if (!$content) return '';
 		// strip out the tags

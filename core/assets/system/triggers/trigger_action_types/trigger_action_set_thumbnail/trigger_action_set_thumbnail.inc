@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thumbnail.inc,v 1.3 2009/07/23 02:46:17 bpearson Exp $
+* $Id: trigger_action_set_thumbnail.inc,v 1.4 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/parameter_map/parameter_map.inc';
 *
 *
 * @author   Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 		// begin buffering basic options
 		ob_start();
 			// Save the prefix
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 			echo $pmap->paint($new_prefix, !$write_access);
@@ -150,7 +150,7 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 		}
 
 		// Get the prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 
 		// check if the name, constrain, width and height are set
 		$pmap = new Asset_Attribute_Parameter_Map();

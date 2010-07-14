@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.28 2008/10/23 01:10:59 lwright Exp $
+* $Id: trigger_action_create_link.inc,v 1.29 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -226,7 +226,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		// begin buffering advanced options
 
 		// attribute friendly prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// parameter map options
@@ -313,7 +313,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			return 'Link Type not specified';
 		}
 
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$atr_parameter_map->process($new_prefix.'_parameter_map');
 		$settings['parameter_map_target_asset'] = $atr_parameter_map->value;

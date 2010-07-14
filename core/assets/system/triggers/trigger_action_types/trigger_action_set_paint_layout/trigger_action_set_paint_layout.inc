@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_paint_layout.inc,v 1.4 2009/03/19 23:23:43 ewang Exp $
+* $Id: trigger_action_set_paint_layout.inc,v 1.5 2010/07/14 05:11:49 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 		}
 
 		// attribute friendly prefix
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		ob_start();
@@ -180,7 +180,7 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 		$settings['layout_assetid'] = $request_data['layout_assetid']['assetid'];
 		$settings['override_layout_assetid'] = $request_data['override_layout_assetid']['assetid'];
 
-		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 		$attr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$attr_parameter_map->process($new_prefix.'_parameter_map');
 		$settings['layout_map'] = $attr_parameter_map->value;
