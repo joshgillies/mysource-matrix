@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.110 2009/08/21 05:55:01 lwright Exp $
+* $Id: init.inc,v 1.111 2010/07/14 00:58:46 csmith Exp $
 *
 */
 
@@ -20,14 +20,26 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 
 // set the level of PHP reported errors and some other
 // PHP thingies we want done OUR way
 error_reporting(E_ALL);
-set_magic_quotes_runtime(0);
+
+/**
+ * This code block came from http://www.php.net/phpversion
+ */
+if (!defined('PHP_VERSION_ID')) {
+	$version = explode('.', PHP_VERSION);
+	define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
+
+# Before 5.3.0 we have to set magic quotes runtime off
+if (PHP_VERSION_ID < 50300) {
+	set_magic_quotes_runtime(0);
+}
 
 // we need this so that our error handler won't kill itself attempting to try and remove
 // all existing buffers - especially important when Zend Performance Suite is installed because
