@@ -1063,7 +1063,7 @@ class DAL
 	public static function executeQueries($sql)
 	{
 		// Split SQL statements.
-		$queries = split(';', $sql);
+		$queries = explode(';', $sql);
 		if (empty($queries) === FALSE) {
 			foreach ($queries as $query) {
 				if (trim($query) !== '') {

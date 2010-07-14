@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.3 2010/06/30 22:51:37 mhaidar Exp $
+* $Id: http_request.inc,v 1.4 2010/07/14 23:10:33 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -813,11 +813,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 
 				// Cache-Control directives can be comma separated.
-				$cache_directives = split(',', $cache_control);
+				$cache_directives = explode(',', $cache_control);
 				foreach ($cache_directives as $directive) {
 
 					// Directives may contain an extension, with a value.
-					$cache_ext = split('=', $directive);
+					$cache_ext = explode('=', $directive);
 
 					// no-cache and equivalents override max-age
 					
@@ -876,7 +876,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			if (trim($header) == '') {
 				$this->_last_header = TRUE;
 			} else {
-				$pair = split(': ', $header);
+				$pair = explode(': ', $header);
 				if (count($pair) == 2) {
 					$this->_headers[trim($pair[0])] = trim($pair[1]);
 				}

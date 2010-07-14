@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.137 2010/05/27 06:33:18 akarelia Exp $
+* $Id: user.inc,v 1.138 2010/07/14 23:10:33 csmith Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,7 +496,7 @@ class User extends Asset
 		if (!empty($blacklist)) {
 			$blacklist = str_replace("\r\n","\n", $blacklist);
 			$blacklist = str_replace("\r","\n", $blacklist);
-			$blacklist = split("\n", $blacklist);
+			$blacklist = explode("\n", $blacklist);
 			foreach ($blacklist as $word) {
 				if ((!SQ_PASSWD_RULE_BLACK_LIST_EXACT && preg_match('/'.$word.'/', $passwd)) || (SQ_PASSWD_RULE_BLACK_LIST_EXACT && (strcmp($passwd, $word) == 0))) {
 					$errors[] = Array('CORE0260');

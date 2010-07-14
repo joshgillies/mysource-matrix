@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.7 2009/04/09 05:54:07 bpearson Exp $
+* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.8 2010/07/14 23:10:33 csmith Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,7 +161,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// update the start time of this repeating time interval job
 				$when_ti = $this->_processWhenBox($asset, $o, $prefix);
-				$when_ti_arr = split(',', $when_ti);
+				$when_ti_arr = explode(',', $when_ti);
 				$when_ti_arr[0] = 'TI='.$start_time;
 				$when_ti_str = implode(',', $when_ti_arr);
 				$asset->setAttrValue('when', $when_ti_str);
