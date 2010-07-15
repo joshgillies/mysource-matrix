@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.9 2009/09/25 02:19:08 ewang Exp $
+* $Id: replace_text.inc,v 1.9.4.1 2010/07/15 01:33:20 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -80,10 +80,10 @@ class Replace_Text extends WYSIWYG_Plugin
 						if (types[i])
 							{
 							// Bug #3204  - Remove Word Document HTML Clipboard Tags, that get pasted through on Firefox 3
-							localreg = new RegExp("<link rel=\"(.*)\" href=\"file(.*)\">", "gi");
+							localreg = new RegExp("<link rel=\"[^\"]*\" href=\"file[^\"]*\">", "gi");
 							localrep = "";
 							curHTML = curHTML.replace(localreg, localrep);
-							wordreg = new RegExp("<w\:(.*)>(.*)<\/w\:(.*)>", "gi");
+							wordreg = new RegExp("<w\:[^>]*>(.*?)<\/w\:[^>]*>", "gi");
 							wordrep = "";
 							curHTML = curHTML.replace(wordreg, wordrep);
 							switch (i) {
