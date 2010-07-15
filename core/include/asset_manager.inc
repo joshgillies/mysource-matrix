@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.17 2010/07/06 23:12:00 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.779.2.18 2010/07/15 23:58:49 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.17 $
+* @version $Revision: 1.779.2.18 $
 >>>>>>> 1.804
 * @package MySource_Matrix
 */
@@ -8792,6 +8792,11 @@ class Asset_Manager extends MySource_Object
 				$treeid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+			}
+			
+			if (empty($treeid)) {
+				trigger_localised_error('SYS0345', E_USER_WARNING, $asset->id);
+				return Array();
 			}
 
 			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
