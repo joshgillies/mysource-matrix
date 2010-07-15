@@ -7,13 +7,13 @@
 *
 * 
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
 // START Configuration Options:
 
-// 1- Asset types to allow. Add/Remove types from array.
+// 1- Asset types to allow. Add/Remove types from array. Empty for all types allowed.
 $type_code = Array (
 		'page',
 	);
@@ -82,19 +82,36 @@ $options = Array (
 	}
 	
 	foreach ($root_nodes as $node) {
-		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($node, $type_code, $strict_type_code);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($node, $type_code, $strict_type_code, FALSE);
 		foreach ($children as $child_id => $info) {
 			if (!in_array($child_id, $excl_nodes) && !in_array($child_id, $excl_ids)) {
 				$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($child_id);
 				if ($contents) {
 					foreach ($contents as $id => $edit) {
-						echo "Examining contents of Asset ID: $id\n";
+						echo "Examining wysiwyg content type of Asset ID: $id\n";
 						$edited = process_replace_text($edit, $options);
 						if ($edited) {
 							$GLOBALS['SQ_SYSTEM']->am->setEditableContents($id, $edited);
 						} else {
 							die ("There is a crazy error in this script. Most likey the options array has been misconfigured\n");
 						}
+					}
+				} else {
+					if (isset ($info[0]['type_code'])) {
+						$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($info[0]['type_code'], Array('name', 'type'));
+					} else {
+						continue;
+					}
+					foreach ($type_info as $name => $type) {
+						if ($type['type'] == 'wysiwyg'){
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
+							$contents = $asset->attr($name);
+							echo "Examining wysiwyg contents of attribute '$name' of Asset ID: $child_id\n";
+							$edited = process_replace_text($contents, $options);
+							$asset->setAttrValue($name, $edited);
+							$asset->saveAttributes();
+						}
+						
 					}
 				}
 			}
