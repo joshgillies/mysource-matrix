@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.16 2007/12/21 03:24:13 colivar Exp $
+* $Id: xml_array.inc,v 1.17 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -38,7 +38,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @package MySource_Matrix
 * @subpackage lib
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 */
 class XML_Array// extends XML_Parser
 {
@@ -198,7 +198,7 @@ class XML_Array// extends XML_Parser
 			//if (!empty($this->cdata)) {
 			//  $parent_id = 'obj' . ($this->i - 1);
 			//  $parent    =& $this->$parent_id;
-			//  $parent->children[] = &new $this->_node_class(null, $this->cdata);
+			//  $parent->children[] = new $this->_node_class(null, $this->cdata);
 			//}
 
 			// create this elements entry, need to check
@@ -264,7 +264,7 @@ class XML_Array// extends XML_Parser
 			// mixed contents
 			//if (count($node->children) > 0)   {
 			//  if (trim($this->cdata)) {
-			//      $node->children[] = &new $this->_node_class(null, $this->cdata);
+			//      $node->children[] = new $this->_node_class(null, $this->cdata);
 			//  }
 			//} else {
 			//  $node->set_content($this->cdata);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.7 2006/12/05 05:07:54 bcaldwell Exp $
+* $Id: tag_suggestion.php,v 1.8 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -137,7 +137,7 @@ if (empty($sm)) {
 	<body>
 	<?php
 		require_once dirname(__FILE__).'/../../include/backend_outputter.inc';
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 		$o->addOnLoad('checkTagsLeft()');
 		$o->openSection(translate('suggested_tags_for').' '.get_asset_tag_line($asset->id));
 		$o->openField('');

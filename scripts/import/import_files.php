@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.11 2007/11/30 00:14:52 mbrydon Exp $
+* $Id: import_files.php,v 1.12 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -55,7 +55,7 @@
 * fourth argument is equals to 1 allow unrestricted access will be set to be true
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -113,7 +113,7 @@ function createFolder($folder_destination_id, $new_folder_name)
 		trigger_error("could not get the asset $folder_destination_id\n", E_USER_ERROR);
 	}
 
-	$folder =& new Folder();
+	$folder = new Folder();
 	$folder->setAttrValue('name', $new_folder_name);
 
 	$folder_link = Array('asset' => &$folder_destination, 'link_type' => SQ_LINK_TYPE_2, '', 'is_dependant' => 0, 'is_exclusive' => 0);
@@ -249,7 +249,7 @@ foreach ($import_dirs as $import_dir) {
 		// create an asset under the new parent of the correct type
 		$temp_info = Array('name' => $filename, 'tmp_name' => $import_path.'/'.$filename, 'non_uploaded_file' => TRUE);
 
-		$new_file =& new $new_asset_type();
+		$new_file = new $new_asset_type();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', $filename);
 		$new_file->setAttrValue('allow_unrestricted', $allow_unrestricted_access);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: connectivity.php,v 1.4 2009/07/20 03:17:03 bpearson Exp $
+* $Id: connectivity.php,v 1.5 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'HTTP/Client.php';
 *     Check if a remote page exists (returns 200 OK)
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 */
 
 
@@ -57,11 +57,11 @@ if (!$url_ok) {
 	exit;
 }
 
-$Fetch_URL =& new Net_URL($url);
+$Fetch_URL = new Net_URL($url);
 $url = $Fetch_URL->getURL();
 
 $request_parameters['timeout'] = 5;
-$HTTP_Client =& new HTTP_Client($request_parameters);
+$HTTP_Client = new HTTP_Client($request_parameters);
 $HTTP_Client->setMaxRedirects(5);
 
 $result = $HTTP_Client->head($url);

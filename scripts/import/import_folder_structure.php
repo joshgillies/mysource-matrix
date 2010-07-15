@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_folder_structure.php,v 1.3 2008/12/08 00:28:57 mbrydon Exp $
+* $Id: import_folder_structure.php,v 1.4 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -145,7 +145,7 @@ function createFolder($name, &$parent_folder)
 {
 	printStdErr('- Creating Folder '.$name);
 
-	$folder =& new Folder();
+	$folder = new Folder();
 	printStdErr('.');
 
 	// Set Folder name

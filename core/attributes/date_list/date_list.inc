@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: date_list.inc,v 1.3 2006/12/05 05:42:29 bcaldwell Exp $
+* $Id: date_list.inc,v 1.4 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 *    <date_list />
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,7 +69,7 @@ class Asset_Attribute_Date_List extends Asset_Attribute_Datetime
 		} else {
 			$value = explode("\r\n", $this->value);
 		}
-		$dta =& new Asset_Attribute_Datetime();
+		$dta = new Asset_Attribute_Datetime();
 		$dta->_params = $this->_params;
 		$dta->_edit_params = $this->_edit_params;
 		$dta->_edit_params['null'] = Array('y', 'm', 'd', 'h', 'i', 's');

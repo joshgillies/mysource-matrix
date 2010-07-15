@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_foreign_keys.php,v 1.4 2009/07/29 02:37:23 bpearson Exp $
+* $Id: system_integrity_foreign_keys.php,v 1.5 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Checks the integrity of the database foreign keys
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -433,7 +433,7 @@ class Foreign_Key_Integrity_Check
 }//end class
 
 
-$foreign_key_checker =& new Foreign_Key_Integrity_Check();
+$foreign_key_checker = new Foreign_Key_Integrity_Check();
 $foreign_key_checker->checkDatabase();
 
 ?>

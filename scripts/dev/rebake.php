@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rebake.php,v 1.3 2010/07/14 01:15:07 csmith Exp $
+* $Id: rebake.php,v 1.4 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *    php install_queries.php /system/root
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -69,7 +69,7 @@ if ($cli) {
 	$shortopt = '';
 	$longopt = Array('package=');
 
-	$con =& new Console_Getopt;
+	$con = new Console_Getopt;
 	$args = $con->readPHPArgv();
 	array_shift($args);
 	$options = $con->getopt($args, $shortopt, $longopt);

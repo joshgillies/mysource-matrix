@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.4 2008/07/16 08:00:28 mbrydon Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.5 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -227,7 +227,7 @@ function createAsset($asset_type, $asset_name, $parent_asset_id, $link_type=SQ_L
 	$am->includeAsset($asset_type);
 
 	$new_asset_id = 0;
-    $new_asset =& new $asset_type();
+    $new_asset = new $asset_type();
 
     $parent_asset =& $am->getAsset($parent_asset_id);
     if ($parent_asset->id) {

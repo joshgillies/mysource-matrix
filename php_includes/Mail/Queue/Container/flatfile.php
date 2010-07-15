@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flatfile.php,v 1.5 2008/11/26 00:22:11 mbrydon Exp $
+* $Id: flatfile.php,v 1.6 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/Queue/Container.php';
  *
  * @author   Nathan de Vries <ndvries@squiz.net>
  * @package  Mail_Queue
- * @version  $Revision: 1.5 $
+ * @version  $Revision: 1.6 $
  * @access   public
  */
 class Mail_Queue_Container_flatfile extends Mail_Queue_Container
@@ -74,7 +74,7 @@ class Mail_Queue_Container_flatfile extends Mail_Queue_Container
 			if ($this->limit && ($index + 1 > $this->limit)) break;
 
 			$mail_array = $this->loadFromQueue($messageID);
-			$mail_body =& new Mail_Queue_Body(
+			$mail_body = new Mail_Queue_Body(
 								$mail_array['id'],
 								$mail_array['create_time'],
 								$mail_array['time_to_send'],

@@ -19,7 +19,7 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Tree.php,v 1.6 2006/08/22 05:37:59 lwright Exp $
+// $Id: Tree.php,v 1.7 2010/07/15 04:43:37 csmith Exp $
 //
 
 // MM: See line 293 for why we override this file
@@ -292,11 +292,11 @@ class XML_Tree extends XML_Parser
                 // don't want XML_Tree_Node objects created for whitespace
                 // between nodes. But it's still valid when it's not whitespace...
                 if (trim($this->cdata) != '') {
-                    $parent->children[] = &new XML_Tree_Node(null, $this->cdata, null, $lineno);
+                    $parent->children[] = new XML_Tree_Node(null, $this->cdata, null, $lineno);
                 }
             }
             $obj_id = 'obj' . $this->i++;
-            $this->$obj_id = &new XML_Tree_Node($elem, null, $attribs, $lineno);
+            $this->$obj_id = new XML_Tree_Node($elem, null, $attribs, $lineno);
         }
         $this->cdata = null;
         return null;
@@ -321,7 +321,7 @@ class XML_Tree extends XML_Parser
             // mixed contents
             if (count($node->children) > 0) {
                 if (trim($this->cdata) != '') {
-                    $node->children[] = &new XML_Tree_Node(null, $this->cdata);
+                    $node->children[] = new XML_Tree_Node(null, $this->cdata);
                 }
             } else {
                 $node->setContent($this->cdata);
@@ -334,7 +334,7 @@ class XML_Tree extends XML_Parser
             $node =& $this->obj1;
             if (count($node->children) > 0) {
                 if (trim($this->cdata)) {
-                    $node->children[] = &new XML_Tree_Node(null, $this->cdata);
+                    $node->children[] = new XML_Tree_Node(null, $this->cdata);
                 }
             } else {
                 $node->setContent($this->cdata);

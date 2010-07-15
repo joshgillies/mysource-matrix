@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oracle_reset_sequences.php,v 1.2 2008/02/18 05:28:41 lwright Exp $
+* $Id: oracle_reset_sequences.php,v 1.3 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Rebuilds Oracle Sequences from highest primary key value in the database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -99,7 +99,7 @@ foreach ($info['sequences'] as $sequence) {
 */
 function parse_tables_xml($xml_file)
 {
-	$input =& new XML_Tree($xml_file);
+	$input = new XML_Tree($xml_file);
 	$root = &$input->getTreeFromFile();
 
 	if (PEAR::isError($root)) {

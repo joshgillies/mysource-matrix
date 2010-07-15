@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.48 2010/05/05 04:27:06 lwright Exp $
+* $Id: step_01.php,v 1.49 2010/07/15 04:43:37 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -64,7 +64,7 @@ require_once SQ_INCLUDE_PATH.'/system_config.inc';
 // override some of the default config values
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 
-$cfg =& new System_Config();
+$cfg = new System_Config();
 $cfg->save(Array(), TRUE);
 
 // Copy the DB config sample to the data directory
