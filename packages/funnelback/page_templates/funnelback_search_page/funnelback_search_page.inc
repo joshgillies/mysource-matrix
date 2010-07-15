@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.1.1.1.2.9 2010/07/02 01:28:52 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.1.1.1.2.10 2010/07/15 23:30:10 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.9 $
+* @version $Revision: 1.1.1.1.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1515,6 +1515,11 @@ class Funnelback_Search_Page extends Listing_Engine
 							return true;
 						" value="'.$this->attr('submit_button_text').'" />';
 					}
+					// We add an extra hidden text field here to workaround an IE bug i.e.
+					// if form has only one text field then submit button is not sent along 
+					// with other input fields in form when enter key is pressed in the text box.
+					// See bug #4559
+					$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" style="display:none" />'.$replacement;					
 				break;
 
 				case 'results_per_page':
