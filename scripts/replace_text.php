@@ -7,7 +7,7 @@
 *
 * 
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -124,10 +124,10 @@ $options = Array (
 		foreach ($options as $key => $value) {
 			if ($value == 1) {
 				// Bug #3204  - Remove Word Document HTML Clipboard Tags, that get pasted through on Firefox 3
-				$localreg = "%<link rel=\"(.*)\" href=\"file(.*)\">%i";
+				$localreg = "%<link rel=\"[^\"]*\" href=\"file[^\"]*\">%i";
 				$localrep = "";
 				$curHTML = preg_replace($localreg, $localrep, $curHTML);
-				$wordreg = "%<w\:(.*)>(.*)<\/w\:(.*)>%i";
+				$wordreg = "%<w\:[^>]*>(.*?)<\/w\:[^>]*>%i";
 				$wordrep = "";
 				$curHTML = preg_replace($wordreg, $wordrep, $curHTML);
 				switch ($key) {
@@ -157,7 +157,7 @@ $options = Array (
 						$rep = "";
 						break;
 					case 'Remove class attribute':
-						$reg = "% class=\"?[^\"> ]*[\"]?%i";
+						$reg = "% class=\"?[^\">]*[\"]?%i";
 						$rep = "";
 						break;
 					case 'Remove <table> tags':
