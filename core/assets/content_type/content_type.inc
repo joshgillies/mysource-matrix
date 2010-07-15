@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.27 2010/07/07 00:58:43 kmyothein Exp $
+* $Id: content_type.inc,v 1.28 2010/07/15 23:52:42 kmyothein Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,7 +278,9 @@ class Content_Type extends Asset
 	* @access public
 	*/
 	function setAttrValue($name, $value)
-	{	
+	{
+		if($this instanceof Content_Type_Nest_Content) return parent::setAttrValue($name, $value);
+
 		$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');				
 		if ($live_link_only && $this->status == SQ_STATUS_LIVE && $name === 'html') {
 			require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -286,6 +288,7 @@ class Content_Type extends Asset
 			if ($outcome !== FALSE) $value = $outcome;
 		}
 		return parent::setAttrValue($name, $value);
+
 	}//end setAttrValue()
 
 }//end class
