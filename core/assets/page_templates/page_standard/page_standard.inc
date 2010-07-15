@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.30 2009/11/02 16:28:30 ata Exp $
+* $Id: page_standard.inc,v 1.30.2.1 2010/07/15 05:10:15 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,7 +244,7 @@ class Page_Standard extends Page
 	public function initLimbo()
 	{
 		$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-
+		$screen = array_get_index($_REQUEST, 'asset_ei_screen', 'details');
 		// Look for a layout for the details screen
 		$layout_pattern = 'layout::'.$this->type().'::details';
 		$lookup_values = $this->getLookupValues(TRUE, $layout_pattern);
@@ -259,7 +259,7 @@ class Page_Standard extends Page
 
 		if (!empty($details_layout) && ($details_layout > 0)) {
 			parent::initLimbo();
-		} else if ($lm->hasLayout($this, 'details')) {
+		} else if ($lm->hasLayout($this, $screen)) {
 			// Otherwise lookup layout manager
 			parent::initLimbo();
 		} else {
