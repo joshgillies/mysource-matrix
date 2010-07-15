@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.3 2009/10/30 05:25:18 bpearson Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.3.4.1 2010/07/15 05:41:09 kmyothein Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,7 +202,10 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 
 			// Need to get the form URL from its parent wrapper page, as the
 			// Form Contents asset (which is the actual form) has no URL
-			$parent_assetid = reset($GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid));
+			$parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+			// Value can't be passed directly to reset function
+			$parent_assetid = reset($parent_assetids);
+
 			$form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($parent_assetid);
 
 			// Get the pending accounts group, if it exists
