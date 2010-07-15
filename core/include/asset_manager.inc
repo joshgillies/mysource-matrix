@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.6 2010/07/12 01:32:23 csmith Exp $
+* $Id: asset_manager.inc,v 1.801.2.7 2010/07/15 23:57:17 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.6 $
+* @version $Revision: 1.801.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8817,6 +8817,11 @@ class Asset_Manager extends MySource_Object
 				throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
 			}
 
+			if (empty($treeid)) {
+				trigger_localised_error('SYS0345', E_USER_WARNING, $asset->id);
+				return Array();
+			}
+			
 			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
