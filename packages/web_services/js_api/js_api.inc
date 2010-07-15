@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.45 2010/07/08 03:54:53 akarelia Exp $
+* $Id: js_api.inc,v 1.46 2010/07/15 05:33:46 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2093,7 +2093,7 @@ class JS_Api extends Page
 		if (empty($locks) || (!empty($locks) && $force_acquire)) {
 			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			require_once $job_dir.'/hipo_job_acquire_locks.inc';
-			$init_hipo =& new Hipo_Job_Acquire_Locks();
+			$init_hipo = new Hipo_Job_Acquire_Locks();
 			$running_vars = Array(
 								'assetids'          => Array($asset->id),
 								'lock_type'         => $screen,
@@ -2173,7 +2173,7 @@ class JS_Api extends Page
 		//lets prepare a hipo running vars
 		$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 		require_once $job_dir.'/hipo_job_edit_status.inc';
-		$init_hipo =& new HIPO_Job_Edit_Status();
+		$init_hipo = new HIPO_Job_Edit_Status();
 		$running_vars = Array(
                             'assetid'           => $asset->id,
                             'new_status'        => $status,

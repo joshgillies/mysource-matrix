@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.15 2010/05/05 07:13:22 ewang Exp $
+* $Id: ipb.inc,v 1.16 2010/07/15 05:33:44 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -129,7 +129,7 @@ class Ipb
 		switch ($this->version) {
 			case '2_0_4' :
 				if (class_exists('db_driver')) {
-					$this->db =& new db_driver;
+					$this->db = new db_driver;
 				} else {
 					return FALSE;
 				}
@@ -137,7 +137,7 @@ class Ipb
 			case '2_1_3' :
 			case '2_2_1' :
 				$driver = 'db_driver_'.$INFO['sql_driver'];
-				$this->db =& new $driver;
+				$this->db = new $driver;
 			break;
 			case '3_0_2' :
 				require_once($ipb_root_path.'/initdata.php');
@@ -306,7 +306,7 @@ class Ipb
 			default:
 				// Old method of authentication
 				require_once $bridge->attr('location').'/ips_kernel/class_converge.php';
-				$converge =& new class_converge($this->db);
+				$converge = new class_converge($this->db);
 
 				if ($is_email_login) {
 					if (!$converge->converge_check_for_member_by_email($username)) {

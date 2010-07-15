@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.31 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_graph.inc,v 1.32 2010/07/15 05:33:38 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1041,7 +1041,7 @@ class Data_Source_Graph extends Image
 			// we are morphing into another file type, so check that the actual
 			// file currently uploaded is not going to conflict with the new type
 			$am->includeAsset($new_type_code);
-			$tmp =& new $new_type_code();
+			$tmp = new $new_type_code();
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {

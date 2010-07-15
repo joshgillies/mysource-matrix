@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.20 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_xml.inc,v 1.21 2010/07/15 05:33:38 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -205,7 +205,7 @@ class Data_Source_Xml extends Data_Source
 			// Add the Proxy authentication details if enabled
 			addProxyInfo($request_parameters, $default_headers, $url);
 
-			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers);
+			$HTTP_Client = new HTTP_Client($request_parameters, $default_headers);
 
 			$HTTP_Client->enableHistory(FALSE);
 		}

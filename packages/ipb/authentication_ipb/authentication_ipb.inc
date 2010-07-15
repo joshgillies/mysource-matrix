@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.10 2010/05/05 07:13:22 ewang Exp $
+* $Id: authentication_ipb.inc,v 1.11 2010/07/15 05:33:44 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -89,7 +89,7 @@ class Authentication_IPB extends Authentication
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ipb_user');
 				$data = $ipb->getMemberInfoByName($username);
 				$data['id'] = 'u_'.$data['id'];
-				$user =& new Ipb_User($bridge->id, $data);
+				$user = new Ipb_User($bridge->id, $data);
 				return $user;
 			}
 		}
@@ -128,7 +128,7 @@ class Authentication_IPB extends Authentication
 			if (empty($data)) continue;
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('ipb_user');
-			$user =& new Ipb_User($bridge->id, $data);
+			$user = new Ipb_User($bridge->id, $data);
 			break;
 		}
 		return $user;

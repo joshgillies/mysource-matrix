@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.19 2010/07/14 23:16:50 csmith Exp $
+* $Id: ipb_bridge.inc,v 1.20 2010/07/15 05:33:44 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -140,7 +140,7 @@ class IPB_Bridge extends Asset implements Bridge
 		if ($set_location) return NULL;
 
 		if (is_null($this->ipb)) {
-			$this->ipb =& new Ipb($this->attr('location'), $this->attr('version'));
+			$this->ipb = new Ipb($this->attr('location'), $this->attr('version'));
 		}
 
 		return $this->ipb;
@@ -164,7 +164,7 @@ class IPB_Bridge extends Asset implements Bridge
 		}
 
 		if (is_null($this->ipb)) {
-			$this->ipb =& new Ipb($this->attr('location'), $this->attr('version'));
+			$this->ipb = new Ipb($this->attr('location'), $this->attr('version'));
 		}
 
 		return $this->ipb;
@@ -218,7 +218,7 @@ class IPB_Bridge extends Asset implements Bridge
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$asset =& new $class_name($this->id, $this->top_categories[$shadowid]);
+			$asset = new $class_name($this->id, $this->top_categories[$shadowid]);
 
 		} else {
 			// all the other shadow assets from IPB

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.19 2010/06/30 07:08:10 cupreti Exp $
+* $Id: funnelback_search_page.inc,v 1.20 2010/07/15 05:33:40 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2178,11 +2178,11 @@ class Funnelback_Search_Page extends Listing_Engine
 			return FALSE;
 		}//end if
 
-		$Fetch_URL =& new Net_URL($url);
+		$Fetch_URL = new Net_URL($url);
 		$url = $Fetch_URL->getURL();
 
 		$request_parameters['timeout'] = 5;
-		$HTTP_Client =& new HTTP_Client($request_parameters);
+		$HTTP_Client = new HTTP_Client($request_parameters);
 		$HTTP_Client->setMaxRedirects(2);
 
 		$result = $HTTP_Client->get($url);
