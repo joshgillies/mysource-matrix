@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13.2.4 2010/07/12 06:33:56 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.5 2010/07/16 00:01:06 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.4 $
+* @version $Revision: 1.13.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -753,7 +753,7 @@ class Funnelback_Manager extends Asset
 				$sql .= ') ORDER BY f.url, f.xml';
 			} else {
 				// Oracle fun n games
-				$sql = 'SELECT f.url, f.xml 
+				$sql = 'SELECT f.url, f.assetid, f.root_url, f.xml
 						 FROM sq_fnb_idx f 
 						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
 							WHERE l.is_dependant=:dependant';
@@ -774,6 +774,20 @@ class Funnelback_Manager extends Asset
 			return Array();
 		}
 
+		// If Oracle, we're not done yet
+		if (MatrixDAL::getDbType() == 'oci' && !empty($results)) {
+			$unique_results = Array();
+			foreach($results as $key => $result) {
+				// remove all the duplicate entires
+				if (isset($unique_results[$result['url'].'|'.$result['assetid'].'|'.$result['root_url']])) {
+					unset($results[$key]);
+				} else {
+					$unique_results[$result['url'].'|'.$result['assetid'].'|'.$result['root_url']] = 1;
+				}
+			}
+			unset($unique_results);
+		}
+		
 		return $results;
 
 	}//end _getXMLCache()
