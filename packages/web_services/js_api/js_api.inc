@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.46 2010/07/15 05:33:46 csmith Exp $
+* $Id: js_api.inc,v 1.47 2010/07/16 01:50:52 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -971,6 +971,87 @@ class JS_Api extends Page
 				}
 			break;
 
+			case 'createFileAsset' :
+
+                $data = Array();
+
+                if($this->attr('create_asset'))  {
+                    if ($wa || $ignore) {
+
+						if ((isset($_REQUEST['friendly_name']) && $_REQUEST['friendly_name'] != '' )) {
+							$filename		= $_REQUEST['friendly_name'];
+							$type_code		= $_REQUEST['type_code'];
+							$valid_type_code= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('file', TRUE);
+
+							if(!in_array(Array($type_code), $valid_type_code)) {
+								//We are going to write to the Matrix Data tmp dir
+								$tmp_file_name  = $this->getRandomFilename($file_name);
+								$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name;
+
+								while (file_exists($destination_file)) {
+									$tmp_file_name  = $this->getRandomFilename($file_name);
+									$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name;
+								}//end while
+
+								//create an file with empty content, coz we are getting rid of it anyways
+								file_put_contents($destination_file, '');
+
+								// construct the link array 
+								$link = Array (
+											'asset'		=> $asset,
+											'link_type'	=> SQ_LINK_TYPE_1,
+											'value'		=> '',
+											'sort_order'=> -1,
+										);
+
+								$file_ext = $this->get_file_extension($type_code);
+								$filename_w_extension = $filename.'.'.$file_ext;
+								require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+								$file_type = get_file_type($filename_w_extension);
+
+								$file_info = Array (
+												'name'				=> $filename,
+												'tmp_name'			=> $destination_file,
+												'type'				=> $file_type,
+												'error'				=> 0,
+												'size'				=> filesize($destination_file),
+												'filename'			=> $filename_w_extension,
+												'non_uploaded_file' => TRUE,
+											 );
+
+								$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+								$new_asset = new $type_code();
+								//fake it
+								$new_asset->_tmp['uploading_file'] = TRUE;
+								$success = $new_asset->create($link, $file_info);
+
+								if (!$success) {
+									$data[] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+								} else {
+									// done creating the asset ? let remove the temp file we had uploaded and make way for new one
+									$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+									$existing = $new_asset->getExistingFile();
+
+									$new_asset_edit_fns = $new_asset->getEditFns();
+									$new_asset_edit_fns->removeOldFile($new_asset, $existing, $fv);
+									$data[$success] = 'New File Asset (#'.$success.') \''.$new_asset->name.'\'of type_code \''.$type_code.'\' created successfully';
+								}
+
+							} else {
+								$this->returnError('Passed type code is not File Type asset or its Descendant Type');
+							}
+
+						} else {
+							$this->returnError('You must set the Name of the Asset and provide a Base 64 encoded file to upload');
+						}
+					} else {
+						$this->returnError('You do not have permissions to create an asset');
+					}
+
+                } else {
+                    $this->returnError('The createAsset function must be activated');
+                }
+			break;
 
 			default:	$this->returnError('This is not a valid function name');
 
@@ -2255,6 +2336,60 @@ class JS_Api extends Page
 
 
 	/**
+	* getRandomFileName get a random filename for the file being uploaded
+	*
+	* @param string $file_name  The original name of the file
+	*
+	* @return string
+	* @access public
+	*/
+	function getRandomFilename($file_name)
+	{
+		$hash_file_name     = hash('md5', $file_name.time());
+		$rand_position      = rand(0, strlen($hash_file_name)-6);
+		$tmp_file_name      = substr($hash_file_name, $rand_position, 6);
+
+		return $tmp_file_name;
+
+	}//end getRandomFileName()
+
+
+	/*
+	* Purpose : provides an extension for filename for the provided type_code
+	*
+	* @param string	typr_code	file type_code we are fishing for
+	*
+	* @return string
+	* @access public
+	*/
+	function get_file_extension($type_code)
+	{
+		$ext_array = Array(
+						'file'=>'txt',
+						'powerpoint_doc'=> 'ppt',
+						'xml_file'=> 'xml',
+						'flv_file'=> 'flv',
+						'image'=>'jpg',
+						'css_file'=> 'css',
+						'video_file'=> 'wmv',
+						'mp3_file'=> 'mp3',
+						'text_file'=> 'txt',
+						'rtf_file'=> 'rtf',
+						'excel_doc'=> 'xls',
+						'pdf_file'=> 'pdf',
+						'xls_file'=> 'xls',
+						'js_file'=> 'js',
+						'word_doc'=> 'doc',
+						'data_source_graph'=> 'grf',
+						'thumbnail'=> 'img',
+					 );
+
+		return $ext_array[$type_code];
+
+	}//end get_file_extension()
+
+
+	/**
 	* Description: Function that prints our JS file if needed
 	*
 	* @access public
@@ -3447,9 +3582,43 @@ function getWorkflowSchema(asset_id, granted, running, dataCallback)
 }//end getWorkflowSchema()
 
 
+/**
+* This function will create file type asset of the type_code provided
+*
+* @param	string		parentID		asset ID of parent where the new asset will be linked to
+* @param	string		type_code		type_code of the new asset(default to 'file')
+* @param	string		friendly_name	friendly name of the new asset to be created
+* @param	function 	dataCallback	Custom callback function
+*
+* 
+*/
+function createFileAsset(parentID, type_code, friendly_name, dataCallback)
+{
+    // Create blank function
+    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+    var type_code = (isset(type_code) && type_code != '' ) ? type_code : 'file';
+    var friendly_name  = isset(friendly_name) ? friendly_name : '';
+
+    var url = '<?php echo $this->getURL(); ?>' +
+                '?key=' + api_key +
+                '&type=createFileAsset&id=' + parentID +
+                '&type_code=' + type_code +
+                '&friendly_name=' + friendly_name;
+
+    // Make our request
+    makeRequest(url, true, dataCallback);
+
+
+}//end createFileAsset()
+
+
 	<?php
+
+
 	}//end printJs
 
 
 }//end class
+
+
 ?>
