@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.40 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_db.inc,v 1.40.2.1 2010/07/16 06:59:56 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -234,41 +234,33 @@ class Data_Source_DB extends Data_Source
 	*/
 	function _executeQuery($sql)
 	{
-		$result = Array();
-
 		$db = $this->connectToDB();
 		if ($db === FALSE) return $result;
 		$sql = trim($sql, ';');
 			
 		try {
 			MatrixDAL::changeDb('data_source_db_'.$this->id);	
-			// differentiate  select queries and execute queries	
-			if(preg_match('/^[ ]*select/i', $sql)) {
-				$result = MatrixDAL::executeSqlAssoc($sql);
-			}
-			else {
-				// Oracle db will usually cache the execution query, but we need immediate execution here
-				if (MatrixDAL::getDbType() === 'oci') {
-					MatrixDAL::setOciCommitOnSuccess(TRUE);
-				}
-				
-				MatrixDAL::executeQueries($sql);
-				
-				if (MatrixDAL::getDbType() === 'oci') {
-					MatrixDAL::setOciCommitOnSuccess(FALSE);
+			$result = MatrixDAL::executeSqlAssoc($sql);
+			
+			// if query returns a non-empty result but with empty rows, like when using 
+			// delete, update and insert queries, then make this result empty altogether
+			$empty_result = TRUE;
+			foreach($result as $row) {
+				if (!empty($row)) {
+					$empty_result = FALSE;
+					break;
 				}
 			}
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
 			MatrixDAL::restoreDb();
-			return $result;
+			return Array();
 		}
-									
-		return $result;
+		
+		return $empty_result ? Array() : $result;
 
 	}//end _executeQuery()
-
 
 	/**
 	* Function to connect to the db and return the db object
