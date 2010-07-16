@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.16 2009/11/03 03:13:56 akarelia Exp $
+* $Id: system_move_update.php,v 1.17 2010/07/16 06:02:45 mhaidar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -129,6 +129,12 @@ $new_data_private_path = preg_replace('|/+$|', '', $new_system_root).'/data/';
 recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/private', $old_data_private_path, $new_data_private_path);
 recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $old_data_private_path, $new_data_private_path);
 
+//Bug #4560 Fix to take care of form_submission file paths stored in its attributes.
+echo "Updating Form Submission file paths\n";
+$new_root = preg_replace('|/+$|', '', $new_system_root);
+$old_root = preg_replace('|/+$|', '', $old_system_root);
+pre_echo("OLD : $old_root\nNEW : $new_root");
+update_form_submission_filepaths($old_root, $new_root);
 
 function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root)
 {
@@ -172,6 +178,57 @@ function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root
     $d->close();
 
 }// end recurse_data_dir_for_safe_edit_files()
+
+function update_form_submission_filepaths($old_root, $new_root){
+	
+	$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
+	$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+	
+	$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, 'form_submission');
+	foreach (array_keys($children) as $child_id) {
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
+		$data = $asset->attr('attributes');
+		if (isset($data['answers'])) {
+			foreach (array_keys($data['answers']) as $question_id) {
+				$extra_data = $asset->getExtraData($question_id);
+				if (!empty($extra_data['temp_filesystem_path'])) {
+					$path = $extra_data['temp_filesystem_path'];
+					$new_path = preg_replace("%$old_root%", $new_root, $path, 1);
+					if ($new_path != NULL){
+						if (strcmp($new_path, $path) != 0) {
+							$extra_data['temp_filesystem_path'] = $new_path;
+							if ($asset->setExtraData($question_id, $extra_data)){
+								$asset->saveAttributes();
+								echo "Updated Form Submission ID: $asset->id\n";
+							}
+						}
+					} else {
+						echo "Failed to update Form Submission ID: $asset->id\n";
+					}
+				} 
+				if (!empty($extra_data['filesystem_path'])) {
+					$path = $extra_data['filesystem_path'];
+					$new_path = preg_replace("%$old_root%", $new_root, $path, 1);
+					if ($new_path != NULL){
+						if (strcmp($new_path, $path) != 0) {
+							$extra_data['filesystem_path'] = $new_path;
+							if ($asset->setExtraData($question_id, $extra_data)){
+								$asset->saveAttributes();
+								echo "Updated Form Submission ID: $asset->id\n";
+							}
+						}
+					} else {
+						echo "Failed to update Form Submission ID: $asset->id\n";
+					}
+				}
+			}
+		}		
+	}
+		
+	$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+	$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+}
 
 
 ?>
