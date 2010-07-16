@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.35 2009/06/24 22:32:47 cupreti Exp $
+* $Id: www.inc,v 1.35.4.1 2010/07/16 00:05:52 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.4.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -40,11 +40,6 @@
 */
 function relative_href($from,$to)
 {	
-	// Check if theres _recache trailed end of the URL
-	if (isset( $_SERVER['REQUEST_URI']) && preg_match('/\/'.SQ_CONF_RECACHE_SUFFIX.'$/', $_SERVER['REQUEST_URI']) && (substr($from, -1) != '/')) {
-		$from = $from.'/';
-	}	
-	
 	// type verification
 	if (!is_string($from) || !is_string($to)) {
 		return '';
