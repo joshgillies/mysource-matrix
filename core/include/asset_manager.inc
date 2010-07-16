@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.7 2010/07/15 23:57:17 cupreti Exp $
+* $Id: asset_manager.inc,v 1.801.2.8 2010/07/16 00:55:22 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.7 $
+* @version $Revision: 1.801.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1127,9 +1127,11 @@ class Asset_Manager extends MySource_Object
 		} else {
 
 			if (empty($type_code)) {
-				$where = 'assetid = \''.$assetid.'\'';
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-				$type_code = MatrixDAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
+				$sql = 'SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = :assetid');
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+				$type_code = MatrixDAL::executePdoOne($query);
 
 			}
 
@@ -4408,7 +4410,7 @@ class Asset_Manager extends MySource_Object
 		$sub_sql = 'SELECT (t.treeid || \'%\')
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
-		$sub_where = 'l.minorid = \''.$trash->id.'\'';
+		$sub_where = 'l.minorid = :trashid';
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql .= $sub_where;
@@ -4416,11 +4418,14 @@ class Asset_Manager extends MySource_Object
 
 		$sql   = 'SELECT COUNT(*)
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
-		$where = 'l.minorid = \''.$assetid.'\'
+		$where = 'l.minorid = :assetid
 				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE ('.$sub_sql.')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$result = MatrixDAL::executeSqlOne($sql.$where);
+		$query = MatrixDAL::preparePdoQuery($sql.$where);
+		MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+		MatrixDAL::bindValueToPdo($query, 'trashid', $trash->id);
+		$result = MatrixDAL::executePdoOne($query);
 
 		if ($exclusively) {
 			return ($result == 0);
