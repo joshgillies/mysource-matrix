@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.135 2010/05/27 06:33:18 akarelia Exp $
+* $Id: system_config.inc,v 1.136 2010/07/19 07:00:48 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -103,6 +103,7 @@ class System_Config extends Config
 						'SQ_CONF_ENABLE_GLOBAL_ROLES'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_NO_ASSET_SELF_LINKS'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
+						'SQ_CONF_FORCE_LOWERCASE_USERNAME'		=> Array('editable' => 0, 'default' => FALSE),
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 					   );
