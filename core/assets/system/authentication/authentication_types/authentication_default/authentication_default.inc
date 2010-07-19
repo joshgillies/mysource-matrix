@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.19 2008/05/06 05:39:40 hnguyen Exp $
+* $Id: authentication_default.inc,v 1.20 2010/07/19 01:54:25 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,7 +100,18 @@ class Authentication_Default extends Authentication
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$user = $this->locateUser($username);
+		$user = NULL;
+		// Try force lowercase username first, if not found or not in allowed type, try normal login
+		if(SQ_CONF_FORCE_LOWERCASE_USERNAME) {
+			$username_lowercase = strtolower($username);
+			$user_lowercase = $this->locateUser($username_lowercase);
+			if(!is_null($user_lowercase) && in_array(get_class($user_lowercase), Array('User', 'Simple_Edit_User', 'Backend_User', 'System_User')))
+				$user = $user_lowercase;
+		}
+		
+		if(is_null($user))
+			$user = $this->locateUser($username);
+
 		if (is_null($user)) {
 			// no user was found with that username
 		} else if (!$user->comparePassword($password)) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.138 2010/07/14 23:10:33 csmith Exp $
+* $Id: user.inc,v 1.139 2010/07/19 01:52:40 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,6 +64,9 @@ class User extends Asset
 	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
+
+		if(SQ_CONF_FORCE_LOWERCASE_USERNAME && in_array(get_class($this), Array('User', 'Simple_Edit_User', 'Backend_User', 'System_User')))
+			$this->setAttrValue('username', strtolower($this->attr('username')));
 
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
@@ -196,6 +199,9 @@ class User extends Asset
 				trigger_localised_error('CORE0110', E_USER_WARNING);
 				return FALSE;
 			}
+
+			if(SQ_CONF_FORCE_LOWERCASE_USERNAME && in_array(get_class($this), Array('User', 'Simple_Edit_User', 'Backend_User', 'System_User')))
+				$value = strtolower($value);
 		}
 
 		if (!parent::setAttrValue($name, $value)) return FALSE;
