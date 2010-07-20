@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.310 2010/06/23 01:55:32 cupreti Exp $
+* $Id: listing_engine.inc,v 1.311 2010/07/20 02:01:53 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.310 $
+* @version $Revision: 1.311 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1362,6 +1362,12 @@ class Listing_Engine extends Page
 
 		foreach ($todo as $assetid => $type_codes) {
 			$type_code = $type_codes[0]['type_code'];
+			//#4539 if the type_code empty...try to get it
+			if (empty ($type_code)){
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$type_code = $asset->type();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
 			if (!isset($allowed_types[$type_code])) {
 				unset($todo[$assetid]);
 			} else {
