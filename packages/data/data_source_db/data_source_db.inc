@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.36.6.2 2010/07/16 07:00:40 cupreti Exp $
+* $Id: data_source_db.inc,v 1.36.6.3 2010/07/20 00:32:38 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36.6.2 $
+* @version $Revision: 1.36.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,7 @@ class Data_Source_DB extends Data_Source
 	function _executeQuery($sql)
 	{
 		$db = $this->connectToDB();
-		if ($db === FALSE) return $result;
+		if ($db === FALSE) return Array();
 		$sql = trim($sql, ';');
 			
 		try {
