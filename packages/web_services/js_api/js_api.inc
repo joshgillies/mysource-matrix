@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.48 2010/07/21 00:33:42 akarelia Exp $
+* $Id: js_api.inc,v 1.49 2010/07/21 00:39:15 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1171,9 +1171,6 @@ class JS_Api extends Page
 		} else {
 			$status_user = 'Never Changed';
 		}
-
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		log_dump($userid);
 
 		// Get general info about asset
 		
