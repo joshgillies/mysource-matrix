@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.47 2010/07/16 01:50:52 akarelia Exp $
+* $Id: js_api.inc,v 1.48 2010/07/21 00:33:42 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -973,14 +973,14 @@ class JS_Api extends Page
 
 			case 'createFileAsset' :
 
-                $data = Array();
-
                 if($this->attr('create_asset'))  {
                     if ($wa || $ignore) {
 
 						if ((isset($_REQUEST['friendly_name']) && $_REQUEST['friendly_name'] != '' )) {
 							$filename		= $_REQUEST['friendly_name'];
 							$type_code		= $_REQUEST['type_code'];
+							$link_type		= defined($_REQUEST['link_type']) ? constant($_REQUEST['link_type']) : SQ_LINK_TYPE_1;
+							$link_value		= $_REQUEST['link_value'];
 							$valid_type_code= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('file', TRUE);
 
 							if(!in_array(Array($type_code), $valid_type_code)) {
@@ -999,8 +999,8 @@ class JS_Api extends Page
 								// construct the link array 
 								$link = Array (
 											'asset'		=> $asset,
-											'link_type'	=> SQ_LINK_TYPE_1,
-											'value'		=> '',
+											'link_type'	=> $link_type,
+											'value'		=> $link_value,
 											'sort_order'=> -1,
 										);
 
@@ -1026,7 +1026,7 @@ class JS_Api extends Page
 								$success = $new_asset->create($link, $file_info);
 
 								if (!$success) {
-									$data[] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+									$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
 								} else {
 									// done creating the asset ? let remove the temp file we had uploaded and make way for new one
 									$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -1034,7 +1034,7 @@ class JS_Api extends Page
 
 									$new_asset_edit_fns = $new_asset->getEditFns();
 									$new_asset_edit_fns->removeOldFile($new_asset, $existing, $fv);
-									$data[$success] = 'New File Asset (#'.$success.') \''.$new_asset->name.'\'of type_code \''.$type_code.'\' created successfully';
+									$data[$new_asset->id] = 'New File Asset (#'.$new_asset->id.') \''.$new_asset->name.'\'of type_code \''.$type_code.'\' created successfully';
 								}
 
 							} else {
@@ -1171,6 +1171,9 @@ class JS_Api extends Page
 		} else {
 			$status_user = 'Never Changed';
 		}
+
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		log_dump($userid);
 
 		// Get general info about asset
 		
@@ -2357,7 +2360,7 @@ class JS_Api extends Page
 	/*
 	* Purpose : provides an extension for filename for the provided type_code
 	*
-	* @param string	typr_code	file type_code we are fishing for
+	* @param string	type_code	file type_code we are fishing for
 	*
 	* @return string
 	* @access public
@@ -2365,23 +2368,23 @@ class JS_Api extends Page
 	function get_file_extension($type_code)
 	{
 		$ext_array = Array(
-						'file'=>'txt',
-						'powerpoint_doc'=> 'ppt',
-						'xml_file'=> 'xml',
-						'flv_file'=> 'flv',
-						'image'=>'jpg',
-						'css_file'=> 'css',
-						'video_file'=> 'wmv',
-						'mp3_file'=> 'mp3',
-						'text_file'=> 'txt',
-						'rtf_file'=> 'rtf',
-						'excel_doc'=> 'xls',
-						'pdf_file'=> 'pdf',
-						'xls_file'=> 'xls',
-						'js_file'=> 'js',
-						'word_doc'=> 'doc',
-						'data_source_graph'=> 'grf',
-						'thumbnail'=> 'img',
+						'file'				=> 'txt',
+						'powerpoint_doc'	=> 'ppt',
+						'xml_file'			=> 'xml',
+						'flv_file'			=> 'flv',
+						'image'				=> 'jpg',
+						'css_file'			=> 'css',
+						'video_file'		=> 'wmv',
+						'mp3_file'			=> 'mp3',
+						'text_file'			=> 'txt',
+						'rtf_file'			=> 'rtf',
+						'excel_doc'			=> 'xls',
+						'pdf_file'			=> 'pdf',
+						'xls_file'			=> 'xls',
+						'js_file'			=> 'js',
+						'word_doc'			=> 'doc',
+						'data_source_graph'	=> 'grf',
+						'thumbnail'			=> 'img',
 					 );
 
 		return $ext_array[$type_code];
@@ -3588,22 +3591,29 @@ function getWorkflowSchema(asset_id, granted, running, dataCallback)
 * @param	string		parentID		asset ID of parent where the new asset will be linked to
 * @param	string		type_code		type_code of the new asset(default to 'file')
 * @param	string		friendly_name	friendly name of the new asset to be created
+* @param	string		link_type		type of link to create to the parent for this new asset(SQ_LINK_TYPE_1 link by default)
+*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+* @param	string		link_value		value of link to create to the parent for this new asset('' by default)
 * @param	function 	dataCallback	Custom callback function
 *
 * 
 */
-function createFileAsset(parentID, type_code, friendly_name, dataCallback)
+function createFileAsset(parentID, type_code, friendly_name, link_type, link_value, dataCallback)
 {
     // Create blank function
     var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
     var type_code = (isset(type_code) && type_code != '' ) ? type_code : 'file';
     var friendly_name  = isset(friendly_name) ? friendly_name : '';
+	var link_type = (isset(link_type) && link_type != '') ? link_type : SQ_LINK_TYPE_1;
+	var link_value = isset(link_value) ? link_value : '';
 
     var url = '<?php echo $this->getURL(); ?>' +
                 '?key=' + api_key +
-                '&type=createFileAsset&id=' + parentID +
-                '&type_code=' + type_code +
-                '&friendly_name=' + friendly_name;
+				'&type=createFileAsset&id=' + parentID +
+				'&type_code=' + type_code +
+				'&friendly_name=' + friendly_name +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value;
 
     // Make our request
     makeRequest(url, true, dataCallback);
