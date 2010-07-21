@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.49 2010/07/21 00:39:15 akarelia Exp $
+* $Id: js_api.inc,v 1.50 2010/07/21 02:09:58 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1172,6 +1172,17 @@ class JS_Api extends Page
 			$status_user = 'Never Changed';
 		}
 
+		$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$effective_permission = '';
+
+		if($user instanceof Root_User || $user instanceof System_User || $asset->adminAccess('', Array($user->id))) {
+			$effective_permission = 'Admin Access';
+		} else if($asset->writeAccess('', Array($user->id), FALSE)) {
+			$effective_permission = 'Write Access';
+		} else if($asset->readAccess(Array($user->id))) {
+			$effective_permission = 'Read Access';
+		}
+
 		// Get general info about asset
 		
 		$data = Array(
@@ -1196,6 +1207,7 @@ class JS_Api extends Page
 					'status_changed'			=>	($status_user === 'Never Changed') ? $status_user : $asset->status_changed,
 					'status_changed_userid'		=>	($status_user === 'Never Changed') ? $status_user : $status_user->id,
 					'status_changed_username'	=>	($status_user === 'Never Changed') ? $status_user : $status_user->name,
+					'maximum_perm_on_asset'		=>	$effective_permission,
 				);
 
 		return $data;
