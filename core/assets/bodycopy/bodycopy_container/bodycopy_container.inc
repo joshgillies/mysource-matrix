@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.47 2010/07/14 05:11:49 csmith Exp $
+* $Id: bodycopy_container.inc,v 1.48 2010/07/22 04:44:08 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -442,13 +442,13 @@ class Bodycopy_Container extends Asset
 				return;
 			}
 
-			if (!file_exists($this->data_path.'/'.$content_file_name)) {
+			if (!is_file($this->data_path.'/'.$content_file_name)) {
 				// generate the content file
 				$edit = $this->getEditFns();
 				$edit->generateContentFile($this);
 			}
 
-			if (!file_exists($this->data_path.'/'.$content_file_name)) {
+			if (!is_file($this->data_path.'/'.$content_file_name)) {
 				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 			} else {
 				include($this->data_path.'/'.$content_file_name);

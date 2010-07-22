@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.51 2010/01/27 02:12:27 cupreti Exp $
+* $Id: bodycopy.inc,v 1.52 2010/07/22 04:42:07 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,7 +341,7 @@ class Bodycopy extends Asset
 		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
 		// But For the sake of the upgrading, check for existing file in the bodycopy data dir.
 
-		if (file_exists($this->data_path.'/.content_file.php') && $this->useSystemVersion()) {
+		if (is_file($this->data_path.'/.content_file.php') && $this->useSystemVersion()) {
 			// create an array of urls that the content file is
 			// going to try and use to work out file urls, link hrefs etc
 			$sq_asset_url_list = Array();
