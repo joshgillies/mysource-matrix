@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.109 2010/07/22 05:34:17 cupreti Exp $
+* $Id: design_area_menu_type.inc,v 1.110 2010/07/22 05:47:32 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -944,7 +944,6 @@ class Design_Area_Menu_Type extends Design_Area
 		return FALSE;
 
 	}//end _canBeCached()
-
 	
 }//end class
 ?>
