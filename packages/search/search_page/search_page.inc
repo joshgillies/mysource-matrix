@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.244.2.1 2010/05/20 05:30:34 lwright Exp $
+* $Id: search_page.inc,v 1.244.2.2 2010/07/22 23:04:44 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244.2.1 $
+* @version $Revision: 1.244.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1743,6 +1743,18 @@ class Search_Page extends Listing_Engine
 		$bodycopy =& $this->getBodycopy($bc_name);
 		$keywords = $bodycopy->getKeywords();
 
+		// if we have %page_list_X% keywords in the array before the %result_list%
+		// rip it off and put it at the end of the array or else it will not be
+		// replace at all #4527 Matrix search page results has no output for page_list_X keywords
+		$page_list_keywords = Array();
+		foreach ($keywords as $index => $keyword) {
+			if (preg_match('/page_list_([0-9]+)/', $keyword, $matches)) {
+				$page_list_keywords[] = $keyword;
+				unset($keywords[$index]);
+			}
+		}
+
+		$keywords = array_merge($keywords, $page_list_keywords);
 		$replaces = Array();
 
 		$listing_result_page = (int) array_get_index($_REQUEST, 'result_'.$this->id.'_result_page', 0);
