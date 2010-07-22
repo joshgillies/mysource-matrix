@@ -18,11 +18,15 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.8 2010/03/19 02:45:12 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.9 2010/07/22 00:27:29 ewang Exp $
  *
  */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_storage.inc';
+
+define('SQ_CACHE_MEMCACHE_PREFIX', 'sq_cache|');
+define('SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX', 'sq_cache_asset_index|');
+define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
 
 /**
  * Cache_Storage_Memcache
@@ -32,13 +36,9 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  * This cache storage method will only be available if the Memcache PECL module
  * is available.
  *
- * There are limitations to using this storage method: clearing cache by asset
- * ID or type will not be available. This is because of the way memcache's keys
- * work - they are not easily deletable via a wildcard or similar means.
- *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -68,7 +68,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 	public function initMemcache()
 	{
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Cache Storage; it requires the memcache PECL extension installed within PHP, which is not installed');
-		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
+		assert_true(is_file(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Cache Storage; the Memcache configuration file is not set');
 
 		$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
 		$hosts =& $memcache_conf['hosts'];
@@ -102,7 +102,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 	public static function isAvailable()
 	{
 		if (extension_loaded('memcache') === TRUE) {
-			if (file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
+			if (is_file(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
 				return TRUE;
 			} else {
 				return FALSE;
@@ -133,6 +133,9 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 * is out of sync with the server hosting Matrix, the cache period will be
 	 * affected (in either direction).
 	 *
+	 * Indexes are maintained, for listing cache keys associated with a URL or with an assetid. This
+	 * is so that we can delete cache entries for a given URL or assetid.
+	 *
 	 * @param string	$cache_key  the cache key for this entry
 	 * @param string	$perm_key   the permissions key for this entry
 	 * @param string	$url		the url for this entry
@@ -146,10 +149,33 @@ class Cache_Storage_Memcache extends Cache_Storage
 	function store($cache_key, $perm_key, $url, $assetid, $data, $expiry)
 	{
 		if (!$this->_memcache) $this->initMemcache();
-
+		
 		if ($this->_memcache) {
+			// For the indexes, we want just the base URL, no query string or trailing slash.
+			$index_url = md5(trim(preg_replace('/\?.*/', '', $url), '/'));
+			
 			$url = md5($url);
-			$ok = $this->_memcache->set("contentcache:$cache_key|$perm_key|$url|$assetid", $data, FALSE, $expiry - time());
+			$mcache_key = SQ_CACHE_MEMCACHE_PREFIX."$cache_key|$perm_key|$url|$assetid";
+			
+			// Get both the indexes at once (faster).
+			$indexes = $this->_memcache->get(Array(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid, SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url));
+			
+			// Update the assetid index if necessary.
+			$assetid_hits = isset($indexes[SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid]) ? $indexes[SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid] : Array();
+			if (!in_array($mcache_key, $assetid_hits)) {
+				array_push($assetid_hits, $mcache_key);
+				$this->_memcache->set(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid, $assetid_hits);
+			}
+			
+			// Update the url index if necessary.
+			$url_hits = isset($indexes[SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url]) ? $indexes[SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url] : Array();
+			if (!in_array($mcache_key, $url_hits)) {
+				array_push($url_hits, $mcache_key);
+				$this->_memcache->set(SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url, $url_hits);
+			}
+			
+			// Save the actual cache entry
+			$ok = $this->_memcache->set($mcache_key, $data, FALSE, $expiry - time());
 			return $ok;
 		} else {
 			return FALSE;
@@ -184,7 +210,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 
 		if ($this->_memcache) {
 			$url = md5($url);
-			return $this->_memcache->get("contentcache:$cache_key|$perm_key|$url|$assetid", FALSE);
+			return $this->_memcache->get(SQ_CACHE_MEMCACHE_PREFIX."$cache_key|$perm_key|$url|$assetid", FALSE);
 		} else {
 			return FALSE;
 		}
@@ -234,16 +260,13 @@ class Cache_Storage_Memcache extends Cache_Storage
 	 */
 	function canClearByAssetid()
 	{
-		return FALSE;
+		return TRUE;
 
 	}//end canClearByAssetid()
 
 
 	/**
 	* Removes all cache entries related to this assetid
-	*
-	* Unused by this storage method - limitations in the key storage of memcache
-	* mean that there is no guaranteed way to delete by asset ID or type.
 	*
 	* @param array	$assetids	id of the the asset that owns the cache file
 	*
@@ -252,9 +275,49 @@ class Cache_Storage_Memcache extends Cache_Storage
 	*/
 	function clear($assetids)
 	{
-		return FALSE;
+		if (!$this->_memcache) $this->initMemcache();
+		
+		// For each assetid, fetch the asset index and delete everything we find. Including the index.
+		foreach ($assetids as $assetid) {
+			$assetid_hits = $this->_memcache->get(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid, FALSE);
+			if ($assetid_hits) {
+				foreach ($assetid_hits as $key) {
+					$this->_memcache->delete($key);
+				}
+				$this->_memcache->delete(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid);
+			}
+		}
+		
 
 	}//end clear()
+	
+	
+	/**
+	* Deletes caches of assets that were cached when a certain URL was requested
+	*
+	* This includes caches of nested content that were generated by reaching
+	* the passed URL, not just the top-level asset.
+	*
+	* @param string $url The url to delete cache entries for
+	*
+	* @access public
+	*/
+	function clearCachedAssetsByUrl($url)
+	{
+		if (!$this->_memcache) $this->initMemcache();
+		
+		// Fetch the URL index and delete anything we find. Including the index.
+		$index_key = SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.md5($url);
+		$url_hits = $this->_memcache->get($index_key);
+		
+		if ($url_hits) {
+			foreach ($url_hits as $key) {
+				$this->_memcache->delete($key);
+			}
+			$this->_memcache->delete($index_key);
+		}
+		
+	}//end clearCachedAssetsByUrl
 
 
 	/**
