@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.210.2.2 2010/07/06 23:41:53 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.210.2.3 2010/07/23 06:55:11 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210.2.2 $
+* @version $Revision: 1.210.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1194,6 +1194,19 @@ class Metadata_Manager extends MySource_Object
 						$fields_modified = TRUE;
 
 					} else {
+						// Apply keyword modifiers
+						foreach($metadata_keywords as $full_keyword) {
+							if (!isset($field_replacements[$full_keyword])) {
+								$modifiers = NULL;
+								$part_keyword = parse_keyword($full_keyword, $modifiers);
+								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
+									$keyword_value = $field_replacements[$part_keyword];
+									apply_keyword_modifiers($keyword_value, $modifiers);
+									$field_replacements[$full_keyword] = $keyword_value;
+								}
+							}
+						}//end foreach
+					
 						// replace all the field references with their replaced_list counterparts
 						// if everything is successfully replaced, leave until next time
 						// to move to replaced_list
