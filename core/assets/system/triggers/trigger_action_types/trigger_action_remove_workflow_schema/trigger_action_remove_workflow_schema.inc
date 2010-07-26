@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_workflow_schema.inc,v 1.1 2010/07/21 06:43:14 mhaidar Exp $
+* $Id: trigger_action_remove_workflow_schema.inc,v 1.2 2010/07/26 03:26:04 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that deletes a non running workflow schema
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,6 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 	* <PRE>
 	* Array(
 	*       'schemaid' 				=> assetid // the workflow schema assetid
-	*       'granted'  				=> boolean // true or false
 	* 		'cascade_to_children'	=> boolean // defaults to FALSE; TRUE will cascade the removal of the workflow schema from all children.
 	*       );
 	* </PRE>
