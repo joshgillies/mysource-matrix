@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.3 2009/11/03 05:14:53 bpearson Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.3.4.1 2010/07/26 23:18:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -58,7 +58,7 @@ foreach ($form_assetids as $assetid) {
 	$path .= '/incomplete_attachments';
 	$files = list_dirs($path);
 	foreach ($files as $file) {
-		if (strpos($file, 's') === 0) {
+		if ((strpos($file, 's') === 0) && (assert_valid_assetid(substr($file, 1), '', TRUE, FALSE))) {
 			// This is an incomplete submission, so check if the submission is still valid
 			$incomplete_submission_assetid = substr($file, 1);
 			$incomplete_submission = $GLOBALS['SQ_SYSTEM']->am->getAsset($incomplete_submission_assetid, '', TRUE);
