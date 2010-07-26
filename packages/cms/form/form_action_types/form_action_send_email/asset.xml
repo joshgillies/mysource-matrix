@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/04/17 06:58:29 lwright Exp $
+* $Id: asset.xml,v 1.2 2010/07/26 06:09:30 ewang Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 	<package>cms</package>
 	<type_code>form_action_send_email</type_code>
 	<version>0.1</version>
-	<name>Send Email</name>
+	<name>Send Email Form Action</name>
 	<description>Form Action that sends an email to specified recipient(s), based on the submitted values of a form.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
