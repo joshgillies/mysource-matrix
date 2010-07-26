@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.153.2.1 2010/06/02 04:22:10 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.153.2.2 2010/07/26 03:25:14 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153.2.1 $
+* @version $Revision: 1.153.2.2 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -321,13 +321,14 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Remove a set schema from an asset
 	*
-	* @param int	$assetid	the ID of the asset to delete the schema from
-	* @param int	$schemaid	the ID of the schema to delete
+	* @param int		$assetid	the ID of the asset to delete the schema from
+	* @param int		$schemaid	the ID of the schema to delete
+	* @param boolean	$running    whether to check if the asset has running schemas
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteSchema($assetid, $schemaid)
+	function deleteSchema($assetid, $schemaid, $running = TRUE)
 	{
 		$assetid  = (int) $assetid;
 		$schemaid = (int) $schemaid;
@@ -342,12 +343,14 @@ class Workflow_Manager extends MySource_Object
 			trigger_localised_error('SYS0105', E_USER_WARNING, $asset->name);
 			return FALSE;
 		}
-
-		// check for any running schemas - because if the asset is in workflow we cant do anything
-		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
-		if (!empty($running_schemas)) {
-			trigger_localised_error('SYS0106', E_USER_WARNING, $asset->name);
-			return FALSE;
+		
+		if ($running) {
+			// check for any running schemas - because if the asset is in workflow we cant do anything
+			$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
+			if (!empty($running_schemas)) {
+				trigger_localised_error('SYS0106', E_USER_WARNING, $asset->name);
+				return FALSE;
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
