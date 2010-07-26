@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.89 2010/07/20 01:58:05 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.90 2010/07/26 00:38:36 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -395,7 +395,7 @@ class LDAP_Bridge extends Asset implements Bridge
 								return Array();
 							}
 						} else if ($asset->type() == 'ldap_backend_user') {
-							if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('backend_user', $type_code)))) {
+							if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
 								return Array();
 							}
 						} else if ($asset->type() == 'ldap_user') {
