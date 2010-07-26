@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2006/12/06 00:04:01 bcaldwell Exp $
+* $Id: asset.xml,v 1.2.16.1 2010/07/26 06:20:17 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 	<package>__core__</package>
 	<type_code>trigger_action_send_email</type_code>
 	<version>0.1</version>
-	<name>Send Email</name>
+	<name>Send Email Trigger Action</name>
 	<description>Sends email to user(s)</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
