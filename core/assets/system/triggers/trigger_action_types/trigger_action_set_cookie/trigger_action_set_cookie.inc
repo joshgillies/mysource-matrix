@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cookie.inc,v 1.1 2009/02/05 17:45:44 ata Exp $
+* $Id: trigger_action_set_cookie.inc,v 1.1.8.1 2010/07/26 03:27:17 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,8 +130,16 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			}
 		}
 		
-		if (setcookie($name, $value, $expire_time, $path, $domain, $secure, $http_only)) {
-			return Array(
+		if(headers_sent()) return FALSE;
+		
+		header('Set-Cookie: ' . rawurlencode($name) . '=' . rawurlencode($value)
+                          . (empty($expire_time) ? '' : '; expires=' . gmdate('D, d-M-Y H:i:s', $expire_time) . ' GMT')
+                          . (empty($path) ? '' : '; path=' . $path)
+                          . (empty($domain) ? '' : '; domain=' . $domain)
+                          . (!$secure ? '' : '; secure')
+                          . (!$http_only ? '' : '; HttpOnly'), false);
+                          
+        return Array(
 					'name'			=> $name,
 					'value'			=> $value,
 					'expire_time'	=> $expire_time,
@@ -140,9 +148,6 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 					'secure'		=> $secure,
 					'http_only'		=> $http_only
 				   );
-		} else {
-			return FALSE;
-		}
 
 	}//end execute()
 
