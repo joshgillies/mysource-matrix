@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.311 2010/07/20 02:01:53 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.312 2010/07/27 04:49:49 csmith Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.311 $
+* @version $Revision: 1.312 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3357,7 +3357,7 @@ class Listing_Engine extends Page
 							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
 								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 							}
 						}
 					break;
