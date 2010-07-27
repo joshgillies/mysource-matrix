@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.69 2010/07/13 06:15:14 ewang Exp $
+* $Id: trigger_manager.inc,v 1.70 2010/07/27 23:23:55 csmith Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1694,7 +1694,7 @@ class Trigger_Manager extends Asset implements Bridge
 										} else {
 											$settings = Array();
 										}
-										call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
+										call_user_func_array(Array($condition['type'], 'setHash'), Array(&$settings, &$hash));
 									}
 								}
 							}
