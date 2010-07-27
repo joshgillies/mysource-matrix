@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.248 2010/04/12 01:28:44 ewang Exp $
+* $Id: form.inc,v 1.248.2.1 2010/07/27 23:55:51 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.248.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2124,10 +2124,10 @@ class Form extends Asset implements Bridge
 		// that way we will not need 2 paths of processing
 		ob_start();
 		?>
-		%<?php echo $also_print_sections ? 'form' : 'current_page' ?>_contents%<table width="<?php echo $form_width; ?>">
+		%<?php echo $also_print_sections ? 'form' : 'current_page' ?>_contents%<table <?php echo $form_width; ?>>
 			<tr>
-			<td width="<?php echo $question_width; ?>">&nbsp;</td>
-			<td width="<?php echo $answer_width; ?>">
+			<td <?php echo $question_width; ?>>&nbsp;</td>
+			<td <?php echo $answer_width; ?>>
 				<?php
 				if ($this->attr('require_captcha') && ($current_page == $this->getTotalPages())) {
 					?>
