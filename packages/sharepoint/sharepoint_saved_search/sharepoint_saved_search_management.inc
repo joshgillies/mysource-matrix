@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_management.inc,v 1.4 2010/05/05 07:15:02 ewang Exp $
+* $Id: sharepoint_saved_search_management.inc,v 1.4.2.1 2010/07/28 23:44:08 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -121,6 +121,15 @@ class Sharepoint_Saved_Search_Management extends Asset_Management
 																		'parameters'	=> Array(),
 																	   ),
 												   ),
+						'download_file'			=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'description'	=> 'Whether to serve file locally or via the SharePoint URL',
+											   		'parameters'	=> Array (
+												   						'allow_empty'		=> FALSE,
+												   					   ),
+												),
 
 						// This array allows Sharepoint data source to map the dynamic parameters with trim options
 						// Eg: if you want to set a dynamic parameter to pass the keyword option in

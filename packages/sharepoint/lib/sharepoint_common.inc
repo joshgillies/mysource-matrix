@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.5 2010/05/05 07:15:02 ewang Exp $
+* $Id: sharepoint_common.inc,v 1.5.2.1 2010/07/28 23:43:21 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -585,7 +585,7 @@ ListVersion="0" >
 	* @return array
 	* @access public
 	*/
-	public static function getListItems($connection, $list_id, $search_query=Array(), $search_logic='And', $row_limit='')
+	public static function getListItems($connection, $list_id, $search_query=Array(), $search_logic='And', $row_limit='', $download_file=FALSE, $bridge_info="")
 	{
 		$result	= Array();
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
@@ -626,6 +626,7 @@ ListVersion="0" >
 			$items_xml->registerXPathNamespace('zz', '#RowsetSchema');
 			$zresults	= $items_xml->xpath('//zz:row');
 
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			foreach ($zresults as $zresult) {
 				$ows_ID				= (string) $zresult['ows_ID'];
 				foreach ($zresult->attributes() as $attr_name => $attr_val) {
@@ -635,7 +636,22 @@ ListVersion="0" >
 					}//end
 					$result[$ows_ID][$attr_name]	= (string) $attr_val;
 				}//end foreach
-				$result[$ows_ID]['download_url']	= $connection['url'].'/'.str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
+				
+				$remote_download_url = $connection['url'].'/'.str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
+				
+				// If files needs to served locally
+				if ($download_file) {
+					$data_path = $bridge_info['data_path'].'/'.$list_id.'/';
+					if (create_directory($data_path)) {
+						self::downloadFiles(Array($remote_download_url), $data_path);
+						$result[$ows_ID]['download_url'] = $bridge_info['url'].'?file_uri='.$list_id.'/'.str_replace(' ', '%20', basename($result[$ows_ID]['ows_FileRef']));
+					} else {
+						trigger_error('Unable to download the file to directory: '.$data_path, E_USER_WARNING);
+						$result[$ows_ID]['download_url'] = '';
+					}
+				} else {
+					$result[$ows_ID]['download_url'] = $remote_download_url;
+				}
 			}//end foreach
 
 		} catch (SoapFault $sf) {
@@ -720,14 +736,13 @@ ListVersion="0" >
     * @return int		// The number of file(s) downloaded
     * @access public
     */
-    private static function downloadFiles($urls, $save_path='/home/hnguyen/matrix_installs/matrix_dev/Sharepoint/download/')
+    private static function downloadFiles($urls, $save_path)
     {
 		$mh	= curl_multi_init();
 		foreach ($urls as $i => $url) {
 			$final_path	= $save_path.str_replace('%20', ' ', basename($url));
 			if (!is_file($final_path)) {
 				$conn[$i]	= curl_init($url);
-				echo "\n G: $final_path \n";
 				$fp[$i]		= fopen($final_path, "w");
 				curl_setopt($conn[$i], CURLOPT_FILE, $fp[$i]);
 				curl_setopt($conn[$i], CURLOPT_HEADER ,0);
