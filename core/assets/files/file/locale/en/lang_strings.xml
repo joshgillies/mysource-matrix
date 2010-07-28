@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2010/07/28 01:03:06 cupreti Exp $
+* $Id: lang_strings.xml,v 1.5 2010/07/28 01:46:12 cupreti Exp $
 *
 */
 
@@ -28,6 +28,6 @@
 	<string source="allowed_file_extensions_not_specified">No file type restriction.</string>
 	<string source="allowed_file_extensions_list">Allowed extension%1$s</string>
 	<string source="allow_file_with_no_extension">Allow File with No Extension</string>
-	<string source="file_asset_summary">File Summary Definition</string>
-	<string source="file_asset_summary_note">File summary for 'asset_summary_X' keyword replacement</string>
+	<string source="file_asset_summary">File Summary Format</string>
+	<string source="file_asset_summary_note">File summary format for 'asset_summary_X' keyword replacement</string>
 </strings>
