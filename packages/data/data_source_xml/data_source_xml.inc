@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.21 2010/07/15 05:33:38 csmith Exp $
+* $Id: data_source_xml.inc,v 1.22 2010/07/28 03:12:40 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -282,6 +282,23 @@ class Data_Source_Xml extends Data_Source
 	function _createParser($content)
 	{
 		if (!empty($content)) {
+
+			// hack time : #4588 Empty tags are not being parsed in XML Data Source
+			//		1 - if we have <abc /> tag we change it to <abc>\n</abc>
+			//		2 - if we have <abc></abc> tag we change it to <abc>\n</abc>
+			$required_tags = $this->_getRequiredTags();
+			if(!empty($required_tags)) {
+				foreach($required_tags as $index => $required_tag) {
+					$pattern = '|(<'.$required_tag.')([^>]*)/>|i';
+					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$content = preg_replace($pattern, $replace, $content);
+
+					$pattern = '|(<'.$required_tag.')([^>].*)></'.$required_tag.'>|i';
+					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$content = preg_replace($pattern, $replace, $content);
+				}
+			}
+
 			$xml_parser = xml_parser_create();
 			// stop the parser upper-casing everything
 			xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
