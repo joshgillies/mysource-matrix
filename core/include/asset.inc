@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.725 2010/07/05 06:35:29 cupreti Exp $
+* $Id: asset.inc,v 1.726 2010/07/28 01:01:38 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.725 $
+* @version $Revision: 1.726 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3325,6 +3325,9 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
 			return NULL;
 		}
+		if ($this->id == '796' && $name = 'cache') {
+			log_dump("Getting value for ".$this->id." value = ".$this->vars[$name]['value']);
+		}
 		return $this->vars[$name]['value'];
 
 	}//end attr()
@@ -3663,7 +3666,7 @@ class Asset extends MySource_Object
 	* @access private
 	*/
 	protected function _getKeywordReplacement($keyword)
-	{
+	{	
 		if (empty($keyword)) return '';
 		
 		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
@@ -3701,7 +3704,7 @@ class Asset extends MySource_Object
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-
+		
 		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this
 		//method through the replace_global_keywords() function (general.inc) with the keyword starts with asset_
 		$possible_func_name = '';
@@ -3857,6 +3860,17 @@ class Asset extends MySource_Object
 		} else if (0 === strpos($keyword, 'asset_languages')) {
 			$replacement = ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
 
+		} else if (0 === strpos($keyword, 'asset_summary')) {
+			$temp_assetid = substr($keyword, 14);
+			$temp_assetid = trim($temp_assetid);
+			$temp_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($temp_assetid);
+			if (!empty($temp_asset_info)) {
+				$temp_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($temp_assetid);
+				if (method_exists($temp_asset, 'getAssetSummary')) {
+					$replacement = $temp_asset->getAssetSummary();
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($temp_asset);
+			}
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
