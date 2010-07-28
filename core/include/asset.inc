@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.726 2010/07/28 01:01:38 cupreti Exp $
+* $Id: asset.inc,v 1.727 2010/07/28 01:10:38 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.726 $
+* @version $Revision: 1.727 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3324,9 +3324,6 @@ class Asset extends MySource_Object
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
 			return NULL;
-		}
-		if ($this->id == '796' && $name = 'cache') {
-			log_dump("Getting value for ".$this->id." value = ".$this->vars[$name]['value']);
 		}
 		return $this->vars[$name]['value'];
 
