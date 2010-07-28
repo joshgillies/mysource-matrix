@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.40 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.40.4.1 2010/07/28 02:07:02 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,12 +246,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$value_components = Array();
-		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		if ($write_access === TRUE) {
-			text_area($prefix.'_default', $value, 30, 5);
+			text_area($prefix.'_default', $value_str, 30, 5);
 		} else {
-			echo $value;
+			echo $value_str;
 		}
 
 		return TRUE;
@@ -276,7 +275,6 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 		$is_contextable = (boolean)$asset->attr('is_contextable');
 		$new_value = array_get_index($_POST, $prefix.'_default', '');
-		$new_value = Metadata_Field::encodeValueString($new_value, Array());
 		$save_attrs = TRUE;
 
 		if ($is_contextable === TRUE) {
