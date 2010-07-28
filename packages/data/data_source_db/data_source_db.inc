@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.36.6.3 2010/07/20 00:32:38 cupreti Exp $
+* $Id: data_source_db.inc,v 1.36.6.4 2010/07/28 02:02:19 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36.6.3 $
+* @version $Revision: 1.36.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,20 +237,25 @@ class Data_Source_DB extends Data_Source
 		$db = $this->connectToDB();
 		if ($db === FALSE) return Array();
 		$sql = trim($sql, ';');
-			
+		
 		try {
-			MatrixDAL::changeDb('data_source_db_'.$this->id);	
-			$result = MatrixDAL::executeSqlAssoc($sql);
-			
-			// if query returns a non-empty result but with empty rows, like when using 
-			// delete, update and insert queries, then make this result empty altogether
+			MatrixDAL::changeDb('data_source_db_'.$this->id);
 			$empty_result = TRUE;
-			foreach($result as $row) {
-				if (!empty($row)) {
-					$empty_result = FALSE;
-					break;
+			if (MatrixDAL::getDbType() === 'oci' && preg_match('/^\s*(:?delete )|(:?insert )|(:?update )/msi', $sql)) {
+				MatrixDAL::setOciCommitOnSuccess(TRUE);
+				MatrixDAL::executeQueries($sql);
+				MatrixDAL::setOciCommitOnSuccess(FALSE);
+			} else {
+				$result = MatrixDAL::executeSqlAssoc($sql);
+				// if query returns a non-empty result but with empty rows, like when using 
+				// delete, update and insert queries, then make this result empty altogether
+				foreach($result as $row) {
+					if (!empty($row)) {
+						$empty_result = FALSE;
+						break;
+					}
 				}
-			}
+			}//end else
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
