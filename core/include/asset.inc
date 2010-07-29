@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.722.2.3 2010/07/09 05:07:02 cupreti Exp $
+* $Id: asset.inc,v 1.722.2.4 2010/07/29 00:01:36 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.722.2.3 $
+* @version $Revision: 1.722.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3832,7 +3832,17 @@ class Asset extends MySource_Object
 
 		} else if (0 === strpos($keyword, 'asset_languages')) {
 			$replacement = ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
-
+		} else if (0 === strpos($keyword, 'asset_summary')) {
+			$temp_assetid = substr($keyword, 14);
+			$temp_assetid = trim($temp_assetid);
+			$temp_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($temp_assetid);
+			if (!empty($temp_asset_info)) {
+				$temp_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($temp_assetid);
+				if (method_exists($temp_asset, 'getAssetSummary')) {
+					$replacement = $temp_asset->getAssetSummary();
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($temp_asset);
+			}
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);

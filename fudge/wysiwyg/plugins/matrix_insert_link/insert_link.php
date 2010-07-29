@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.44 2009/06/26 06:35:53 bpearson Exp $
+* $Id: insert_link.php,v 1.44.6.1 2010/07/29 00:04:51 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.6.1 $
 * @package MySource_Matrix
 */
 
@@ -64,6 +64,10 @@ if (!isset($_GET['class_name'])) {
 if (!isset($_GET['id_name'])) {
 	$_GET['id_name'] = '';
 }
+if (!isset($_GET['show_summary'])) {
+	$_GET['show_summary'] = 0;
+}
+
 
 if (strpos($_GET['assetid'], '#') !== FALSE) {
 	list($_GET['assetid'], $_GET['anchor']) = explode('#', $_GET['assetid']);
@@ -196,6 +200,8 @@ if (!isset($_GET['new_window'])) {
 				param["new_window"]  = form_element_value(f.new_window);
 				param["class_name"]  = form_element_value(f.class_name);
 				param["id_name"]  = form_element_value(f.id_name);
+				param["show_summary"]  = form_element_value(f.show_summary);
+				param["assetid"] = f.elements["assetid[assetid]"].value;
 
 				param["new_window_options"] = new Object();
 				param["new_window_options"]["width"]  = form_element_value(f.width);
@@ -539,7 +545,11 @@ if (!isset($_GET['new_window'])) {
 															</tr>
 															<tr>
 																<td class="label"><?php echo translate('title'); ?>:</td>
-																<td colspan="3"><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
+																<td colspan="2"><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
+																<td><?php 
+																	echo translate('include_summary').':';
+																	check_box('show_summary', 1, $_GET['show_summary']); ?>
+																</td>
 															</tr>
 														</table>
 													</fieldset>

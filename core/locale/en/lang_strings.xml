@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.366.2.3 2010/06/23 00:58:21 bpearson Exp $
+* $Id: lang_strings.xml,v 1.366.2.4 2010/07/29 00:03:56 cupreti Exp $
 *
 */
 
@@ -1844,6 +1844,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="id_name_text">ID</string>
 	<string source="class_name_text">Class</string>
 	<string source="title">Title</string>
+	<string source="include_summary">Include Summary</string>	
 	<string source="new_window_options">New Window Options</string>
 	<string source="target">Target</string>
 	<string source="new_window">New Window</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.46 2009/06/26 06:35:53 bpearson Exp $
+* $Id: matrix_insert_link.inc,v 1.46.6.1 2010/07/29 00:04:51 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.6.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -136,6 +136,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				currArgs["link_title"] = "";
 				currArgs["target"] = "";
 				currArgs["new_window"]  = 0;
+				currArgs["show_summary"] = 0;
 
 				currArgs["new_window_options"] = new Object();
 				for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
@@ -366,7 +367,13 @@ class matrix_insert_link extends wysiwyg_plugin
 							if (param["onClick"] != null && param["onClick"] != "") {
 								html += ' onClick="' + param["onClick"] + '"';
 							}
-							html += '>' + new_middle + '</a>';
+
+							new_middle = new_middle.replace(/%asset_summary_[0-9]+%/gim, '');
+							if (param['show_summary'] && param['assetid']) {
+								html += '>' + new_middle + ' %asset_summary_' + param['assetid'] + '%</a>';
+							} else {
+								html += '>' + new_middle + '</a>';
+							}
 
 							editor.insertHTML('', range);
 							editor.insertHTML(start_new + html + end_new);
@@ -402,7 +409,11 @@ class matrix_insert_link extends wysiwyg_plugin
 								var re = new RegExp(e, "gim");
 								inside_html = inside_html.replace(re, "$1");
 							}
-
+							
+							inside_html = inside_html.replace(/%asset_summary_[0-9]+%/gim, '');
+							if (param['show_summary'] && param['assetid']) {
+								inside_html = inside_html + " %asset_summary_" + param['assetid'] + "%";
+							}
 							html += '>' + inside_html + '</a>';
 							html = editor.make_absolute_urls(html);
 

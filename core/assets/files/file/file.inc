@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.184.2.2 2010/06/16 22:44:04 mhaidar Exp $
+* $Id: file.inc,v 1.184.2.3 2010/07/29 00:02:31 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.184.2.2 $
+* @version $Revision: 1.184.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1455,7 +1455,50 @@ class File extends Asset
 
 	}//end scanFile()
 
+	
+	/**
+	* Get keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	public function getFileTypeKeywordReplacement()
+	{	
+		return substr($this->type(), 0, -5);
 
+	}//end getFileTypeKeywordReplacement()
+
+
+	/**
+	* Returns the user customized summary for this asset
+	*
+	* @return string
+	* @access public
+	*/
+	public function getAssetSummary() 
+	{	
+		// Get the summary content defination
+		$summary = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ASSET_SUMMARY');
+		$keywords = retrieve_keywords_replacements($summary);
+		
+		$keyword_replacement = Array();
+		foreach($keywords as $full_keyword) {
+			$modifiers = NULL;
+			$part_keyword = parse_keyword($full_keyword, $modifiers);
+			$keyword_value = $this->getKeywordReplacement($part_keyword);
+			if ($part_keyword != $full_keyword) {
+				apply_keyword_modifiers($keyword_value, $modifiers);
+			}
+
+			$keyword_replacement[$full_keyword] = $keyword_value;
+		}
+
+		replace_keywords($summary, $keyword_replacement);
+
+		return $summary;
+
+	}//end getAssetSummary()	
+	
 }//end class
 
 ?>

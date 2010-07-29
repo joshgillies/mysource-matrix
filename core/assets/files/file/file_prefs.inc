@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.15 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: file_prefs.inc,v 1.15.12.1 2010/07/29 00:02:31 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.12.1 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -60,6 +60,13 @@ class File_Prefs extends Prefs
 																'name'			=> 'allowed_file_extentions_for_pre_uploaded_files',
 																'description'	=> 'This preference allows you to restrict the allowed types of pre-uploaded files',
 																'default'		=> '',
+																'protected'		=> FALSE,
+															   ),
+						
+						'SQ_FILE_ASSET_SUMMARY'				=> Array(
+																'name'			=> 'file_asset_summary',
+																'description'	=> 'This preference allows user to customize the content for asset_summary_X keyword replacement',
+																'default'		=> '%file_type^uppercase%, %asset_file_size_in_bytes^divide:1024^round:2% KB',
 																'protected'		=> FALSE,
 															   ),
 					 );
@@ -243,6 +250,22 @@ class File_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
+		// File summary defination
+		if (is_null($pref) || $pref == 'SQ_FILE_ASSET_SUMMARY') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_FILE_ASSET_SUMMARY']['name']));
+			}
+
+			if ($have_lock && $is_admin) {
+				text_area('prefs[SQ_FILE_ASSET_SUMMARY]', $this->pref_vars['SQ_FILE_ASSET_SUMMARY']['default'], 60, 5);
+				echo $o->note(translate('file_asset_summary_note'));
+			} else {
+				$value = $this->pref_vars['SQ_FILE_ASSET_SUMMARY']['default'];
+				echo $value;
+			}
+			if (is_null($pref)) $o->closeField();
+		}
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -313,6 +336,13 @@ class File_Prefs extends Prefs
 			if (isset($_POST['prefs']['SQ_FILE_ALLOWED_PREUPLOADED_TYPES'])) {
 				$result = $this->_tidyFileTypeString($_POST['prefs']['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']);
 				$this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['default'] = $result;
+			}
+		}
+
+		// File summary defination
+		if (is_null($pref) || $pref == 'SQ_FILE_ASSET_SUMMARY') {
+			if (isset($_POST['prefs']['SQ_FILE_ASSET_SUMMARY'])) {
+				$this->pref_vars['SQ_FILE_ASSET_SUMMARY']['default'] = $_POST['prefs']['SQ_FILE_ASSET_SUMMARY'];
 			}
 		}
 
