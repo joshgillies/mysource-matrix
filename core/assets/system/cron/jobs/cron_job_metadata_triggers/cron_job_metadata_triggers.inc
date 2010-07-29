@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.1.12.1 2010/06/15 00:31:07 akarelia Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.1.12.2 2010/07/29 04:43:54 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1.12.1 $
+* @version $Revision: 1.1.12.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,4 +244,3 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 }//end class
 
 ?>
-
