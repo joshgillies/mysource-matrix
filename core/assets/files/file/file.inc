@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.184.2.3 2010/07/29 00:02:31 cupreti Exp $
+* $Id: file.inc,v 1.184.2.4 2010/07/30 06:12:12 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.184.2.3 $
+* @version $Revision: 1.184.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1464,7 +1464,13 @@ class File extends Asset
 	*/
 	public function getFileTypeKeywordReplacement()
 	{	
-		return substr($this->type(), 0, -5);
+		$ext = '';
+		$file_info = $this->getExistingFile();
+		if(isset($file_info['filename'])) {
+			$ext = substr($file_info['filename'], strrpos($file_info['filename'], '.') + 1);			
+		}
+		return $ext;
+		
 
 	}//end getFileTypeKeywordReplacement()
 
