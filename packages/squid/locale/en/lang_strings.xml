@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2010/05/05 07:15:20 ewang Exp $
+* $Id: lang_strings.xml,v 1.6 2010/07/30 03:25:52 ewang Exp $
 *
 *
 * Squid Package Localised Strings File
@@ -27,6 +27,7 @@
 
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
 	<string source="squid_tool_asset_note">Squid cache will be cleared for all URLs applied to this asset.</string>
+	<string source="squid_tool_hostname">Host Names</string>
 	<string source="squid_tool_hostname_note">You may modify the settings in the Global Preferences System Configuration.</string>
 	<string source="squid_tool_path_field">Path</string>
 	<string source="squid_tool_port_field">Port Number</string>
