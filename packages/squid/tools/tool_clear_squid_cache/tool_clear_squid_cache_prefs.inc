@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_prefs.inc,v 1.5 2010/05/05 07:15:20 ewang Exp $
+* $Id: tool_clear_squid_cache_prefs.inc,v 1.5.2.1 2010/07/30 03:24:55 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ if (!defined('SQ_SQUID_CACHE_SLASH_DENY')) {
 *    List of host names to be used when purging the Squid Cache in the Global Prefs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -41,37 +41,37 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 
 	var $pref_vars = Array(
 						'SQ_SQUID_CACHE_HOSTNAMES'	=> Array(
-														'name'			=> 'Squid Cache Host Names',
+														'name'			=> 'squid_tool_hostname',
 														'description'	=> 'A list of newline separated host names to be used when purging the Squid Cache',
 														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
 						'SQ_SQUID_CACHE_PATH'		=> Array(
-														'name'			=> 'Path to squidclient',
+														'name'			=> 'squid_tool_path_field',
 														'description'	=> 'The path value to the squidclient',
 														'default'		=> '/usr/bin/squidclient',
 														'protected'		=> FALSE,
 													   ),
 						'SQ_SQUID_CACHE_PORT'		=> Array(
-														'name'			=> 'Port Number',
+														'name'			=> 'squid_tool_port_field',
 														'description'	=> 'A list of newline separated host names to be used when purging the Squid Cache',
 														'default'		=> '3128',
 														'protected'		=> FALSE,
 													   ),
 						'SQ_SQUID_CACHE_OPTION'		=> Array(
-														'name'			=> 'Additional Options',
+														'name'			=> 'squid_tool_option_field',
 														'description'	=> 'Additonal options to be included in the purge command',
 														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
 						'SQ_SQUID_CACHE_SLASH'		=> Array(
-														'name'			=> 'Purge Trailing Slash',
+														'name'			=> 'squid_tool_slash_field',
 														'description'	=> 'URLs with trailing slash are also processed by the purge command',
 														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_SQUID_URL_PORT'			=> Array(
-														'name'			=> 'Add Port to URL',
+														'name'			=> 'squid_tool_url_port_field',
 														'description'	=> 'You can specify a port to add to each URL when submitted to Squid. If you are running MySource Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.',
 														'default'		=> '',
 														'protected'		=> FALSE,
@@ -106,7 +106,7 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		if (is_null($pref) || $pref == 'SQ_SQUID_CACHE_HOSTNAMES') {
-			if (is_null($pref)) $o->openField('Host Names');
+			if (is_null($pref)) $o->openField(translate('squid_tool_hostname'));
 			if ($have_lock && $is_admin) {
 				// enter hostnames, separated by newline
 				text_area('prefs[SQ_SQUID_CACHE_HOSTNAMES]', $this->pref_vars['SQ_SQUID_CACHE_HOSTNAMES']['default'], 80, 4);
