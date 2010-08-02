@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.6.2.3 2010/06/07 06:53:53 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.6.2.4 2010/08/02 23:59:38 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.6.2.3 $
+* @version $Revision: 1.6.2.4 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -738,7 +738,8 @@ function getIndexes()
 					 */
 					preg_match('/USING btree \((.*?)\)$/i', $idx_def, $matches);
 					if (!empty($matches[1])) {
-						$idx_columns = str_replace(' ', '', $matches[1]);
+						// clean up special quoted names (like "type" in 8.1 dbs)
+						$idx_columns = str_replace(' ', '', str_replace('"', '', $matches[1]));
 					}
 					$idx_list[$tablename][strtolower($value['indexname'])] = $idx_columns;
 				break;
