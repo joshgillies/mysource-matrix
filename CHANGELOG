@@ -1,5 +1,64 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.7
+
+Featured Changes
+===================================
+
+Keywords on Alternate Contexts Inherit Metadata on the Default Context [ Feature Request #4518 ]
+-----------------------------------------------------
+
+By default, on a system with multiple contexts, metadata on alternate contexts which has not been configured will inherit the metadata values of the System's default context. This inheritance, however, was not previously reflected through keyword replacement. Metadata keyword replacements would return no values for metadata fields that had not been manually configured on the alternate context. For example, if you have an alternate context on your system which is inheriting the default context's metadata, keyword replacements such as %asset_metadata_field%, on the alternate context would return a blank value rather than the inherited metadata.
+
+This feature allows metadata keyword replacements to return inherited metadata on alternate contexts.
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4598: Squid Cache Source string not found on Usergroup preferences
+Fixed Bug #4577: Invalid HTML markup of Forms
+Fixed Bug #4583: Menu design area is getting same sub-menu content from cache for all the menu items assets.
+Fixed Bug #4592: Special characters in metadata text field default value getting escaped in frontend
+Fixed Bug #4591: System Integrity Incomplete Attachment script halts with invalid Asset ID.
+Fixed Bug #4579: Duplicate/Mislabeled entries in the "Asset Types to Search for"
+Fixed Bug #4580: trigger action set cookie depends on PHP 5.2+ when httponly option is used
+Fixed Bug #4539: Unable to list LDAP users under usergroups with Asset Listing
+Fixed Bug #4557: Cannot use keyword modifiers on %metadata_field_X% keywords
+Fixed Bug #4560: System Move Update script does not take care of filesystem paths in form submissions
+Fixed Bug #4554: Relative URL broken after recaching the page
+Fixed Bug #4530: Asset Manager's generateGetChildrenQuery() method returns all assets if link tree table is corrupted
+Fixed Bug #4544: Metadata Edit Interface Screen can't be accessed in Limbo
+Fixed Bug #4555: WYSIWYG Replace Text Plugin clears almost all content
+Fixed Bug #4546: Cannot locate LDAP users in asset map with backslash in CN
+Fixed Bug #4543: Asset map show no children assets when a ldap user group is linked outside
+Fixed Bug #4536: Insert table function in WYSIWYG generates incorrect HTML resulting in moving headings
+Fixed Bug #4531: trigger batch event hipo prints 'Undefined index: percent_done'
+Fixed Bug #4523: Asset map does not give 'next' arrows for custom forms
+Fixed Bug #4532: system_integrity_recover_file_versions script does not take care of file versioning in public directories
+Fixed Bug #4513: metadata context modifier does not return values of correct context
+
+CMS
+Fixed Bug #4534: Asset Builder Additional Create Locations: Unable to specify link type
+Fixed Bug #4558: Passed by Reference Error In cron_job_manage_incomplete_submissions.inc
+
+Search
+Fixed Bug #4527: Matrix search page results has no output for page_list_X keywords
+
+LDAP
+Fixed Bug #4542: Missing DN attribute error when LDAP Active Directory is used and one user group is in the member list of another user group
+Fixed Bug #4552: creating/deleting links for LDAP user from linking screen throws PHP and MySource notice
+
+Calendar
+Fixed Bug #4526: Calendar displays incorrect date when on same page as Upcoming Events List
+
+E-Commerce
+Fixed Bug #4503: Ecommerce Rules screen has checkable boxes
+
+Funnelback Package
+Fixed Bug #4559: Hitting the enter key in Internet Explorer after entering a search term in Funnelback search page does not returns any result.
+
+
 VERSION 3.26.6
 
 Featured Changes
