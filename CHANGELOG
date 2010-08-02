@@ -1,5 +1,142 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.28.3
+
+Featured Changes
+===================================
+
+
+Include Summary option in the Insert Link pop up [ Feature Request #4595 ]
+-----------------------------------------------------
+
+A new option called Include Summary is now available in the Insert Link pop-up in the WYSIWYG Editor.
+
+When you select this option, the keyword replacement %asset_summary_<assetid>% will be added in the link, where <assetid> is the id of the asset that you have linked to.
+
+This keyword replacement will show the summary of the asset in the frontend and will only work when you create a link to file assets, such as Word documents and PDF files.
+
+You can customise the information that is being shown for this keyword replacement in Global Preferences.
+
+
+Obscuring the SharePoint System from Users [ Feature Request #4504 ]
+-----------------------------------------------------
+
+The SharePoint package within MySource Matrix allows a user to list the documents of a SharePoint server using the SharePoint Saved Search asset. Previously, the URLs of documents returned from these searches were served from the SharePoint server, meaning that the address of your SharePoint system was visible to users when printing the URLs of documents on the frontend. This feature allows the SharePoint Saved Search to download and serve the returned documents directly from your web server.
+
+This option is configured in a new Download File field on the Details screen of the SharePoint Saved Search. When this field is set to 'Yes', the SharePoint documents will be downloaded to your web server, reflected in the document's download_url on its Details screen.
+
+This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
+
+
+Trigger Action: Remove Workflow Schema [ Feature Request #4582 ]
+-----------------------------------------------------
+
+A new Trigger action has been added to remove a non-running Workflow Schema on an asset.
+
+This Trigger Action will remove the specified Workflow Schema on the asset that fired the trigger. An option to cascade this removal to all children of the asset is also available.
+
+This new action compliments the pre-existing Set Workflow Schema Trigger Action.
+
+
+createFileAsset Function for Javascript API [ Feature Request #4561 ]
+-----------------------------------------------------
+
+Currently, the Javascript API does not contain any functions allowing users to create File type assets. The feature introduces the createFileAsset function, creating a blank File type asset (PDF File, Image, MP3 etc.) that users will then be able to upload their files to.
+
+The createFileAsset function is enabled through the Create Asset field on the Details screen of the Javascript API.
+
+This function takes six parameters:
+
+    * parentID: asset ID of parent where the new asset will be linked under.
+    * type_code: type code of the new asset (defaults to 'File').
+    * friendly_name:  name of the asset being created.
+    * link_type: type of link to create for File asset (SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE).
+    * link_value: value of the link to create to parent for this new asset.
+    * dataCallback: the custom callback function (optional).
+
+The format of the createFileAsset function is shown below:
+
+function createFileAsset(parentID, type_code, friendly_name, link_type, link_value, dataCallback)
+
+For example, if you want to create a PDF File asset, titled 'my-file', the function can be used as follows:
+
+    createFileAsset(100, pdf_file, my-file);
+
+Once the PDF File asset is created, the user can upload their file to the newly created blank PDF File asset.
+
+This function has been added to provide more flexibility for MySource Matrix's integration with the Easy Edit Suite.
+
+
+Select Any Asset as a Funnelback Collection Source  [ Feature Request #4540 ]
+-----------------------------------------------------
+
+Since MySource Matrix's Funnelback package was introduced earlier this year, users have been limited to selecting entire sites when creating collections. This meant that users were not able to index specific sections of their site, often causing unnecessary and lengthy indexing processes.
+
+This feature allows you to now select any asset when creating collections, specifying certain sections of a site to index.
+
+This enhancement will greatly increase the speed and efficiency of Funnelback indexing on your system.
+
+This feature allows metadata keyword replacements to return inherited metadata on alternate contexts.
+
+
+Keywords on Alternate Contexts Inherit Metadata on the Default Context [ Feature Request #4518 ]
+-----------------------------------------------------
+
+By default, on a system with multiple contexts, metadata on alternate contexts which has not been configured will inherit the metadata values of the System's default context. This inheritance, however, was not previously reflected through keyword replacement. Metadata keyword replacements would return no values for metadata fields that had not been manually configured on the alternate context. For example, if you have an alternate context on your system which is inheriting the default context's metadata, keyword replacements such as %asset_metadata_field%, on the alternate context would return a blank value rather than the inherited metadata.
+
+This feature allows metadata keyword replacements to return inherited metadata on alternate contexts.
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4598: Squid Cache Source string not found on Usergroup preferences
+Fixed Bug #4597: cron_job_metadata_triggers.inc has new line after closing php tag
+Fixed Bug #4577: Invalid HTML markup of Forms
+Fixed Bug #4583: Menu design area is getting same sub-menu content from cache for all the menu items assets.
+Fixed Bug #4592: Special characters in metadata text field default value getting escaped in frontend
+Fixed Bug #4591: System Integrity Incomplete Attachment script halts with invalid Asset ID.
+Fixed Bug #4579: Duplicate/Mislabeled entries in the "Asset Types to Search for"
+Fixed Bug #4580: trigger action set cookie depends on PHP 5.2+ when httponly option is used
+Fixed Bug #4539: Unable to list LDAP users under usergroups with Asset Listing
+Fixed Bug #4557: Cannot use keyword modifiers on %metadata_field_X% keywords
+Fixed Bug #4560: System Move Update script does not take care of filesystem paths in form submissions
+Fixed Bug #4554: Relative URL broken after recaching the page
+Fixed Bug #4530: Asset Manager's generateGetChildrenQuery() method returns all assets if link tree table is corrupted
+Fixed Bug #4544: Metadata Edit Interface Screen can't be accessed in Limbo
+Fixed Bug #4555: WYSIWYG Replace Text Plugin clears almost all content
+Fixed Bug #4546: Cannot locate LDAP users in asset map with backslash in CN
+Fixed Bug #4492: performance issues with generateGetChildrenQuery
+Fixed Bug #4543: Asset map show no children assets when a ldap user group is linked outside
+Fixed Bug #4536: Insert table function in WYSIWYG generates incorrect HTML resulting in moving headings
+Fixed Bug #4531: trigger batch event hipo prints 'Undefined index: percent_done'
+Fixed Bug #4523: Asset map does not give 'next' arrows for custom forms
+Fixed Bug #4532: system_integrity_recover_file_versions script does not take care of file versioning in public directories
+Fixed Bug #4513: metadata context modifier does not return values of correct context
+
+CMS
+Fixed Bug #4534: Asset Builder Additional Create Locations: Unable to specify link type
+Fixed Bug #4558: Passed by Reference Error In cron_job_manage_incomplete_submissions.inc
+
+Search
+Fixed Bug #4527: Matrix search page results has no output for page_list_X keywords
+
+LDAP
+Fixed Bug #4542: Missing DN attribute error when LDAP Active Directory is used and one user group is in the member list of another user group
+Fixed Bug #4552: creating/deleting links for LDAP user from linking screen throws PHP and MySource notice
+
+Calendar
+Fixed Bug #4526: Calendar displays incorrect date when on same page as Upcoming Events List
+
+E-Commerce
+Fixed Bug #4503: Ecommerce Rules screen has checkable boxes
+
+Funnelback Package
+Fixed Bug #4559: Hitting the enter key in Internet Explorer after entering a search term in Funnelback search page does not returns any result.
+
+
+
 VERSION 3.28.2
 
 Featured Changes
