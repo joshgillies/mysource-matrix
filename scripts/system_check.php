@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_check.php,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: system_check.php,v 1.3 2010/08/03 04:22:34 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *		--no-colours
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -41,12 +41,16 @@ $help .= "\t--verbose\t\tShow more detailed errors\n";
 $help .= "\t--colours\t\tUse colours\n";
 $help .= "\t--stats\t\t\tShow statistics for this process\n";
 $help .= "\t--help\t\t\tShow this help screen\n";
+$help .= "\t--execute\t\tMake a script execute it's action if it has one\n";
+$help .= "\t[test_to_run]\n";
 
 // Defaults
 $SYSTEM_ROOT = '';
 $VERBOSE = FALSE;
 $COLOURS = FALSE;
 $STATS = FALSE;
+$tests_to_run = Array();
+$EXECUTE = FALSE;
 
 // Process arguments
 foreach ($_SERVER['argv'] as $placement => $argument) {
@@ -71,10 +75,15 @@ foreach ($_SERVER['argv'] as $placement => $argument) {
 			case 'stats':
 				$STATS = TRUE;
 			break;
+			case 'execute':
+				$EXECUTE = TRUE;
+			break;
 			case 'help':
 				echo $help;
 				exit();
 			break;
+			default:
+				$tests_to_run[] = $command;
 		}//end switch
 	}//end if
 }//end foreach
@@ -105,14 +114,36 @@ $tests = list_files($test_dir.'/*.inc');
 foreach ($tests as $test) {
 	// Only use files starting with test and ending with .inc
 	if (!preg_match('/^test(.*)\.inc$/i', $test)) continue;
+
+	$test_basename = basename($test, '.inc');
+	if (!empty($tests_to_run)) {
+		if (!in_array($test_basename, $tests_to_run)) {
+			continue;
+		}
+	}
+
 	include_once $test_dir.'/'.$test;
-	$class_name = str_replace('_', ' ', basename($test, '.inc'));
+	$class_name = str_replace('_', ' ', $test_basename);
 	$class_name = ucwords($class_name);
 	$class_name = str_replace(' ', '_', $class_name);
 	$messages = Array();
 	$errors = Array();
-	$status = call_user_func_array(Array($class_name, 'test'), Array(&$messages, &$errors));
+	$runTestMethod = TRUE;
+	if ($EXECUTE) {
+		if (method_exists($class_name, 'execute')) {
+			$status = call_user_func_array(Array($class_name, 'execute'), Array(&$messages, &$errors));
+			$runTestMethod = FALSE;
+		} else {
+			echo "Test " . $test . " doesn't have an 'execute' option.\n";
+		}
+	}
+
+	if ($runTestMethod) {
+		$status = call_user_func_array(Array($class_name, 'test'), Array(&$messages, &$errors));
+	}
+
 	$name = call_user_func_array(Array($class_name, 'getName'), Array());
+
 	showStatus($name, $status, $messages, $errors, $VERBOSE, $COLOURS);
 }//end foreach
 
@@ -128,7 +159,6 @@ if ($STATS) {
 	echo "seconds\n";
 }//end if
 exit();
-
 
 /**
 * Show the status of the current step
