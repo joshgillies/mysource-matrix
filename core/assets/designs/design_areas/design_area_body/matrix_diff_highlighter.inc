@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.6 2010/05/10 02:30:29 mhaidar Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.7 2010/08/03 07:19:51 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,10 +60,15 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			} else {
 				return $lines[0];
 			}
+		} else if (count($lines) == 2) {
+			if ($this->_isOpenTag($lines[1]) && $this->_isCloseTag($lines[0])) {
+				return $this->_lines($lines, ' ', FALSE);
+			}
 		}
 
 		if ($this->_isOpenBlockTag($lines[0]) && $this->_isCloseBlockTag($lines[count($lines)-1])) {
 			// simple case - we have one or more block elements
+			if (count($lines) == 2) return $this->_lines($lines, ' ', FALSE);
 			return $prefix.$this->_lines($lines, ' ', FALSE).$suffix;
 		}
 
