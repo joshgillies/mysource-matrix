@@ -10,7 +10,7 @@
 * | you a copy.														|
 * +--------------------------------------------------------------------+
 *
-* $Id: test_dead_file_revisions.inc,v 1.1 2010/08/03 04:21:16 csmith Exp $
+* $Id: test_dead_file_revisions.inc,v 1.2 2010/08/03 04:36:14 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * but aren't assets any more.
 *
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Test_Dead_File_Revisions
@@ -171,17 +171,19 @@ class Test_Dead_File_Revisions
 	 */
 	public static function execute(&$messages, &$errors)
 	{
-		$status = FALSE;
+		$status = TRUE;
 		if (SQ_CONF_ROLLBACK_ENABLED) {
 			$messages[] = "Rollback is enabled, so will not check for orphaned file repository entries.\n\tThey may be required when viewing the system in rollback mode.";
+			$status = FALSE;
 			return $status;
 		}
 
 		$assetsToDelete = self::findAssetsToDelete();
 
+		$assetsCleanedUp = Array();
+
 		if (empty($assetsToDelete)) {
 			$messages[] = 'There are no orphaned file repository entries.';
-			$status = TRUE;
 			return $status;
 		}
 
@@ -213,13 +215,14 @@ class Test_Dead_File_Revisions
 			}
 			if (empty($bad_files)) {
 				rmdir($path);
-
+				$assetsCleanedUp[] = $assetid;
 			} else {
 				$msg = "Unable to delete the following files:\n";
 				$msg .= implode("\n\t\t", $bad_files);
 				$messages[] = $msg;
 				unset($assetsToDelete[$assetid]);
 				unset($fullPaths[$assetid]);
+				$status = FALSE;
 			}
 		}
 
@@ -250,6 +253,10 @@ class Test_Dead_File_Revisions
 			$query = "DELETE FROM sq_file_vers_history WHERE fileid IN (" . implode(',', $chunk) . ")";
 			$result = MatrixDAL::executeSql($query);
 		}
+
+		$msg  = "The following assets were cleaned up successfully:\n";
+		$msg .= "\t" . implode(',', $assetsCleanedUp);
+		$messages[] = $msg;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
