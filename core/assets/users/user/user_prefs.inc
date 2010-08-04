@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.18 2009/09/29 05:53:35 lwright Exp $
+* $Id: user_prefs.inc,v 1.19 2010/08/04 06:31:17 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -83,6 +83,12 @@ class User_Prefs extends Prefs
 															'default'		=> 'default',
 															'protected'		=> FALSE,
 														   ),
+						'SQ_USER_FILTER_FRONT_END_INPUT'	=> Array(
+														'name'			=> 'filter_front_end_user_input',
+														'description'	=> 'Filter (strip keywords, strip script tags and escape html) of any input by the user from the front end.',
+														'default'		=> FALSE,
+														'protected'		=> FALSE,
+													   ),
 					 );
 
 	var $int_am_frame_width;
@@ -565,7 +571,30 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-
+		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
+			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['name']));
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+				$options = Array(
+								FALSE	=> 'Do not filter input',
+								TRUE	=> 'Filter input',
+								);
+				$filter_input = $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'];
+				if ($have_lock && $is_admin) {
+					combo_box('prefs[SQ_USER_FILTER_FRONT_END_INPUT]', $options, FALSE, $filter_input, 0, 'id="prefs_SQ_USER_FILTER_FRONT_END_INPUT"');
+					?><br/><?php
+					label("If set to 'Filter Input', Matrix will ".$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description'], 'prefs_SQ_USER_FILTER_FRONT_END_INPUT');
+				} else {
+					echo $options[$filter_input].'<br/>';
+					echo("If set to 'Filter Input', Matrix will ".$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description']);
+				}
+			?>
+			<br />
+			</div>
+			<?php
+			if (is_null($pref)) $o->closeField();
+		}//end if
 		return TRUE;
 
 	}//end paintBackend()
@@ -718,6 +747,16 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'] = FALSE;
 			}
 		}
+		
+		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
+			// filter front end input
+			if (isset($_POST['prefs']['SQ_USER_FILTER_FRONT_END_INPUT'])) {
+				$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'] = $_POST['prefs']['SQ_USER_FILTER_FRONT_END_INPUT'];
+			} else {
+				$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'] = FALSE;
+			}
+		}
+		
 		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
 			$new_prefs = Array(
 							'face'	=> 'arial',

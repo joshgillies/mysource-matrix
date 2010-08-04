@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.727 2010/07/28 01:10:38 cupreti Exp $
+* $Id: asset.inc,v 1.728 2010/08/04 06:31:17 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.727 $
+* @version $Revision: 1.728 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3241,6 +3241,23 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
+		
+		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON) {
+			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
+			//Any identified attributes that shouldn't be filtered
+			$type_excl = Array ('form_submission');
+			$attr_excl = Array ('xml');
+			if ($filter_enabled && !(in_array($this->type(), $type_excl) && in_array($name, $attr_excl))){
+				if (!empty($value)) {
+					$value = filter_content($value);
+					if ($value === FALSE){
+						trigger_localised_error('SYS0346', E_USER_WARNING, $name, $this->type());
+						return FALSE;	
+					}
+				}
+			}
+		}
+		
 		$attribute = $this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);

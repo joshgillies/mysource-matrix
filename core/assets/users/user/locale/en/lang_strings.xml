@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.16 2010/02/01 03:42:21 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.17 2010/08/04 06:31:17 mhaidar Exp $
 *
 */
 -->
@@ -44,6 +44,7 @@
 	<string source="add_session_expiry_rule">Add a new session expiry rule</string>
 	<string source="show_user_held_locks_details">Show User Held Lock Details</string>
 	<string source="hide_user_held_locks_details">Hide User Held Lock Details</string>
+	<string source="filter_front_end_user_input">Filter Front End User Input</string>
 
 	<string source="user_email_image">User Email Image</string>
 	<string source="user_prefs_attribute_image">Settings for using Image keyword replacements</string>

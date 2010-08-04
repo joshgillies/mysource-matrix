@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.252 2010/07/12 05:01:51 cupreti Exp $
+* $Id: general.inc,v 1.253 2010/08/04 06:31:17 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix
 */
 
@@ -2226,5 +2226,108 @@ function xml_entity_decode($string, $decode_html_entities = TRUE)
 	return $string;
 
 }//end xml_entity_decode()
+
+/**
+* Filters Content (strip script tags, strip keywords, escape html).
+* Passes content to appropiate filtering function. Returns FALSE on failure.
+* 
+* @param mixed string|array $attr_value contains content to be filtered.
+*
+* @return mixed string|array|boolean
+* @access public
+*/
+function filter_content($attr_value) {
+	
+	$unser_str = @unserialize($attr_value);
+	if ($unser_str !== FALSE) {
+		if (is_array($unser_str)){
+			try {
+				$success = array_walk($unser_str, 'recursive_content_filter');
+				if (!$success) return FALSE;
+				$attr_value = serialize($unser_str);
+			} catch (Exception $e) {
+   				return FALSE;
+			}
+		} else if (is_scalar($unser_str)){
+			$unser_str = simple_content_filter($unser_str);
+			if ($unser_str === FALSE) return FALSE;
+			$attr_value = serialize($unser_str);
+		}	
+	} else if (is_scalar($attr_value)) {
+		$attr_value = simple_content_filter($attr_value);
+		if ($attr_value === FALSE) return FALSE;
+	} else if (is_array($attr_value)) { 
+		try {
+			$success = array_walk($attr_value, 'recursive_content_filter');
+			if (!$success) return FALSE;
+		} catch (Exception $e) {
+   			return FALSE;
+		}
+	}
+	return $attr_value;
+}
+
+/**
+* Runs a set of filters on the content (strip script tags, strip keywords, escape html).
+* Returns FALSE on failure. 
+* 
+* @param string $attr_value contains content to be filtered.
+*
+* @return mixed string|boolean 
+* @access public
+*/
+function simple_content_filter($attr_value) {
+
+	$reg = "%<\/?script ?[^>]*>%i";
+	$attr_value = preg_replace($reg, "", $attr_value);
+	if ($attr_value == NULL) return FALSE;
+	
+	$keywords = extract_keywords($attr_value);
+	foreach ($keywords as $keyword){
+		$attr_value = str_ireplace("%$keyword%", "", $attr_value);
+		if ($attr_value == NULL) return FALSE;
+	}
+
+	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET, FALSE);
+	
+	return $attr_value;
+}
+
+/**
+* Ideally run with PHP array_walk().
+* Looks for serialized data in arrays which are then unserialized and filtered.
+* There has been cases where arrays have been serialized while containing already serialized data.
+* Throws exception on failure.
+*
+* @param string $item contains content to be filtered.
+*
+* @access public
+*/
+function recursive_content_filter(&$item){
+
+	//recursive: could not use array_walk_recursive because of a bug in PHP 5.2
+	if(is_array($item)){
+		$success = array_walk($item, __FUNCTION__);
+		if (!$success) throw new Exception('Content Filtering Failed.');
+	} else {  
+		$unser_item = @unserialize($item);
+		if ($unser_item !== FALSE) { 
+			if (is_array($unser_item)){
+				$success = array_walk($unser_item, __FUNCTION__);
+				if (!$success) throw new Exception('Content Filtering Failed.');
+				$item = serialize($unser_item);
+			} else if (is_scalar($unser_item)){
+				$clean = simple_content_filter($unser_item);
+				if ($clean === FALSE) throw new Exception('Content Filtering Failed.');
+				$item = serialize($clean);
+			}
+		} else {
+			if (!empty($item)) {
+				$item = simple_content_filter($item);
+				if ($item === FALSE) throw new Exception('Content Filtering Failed.');
+			}
+		}
+	}
+}
 
 ?>

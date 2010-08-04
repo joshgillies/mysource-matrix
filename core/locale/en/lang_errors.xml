@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.123 2010/07/09 01:21:07 cupreti Exp $
+* $Id: lang_errors.xml,v 1.124 2010/08/04 06:31:17 mhaidar Exp $
 *
 */
 
@@ -1424,6 +1424,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0327">Unable to set metadata values for "%s", permission denied</error>
 	<error code="SYS0328">Unable to set attribute values for "%s", permission denied</error>
 	<error code="SYS0330">Unable to set a layout, no URL has been assigned to the asset</error>
+	
+	<error code="SYS0346">Unable to filter content of attribute "%1$s" of asset type "%2$s"</error><!-- core/include/asset.inc: -->
 
 	<!-- Apache Configuration Errors -->
 	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>
@@ -1439,7 +1441,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0334">Link "%1$s" cannot be deleted, link is locked</error>
 
 	<error code="SYS0345">Couldn't find treeid for asset #%s in link tree table</error>
-
+	
 
 <!-- CORE ASSETS -->
 
