@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.235 2010/06/11 07:44:26 bpearson Exp $
+* $Id: search_manager.inc,v 1.236 2010/08/05 23:29:07 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.235 $
+* @version $Revision: 1.236 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1389,6 +1389,7 @@ class Search_Manager extends Asset
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		$indexable = $this->getIndexableMetadataContent($asset, $fieldids, $all_contexts);
+
 		$this->addIndexableContent($assetid, $indexable);
 
 	}//end reindexMetadata()
@@ -1468,7 +1469,7 @@ class Search_Manager extends Asset
 				
 				// Get metadata for this context
 				$metadata = $mm->getMetadata($asset->id, 0, $this_contextid);
-				
+
 				if (isset($metadata[$field->id][0]['value'])) {
 					$value = $metadata[$field->id][0]['value'];
 				} else if ($field instanceof Metadata_Field_WYSIWYG) {
@@ -1476,20 +1477,31 @@ class Search_Manager extends Asset
 				} else {
 					$value = $field->attr('default');
 				}
-				
+
          		$use_default = empty($value) || $this_contextid === 'default' || $this_contextid === 0 ? TRUE : FALSE;
 
 				$value_components = Array();
 				Metadata_Field::decodeValueString($value, $value, $value_components);
 
 				$keywords = retrieve_keywords_replacements($value, '.');
+
 				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+
 				foreach($keywords as $keyword) {
+
 					if (!isset($the_replacement[$keyword])) {
 						// Looking for further replacements
 						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
+
+					} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
+						// searching for keywords that replace the content of another field
+						$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
+						$the_replacement[$keyword] = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
+
 					}//end if
+
 				}//end foreach
+
 				replace_keywords($value, $the_replacement);
 
 				// check field_type to define the indexing way
