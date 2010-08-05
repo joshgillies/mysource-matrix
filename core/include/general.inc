@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.253 2010/08/04 06:31:17 mhaidar Exp $
+* $Id: general.inc,v 1.254 2010/08/05 00:34:08 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix
 */
 
@@ -2288,7 +2288,7 @@ function simple_content_filter($attr_value) {
 		if ($attr_value == NULL) return FALSE;
 	}
 
-	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET, FALSE);
+	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 	
 	return $attr_value;
 }
