@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.312 2010/07/27 04:49:49 csmith Exp $
+* $Id: listing_engine.inc,v 1.313 2010/08/06 03:56:17 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.312 $
+* @version $Revision: 1.313 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -882,22 +882,40 @@ class Listing_Engine extends Page
 				} else {
 					$root_nodes[] = $nodes;
 				}
-			} else {
-				// because the root nodes can be dynamic we need to cache the results based upon root node
+			} else { 
 				$root_nodes = $this->getRootNodes(FALSE);
 			}
-
+			
+			//as per bug #4608, cache key needs to be unique for nested search pages with dynamic stored_query_session
+			if ($this->type() == 'search_page') {
+				$pmap = unserialize($this->attr('stored_query_session'));
+				if (!empty($pmap)) {
+					$pmap = $this->getAttribute('stored_query_session');
+					$pmap_params = $pmap->getParameters();
+					if (is_array($pmap_params) && !empty($pmap_params)) {
+						foreach ($pmap_params as $params) {
+							$sq_index = $pmap->getParameterValue($params);
+							if (isset($sq_index)) $stored_queries[] = $sq_index; 
+						}
+					}	
+				}
+				
+				if (!empty($stored_queries)) {
+					$cache_key .= '-'.serialize($stored_queries);
+				}
+			}
+			
 			if (!empty($root_nodes)) {
 				$cache_key .= '-'.implode('-', $root_nodes);
 			}
-
+			
 			$cache_key .= $this->_getNumPerPage();
 
 			// Add context to the cache key, because all our bodycopies could be
 			// customised and we are caching the entire contents of the page
 			$cache_key .= '-ctx'.$contextid;
 		}
-
+		
 		return $cache_key;
 
 	}//end _getCacheKey()
