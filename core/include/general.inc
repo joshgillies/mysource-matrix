@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.254 2010/08/05 00:34:08 mhaidar Exp $
+* $Id: general.inc,v 1.255 2010/08/06 04:46:55 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix
 */
 
@@ -2287,7 +2287,8 @@ function simple_content_filter($attr_value) {
 		$attr_value = str_ireplace("%$keyword%", "", $attr_value);
 		if ($attr_value == NULL) return FALSE;
 	}
-
+	//decode first to avoid double encoding
+	$attr_value = htmlspecialchars_decode($attr_value, ENT_COMPAT);
 	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 	
 	return $attr_value;
