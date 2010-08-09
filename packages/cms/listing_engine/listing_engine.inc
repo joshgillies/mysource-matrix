@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.5 2010/07/26 00:26:01 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.303.2.6 2010/08/09 05:32:57 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.5 $
+* @version $Revision: 1.303.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -874,6 +874,25 @@ class Listing_Engine extends Page
 
 			if (!empty($root_nodes)) {
 				$cache_key .= '-'.implode('-', $root_nodes);
+			}
+			
+			//as per bug #4608, cache key needs to be unique for nested search pages with dynamic stored_query_session
+			if ($this->type() == 'search_page') {
+				$pmap = unserialize($this->attr('stored_query_session'));
+				if (!empty($pmap)) {
+					$pmap = $this->getAttribute('stored_query_session');
+					$pmap_params = $pmap->getParameters();
+					if (is_array($pmap_params) && !empty($pmap_params)) {
+						foreach ($pmap_params as $params) {
+							$sq_index = $pmap->getParameterValue($params);
+							if (isset($sq_index)) $stored_queries[] = $sq_index; 
+						}
+					}	
+				}
+				
+				if (!empty($stored_queries)) {
+					$cache_key .= '-'.serialize($stored_queries);
+				}
 			}
 
 			$cache_key .= $this->_getNumPerPage();
