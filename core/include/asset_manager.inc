@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.19 2010/07/16 00:56:53 ewang Exp $
+* $Id: asset_manager.inc,v 1.779.2.20 2010/08/09 01:28:24 akarelia Exp $
 *
 */
 
@@ -25,8 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.19 $
->>>>>>> 1.804
+* @version $Revision: 1.779.2.20 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
