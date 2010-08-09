@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.236 2010/08/05 23:29:07 akarelia Exp $
+* $Id: search_manager.inc,v 1.237 2010/08/09 04:47:07 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1494,9 +1494,23 @@ class Search_Manager extends Asset
 						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
 
 					} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
+
+						 // Remove any modifiers from keyword
+						$full_keyword = $keyword;
+						$keyword = parse_keyword($keyword, $modifiers);
+
 						// searching for keywords that replace the content of another field
 						$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
-						$the_replacement[$keyword] = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
+						$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
+
+						if ($keyword_replacement !== NULL) {
+							if (count($modifiers) > 0) {
+								apply_keyword_modifiers($keyword_replacement, $modifiers);
+							}
+							$the_replacement[$full_keyword] = $keyword_replacement;
+						} else {
+							$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
+						}
 
 					}//end if
 
