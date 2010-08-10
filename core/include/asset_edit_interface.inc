@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.366 2010/07/07 01:08:53 kmyothein Exp $
+* $Id: asset_edit_interface.inc,v 1.367 2010/08/10 04:25:20 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.366 $
+* @version $Revision: 1.367 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1384,7 +1384,9 @@ class Asset_Edit_Interface extends MySource_Object
 					$file = $this->findLanguageFile('screen_'.$screen);
 					if (empty($file)) {
 						$file  = $this->findFile('screen_'.$screen);
-		
+						if(empty($file)) {
+							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
+						}
 						try {
 							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
 						} catch (Exception $e) {
