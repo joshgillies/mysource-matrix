@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.4 2007/12/13 23:58:20 rong Exp $
+* $Id: content_type_snippet.inc,v 1.5 2010/08/11 00:20:47 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -219,6 +219,43 @@ class Content_Type_Snippet extends Content_Type
 		return FALSE;
 
 	}//end setContent()
+	
+	
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param Asset	$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function cloneComponentsAdditional(Asset $clone, Array $components)
+	{
+		// update content.php file 
+		$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($clone->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
+		if (!empty($bc_container_link)) {
+			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+			$edit_fns = $container->getEditFns();
+			$edit_fns->generateContentFile($container);
+		}
+			
+		return parent::cloneComponentsAdditional($clone, $components);
+
+	}//end cloneComponentsAdditional()
 
 
 }//end class
