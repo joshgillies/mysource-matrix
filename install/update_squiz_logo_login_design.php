@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_squiz_logo_login_design.php,v 1.1 2010/08/11 05:11:11 ewang Exp $
+* $Id: update_squiz_logo_login_design.php,v 1.2 2010/08/11 05:12:51 ewang Exp $
 *
 */
 
@@ -18,6 +18,7 @@
 * Update new Squiz Matrix logo images for Matrix 4.0.0 in all login designs including
 * System Login Design, EES Login Design, Password Change Design
 *
+* Usage:  php install/update_squiz_logo_login_design.php [PATH_TO_ROOT]
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @version $$
