@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_broken_sort_order.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_broken_sort_order.inc,v 1.2.2.1 2010/08/12 23:16:16 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 class Test_Broken_Sort_Order
@@ -68,7 +68,7 @@ class Test_Broken_Sort_Order
 		$status = TRUE;
 
 		// Find the maximum sort order and count the links
-		$sql = 'SELECT majorid, MAX(sort_order) AS max, count(*) AS count FROM sq_ast_lnk WHERE majorid IN (SELECT DISTINCT majorid FROM sq_ast_lnk) GROUP BY majorid;';
+		$sql = 'SELECT majorid, MAX(sort_order) AS max, count(*) AS count FROM sq_ast_lnk WHERE majorid IN (SELECT DISTINCT majorid FROM sq_ast_lnk) GROUP BY majorid';
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($results)) {
 			$count = 0;

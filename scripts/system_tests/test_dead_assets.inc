@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_dead_assets.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_dead_assets.inc,v 1.2.2.1 2010/08/12 23:16:16 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 class Test_Dead_Assets
@@ -66,7 +66,7 @@ class Test_Dead_Assets
 	public static function test(&$messages, &$errors)
 	{
 		$status = TRUE;
-		$minor_sql = 'SELECT minorid FROM sq_ast_lnk WHERE minorid NOT IN (select assetid FROM sq_ast) AND linkid <> 1;';
+		$minor_sql = 'SELECT minorid FROM sq_ast_lnk WHERE minorid NOT IN (select assetid FROM sq_ast) AND linkid <> 1';
 		$minor_result = MatrixDAL::executeSqlAssoc($minor_sql);
 		if (!empty($minor_result)) {
 			$status = FALSE;
@@ -74,7 +74,7 @@ class Test_Dead_Assets
 				$errors[] = 'Asset #'.$result['minorid'].' was not found on the system';
 			}//end foreach
 		}//end if
-		$major_sql = 'SELECT majorid FROM sq_ast_lnk WHERE majorid NOT IN (SELECT assetid FROM sq_ast) AND linkid <> 1;';
+		$major_sql = 'SELECT majorid FROM sq_ast_lnk WHERE majorid NOT IN (SELECT assetid FROM sq_ast) AND linkid <> 1';
 		$major_result = MatrixDAL::executeSqlAssoc($major_sql);
 		if (!empty($major_result)) {
 			$status = FALSE;
