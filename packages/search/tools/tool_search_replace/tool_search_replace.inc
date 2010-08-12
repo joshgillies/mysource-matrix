@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.27.2.1 2010/05/04 06:19:28 mhaidar Exp $
+* $Id: tool_search_replace.inc,v 1.27.2.2 2010/08/12 01:26:12 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -254,7 +254,7 @@ class Tool_Search_Replace extends Tool
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
-
+						if ($asset_contents === FALSE) break;
 						foreach ($asset_contents as $contents_id => $contents_value) {
 							if (preg_match('/'.htmlentities($search_string).'/i', $contents_value) || preg_match('/'.($search_string).'/i', $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
