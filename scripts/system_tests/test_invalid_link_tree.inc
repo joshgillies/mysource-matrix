@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_invalid_link_tree.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_invalid_link_tree.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Test_Invalid_Link_Tree
@@ -66,7 +66,7 @@ class Test_Invalid_Link_Tree
 	public static function test(&$messages, &$errors)
 	{
 		$status = TRUE;
-		$sql = 'SELECT linkid FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk WHERE link_type <= 4);';
+		$sql = 'SELECT linkid FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk WHERE link_type <= 4)';
 		$result = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($result)) {
 			$status = FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_invalid_num_kids.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_invalid_num_kids.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Test_Invalid_Num_Kids
@@ -69,7 +69,7 @@ class Test_Invalid_Num_Kids
 		$count = 0;
 
 		// Check the root folder first
-		$root_sql = "SELECT pt.linkid, pt.treeid, pt.num_kids, count(ct.treeid) AS count FROM sq_ast_lnk_tree ct, sq_ast_lnk_tree pt WHERE pt.linkid = '1' AND ct.treeid LIKE '0000%' AND LENGTH(ct.treeid) = (LENGTH(pt.treeid) + ".SQ_CONF_ASSET_TREE_SIZE.") GROUP BY pt.linkid, pt.treeid, pt.num_kids;";
+		$root_sql = "SELECT pt.linkid, pt.treeid, pt.num_kids, count(ct.treeid) AS count FROM sq_ast_lnk_tree ct, sq_ast_lnk_tree pt WHERE pt.linkid = '1' AND ct.treeid LIKE '0000%' AND LENGTH(ct.treeid) = (LENGTH(pt.treeid) + ".SQ_CONF_ASSET_TREE_SIZE.") GROUP BY pt.linkid, pt.treeid, pt.num_kids";
 		$root_results = MatrixDAL::executeSqlAssoc($root_sql);
 		foreach ($root_results as $result) {
 			if ($result['num_kids'] != $result['count']) {
@@ -80,7 +80,7 @@ class Test_Invalid_Num_Kids
 		}//end foreach
 
 		// Next the rest of the tree
-		$sql = "SELECT pt.linkid, pt.treeid, pt.num_kids, count(ct.treeid) AS count FROM sq_ast_lnk_tree ct, sq_ast_lnk_tree pt WHERE pt.linkid IN (SELECT DISTINCT linkid FROM sq_ast_lnk_tree WHERE linkid > '1' AND num_kids>0) AND ct.treeid LIKE pt.treeid || '%' AND LENGTH(ct.treeid) = (LENGTH(pt.treeid) + ".SQ_CONF_ASSET_TREE_SIZE.") GROUP BY pt.linkid, pt.treeid, pt.num_kids;";
+		$sql = "SELECT pt.linkid, pt.treeid, pt.num_kids, count(ct.treeid) AS count FROM sq_ast_lnk_tree ct, sq_ast_lnk_tree pt WHERE pt.linkid IN (SELECT DISTINCT linkid FROM sq_ast_lnk_tree WHERE linkid > '1' AND num_kids>0) AND ct.treeid LIKE pt.treeid || '%' AND LENGTH(ct.treeid) = (LENGTH(pt.treeid) + ".SQ_CONF_ASSET_TREE_SIZE.") GROUP BY pt.linkid, pt.treeid, pt.num_kids";
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		foreach ($results as $result) {
 			if ($result['num_kids'] != $result['count']) {

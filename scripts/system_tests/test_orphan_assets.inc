@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_orphan_assets.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_orphan_assets.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Test_Orphan_Assets
@@ -66,7 +66,7 @@ class Test_Orphan_Assets
 	public static function test(&$messages, &$errors)
 	{
 		$status = TRUE;
-		$sql = 'SELECT assetid FROM sq_ast WHERE assetid NOT IN (SELECT minorid AS assetid FROM sq_ast_lnk WHERE link_type < 8);';
+		$sql = 'SELECT assetid FROM sq_ast WHERE assetid NOT IN (SELECT minorid AS assetid FROM sq_ast_lnk WHERE link_type < 8)';
 		$result = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($result)) {
 			$status = FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_fragmented_attributes.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_fragmented_attributes.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Test_Fragmented_Attributes
@@ -67,7 +67,7 @@ class Test_Fragmented_Attributes
 	{
 		$status = TRUE;
 		// Missing assets
-		$asset_sql = 'SELECT assetid FROM sq_ast_attr_val WHERE assetid NOT IN (SELECT DISTINCT assetid FROM sq_ast) OR attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr);';
+		$asset_sql = 'SELECT assetid FROM sq_ast_attr_val WHERE assetid NOT IN (SELECT DISTINCT assetid FROM sq_ast) OR attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
 		$asset_result = MatrixDAL::executeSqlAssoc($asset_sql);
 		if (!empty($asset_result)) {
 			$status = FALSE;
@@ -77,7 +77,7 @@ class Test_Fragmented_Attributes
 		}//end if
 
 		// Missing attributes
-		$attr_sql = 'SELECT attrid FROM sq_ast_attr_val WHERE attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr);';
+		$attr_sql = 'SELECT attrid FROM sq_ast_attr_val WHERE attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
 		$attr_result = MatrixDAL::executeSqlAssoc($attr_sql);
 		if (!empty($attr_result)) {
 			$status = FALSE;
