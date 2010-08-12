@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.4.2.1 2010/05/12 04:01:14 lwright Exp $
+* $Id: flv_file.inc,v 1.4.2.2 2010/08/12 23:16:56 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,31 +39,6 @@ class FLV_File extends File
 	* @var Array(string)
 	*/
 	public $allowed_extensions = Array('flv');
-
-
-	/**
-	 * This is the list of FLV metadata names (the names of the metadata in the FLV file), their corresponding attribute
-	 * names (the attribute names of this asset in flv_file_management.inc file) and default values. It has the following
-	 * format:
-	 *
-	 * Array (
-	 * 			metadata name => Array (attribute name, default value),
-	 * 		)
-	 *
-	 * @var Array
-	 */
-	private $_stored_metadata = Array(
-											'duration'			=> Array('attr_name' => 'duration', 'default' => 0),
-											'width'				=> Array('attr_name' => 'width', 'default' => 0),
-											'height'			=> Array('attr_name' => 'height', 'default' => 0),
-											'framerate'			=> Array('attr_name' => 'framerate', 'default' => 0),
-											'videodatarate'		=> Array('attr_name' => 'videodatarate', 'default' => 0),
-											'videocodecid'		=> Array('attr_name' => 'videocodecid', 'default' => 0),
-											'audiodatarate'		=> Array('attr_name' => 'audiodatarate', 'default' => 0),
-											'audiocodecid'		=> Array('attr_name' => 'audiocodecid', 'default' => 0),
-											'audiosamplerate'	=> Array('attr_name' => 'audiosamplerate', 'default' => 0),
-											'audiosamplesize'	=> Array('attr_name' => 'audiosamplesize', 'default' => 0),
-									  );
 
 
 	/**
@@ -206,12 +181,25 @@ class FLV_File extends File
 	*/
 	public function saveAttributes($dont_run_updated=FALSE)
 	{
+		$stored_metadata = Array(
+							'duration'			=> Array('attr_name' => 'duration', 'default' => 0),
+							'width'				=> Array('attr_name' => 'width', 'default' => 0),
+							'height'			=> Array('attr_name' => 'height', 'default' => 0),
+							'framerate'			=> Array('attr_name' => 'framerate', 'default' => 0),
+							'videodatarate'		=> Array('attr_name' => 'videodatarate', 'default' => 0),
+							'videocodecid'		=> Array('attr_name' => 'videocodecid', 'default' => 0),
+							'audiodatarate'		=> Array('attr_name' => 'audiodatarate', 'default' => 0),
+							'audiocodecid'		=> Array('attr_name' => 'audiocodecid', 'default' => 0),
+							'audiosamplerate'	=> Array('attr_name' => 'audiosamplerate', 'default' => 0),
+							'audiosamplesize'	=> Array('attr_name' => 'audiosamplesize', 'default' => 0),
+		  				   );
+
 		//if the extract metadata attribute is set, set all the metadata attributes to new values from the FLV metadata
 		if ($this->attr('extract_metadata')) {
 			$metadata = $this->extractMetadata();
 			if ($metadata !== FALSE) {
 				//put all the metadata specified in the _store_metadata array to the corresponding attributes
-				foreach ($this->_stored_metadata as $meta_name => $attr) {
+				foreach ($stored_metadata as $meta_name => $attr) {
 					if (array_key_exists($meta_name, $metadata)) {
 						$this->setAttrValue($attr['attr_name'], $metadata[$meta_name]);
 						unset($metadata[$meta_name]);
@@ -309,4 +297,5 @@ class FLV_File extends File
 
 
 }//end class
+
 ?>
