@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.234 2010/05/11 05:59:20 akarelia Exp $
+* $Id: page_calendar.inc,v 1.235 2010/08/12 03:56:37 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.234 $
+* @version $Revision: 1.235 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -585,12 +585,12 @@ class Page_Calendar extends Page
 		list ($backward_limit,$backward_date) = $this->formatDatesToCompare($cal_view,$prev_date,'backward','-');
 
 		if ($forward_limit == '' || $forward_limit >= $forward_date) {
-			$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
+			$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'" rel="nofollow">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
 		} else {
 			$replacements['next_link'] = '';
 		}
 		if ($backward_limit == '' || $backward_date >= $backward_limit) {
-			$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
+			$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'" rel="nofollow">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
 		} else {
 			$replacements['prev_link'] = '';
 		}
