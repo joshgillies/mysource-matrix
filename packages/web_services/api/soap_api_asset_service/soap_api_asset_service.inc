@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.18 2010/06/03 01:59:16 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.19 2010/08/12 01:39:37 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -125,11 +125,17 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
 		$asset = new $object_name();
-		
-		// Set attribute values for the new asset
-		foreach ($attributes as $attribute_info) {
-			$attribute_info = (Array) $attribute_info;
-			$asset->setAttrValue($attribute_info['AttributeName'], $attribute_info['AttributeValue']);
+
+		if(isset($attributes->AttributeName)) {
+			// Set single attribute value
+			$asset->setAttrValue($attributes->AttributeName, $attributes->AttributeValue);
+		}
+		else {
+			// Set attribute values for the new asset
+			foreach ($attributes as $attribute_info) {
+				$attribute_info = (Array) $attribute_info;
+				$asset->setAttrValue($attribute_info['AttributeName'], $attribute_info['AttributeValue']);
+			}
 		}
 
 		$request_info['asset']	= $parent_asset;
