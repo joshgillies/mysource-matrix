@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_fragmented_rollback.inc,v 1.1.2.1 2009/12/14 23:11:00 bpearson Exp $
+* $Id: test_fragmented_rollback.inc,v 1.1.2.2 2010/08/12 23:11:48 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 class Test_Fragmented_Rollback
@@ -69,7 +69,8 @@ class Test_Fragmented_Rollback
 		$status = TRUE;
 
 		// -- sq_ast_attr_val --
-		$sql = 'SELECT count(*) FROM (SELECT assetid, attrid, count(*) AS id FROM sq_rb_ast_attr_val WHERE sq_eff_to is null GROUP BY assetid, attrid HAVING count(*) > 1) AS rollback;';
+		$sql = 'SELECT count(*) FROM (SELECT assetid, attrid, count(*) AS id FROM sq_rb_ast_attr_val WHERE sq_eff_to is null GROUP BY assetid, attrid HAVING count(*) > 1)';
+		if (MatrixDAL::getDbType() != 'oci') $sql.=' AS rollback';
 		$result = MatrixDAL::executeSqlOne($sql);
 		if (!empty($result)) {
 			$status = FALSE;
@@ -77,7 +78,8 @@ class Test_Fragmented_Rollback
 		}//end if
 
 		// -- sq_ast_lookup_value --
-		$sql = 'SELECT count(*) FROM (SELECT url, name, count(*) AS id FROM sq_rb_ast_lookup_value WHERE sq_eff_to is null GROUP BY url, name HAVING count(*) > 1) AS rollback;';
+		$sql = 'SELECT count(*) FROM (SELECT url, name, count(*) AS id FROM sq_rb_ast_lookup_value WHERE sq_eff_to is null GROUP BY url, name HAVING count(*) > 1)';
+		if (MatrixDAL::getDbType() != 'oci') $sql.=' AS rollback';
 		$result = MatrixDAL::executeSqlOne($sql);
 		if (!empty($result)) {
 			$status = FALSE;
@@ -85,7 +87,8 @@ class Test_Fragmented_Rollback
 		}//end if
 
 		// -- sq_ast_lookup --
-		$sql = 'SELECT count(*) FROM (SELECT url, assetid, root_urlid, count(*) AS id FROM sq_rb_ast_lookup WHERE sq_eff_to is null GROUP BY url, assetid, root_urlid HAVING count(*) > 1) AS rollback;';
+		$sql = 'SELECT count(*) FROM (SELECT url, assetid, root_urlid, count(*) AS id FROM sq_rb_ast_lookup WHERE sq_eff_to is null GROUP BY url, assetid, root_urlid HAVING count(*) > 1)';
+		if (MatrixDAL::getDbType() != 'oci') $sql.=' AS rollback';
 		$result = MatrixDAL::executeSqlOne($sql);
 		if (!empty($result)) {
 			$status = FALSE;
@@ -93,7 +96,8 @@ class Test_Fragmented_Rollback
 		}//end if
 
 		// -- sq_ast --
-		$sql = 'SELECT count(*) FROM (SELECT assetid, count(*) AS id FROM sq_rb_ast WHERE sq_eff_to is null GROUP BY assetid HAVING count(*) > 1) AS rollback;';
+		$sql = 'SELECT count(*) FROM (SELECT assetid, count(*) AS id FROM sq_rb_ast WHERE sq_eff_to is null GROUP BY assetid HAVING count(*) > 1)';
+		if (MatrixDAL::getDbType() != 'oci') $sql.=' AS rollback';
 		$result = MatrixDAL::executeSqlOne($sql);
 		if (!empty($result)) {
 			$status = FALSE;
