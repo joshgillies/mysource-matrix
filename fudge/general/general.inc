@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.52 2010/06/22 01:05:04 cupreti Exp $
+* $Id: general.inc,v 1.53 2010/08/12 07:11:57 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package Fudge
 * @subpackage General
 */
@@ -871,7 +871,7 @@ function check_char_encoding($string, $string_encoding = NULL)
 */
 function _cmp_dsort($str1, $str2) 
 {
-	return strcasecmp($str2, $str1);
+	return strlen($str2) > strlen($str1);
 }
 
 
@@ -887,7 +887,7 @@ function _cmp_dsort($str1, $str2)
 */
 function _cmp_asort($str1, $str2) 
 {
-	return strcasecmp($str1, $str2);
+	return strlen($str1) > strlen($str2);
 }
 
 /**
