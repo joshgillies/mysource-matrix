@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.779.2.20 2010/08/09 01:28:24 akarelia Exp $
+* $Id: asset_manager.inc,v 1.779.2.21 2010/08/13 00:03:32 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.779.2.20 $
+* @version $Revision: 1.779.2.21 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2225,6 +2225,15 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
+		}
+
+		// contents and some other components are not index for this cloned asset because the
+		// asset link wasnt created to its parent. 
+		// Bug Fix - #4615 Cloning an Asset doesnt re-index all the components
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		if(!is_null($sm)) {
+			$sm->reindexAsset($clone, Array('all'));
+			$sm->reindexContents($clone, Array());
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
