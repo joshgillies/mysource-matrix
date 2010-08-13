@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.157.2.1 2010/07/14 00:38:23 kmyothein Exp $
+* $Id: page_asset_builder.inc,v 1.157.2.2 2010/08/13 03:49:19 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.157.2.1 $
+* @version $Revision: 1.157.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -662,17 +662,19 @@ class Page_Asset_Builder extends Page
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
 
-
 					$create_success = $new_asset->processBackend($o, $link);
+					$new_asset_linkid = FALSE;
 					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
-						$create_success = $create_success && $new_asset->create($link);
+						$new_asset_linkid = $new_asset->create($link);
+						$create_success = $create_success && $new_asset_linkid;
+					} else if ($create_success) {
+						$new_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $new_asset->id);
+						$new_asset_linkid = array_get_index($new_asset_link, 'linkid', FALSE);
 					}
 
-
-					if (!$create_success) {
-						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					if (!$create_success) {						
+						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;						
+						$this->_abortAssetCreate($new_asset_linkid);
 					} else {
 
 						// make sure text attributes dont have javascripts etc
@@ -775,7 +777,10 @@ class Page_Asset_Builder extends Page
 							// if we have reached so far the asset has been built, even with regards to Account Manager Asset, 
 							// user is created already, so lets celebrate firing (trigger) !!! 
 							$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_asset_built', $new_asset);
+						} else {
+							$this->_abortAssetCreate($new_asset_linkid);
 						}
+
 
 					}//end else
 
@@ -800,6 +805,95 @@ class Page_Asset_Builder extends Page
 
 	}//end _processGlobalActions()
 
+	
+	/**
+	* Abort the asset creation (asset created by Asset Builder) 
+	*
+	* @param int $linkid 	Linkid of the asset that failed while getting created
+	*
+	* @return void
+	* @access private
+	*/
+	function _abortAssetCreate($linkid=0)
+	{		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// Clean up the redundent links left in the link table
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');			
+			
+			$sql = '
+				SELECT t.treeid
+				FROM sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
+				WHERE l.linkid = :linkid';
+			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
+			
+            try {
+                $query = MatrixDAL::preparePdoQuery($sql);
+                MatrixDAL::bindValueToPdo($query, 'linkid', $linkid);
+                $treeid = MatrixDAL::executePdoOne($query);
+            } catch (Exception $e) {
+                throw new Exception('Unable to get treeid for linkid: '.$linkid.' due to database error: '.$e->getMessage());
+            }
+			
+			if (!empty($treeid)) {
+				$sql = '
+					SELECT t.linkid 
+					FROM sq_ast_lnk_tree t
+					WHERE 						
+						t.treeid LIKE :treeid';
+					
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.'%');
+					$result = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get linkids like treeid: '.$treeid.' due to database error: '.$e->getMessage());
+				}
+					
+				$result[]['linkid'] = '';
+				$to_delete_links = Array();
+				foreach($result as $row) {
+					if (isset($row['linkid']) && $row['linkid']) {						
+						$to_delete_links[] = $row['linkid'];
+					}
+				}
+				
+				// Get rid of redendent links from the link and link tree table
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+				$sql = '
+					DELETE FROM sq_ast_lnk
+					WHERE linkid IN ('.implode(', ',$to_delete_links).')';
+				
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);						
+					$result = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to delete redundent links from sq_ast_lnk table due to database error: '.$e->getMessage());
+				}
+						
+				$sql = '
+					DELETE FROM sq_ast_lnk_tree
+					WHERE linkid IN ('.implode(', ',$to_delete_links).')';
+				
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);						
+					$result = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to delete redundent links from sq_ast_lnk_tree table due to database error: '.$e->getMessage());
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
+			
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		}// end if
+	
+	}//end function _abortAssetCreate()
+	
 
 	/**
 	* Get the selectable create locations that the user has actually selected for the new asset
