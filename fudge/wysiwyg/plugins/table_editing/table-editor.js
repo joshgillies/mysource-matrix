@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.29 2009/07/24 01:12:53 akarelia Exp $
+* $Id: table-editor.js,v 1.30 2010/08/13 02:17:20 cupreti Exp $
 *
 */
 
@@ -611,12 +611,14 @@ TTable = function(name, rows, cols)
 				this.matrix[r].cells[c].visible = true;
 			}
 		}
+		
 		for (r = 0;r<this.rows;r++) {
 			for (c = 0;c<this.cols;c++) {
 				var rowspan = this.matrix[r].cells[c].rowspan;
 				var colspan = this.matrix[r].cells[c].colspan;
-				if (rowspan > 1 || colspan > 1)
+				if (rowspan > 1 || colspan > 1) {
 					if (!this.refreshCell(r, c)) return false;
+				}
 			}
 		}
 		return true;
@@ -1301,6 +1303,15 @@ TTable = function(name, rows, cols)
 
 		this.matrix = Array();
 		var placeHolders = Array(); //used to hold cells to be inserted due to colspan
+		
+		// To keep track of dummy cells inserted in the table (for rowspan)
+		var addedplaceHolders = Array();
+		for(r=0; r<this.rows; r++) {
+			addedplaceHolders[r] = Array();
+			for(c=0; c<this.cols; c++)
+				addedplaceHolders[r][c] = false;
+		}
+
 		for (r = 0;r<this.rows;r++) {
 			var temp = new TRow(this, r);
 			var row = table.rows[r];
@@ -1313,16 +1324,19 @@ TTable = function(name, rows, cols)
 			temp.bg = (row.style.backgroundColor == "")?null:row.style.backgroundColor;
 			temp.height = (row.style.height == "")?null:row.style.height;
 			for (c = 0, cfake = 0; cfake<this.cols; c++, cfake++) {
-				for (i = 0; i < placeHolders.length; i++) {
-					if (placeHolders[i].r == r) {
-						if (placeHolders[i].c == cfake) {
+				
+				for(pc = c; pc < this.cols; pc++) {
+					for(i = 0; i < placeHolders.length; i++) {
+						if (!addedplaceHolders[r][pc] && placeHolders[i].r == r && placeHolders[i].c == pc) {
 							var CellDummy = new TCell(temp);
 							CellDummy.visible = false;
 							temp.cells.push(CellDummy);
+							addedplaceHolders[r][pc] = true;
 							continue;
 						}
 					}
-				}
+				}// end for pc
+
 				var Cell = new TCell(temp);
 				if (c<row.cells.length) {
 					var cell = row.cells[c];
