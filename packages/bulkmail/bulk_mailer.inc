@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.93.4.1 2010/05/23 22:52:27 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.93.4.2 2010/08/16 23:51:21 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.93.4.1 $
+* @version $Revision: 1.93.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -716,6 +716,7 @@ class Bulk_Mailer
 			foreach ($recipient_chunks as $recipient_chunk) {
 				try {
 					$bind_vars['recipient_list'] = $recipient_chunk;
+					$bind_vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
 					$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
 					$query_results = array_merge($query_results, $query_result);
 				} catch (Exception $e) {

@@ -110,6 +110,7 @@
 				</from>
 				<where>
 					<equal table="sq_ast_attr" column="name"><value>email</value></equal>
+					<equal table="sq_ast_attr_val" column="contextid"><value>:contextid</value></equal>
 					<in table="sq_ast_attr_val" column="assetid">:recipient_list</in>
 				</where>
 				<joins>
