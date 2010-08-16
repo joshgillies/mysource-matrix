@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.12 2009/04/28 00:15:13 mbrydon Exp $
+* $Id: tool_bulk_file_import.inc,v 1.13 2010/08/16 23:36:40 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -195,7 +195,7 @@ class Tool_Bulk_File_Import extends Tool
 
 									// Allowed extension for each file type
 									this.image_exts = Array('jpg', 'jpeg', 'gif', 'png');
-									this.doc_exts = Array('doc', 'dot');
+									this.doc_exts = Array('doc', 'dot', 'docx');
 									this.pdf_exts = Array('pdf');
 									this.xls_exts = Array('xls', 'xlt', 'xlsx', 'xlsm', 'xltx', 'xltm');
 									this.rtf_exts = Array('rtf');
