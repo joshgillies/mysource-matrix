@@ -10,12 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.10 2007/12/11 02:57:28 rong Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.11 2010/08/16 03:57:05 mhaidar Exp $
 *
 */
-
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_condition.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 /**
 * Trigger Condition
 *
@@ -23,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,9 +69,9 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 		if (isset($_SERVER['REQUEST_URI'])) {
 			$matches = strpos($_SERVER['REQUEST_URI'], $settings['pattern']);
 			// check the condition
-			if ($settings['match'] && $matches) {
+			if ($settings['match'] && $matches !== FALSE) {
 				return TRUE;
-			} else if (!$settings['match'] && !$matches) {
+			} else if (!$settings['match'] && $matches === FALSE) {
 				return TRUE;
 			}
 		}
@@ -147,6 +146,21 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 		}
 
 	}//end processInterface()
+	
+	
+	/**
+	* Determines whether a condition is allowed to be used multiple times in a trigger
+	* Default to false, children can override if necessary
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function allowMultiple()
+	{
+		// default to to disallow
+		return TRUE;
+
+	}//end allowMultiple()
 
 
 }//end class
