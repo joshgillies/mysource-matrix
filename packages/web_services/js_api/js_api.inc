@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.50 2010/07/21 02:09:58 akarelia Exp $
+* $Id: js_api.inc,v 1.51 2010/08/17 07:17:24 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1052,6 +1052,45 @@ class JS_Api extends Page
                     $this->returnError('The createAsset function must be activated');
                 }
 			break;
+
+			case 'setContentOfEditiableFileAsset' :
+
+				if($this->attr('set_file_content'))  {
+					if ($wa) {
+						$valid_file_type = Array('xml_file', 'xsl_file', 'css_file', 'text_file', 'js_file');
+						if(in_array($asset->type(), $valid_file_type)) {
+							if($asset->writeAccess('attributes')) {
+								$content = urldecode($_REQUEST['content']);
+								if($content == 'no_value_provided') {
+									$data[] = 'No file content provided';
+								} else {
+									require_once(SQ_INCLUDE_PATH.'/backend_outputter.inc');
+									$o			= new Backend_Outputter();
+									$prefix 	= $asset->getPrefix();
+									$edit_fns 	= $asset->getEditFns();
+									$_POST[$prefix.'_new_file'] = urldecode($content);
+
+									$success 	= $edit_fns->processEditFile($asset, $o, $prefix);
+									if ($success) {
+										$data[] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
+									} else {
+										$data[] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+									}
+								}
+							} else {
+								$data[] = 'Locks are not acquired on Asset '.$asset->short_name.'(#'.$asset->id.'), content cannot be updated';
+							}
+						} else {
+							$data[] = 'Content for Asset of type code \''.$asset->type().'\' cannot be updated';
+						}
+					} else {
+						$this->returnError('You do not have permissions to Edit this asset');
+					}
+				} else {
+					$this->returnError('The setContentOfEditiableFileAsset function must be activated');
+				}
+
+				break;
 
 			default:	$this->returnError('This is not a valid function name');
 
@@ -2389,7 +2428,7 @@ class JS_Api extends Page
 						'rtf_file'			=> 'rtf',
 						'excel_doc'			=> 'xls',
 						'pdf_file'			=> 'pdf',
-						'xls_file'			=> 'xls',
+						'xsl_file'			=> 'xsl',
 						'js_file'			=> 'js',
 						'word_doc'			=> 'doc',
 						'data_source_graph'	=> 'grf',
@@ -3630,6 +3669,35 @@ function createFileAsset(parentID, type_code, friendly_name, link_type, link_val
 
 }//end createFileAsset()
 
+
+/**
+* This function will let user edit content of Editable File type assets
+* File type that can be edited - css_file, xml_file, css_file, text_file, xsl_file, js_file
+* User needs to acquire locks before being able to edit the file
+*
+*
+* @param	string		assetID 		Id of the asset to update content for
+* @param	string		content			new content of the asset
+* @param	function	dataCallback	Custom callback function
+*
+*/
+function setContentOfEditiableFileAsset(assetID, content, dataCallback)
+{
+	// Create blank function
+    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var content = isset(content) ? escape(content) : 'no_value_provided';
+
+    var url = '<?php echo $this->getURL(); ?>' +
+                '?key=' + api_key +
+				'&type=setContentOfEditiableFileAsset&id=' + assetID +
+				'&content=' + content ;
+
+    // Make our request
+    makeRequest(url, true, dataCallback);
+
+
+}// end setContentOfEditiableFileAsset()
 
 	<?php
 
