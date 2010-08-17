@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.51 2010/08/17 07:17:24 akarelia Exp $
+* $Id: js_api.inc,v 1.52 2010/08/17 07:30:34 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1090,7 +1090,7 @@ class JS_Api extends Page
 					$this->returnError('The setContentOfEditiableFileAsset function must be activated');
 				}
 
-				break;
+			break;
 
 			default:	$this->returnError('This is not a valid function name');
 
