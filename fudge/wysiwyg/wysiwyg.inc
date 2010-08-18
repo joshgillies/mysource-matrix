@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.84.2.3 2010/06/16 05:16:57 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.84.2.4 2010/08/18 03:43:45 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.3 $
+* @version $Revision: 1.84.2.4 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1233,31 +1233,31 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						193 : '&Aacute;',	// capital A acute
 						194 : '&Acirc;',	// capital A circumflex
 						195 : '&Atilde;',	// capital A tilde
-						196 : '&Auml;',	// capital A dieresis or umlaut
+						196 : '&Auml;',		// capital A dieresis or umlaut
 						197 : '&Aring;',	// capital A ring
 						198 : '&AElig;',	// capital AE ligature
 						199 : '&Ccedil;',	// capital C cedilla
 						200 : '&Egrave;',	// capital E grave
 						201 : '&Eacute;',	// capital E acute
 						202 : '&Ecirc;',	// capital E circumflex
-						203 : '&Euml;',	// capital E dieresis or umlaut
+						203 : '&Euml;',		// capital E dieresis or umlaut
 						204 : '&Igrave;',	// capital I grave
 						205 : '&Iacute;',	// capital I acute
 						206 : '&Icirc;',	// capital I circumflex
-						207 : '&Iuml;',	// capital I dieresis or umlaut
+						207 : '&Iuml;',		// capital I dieresis or umlaut
 						208 : '&ETH;',		// capital ETH
 						209 : '&Ntilde;',	// capital N tilde
 						210 : '&Ograve;',	// capital O grave
 						211 : '&Oacute;',	// capital O acute
 						212 : '&Ocirc;',	// capital O circumflex
 						213 : '&Otilde;',	// capital O tilde
-						214 : '&Ouml;',	// capital O dieresis or umlaut
+						214 : '&Ouml;',		// capital O dieresis or umlaut
 						215 : '&times;',	// multiplication sign
 						216 : '&Oslash;',	// capital O slash
 						217 : '&Ugrave;',	// capital U grave
 						218 : '&Uacute;',	// capital U acute
 						219 : '&Ucirc;',	// capital U circumflex
-						220 : '&Uuml;',	// capital U dieresis or umlaut
+						220 : '&Uuml;',		// capital U dieresis or umlaut
 						221 : '&Yacute;',	// capital Y acute
 						222 : '&THORN;',	// capital THORN
 						223 : '&szlig;',	// small sharp s, sz ligature
@@ -1265,35 +1265,42 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						225 : '&aacute;',	// small a acute
 						226 : '&acirc;',	// small a circumflex
 						227 : '&atilde;',	// small a tilde
-						228 : '&auml;',	// small a dieresis or umlaut
+						228 : '&auml;',		// small a dieresis or umlaut
 						229 : '&aring;',	// small a ring
 						230 : '&aelig;',	// small ae ligature
 						231 : '&ccedil;',	// small c cedilla
 						232 : '&egrave;',	// small e grave
 						233 : '&eacute;',	// small e acute
 						234 : '&ecirc;',	// small e circumflex
-						235 : '&euml;',	// small e dieresis or umlaut
+						235 : '&euml;',		// small e dieresis or umlaut
 						236 : '&igrave;',	// small i grave
 						237 : '&iacute;',	// small i acute
 						238 : '&icirc;',	// small i circumflex
-						239 : '&iuml;',	// small i dieresis or umlaut
+						239 : '&iuml;',		// small i dieresis or umlaut
 						240 : '&eth;',		// small eth
 						241 : '&ntilde;',	// small n tilde
 						242 : '&ograve;',	// small o grave
 						243 : '&oacute;',	// small o acute
 						244 : '&ocirc;',	// small o circumflex
 						245 : '&otilde;',	// small o tilde
-						246 : '&ouml;',	// small o dieresis or umlaut
+						246 : '&ouml;',		// small o dieresis or umlaut
 						247 : '&divide;',	// division sign
 						248 : '&oslash;',	// small o slash
 						249 : '&ugrave;',	// small u grave
 						250 : '&uacute;',	// small u acute
 						251 : '&ucirc;',	// small u circumflex
-						252 : '&uuml;',	// small u dieresis or umlaut
+						252 : '&uuml;',		// small u dieresis or umlaut
 						253 : '&yacute;',	// small y acute
 						254 : '&thorn;',	// small thorn
-						255 : '&yuml;',	// small y dieresis or umlaut
+						255 : '&yuml;',		// small y dieresis or umlaut
+						338 : '&OElig;',	// capital ligature OE
+						339 : '&oelig;',	// small ligature oe
+						352 : '&Scaron;',	// capital S with caron
+						353 : '&scaron;',	// small s with caron
+						376 : '&Yuml;',		// capital Y with diaeres
 						402 : '&fnof;',		// small italic f, function of, florin
+						710 : '&circ;',		// modifier letter circumflex accent
+						732 : '&tilde;',	// small tilde
 						913 : '&Alpha;',	// capital Alhpa
 						914 : '&Beta;',		// capital Beta
 						915 : '&Gamma;',	// capital Gamma
@@ -1346,10 +1353,15 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						977 : '&thetasym;',	// small theta symbol
 						978 : '&upsih;',	// small upsilon symbol
 						982 : '&piv;',		// small pi symbol
+						8224 : '&dagger;',	// dagger
+						8225 : '&Dagger;',	// double Dagger
 						8226 : '&bull;',	// bullet
 						8230 : '&hellip;',	// horizontal ellipsis
+						8240 : '&permil;',	// per mile
 						8242 : '&prime;',	// prime, minute mark
 						8243 : '&Prime;',	// double prime, second mark
+						8249 : '&lsaquo;',	// single left angle quotation
+						8250 : '&rsaquo;',	// single right angle quotation
 						8254 : '&oline;',	// overline
 						8260 : '&frasl;',	// fraction slash
 						8472 : '&weierp;',	// weierstrassian function p
