@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.227.2.5 2010/04/01 00:26:11 cupreti Exp $
+* $Id: search_manager.inc,v 1.227.2.6 2010/08/18 05:11:48 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.227.2.5 $
+* @version $Revision: 1.227.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1384,6 +1384,7 @@ class Search_Manager extends Asset
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		$indexable = $this->getIndexableMetadataContent($asset, $fieldids, $all_contexts);
+
 		$this->addIndexableContent($assetid, $indexable);
 
 	}//end reindexMetadata()
@@ -1407,7 +1408,7 @@ class Search_Manager extends Asset
 		$type_code = $asset->type();
 
 		if (is_null($asset)) return $index_content;
-		
+
         // Get the current contextid
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_list = $all_contexts ? array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts()) : Array($contextid);
@@ -1459,12 +1460,12 @@ class Search_Manager extends Asset
 			// If metadata field is non-contextable then we'll be using same value for all contexts
 			$is_contextable = (int)$field->attr('is_contextable') === 0 ? FALSE : TRUE;
 			$context_to_index = $is_contextable ? $context_list : Array($context_list[0]);
-			
+
 			foreach($context_to_index as $this_contextid) {
-				
+
 				// Get metadata for this context
 				$metadata = $mm->getMetadata($asset->id, 0, $this_contextid);
-				
+
 				if (isset($metadata[$field->id][0]['value'])) {
 					$value = $metadata[$field->id][0]['value'];
 				} else if ($field instanceof Metadata_Field_WYSIWYG) {
@@ -1472,20 +1473,45 @@ class Search_Manager extends Asset
 				} else {
 					$value = $field->attr('default');
 				}
-				
+
          		$use_default = empty($value) || $this_contextid === 'default' || $this_contextid === 0 ? TRUE : FALSE;
 
 				$value_components = Array();
 				Metadata_Field::decodeValueString($value, $value, $value_components);
 
 				$keywords = retrieve_keywords_replacements($value, '.');
+
 				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+
 				foreach($keywords as $keyword) {
+
 					if (!isset($the_replacement[$keyword])) {
 						// Looking for further replacements
 						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-					}//end if
+
+					} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
+
+						// Remove any modifiers from keyword
+						$full_keyword = $keyword;
+						$keyword = parse_keyword($keyword, $modifiers);
+
+						// searching for keywords that replace the content of another field
+						$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
+						$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
+
+						if ($keyword_replacement !== NULL) {
+							if (count($modifiers) > 0) {
+								apply_keyword_modifiers($keyword_replacement, $modifiers);
+							}
+							$the_replacement[$full_keyword] = $keyword_replacement;
+						} else {
+							$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
+						}
+
+                    }//end if
+
 				}//end foreach
+
 				replace_keywords($value, $the_replacement);
 
 				// check field_type to define the indexing way
@@ -1540,9 +1566,9 @@ class Search_Manager extends Asset
 
 					$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting, $this_contextid, $use_default));
 				}//end else
-			
+
 			}// end foreach contexts_to_use
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
 			unset($field);
 
@@ -1551,7 +1577,7 @@ class Search_Manager extends Asset
 		return $index_content;
 
 	}//end getIndexableMetadataContent()
-		
+
 
 
 //--        WEIGHTINGS        --//
