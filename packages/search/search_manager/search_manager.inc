@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.233.2.1 2010/06/02 04:22:20 akarelia Exp $
+* $Id: search_manager.inc,v 1.233.2.2 2010/08/18 05:04:11 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.1 $
+* @version $Revision: 1.233.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1389,6 +1389,7 @@ class Search_Manager extends Asset
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		$indexable = $this->getIndexableMetadataContent($asset, $fieldids, $all_contexts);
+
 		$this->addIndexableContent($assetid, $indexable);
 
 	}//end reindexMetadata()
@@ -1411,17 +1412,17 @@ class Search_Manager extends Asset
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
-		
+
 		if (is_null($asset)) return $index_content;
 
         // Get the current contextid
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_list = $all_contexts ? array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts()) : Array($contextid);
-		
+
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
 		}
-		
+
 		foreach ($fieldids as $fieldid => $field_type) {
 
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($fieldid, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
@@ -1459,16 +1460,16 @@ class Search_Manager extends Asset
 				$field_type = $field_type[0]['type_code'];
 			}//end if
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
-			
+
 			// If metadata field is non-contextable then it means it will have same value for all contexts
 			$is_contextable = (int)$field->attr('is_contextable') === 0 ? FALSE : TRUE;
 			$context_to_index = $is_contextable ? $context_list : Array($context_list[0]);
-			
+
 			foreach($context_to_index as $this_contextid) {
-				
+
 				// Get metadata for this context
 				$metadata = $mm->getMetadata($asset->id, 0, $this_contextid);
-				
+
 				if (isset($metadata[$field->id][0]['value'])) {
 					$value = $metadata[$field->id][0]['value'];
 				} else if ($field instanceof Metadata_Field_WYSIWYG) {
@@ -1476,20 +1477,45 @@ class Search_Manager extends Asset
 				} else {
 					$value = $field->attr('default');
 				}
-				
+
          		$use_default = empty($value) || $this_contextid === 'default' || $this_contextid === 0 ? TRUE : FALSE;
 
 				$value_components = Array();
 				Metadata_Field::decodeValueString($value, $value, $value_components);
 
 				$keywords = retrieve_keywords_replacements($value, '.');
+
 				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+
 				foreach($keywords as $keyword) {
+
 					if (!isset($the_replacement[$keyword])) {
 						// Looking for further replacements
 						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-					}//end if
+
+					} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
+
+						// Remove any modifiers from keyword
+						$full_keyword = $keyword;
+						$keyword = parse_keyword($keyword, $modifiers);
+
+						// searching for keywords that replace the content of another field
+						$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
+						$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
+
+						if ($keyword_replacement !== NULL) {
+							if (count($modifiers) > 0) {
+								apply_keyword_modifiers($keyword_replacement, $modifiers);
+							}
+							$the_replacement[$full_keyword] = $keyword_replacement;
+						} else {
+							$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
+						}
+
+                    }//end if
+
 				}//end foreach
+
 				replace_keywords($value, $the_replacement);
 
 				// check field_type to define the indexing way
