@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.47 2010/03/14 23:29:00 lwright Exp $
+* $Id: remap_manager.inc,v 1.47.2.1 2010/08/18 04:06:55 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -393,6 +393,19 @@ class Remap_Manager extends Asset
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
 			header('HTTP/1.1 301 Moved Permanently');
+			// Send Cacheable Header based on cache manager default setting
+			if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				header('Pragma: cache');
+
+				$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+				if (empty($browser_cache_expiry)) {
+					$browser_cache_expiry = $cm->attr('expiry');
+				}
+
+				header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');			
+			}
 			header('Location: '.$remap_url);
 
 			return TRUE;
