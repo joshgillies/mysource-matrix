@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.5 2010/08/19 10:49:57 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -26,6 +26,7 @@
 <string source="ecom_form_credit_card:">Credit Card:</string>
 <string source="ecom_form_date:">Date:</string>
 <string source="ecom_form_receipt:">Receipt:</string>
+<string source="ecom_form_total_discount:">Total discount:</string>
 <string source="ecom_form_total:">Total:</string>
 <string source="taxable">Taxable</string>
 <string source="not_taxable">Not Taxable</string>

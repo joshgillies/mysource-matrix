@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2009/11/10 06:06:56 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2010/08/19 10:49:57 ata Exp $
 *
 */
 -->
@@ -41,6 +41,9 @@
 		<field attribute="item_quantity_req_var">
 			<text width="60" height="1" />
 		</field>
+		<field attribute="item_promo_code_req_var">
+			<text width="60" height="1" />
+		</field>
 		<field attribute="asset_price_source">
 			<text width="60" height="1" />
 		</field>
@@ -51,6 +54,9 @@
 			<text width="60" height="1" />
 		</field>
 		<field attribute="asset_multiple_source">
+			<text width="60" height="1" />
+		</field>
+		<field attribute="asset_promotable_source">
 			<text width="60" height="1" />
 		</field>
 	</section>

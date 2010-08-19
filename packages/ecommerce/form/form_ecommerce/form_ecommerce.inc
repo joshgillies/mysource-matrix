@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.54 2010/06/25 04:08:52 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.55 2010/08/19 10:49:57 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -294,6 +294,11 @@ class Form_Ecommerce extends Form_Email
 					trigger_error('This item cannot be purchased', E_USER_NOTICE);
 					break;
 				}
+				
+				$promo_code_var_name = $this->attr('item_promo_code_req_var');
+				if (($promo_code_var_name != '') && isset($_REQUEST[$promo_code_var_name])) {
+					$this->_addAssetItemPromotionalCode($assetid, $_REQUEST[$promo_code_var_name]);
+				}
 
 				$this->_makeOrder();
 
@@ -304,6 +309,7 @@ class Form_Ecommerce extends Form_Email
 
 			case ('empty_cart'):
 				$this->_clearAssetItems();
+				$this->_clearAssetItemPromotionalCodes();
 				$this->_makeOrder();
 
 				header('Location: '.$this->getUrl());
@@ -473,6 +479,8 @@ class Form_Ecommerce extends Form_Email
 				// clear the cart
 				$_SESSION[$this->getPrefix()]['items'] = Array();
 				$_SESSION[$this->getPrefix()]['order'] = Array();
+				$this->_clearAssetItems();
+				$this->_clearAssetItemPromotionalCodes();
 
 				// perform submission actions
 				$this->performSubmissionActions();
@@ -1137,14 +1145,16 @@ class Form_Ecommerce extends Form_Email
 		if (empty($order)) return FALSE;
 
 		if ($as_html) {
-			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s</table><hr />';
+			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s%s</table><hr />';
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
 			$divider_row = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">&nbsp;</td><td class="sq_ecomTableItemValue" align="right"><hr /></td></tr>';
+			$total_discount_row_fmt = '<tr class="sq_ecomTableTotalDiscountRow"><td class="sq_ecomTableTotalDiscountName" align="right">%s</td><td class="sq_ecomTableTotalDiscountValue" align="right">$%01.2f</td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
 		} else {
-			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n############################";
+			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n%s\n############################";
 			$order_row_fmt = "%s: %01.2f\n";
 			$divider_row = "----------------------------\n";
+			$total_discount_row_fmt = "*** %s $%01.2f ***\n";
 			$total_row_fmt = "*** %s $%01.2f ***\n";
 		}
 
@@ -1154,9 +1164,15 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		$rows .= $divider_row;
+		
+		$total_discount = '';
+		if ($order['total_discount'] > 0) {
+			$total_discount = sprintf($total_discount_row_fmt, translate('ecom_form_total_discount:'), $order['total_discount']);
+			$total_discount .= $divider_row;
+		}
 
 		$total   = sprintf($total_row_fmt, translate('ecom_form_total:'), $order['total']);
-		$receipt = sprintf($receipt_fmt, $rows, $total);
+		$receipt = sprintf($receipt_fmt, $rows, $total_discount, $total);
 
 		return $receipt;
 
@@ -1173,6 +1189,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$total = 0;
 		$taxable_total = 0;
+		$total_discount = 0;
 
 		$questions =& $this->getAllQuestionAssets();
 		$ecom_items = Array();
@@ -1183,11 +1200,19 @@ class Form_Ecommerce extends Form_Email
 		// process the assets being purchased
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$assets_in_cart = $this->_getAssetItems();
+		$promo_codes_in_cart = $this->_getAssetItemPromotionalCodes();
 		foreach ($assets_in_cart as $asset_id => $count) {
 			$ecom_item['taxable'] = FALSE;
 			$asset = $am->getAsset($asset_id);
 			$name = $this->_getPurchasableAssetName($asset);
 			$price = $this->_getPurchasableAssetPrice($asset);
+			
+			// process promotional codes
+			$discount = 0;
+			if (isset($promo_codes_in_cart[$asset_id])) {
+				$discount = $this->_getPromotionalCodeDiscount($promo_codes_in_cart[$asset_id], $price, $count);
+			}
+			
 			if ($count > 1) {
 				$name = $count.' x '.$name.' @'.$price;
 				$price = $price * $count;
@@ -1196,6 +1221,7 @@ class Form_Ecommerce extends Form_Email
 			$ecom_item['name'] = $name;
 			$ecom_item['quantity'] = $count;
 			$ecom_item['price'] = $price;
+			$ecom_item['discount'] = $discount;
 			$ecom_item['id'] = $asset_id;
 
 			$is_taxable = $this->_isPurchasableAssetTaxable($asset);
@@ -1208,6 +1234,7 @@ class Form_Ecommerce extends Form_Email
 			$ecom_assets[$asset_id] = $ecom_item;
 			$ecom_items[$asset_id] = $ecom_item;
 			$total += $ecom_item['price'];
+			$total_discount += $ecom_item['discount'];
 			$am->forgetAsset($asset);
 		}
 
@@ -1278,7 +1305,8 @@ class Form_Ecommerce extends Form_Email
 		$order['ecom_questions'] = $ecom_questions;
 		$order['taxable_items'] = $taxable_items;
 		$order['taxable_total'] = $taxable_total;
-		$order['total'] = $total;
+		$order['total'] = $total - $total_discount;
+		$order['total_discount'] = $total_discount;
 		$order['submission'] = $this->current_answers;
 		$order['submission_extra_data'] = $this->extra_data;
 
@@ -1500,6 +1528,8 @@ class Form_Ecommerce extends Form_Email
 		$keywords['order_taxable_total'] = 'Taxable total';
 		$keywords['order_taxable_item_count'] = 'Count of taxable items being purchased';
 		$keywords['order_item_list'] = 'List of items being purchased';
+		$keywords['order_total_discount'] = 'Total discount';
+		$keywords['order_total_before_discount'] = 'Total before discount';
 
 		$keywords['tax_rate'] = 'Tax Rate';
 		$keywords['tax_name'] = 'Tax Name';
@@ -1604,6 +1634,41 @@ class Form_Ecommerce extends Form_Email
 		return $total;
 
 	}//end getOrderTotalKeywordReplacement()
+	
+	
+	/**
+	* Order Total Discount keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTotalDiscountKeywordReplacement()
+	{
+		$total_discount = $this->_getTotalDiscount();
+		$total_discount = $this->_formatPriceAmount($total_discount);
+
+		return $total_discount;
+
+	}//end getOrderTotalDiscountKeywordReplacement()
+	
+	
+	/**
+	* Order Total Before Discount keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTotalBeforeDiscountKeywordReplacement()
+	{
+		$total = $this->_getTotal();
+		$total_discount = $this->_getTotalDiscount();
+		$total_before_discount = $total + $total_discount;
+		$total_before_discount = $this->_formatPriceAmount($total_before_discount);
+
+		return $total_before_discount;
+
+	}//end getOrderTotalBeforeDiscountKeywordReplacement()
+	
 
 
 	/**
@@ -2003,6 +2068,96 @@ class Form_Ecommerce extends Form_Email
 		return TRUE;
 
 	}//end _addAssetItem()
+	
+	
+	/**
+	* Get the list of promotional code assets on order
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAssetItemPromotionalCodes()
+	{
+		$promo_codes_in_cart = @$_SESSION[$this->getPrefix()]['promo_code_assets'];
+		if (is_null($promo_codes_in_cart)) {
+			$promo_codes_in_cart = Array();
+		}
+		
+		return $promo_codes_in_cart;
+		
+	}//end _getAssetItemPromotionalCodes()
+
+
+	/**
+	* Clear the list of promotional code assets on order
+	*
+	* @return void
+	* @access private
+	*/
+	function _clearAssetItemPromotionalCodes()
+	{
+		$_SESSION[$this->getPrefix()]['promo_code_assets'] = Array();
+		
+	}//end _clearAssetItemPromotionalCodes()
+	
+	
+	/**
+	* Adds a promotional code asset ID to a purchasable asset
+	*
+	* @param string	$assetid	Asset ID of the purchasable asset to add
+	* @param string	$promo_code	The code of the promotional code asset
+	*
+	* @return void
+	* @access private
+	*/
+	function _addAssetItemPromotionalCode($assetid, $promo_code)
+	{
+		if (trim($promo_code) == '') return;
+		
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return;
+
+		if (!$this->_isPurchasableAssetPromotable($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			return;
+		}
+		
+		$promo_code_asset = $this->_getPromotionalCodeAsset($asset, $promo_code);
+		
+		if (!is_null($promo_code_asset)){
+			// Reset the promo code asset list because _addAssetItem() method also reset the asset list
+			// A new array 'promo_code_assets' is created instead of using the 'assets' array
+			// because we might want to add the promotional code for the whole ecommerce form later (the whole cart, not only individual items)
+			$_SESSION[$this->getPrefix()]['promo_code_assets'] = Array();
+			$_SESSION[$this->getPrefix()]['promo_code_assets'][$assetid] = $promo_code_asset->id;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($promo_code_asset);
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		
+	}//end _addAssetItemPromotionalCode()
+	
+	
+	/**
+	* Get the discount of promotional code on an asset with price and quantity
+	*
+	* @param string	$promo_code_assetid		Asset ID of the promotional code
+	* @param float	$price					The price of the asset to apply the promotional code
+	* @param int	$quantity				The quantity of the asset to apply the promtional code
+	*
+	* @return float
+	* @access private
+	*/
+	function _getPromotionalCodeDiscount($promo_code_assetid, $price, $quantity)
+	{
+		$promo_code_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($promo_code_assetid);
+		$asset_data = Array('price' => $price, 'quantity' => $quantity);
+		
+		$promo_code_asset->process($asset_data);
+		
+		return $asset_data['discount'];
+		
+	}//end _getPromotionalCodeDiscount()
 
 
 	/**
@@ -2021,6 +2176,25 @@ class Form_Ecommerce extends Form_Email
 		return $total;
 
 	}//end _getTotal()
+	
+	
+	/**
+	* Get the total discount in current order
+	*
+	* @return string
+	* @access private
+	*/
+	function _getTotalDiscount()
+	{
+		$total_discount = 0;
+		
+		if (isset($_SESSION[$this->getPrefix()]['order']['total_discount'])) {
+			$total_discount = $_SESSION[$this->getPrefix()]['order']['total_discount'];
+		}
+		
+		return $total_discount;
+
+	}//end _getTotalDiscount()
 
 
 	/**
@@ -2233,6 +2407,50 @@ class Form_Ecommerce extends Form_Email
 		return $check_string !== '';
 
 	}//end _isPurchasableAssetQuantityAllowed()
+	
+	
+	/**
+	* True if the passed asset is promotable
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isPurchasableAssetPromotable(&$asset)
+	{
+		$promotable_source_string = $this->attr('asset_promotable_source');
+		$check_string = $asset->replaceKeywordsInString($promotable_source_string);
+
+		return (boolean) $check_string;
+
+	}//end _isPurchasableAssetPromotable()
+	
+	
+	/**
+	* Return the promotional code asset if it is linked to the passed asset and has the promotional code matching the passed promotional code string
+	*
+	* @param object	&$asset		The asset to get promotional code asset from
+	* @param string	$promo_code	The promotional code string to search
+	*
+	* @return mixed
+	* @access private
+	*/
+	function _getPromotionalCodeAsset(&$asset, $promo_code)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$links = $am->getLinks($asset->id, SQ_LINK_NOTICE, 'promotional_code', TRUE, 'minor', $promo_code);
+		
+		foreach ($links as $link) {
+			$promo_code_asset = $am->getAsset($link['majorid']);
+			if (!is_null($promo_code_asset) && ($promo_code_asset->status == SQ_STATUS_LIVE)) {
+				return $promo_code_asset;
+			}
+		}
+		
+		return NULL;
+		
+	}//end _getPromotionalCodeAsset()
 
 
 	/**
