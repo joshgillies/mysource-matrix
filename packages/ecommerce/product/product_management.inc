@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.17 2010/05/07 03:48:48 cupreti Exp $
+* $Id: product_management.inc,v 1.18 2010/08/19 10:44:54 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -135,7 +135,17 @@ class Product_Management extends Asset_Management
                             'is_contextable'	=> FALSE,
                                     
 						),
-
+						'accept_promotional_code' => Array(
+							'added'			=> '0.2',
+							'type'			=> 'boolean',
+							'default'		=> FALSE,
+							'description'	=> 'The flag to accept promotional codes on this product',
+							'parameters'	=> Array(
+										'allow_empty'	=> FALSE,
+										),
+							'is_admin'		=> FALSE,
+							'is_contextable'	=> FALSE,
+						),
 		);
 
 	}//end Product_Management()
