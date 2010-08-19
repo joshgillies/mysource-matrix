@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.31.2.1 2010/07/15 05:09:54 mhaidar Exp $
+* $Id: page_standard.inc,v 1.31.2.2 2010/08/19 05:44:44 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.31.2.1 $
+* @version $Revision: 1.31.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,8 +121,8 @@ class Page_Standard extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', '', '1', '1');
-		if (!$GLOBALS['SQ_PURGING_TRASH'] && $bodycopy_link[0]['linkid'] == $linkid) {
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
+		if (!$GLOBALS['SQ_PURGING_TRASH'] && (!empty($bodycopy_link) && $bodycopy_link[0]['linkid'] == $linkid)) {
 			return translate('core_error_bodycopy_link_cannot_delete');
 		}
 
