@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: weatherco_feed.inc,v 1.5 2008/12/10 05:49:41 bshkara Exp $
+* $Id: weatherco_feed.inc,v 1.5.6.1 2010/08/19 04:22:03 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_xml/data_source_xml.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -63,7 +63,7 @@ class Weatherco_Feed extends Data_Source_Xml
 		if (!empty($userid) && !empty($password)) {
 			$day = date('j');
 			$month = date('n');
-			$year = str_replace('0', '', date('y'));
+			$year = date('y');
 			$authkey = md5((($day * 2) + ($month * 300) + ($year * 170000)).$password);
 			$weatherfeed_url = $url.'&u='.$userid.'&k='.$authkey;
 			$content = $this->openFeed($weatherfeed_url);
