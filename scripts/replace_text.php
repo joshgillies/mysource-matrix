@@ -7,7 +7,7 @@
 *
 * 
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -90,7 +90,7 @@ $options = Array (
 					foreach ($contents as $id => $edit) {
 						echo "Examining wysiwyg content type of Asset ID: $id\n";
 						$edited = process_replace_text($edit, $options);
-						if ($edited) {
+						if ($edited !== FALSE) {
 							$GLOBALS['SQ_SYSTEM']->am->setEditableContents($id, $edited);
 						} else {
 							die ("There is a crazy error in this script. Most likey the options array has been misconfigured\n");
@@ -108,6 +108,7 @@ $options = Array (
 							$contents = $asset->attr($name);
 							echo "Examining wysiwyg contents of attribute '$name' of Asset ID: $child_id\n";
 							$edited = process_replace_text($contents, $options);
+							if ($edited === FALSE) die ("There is a crazy error in this script. Most likey the options array has been misconfigured\n");
 							$asset->setAttrValue($name, $edited);
 							$asset->saveAttributes();
 						}
