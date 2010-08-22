@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.22 2010/07/28 03:12:40 akarelia Exp $
+* $Id: data_source_xml.inc,v 1.23 2010/08/22 23:53:36 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -113,6 +113,13 @@ class Data_Source_Xml extends Data_Source
 	* @var boolean
 	*/
 	protected $_new_teg = FALSE;
+
+
+	/**
+	* Array to store info about if the element nests other non-text elements
+	* 
+	*/
+	protected $_complex_elements = Array();
 
 
 	/**
@@ -363,10 +370,18 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function startElement($parser, $name, $attributes=FALSE)
-	{
+	{	
 		// Increment the XML tree level tracker one level up
 		$this->_tree_level++; 
 		
+		// Count the number of non-text elements the parsed element nests
+		foreach($this->_complex_elements as $element => $val) {
+			if ($this->_complex_elements[$element] >= 0) $this->_complex_elements[$element]++;
+		}
+		if (!isset($this->_complex_elements[$name])) {
+			$this->_complex_elements[$name] = 0;
+		}
+
 		if (!empty($name)) {
 			// check that we are inside the root tag
 			$this->_checkRootTag($name);
@@ -394,7 +409,9 @@ class Data_Source_Xml extends Data_Source
 				}
 
 				// If the current tree level is less than tree level where records are then we are finished with the current record
-				if ($this->_non_empty_record && ($this->_tree_level < $this->_record_tree_level)) {
+				// Or even if the current tree level is on same level where the relevent record is, 
+				// if the current element complex then it will have to goto new record
+				if ($this->_non_empty_record && ($this->_tree_level < $this->_record_tree_level || ($this->_tree_level == $this->_record_tree_level && $this->_complex_elements[$this->_current_tag_name] == -1))) {
 					$this->_record_set_index++;
 					
 					// Don't know if required tags are going to be there in next recordset
@@ -467,10 +484,16 @@ class Data_Source_Xml extends Data_Source
 	* @access public
 	*/
 	function endElement($parser, $name)
-	{
+	{	
 		// check that we are outside of the root tag
 		$this->_checkRootTag($name);
-
+		
+		// If the element nests 1 or more non-text elements then it is complex
+		// -1 means complex and -2 means otherwise
+		if ($this->_complex_elements[$name] >= 0) {
+			$this->_complex_elements[$name] = $this->_complex_elements[$name] > 0 ? -1 : -2;
+		
+		}
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
 
