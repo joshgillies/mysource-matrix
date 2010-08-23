@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.7 2010/05/12 03:51:09 lwright Exp $
+* $Id: mp3_file.inc,v 1.7.2.1 2010/08/23 04:22:23 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.7 $
+* @version    $Revision: 1.7.2.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,6 +232,8 @@ class MP3_File extends File
 			// use full keyword so the modifiers still get used
 			$replacement = parent::getKeywordReplacement($full_keyword);
 		}
+
+		return $replacement;
 
 	}// end getKeywordReplacement()
 
