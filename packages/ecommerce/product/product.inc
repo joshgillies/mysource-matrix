@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.18 2009/11/27 05:46:07 bpearson Exp $
+* $Id: product.inc,v 1.19 2010/08/23 04:39:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -49,7 +49,21 @@ class Product extends Page implements Buyable
 	}//end constructor
 
 
-
+	/**
+	* Wakeup.
+	*
+	* It's important to load components when restored from a serialised
+	* state by Deja Vu.
+	*
+	* @access public
+	*/
+	function __wakeup() 
+	{
+		// reload product price object as attribute var
+		$this->_loadVars();
+	}//end __wakeup()
+	
+	
 	/**
 	* Load the vars for this asset/ asset type into the vars array
 	*
