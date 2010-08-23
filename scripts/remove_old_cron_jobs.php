@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_old_cron_jobs.php,v 1.5 2008/02/18 05:28:41 lwright Exp $
+* $Id: remove_old_cron_jobs.php,v 1.5.10.1 2010/08/23 00:34:40 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * piled up so much that you can't delete them manually and can't run the cron script
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.10.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -59,7 +59,7 @@ $sql = "SELECT assetid
 		WHERE
 			attrid IN
 				(select attrid from sq_ast_attr where (type_code = 'cron_job' or owning_type_code = 'cron_job') and name='when')
-				AND custom_val < :old_date";
+				AND CAST(custom_val AS varchar2(255))< :old_date";
 $query = MatrixDAL::preparePdoQuery($sql);
 MatrixDAL::bindValueToPdo($query, 'old_date', 'OO='.$old_date);
 $assetids = MatrixDAL::executePdoAssoc($query, 0);
