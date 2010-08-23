@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.52 2010/08/17 07:30:34 akarelia Exp $
+* $Id: js_api.inc,v 1.53 2010/08/23 01:43:27 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1212,14 +1212,25 @@ class JS_Api extends Page
 		}
 
 		$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$array_to_check_in = array_merge(Array($user->id), $user->getUserGroups());
 		$effective_permission = '';
 
-		if($user instanceof Root_User || $user instanceof System_User || $asset->adminAccess('', Array($user->id))) {
+		if($user instanceof Root_User || $user instanceof System_User) {
 			$effective_permission = 'Admin Access';
-		} else if($asset->writeAccess('', Array($user->id), FALSE)) {
-			$effective_permission = 'Write Access';
-		} else if($asset->readAccess(Array($user->id))) {
-			$effective_permission = 'Read Access';
+		}
+
+		//if we havent got max permissions yet try the user id and all the user groups it belongs in
+		if($effective_permission === '' ) {
+			foreach($array_to_check_in as $user_group_id) {
+				if ($effective_permission != '' ) continue;
+				if ($asset->adminAccess('', Array($user_group_id))) {
+					$effective_permission = 'Admin Access';
+				}else if($asset->writeAccess('', Array($user_group_id), FALSE)) {
+					$effective_permission = 'Write Access';
+				} else if($asset->readAccess(Array($user_group_id))) {
+					$effective_permission = 'Read Access';
+				}
+			}
 		}
 
 		// Get general info about asset
