@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.23 2010/05/05 01:06:17 hnguyen Exp $
+* $Id: lang_errors.xml,v 1.23.2.1 2010/08/23 23:40:12 mhaidar Exp $
 *
 */
 -->
@@ -120,7 +120,7 @@
 	<error code="CMS0036">You must select an option from the %s</error>
 		<!-- packages/cms/page_templates/page_asset_builder/page_asset_builder.inc:495: -->
 
-	<error code="CMS0037">No URL or Asset selected for this "%s"</error>
+	<error code="CMS0037">No URL or Asset selected for %1$s "%2$s" (Id #%3$s)</error>
 		<!-- packages/cms/page_templates/page_redirect/page_redirect.inc:185: -->
 
 	<error code="CMS0038">Listing Engine Installation FAILED</error>

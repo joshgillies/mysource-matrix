@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.39 2010/04/15 23:49:56 mhaidar Exp $
+* $Id: page_redirect.inc,v 1.39.2.1 2010/08/23 23:40:12 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -364,7 +364,7 @@ class Page_Redirect extends Page
 		}//end if
 
 		if ($url == '') {
-			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return '';
 		}
 
