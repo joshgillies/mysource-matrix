@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.11 2008/11/11 01:20:07 csmith Exp $
+* $Id: import_from_xml.php,v 1.11.10.1 2010/08/24 03:04:15 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.10.1 $
 * @package MySource_Matrix
 */
 
@@ -40,6 +40,13 @@ if (empty($import_file) || !is_file($import_file)) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
+if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
+	$root_node_id = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
+	if (empty($root_node_id)) {
+		trigger_error("you need to supply root node under which the assets are to be imported as fourth argument\n", E_USER_ERROR);
+	}
+}
+
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // ask for the root password for the system
@@ -53,8 +60,24 @@ if (!$root_user->comparePassword($root_password)) {
 }
 
 require_once SQ_LIB_PATH.'/import_export/import.inc';
-
 $import_actions = get_import_actions($import_file);
+
+//done checking authenticity of the system, first thing we check is the valid asset id for root node
+if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
+	//we are going to try and get the asset, we dont wanna be throwing errors here, so mute them
+	error_reporting(E_NOTICE);
+	$root_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
+	if (is_null($root_node)) {
+		echo "\nProvided assetid is not valid for given system, Script will stop execution\n";
+		exit;
+	}
+	//restore error reporting
+	error_reporting(E_ALL);
+
+	$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
+
+}//end if (--root-node)
+
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
