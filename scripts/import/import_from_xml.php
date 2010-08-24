@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.12 2010/08/24 02:58:32 akarelia Exp $
+* $Id: import_from_xml.php,v 1.13 2010/08/24 03:03:59 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -47,8 +47,6 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 	}
 }
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // ask for the root password for the system
@@ -66,17 +64,17 @@ $import_actions = get_import_actions($import_file);
 
 //done checking authenticity of the system, first thing we check is the valid asset id for root node
 if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
-//we are going to try and get the asset, we dont wanna be throwing errors here, so mute them
-error_reporting(E_NOTICE);
+	//we are going to try and get the asset, we dont wanna be throwing errors here, so mute them
+	error_reporting(E_NOTICE);
 	$root_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
 	if (is_null($root_node)) {
 		echo "\nProvided assetid is not valid for given system, Script will stop execution\n";
 		exit;
 	}
-//restore error reporting
-error_reporting(E_ALL);
+	//restore error reporting
+	error_reporting(E_ALL);
 
-$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
+	$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
 
 }//end if (--root-node)
 
