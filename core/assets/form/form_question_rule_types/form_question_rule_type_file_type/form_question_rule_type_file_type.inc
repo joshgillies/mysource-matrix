@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.11 2009/11/25 03:38:01 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.12 2010/08/25 03:22:02 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,7 +154,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 			$MIME_type_extension = isset($standards_lists_mime_types[strtolower($extension)]) ? $standards_lists_mime_types[strtolower($extension)] : '';
 
 			//only check MIME type consistency if it has a valid MIME type
-			if(!empty($MIME_type) && $MIME_type != 'text/plain') {
+			if(!empty($MIME_type) && $MIME_type != 'text/plain' && $MIME_type != 'application/x-empty') {
 				if(empty($MIME_type_extension)|| $MIME_type_extension != $MIME_type) return FALSE;
 			}
 		}
