@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.69 2010/07/05 06:45:25 mhaidar Exp $
+* $Id: tables.xml,v 1.70 2010/08/25 01:53:53 csmith Exp $
 *
 */
 -->
@@ -617,9 +617,6 @@
 				</index>
 				<index>
 					<column name="assetid" />
-				</index>
-				<index>
-					<column name="contextid" />
 				</index>
 				<!--
 				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
