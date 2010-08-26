@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.106.2.1 2010/07/08 22:46:56 mhaidar Exp $
+* $Id: hipo_herder.inc,v 1.106.2.2 2010/08/26 01:35:42 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.106.2.1 $
+* @version $Revision: 1.106.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -318,7 +318,7 @@ class HIPO_Herder extends MySource_Object
 		?>
 		<script language="JavaScript" type="text/javascript">
 			function next_page() {
-				<?php echo $onload; ?>
+				<?php echo str_replace('\\', '\\\\', $onload); ?>
 			}//end next_page()
 
 			function send_abort() {
