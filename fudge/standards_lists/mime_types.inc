@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.16 2010/03/17 04:19:44 ewang Exp $
+* $Id: mime_types.inc,v 1.16.2.1 2010/08/26 04:31:11 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -184,6 +184,7 @@ $standards_lists_mime_types = Array(
 									'ico'		=> 'image/x-icon',
 									'trf'		=> 'application/octet-stream',
 									'tr5'		=> 'application/octet-stream',
+									'htc'		=> 'text/x-component',
 									);
 
 ?>
