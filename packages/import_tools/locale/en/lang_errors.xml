@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.4 2010/05/05 07:12:57 ewang Exp $
+* $Id: lang_errors.xml,v 1.5 2010/08/26 06:45:06 akarelia Exp $
 *
 */
 
@@ -21,7 +21,15 @@
 -->
 
 <errors>
+	<!-- packages/import_tools/package_manager_simport_tools.inc -->
 	<error code="IMP0001">Import Tools Manager NOT CREATED</error>
-		<!-- packages/import_tools/package_manager_simport_tools.inc -->
+
+	<!-- Import Assets from XML Tool -->
+	<error code="IMP0002">No file selected to use</error>
+	<error code="IMP0003">Provided Assetid is not for a valid Asset</error>
+	
+	<!-- Import Assets from XML Tool -->
+	<error code="HIPO0095">No file selected to use</error>
+	<error code="HIPO0096">Provided Assetid is not for a valid Asset</error>
 
 </errors>

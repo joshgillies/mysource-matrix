@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2010/05/05 07:12:57 ewang Exp $
+* $Id: lang_strings.xml,v 1.15 2010/08/26 06:44:59 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -91,4 +91,12 @@
 <string source="import_tools_manager_server_export_dir_msg">Directory on the Server to export files to.</string>
 <string source="import_tools_manager_server_export_name">Server Export Name</string>
 <string source="import_tools_manager_server_export_name_msg">The basename of the exported files</string>
+
+<!-- Import Assets from XML Tool -->
+<string source="tool_import_assets_from_xml_hipo_name">Hipo Job Import Assets From XML</string>
+<string source="tool_import_assets_from_xml_file_upload">Import XML File</string>
+<string source="tool_import_assets_from_xml_file_upload_note">Select the XML file to import Assets from. Structure should be as in <![CDATA[<a href="%s" target="_blank">example.xml</a>]]></string>
+<string source="tool_import_assets_from_xml_create_under">Import Asset under (optional)</string>
+<string source="tool_import_assets_from_xml_create_under_note">If Asset is specified the assets are imported under that asset</string>
+
 </strings>
