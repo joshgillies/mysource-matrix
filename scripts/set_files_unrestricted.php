@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.1 $
+* @version     $Revision: 1.1.6.1 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -130,7 +130,7 @@ if (count($file_assetids) > 0) {
 	}
 
 	echo "\n";
-	do_set_unrestricted($ROOT_ASSETID, $UNRESTRICT_SETTING);
+	do_set_unrestricted($ROOT_ASSETID, $UNRESTRICT_SETTING, $file_assetids);
 	echo "\n";
 
 	// Log out the root user
@@ -147,13 +147,14 @@ exit(0);
 /**
 * Actually perform the changes to the files
 *
-* @param string	$root_node	Asset ID of the root node to search for Files from
-* @param int	$setting	The unrestricted setting to change assets to
-*                           (0 = restricted, 1 = unrestricted)
+* @param string	$root_node			Asset ID of the root node to search for Files from
+* @param int	$setting			The unrestricted setting to change assets to
+*									(0 = restricted, 1 = unrestricted)
+* @param array	$file_assretids		assetid of all the file type assets found under the root node
 *
 * @return void
 */
-function do_set_unrestricted($root_node, $setting)
+function do_set_unrestricted($root_node, $setting, $file_assetids)
 {
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -195,21 +196,37 @@ function do_set_unrestricted($root_node, $setting)
 		}
 		$result = array_keys(MatrixDAL::executePdoGroupedAssoc($query));
 
-		status_message_result(count($result).' assets to update');
 	} catch (Exception $e) {
 		status_message_result('DB ERROR');
 		throw new Exception('Database error: '.$e->getMessage());
 	}
 
+	// bug fix #4649 set_files_unrestricted.php doesn't change any assets
+	// since we have all the file type asset's assetid we will check and
+	// see if any of them has the attributes not set
+	$sql_query = 'SELECT assetid FROM sq_ast_attr_val l WHERE l.assetid IN (\''.implode('\', \'', array_keys($file_assetids)).'\') AND l.attrid IN (SELECT attrid FROM sq_ast_attr WHERE type_code IN (SELECT type_code FROM sq_ast_typ_inhd WHERE inhd_type_code = \'file\') AND name = \'allow_unrestricted\')';
+
+	$good_assets = MatrixDAL::executeSqlAssoc($sql_query);
+
+	$additional_assets = array_keys($file_assetids);
+	foreach ($good_assets as $good_asset) {
+		foreach ($additional_assets as $index => $additional_asset) {
+			if ($additional_assets[$index] == $good_asset['assetid'] ) unset($additional_assets[$index]);
+		}
+	}
+
+	status_message_result(count($result) + count($additional_assets).' assets to update');
+
 	// If there were any assets, update them in one hit, and then update
 	// the lookups
-	if (count($result) > 0) {
+	if ((count($result) + count($additional_assets))> 0) {
 		status_message_start('Updating attributes...');
-		
+
+		// update
 		try {
 			$update_sql = 'UPDATE sq_ast_attr_val SET custom_val = :new_setting';
 			$bind_vars['new_setting'] = (int)$setting;
-			
+
 			$query = MatrixDAL::preparePdoQuery($update_sql.$where);
 			foreach ($bind_vars as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
@@ -221,11 +238,20 @@ function do_set_unrestricted($root_node, $setting)
 			throw new Exception('Database error: '.$e->getMessage());
 		}
 
+		// insert
+		foreach($additional_assets as $additional_asset) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($additional_asset);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$asset->setAttrValue('allow_unrestricted', (int)$setting);
+				$asset->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+
 		// Now update lookups
 		status_message_start('Updating lookups...');
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					'assetids'	=> $result,
+					'assetids'	=> array_merge($result, $additional_assets),
 				);
 		$errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (empty($errors)) {
