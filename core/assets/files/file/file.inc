@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.188 2010/07/30 06:10:41 ewang Exp $
+* $Id: file.inc,v 1.189 2010/08/27 04:19:22 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,6 +136,9 @@ class File extends Asset
 			}
 
 			$this->setAttrValue('name', $name);
+			//creating the asset? set the allow_unrestricted to true ...which is default value anyways
+			$this->setAttrValue('allow_unrestricted', TRUE);
+
 		}//end if
 
 		return parent::create($link);
