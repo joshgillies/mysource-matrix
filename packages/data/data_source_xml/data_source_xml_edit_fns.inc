@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_edit_fns.inc,v 1.7 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_xml_edit_fns.inc,v 1.8 2010/08/27 04:29:26 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -271,12 +271,13 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 			echo '<tr>';
 			echo '<td>';
 			if ($write_access) {
-				text_box($prefix.'_var_name['.$var_id.']', urlencode($var));
+				text_box($prefix.'_var_name['.$var_id.']', $var);
 			} else {
-				echo urlencode($var);
+				echo $var;
 			}
 			echo '</td>';
 			echo '<td valign="top" align="left">';
+			$value = urldecode($value);
 			if ($write_access) {
 				text_box($prefix.'_var_value['.$var_id.']', urlencode($value));
 			} else {
@@ -369,7 +370,7 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		}
 
 		$map->process($prefix.'_parameter_map');
-
+		
 		foreach ($var_value as $hash => $value) {
 			$name = base64_decode($hash);
 			if (isset($to_delete[$hash])) {
@@ -381,8 +382,8 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 
 				continue;
 			}
-
-			$var_list[$name] = $value;
+			$value = urldecode($value);
+			$var_list[$name] = urlencode($value);
 		}
 
 		$new_var_list = Array();
@@ -456,8 +457,8 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 					trigger_error('Variable Name "'.htmlentities($new_var_name).'" is already in use', E_USER_WARNING);
 					continue;
 				}
-
-				$var_list[$new_var_name] = $new_var_value;
+				$new_var_value = urldecode($new_var_value);
+				$var_list[$new_var_name] = urlencode($new_var_value);
 				$map->setParameter($new_var_name, 'Variable: '.$new_var_name);
 			}
 		}
