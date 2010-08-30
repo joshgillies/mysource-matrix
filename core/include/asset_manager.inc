@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.814 2010/08/11 23:30:46 akarelia Exp $
+* $Id: asset_manager.inc,v 1.815 2010/08/30 07:06:27 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.814 $
+* @version $Revision: 1.815 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8958,6 +8958,7 @@ class Asset_Manager extends MySource_Object
 			$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 			// if all shadow asset children should be returned
 			$union_where = 'sl.majorid = :'.$bind_prefix.'union_majorid';
+			$union_where .= ' AND sl.link_type != '.SQ_LINK_NOTICE;
 			$bind_vars[$bind_prefix.'union_majorid'] = $asset->id;
 			if (!$direct_shadows_only) {
 				// need to dupe where bind vars here, because we're trying to include
@@ -8968,6 +8969,7 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
+				$ds_where .= ' AND sl.link_type != '.SQ_LINK_NOTICE;
 				$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $ds_where)))";
 			}
 
