@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.53.2.2 2010/06/24 01:04:41 ewang Exp $
+* $Id: text.inc,v 1.53.2.3 2010/08/30 23:24:20 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53.2.2 $
+* @version $Revision: 1.53.2.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -415,6 +415,18 @@ function apply_keyword_modifier($text, $modifier)
 			}
 		}
 		return $failure ? $failure : 0;
+		
+	case "as_asset":
+		$asset_keyword = array_get_index($modifier['args'], 0, '');
+		if ($asset_keyword != '') {
+			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($text)) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($text);
+				if ($asset->readAccess()) {
+					return $asset->getKeywordReplacement($asset_keyword);
+				}
+			}
+		}
+		return '';
 		
 	default:
 		return $text;
