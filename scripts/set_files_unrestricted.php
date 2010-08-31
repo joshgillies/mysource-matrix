@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.2 $
+* @version     $Revision: 1.3 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -243,7 +243,7 @@ function do_set_unrestricted($root_node, $setting, $file_assetids)
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($additional_asset);
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				$asset->setAttrValue('allow_unrestricted', (int)$setting);
-				$asset->saveAttributes();
+				$asset->saveAttributes(TRUE);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
