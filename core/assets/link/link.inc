@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: link.inc,v 1.5 2009/11/27 05:37:14 bpearson Exp $
+* $Id: link.inc,v 1.5.2.1 2010/08/31 23:00:19 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -271,12 +271,12 @@ class Link extends Asset
 	{
 		$url = $this->attr('link_url');
 		if (empty($url) || (trim($url) == '')) {
+			$asset = NULL;
 			$assetid = $this->attr('link_asset_id');
-			if (empty($assetid)) {
-				$url = '';
-			} else {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$url = $asset->getURL();
+			$url = '';
+			if (!empty($assetid)) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+				if (!is_null($asset)) $url = $asset->getURL();
 			}
 		}
 		
