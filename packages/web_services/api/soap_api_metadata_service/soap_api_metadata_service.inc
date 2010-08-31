@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.2 2009/10/20 02:20:50 lwright Exp $
+* $Id: soap_api_metadata_service.inc,v 1.2.2.1 2010/08/31 03:52:31 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -339,8 +339,10 @@ class Soap_Api_Metadata_Service extends Soap_Api
 			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$values = $mm->getMetadataValueByAssetid($assetid, $fieldid);
 			if (!empty($values)) {
+				// bug fix #4646 Empty response returned from metadata field containing non-ascii character
+				// we will need to escape the characters if we are not on a utf-8 system
 				return Array (
-						'GetMetadataValueByIDsResult'	=> $values,
+						'GetMetadataValueByIDsResult'	=> $mm->escapeMetadata($values),
 					   );
 			} else {
 				throw new SoapFault('Server', 'Unable To Get Metadata Values For Asset');
@@ -459,7 +461,9 @@ class Soap_Api_Metadata_Service extends Soap_Api
 			$i = 0;
 			foreach ($field_values as $field_name => $field_value) {
 				$field_values_final[$i]['FieldName']	= $field_name;
-				$field_values_final[$i]['FieldValue']	= $field_value;
+				// bug fix #4646 Empty response returned from metadata field containing non-ascii character
+				// we will need to escape the characters if we are not on a utf-8 system
+				$field_values_final[$i]['FieldValue']   = $mm->escapeMetadata($field_value);
 				$i++;
 			}//end foreach
 
