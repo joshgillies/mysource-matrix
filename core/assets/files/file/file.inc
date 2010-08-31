@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.189 2010/08/27 04:19:22 akarelia Exp $
+* $Id: file.inc,v 1.190 2010/08/31 06:37:12 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.190 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -866,7 +866,9 @@ class File extends Asset
 
 		}//end if we are changing the filename
 
-		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
+		// its alright to not run HIPO to update lookups if we have dont_run_updated flag set
+		// its only ever called from Asset:create() and set_files_unrestricted script
+		if (isset($this->_tmp['vars_set']['allow_unrestricted']) && !$dont_run_updated) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
