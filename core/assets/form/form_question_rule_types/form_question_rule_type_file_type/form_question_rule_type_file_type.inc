@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.13 2010/08/25 07:14:52 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.14 2010/08/31 06:30:17 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,7 +134,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
-		$check_mime = array_get_index($rule_data, 'check_mime', TRUE);
+		$check_mime = array_get_index($rule_data, 'check_mime', FALSE);
 		
 		if (strrpos($answer_name, '.') === false) {
 			$extension = '';
