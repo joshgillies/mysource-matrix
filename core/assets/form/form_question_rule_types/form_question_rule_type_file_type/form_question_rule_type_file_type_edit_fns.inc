@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.6 2009/05/15 06:29:26 ewang Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.6.6.1 2010/08/31 06:31:01 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			$o->closeField();
 			// check mime type?	
 			$o->openField(translate('core_form_rule_file_type_enforce_check_mime'));
-			check_box($prefix.'[check_mime]', TRUE, array_get_index($rule_data, 'check_mime', TRUE));
+			check_box($prefix.'[check_mime]', TRUE, array_get_index($rule_data, 'check_mime', FALSE));
 			$o->closeField();
 
 			$o->sectionNote(translate('core_form_rule_file_type_note'));
