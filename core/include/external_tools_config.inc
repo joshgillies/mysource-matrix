@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.35 2010/05/05 01:51:11 mbrydon Exp $
+* $Id: external_tools_config.inc,v 1.36 2010/09/01 01:09:57 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -62,7 +62,11 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_JS_PATH'						=> Array('editable' => 1, 'default' => '/usr/bin/js'),
 						'SQ_TOOL_OGG_METADATA_EXTRACTION_PATH'	=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED'	=> Array('editable' => 1, 'default' => FALSE),
-					   );
+						'SQ_TOOL_MOLLOM_PUBLIC_KEY'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_MOLLOM_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_MOLLOM_TEST_MODE'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION'	=> Array('editable' => 1, 'default' => TRUE),
+				);
 
 
 	/**
@@ -445,6 +449,7 @@ class External_Tools_Config extends Config
 				}//end if
 
 		$o->closeSection();
+		
 		$o->openSection(translate('javascript_configuration'));
 			$o->openField(translate('path_to_javascript'));
 				if ($write_access) {
@@ -461,7 +466,63 @@ class External_Tools_Config extends Config
 				}//end if
 		$o->closeSection();
 		
+		$o->openSection(translate('mollom_configuration'));
+
+			$o->openField(translate('mollom_test_mode'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_TOOL_MOLLOM_TEST_MODE]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MOLLOM_TEST_MODE);
+				} else {
+					echo (SQ_TOOL_MOLLOM_TEST_MODE) ? translate('yes') : translate('no');
+				}
+				?><br /><?php
+				echo translate('mollom_test_mode_note');
+			$o->openField(translate('mollom_public_key'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_MOLLOM_PUBLIC_KEY]', SQ_TOOL_MOLLOM_PUBLIC_KEY, 35);
+				} else {
+					echo SQ_TOOL_MOLLOM_PUBLIC_KEY;
+				}//end if
+				?><br /><?php
+				echo translate('mollom_public_key_note');
 		
+			$o->openField(translate('mollom_private_key'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_MOLLOM_PRIVATE_KEY]', SQ_TOOL_MOLLOM_PRIVATE_KEY, 35);
+				} else {
+					echo SQ_TOOL_MOLLOM_PRIVATE_KEY;
+				}//end if
+				?><br /><?php
+				echo translate('mollom_private_key_note');
+				
+			$o->openField(translate('mollom_valid_keys'));
+				// Check that keys are valid
+				if (SQ_TOOL_MOLLOM_PRIVATE_KEY && SQ_TOOL_MOLLOM_PUBLIC_KEY) {
+					require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+					$mollom_client = new Mollom();
+					$mollom_client->setPublicKey(SQ_TOOL_MOLLOM_PUBLIC_KEY);
+					$mollom_client->setPrivateKey(SQ_TOOL_MOLLOM_PRIVATE_KEY);
+
+      				if (!empty($_SESSION['SQ_MOLLOM_SERVER_LIST'])) {
+			            $server_list = unserialize($_SESSION['SQ_MOLLOM_SERVER_LIST']);
+            			$mollom_client->setServerList($server_list);
+			        } else {
+			            $server_list = $mollom_client->getServerList();
+            			$_SESSION['SQ_MOLLOM_SERVER_LIST'] = serialize($server_list);
+			        }
+					$valid_keys = $mollom_client->verifyKey();
+					echo $valid_keys ? '<span style="color: green"><b>'.translate('valid').'</b></span>' : '<span style="color: red"><b>'.translate('invalid').'</b></span>';
+				}
+				
+			$o->openField(translate('mollom_accept_bypassed_submission_question'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MOLLOM_TEST_MODE);
+				} else {
+					echo (SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION) ? translate('yes') : translate('no');
+				}
+				?><br /><?php
+				echo translate('mollom_accept_bypassed_submission_note');
+		$o->closeSection();
+
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()

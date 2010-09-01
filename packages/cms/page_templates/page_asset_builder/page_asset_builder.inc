@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.159 2010/08/12 05:24:48 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.160 2010/09/01 01:08:35 cupreti Exp $
 *
 */
 
@@ -18,6 +18,8 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+
 
 /**
 * Page_Asset_Builder
@@ -29,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,7 +62,7 @@ class Page_Asset_Builder extends Page
 	* @var string
 	*/
 	var $_default_state = 'create';
-
+	
 
 	/**
 	* Constructor
@@ -490,7 +492,6 @@ class Page_Asset_Builder extends Page
 					$prefix = $new_asset->getPrefix();
 
 
-
 					  ///////////////////////
 					 //  REQUIRED FIELDS  //
 					///////////////////////
@@ -672,14 +673,26 @@ class Page_Asset_Builder extends Page
 						$new_asset_linkid = array_get_index($new_asset_link, 'linkid', FALSE);
 					}
 
-
 					if (!$create_success) {						
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;						
 						$this->_abortAssetCreate($new_asset_linkid);
 					} else {
+						// Attributes to be verified by Mollom
+						$attr_to_verify_assets = $this->attr('mollom_attributes_to_check');
+						$attr_to_verify = isset($attr_to_verify_assets[$create_type]) ? $attr_to_verify_assets[$create_type] : Array();
+						$mollom_parameters = Array();
 
 						// make sure text attributes dont have javascripts etc
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
+							// Prepare parameters for Mollom spam verification
+							$attr_value = array_get_index($attr_info, 'value', '');							
+							if ($attr_value) {
+								$attr_content_type = array_get_index($attr_to_verify, $attr_name, -1);
+								if ($attr_content_type >= 0) {
+									$mollom_parameters[$attr_content_type] = $attr_value;
+								}
+							}
+
 							if ($attr_info['type'] == 'text') {
 								if ($attr_name == 'name' || $attr_name == 'short_name') {
 									$attr_name_value = htmlspecialchars($attr_info['value'], ENT_NOQUOTES);
@@ -692,7 +705,50 @@ class Page_Asset_Builder extends Page
 								}
 							}
 						}
+						
+						// Carryout Mollom spam verification
+						if ($this->attr('use_mollom')) {
+							$mollom_result = Mollom::verifySubmission($this->id, $mollom_parameters);
+							switch ($mollom_result) {
+								case SQ_MOLLOM_SPAM:
+									// Mollom has identified this submission as spam
+									$error_text = $this->attr('mollom_spam_submission_text'); 
+									if ($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_spam_submission_message');
+									}
+								break;
 
+								case SQ_MOLLOM_UNSURE:
+									// Mollom is not sure about the submission
+									$error_text = $this->attr('mollom_unsure_submission_text');
+									if ($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_unsure_spam_submission_message');
+									}
+								break;
+
+								case SQ_MOLLOM_HAM:
+									// Everything cool
+								break;
+
+								case SQ_MOLLOM_UNKNOWN:
+									// No response from Mollom
+								break;
+
+								case SQ_MOLLOM_INCORRECT_CAPTCHA:
+									$error_text = $this->attr('mollom_captcha_incorrect_text');
+									if($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_invalid_captcha_message');
+									}
+								break;
+							}//end switch
+						}//end if use mollom
+					
 						// locks need to be acquired here in case any attribute values change above
 						// saveAttributes() is smart enough to only run queries if values have changed since creation, i.e. a value gets escaped above
 						$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_asset->id, 'attributes');
@@ -1296,6 +1352,20 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();
 		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();
 
+		  ////////////////////////////////
+		 // CREATE MOLLOM SPAM KEYWORD //
+		////////////////////////////////
+		$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
+		if (empty($regen_link_text)) {
+			$regen_link_text = translate('cms_asset_builder_mollom_regen_link_text');
+		}
+		$this->_replacements['asset_builder_mollom_captcha'] = Mollom::getMollomCaptchaKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_image'] = Mollom::getMollomCaptchaImageKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_audio'] = Mollom::getMollomCaptchaAudioKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_field'] = Mollom::getMollomCaptchaFieldKeywordReplacement($this->id);
+		$this->_replacements['asset_builder_mollom_captcha_regen_link'] = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
+
+
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
 		///////////////////////////
@@ -1613,6 +1683,14 @@ class Page_Asset_Builder extends Page
 			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
 			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
 			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
+		
+		if ($this->attr('use_mollom')) {
+			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
+			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
+			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
+			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
+			$keywords['asset_builder_mollom_captcha_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
 
 		return $keywords;
@@ -2036,7 +2114,7 @@ class Page_Asset_Builder extends Page
 		return $res;
 
 	}//end _getCreateFormLayout()
-
+	
 
 }//end class
 ?>

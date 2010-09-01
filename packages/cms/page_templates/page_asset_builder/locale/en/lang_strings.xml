@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.13 2008/10/20 00:06:42 bshkara Exp $
+* $Id: lang_strings.xml,v 1.14 2010/09/01 01:09:00 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -66,6 +66,18 @@
 <string source="cms_asset_builder_cannot_save_web_path">Unable to save web path of asset: "%1$s" under parent: "%2$s"</string>
 
 <string source="unknown_metadata_field">Unknown Metadata Field</string>
+
+<string source="cms_asset_builder_new_mollom_attr_question">New attribute to check ?</string>
+<string source="cms_asset_builder_mollom_no_attr_to_check">No attributes are set be checked for spam</string>
+<string source="cms_asset_builder_mollom_spam_submission_message"> 	 This submission does not seem legitimate. This submission has not been accepted.</string>
+<string source="cms_asset_builder_mollom_unsure_spam_submission_message">Please enter the characters in the image to verify your submission</string>
+<string source="cms_asset_builder_mollom_invalid_captcha_message">Incorrect security key. Please try again</string>
+<string source="cms_asset_builder_mollom_regen_link_text">Regenerate security key</string>
+<string source="cms_asset_builder_mollom_captcha">Mollom CAPTCHA</string>
+<string source="cms_asset_builder_mollom_captcha_image">Mollom CAPTCHA image</string>
+<string source="cms_asset_builder_mollom_captcha_audio">Mollom CAPTCHA audio</string>
+<string source="cms_asset_builder_mollom_captcha_field">Mollom CAPTCHA input field</string>
+<string source="cms_asset_builder_mollom_captcha_link">Mollom CAPTCHA regeneration link</string>
 
 <!-- strings for javascript -->
 

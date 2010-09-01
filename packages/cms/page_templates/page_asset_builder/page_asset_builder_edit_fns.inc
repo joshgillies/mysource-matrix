@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.50 2009/03/09 04:28:03 mbrydon Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.51 2010/09/01 01:08:35 cupreti Exp $
 *
 */
 
@@ -18,6 +18,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
 
 /**
 * Page_Asset_Builder_Edit_Fns
@@ -27,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1656,7 +1657,202 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return (count($asset->attr('create_type')) > 1);
 
 	}//end definesMultipleAssetTypes()
+	
+	
+//--         MOLLOM CAPTCHA          --//
 
+
+	/**
+	* Paint the interface for choosing the asset attribute to Mollom spam check
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMollomAttributeToCheck(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current = $asset->attr('mollom_attributes_to_check');
+		$metadata_schemas = Array();
+		$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
+		foreach ($metadata_schema_list as $metadata_schema) {
+			$metadata_schemas[] = $metadata_schema['minorid'];
+		}
+
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+			
+			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+			$attributes = Array();
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
+			foreach ($attrs as $name) {
+				$attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			}
+
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
+			$type_prefix = $prefix.'_'.$create_type;
+			
+			if (empty($current[$create_type])) {
+				echo translate('cms_asset_builder_mollom_no_attr_to_check').'<br />';
+			} else {
+				?>
+				<table class="sq-backend-table">
+					<tr><td colspan="3" style="font-style:italic;"><b><?php echo $type_name; ?></b></td></tr>
+					<tr>
+						<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+						<td class="sq-backend-table-header">Content Type</td>
+						<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+						}
+						?>
+					</tr>
+					<?php
+					foreach ($current[$create_type] as $attr => $content_type) {
+						$required_name = '';
+						$pos = strpos($attr, $prefix.'_metadata_');
+						if ($pos !== FALSE) {
+							if (empty($metadata_schemas)) continue;
+							$metadata_field = substr($attr, strlen($prefix.'_metadata_'));
+							$am = $GLOBALS['SQ_SYSTEM']->am;
+							$mf_asset = $am->getAsset($metadata_field);
+							if (!is_null($mf_asset)) {
+								$required_name = 'Metadata: '.$mf_asset->name;
+							} else {
+								$required_name = translate('unknown_metadata_field');
+							}
+						} else {
+							$required_name = $attributes[$attr];
+						}
+						?>
+						<tr>
+							<td class="sq-backend-table-cell"><?php echo $required_name; ?></td>
+							<td class="sq-backend-table-cell">
+								<?php
+								$content_types = Array();
+								if (file_exists(SQ_FUDGE_PATH.'/mollom/mollom.inc')) {
+									require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';								
+									$content_types = Mollom::getContentTypes();								
+								}
+								if ($write_access) {
+									combo_box($type_prefix.'_content_type['.$attr.']', $content_types, FALSE, $content_type);
+								} else {
+									echo isset($content_types[$content_type]) ? $content_types[$content_type] : '';
+								}
+								?>
+							</td>
+							<?php
+							if ($write_access) {
+								?>
+								<td class="sq-backend-table-cell">
+									<?php check_box($type_prefix.'_delete_content_type['.$attr.']'); ?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+						<?php
+					}//end foreach
+					?>
+				</table>
+				<?php
+			}//end else
+
+			if ($write_access) {
+
+				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				foreach ($attributes as $attr => $name) {
+					if (isset($current[$create_type][$attr])) continue;
+					$new_required[$attr] = $name;
+				}
+				// If a metadata schema is applied, allow the option to choose Metadata as a required field
+				if (!empty($metadata_schemas)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$am = $GLOBALS['SQ_SYSTEM']->am;
+					$metadata_fields = $mm->getMetadataFields($metadata_schemas);
+					foreach ($metadata_fields as $metadata_field => $metadata_field_type_code) {
+						if (isset($current[$create_type][$prefix.'_metadata_'.$metadata_field])) continue;
+						// Get each field from the schema
+						$asset = $am->getAsset($metadata_field);
+						if (!is_null($asset)) {
+							$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+							foreach ($current_links as $link) {
+								$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+								if (is_null($section)) continue;
+								$restrictions = $section->attr('restrict');
+								if (empty($restrictions) || (!is_null($create_type) && array_key_exists($create_type, $restrictions))) {
+									$new_required[$prefix.'_metadata_'.$metadata_field] = 'Metadata: '.$asset->name;
+								}
+							}//end foreach
+						}//end if
+						$am->forgetAsset($asset);
+					}//end foreach
+				}
+
+				echo '<b>'.translate('cms_asset_builder_new_mollom_attr_question').' </b>';
+				combo_box($type_prefix.'_new_content_type', $new_required, FALSE, '');
+				echo '<br /><br />';
+			}
+
+
+		}//end foreach
+
+		return $write_access;
+
+	}//end paintMollomAttributeToCheck()
+
+
+	/**
+	* Process the interface for choosing the asset attribute to Mollom spam check
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMollomAttributeToCheck(&$asset, &$o, $prefix)
+	{
+		$current = $asset->attr('mollom_attributes_to_check');
+		$content_types = Array();
+
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
+			$type_prefix = $prefix.'_'.$create_type;
+
+			// construct new required fields array removing deleted fields and updating error text
+			foreach ($current[$create_type] as $attr => $error_text) {
+				if (!isset($_POST[$type_prefix.'_delete_content_type'][$attr]) || !$_POST[$type_prefix.'_delete_content_type'][$attr]) {
+					if (isset($_POST[$type_prefix.'_content_type'][$attr])) {
+						$content_types[$create_type][$attr] = trim($_POST[$type_prefix.'_content_type'][$attr]);
+					} else {
+						$content_types[$create_type][$attr] = $current[$create_type][$attr];
+					}//end else
+				}//end if
+			}//end foreach
+
+			// add new required field
+			if (isset($_POST[$type_prefix.'_new_content_type']) && !empty($_POST[$type_prefix.'_new_content_type'])) {
+				$new_required = $_POST[$type_prefix.'_new_content_type'];
+				if (!isset($content_types[$create_type][$new_required])) {
+					$content_types[$create_type][$new_required] = '';
+				}
+			}
+		}
+		
+		
+		
+		return $asset->setAttrValue('mollom_attributes_to_check', $content_types);
+
+	}//end processMollomAttributeToCheck()	
 
 }//end class
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.64 2009/11/27 05:42:14 bpearson Exp $
+* $Id: form_management.inc,v 1.65 2010/09/01 01:06:34 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -410,7 +410,48 @@ class Form_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> 'Valid CAPTCHA is required, but none is found in this form submission',
 														'is_contextable'	=> TRUE,
-														   ),								   
+														   ),			
+			
+			// Mollom Spam Check question response ///////
+						'use_mollom'					=>	Array(
+															'added'			=> '0.15',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			),
+														),
+						'mollom_questions_to_check' 	=> Array(
+															'added'			=> '0.15',
+															'type'			=> 'serialise',
+															'default'		=>  Array(),
+															'description'	=> 'Question response to check for spam',
+														),											
+						'mollom_unsure_submission_text'	=> Array(
+															'added'			=> '0.15',
+															'type'			=> 'text',
+															'default'		=> 'Please enter the characters in the image to verify your submission',
+															'description'	=> 'Mollom error message text for unsure submission',
+														),
+						'mollom_spam_submission_text' 	=> Array(
+															'added'			=> '0.15',
+															'type'			=> 'text',
+															'default'		=> 'This submission looks like a spam. Cannot accept this submission',
+															'description'	=> 'Mollom error message text for spam submission',
+														),
+						'mollom_captcha_incorrect_text' => Array(
+															'added'			=> '0.15',
+															'type'			=> 'text',
+															'default'		=> 'Incorrect seurity key. Please try again',
+															'description'	=> 'Mollom error message text for incorrect captcha',
+														),										   
+						'mollom_captcha_regen_link_text' => Array(
+															'added'			=> '0.15',
+															'type'			=> 'text',
+															'default'		=> 'Regenerate seurity key',
+															'description'	=> 'Mollom CAPTCHA regen link text',
+														),
+														   
 														   
 					  );
 

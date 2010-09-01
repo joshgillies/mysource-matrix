@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.17 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.18 2010/09/01 01:09:00 cupreti Exp $
 *
 */
 -->
@@ -82,7 +82,7 @@
 			</function_call>
 		</field>
 	</section>
-		<section name="CAPTCHA" write_access="write:attributes">
+	<section name="CAPTCHA" write_access="write:attributes">
 		<field attribute="require_captcha">
 			<display_name>Require CAPTCHA</display_name>
 			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
@@ -180,4 +180,34 @@
 			<note>If this option is enabled, the generated CAPTCHA will contain at least one number.</note>
 		</field>
 	</section>
+	<section name="Mollom Spam Check" write_access="write:attributes">
+		<field attribute="use_mollom">
+			<display_name>Use Mollom Spam Check</display_name>
+			<note>Mollom will try to filter out the submission made by an automated agent. If it is unsure it will use CAPTACHA to verify the legit submission. If this option is set to 'yes', %form_mollom_captcha% or %form_mollom_captcha_image% plus %form_mollom_captcha_field% and %form_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted.</note>
+		</field>
+		<field>
+			<display_name>Attributes To Check</display_name>
+			<note>Select the asset attribute to check for spam</note>
+			<function_call>
+				<paint_function   name="paintMollomAttributeToCheck" />
+				<process_function name="processMollomAttributeToCheck" />
+			</function_call>
+		</field>		
+		<field attribute="mollom_unsure_submission_text">
+			<display_name>Unsure Error Message</display_name>
+			<note>Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value</note>
+		</field>
+		<field attribute="mollom_spam_submission_text">
+			<display_name>Spam Error Message</display_name>
+			<note>Error message to dispay when Mollom identifies a submission as spam</note>
+		</field>
+		<field attribute="mollom_captcha_incorrect_text">
+			<display_name>Captcha Incorrect Text</display_name>
+			<note>Error message to dispay when user enters incorrect captcha value</note>
+		</field>		
+		<field attribute="mollom_captcha_regen_link_text">
+			<display_name>CAPTCHA Regen Link Text</display_name>
+			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used.</note>
+		</field>
+	</section>	
 </contents>

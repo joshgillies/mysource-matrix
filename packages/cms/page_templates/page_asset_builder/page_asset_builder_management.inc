@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.39 2009/08/19 05:56:41 lwright Exp $
+* $Id: page_asset_builder_management.inc,v 1.40 2010/09/01 01:08:35 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -395,6 +395,45 @@ class Page_Asset_Builder_Management extends Asset_Management
 													'default'	=> 0,
 												  );
 
+		// Mollom Spam Check attributes ///////
+		$this->vars['use_mollom'] 						= Array(
+												'added'			=> '0.9',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											);
+		$this->vars['mollom_attributes_to_check'] 	= Array(
+												'added'			=> '0.9',
+												'type'			=> 'serialise',
+												'default'		=>  Array(),
+												'description'	=> 'Asset attributes to check for spam',
+											);											
+		$this->vars['mollom_unsure_submission_text'] 	= Array(
+												'added'			=> '0.9',
+												'type'			=> 'text',
+												'default'		=> 'Please enter the characters in the image to verify your submission',
+												'description'	=> 'Mollom error message text for unsure submission',
+											);
+		$this->vars['mollom_spam_submission_text'] 		= Array(
+												'added'			=> '0.9',
+												'type'			=> 'text',
+												'default'		=> 'This submission looks like a spam. Cannot accept this submission',
+												'description'	=> 'Mollom error message text for spam submission',
+											);
+		$this->vars['mollom_captcha_incorrect_text'] 		= Array(
+												'added'			=> '0.9',
+												'type'			=> 'text',
+												'default'		=> 'Incorrect seurity key. Please try again',
+												'description'	=> 'Mollom error message text for incorrect captcha',
+											);										   
+		$this->vars['mollom_captcha_regen_link_text'] 	= Array(
+												'added'			=> '0.9',
+												'type'			=> 'text',
+												'default'		=> 'Regenerate seurity key',
+												'description'	=> 'Mollom CAPTCHA regen link text',
+											);
 
 	}//end constructor
 

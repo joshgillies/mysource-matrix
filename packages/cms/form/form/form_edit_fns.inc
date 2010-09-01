@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.83 2009/03/09 04:28:03 mbrydon Exp $
+* $Id: form_edit_fns.inc,v 1.84 2010/09/01 01:06:34 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -884,6 +884,150 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 	}//end generateGenericSection()
 
+	
+//--         MOLLOM CAPTCHA          --//
+
+
+	/**
+	* Paint the interface for choosing the question for Mollom spam check
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMollomQuestionToCheck(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current = $asset->attr('mollom_questions_to_check');
+		
+		$relevent_question_types = Array('form_question_type_text', 'form_question_type_email_address');
+		$form_questions = $asset->getAllQuestions();		
+		
+		$questions = Array();		
+		foreach ($form_questions as $q_id => $q_info) {
+		
+			$q_type = isset($q_info['question_type_code']) ? $q_info['question_type_code'] : '';
+			if (!in_array($q_type, $relevent_question_types)) {
+				continue;
+			}
+			
+			$q_name = isset($q_info['attributes']['name']) ? $q_info['attributes']['name'] : $q_id.' (No name)';
+			$questions[$q_id] = $q_id.' '.ucwords(str_replace('_', ' ', $q_name));
+		}
+		
+		if (empty($current)) {
+			echo translate('cms_form_mollom_no_question_to_check');
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+					<td class="sq-backend-table-header">Content Type</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($current as $q_id => $content_type) {
+					$question_name = isset($questions[$q_id]) ? $questions[$q_id] : '';
+					if (!$question_name) {
+						continue;
+					}					
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $question_name; ?></td>
+						<td class="sq-backend-table-cell">
+							<?php
+							$content_types = Array();
+							if (file_exists(SQ_FUDGE_PATH.'/mollom/mollom.inc')) {
+								require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+								$mollom = new Mollom();
+								$content_types = $mollom->getContentTypes();
+							}
+							
+							if ($write_access) {
+								combo_box($prefix.'_content_type['.$q_id.']', $content_types, FALSE, $content_type);
+							} else {
+								echo isset($content_types[$content_type]) ? $content_types[$content_type] : '';
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_delete_content_type['.$q_id.']'); ?>
+							</td>
+							<?php
+						}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		}//end else
+
+		if ($write_access) {
+			$new_questions = Array('' => '-- '.translate('select_question').' --');
+			foreach ($questions as $q_id => $q_name) {
+				if (isset($current[$q_id])) continue;
+				$new_questions[$q_id] = $q_name;
+			}
+			
+			echo '<br/><b>'.translate('cms_form_new_mollom_question').' </b>';
+			combo_box($prefix.'_new_content_type', $new_questions, FALSE, '');
+		}
+
+		return $write_access;
+
+	}//end paintMollomQuestionToCheck()
+
+
+	/**
+	* Process the interface for choosing the question for Mollom spam check
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMollomQuestionToCheck(&$asset, &$o, $prefix)
+	{
+		$current = $asset->attr('mollom_questions_to_check');
+		$content_types = Array();
+
+		// construct new questions to check fields array removing deleted questions 
+		// and updating the question's answer type
+		foreach ($current as $q_id => $q_name) {
+			if (!isset($_POST[$prefix.'_delete_content_type'][$q_id]) || !$_POST[$prefix.'_delete_content_type'][$q_id]) {
+				if (isset($_POST[$prefix.'_content_type'][$q_id])) {
+					$content_types[$q_id] = trim($_POST[$prefix.'_content_type'][$q_id]);
+				} else {
+					$content_types[$q_id] = $current[$q_id];
+				}//end else
+			}//end if
+		}//end foreach
+
+		// add new required field
+		if (isset($_POST[$prefix.'_new_content_type']) && !empty($_POST[$prefix.'_new_content_type'])) {
+			$new_question = $_POST[$prefix.'_new_content_type'];
+			if (!isset($content_types[$new_question])) {
+				$content_types[$new_question] = '';
+			}
+		}	
+		
+		return $asset->setAttrValue('mollom_questions_to_check', $content_types);
+
+	}//end processMollomQuestionToCheck()	
 
 }//end class
 ?>

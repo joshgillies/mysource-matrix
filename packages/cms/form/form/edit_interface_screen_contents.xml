@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.35 2009/06/15 04:30:57 ewang Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.36 2010/09/01 01:06:34 cupreti Exp $
 *
 */
 -->
@@ -206,4 +206,27 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Mollom Spam Check" write_access="write:attributes">
+		<field attribute="use_mollom">
+			<boolean true_text="yes" false_text="no"/>
+		</field>		
+		<field>
+			<function_call>
+				<paint_function   name="paintMollomQuestionToCheck" />
+				<process_function name="processMollomQuestionToCheck" />
+			</function_call>
+		</field>		
+		<field attribute="mollom_unsure_submission_text">
+			<text width="50" />
+		</field>
+		<field attribute="mollom_spam_submission_text">
+			<text width="50" />
+		</field>
+		<field attribute="mollom_captcha_incorrect_text">
+			<text width="50" />
+		</field>		
+		<field attribute="mollom_captcha_regen_link_text">
+			<text width="50" />
+		</field>
+	</section>	
 </contents>

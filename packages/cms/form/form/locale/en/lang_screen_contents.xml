@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.18 2009/06/15 04:31:55 ewang Exp $
+* $Id: lang_screen_contents.xml,v 1.19 2010/09/01 01:07:35 cupreti Exp $
 *
 */
 -->
@@ -275,4 +275,34 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Mollom Spam Check" write_access="write:attributes">
+		<field attribute="use_mollom">
+			<display_name>Use Mollom Spam Check</display_name>
+			<note>Mollom will try to filter out the submission made by an automated agent. If it is unsure it will use CAPTACHA to verify the legit submission. If this option is set to 'yes', %form_mollom_captcha% or %form_mollom_captcha_image% plus %form_mollom_captcha_field% and %form_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted.</note>
+		</field>
+		<field>
+			<display_name>Questions To Check</display_name>
+			<note>Select the question to check for spam</note>
+			<function_call>
+				<paint_function   name="paintMollomQuestionToCheck" />
+				<process_function name="processMollomQuestionToCheck" />
+			</function_call>
+		</field>		
+		<field attribute="mollom_unsure_submission_text">
+			<display_name>Unsure Error Message</display_name>
+			<note>Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value</note>
+		</field>
+		<field attribute="mollom_spam_submission_text">
+			<display_name>Spam Error Message</display_name>
+			<note>Error message to dispay when Mollom identifies a submission as spam</note>
+		</field>
+		<field attribute="mollom_captcha_incorrect_text">
+			<display_name>Captcha Incorrect Text</display_name>
+			<note>Error message to dispay when user enters incorrect captcha value</note>
+		</field>		
+		<field attribute="mollom_captcha_regen_link_text">
+			<display_name>CAPTCHA Regen Link Text</display_name>
+			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used.</note>
+		</field>
+	</section>	
 </contents>

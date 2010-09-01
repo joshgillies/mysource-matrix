@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.373 2010/08/09 23:25:08 ewang Exp $
+* $Id: lang_strings.xml,v 1.374 2010/09/01 01:10:52 cupreti Exp $
 *
 */
 
@@ -1482,6 +1482,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="has">has</string>
 	<string source="does_not_have">does not have</string>
 	<string source="terms">terms</string>
+	<string source="valid">Valid</string>
+	<string source="invalid">Invalid</string>
 
 	<!-- priority level strings -->
 
@@ -1767,6 +1769,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="circa">Circa</string>
 	<string source="contents">Contents</string>
 	<string source="select_attribute">Select Attribute</string>
+	<string source="select_question">Select Question</string>
 	<string source="select_date">Select Date</string>
 	<string source="sort_by">Sort By</string>
 	<string source="starts_with">Starts With</string>
@@ -2807,5 +2810,17 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="live_link_only_note">If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.</string>
 	<string source="live_link_only_error">Creating hyperlink from live asset to non-live asset is forbidden by Preference. The anchor tags for the following link have been removed.</string>
 	<string source="no_base_url_error">Unable to determine the base url.</string>
+
+	<!-- Mollom Spam Check -->
+	<string source="mollom_public_key">Public Key</string>
+	<string source="mollom_private_key">Private Key</string>
+	<string source="mollom_valid_keys">Valid Keys ?</string>
+	<string source="mollom_configuration">Mollom Spam Detector</string>
+	<string source="mollom_public_key_note">Public key supplied by Mollom</string>
+	<string source="mollom_private_key_note">Private key supplied by Mollom</string>
+	<string source="mollom_test_mode">Test Mode</string>
+	<string source="mollom_test_mode_note">Test mode allows user tag posts as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
+	<string source="mollom_accept_bypassed_submission_question">Accept Bypassed Submission ?</string>
+	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond expectedly</string>
 
 </strings>

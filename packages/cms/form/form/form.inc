@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.249 2010/07/27 23:54:21 ewang Exp $
+* $Id: form.inc,v 1.250 2010/09/01 01:06:33 cupreti Exp $
 *
 */
 
@@ -20,6 +20,8 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
+require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+
 
 /**
 * Form
@@ -28,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.249 $
+* @version $Revision: 1.250 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,9 +87,9 @@ class Form extends Asset implements Bridge
 	*/
 	function Form($assetid=0)
 	{
-		$this->_ser_attrs = TRUE;
+		$this->_ser_attrs = TRUE;		
 		$this->Asset($assetid);
-
+		
 	}//end constructor
 
 
@@ -2461,7 +2463,7 @@ class Form extends Asset implements Bridge
 				$lookup_keyword = $keyword;	
 				// If form_info or form_summary, we need to make sure the
 				// HTML version gets printed
-				if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
+				if (($keyword === 'form_info') /*|| ($keyword == 'form_summary')*/) {
 					$lookup_keyword = $keyword.'_html';
 				}
 				$replacements[$keyword] = $this->_getThankYouKeywordReplacement($lookup_keyword);
@@ -2540,7 +2542,7 @@ class Form extends Asset implements Bridge
 	* @return boolean
 	*/
 	public function processPage($page_number, $validate_page=TRUE, $mute_errors=FALSE)
-	{
+	{	
 		$ok = TRUE;
 		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
@@ -2593,18 +2595,28 @@ class Form extends Asset implements Bridge
 			$ok = FALSE;
 		}
 		
+		// Questions to be verified by Mollom
+		$questions_to_verify = $this->attr('mollom_questions_to_check');
+		$mollom_parameters = Array();
+		
 		$questions = $this->getQuestionAssetsOnPage($page_number);
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-		
+				
 			// There is no point in populating the question if answer is not posted
 			if (isset($_POST['SQ_FORM_'.$this->id.'_PAGE'])) {
 				$question->populate($this);
+				$content_type = isset($questions_to_verify[$question->id]) ? $questions_to_verify[$question->id] : -1;
+				if ($content_type > -1) {
+					$mollom_parameters[$content_type] = $question->getValue();
+				}
 			}
-
+			
 			// Only fail the page if we are moving forward
 			// File upload question should always get validated
-			$question_type = strtolower($question->type());	
-		    if (!$question->hasValidValue() && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
+			$question_type = strtolower($question->type());
+			$valid_value = $question->hasValidValue(NULL, FALSE);
+
+		    if (!$valid_value && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
 		    	//mute error if there is no action, such as a public user refreshs page when there is a file upload question
 		    	if (!$mute_errors) {
                 	$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
@@ -2615,7 +2627,56 @@ class Form extends Asset implements Bridge
 			$this->current_answers[$question->id] = $question->getValue();
 			$this->extra_data[$question->id]      = $question->getExtraData();
 		}
-				
+		
+		// Mollom spam check
+		if ($ok && $this->attr('use_mollom') && !empty($mollom_parameters)) {
+			$mollom_result = Mollom::verifySubmission($this->id, $mollom_parameters);
+			$mollom_error = '';
+			switch ($mollom_result) {
+				case SQ_MOLLOM_SPAM:
+					// Mollom has identified this submission as spam
+					$error_text = $this->attr('mollom_spam_submission_text');
+					if ($error_text) {
+						$mollom_error = $error_text;
+					} else {
+						$mollom_error = translate('cms_form_mollom_spam_submission_message');
+					}
+				break;
+
+				case SQ_MOLLOM_UNSURE:
+					// Mollom is not sure about the submission
+					$error_text = $this->attr('mollom_unsure_submission_text');
+					if ($error_text) {
+						$mollom_error = $error_text;
+					} else {
+						$mollom_error = translate('cms_form_mollom_unsure_spam_submission_message');
+					}
+				break;
+
+				case SQ_MOLLOM_HAM:
+					// Everything cool
+				break;
+
+				case SQ_MOLLOM_UNKNOWN:
+					// No response from Mollom
+				break;
+
+				case SQ_MOLLOM_INCORRECT_CAPTCHA:
+					$error_text = $this->attr('mollom_captcha_incorrect_text');
+					if($error_text) {
+						$mollom_error = $error_text;
+					} else {
+						$mollom_error = translate('cms_form_mollom_invalid_captcha_message');
+					}
+					break;
+			}//end switch
+			
+			if (!empty($mollom_error)) {
+				$this->submission_errors = array_merge($this->submission_errors, Array($mollom_error));
+				$ok = FALSE;
+			}
+
+		}//end use Mollom
 
 		return $ok;
 
@@ -3795,6 +3856,10 @@ class Form extends Asset implements Bridge
 
 		$keywords += $this->_getCaptchaDisplayKeywords();
 
+		if ($this->attr('use_mollom')) {
+			$keywords += $this->_getMollomCaptchaDisplayKeywords();
+		}
+
 		return $keywords;
 
 	}//end _getPageContentsBodycopyKeywords()
@@ -3872,6 +3937,10 @@ class Form extends Asset implements Bridge
 		$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
 
 		$keywords += $this->_getCaptchaDisplayKeywords();
+
+		if ($this->attr('use_mollom')) {
+			$keywords += $this->_getMollomCaptchaDisplayKeywords();
+		}
 
 		return $keywords;
 
@@ -3988,6 +4057,28 @@ class Form extends Asset implements Bridge
 	}//end _getCaptchaDisplayKeywords()
 
 
+		
+	/**
+	* Return Mollom CAPTCHA display keywords so they can be injected where necessary
+	*
+	* @return array
+	*/
+	protected function _getMollomCaptchaDisplayKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['form_mollom_captcha']       = translate('cms_form_mollom_captcha');
+		$keywords['form_mollom_captcha_image'] = translate('cms_form_mollom_captcha_image');
+		$keywords['form_mollom_captcha_audio'] = translate('cms_form_mollom_captcha_audio');
+		$keywords['form_mollom_captcha_field'] = translate('cms_form_mollom_captcha_field');
+		$keywords['form_mollom_captcha_link']  = translate('cms_form_mollom_captcha_link');		
+
+		return $keywords;
+
+	}//end _getMollomCaptchaDisplayKeywords()
+
+
+
 //--        KEYWORD REPLACEMENTS        --//
 
 
@@ -4006,6 +4097,7 @@ class Form extends Asset implements Bridge
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
 		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
+		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);		
 
 		if ($is_question_keyword) {
 			// Sub keyword in $matches[1] - eg. 'field', 'id', 'note', 'label'
@@ -4017,6 +4109,7 @@ class Form extends Asset implements Bridge
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!empty($question_asset)) {
+
 				switch ($sub_keyword) {
 					case 'field' :
 						$replacement = $question_asset->getHtmlField();
@@ -4037,7 +4130,7 @@ class Form extends Asset implements Bridge
 					case 'label' :
 						$replacement = $question_asset->getHtmlLabel();
 					break;
-
+					
 				}//end switch
 			}
 
@@ -4074,6 +4167,33 @@ class Form extends Asset implements Bridge
 					$replacement = htmlspecialchars($question_asset->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
 			}
+
+		} else if ($is_form_keyword) {
+			list(, $sub_keyword) = $form_matches;
+			switch ($sub_keyword) {
+				case 'mollom_captcha':
+					$replacement = Mollom::getMollomCaptchaKeywordReplacement($this->id);
+				break;
+				case 'mollom_captcha_field':
+					$replacement = Mollom::getMollomCaptchaFieldKeywordReplacement($this->id);
+				break;
+
+				case 'mollom_captcha_image':
+					$replacement = Mollom::getMollomCaptchaImageKeywordReplacement($this->id);
+				break;
+
+				case 'mollom_captcha_audio':
+					$replacement = Mollom::getMollomCaptchaAudioKeywordReplacement($this->id);
+				break;
+					
+				case 'mollom_captcha_regen_link':
+					$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
+					if (empty($regen_link_text)) {
+						$regen_link_text = translate('cms_form_mollom_regen_link_text');
+					}
+					$replacement = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
+				break;
+			}//end switch
 
 		} else {
 			if ($keyword === 'form_submission_id') {
@@ -4750,7 +4870,6 @@ class Form extends Asset implements Bridge
 			}
 
 		}//end else - keyword list
-
 
 		// if replacement not found yet, see if it is not context specific
 		if ($replacement == '%'.$keyword.'%') {
