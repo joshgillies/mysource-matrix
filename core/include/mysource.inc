@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.350 2010/08/15 23:40:06 mhaidar Exp $
+* $Id: mysource.inc,v 1.351 2010/09/01 04:27:40 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.350 $
+* @version $Revision: 1.351 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4051,18 +4051,19 @@ class MySource extends MySource_Object
 
 	}//end _generateAttributeImage()
 
+	
 	/**
 	* Replace "./?a=xx" URLs by  their respective full URLs
 	*
 	* @param string	&$content	The content to replace ./a=xx urls in
 	*
 	* @return void
-	* @access public
+	* @access private
 	*/	
 	function _translateMatrixURL(&$content)
 	{	
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!<a\s+[^>]*?'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+'.')(?:"|\')'.'[^>]*?'.'>!msi', $content, $matches);
+		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+'.')(?:"|\')'.'[^>]*?'.'>!msi', $content, $matches);
 		if (empty($matches[1])) return;
 		
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
