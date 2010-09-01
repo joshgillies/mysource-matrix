@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.96 2010/01/28 06:57:03 csmith Exp $
+* $Id: general_occasional.inc,v 1.97 2010/09/01 06:44:51 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 
@@ -574,9 +574,18 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 
 		$con = @fsockopen($proxy['host'], $proxy['port'], $errno, $errstr);
 		if (!$con) return FALSE;
+
+		$matches = array();
+		preg_match('@^(?:http://)?([^/]+)@i', $page_url, $matches);
+		$host = $matches[1];
+
 		fputs($con, "GET $page_url HTTP/1.0\r\n");
-		fputs($con, "Host: ".$proxy['host']."\r\n");
-		fputs($con, 'Proxy-Authorization: Basic '.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n\r\n");
+		fputs($con, "Host: ".$host."\r\n");
+		if( !empty($proxy['user']) && !empty($proxy['password']) ){
+			fputs($con, 'Proxy-Authorization: Basic'.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n");
+		}
+		fputs($con, "\r\n"); // empty row to tell remote headers are complete
+
 	} else {
 		if ($force_fsockopen && is_array($url_parts)) {
 			$con = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, $timeout);
