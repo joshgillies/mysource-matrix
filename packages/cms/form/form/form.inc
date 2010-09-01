@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.250 2010/09/01 01:06:33 cupreti Exp $
+* $Id: form.inc,v 1.251 2010/09/01 01:46:58 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2463,7 +2463,7 @@ class Form extends Asset implements Bridge
 				$lookup_keyword = $keyword;	
 				// If form_info or form_summary, we need to make sure the
 				// HTML version gets printed
-				if (($keyword === 'form_info') /*|| ($keyword == 'form_summary')*/) {
+				if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
 					$lookup_keyword = $keyword.'_html';
 				}
 				$replacements[$keyword] = $this->_getThankYouKeywordReplacement($lookup_keyword);
