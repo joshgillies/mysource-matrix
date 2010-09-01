@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.55 2010/08/19 10:49:57 ata Exp $
+* $Id: form_ecommerce.inc,v 1.56 2010/09/01 11:16:27 ata Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1958,6 +1958,58 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'CARDNO', '');
 
 	}//end getTransactionCardNumberKeywordReplacement()
+	
+	
+	/**
+	* Transaction Billing Name keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionBillingNameKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_NAME', '');
+
+	}//end getTransactionBillingNameKeywordReplacement()
+	
+	
+	/**
+	* Transaction Billing Address keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionBillingAddressKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'BILLING_ADDR', '');
+
+	}//end getTransactionBillingAddressKeywordReplacement()
+	
+	
+	/**
+	* Transaction Delivery Name keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionDeliveryNameKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_NAME', '');
+
+	}//end getTransactionDeliveryNameKeywordReplacement()
+	
+	
+	/**
+	* Transaction Delivery Address keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionDeliveryAddressKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'DELIVERY_ADDR', '');
+
+	}//end getTransactionDeliveryAddressKeywordReplacement()
 
 
 	/**
