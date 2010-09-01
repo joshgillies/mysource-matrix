@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: order_management.inc,v 1.6 2009/07/13 11:14:55 ata Exp $
+* $Id: order_management.inc,v 1.7 2010/09/01 11:08:45 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,30 +44,35 @@ class Order_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The ID of the payment transaction returned by the Payment Gateway',
+													'is_admin'		=> FALSE,
 												   ),
 						'billing_name'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The billing name returned by the Payment Gateway',
+													'is_admin'		=> FALSE,
 												   ),
 						'billing_addr'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The billing address returned by the Payment Gateway',
+													'is_admin'		=> FALSE,
 												   ),
 						'delivery_name'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The delivery name returned by the Payment Gateway',
+													'is_admin'		=> FALSE,
 												   ),
 						'delivery_addr'		=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The delivery address returned by the Payment Gateway',
+													'is_admin'		=> FALSE,
 												   ),
 		);
 
