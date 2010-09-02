@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.22 2010/08/30 23:42:59 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.23 2010/09/02 05:42:55 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2606,35 +2606,60 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end for
 
 		/**
-		 * <featured_pages>
-		 * 	<fp>
-		 * 		<fp_trigger>matrix</fp_trigger>
-		 * 		<fp_link>http://matrix.squiz.net/download/mysource-matrix</fp_link>
-		 * 		<fp_title>Download MySource Matrix</fp_title>
-		 * 		<fp_desc></fp_desc>
-		 * 	</fp>
-		 * </featured_pages>
+		 * 
+		 * <best_bets>
+		 * 	<bb>
+		 * 		<bb_trigger>matrix</bb_trigger>
+		 * 		<bb_link>http://matrix.squiz.net/download/mysource-matrix</bb_link>
+		 * 		<bb_title>Download MySource Matrix</bb_title>
+		 * 		<bb_desc></bb_desc>
+		 * 	</bb>
+		 * </best_bets>
 		 */
-		$feature_pages = $xml->getElementsByTagName('featured_pages');
+		$feature_pages = $xml->getElementsByTagName('best_bets');
+		// before FB v9.1, we call it featured_pages
+		if($feature_pages->length == 0) 
+			$feature_pages = $xml->getElementsByTagName('featured_pages');
+		
 		if ($feature_pages->length >= 1) {
-			$featured_pages = $feature_pages->item(0)->getElementsByTagName('fp');
+			$featured_pages = $feature_pages->item(0)->getElementsByTagName('bb');
+			// before FB v9.1, we call it fp
+			if($featured_pages->length == 0) 
+				$featured_pages = $feature_pages->item(0)->getElementsByTagName('fp');
 			for ($j=0; $j<$featured_pages->length; $j++) {
-				$fp = Array();
+				$bb = Array();
 				if ($featured_pages->item($j)->hasChildNodes()) {
 					foreach ($featured_pages->item($j)->childNodes as $entry) {
 						$name = $entry->nodeName;
+						// before FB v9.1, we call it fp_xx, so to make sure it doesn't break existing keywords etc, we have to stick with old names.
+						switch ($name) {
+							case 'bb_trigger':
+								$name = 'fp_trigger';
+								break;
+							case 'bb_link':
+								$name = 'fp_link';
+								break;	
+							case 'bb_title':
+								$name = 'fp_title';
+								break;
+							case 'bb_desc':
+								$name = 'fp_desc';
+								break;		
+							default:
+								break;
+						}
 						$value = $entry->nodeValue;
 						if ($name != '#text') {
-							$fp[$name] = $value;
+							$bb[$name] = $value;
 						}//end if
 					}//end for
 				}//end if
-				$results['featured'][] = $fp;
+				$results['featured'][] = $bb;
 			}//end for
 		}//end if
 
 		/**
-		 * <fluster>
+		 * <contextual_navigation>
 		 *	 <cluster_nav level="" url=""></cluster_nav>
 		 *	 <category name="type" more="">
 		 *	  <cluster href="" count=""></cluster>
@@ -2649,9 +2674,13 @@ class Funnelback_Search_Page extends Listing_Engine
 		 *	  <cluster href="" count=""></cluster>
 		 *	  <cluster href="" count=""></cluster>
 		 *	 </category>
-		 * </fluster>
+		 * </contextual_navigation>
 		 */
-		$fluster = $xml->getElementsByTagName('fluster');
+		$fluster = $xml->getElementsByTagName('contextual_navigation');
+		// before FB v9.1, we call it fluster
+		if($fluster->length == 0) 
+			$fluster = $xml->getElementsByTagName('fluster');
+			
 		for ($l=0; $l<$fluster->length; $l++) {
 			// Process the cluster_nav elements
 			$cluster_nav = $fluster->item($l)->getElementsByTagName('cluster_nav');
