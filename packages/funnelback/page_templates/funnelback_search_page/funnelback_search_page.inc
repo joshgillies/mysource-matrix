@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.23 2010/09/02 05:42:55 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.24 2010/09/03 03:33:28 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2194,7 +2194,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			$request_parameters['proxy_host'] = $proxy_details['host'];
 			$request_parameters['proxy_port'] = $proxy_details['port'];
 			$request_parameters['proxy_user'] = $proxy_details['user'];
-			$request_parameters['proxy_user'] = $proxy_details['password'];
+			$request_parameters['proxy_pass'] = $proxy_details['password'];
 		}
 
 		$request_parameters['timeout'] = 5;
