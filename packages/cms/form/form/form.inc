@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.251 2010/09/01 01:46:58 cupreti Exp $
+* $Id: form.inc,v 1.252 2010/09/03 00:34:01 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,7 @@ class Form extends Asset implements Bridge
 	var $submission_asset = NULL;
 
 
+	
 	/**
 	* Constructor
 	*
@@ -93,6 +94,7 @@ class Form extends Asset implements Bridge
 	}//end constructor
 
 
+	
 //--        GENERIC ASSET FUNCTIONS        --//
 
 
@@ -4193,16 +4195,16 @@ class Form extends Asset implements Bridge
 					}
 					$replacement = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
 				break;
+				
+				case 'submission_id':
+					$submission = $this->getSubmissionAsset();
+					if ($submission) {
+						$replacement = $submission->id;
+					}
+				break;
 			}//end switch
 
-		} else {
-			if ($keyword === 'form_submission_id') {
-				$submission = $this->getSubmissionAsset();
-				if ($submission) {
-					$replacement = $submission->id;
-				}
-			}
-		}//end if
+		}
 
 		return $replacement;
 
