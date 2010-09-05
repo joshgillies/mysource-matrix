@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.152 2009/10/07 04:37:06 bpearson Exp $
+* $Id: html_form.inc,v 1.152.2.1 2010/09/05 23:01:25 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.152.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -745,6 +745,7 @@ function get_type_codes_string($type_codes)
 function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'self' : 'parent.frames["sq_main"]';
+	$escaped_name = str_replace('\\', '\\\\', $name);
 
 	if (!empty($map_frame)) {
 		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
@@ -781,12 +782,12 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		?><span class="sq-asset-finder-id-label">Id : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'style="border:1px solid #EFEFEF;width:7ex;" onchange="'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
-		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 		if (in_array('clear', $buttons)) {
-			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
+			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
 		}
 		if (in_array('reset', $buttons)) {
-			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
 		?>
 			<script type="text/javascript">
