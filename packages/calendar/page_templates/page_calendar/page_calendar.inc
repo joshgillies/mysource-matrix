@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.231.2.4 2010/08/12 04:01:45 mhaidar Exp $
+* $Id: page_calendar.inc,v 1.231.2.5 2010/09/05 22:45:44 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.231.2.4 $
+* @version $Revision: 1.231.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -232,9 +232,7 @@ class Page_Calendar extends Page
 	*/
 	function printFrontend()
 	{
-		if (!isset($this->_tmp['valid_request'])) {
-			$this->_tmp['valid_request'] = $this->_validateRequest();
-		}
+		
 		return parent::printFrontend();
 
 	}//end printFrontend()
