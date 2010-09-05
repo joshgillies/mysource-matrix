@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.108.2.1 2010/07/28 02:20:35 cupreti Exp $
+* $Id: design_area_menu_type.inc,v 1.108.2.2 2010/09/05 22:51:29 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.1 $
+* @version $Revision: 1.108.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -911,13 +911,9 @@ class Design_Area_Menu_Type extends Design_Area
 								if (is_null($new_da)) continue;
 								if ($new_da->name == $sub->name) {
 									foreach ($new_da->vars as $name => $details) {
-										if (in_array($name, Array('unwanted_asset_types', 'self_link'))) {
+										if (in_array($name, Array('unwanted_asset_types', 'self_link', 'wanted_asset_types'))) {
 											$sub->vars[$name] = $new_da->vars[$name];
 										}
-										if (!in_array($name, Array('wanted_asset_types', 'self_link'))) {
-											$sub->vars[$name] = $new_da->vars[$name];
-										}
-
 									}
 								}//end if
 							}//end if
