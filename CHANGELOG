@@ -1,5 +1,195 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.28.4
+
+Featured Changes
+===================================
+
+
+Allow Assets to be Linked Under Link Assets [ Feature Request #4605 ]
+-----------------------------------------------------
+
+A small enhancement has been added to MySource Matrix's Link asset to allow other assets to be linked underneath it, as children of the asset.
+
+For example, you could create a set of Link assets that each have an associated Image as a child. This could then be useful when listing these Links on an Asset Listing, dynamically displaying the associated images alongside the links.
+
+This feature improves the usability of the Link asset, enhancing its performance so that it is more consistent with the other assets within MySource Matrix.
+
+
+setContentOfEditableFileAsset Function for Javascript API [ Feature Request #4623 ]
+-----------------------------------------------------
+
+The release of MySource Matrix v3.28.3 introduced the createFileAsset function for the Javascript API. This function allowed users to create blank File type assets that users could then manually upload their files to. This feature introduces a new function that extends the Javascript API's functionality of File type assets by allowing you to set the content of editable File assets (CSS, XML, Text, XSL and JS Files).
+
+The setContentOfEditableFileAssets function is enabled through a new Set File Content field on the Details screen of the Javascript API.
+
+This function takes three parameters:
+
+    * assetID: ID of the asset to update content for.
+    * content: New content of the asset.
+    * dataCallback: the custom callback function (optional).
+
+The format of the setContentOfEditableFileAssets function is shown below:
+
+	function setContentOfEditableFileAssets (assetID, content, dataCallback);
+
+Please note that locks need to be acquired on the asset before setting its content.
+
+This function has been added to provide more flexibility for MySource Matrix's integration with the Easy Edit Suite.
+
+
+Enhancements to the import_from_xml.php Script [ Feature Request #4639 ]
+-----------------------------------------------------
+
+Enhancements have been made to the import_from_xml.php script to allow users to set a root node, under which to import their assets.
+
+This script now takes the following two optional arguments:
+
+    * --root-node: the setting of a root node.
+    * [ASSET_ID]: the asset ID of the root node to import assets under.
+
+The new structure of the import_from_xml.php script is as follows:
+
+	$ php import_from_xml.php <system_root> <Import File> --root-node [ASSET_ID]
+
+	$ php import_from_xml.php <system_root> import.xml --root-node 125
+
+This function has been added to provide more flexibility for MySource Matrix's integration with the Easy Edit Suite.
+
+
+Keyword Replacement for Asset URL in Workflow Custom Messages [ Feature Request #4648 ]
+-----------------------------------------------------
+
+A new keyword replacement is now available on Workflow Custom Messages to print the URL of the asset that is in Workflow.
+
+    * %asset_url%: The URL of this asset. 
+
+This keyword replacement can be used on all Workflow messages. An example of its usage is shown below:
+
+	Dear %user_name%,
+
+	Your approval is required on asset "<a href=%asset_url%>%asset_name%</a>".
+
+	<a href=%preview_url%>Preview this Asset</a>
+	<a href=%accept_url%>Accept these changes</a>
+	<a href=%reject_url%>Reject these changes</a>
+
+When the custom message is sent, a link will appear to the asset.
+
+If an asset has multiple URLs, this keyword replacement will return the closest to the current URL.
+
+
+New Keyword Modifier to Dynamically Supply Asset IDs on Keywords [ Feature Request #4652 ]
+-----------------------------------------------------
+
+A new keyword modifier has been added that allows you to dynamically supply asset IDs on keyword replacements. This keyword replacement takes the following format:
+
+	%assetid_keyword^as_asset:asset_keyword%
+
+This effectively allows you to print the asset information of any asset (whose ID can be retrieved). For example, you may want to display the delivery address of an e-commerce order. You can use the order number keyword replacement to print this information, as follows:
+
+	%order_number^as_asset:asset_attribute_delivery_addr%
+
+Proxy Support for the Funnelback Search Page [ Feature Request #4654 ]
+-----------------------------------------------------
+
+Previously, a Funnelback Search Page would return an invalid response when trying to retrieve data from Funnelback using a proxy server:
+
+	Invalid response from the Funnelback server [FNB0002]
+
+This feature adds proxy support to the search page, allowing users on a proxy to connect to the Funnelback server.
+
+Caching 301 Permanent Redirects in the Remap Manager [ Feature Request #4626 ]
+-----------------------------------------------------
+
+An enhancement has been added to MySource Matrix's Remap Manager so that cache headers are sent for 301 permanent redirects. This can improve performance in the occasion that the browser does not cache the redirection, preventing the same request from being sent multiple times.
+
+This feature was kindly contributed by MySource Matrix Forum user ndrw.
+
+Best Bets and Contextual Navigation Supported for Funnelback 9.1 [ Feature Request #4626 ]
+-----------------------------------------------------
+
+The release of Funnelback version 9.1 saw a couple of significant name changes:
+
+    * Fluster to Contextual Navigation
+    * Featured Pages to Best Bets
+
+This small enhancement to Matrix updates the tag names for these features to support their functionality in this version.
+
+No Follow Links on Calendar Pages [ Feature Request #4626 ]
+-----------------------------------------------------
+
+Web crawlers can sometimes cause sites to struggle in MySource Matrix, traversing large numbers of pages associated with event calendars. This performance reduction is mostly due to the next/previous links on week and month views.
+
+This minor enhancement adds a 'nofollow' relation on these links. This will prevent robots from following the next/previous links, eradicating the performance problems on such calendars.
+
+Improved Handling of Typographical Errors in Layouts [ Feature Request #4626 ]
+-----------------------------------------------------
+
+Sometimes MySource Matrix will find typos in the layout of an asset, for example, (rather than ). Usually, in this case Matrix's asset_edit_interface would return an exception, as it could not find the appropriate metadata screen. In some situations however, the system will be stuck in an infinite loop, constructing the xml of the screen interface and flooding the error log till the system times out.
+
+This minor enhancement improves the handling of such errors, so that these rare error loops do not occur.
+
+Added MIME Type For HTC File in Standard MIME Type List [ Feature Request #4626 ]
+-----------------------------------------------------
+
+The correct MIME type for HTC files (html component) should be text/x-component. This has been added to Matrix standard MIME type list in order to serve the file correctly before it goes Live.
+
+Redirect Page Errors Display Asset ID [ Feature Request #4626 ]
+-----------------------------------------------------
+
+Previously, when getting errors from a redirect page that does not have an asset to redirect to, the error given in the logs does not give the asset ID of that Redirect Asset. If you had many pages in your system, it was difficult to find which Redirect Asset the error came from. This enhancement displays the Asset ID of errors in the log files. 
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4370: Backslash in user name won't log in properly
+Fixed Bug #4447: backup script not including db dump if you backup to an explicit location
+Fixed Bug #4576: Asset builder leaves unwanted link record in sq_ast_link and fails even for non critical trigger action
+Fixed Bug #4596: system_integrity_check_indexes.php broken for 3 indexes
+Fixed Bug #4599: Multiple calendar assets with different views on one page
+Fixed Bug #4602: Safe edit diff preview incorrect highlights
+Fixed Bug #4606: Asset listing returns thesaurus tags that don't match listing criteria
+Fixed Bug #4609: system_check.php fails with oracle db
+Fixed Bug #4611: System Parent Domains
+Fixed Bug #4618: Value at a cell disappearing while adding column span via WYSIWYG table properties plugin
+Fixed Bug #4625: On a Non UTF8 system special chars not converted
+Fixed Bug #4627: Deleting assets under Page Standard will fail if the bodycopy link has a value
+Fixed Bug #4632: Cron reports ORA-00932: inconsistent datatypes
+Fixed Bug #4633: Notice links don't get registered for Link assets
+Fixed Bug #4637: Filesize keywords don't work with the MP3 asset
+Fixed Bug #4640: Dynamic Input Screens - Default values
+Fixed Bug #4642: Sub menus can be broken when upgrading through 3.24
+Fixed Bug #4644: form question rule file type will pick up an empty file in php 5.3
+Fixed Bug #4649: set_files_unrestricted.php doesn't change any assets 
+
+Data:
+Fixed Bug #4114: Weather Feed fails in 2010
+Fixed Bug #4635: XML Datasource concating the recordsets unexpectedly
+
+Web Services
+Fixed Bug #4617: Passing an extra attribute into SOAP CreateAsset fails
+Fixed Bug #4646: Empty response returned from metadata field containing non-ascii character
+
+CMS:
+Fixed Bug #4614: Content file not regenerated for cloned snippets
+
+Search:
+Fixed Bug #4572: Matrix Search on a metadata field with the default value %metadata_field_X% fails
+Fixed Bug #4600: Structured root node with checkboxes does not refresh results properly
+Fixed Bug #4608: Same search page results nested repeatedly when cache on
+Fixed Bug #4615: Cloning an Asset doesnt re-index all the components
+Fixed Bug #4616: Errors using Search and Replace Tool when search node contains pdf or doc files
+
+Bulkmail:
+Fixed Bug #4620: Bulkmail sending multiple emails when additional context added
+
+Import Tools:
+Fixed Bug #4621: Bulk File Import Tool doesn't acknowledge .docx files
+
+
 VERSION 3.28.3
 
 Featured Changes
