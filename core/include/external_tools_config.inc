@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.36 2010/09/01 01:09:57 cupreti Exp $
+* $Id: external_tools_config.inc,v 1.37 2010/09/06 06:47:44 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -493,23 +493,21 @@ class External_Tools_Config extends Config
 				}//end if
 				?><br /><?php
 				echo translate('mollom_private_key_note');
-				
+			
 			$o->openField(translate('mollom_valid_keys'));
 				// Check that keys are valid
 				if (SQ_TOOL_MOLLOM_PRIVATE_KEY && SQ_TOOL_MOLLOM_PUBLIC_KEY) {
 					require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
-					$mollom_client = new Mollom();
-					$mollom_client->setPublicKey(SQ_TOOL_MOLLOM_PUBLIC_KEY);
-					$mollom_client->setPrivateKey(SQ_TOOL_MOLLOM_PRIVATE_KEY);
-
+					Mollom::setPublicKey(SQ_TOOL_MOLLOM_PUBLIC_KEY);
+					Mollom::setPrivateKey(SQ_TOOL_MOLLOM_PRIVATE_KEY);
       				if (!empty($_SESSION['SQ_MOLLOM_SERVER_LIST'])) {
 			            $server_list = unserialize($_SESSION['SQ_MOLLOM_SERVER_LIST']);
-            			$mollom_client->setServerList($server_list);
+            			Mollom::setServerList($server_list);
 			        } else {
-			            $server_list = $mollom_client->getServerList();
+						$server_list = Mollom::getServerList();
             			$_SESSION['SQ_MOLLOM_SERVER_LIST'] = serialize($server_list);
 			        }
-					$valid_keys = $mollom_client->verifyKey();
+					$valid_keys = Mollom::verifyKey();
 					echo $valid_keys ? '<span style="color: green"><b>'.translate('valid').'</b></span>' : '<span style="color: red"><b>'.translate('invalid').'</b></span>';
 				}
 				

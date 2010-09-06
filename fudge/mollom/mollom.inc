@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mollom.inc,v 1.1 2010/09/01 01:38:33 cupreti Exp $
+* $Id: mollom.inc,v 1.2 2010/09/06 06:47:29 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose: Allows Matrix to communicate with Mollom (http://mollom.com)
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 */
 
@@ -172,6 +172,12 @@ class Mollom
 	 */
 	private static $session_expire_time = 30;
 
+	/**
+	 * Default server list
+	 *
+	 * @var array
+	 */
+	public static $default_server_list = array('http://xmlrpc3.mollom.com', 'http://xmlrpc2.mollom.com', 'http://xmlrpc1.mollom.com');
 
 	/**
 	 * Build the value so we can use it in XML-RPC requests
@@ -653,17 +659,23 @@ class Mollom
 	 * @return	array
 	 */
 	public static function getServerList($counter = 0)
-	{
+	{	
+		// Use default list of servers to get the server list from Mollom
+		self::$serverList = self::$default_server_list;
+
 		// do the call
 		$responseString = self::doCall('getServerList', array(), self::$serverHost, $counter);
 
 		// validate
 		if(!isset($responseString->params->param->value->array->data->value)) throw new Exception('Invalid response in getServerList.');
+		
+		// Refresh the list
+		self::$serverList = array();
 
 		// loop servers and add them
 		foreach ($responseString->params->param->value->array->data->value as $server) self::$serverList[] = (string) $server->string;
 
-		if(count(self::$serverList) == 0) self::$serverList = array('http://xmlrpc3.mollom.com', 'http://xmlrpc2.mollom.com', 'http://xmlrpc1.mollom.com');
+		if(count(self::$serverList) == 0) self::$serverList = self::$default_server_list; 
 
 		// return
 		return self::$serverList;
