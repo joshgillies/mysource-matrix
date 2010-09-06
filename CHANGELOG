@@ -1,5 +1,76 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.26.8
+
+Featured Changes
+===================================
+
+
+Best Bets and Contextual Navigation Supported for Funnelback 9.1 [ Feature Request #4662 ]
+-----------------------------------------------------
+
+The release of Funnelback version 9.1 saw a couple of significant name changes:
+
+    * Fluster to Contextual Navigation
+    * Featured Pages to Best Bets
+
+This small enhancement to Matrix updates the tag names for these features to support their functionality.
+
+No Follow Links on Calendar Pages [ Feature Request #4607 ]
+-----------------------------------------------------
+
+Web crawlers can sometimes cause sites to struggle in MySource Matrix, traversing large numbers of pages associated with event calendars. This performance reduction is mostly due to the next/previous links on week and month views.
+
+This minor enhancement adds a 'nofollow' relation on these links. This will prevent robots from following the next/previous links, eradicating the performance problems on such calendars.
+
+Redirect Page Errors need asset ID [ Feature Request #4605 ]
+-----------------------------------------------------
+
+Previously, when getting errors from a redirect page that does not have an asset to redirect to, the error given in the logs does not give the asset ID of that Redirect Asset. If you had many pages in your system, it was difficult to find which Redirect Asset the error came from. This enhancement displays the Asset ID of errors in the log files. 
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Core
+Fixed Bug #4370: Backslash in user name won't log in properly
+Fixed Bug #4447: backup script not including db dump if you backup to an explicit location
+Fixed Bug #4576: Asset builder leaves unwanted link record in sq_ast_link and fails even for non critical trigger action
+Fixed Bug #4596: system_integrity_check_indexes.php broken for 3 indexes
+Fixed Bug #4599: Multiple calendar assets with different views on one page
+Fixed Bug #4606: Asset listing returns thesaurus tags that don't match listing criteria
+Fixed Bug #4609: system_check.php fails with oracle db
+Fixed Bug #4611: System Parent Domains
+Fixed Bug #4618: Value at a cell disappearing while adding column span via WYSIWYG table properties plugin
+Fixed Bug #4625: On a Non UTF8 system special chars not converted
+Fixed Bug #4627: Deleting assets under Page Standard will fail if the bodycopy link has a value
+Fixed Bug #4632: Cron reports ORA-00932: inconsistent datatypes
+Fixed Bug #4633: Notice links don't get registered for Link assets
+Fixed Bug #4640: Dynamic Input Screens - Default values
+Fixed Bug #4642: Sub menus can be broken when upgrading through 3.24
+Fixed Bug #4644: form question rule file type will pick up an empty file in php 5.3
+Fixed Bug #4649: set_files_unrestricted.php doesn't change any assets 
+
+Data:
+Fixed Bug #4114: Weather Feed fails in 2010
+Fixed Bug #4635: XML Datasource concating the recordsets unexpectedly
+
+Web Services
+Fixed Bug #4646: Empty response returned from metadata field containing non-ascii character
+
+CMS:
+Fixed Bug #4614: Content file not regenerated for cloned snippets
+
+Search:
+Fixed Bug #4572: Matrix Search on a metadata field with the default value %metadata_field_X% fails
+Fixed Bug #4600: Structured root node with checkboxes does not refresh results properly
+Fixed Bug #4608: Same search page results nested repeatedly when cache on
+Fixed Bug #4615: Cloning an Asset doesnt re-index all the components
+Fixed Bug #4616: Errors using Search and Replace Tool when search node contains pdf or doc files
+
+Import Tools:
+Fixed Bug #4621: Bulk File Import Tool doesn't acknowledge .docx files
+
 VERSION 3.26.7
 
 Featured Changes
