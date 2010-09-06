@@ -106,7 +106,7 @@ An enhancement has been added to MySource Matrix's Remap Manager so that cache h
 
 This feature was kindly contributed by MySource Matrix Forum user ndrw.
 
-Best Bets and Contextual Navigation Supported for Funnelback 9.1 [ Feature Request #4626 ]
+Best Bets and Contextual Navigation Supported for Funnelback 9.1 [ Feature Request #4662 ]
 -----------------------------------------------------
 
 The release of Funnelback version 9.1 saw a couple of significant name changes:
@@ -116,21 +116,21 @@ The release of Funnelback version 9.1 saw a couple of significant name changes:
 
 This small enhancement to Matrix updates the tag names for these features to support their functionality in this version.
 
-No Follow Links on Calendar Pages [ Feature Request #4626 ]
+No Follow Links on Calendar Pages [ Feature Request #4607 ]
 -----------------------------------------------------
 
 Web crawlers can sometimes cause sites to struggle in MySource Matrix, traversing large numbers of pages associated with event calendars. This performance reduction is mostly due to the next/previous links on week and month views.
 
 This minor enhancement adds a 'nofollow' relation on these links. This will prevent robots from following the next/previous links, eradicating the performance problems on such calendars.
 
-Improved Handling of Typographical Errors in Layouts [ Feature Request #4626 ]
+Improved Handling of Typographical Errors in Layouts [ Feature Request #4613 ]
 -----------------------------------------------------
 
 Sometimes MySource Matrix will find typos in the layout of an asset, for example, (rather than ). Usually, in this case Matrix's asset_edit_interface would return an exception, as it could not find the appropriate metadata screen. In some situations however, the system will be stuck in an infinite loop, constructing the xml of the screen interface and flooding the error log till the system times out.
 
 This minor enhancement improves the handling of such errors, so that these rare error loops do not occur.
 
-Added MIME Type For HTC File in Standard MIME Type List [ Feature Request #4626 ]
+Added MIME Type For HTC File in Standard MIME Type List [ Feature Request #4519 ]
 -----------------------------------------------------
 
 The correct MIME type for HTC files (html component) should be text/x-component. This has been added to Matrix standard MIME type list in order to serve the file correctly before it goes Live.
