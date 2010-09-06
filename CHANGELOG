@@ -130,12 +130,12 @@ Sometimes MySource Matrix will find typos in the layout of an asset, for example
 
 This minor enhancement improves the handling of such errors, so that these rare error loops do not occur.
 
-Added MIME Type For HTC File in Standard MIME Type List [ Feature Request #4519 ]
+Added MIME Type For HTC File in Standard MIME Type List [ Feature Request #4647 ]
 -----------------------------------------------------
 
 The correct MIME type for HTC files (html component) should be text/x-component. This has been added to Matrix standard MIME type list in order to serve the file correctly before it goes Live.
 
-Redirect Page Errors Display Asset ID [ Feature Request #4626 ]
+Redirect Page Errors Display Asset ID [ Feature Request #4519 ]
 -----------------------------------------------------
 
 Previously, when getting errors from a redirect page that does not have an asset to redirect to, the error given in the logs does not give the asset ID of that Redirect Asset. If you had many pages in your system, it was difficult to find which Redirect Asset the error came from. This enhancement displays the Asset ID of errors in the log files. 
