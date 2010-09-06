@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: char_map.php,v 1.5 2009/08/12 04:33:15 bpearson Exp $
+* $Id: char_map.php,v 1.5.4.1 2010/09/06 03:57:09 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Character Map popup for the WYSIWYG
 *
 * @author	Darren McKee	<dmckee@squiz.net>
-* @version	$Revision: 1.5 $
+* @version	$Revision: 1.5.4.1 $
 * @package	WYSIWYG
 */
 
@@ -179,8 +179,6 @@
 		<script type="text/javascript" src="../../core/dialog.js"></script>
 		<script type="text/javascript">
 
-			//var popupWidth = <?php echo $_REQUEST['width'];?>;
-			//var popupHeight = <?php echo $_REQUEST['height'];?>;
 
 			self.focus();
 
