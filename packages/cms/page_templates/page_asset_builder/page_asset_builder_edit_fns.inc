@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.51 2010/09/01 01:08:35 cupreti Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.52 2010/09/08 23:47:18 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1777,19 +1777,19 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					foreach ($metadata_fields as $metadata_field => $metadata_field_type_code) {
 						if (isset($current[$create_type][$prefix.'_metadata_'.$metadata_field])) continue;
 						// Get each field from the schema
-						$asset = $am->getAsset($metadata_field);
-						if (!is_null($asset)) {
-							$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+						$m_asset = $am->getAsset($metadata_field);
+						if (!is_null($m_asset)) {
+							$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($m_asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
 							foreach ($current_links as $link) {
 								$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 								if (is_null($section)) continue;
 								$restrictions = $section->attr('restrict');
 								if (empty($restrictions) || (!is_null($create_type) && array_key_exists($create_type, $restrictions))) {
-									$new_required[$prefix.'_metadata_'.$metadata_field] = 'Metadata: '.$asset->name;
+									$new_required[$prefix.'_metadata_'.$metadata_field] = 'Metadata: '.$m_asset->name;
 								}
 							}//end foreach
 						}//end if
-						$am->forgetAsset($asset);
+						$am->forgetAsset($m_asset);
 					}//end foreach
 				}
 
