@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.45 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.45.4.1 2010/09/09 07:11:08 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -323,7 +323,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					$default_kw_exp = "'".trim($default_val, '%')."'";
 				} else {
 					list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
-					$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
+					// bug fix 4653 Default metadata checkbox generates JS error when defaults are empty
+					// make sure the the values are not NULL , if so we will have to take care of the default checkbox
+					if ($dy == NULL && $dm == NULL && $dd == NULL && $dh == NULL && $di == NULL && $ds == NULL) {
+						$default_date_exp = 'null';
+					} else {
+						$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
+					}
 					$default_kw_exp = 'null';
 				}
 
