@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link_search.php,v 1.4 2007/12/10 06:23:46 rong Exp $
+* $Id: insert_link_search.php,v 1.4.12.1 2010/09/09 23:10:46 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.12.1 $
 * @package MySource_Matrix
 */
 
@@ -61,7 +61,7 @@ if ($search_for != '') {
 	if (!empty($found_asset)) {
 		$asset_name = $found_asset->name;
 		$found_asset_line .= '<div class="search-result">';
-		$found_asset_line .= get_asset_tag_line($found_asset->id, 'javascript:set_asset_finder_from_search(\''.$found_asset->id.'\', \''.htmlspecialchars($asset_title, ENT_QUOTES).'\', \'\', \'0\')');
+		$found_asset_line .= get_asset_tag_line($found_asset->id, 'javascript:set_asset_finder_from_search(\''.$found_asset->id.'\', \''.htmlspecialchars($asset_name, ENT_QUOTES).'\', \'\', \'0\')');
 		$found_asset_line .= '</div>';
 	}
 
