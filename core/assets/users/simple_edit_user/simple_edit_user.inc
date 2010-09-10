@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_edit_user.inc,v 1.1 2008/11/03 21:44:54 bshkara Exp $
+* $Id: simple_edit_user.inc,v 1.1.8.1 2010/09/10 07:00:43 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,8 @@ class Simple_Edit_User extends User
 		// This function is called before limbo access is granted because traditionally, backend access is
 		// required for limbo
 		// Permit 'backend' access only if this user is requesting a limbo page
-		return SQ_IN_LIMBO;
+		// Allow simple edit user to have backend interface access when in cron
+		return (SQ_IN_LIMBO || SQ_IN_CRON);
 
 	}//end canAccessBackend()
 
