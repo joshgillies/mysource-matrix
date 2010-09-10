@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_funnelback_log_rotation.inc,v 1.3 2010/05/11 07:40:06 bpearson Exp $
+* $Id: cron_job_funnelback_log_rotation.inc,v 1.3.2.1 2010/09/10 05:11:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Also after log rotation, it handles the report generation
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -172,6 +172,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 			$log_path = $fm->getCollectionDataPath($collection_id, 'log');
 
 			$log_files = glob($log_path.'/*.log');
+
 			if (!empty($log_files)) {
 				foreach ($log_files as $log_file) {
 					$log_name = basename($log_file);
@@ -232,7 +233,7 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 					$report = $GLOBALS['SQ_SYSTEM']->am->getAsset($reportid);
 					$vars   = Array(
 								'assetid'	=> $reportid,
-								'asset'		=> $report,
+								'report'		=> $report,
 								'logs'		=> $rotated,
 							  );
 					$status = $hh->freestyleHIPO('hipo_job_generate_report', $vars);
