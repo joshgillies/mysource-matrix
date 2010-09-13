@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.15.2.2 2010/06/03 02:10:40 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.15.2.3 2010/09/13 01:30:25 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -239,7 +239,21 @@ class Soap_Api_Asset_Service extends Soap_Api
 		        if (is_array($value)) {
 		            $object_xml .= self::objectToXML($value);
 		        } else {
-		            $object_xml .=  $value;
+					if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+						$result = NULL;
+						// escape everything else (chars > 126)
+						for ($i = 0; $i < strlen($value); ++$i) {
+							$ord = ord($value[$i]);
+							if ($ord > 126) {
+								$result .= '&#'.$ord.';';
+							} else {
+								$result .= $value[$i];
+							}
+						}// end for
+						$value = $result;
+					}
+
+					$object_xml .=  $value;
 		        }//end else
 		        $object_xml .=  '</'.$key.'>';
 	    	}//end else
