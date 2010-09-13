@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.153.2.3 2010/08/23 00:07:02 ewang Exp $
+* $Id: workflow_manager.inc,v 1.153.2.4 2010/09/13 00:21:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153.2.3 $
+* @version $Revision: 1.153.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1047,6 +1047,7 @@ class Workflow_Manager extends MySource_Object
 						'asset_name'	=> $asset->name,
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 						'asset_url'		=> $asset->getURL(),
+						'asset_version'	=> $asset->version,
 					);
 		$log->replacements = $msg_reps;
 		$log->type = 'asset.workflow.log.approve';
@@ -1143,6 +1144,7 @@ class Workflow_Manager extends MySource_Object
 									'accept_url'			=> current_url().$accept_url,
 									'reject_url'			=> current_url().$reject_url,
 									'asset_url'				=> $asset->getURL(),
+									'asset_version'			=> $asset->version,
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
@@ -1585,6 +1587,7 @@ class Workflow_Manager extends MySource_Object
 									'current_step_name'		=> $current_step['step_name'],
 									'stream'				=> $schema_workflow['stream_name'],
 									'asset_url'				=> $asset->getURL(),
+									'asset_version'			=> $asset->version,
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1758,6 +1761,7 @@ class Workflow_Manager extends MySource_Object
 									'asset_name'	=> $asset->name,
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 									'asset_url'		=> $asset->getURL(),
+									'asset_version'			=> $asset->version,
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1983,6 +1987,7 @@ class Workflow_Manager extends MySource_Object
 							'expiry_time'	=> easy_time_total($current_step['expiry_time']),
 							'workflow_url'	=> $url,
 							'asset_url'		=> $asset->getURL(),
+							'asset_version'	=> $asset->version,
 						);
 
 			// If there are no admins, send it to system admins instead
@@ -2070,6 +2075,7 @@ class Workflow_Manager extends MySource_Object
 						'started_time'			=> easy_datetime($step_before['started']),
 						'expiry_time'			=> easy_time_total($step_before['expiry_time']),
 						'asset_url'				=> $asset->getURL(),
+						'asset_version'			=> $asset->version,
 					);
 
 		$log->replacements = $msg_reps;
@@ -2138,6 +2144,7 @@ class Workflow_Manager extends MySource_Object
 							'accept_url'			=> $root_url.'/'.$accept_url,
 							'reject_url'			=> $root_url.'/'.$reject_url,
 							'asset_url'				=> $asset->getURL(),
+							'asset_version'			=> $asset->version,
 						);
 
 			$asset_edt_fns = $asset->getEditFns();
