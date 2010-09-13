@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.15 2010/06/01 06:54:33 ewang Exp $
+* $Id: MatrixDALBaker.inc,v 1.16 2010/09/13 05:13:57 csmith Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -394,7 +394,7 @@ class MatrixDALBaker extends DALBaker
 						// Not tied to a column. If we got passed a LOB, then use it,
 						// otherwise, pass it as normal. Note that we cannot use instanceof()
 						// because of the dodgy class name OCI8 extension uses.
-	                    $bindCall .= "if (get_class($varName) === 'OCI-Lob') {\n";
+	                    $bindCall .= "if (is_object($varName) && get_class($varName) === 'OCI-Lob') {\n";
 	                    $bindCall .= "\$query->bind('$bindName', $varName, PDO::PARAM_LOB);\n";
 	                    $bindCall .= "} else {\n";
 	                    $bindCall .= "\$query->bind('$bindName', $varName);\n";
