@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.4 2010/08/23 00:06:30 ewang Exp $
+* $Id: lang_screen_messages.xml,v 1.5 2010/09/13 00:22:19 ewang Exp $
 *
 */
 -->
@@ -37,6 +37,7 @@
 				<li><strong>%accept_url%</strong> - The URL that will approve changes to this asset.</li>
 				<li><strong>%reject_url%</strong> - The URL that will reject changes to this asset.</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 			</ul>
 			]]></note>
 		</field>
@@ -58,6 +59,7 @@
 				<li><strong>%workflow_user%</strong> - The name of the user that approved the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 			</ul>
 			</p>
 			]]></note>
@@ -81,6 +83,7 @@
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 			</ul>
 			</p>
 			]]></note>
@@ -104,6 +107,7 @@
 				<li><strong>%expiry_time%</strong> - The time allocated to the step that has just been escalated (in long form, eg. &quot;2 days, 6 hours&quot;).</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 			</ul>
 			]]></note>
 		</field>
@@ -128,6 +132,7 @@
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
+				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 			</ul>
 			]]></note>
 		</field>
