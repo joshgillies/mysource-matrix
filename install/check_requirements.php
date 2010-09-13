@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.16.2.2 2010/03/09 23:00:55 bpearson Exp $
+* $Id: check_requirements.php,v 1.16.2.3 2010/09/13 01:43:36 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.16.2.2 $
+ * @version $Revision: 1.16.2.3 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -475,6 +475,12 @@ function check_requirement($requirement_check, $package_name='core')
 			$cmd = $program_path.$external_program;
 			$check_name = $external_program;
 
+			if ($external_program === 'padre-iw') {
+				if (!empty($program_path) && is_dir($program_path)) {
+					$cmd = 'export SEARCH_HOME='.dirname($program_path).';'.$cmd;
+				}
+			}
+
 			if (isset($requirement_check->version_arguments)) {
 				$cmd .= ' ' . escapeshellarg((string)$requirement_check->version_arguments);
 			}
@@ -676,7 +682,7 @@ function check_requirement($requirement_check, $package_name='core')
 				/**
 				 * $ padre-iw -V
 				 *
-				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.16.2.2 $ 
+				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.16.2.3 $ 
 				 * ....
 				 *
 				 */
