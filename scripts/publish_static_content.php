@@ -10,7 +10,7 @@
  *  _nocache content will be deleted.
  * 
  * @author  Mohamed Haidar <mhaidar@squiz.com.au>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix
  */
 
@@ -65,8 +65,10 @@ foreach ($asset_ids as $id) {
 }
 
 _disconnectFromMatrixDatabase();
-foreach ($publish_urls as $publish_url) {
-	
+$fork_num = 0;
+while (!empty($publish_urls)) {
+    $publish_url = array_pop($publish_urls);
+	$fork_num++;
 	$pid_prepare = pcntl_fork();
 	switch ($pid_prepare) {
 		case -1:
@@ -91,8 +93,14 @@ foreach ($publish_urls as $publish_url) {
 			exit(0);
 			break;
 		default:
-			$status = null;
-			pcntl_waitpid(-1, $status);
+			if (empty($publish_urls)) {
+            	// We wait for all the fork child to finish
+                while ($fork_num > 0) {
+	                $status = null;
+	                pcntl_waitpid(-1, $status);
+	                $fork_num--;
+            	}//end
+            }//end if
 			break;
 	}//end switch
 
