@@ -10,7 +10,7 @@
  *  _nocache content will be deleted.
  * 
  * @author  Mohamed Haidar <mhaidar@squiz.com.au>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix
  */
 
@@ -68,10 +68,12 @@ _disconnectFromMatrixDatabase();
 $fork_num = 0;
 while (!empty($publish_urls)) {
     $publish_url = array_pop($publish_urls);
-	$fork_num++;
 	$pid_prepare = pcntl_fork();
+	$fork_num++;
 	switch ($pid_prepare) {
 		case -1:
+			trigger_error('Process failed to fork while publishing static content', E_USER_ERROR);
+            exit(1);
 			break;
 		case 0:
 			// Connect to DB within the child process
