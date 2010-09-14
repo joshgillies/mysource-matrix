@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.216 2010/07/19 01:16:30 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.217 2010/09/14 04:04:43 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -718,8 +718,9 @@ class Metadata_Manager extends MySource_Object
 			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid);
 		}
 
-		// If nothing in Deja Vu, include the file
-		if (empty($metadata)) {
+		// We may have 'fields' in Deja Vu already (see getMetadataInterfaceValueByAssetid), 
+		// but if we don't have 'values' etc then go get them.
+		if (!isset($metadata['values']) || !isset($metadata['value_components']) || !isset($metadata['warnings'])) {
 			// include the file but must not display anything
 			ob_start();
 				include $metadata_filename;
