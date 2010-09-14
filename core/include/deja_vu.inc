@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.2 2010/07/14 00:27:42 ewang Exp $
+*$Id: deja_vu.inc,v 1.3 2010/09/14 23:54:56 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -143,7 +143,7 @@ class Deja_Vu extends MySource_Object
 		case 'asset':
 			$obj = $this->_memcache->get($cache_key);
 			if (!$obj) {
-			//	log_error("Cache miss for $cache_key");
+			//	Cache miss for $cache_key
 				return NULL;
 			}
 			
@@ -212,9 +212,9 @@ class Deja_Vu extends MySource_Object
 	* @return boolean	false if the item is not in the cache or failure
 	* @access public
 	*/
-	public function forget($type, $assetid = NULL)
+	public function forget($type, $assetid = NULL, $contextid = NULL)
 	{	
-		return $this->_memcache->delete($this->_getCacheKey($type, $assetid));
+		return $this->_memcache->delete($this->_getCacheKey($type, $assetid, $contextid));
 	}//end forget()
 	
 	
@@ -269,8 +269,12 @@ class Deja_Vu extends MySource_Object
 	 */
 	public function onAssetStatusUpdate(&$broadcaster, $vars)
 	{
-		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
-		
+		// Status is non contextable, so forget everything..
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($contexts as $contextid => $context) {
+			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
+		}
+				
 	}//end onAssetStatusUpdate
 	
 	/**
@@ -283,8 +287,11 @@ class Deja_Vu extends MySource_Object
 	 */
 	public function onAssetDeleted(&$broadcaster, $vars)
 	{
-		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
-		
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($contexts as $contextid => $context) {
+			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
+		}
+	
 	}//end onAssetDeleted
 
 
