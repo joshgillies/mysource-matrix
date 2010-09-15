@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.6 2010/08/09 05:32:57 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.303.2.7 2010/09/15 03:55:22 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.6 $
+* @version $Revision: 1.303.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -892,6 +892,18 @@ class Listing_Engine extends Page
 				
 				if (!empty($stored_queries)) {
 					$cache_key .= '-'.serialize($stored_queries);
+				}
+			}
+			
+			// funnelback search page dynamic parameters
+			if ($this->type() == 'funnelback_search_page') {
+				$pmap = $this->getAttribute('dynamic_parameters');
+				if(!empty($pmap)) {	
+					$pmap_params = $pmap->getParameters();			
+					foreach ($pmap_params as $params) {
+						$dynamic_query = $pmap->getParameterValue($params);
+						$cache_key .= '-'.$params.':'.$dynamic_query;
+					}				
 				}
 			}
 
