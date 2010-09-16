@@ -10,16 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_after_metadata_updated_edit_fns.inc,v 1.2 2009/06/17 23:16:07 bpearson Exp $
+* $Id: trigger_event_after_metadata_updated_edit_fns.inc,v 1.3 2010/09/16 04:51:27 ewang Exp $
 *
 */
-
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event.inc';
 
 /**
 * Trigger_Event_After_Metadata_Updated_Edit_Fns
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

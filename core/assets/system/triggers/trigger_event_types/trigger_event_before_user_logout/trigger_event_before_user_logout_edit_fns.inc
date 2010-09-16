@@ -10,16 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_before_user_logout_edit_fns.inc,v 1.1 2008/10/23 22:57:40 akarelia Exp $
+* $Id: trigger_event_before_user_logout_edit_fns.inc,v 1.2 2010/09/16 04:51:27 ewang Exp $
 *
 */
-
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event.inc';
 
 /**
 * Trigger_Event_Before_User_Logout_Edit_Fns
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
