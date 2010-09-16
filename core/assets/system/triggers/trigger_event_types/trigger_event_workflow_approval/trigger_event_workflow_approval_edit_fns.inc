@@ -10,16 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_workflow_approval_edit_fns.inc,v 1.2 2008/03/06 23:26:39 bpearson Exp $
+* $Id: trigger_event_workflow_approval_edit_fns.inc,v 1.2.12.1 2010/09/16 04:57:59 ewang Exp $
 *
 */
-
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event.inc';
 
 /**
 * Trigger_Event_Workflow_Approval_Edit_Fns
 *
 * @author   Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

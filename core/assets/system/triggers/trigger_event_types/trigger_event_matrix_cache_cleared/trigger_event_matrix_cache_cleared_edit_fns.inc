@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_matrix_cache_cleared_edit_fns.inc,v 1.1 2010/03/29 03:05:20 lwright Exp $
+* $Id: trigger_event_matrix_cache_cleared_edit_fns.inc,v 1.1.4.1 2010/09/16 04:57:59 ewang Exp $
 *
 */
-
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event.inc';
 
 /**
 * Trigger_Event_Matrix_Cache_Cleared_Edit_Fns
@@ -22,7 +23,7 @@
 *
 *
 * @author Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
