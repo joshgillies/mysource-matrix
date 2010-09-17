@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.36 2009/06/22 06:43:00 wszymanski Exp $
+* $Id: edit_interface_screen_details.xml,v 1.37 2010/09/17 01:15:17 cupreti Exp $
 *
 */
 -->
@@ -71,8 +71,11 @@
 		<field attribute="today_link_text">
 			<text />
 		</field>
-        <field attribute="use_no_results_body_copy">
-            <boolean true_text="yes" false_text="no" />
+        <field>
+			<function_call>
+				<paint_function name="paintUseNoResultBodycopy" />
+				<process_function name="processUseNoResultBodycopy" />
+			</function_call>
         </field>
 	</section>
 

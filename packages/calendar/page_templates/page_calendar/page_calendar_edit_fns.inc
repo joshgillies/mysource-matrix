@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.44 2010/03/18 00:09:42 ewang Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.45 2010/09/17 01:15:17 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1147,6 +1147,58 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 
 	}//end processDayNaviLimit()
 
+	
+	/**
+	* Paint "use no result" bodycopy interface
+	*
+	* Return boolean FALSE if write access to links is not held, TRUE otherwise
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUseNoResultBodycopy(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');		
+		$current_value = $asset->attr('use_no_results_body_copy');
+		$options = Array(1 => 'Yes', 0 => 'No');
+
+		if ($write_access) {
+			combo_box($prefix.'_use_no_results_body_copy', $options, FALSE,  $current_value);
+		} else {
+			echo $options[$current_value];
+		}
+
+		return $write_access;
+
+	}//end paintUseBodycopy()
+
+
+	/**
+	* Process "use no result" bodycopy interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseNoResultBodycopy(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_use_no_results_body_copy'])) {				
+			if ($asset->createNoResultsBodycopy()) {
+				$asset->setAttrValue('use_no_results_body_copy',$_POST[$prefix.'_use_no_results_body_copy']);
+				$asset->saveAttributes();
+			}
+		}		
+		
+		return TRUE;
+
+	}//end processUseBodycopy()	
 
 }//end class
 ?>
