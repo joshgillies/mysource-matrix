@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2010/03/16 05:49:02 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2010/09/17 05:34:38 mhaidar Exp $
 *
 */
 -->
@@ -52,13 +52,21 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Automatic Remapping">
+	<section name="Remapping Options">
 		<field>
 			<display_name></display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintAutomaticRemappingCheckbox" />
 				<process_function name="processAutomaticRemappingCheckbox" />
+			</function_call>
+		</field>
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintNeverDeleteRemapCheckbox" />
+				<process_function name="processNeverDeleteRemapCheckbox" />
 			</function_call>
 		</field>
 	</section>
