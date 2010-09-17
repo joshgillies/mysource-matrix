@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.219 2010/09/15 23:55:51 ewang Exp $
+* $Id: metadata_manager.inc,v 1.220 2010/09/17 01:37:49 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1272,12 +1272,12 @@ class Metadata_Manager extends MySource_Object
 			foreach ($tag_values as $n => $v) {
 				$n = addslashes($this->escapeMetadata($n, TRUE));
 				Metadata_Field::decodeValueString($v, $v2, $vc);
-				// escape double,single quotes and backslashes
-				$v2 = str_replace('"', "\\\"", str_replace("'", "\'", str_replace("\\", "\\\\", $v2)));
+				// escape single quotes and backslashes
+				$v2 = str_replace("'", "\'", str_replace("\\", "\\\\", $v2));
 
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.(isset($metadata_replacements["\1"]) ? $metadata_replacements["\1"] : "%\1%" ).\'', $v2);
+				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.(isset($metadata_replacements[\'\1\']) ? $metadata_replacements[\'\1\'] : \'%\1%\' ).\'', $v2);
 				echo "'$n' => '$v2',\n";
 			}
 			echo ");\n\n";
