@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.816 2010/08/30 23:12:40 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.817 2010/09/17 05:39:35 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.816 $
+* @version $Revision: 1.817 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4360,12 +4360,6 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.' '.$where);
 			if (is_array($assetid)) {
-				/*
-				TODO RAYN: test new result array format in the following files
-					packages/calendar/lib/calendar_common.inc
-					packages/calendar/page_templates/page_calendar/page_calendar.inc
-					packages/cms/listing_engine/listing_engine.inc
-				*/
 				$result = MatrixDAL::executePdoGrouped($query);
 			} else {
 				$result = MatrixDAL::executePdoAssoc($query, 0);
@@ -8850,7 +8844,7 @@ class Asset_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
 			}
-			
+
 			if (empty($treeid)) {
 				trigger_localised_error('SYS0345', E_USER_WARNING, $asset->id);
 				return Array();
@@ -8875,10 +8869,8 @@ class Asset_Manager extends MySource_Object
 			// of the query.
 			$where_bind_vars = Array();
 
-			$where = 't.treeid LIKE :'.$bind_prefix.'treeid_wildcard
-						AND t.treeid > :'.$bind_prefix.'treeid';
-			$where_bind_vars[$bind_prefix.'treeid'] = $treeid;
-			$where_bind_vars[$bind_prefix.'treeid_wildcard'] = $treeid.'%';
+			$where = 't.treeid LIKE '.MatrixDAL::Quote($treeid.'%').'
+						AND t.treeid > '.MatrixDAL::Quote($treeid);
 
 			if (!is_null($min_depth) && !is_null($max_depth)) {
 				if ($min_depth < $max_depth) {
