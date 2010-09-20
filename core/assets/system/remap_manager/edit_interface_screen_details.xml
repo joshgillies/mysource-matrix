@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2010/03/16 05:49:02 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9.2.1 2010/09/20 03:57:01 mhaidar Exp $
 *
 */
 -->
@@ -44,12 +44,18 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Automatic Remapping" write_access="write:attributes">
+	<section name="Remapping Options" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function name="paintAutomaticRemappingCheckbox" />
 				<process_function name="processAutomaticRemappingCheckbox" />
 			</function_call>
 		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintNeverDeleteRemapCheckbox" />
+				<process_function name="processNeverDeleteRemapCheckbox" />
+			</function_call>
+  	    </field>
 	</section>
 </contents>

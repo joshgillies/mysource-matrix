@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.47.2.1 2010/08/18 04:06:55 ewang Exp $
+* $Id: remap_manager.inc,v 1.47.2.2 2010/09/20 03:57:01 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47.2.1 $
+* @version $Revision: 1.47.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,7 +176,7 @@ class Remap_Manager extends Asset
 	* @return int
 	* @access public
 	*/
-	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete='1', $auto=TRUE)
+	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete=NULL, $auto=TRUE)
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
@@ -217,6 +217,10 @@ class Remap_Manager extends Asset
 			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
+		
+		if ($never_delete === NULL){
+			$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+  	    }
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -329,7 +333,8 @@ class Remap_Manager extends Asset
 
 		foreach ($urls as $url_data) {
 			if ($url_data['http']) {
-				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, '0', FALSE);
+				$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -338,7 +343,8 @@ class Remap_Manager extends Asset
 				}
 			}
 			if ($url_data['https']) {
-				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires, '0', FALSE);
+				$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

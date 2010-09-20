@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_management.inc,v 1.10 2008/01/17 02:48:11 mbrydon Exp $
+* $Id: remap_manager_management.inc,v 1.10.10.1 2010/09/20 03:57:01 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,11 @@ class Remap_Manager_Management extends Asset_Management
 											'type'		=> 'boolean',
 											'default'	=> TRUE,
 										   ),
+						'never_delete_remap_default'	=> Array(
+											'added'		=> '0.2.1',
+											'type'		=> 'boolean',
+											'default'	=> TRUE,
+										   ),				   
 					  );
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.35 2010/03/23 23:25:21 csmith Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.35.2.1 2010/09/20 03:57:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -680,7 +680,65 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 
 	}//end processAutomaticRemappingCheckbox()
+	
+	
+	/**
+	* Paints the Never Delete Remap checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintNeverDeleteRemapCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			$write_access = $asset->writeAccess('attributes');
+			$never_delete_remap_default = $asset->attr('never_delete_remap_default');
 
+	$o->closeField();
+	$o->openField(translate('remap_manager_never_delete_remap_default_question'));
+
+			// paint checkbox
+			if ($write_access) {
+					check_box($prefix.'_never_delete_remap_default', TRUE, $never_delete_remap_default);
+			} else {
+					?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $never_delete_remap_default ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<?php
+			}
+
+	$o->note(translate('remap_manager_never_delete_remap_default_note'));
+
+	$o->closeField();
+
+			return $write_access;
+
+	}//end paintNeverDeleteRemapCheckbox()
+
+
+	/**
+	* Process the Never Delete Remap checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processNeverDeleteRemapCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			if (!$asset->writeAccess('attributes')) return FALSE;
+
+			$never_delete_remap_default = isset($_POST[$prefix.'_never_delete_remap_default']);
+			$asset->setAttrValue('never_delete_remap_default', $never_delete_remap_default);
+
+			return TRUE;
+
+	}//end processNeverDeleteRemapCheckbox()
+	
 
 	/**
 	* Paint interface for the exporting of remap entries to a CSV file
