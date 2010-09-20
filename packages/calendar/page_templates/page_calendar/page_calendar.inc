@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.231.2.5 2010/09/05 22:45:44 mhaidar Exp $
+* $Id: page_calendar.inc,v 1.231.2.6 2010/09/20 02:28:39 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.231.2.5 $
+* @version $Revision: 1.231.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3306,43 +3306,6 @@ class Page_Calendar extends Page
 
 
 	/**
-	* Save attributes set with setAttrValue to the database
-	*
-	* @param boolean    $dont_run_updated   if TRUE this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
-	*
-	* @return boolean
-	* @access public
-	* @see Asset::setAttrValue()
-	*/
-	function saveAttributes($dont_run_updated=FALSE)
-	{
-		// if the attribute use_no_results_body_copy is not empty and the no results body copy does not exist
-		// we will add a no results body copy
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
-		if (!empty($this->id)) {
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
-			$use_no_results_body_copy = $this->attr('use_no_results_body_copy');
-
-			// if no results body copy does not exist
-			// add it to the asset
-			if ((!empty($use_no_results_body_copy)) && empty($bodycopy_link)) {
-				$page_contents_data = Array('content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p><p>No events</p>');
-				$tmp_body = new Bodycopy();
-				$copy_link = Array('asset' => &$this, 'value' => 'page_contents_no_results' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-				$tmp_body->setAttrValue('name', 'Page Contents (No Results)');
-				if (!$tmp_body->create($copy_link, $page_contents_data)) {
-					trigger_localised_error('CAL0062', E_USER_WARNING);
-					return FALSE;
-				}
-			}
-		}
-		return parent::saveAttributes($dont_run_updated);
-
-	}//end saveAttributes()
-
-
-	/**
 	* Formats the limit and current dates for comparison and returns them in Array($limit_date,$compared_date)
 	*
 	* @param string		$view			the current view
@@ -3414,7 +3377,49 @@ class Page_Calendar extends Page
 		return Array($limit_date,$compared_date);
 
 	}//end formatDatesToCompare()
+	
 
+	/**
+	* Create a "No Results" bodycopy under this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createNoResultsBodycopy()
+	{		
+		$bodycopy_name = "page_contents_no_results";
+		
+		// Check if "No result page" already exists
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy_name);
+		if (!empty($bodycopy_link)) {
+			return TRUE;
+		}
+
+		// Being here means bodycopy doesn't exist, so create it
+		$copy_link = Array(
+						'asset' 	=> &$this, 
+						'link_type' => SQ_LINK_TYPE_2, 
+						'is_dependant' => 1, 
+						'is_exclusive' => 1, 
+						'value' => $bodycopy_name,
+					);
+					
+		$page_contents_data = Array(
+								'content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p><p>No events</p>',
+						);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy = new Bodycopy();
+		$bodycopy->setAttrValue('name', "Page Contents (No Results)");
+
+		if (!$bodycopy->create($copy_link, $page_contents_data)) {
+			trigger_localised_error('CAL0062', E_USER_WARNING);
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end createNoResultsBodycopy()	
 
 }//end class
 ?>
