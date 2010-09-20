@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.44 2009/06/26 06:35:53 bpearson Exp $
+* $Id: insert_link.php,v 1.44.4.1 2010/09/20 02:15:35 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.4.1 $
 * @package MySource_Matrix
 */
 
@@ -45,7 +45,12 @@ $new_window_bool_options = Array(
 							'resizable'		=> 'Allow Resizing',
 						   );
 
-if (!isset($_GET['assetid']))  $_GET['assetid'] = 0;
+if (!isset($_GET['assetid']))  {
+	$_GET['assetid'] = 0;
+} else {
+	preg_match('/^([0-9A-Z:]*)/i', $_GET['assetid'], $matches);	
+	$_GET['assetid'] = isset($matches[1]) ? $matches[1] : $_GET['assetid'];
+}
 if (!isset($_GET['url']))      $_GET['url'] = 0;
 if (!isset($_GET['protocol'])) $_GET['protocol'] = '';
 if (!isset($_GET['status_text'])) {
