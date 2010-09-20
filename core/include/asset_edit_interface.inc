@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.369 2010/09/20 04:28:00 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.370 2010/09/20 04:47:54 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.369 $
+* @version $Revision: 1.370 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -301,7 +301,7 @@ class Asset_Edit_Interface extends MySource_Object
 			foreach ($allowed_screens as $allowed_screen) {
 				// if the allowed screen is in our array or if the access if granted too all the screens
 				// be happy or present the user with login box
-				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == 0)) {
+				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] === 0)) {
 					$user_is_not_allowed = FALSE;
 				} else if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
 					$user_is_not_allowed = FALSE;
