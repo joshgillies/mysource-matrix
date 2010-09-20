@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2009/06/22 06:43:00 wszymanski Exp $
+* $Id: lang_screen_details.xml,v 1.14.6.1 2010/09/20 02:27:15 cupreti Exp $
 *
 */
 -->
@@ -88,9 +88,13 @@
 			<display_name>Today Link Text</display_name>
 			<note>Text for the link that a user can use to go straight to today's date in the current view</note>
 		</field>
-		<field attribute="use_no_results_body_copy">
+		<field>
 			<display_name>Use No Results Bodycopy</display_name>
 			<note>If this option is set to "Yes", a "No Results" bodycopy will be created, that will be used in place of the normal calendar view when there are no events within the current time period.</note>
+			<function_call>
+				<paint_function name="paintUseNoResultBodycopy" />
+				<process_function name="processUseNoResultBodycopy" />
+			</function_call>        
 		</field>
 	</section>
 
