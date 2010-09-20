@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.37 2010/09/06 06:47:44 cupreti Exp $
+* $Id: external_tools_config.inc,v 1.38 2010/09/20 23:31:22 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -64,8 +64,8 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_OGG_METADATA_EXTRACTION_ENABLED'	=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_MOLLOM_PUBLIC_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_MOLLOM_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_TOOL_MOLLOM_TEST_MODE'				=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION'	=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_TOOL_MOLLOM_TEST_MODE'				=> Array('editable' => 1, 'default' => '0'),
+						'SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION'	=> Array('editable' => 1, 'default' => '1'),
 				);
 
 
@@ -513,7 +513,7 @@ class External_Tools_Config extends Config
 				
 			$o->openField(translate('mollom_accept_bypassed_submission_question'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MOLLOM_TEST_MODE);
+					combo_box($class.'[SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION);
 				} else {
 					echo (SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION) ? translate('yes') : translate('no');
 				}
