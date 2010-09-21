@@ -17,7 +17,7 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix
 */
 
@@ -53,32 +53,26 @@ if ($skip_assets == '--skip-asset-update') {
 	$update_assets = FALSE;
 }//end if
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-define('LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.log');			// This is the log file
-define('SYNCH_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.assetid');		// We need this file to store the assetids of those to be regenerated
+define('LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.log');			// This is the log file
+define('SYNCH_FILE', $SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.assetid');		// We need this file to store the assetids of those to be regenerated
 define('BATCH_SIZE', $batch_size);																	// The number of assets being processed in one thread.
 define('MAX_CONCURRENCY', $max_thread_num);															// The number of simultaneous threads can be spawned.
 
 
 // ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
+echo 'Enter the root password : ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // Replace space with empty string
 $assetids = preg_replace('/[\s]*/', '', $assetids);
 
-// Explode them so we have the list in array
-$rootnodes    = getRootNodes($assetids);
-
-_disconnectFromMatrixDatabase();
 $pid_prepare    = pcntl_fork();
     switch ($pid_prepare) {
         case -1:
             break;
         case 0:
-            // Connect to DB within the child process
-            _connectToMatrixDatabase();          
+            
+            require_once $SYSTEM_ROOT.'/core/include/init.inc';          
 
             $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
@@ -103,7 +97,9 @@ $pid_prepare    = pcntl_fork();
                 exit(1);
             }//end if
 
-
+			// Explode them so we have the list in array
+			$rootnodes    = getRootNodes($assetids);
+			
             $children = Array();
             foreach ($rootnodes as $rootnode_id) {
                 $children    += array_merge($children, array_keys(($GLOBALS['SQ_SYSTEM']->am->getChildren($rootnode_id))));
@@ -112,8 +108,6 @@ $pid_prepare    = pcntl_fork();
 			// Save the list into a file so we can access the list from the parent process
             file_put_contents(SYNCH_FILE, implode(',', $children));
 
-            // Disconnect from DB
-            _disconnectFromMatrixDatabase();
 
             exit(0);
             // waiting for child exit signal
@@ -156,8 +150,8 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                     exit(1);
                     break;
                 case 0:
-                    // Connect to DB within the child process
-                    _connectToMatrixDatabase();
+                    
+                    require_once $SYSTEM_ROOT.'/core/include/init.inc';
                     $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
                     
                     $conn_id = MatrixDAL::getCurrentDbId();
@@ -192,8 +186,6 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                     }//end foreach
 
                     $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-                    // Disconnect from DB
-                    _disconnectFromMatrixDatabase();
 
                     exit(0);
                     // waiting for child exit signal
@@ -251,36 +243,6 @@ function get_line($prompt='')
 
 
 /**
-* Disconnects from the Oracle Matrix DB
-*
-* @return void
-* @access private
-*/
-function _disconnectFromMatrixDatabase()
-{
-    $conn_id = MatrixDAL::getCurrentDbId();
-    if (isset($conn_id) && !empty($conn_id)) {
-        MatrixDAL::restoreDb();
-        MatrixDAL::dbClose($conn_id);
-    }//end if
-        
-}//end _disconnectFromMatrixDatabase()
-
-
-/**
-* Connects to the Oracle Matrix DB
-*
-* @return void
-* @access private
-*/
-function _connectToMatrixDatabase()
-{
-    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
-}//end _connectToMatrixDatabase()
-
-
-/**
 * This function basically save the content input to a file
 *
 */
@@ -302,7 +264,7 @@ function getRootNodes($action)
     if (!empty($not_exists)) {
         $list_not_exists    = implode(', ', $not_exists);
         echo "These rootnode ids do not exists in the system: $list_not_exists \n";
-        exit();
+        exit(1);
     }//end if   
  
     return $rootnodes;
