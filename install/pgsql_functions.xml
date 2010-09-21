@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.17 2006/12/06 05:17:23 bcaldwell Exp $
+* $Id: pgsql_functions.xml,v 1.18 2010/09/21 06:37:17 csmith Exp $
 *
 */
 -->
@@ -24,11 +24,11 @@
             CREATE OR REPLACE FUNCTION sq_grant_access(character varying) RETURNS TEXT AS '
             DECLARE
                 user_name ALIAS FOR $1;
-                table RECORD;
+                tablerow RECORD;
                 tablename TEXT;
             BEGIN
-                FOR table IN SELECT c.relname AS name FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN (''r'',''v'',''S'','''') AND n.nspname NOT IN (''pg_catalog'', ''pg_toast'') AND pg_catalog.pg_table_is_visible(c.oid) LOOP
-                    tablename=table.name;
+                FOR tablerow IN SELECT c.relname AS name FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN (''r'',''v'',''S'','''') AND n.nspname NOT IN (''pg_catalog'', ''pg_toast'') AND pg_catalog.pg_table_is_visible(c.oid) LOOP
+                    tablename=tablerow.name;
                     RAISE NOTICE ''tablename is %'', tablename;
                     EXECUTE ''GRANT ALL ON '' || quote_ident(tablename) || '' TO '' || quote_ident(user_name::text);
                 END LOOP;
@@ -113,15 +113,15 @@
             -- splits the specified url into its root url components out to the specified url
             CREATE OR REPLACE FUNCTION sq_get_lineage_from_url(VARCHAR) RETURNS SETOF VARCHAR AS '
             DECLARE
-                offset int;
+                urloffset int;
                 url ALIAS FOR $1;
                 next_url VARCHAR;
                 concat_url VARCHAR;
             BEGIN
-                offset := 1;
+                urloffset := 1;
                 concat_url := '''';
                 LOOP
-                    next_url := split_part(url, ''/'', offset);
+                    next_url := split_part(url, ''/'', urloffset);
                     IF next_url = '''' THEN
                         EXIT;
                     END IF;
@@ -132,7 +132,7 @@
                     concat_url := concat_url || next_url;
 
                     RETURN next concat_url;
-                    offset := offset + 1;
+                    urloffset := urloffset + 1;
                 END LOOP;
                 RETURN;
             END;
@@ -147,7 +147,7 @@
             CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) RETURNS SETOF BYTEA AS '
             DECLARE
                 treeids RECORD;
-                offset int;
+                urloffset int;
                 minorid ALIAS FOR $1;
                 next_treeid BYTEA;
                 concat_treeids BYTEA;
@@ -176,16 +176,16 @@
                 END IF;
 
                 FOR treeids IN EXECUTE sql LOOP
-                    offset := 1;
+                    urloffset := 1;
                     concat_treeids := '''';
                     LOOP
-                        next_treeid := SUBSTR(treeids.treeid, offset, SQ_TREE_BASE_SIZE);
+                        next_treeid := SUBSTR(treeids.treeid, urloffset, SQ_TREE_BASE_SIZE);
                         IF next_treeid = '''' THEN
                             EXIT;
                         END IF;
                         concat_treeids := concat_treeids || next_treeid;
                         return next concat_treeids;
-                        offset := offset + SQ_TREE_BASE_SIZE;
+                        urloffset := urloffset + SQ_TREE_BASE_SIZE;
                     END LOOP;
                 END LOOP;
                 RETURN;
@@ -231,7 +231,7 @@
             CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(VARCHAR, INT, TIMESTAMP) RETURNS SETOF BYTEA AS '
             DECLARE
                 treeids RECORD;
-                offset int;
+                urloffset int;
                 minorid ALIAS FOR $1;
                 next_treeid BYTEA;
                 concat_treeids BYTEA;
@@ -268,16 +268,16 @@
                 END IF;
 
                 FOR treeids IN EXECUTE sql LOOP
-                    offset := 1;
+                    urloffset := 1;
                     concat_treeids := '''';
                     LOOP
-                        next_treeid := SUBSTR(treeids.treeid, offset, SQ_TREE_BASE_SIZE);
+                        next_treeid := SUBSTR(treeids.treeid, urloffset, SQ_TREE_BASE_SIZE);
                         IF next_treeid = '''' THEN
                             EXIT;
                         END IF;
                         concat_treeids := concat_treeids || next_treeid;
                         return next concat_treeids;
-                        offset := offset + SQ_TREE_BASE_SIZE;
+                        urloffset := urloffset + SQ_TREE_BASE_SIZE;
                     END LOOP;
                 END LOOP;
                 RETURN;
