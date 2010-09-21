@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.54 2010/09/21 01:15:27 akarelia Exp $
+* $Id: js_api.inc,v 1.55 2010/09/21 04:13:54 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1198,7 +1198,7 @@ class JS_Api extends Page
 		}
 
 		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
-			if($am->assetExists($asset->created_userid)) {
+			if($am->assetExists($asset->updated_userid)) {
 				$updated_user = $am->getAsset($asset->updated_userid);
 			} else {
 				$updated_user = 'Unknown User';
@@ -1208,7 +1208,7 @@ class JS_Api extends Page
 		}
 
 		if (isset($asset->published_userid) && $asset->published_userid != '' && (int)$asset->published_userid != 0 ) {
-			if($am->assetExists($asset->created_userid)) {
+			if($am->assetExists($asset->published_userid)) {
 				$published_user = $am->getAsset($asset->published_userid);
 			} else {
 				$published_user = 'Unknown User';
@@ -1218,7 +1218,7 @@ class JS_Api extends Page
 		}
 
 		if (isset($asset->status_changed_userid) && $asset->status_changed_userid != '' && (int)$asset->status_changed_userid != 0 ) {
-			if($am->assetExists($asset->created_userid)) {
+			if($am->assetExists($asset->status_changed_userid)) {
 				$status_user = $am->getAsset($asset->status_changed_userid);
 			} else {
 				$status_user = 'Unknown User';
