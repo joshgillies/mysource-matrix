@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.42.2.9 2010/08/23 01:45:21 akarelia Exp $
+* $Id: js_api.inc,v 1.42.2.10 2010/09/21 01:16:47 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.42.2.9 $
+* @version $Revision: 1.42.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1186,7 +1186,11 @@ class JS_Api extends Page
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (isset($asset->created_userid) && $asset->created_userid != '' && (int)$asset->created_userid != 0 ) {
-			$created_user = $am->getAsset($asset->created_userid);
+			if($am->assetExists($asset->created_userid)) {
+				$created_user = $am->getAsset($asset->created_userid);
+			} else {
+				$created_user = 'Unknown User';
+			}
 		} else if (isset($asset->created_userid) && (int)$asset->created_userid == 0) {
 			$created_user = 'Root User';
 		} else {
@@ -1194,19 +1198,31 @@ class JS_Api extends Page
 		}
 
 		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
-			$updated_user = $am->getAsset($asset->updated_userid);
+			if($am->assetExists($asset->created_userid)) {
+				$updated_user = $am->getAsset($asset->updated_userid);
+			} else {
+				$updated_user = 'Unknown User';
+			}
 		} else {
 			$updated_user = 'Never Updated';
 		}
 
 		if (isset($asset->published_userid) && $asset->published_userid != '' && (int)$asset->published_userid != 0 ) {
-			$published_user = $am->getAsset($asset->published_userid);
+			if($am->assetExists($asset->created_userid)) {
+				$published_user = $am->getAsset($asset->published_userid);
+			} else {
+				$published_user = 'Unknown User';
+			}
 		} else {
 			$published_user = 'Never Published';
 		}
 
 		if (isset($asset->status_changed_userid) && $asset->status_changed_userid != '' && (int)$asset->status_changed_userid != 0 ) {
-			$status_user  = $am->getAsset($asset->status_changed_userid);
+			if($am->assetExists($asset->created_userid)) {
+				$status_user = $am->getAsset($asset->status_changed_userid);
+			} else {
+				$status_user = 'Unknown User';
+			}
 		} else {
 			$status_user = 'Never Changed';
 		}
@@ -1246,17 +1262,18 @@ class JS_Api extends Page
 					'web_path'					=>	$asset->getURL(),
 					'status'					=>	$asset->getStatusDescription(),
 					'created'					=>	$asset->created,
-					'created_userid'			=>	$created_userid,
-					'created_username'			=>	($created_user === 'Root User' || $created_user === 'Undefined') ? $created_user : $created_user->name,
-					'updated'					=>	($updated_user === 'Never Updated') ? $updated_user : $asset->updated,
-					'updated_userid'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->id,
-					'update_username'			=>	($updated_user === 'Never Updated') ? $updated_user : $updated_user->name,
-					'published'					=>	($published_user === 'Never Published') ? $published_user : $asset->published,
-					'published_userid'			=>	($published_user === 'Never Published') ? $published_user : $published_user->id,
-					'published_username'		=>	($published_user === 'Never Published') ? $published_user : $published_user->name,
-					'status_changed'			=>	($status_user === 'Never Changed') ? $status_user : $asset->status_changed,
-					'status_changed_userid'		=>	($status_user === 'Never Changed') ? $status_user : $status_user->id,
-					'status_changed_username'	=>	($status_user === 'Never Changed') ? $status_user : $status_user->name,
+					'created_userid'			=>	$asset->created_userid,
+					'created_username'			=>	($created_user === 'Root User' || $created_user === 'Undefined' || $created_user === 'Unknown User') ? $created_user : $created_user->name,
+					'updated'					=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $asset->updated,
+					'updated_userid'			=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $updated_user->id,
+					'update_username'			=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $updated_user->name,
+					'published'					=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $asset->published,
+					'published_userid'			=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $published_user->id,
+					'published_username'		=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $published_user->name,
+					'status_changed'			=>	($status_user === 'Never Changed' || $status_user === 'Unknown User') ? $status_user : $asset->status_changed,
+					'status_changed_userid'		=>	($status_user === 'Never Changed' || $status_user === 'Unknown User') ? $status_user : $status_user->id,
+					'status_changed_username'	=>	($status_user === 'Never Changed' || $status_user === 'Unknown User') ? $status_user : $status_user->name,
+
 					'maximum_perm_on_asset'		=>	$effective_permission,
 				);
 
