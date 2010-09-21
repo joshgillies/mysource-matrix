@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.45 2008/08/01 01:45:34 bpearson Exp $
+* $Id: user_group_edit_fns.inc,v 1.45.8.1 2010/09/21 04:29:05 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -245,7 +245,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$bind_vars['screen']	= 'details';
 
 				try {
-					$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+					$result = MatrixDAL::executeQuery('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to add access for new asset type due to the following database error:'.$e->getMessage());
 				}//end try catch
@@ -271,7 +271,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 						// option to stop this whole type being deleted
 						// so we'll add one
 						try {
-							$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+							$result = MatrixDAL::executeQuery('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
 						} catch (Exception $e) {
 							throw new Exception('Unable to add access for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 						}//end try catch
@@ -283,7 +283,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					$bind_vars['screen'] = $doomed_screen;
 
 					try {
-						$result = MatrixDAL::executeOne('user_group', 'deleteAccessRestrictionForUser', $bind_vars);
+						$result = MatrixDAL::executeQuery('user_group', 'deleteAccessRestrictionForUser', $bind_vars);
 					} catch (Exception $e) {
 						throw new Exception('Unable to delete access for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 					}//end try catch
@@ -306,7 +306,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$bind_vars['screen']	= $new_screen;
 
 				try {
-					$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+					$result = MatrixDAL::executeQuery('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to add access for new asset type due to the following database error:'.$e->getMessage());
 				}//end try catch
