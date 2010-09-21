@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.7 2010/08/03 07:19:51 mhaidar Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.8 2010/09/21 02:57:50 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 				return $lines[0];
 			}
 		} else if (count($lines) == 2) {
-			if ($this->_isOpenTag($lines[1]) && $this->_isCloseTag($lines[0])) {
+			if (($this->_isOpenTag($lines[1]) || $this->_isCloseTag($lines[1])) && $this->_isCloseTag($lines[0])) {
 				return $this->_lines($lines, ' ', FALSE);
 			}
 		}
@@ -336,7 +336,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 	*/
 	function _isCloseBlockTag($x)
 	{
-		return preg_match('/<\/(address|blockcode|blockquote|div|h|h1|h2|h3|h4|h5|h6|hr|p|pre|section|a)>/i', $x);
+		return preg_match('/<\/(address|blockcode|blockquote|div|h|h1|h2|h3|h4|h5|h6|hr|p|pre|section)>/i', $x);
 
 	}//end _isCloseBlockTag()
 
