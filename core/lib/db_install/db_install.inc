@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.66 2010/09/22 01:34:24 cupreti Exp $
+* $Id: db_install.inc,v 1.67 2010/09/22 01:36:17 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -719,7 +719,6 @@ function grant_secondary_user_perms($verbose=TRUE)
 		
 		// grant to the cache user, if dsn is defined and is differnet from primary dns or if the cache user is different 
 		if ($postgres_db && !is_null($cache_dsn) && ($diff_dbcache_user || $diff_dbcache_dsn)) {
-			
 			// Change db connection only if the cache dns is differnet from the primary dsn
 			if ($diff_dbcache_dsn) {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
