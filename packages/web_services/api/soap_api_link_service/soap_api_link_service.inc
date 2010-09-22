@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.8 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_link_service.inc,v 1.9 2010/09/22 00:26:07 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -207,7 +207,7 @@ class Soap_Api_Link_Service extends Soap_Api
 				$link_results[$i]['TypeCode']			= $link_info['type_code'];
 				$link_results[$i]['LinkType']			= $link_info['link_type'];
 				$link_results[$i]['SortOrder']			= $link_info['sort_order'];
-				$link_results[$i]['Value']				= $link_info['value'];
+				$link_results[$i]['Value']				= ($link_info['value'] === NULL) ? '' : $link_info['value'];
 				$link_results[$i]['IsDependant']		= $link_info['is_dependant'];
 				$link_results[$i]['IsExclusive']		= $link_info['is_exclusive'];
 				$link_results[$i]['DependantTreeID']	= $link_info['dependant_treeid'];
@@ -357,7 +357,7 @@ class Soap_Api_Link_Service extends Soap_Api
 				foreach ($links as $link_info) {
 					$link_results[$i][ucwords($other_side_of_link).'ID']		= $link_info[$other_side_of_link.'id'];
 					$link_results[$i]['LinkID']			= $link_info['linkid'];
-					$link_results[$i]['Value']			= $link_info['value'];
+					$link_results[$i]['Value']			= ($link_info['value'] === NULL) ? '' : $link_info['value'];
 					$link_results[$i]['LinkType']		= $link_info['link_type'];
 					$link_results[$i][ucwords($other_side_of_link).'TypeCode']	= $link_info[$other_side_of_link.'_type_code'];
 					$link_results[$i]['SortOrder']		= $link_info['sort_order'];
@@ -680,7 +680,7 @@ class Soap_Api_Link_Service extends Soap_Api
 				foreach ($links as $link_info) {
 					$link_results[$i][ucwords($other_side_of_link).'ID']		= $link_info[$other_side_of_link.'id'];
 					$link_results[$i]['LinkID']			= $link_info['linkid'];
-					$link_results[$i]['Value']			= $link_info['value'];
+					$link_results[$i]['Value']			= ($link_info['value'] === NULL) ? '' : $link_info['value'];
 					$link_results[$i]['LinkType']		= $link_info['link_type'];
 					$link_results[$i][ucwords($other_side_of_link).'TypeCode']	= $link_info[$other_side_of_link.'_type_code'];
 					$link_results[$i]['SortOrder']		= $link_info['sort_order'];
