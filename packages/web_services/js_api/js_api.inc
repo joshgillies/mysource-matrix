@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.55 2010/09/21 04:13:54 akarelia Exp $
+* $Id: js_api.inc,v 1.56 2010/09/22 23:12:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -348,9 +348,54 @@ class JS_Api extends Page
 
 			break;
 
+
+			case	'importAssetsFromXML':
+
+				$data = Array();
+				if ($this->attr('import_assets')) {
+					$filePath = $_REQUEST['filePath'];
+					$import_under = $_REQUEST['id'];
+
+					//check if the file exists
+					if (file_exists($filePath) || $filePath == 'no_file_provided') {
+						//check 2 make sure it is a XML file
+						if (strtolower(substr($filePath, -3)) == 'xml') {
+							//looks all good...makes sure the asset id provided is valid
+							if($am->assetExists($import_under)) {
+								// set HIPO running_vars
+								$vars['file_info'] = $filePath;
+								$vars['create_under_assetid'] = $import_under;
+								$vars['delete_after_import'] = FALSE;
+
+								// run HIPO job
+								$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+								$errors = $hh->freestyleHipo('hipo_job_import_assets_from_xml', $vars, SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');
+								if (empty($errors)) {
+									$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
+								} else {
+									$data['error'] = 'Error occured while importing assets  under Asset #'.$import_under;
+								}
+
+							} else {
+								$this->returnError('Assetid provided to import assets under is not valid');
+							}
+						} else {
+							$this->returnError('File provided is not XML');
+						}
+					} else {
+						$this->returnError('No File path provided OR File does not exist for the provided path');
+					}					
+				} else {
+					$this->returnError('The importAssetsFromXML function must be activated');
+				}//end else
+
+			break;
+
+
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
+
 
 		// Send our data as JSON
 		if (isset($data)) {
@@ -1072,16 +1117,16 @@ class JS_Api extends Page
 
 									$success 	= $edit_fns->processEditFile($asset, $o, $prefix);
 									if ($success) {
-										$data[] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
+										$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
 									} else {
-										$data[] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+										$data['error'] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
 									}
 								}
 							} else {
-								$data[] = 'Locks are not acquired on Asset '.$asset->short_name.'(#'.$asset->id.'), content cannot be updated';
+								$data['error'] = 'Locks are not acquired on Asset '.$asset->short_name.'(#'.$asset->id.'), content cannot be updated';
 							}
 						} else {
-							$data[] = 'Content for Asset of type code \''.$asset->type().'\' cannot be updated';
+							$data['error'] = 'Content for Asset of type code \''.$asset->type().'\' cannot be updated';
 						}
 					} else {
 						$this->returnError('You do not have permissions to Edit this asset');
@@ -3726,8 +3771,35 @@ function setContentOfEditiableFileAsset(assetID, content, dataCallback)
 
 }// end setContentOfEditiableFileAsset()
 
-	<?php
 
+/**
+* This function will let user import assets into Matrix from a structured XML file
+* For example for xml file look under System Tools > Import Assets from XML Tool > example.xml
+*
+*
+* @param	string		assetID 		Asset under which the assets are to be imported under
+* @param	string		filePath		path to file on the file system
+* @param	function	dataCallback	Custom callback function
+*
+*/
+function importAssetsFromXML(assetID, filePath, dataCallback)
+{
+	// Create blank function
+    var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var file = isset(file) ? content : 'no_file_provided';
+    var url = '<?php echo $this->getURL(); ?>' +
+                '?key=' + api_key +
+				'&type=importAssetsFromXML&id=' + assetID +
+				'&filePath=' + filePath;
+
+    // Make our request
+    makeRequest(url, true, dataCallback);
+
+}// end importAssetsFromXML()
+
+
+<?php
 
 	}//end printJs
 

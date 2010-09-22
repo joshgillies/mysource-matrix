@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2010/08/17 07:17:24 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2010/09/22 23:10:35 akarelia Exp $
 *
 */
 -->
@@ -106,6 +106,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="set_file_content">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="import_assets">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 
