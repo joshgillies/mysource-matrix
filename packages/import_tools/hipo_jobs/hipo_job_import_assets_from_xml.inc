@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.1 2010/08/26 06:49:01 akarelia Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.2 2010/09/22 05:54:05 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -194,7 +194,9 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		$step_data['complete']     = TRUE;
 
 		// done with everything ? delete the file
-		unlink($this->_running_vars['file_info']);
+		if ($this->_running_vars['delete_after_import']) {
+			unlink($this->_running_vars['file_info']);
+		}
 		return TRUE;
 
 	}//end processImport()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_assets_from_xml.inc,v 1.1 2010/08/26 06:47:12 akarelia Exp $
+* $Id: tool_import_assets_from_xml.inc,v 1.2 2010/09/22 05:54:05 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing assets into Matrix
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -139,6 +139,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 		// set HIPO running_vars
 		$vars['file_info'] = $temp_filename;
 		$vars['create_under_assetid'] = $root_node_id;
+		$vars['delete_after_import'] = TRUE;
 
 		// run HIPO job
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
