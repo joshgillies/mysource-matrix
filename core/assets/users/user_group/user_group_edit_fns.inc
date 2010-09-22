@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.47 2010/09/21 04:26:01 akarelia Exp $
+* $Id: user_group_edit_fns.inc,v 1.48 2010/09/22 04:00:17 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,6 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function User_Group_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
-		$this->static_screens['details']['lock_type'] = 'attributes';
 
 	}//end constructor
 
