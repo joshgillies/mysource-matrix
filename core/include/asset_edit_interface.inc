@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.358.4.2 2010/06/22 23:44:59 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.358.4.3 2010/09/22 03:54:38 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.358.4.2 $
+* @version $Revision: 1.358.4.3 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -300,7 +300,11 @@ class Asset_Edit_Interface extends MySource_Object
 			$user_is_not_allowed = TRUE;
 
 			foreach ($allowed_screens as $allowed_screen) {
-				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
+				// if the allowed screen is in our array or if the access if granted too all the screens
+				// be happy or present the user with login box
+				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] === 0)) {
+					$user_is_not_allowed = FALSE;
+				} else if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
 					$user_is_not_allowed = FALSE;
 				}//end if
 			}//end foreach
@@ -310,11 +314,11 @@ class Asset_Edit_Interface extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 				exit();
 			}//end if
-		} else {
-			if (SQ_IN_LIMBO && $owner->id) {
-					// broadcast the 'entering simple edit'
-					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_enter_simple_edit', $owner);
-			}
+		}
+		
+		if (SQ_IN_LIMBO && $owner->id) {
+			// broadcast the 'entering simple edit'
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_enter_simple_edit', $owner);
 		}
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
