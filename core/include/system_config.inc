@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.136 2010/07/19 07:00:48 ewang Exp $
+* $Id: system_config.inc,v 1.137 2010/09/23 04:09:35 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,6 +69,8 @@ class System_Config extends Config
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_404_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_USE_HTTP_X_FORWARDED_FOR'		=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_FORWARDED_IP_PROXY_LIST'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_ERRORS_LOG_TO_SYSLOG'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ERRORS_SYSLOG_FACILITY'		=> Array('editable' => 1, 'default' => 'user'),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
@@ -283,6 +285,7 @@ class System_Config extends Config
 
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
 			case 'SQ_CONF_STATIC_ROOT_URL' :
+			case 'SQ_CONF_FORWARDED_IP_PROXY_LIST' :
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
 
@@ -948,7 +951,28 @@ class System_Config extends Config
 				}
 				$o->note(translate('http_header_send_404_cacheable_header_field_note'));
 			$o->closeField();
-
+			
+			$o->openField(translate('http_header_use_http_x_forwarded_for'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_USE_HTTP_X_FORWARDED_FOR]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_USE_HTTP_X_FORWARDED_FOR);
+				} else {	
+					echo (SQ_CONF_USE_HTTP_X_FORWARDED_FOR) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_use_http_x_forwarded_for_note'));
+			
+				$option_list->setEditParam('width', 30);
+				if ($write_access) {
+					$option_list->value = SQ_CONF_FORWARDED_IP_PROXY_LIST;
+					$option_list->paint('SQ_CONF_FORWARDED_IP_PROXY_LIST');
+				} else {
+					if (SQ_CONF_FORWARDED_IP_PROXY_LIST == '') {
+						echo translate('none');
+					} else {
+						echo nl2br(SQ_CONF_FORWARDED_IP_PROXY_LIST);
+					}
+				}
+			$o->closeField();
+			
 		$o->closeSection();
 
 		$o->openSection(translate('roles_configuration_section_name'));
@@ -1042,6 +1066,7 @@ class System_Config extends Config
 		$list_settings = Array(
 							'SQ_CONF_SYSTEM_ROOT_URLS',
 							'SQ_CONF_SYSTEM_PARENT_DOMAINS',
+							'SQ_CONF_FORWARDED_IP_PROXY_LIST'
 						 );
 
 		foreach ($list_settings as $list_setting) {

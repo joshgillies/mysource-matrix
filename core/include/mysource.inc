@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.351 2010/09/01 04:27:40 cupreti Exp $
+* $Id: mysource.inc,v 1.352 2010/09/23 04:09:35 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.351 $
+* @version $Revision: 1.352 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -247,6 +247,8 @@ class MySource extends MySource_Object
 	*/
 	public function init()
 	{
+		$this->_processUserIP();
+		
 		$this->changeDatabaseConnection('db');
 		$this->changeContext(0);
 
@@ -4076,6 +4078,39 @@ class MySource extends MySource_Object
 			}
 		}
 	}//end _translateMatrixURL()
+	
+	/**
+	* If SQ_CONF_USE_HTTP_X_FORWARDED_FOR enabled, attempts to obtain User IP using HTTP_X_FORWARDED_FOR 
+	* and overwrites the REMOTE_ADDR $_SERVER variable.
+	* This is to avoid recieving and using a Proxy IP in REMOTE_ADDR when behind a proxy.
+	* A trusted/known Proxy IP SQ_CONF_FORWARDED_IP_PROXY_LIST list is required.
+	*
+	* @return void
+	* @access private
+	*/
+	private function _processUserIP()
+	{
+		if (SQ_CONF_USE_HTTP_X_FORWARDED_FOR && SQ_CONF_FORWARDED_IP_PROXY_LIST != ''){
+			$safe_list = explode("\n", SQ_CONF_FORWARDED_IP_PROXY_LIST);
+			if (array_key_exists('REMOTE_ADDR', $_SERVER) && in_array($_SERVER['REMOTE_ADDR'], $safe_list)) {
+				// if we have an X-Forwarded-For set
+				if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+					$forwards = explode(', ', $_SERVER['HTTP_X_FORWARDED_FOR']);
+					// right most is more recent $forwards[$n]
+					// starting from right, find the first IP which is not in SQ_CONF_FORWARDED_IP_PROXY_LIST
+					for ($n=count($forwards)-1; $n > 0; $n--) {
+						if (!in_array($forwards[$n], $safe_list)) {
+							break;
+						}
+					}
+					$last_forward = trim($forwards[$n]);
+					//change the remote addr
+					$_SERVER['REMOTE_ADDR'] = $last_forward;
+				}
+			}
+		}	
+
+	}//end _processUserIP()
 
 
 }//end class
