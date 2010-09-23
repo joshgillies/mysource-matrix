@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.20 2010/07/13 05:30:25 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.21 2010/09/23 07:47:26 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -547,6 +547,8 @@ class Funnelback_Manager extends Asset
 			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
 		}//end foreach
+		$xml .= '<fbmeta name="SQUIZASSETID" content="'.$asset->id.'" />';
+		$xml .= '<fbmeta name="SQUIZASSETTYPE" content="'.$asset->type().'" />';
 
 		$xml .= '</url>';
 
@@ -674,7 +676,7 @@ class Funnelback_Manager extends Asset
 	 */
 	public function generateXMLCache($url=NULL, $assetid=0, $public=TRUE)
 	{
-		$results = $this->_getXMLCache($url, $assetid, $public);
+		$results = $this->getXMLCache($url, $assetid, $public);
 
 		ob_start();
 			echo '<'.'?xml version="1.0" encoding="utf-8"?'.'>';
@@ -697,11 +699,12 @@ class Funnelback_Manager extends Asset
 	 * @param string	$url		The url of the Cache to generate
 	 * @param string	$assetid	The assetid of the site this cache is
 	 * @param boolean	$public		Return only public results
+	 * @param array		$excludes	An array of URLs to be excluded (including their children)
 	 *
 	 * @return array
-	 * @access private
+	 * @access public
 	 */
-	protected function _getXMLCache($url=Array(), $assetid=0, $public=TRUE)
+	public function getXMLCache($url=Array(), $assetid=0, $public=TRUE, $excludes=Array())
 	{
 		if (empty($url) || empty($assetid)) {
 			// No parent nor sitemap url found
@@ -713,6 +716,9 @@ class Funnelback_Manager extends Asset
 		$where = Array();
 		$bind_vars = Array();
 		$include_collection_sql = '';
+		$exclude_string = '';
+
+		// Compile a list of assets to list based on URL
 		foreach ($url as $index => $single_url) {
 			if (!$is_site_asset) {
 				$suburl = substr($single_url, strpos($single_url, '://') + 3);
@@ -735,6 +741,16 @@ class Funnelback_Manager extends Asset
 			$bind_vars['assetid'.$index] = $assetid;
 			$bind_vars['root_url'.$index] = $root_url;
 		}//end foreach
+
+		// Compile a list of assets to be excluded based on URL
+		foreach ($excludes as $index => $exclude) {
+			$excluded[] = 'f.url||\'/\' NOT LIKE :exclude'.$index.' OR f.url <> :exclude_asset'.$index;
+			$bind_vars['exclude'.$index] = rtrim($exclude, '/').'/%';
+			$bind_vars['exclude_asset'.$index] = rtrim($exclude, '/');
+		}//end foreach
+		if (!empty($excluded)) {
+			$exclude_string = ' AND (('.implode(') AND (', $excluded).'))';
+		}//end if
 		
 		if (isset($root_url_info)) unset($root_url_info);
 
@@ -745,21 +761,20 @@ class Funnelback_Manager extends Asset
 						 FROM sq_fnb_idx f 
 						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
 							WHERE l.is_dependant=:dependant';
-				if ($public) $sql .= ' AND f.live=:live';
-				$sql .= ' AND (';
-				$sql .= rtrim(implode(' OR ', $where), 'OR');
-				$sql .= ') ORDER BY f.url, f.xml';
 			} else {
 				// Oracle fun n games
 				$sql = 'SELECT f.url, f.assetid, f.root_url, f.xml
 						 FROM sq_fnb_idx f 
 						  INNER JOIN sq_ast_lnk l ON l.minorid=f.assetid 
 							WHERE l.is_dependant=:dependant';
-				if ($public) $sql .= ' AND f.live=:live';
-				$sql .= ' AND (';
-				$sql .= rtrim(implode(' OR ', $where), 'OR');
-				$sql .= ') ORDER BY f.url';
 			}//end if
+
+			if ($public) $sql .= ' AND f.live=:live';
+			$sql .= ' AND (';
+			$sql .= rtrim(implode(' OR ', $where), 'OR');
+			$sql .= ')';
+			$sql .= $exclude_string;
+			$sql .= ' ORDER BY f.url';
 			$query = MatrixDAL::preparePDOQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'dependant', '0');
 			if ($public) MatrixDAL::bindValueToPdo($query, 'live', '1');
@@ -788,7 +803,7 @@ class Funnelback_Manager extends Asset
 		
 		return $results;
 
-	}//end _getXMLCache()
+	}//end getXMLCache()
 
 
 	/**
