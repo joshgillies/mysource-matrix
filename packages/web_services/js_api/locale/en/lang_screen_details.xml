@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.13 2010/09/22 23:09:59 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.14 2010/09/23 23:07:51 akarelia Exp $
 *
 */
 -->
@@ -138,7 +138,7 @@
         </field>
 		<field attribute="import_assets">
             <display_name>Import Assets from XML</display_name>
-            <note>Allows user to import assets under a particular root not from a structured XML file</note>
+            <note>Allows user to import assets under a particular root node from a structured XML file</note>
         </field>
 
     </section>
