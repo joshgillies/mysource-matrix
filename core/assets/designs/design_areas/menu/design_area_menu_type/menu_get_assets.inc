@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.15 2008/11/13 23:10:42 lwright Exp $
+* $Id: menu_get_assets.inc,v 1.15.10.1 2010/09/24 07:57:48 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @return array
 * @access public
 */
-function menu_get_assets($id_name, $majorids)
+function menu_get_assets($id_name, $majorids, $ignore_permissions = FALSE)
 {
 
 	$db = MatrixDAL::getDb();
@@ -55,7 +55,7 @@ function menu_get_assets($id_name, $majorids)
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 	if (is_null($USERIDS_COND)) {
 		// if they are logged in add their parents to the list
-		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $ignore_permissions) {
 			$USERIDS_COND = '';
 		} else {
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());

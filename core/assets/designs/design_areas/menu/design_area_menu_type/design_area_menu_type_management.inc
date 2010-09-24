@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.25 2009/07/06 06:28:12 cupreti Exp $
+* $Id: design_area_menu_type_management.inc,v 1.25.6.1 2010/09/24 07:57:48 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,6 +116,15 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 													'default'		=> Array(),
 													'description'	=> 'List of asset types to include in the lineage',
 												   ),
+						'ignore_permissions'	=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Show all live assets in lineage, even if the current user does not have permission to view them',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																		),
+													),
 
 					  );
 

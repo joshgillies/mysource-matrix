@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2009/07/06 06:28:33 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9.6.1 2010/09/24 07:57:48 ewang Exp $
 *
 */
 -->
@@ -32,6 +32,9 @@
 			</function_call>
 		</field>
 		<field attribute="self_link">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="ignore_permissions">
 			<boolean true_text="yes" false_text="no" />
 		</field>
         <field>
