@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.22 2007/12/06 05:47:47 rong Exp $
+* $Id: design_area_menu_normal.inc,v 1.23 2010/09/24 07:44:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,8 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	public function printDataCollection()
 	{
 		$parent_menu = $this->getParentMenu();
-
+		$ignore_permissions = $this->attr('ignore_permissions') ? ' , TRUE' : ' , FALSE';
+		
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
 
@@ -64,18 +65,18 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			if ($this->attr('root_node') == 0) {
 				echo '
 					if (isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
-						$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
+						$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])'.$ignore_permissions.');
 					} else {
 						$'.$this->attr('id_name').'_assetids = Array();
 					}
 				';
 			} else if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
 				// generate the menu data based on the supplied root node if level is set to 'Top'
-				echo '$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) '.$this->attr('root_node').'));';
+				echo '$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) '.$this->attr('root_node').')'.$ignore_permissions.');';
 			}
 		} else {
 			echo '
-			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', $'.$parent_menu->attr('id_name').'_assetids);
+			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', $'.$parent_menu->attr('id_name').'_assetids'.$ignore_permissions.');
 
 			';
 		}// end if

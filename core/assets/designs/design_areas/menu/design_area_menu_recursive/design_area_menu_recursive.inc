@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.28 2007/12/11 03:29:56 rong Exp $
+* $Id: design_area_menu_recursive.inc,v 1.29 2010/09/24 07:44:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,7 +171,8 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	public function printDataCollection()
 	{
 		$parent_menu = $this->getParentMenu();
-
+		$ignore_permissions = $this->attr('ignore_permissions') ? ' , TRUE' : ' , FALSE';
+		
 		echo '
 		$'.$this->attr('id_name').'_num_repeats = count($ASSET_LINEAGE) - $'.$this->attr('id_name').'_level;
 		';
@@ -228,7 +229,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 		echo '
 			unset($'.$this->attr('id_name').'_assetids);
-			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', '.$majorids.');
+			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', '.$majorids.' '.$ignore_permissions.');
 
 		}//end for '.$this->attr('id_name').'_i
 
