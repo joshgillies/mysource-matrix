@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.234.2.3 2010/09/20 02:26:54 cupreti Exp $
+* $Id: page_calendar.inc,v 1.234.2.4 2010/09/26 23:27:45 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.234.2.3 $
+* @version $Revision: 1.234.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2539,13 +2539,17 @@ class Page_Calendar extends Page
 		$end_ts = strtotime("$next_year-01-01 00:00:00") - 1;
 
 		// Get our single events
+		$bind_vars = Array();
 		$date_sql = '(cd.start_date_year = :start_date_year) OR (cd.end_date_year = :end_date_year) OR  ((cd.start_date_ts < :start_date_ts) AND (cd.end_date_ts > :end_date_ts))';
-		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$single_events = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_year', $year);
 			MatrixDAL::bindValueToPdo($query, 'end_date_year',   $year);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ts',   $start_ts);
@@ -2559,13 +2563,17 @@ class Page_Calendar extends Page
 		$single_events = Calendar_Common::condenseResultTreeids($single_events);
 
 		// Get our recurring events
+		$bind_vars = Array();
 		$date_sql = 'cd.start_date_ts < :start_date_ts';
-		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'year', $year)."\nAND (".$date_sql.')';
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'year', $year, NULL, 'calendar_event_recurring', $bind_vars)."\nAND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$recurring_events = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			MatrixDAL::bindValueToPdo($query, 'start_date_ts', $end_ts);
 			$recurring_events = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -2677,7 +2685,7 @@ class Page_Calendar extends Page
 			trigger_localised_error('CAL0027', E_USER_WARNING);
 			return Array();
 		}
-
+		
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-$month-01 00:00:00 GMT");
 		$next_month = ($month % 12) + 1;
@@ -2685,13 +2693,17 @@ class Page_Calendar extends Page
 		$end_ts = strtotime("$next_year-$next_month-01 00:00:00 GMT") - 1;
 
 		// Get our single events
+		$bind_vars = Array();
 		$date_sql = '((cd.start_date_year = :start_date_year AND (cd.start_date_mon = :start_date_month OR cd.end_date_mon = :end_date_month)) OR (cd.start_date_ts < :start_date_ts AND cd.end_date_ts > :end_date_ts))';
-		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
-
+		
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}
 			MatrixDAL::bindValueToPdo($query, 'start_date_year',  $year);
 			MatrixDAL::bindValueToPdo($query, 'start_date_month', $month);
 			MatrixDAL::bindValueToPdo($query, 'end_date_month',   $month);
@@ -2709,12 +2721,15 @@ class Page_Calendar extends Page
 		$last_day = sprintf('%04d-%02d-%02d', $year, $month, days_in_month($month, $year));
 
 		// Get our recurring events
-		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'month', "$year-$month");
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'month', "$year-$month", NULL, 'calendar_event_recurring', $bind_vars);
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$recur_result = Array();
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -2796,12 +2811,15 @@ class Page_Calendar extends Page
 		$start_date_stamp = Calendar_Common::_getDayStamp($date);
 		$end_date_stamp = $start_date_stamp + 6;
 		$date_sql = '(cd.start_date_ds BETWEEN :start_date_ds AND :end_date_ds) OR (cd.start_date_ds < :start_date_ds_1 AND cd.end_date_ds >= :start_date_ds_2)';
-		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND ('.$date_sql.')';
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars).' AND ('.$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds',   $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_1', $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdo($query, 'start_date_ds_2', $start_date_stamp, PDO::PARAM_INT);
@@ -2814,12 +2832,15 @@ class Page_Calendar extends Page
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// get the recurring events
-		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'week', $date);
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'week', $date, NULL, 'calendar_event_recurring', $bind_vars);
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$recur_result = Array();
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3011,14 +3032,18 @@ class Page_Calendar extends Page
 		}
 
 		// GET SINGLE EVENTS:
+		$bind_vars = Array();
 		$today_date_stamp = Calendar_Common::_getDayStamp($date);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
-		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND '.$date_sql;
-		$sql .= $this->_getRootNodeRestrictionSQL();
-
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids, 'calendar_event_single', TRUE, $bind_vars).' AND '.$date_sql;
+		$sql .= $this->_getRootNodeRestrictionSQL();		
+		
 		$single_result = Array();
-		 try {
+		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -3026,12 +3051,16 @@ class Page_Calendar extends Page
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// GET RECURRING EVENTS:
-		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'day', $date);
+		$bind_vars = Array();
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'day', $date, NULL, 'calendar_event_recurring', $bind_vars);
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$recur_result = Array();
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}			
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
