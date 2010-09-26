@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.72 2008/12/22 05:00:03 bshkara Exp $
+* $Id: calendar_common.inc,v 1.72.6.1 2010/09/26 23:29:57 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -40,11 +40,12 @@ class Calendar_Common
 	* @param array		$root_ids			Root node IDs
 	* @param string		$event_type_code	Type of the event
 	* @param boolean	$include_exceptions	Include exceptions
+	* @param array		$bind_vars			Vars to bind when preparing the query later
 	*
 	* @return string
 	* @access public
 	*/
-	function getSingleEventQueryBase($root_ids, $event_type_code='calendar_event_single', $include_exceptions=TRUE)
+	function getSingleEventQueryBase($root_ids, $event_type_code='calendar_event_single', $include_exceptions=TRUE, &$bind_vars=Array())
 	{
 		$db = MatrixDAL::getDb();
 
@@ -63,15 +64,17 @@ class Calendar_Common
 		$sql .= "\t".'AND (a.status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).")\n\t";
 
 		$sql .= ' AND '.Calendar_Common::_getTreeClause($root_ids);
-
+		
+		$bind_vars = Array();
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
 			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
 			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			$user_count = 0;
 			foreach ($userids as $userid => $type) {
-				$quoted_userids[] = MatrixDAL::quote((string)$userid);
+				$bind_vars[$userid] = 'user'.$user_count++;
 			}
-			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
+			$userid_cond = ' AND p.userid  IN (:'.implode(',:', $bind_vars).')';
 			$sql .= $userid_cond.' AND p.granted = \'1\' AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 
@@ -94,11 +97,12 @@ class Calendar_Common
 	* @param string	$iso				ISO 8601 date as passed to the calling function
 	* @param int	$length				Length of period to look in (period view only)
 	* @param string	$event_type			Desired event type
+	* @param array	$bind_vars			Vars to bind when preparing the query later
 	*
 	* @return string
 	* @access public
 	*/
-	function getRecurringEventQueryBase($root_ids, $view, $iso, $length=NULL, $event_type='calendar_event_recurring')
+	function getRecurringEventQueryBase($root_ids, $view, $iso, $length=NULL, $event_type='calendar_event_recurring', &$bind_vars=Array())
 	{
 		list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 		if (!$month) $month = 12;
@@ -119,15 +123,16 @@ class Calendar_Common
 			$sql .= ', p.granted as granted';
 		}
 		$sql .= "\nFROM ".Calendar_Common::_getTableList()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".MatrixDAL::quote(SQ_STATUS_LIVE).")\n";
-
+		$bind_vars = Array();
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
 			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
 			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			$user_count = 0;
 			foreach ($userids as $userid => $type) {
-				$quoted_userids[] = MatrixDAL::quote((string)$userid);
+				$bind_vars[$userid] = 'user'.$user_count++;
 			}
-			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
+			$userid_cond = ' AND p.userid  IN (:'.implode(',:', $bind_vars).')';
 			$sql .= $userid_cond.' AND p.granted = \'1\' AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 		$sql .= ' AND ';
