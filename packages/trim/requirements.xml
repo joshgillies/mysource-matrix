@@ -1,5 +1,5 @@
 <requirement_info>
-        <package_name>__core__</package_name>
+        <package_name>trim</package_name>
         <requirement>
                 <php_extension>SimpleXML</php_extension>
         </requirement>
