@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.38 2010/07/14 07:28:27 csmith Exp $
+* $Id: preview.inc,v 1.39 2010/09/27 05:01:22 mhaidar Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -166,8 +166,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		if (strpos($primary_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && ($root_url == SQ_CONF_STATIC_ROOT_URL || strpos($root_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE || strpos($primary_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE))) {
 			$add_nocache = FALSE;
 		}
-
-		$o->openRaw();
+		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
+		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->openRaw();
+		
 			?>
 			<script type="text/javascript">
 
@@ -271,6 +272,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					if (xmlHttp.readyState==4)
 					{
 						document.getElementById("size_elements").innerHTML=xmlHttp.responseText;
+						document.getElementById("size_title").innerHTML = "Size";
 						document.getElementById("size_button").value = "Calculate Size";
 						document.getElementById("size_button").disabled = false;
 					}
@@ -278,7 +280,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 			</script>
 		<?php
-		$o->closeRaw();
+		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
+		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
+		
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
@@ -328,27 +332,24 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					label(translate('show_safe_edit_difference'), 'show_diff');
 				$o->closeField();
 			}
-			$o->openRaw();
+			$o->openField('');
 				?>
 				<i><?php echo translate('preview_change_options'); ?></i>
 				<?php
 				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) {
 					echo translate('different_domain_login', $current_url['host']);
 				}
-			$o->closeRaw();
-			$o->openRaw();
-				?>
-				<span id="size_elements"></span>
-			<?php
-			$o->closeRaw();
-			$o->openRaw();
+			$o->closeField();
+		
+			$o->openField('<span id="size_title"></span>');
 			?>
+				<span id="size_elements"></span>
 				<p style="text-align: right;">
 					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
 					normal_button('size_button', translate('calculate'), 'get_size()');?>
 				</p>
 				<?php
-			$o->closeRaw();
+			$o->closeField();
 		$o->closeSection();
 
 		$o->openSection(translate('preview'));
@@ -416,7 +417,7 @@ function printSize(&$owner)
 	// If its a file asset just get the size and display it
 	if ($owner instanceof File) {
 		$existing = $asset_here->getExistingFile();
-		echo '<br><b>Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.easy_filesize($existing['size']).'</b>';
+		echo '<b>'.easy_filesize($existing['size']).'</b>';
 		return;
 	}
 	ob_start();
@@ -538,8 +539,8 @@ function printSize(&$owner)
 			}//end foreach
 		}//end if
 	}//end foreach
-	$output = '<br><table width=40% cellspacing =\'0\'>
-				<tr><td width=25%><b>Size</b></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('page_standard'),15,15,'',NULL,'').'</td><td>HTML content</td><td align=right>'.number_format(($file_size/1024),2).'</td><td>KB</td></tr>
+	$output = '<table width=40% cellspacing =\'0\'>
+				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('page_standard'),15,15,'',NULL,'').'</td><td>HTML content</td><td align=right>'.number_format(($file_size/1024),2).'</td><td>KB</td></tr>
 				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('bodycopy'),15,15,'',NULL,'').'</td><td>Body content</td><td align=right>'.number_format(($body_size/1024),2).'</td><td>KB</td></tr>
 				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('design_css'),15,15,'',NULL,'').'</td><td>CSS ('.sizeof($array_css).')</td><td align=right>'.number_format((($total_css_size)/1024),2).'</td><td>KB</td></tr>
 				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('text_file'),15,15,'',NULL,'').'</td><td>Javascript ('.sizeof($array_js).')</td><td align=right>'.number_format((($total_js_size)/1024),2).'</td><td>KB</td></tr>
