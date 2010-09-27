@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.153 2010/09/05 23:00:40 akarelia Exp $
+* $Id: html_form.inc,v 1.154 2010/09/27 04:52:22 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1539,16 +1539,15 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 */
 function id_list_to_tree($treeid, &$tree, $chunk_prefix='', $sort_order)
 {
-	$branch_str_len = 4;
+	if (strlen($treeid) < SQ_CONF_ASSET_TREE_SIZE) return FALSE;
 
-	if (strlen($treeid) < $branch_str_len) return FALSE;
+	$first_chunk = substr($treeid, 0, SQ_CONF_ASSET_TREE_SIZE);
 
-	$first_chunk = substr($treeid, 0, $branch_str_len);
-
-	if (strlen($treeid) > $branch_str_len) {
-		$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
+	if (strlen($treeid) > SQ_CONF_ASSET_TREE_SIZE) {
+		$remaining_chunk = substr($treeid, SQ_CONF_ASSET_TREE_SIZE, strlen($treeid));
 		if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
 			$tree[$chunk_prefix.$first_chunk] = Array();
+			$tree[$chunk_prefix.$first_chunk]['sort_order'] = 0;
 		}
 		id_list_to_tree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk, $sort_order);
 	} else {
@@ -1658,6 +1657,7 @@ function sort_tree(&$tree)
 			sort_tree($treeid);
 		}
 	}
+
 	uasort($tree, 'sort_compare');
 
 }//end sort_tree()
@@ -1673,7 +1673,7 @@ function sort_tree(&$tree)
 * @access public
 */
 function sort_compare($left, $right)
-{
+{	
 	if (!is_array($left) || !is_array($right)) {
 		return 0;
 	}
