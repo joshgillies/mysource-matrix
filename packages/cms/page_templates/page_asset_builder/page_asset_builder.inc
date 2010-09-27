@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.157.2.2 2010/08/13 03:49:19 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.157.2.3 2010/09/27 00:02:45 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.157.2.2 $
+* @version $Revision: 1.157.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1592,6 +1592,13 @@ class Page_Asset_Builder extends Page
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
 
+		if ($this->attr('require_captcha')) {
+			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
+			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
+			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
+			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
+
 		return $keywords;
 
 	}//end _getNotLoggedInKeywords()
@@ -1609,6 +1616,7 @@ class Page_Asset_Builder extends Page
 		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+
 		if ($this->attr('require_captcha')) {
 			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
 			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
