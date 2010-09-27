@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.160 2010/09/01 01:08:35 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.161 2010/09/27 00:02:08 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1661,6 +1661,31 @@ class Page_Asset_Builder extends Page
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
 
+		if ($this->attr('require_captcha')) {
+			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
+			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
+			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
+			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
+		
+		if ($this->attr('use_mollom')) {
+			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
+			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
+			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
+			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
+			$keywords['asset_builder_mollom_captcha_link']  = translate('cms_asset_builder_mollom_captcha_link');
+		}
+
+		return $keywords;
+
+	}//end _getLoggedInKeywords()
+
+
+	/**
+	* Get the keyword used in created bodycopy
+	*
+	* @return array
+	* @access protected
 		return $keywords;
 
 	}//end _getNotLoggedInKeywords()
@@ -1678,6 +1703,7 @@ class Page_Asset_Builder extends Page
 		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+
 		if ($this->attr('require_captcha')) {
 			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
 			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
