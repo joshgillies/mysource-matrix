@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.366.2.5 2010/08/09 23:28:44 ewang Exp $
+* $Id: lang_strings.xml,v 1.366.2.6 2010/09/27 06:36:03 mhaidar Exp $
 *
 */
 
@@ -2297,6 +2297,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="http_header_send_no_cache_header_field_note">If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.</string>
 	<string source="http_header_send_404_cacheable_header_field">Send 404 Cacheable Header</string>
 	<string source="http_header_send_404_cacheable_header_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.</string>
+	<string source="http_header_use_http_x_forwarded_for">Use "X-Forwarded-For" Header</string>
+  	<string source="http_header_use_http_x_forwarded_for_note">Only enable to help obtain User IP when behind a proxy. System will attempt to use "X-Forwarded-For" header. By default the REMOTE_ADDR server variable is used. This will only work in conjunction with a trusted/known Proxy IP list below.</string>
 
 	<!-- Roles configuration strings -->
 	<string source="roles_configuration_section_name">Roles Configuration</string>
