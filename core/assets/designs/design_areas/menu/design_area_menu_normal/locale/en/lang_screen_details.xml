@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/09/24 08:32:14 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.6 2010/09/27 00:34:15 ewang Exp $
 *
 */
 -->
@@ -45,7 +45,7 @@
 		</field>
 		<field attribute="ignore_permissions">
 			<display_name>Ignore Permissions</display_name>
-			<note>Show all assets in lineage, even if the current user does not have permission to view them</note>
+			<note>Show all live assets in lineage, even if the current user does not have permission to view them</note>
 		</field>
         <field>
             <function_call>

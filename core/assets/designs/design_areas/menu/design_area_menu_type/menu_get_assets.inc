@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.17 2010/09/24 08:32:14 ewang Exp $
+* $Id: menu_get_assets.inc,v 1.18 2010/09/27 00:34:15 ewang Exp $
 *
 */
 
@@ -151,7 +151,7 @@ function menu_get_assets($id_name, $majorids, $ignore_permissions = FALSE)
 	foreach ($result as $row) {
 		if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
 			$menu_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($row['assetid']);
-			$read_access = $ignore_permissions || $menu_asset->readAccess();
+			$read_access = $menu_asset->readAccess();
 
 			$row['name'] = $menu_asset->name;
 			$row['short_name'] = $menu_asset->short_name;
