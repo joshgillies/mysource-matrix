@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.161 2010/09/27 00:02:08 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.162 2010/09/27 00:08:38 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1676,16 +1676,6 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
 
-		return $keywords;
-
-	}//end _getLoggedInKeywords()
-
-
-	/**
-	* Get the keyword used in created bodycopy
-	*
-	* @return array
-	* @access protected
 		return $keywords;
 
 	}//end _getNotLoggedInKeywords()
