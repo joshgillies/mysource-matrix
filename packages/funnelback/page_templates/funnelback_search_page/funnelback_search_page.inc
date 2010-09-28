@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.24 2010/09/03 03:33:28 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.25 2010/09/28 00:37:56 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1448,6 +1448,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						combo_box($this->getPrefix().'_search_sort', $sort_options, FALSE, $current_sort);
 						$replacement = ob_get_contents();
 					ob_end_clean();
+					$this->registerFormField($this->getPrefix().'_search_sort');
 				break;
 
 				case 'spell_suggestion':
@@ -2084,7 +2085,9 @@ class Funnelback_Search_Page extends Listing_Engine
 		$type_max = array_get_index($search, 'type_max', 0);
 		$topic_max = array_get_index($search, 'topic_max', 0);
 		$site_max = array_get_index($search, 'site_max', 0);
-
+		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
+		$sort = array_get_index($search, 'sort', 'rank');
+		
 		// Check for required information
 		if (empty($funnelback_url) || empty($collection)) {
 			// No server set
@@ -2101,7 +2104,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 		if (!empty($scope) && $scope != 'ALL') {
 			$url .= '&scope='.urlencode($scope);
-		}//end if
+		}//end if		
 
 		// Add in the paging commands
 		if ($current_result_page != 1) {
@@ -2157,6 +2160,13 @@ class Funnelback_Search_Page extends Listing_Engine
 			$url .= '&site.max_clusters='.$this->attr('less_site_num');
 		}//end if
 
+		
+		// Add in sorting
+		if (!empty($sort) && $sort !== 'rank' && in_array($sort, $valid_sort)) {
+			$url .= '&sort='.$sort;
+		}
+		
+		
 		return $funnelback_url.$url;
 
 	}//end parseURL()
