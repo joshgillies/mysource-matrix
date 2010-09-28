@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.4 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_ical.inc,v 1.4.2.1 2010/09/28 05:15:17 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -162,6 +162,7 @@ class Data_Source_iCal extends Data_Source
 									case 'DTSTART':
 									case 'CREATED':
 									case 'LAST-MODIFIED':
+										$results[$index][strtolower($command.'-raw')] = $parameter;
 										$date_str = $parameter;
 										if (strlen($parameter) == 8) {
 											$date_str .= 'T------';
