@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.60 2009/08/20 23:51:18 cupreti Exp $
+* $Id: selection.inc,v 1.60.4.1 2010/09/28 04:56:54 cupreti Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -409,7 +409,7 @@ function paint($prefix, $read_only=FALSE)
 						}
 					}//end while
 					?>
-					</tr>
+					<td></td></tr>
 					</table>
 					<?php
 					// end painting table
