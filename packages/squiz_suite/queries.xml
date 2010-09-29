@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<queries id="squiz_suite">
+  <!-- Product Queries -->
+  <query id="registerProduct">
+    <primary>
+      <insert>
+        <fields table="sq_suite_product">
+          <field>systemid</field>
+          <field>type</field>
+          <field>connection</field>
+        </fields>
+        <values>
+          <value column="systemid">:systemid</value>
+          <value column="type">:type</value>
+          <value column="connection">:connection</value>
+        </values>
+      </insert>
+    </primary>
+  </query>
+  <query id="removeProduct">
+    <primary>
+      <delete>
+        <where>
+            <equal table="sq_suite_product" column="systemid">:systemid</equal>
+            <equal table="sq_suite_product" column="current">:current</equal>
+        </where>
+      </delete>
+    </primary>
+  </query>
+  <query id="getProduct">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="current"/>
+           <field table="p1" column="connection"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="systemid">:systemid</in>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getProductsByType">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="current"/>
+           <field table="p1" column="connection"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="type">:type</in>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getCurrentProduct">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="current"/>
+           <field table="p1" column="connection"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <equal table="p1" column="current">:current</equal>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getAllProducts">
+    <primary>
+      <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="current"/>
+           <field table="p1" column="connection"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+      </select>
+    </primary>
+  </query>
+</queries>
