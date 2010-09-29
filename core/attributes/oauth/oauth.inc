@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.2 2010/09/29 07:20:48 mhaidar Exp $
+* $Id: oauth.inc,v 1.3 2010/09/29 23:57:41 mhaidar Exp $
 *
 */
 
@@ -297,10 +297,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			}
 			return $encoded_array;
 		} else {
-			if (mb_detect_encoding($input) !== 'UTF-8') {
-				$input = mb_convert_encoding($input, 'UTF-8');
-			}
-			
+			$input = utf8_encode($input);
 			if ($url_encode) {
 				$input = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($input)));
 			}
