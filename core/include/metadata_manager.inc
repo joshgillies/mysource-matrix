@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.221 2010/09/28 00:02:40 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.222 2010/09/29 04:31:10 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -325,14 +325,15 @@ class Metadata_Manager extends MySource_Object
 		}//end try catch
 
 		if ($granted) {
-			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 			//TODO:
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($all_contexts as $all_contextid => $context_data) {
 				$this->generateContentFile($assetid, FALSE, $all_contextid);
 			}
+			
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -395,9 +396,6 @@ class Metadata_Manager extends MySource_Object
 			throw new Exception('Unable to delete schemaid #'.$schemaid.' on assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 		}//end try catch
 
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($asset, 'MetadataDeleted', Array('schemaid' => $schemaid));
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 		$this->_cleanupMetadataValues($assetid);
 		//TODO:
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
@@ -412,6 +410,10 @@ class Metadata_Manager extends MySource_Object
 				}
 			}
 		}
+
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($asset, 'MetadataDeleted', Array('schemaid' => $schemaid));
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
