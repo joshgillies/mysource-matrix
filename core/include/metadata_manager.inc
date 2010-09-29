@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.210.2.5 2010/09/17 01:38:13 ewang Exp $
+* $Id: metadata_manager.inc,v 1.210.2.6 2010/09/29 06:27:51 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210.2.5 $
+* @version $Revision: 1.210.2.6 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -890,6 +890,11 @@ class Metadata_Manager extends MySource_Object
 				if ($old_key == $mdata_name) {
 					$old_value = $old_val;
 				}
+			}
+
+			// If the field is set to 'use default', it wouldn't be set to any value,
+			if (!isset($value[0]['value'])) {
+			    $value[0]['value'] = $this->getMetadataFieldDefaultValue($fieldid, $contextid);
 			}
 
 			// By pass if the new and old are the same (we don't need the message saying we made no changes!)
