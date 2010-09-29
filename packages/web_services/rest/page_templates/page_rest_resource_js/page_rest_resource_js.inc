@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.4 2009/10/07 23:48:34 akarelia Exp $
+* $Id: page_rest_resource_js.inc,v 1.4.2.1 2010/09/29 05:23:05 ewang Exp $
 *
 */
 
@@ -82,6 +82,10 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 				require_once 'Services/JSON.php';
 				$json = new Services_JSON();
 				$js .= '_REST = ' . $json->encode($this->_res) . ";\n";
+				// Services_JSON will forcibly change Content-type header to json, which is not expected
+				if(!headers_sent()) {
+					header('Content-type: text/html;');
+				}
 			} else {
 				$js .= '_REST = ' .json_encode($this->_res) . ";\n";
 			}
