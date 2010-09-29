@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.9 2009/02/13 00:20:12 bpearson Exp $
+* $Id: export_to_xml.php,v 1.10 2010/09/29 23:46:11 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -84,6 +84,11 @@ foreach($asset_infos as $asset_info) {
 	$asset_from_to_id = explode(':',$asset_info);
 	if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
 	printAttributeXML($asset_from_to_id[0]);
+}
+foreach($asset_infos as $asset_info) {
+	$asset_from_to_id = explode(':',$asset_info);
+	if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
+	printMetadataXML($asset_from_to_id[0]);
 }
 foreach($asset_infos as $asset_info) {
 	$asset_from_to_id = explode(':',$asset_info);
@@ -516,12 +521,72 @@ echo "</actions>\n\n";
 		$replace_assetids = array_unique($replace_assetids);
 
 		foreach ($replace_assetids as $replace_assetid) {
-			$value = preg_replace('|.\/?a='.$replace_assetid.'|', '?a=[[output://create_'.$asset_id_map[$replace_assetid].'.assetid]]', $value);
+			if (isset($asset_id_map[$replace_assetid])) {
+				$value = preg_replace('|.\/?a='.$replace_assetid.'|', '?a=[[output://create_'.$asset_id_map[$replace_assetid].'.assetid]]', $value);
+			}
 		}
 
 		return $value;
 
 	}
+
+
+	function printMetadataXML($asset_id) {
+
+		global $asset_id_map;
+
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$assets_done = Array();
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
+		if (is_null($asset)) exit();
+
+		foreach($mm->getSchemas($asset_id) as $schema_id => $granted) {
+			$schema_info = $mm->getAssetSchemaInfo($asset_id, $schema_id);
+			echo "<action>\n";
+			echo "   <action_id>set_".$asset_id_map[$asset_id]."_metadata_schema_".$schema_id."</action_id>\n";
+			echo "   <action_type>set_metadata_schema</action_type>\n";
+			echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
+			echo "   <schemaid>".(isset($asset_id_map[$schema_id]) ? "[[output://create_".$asset_id_map[$schema_id].".assetid]]" : $schema_id)."</schemaid>\n";
+			echo "   <granted>".$schema_info['granted']."</granted>\n";
+			echo "   <cascades>".$schema_info['cascades']."</cascades>\n";
+			echo "</action>\n\n";
+
+			$metadata = $mm->getMetadata($asset_id, $schema_id);
+			foreach ($metadata as $field_id => $field_info) {
+				echo "<action>\n";
+				echo "   <action_id>set_".$asset_id_map[$asset_id]."_metadata_field_".$field_id."</action_id>\n";
+				echo "   <action_type>set_metadata_value</action_type>\n";				
+				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
+				echo "   <fieldid>".(isset($asset_id_map[$field_id]) ? "[[output://create_".$asset_id_map[$field_id].".assetid]]" : $field_id)."</fieldid>\n";
+				echo "   <value><![CDATA[".$field_info[0]['value']."]]></value>\n";
+				echo "</action>\n\n";
+			} // end foreach metadata
+		} // end foreach schema
+		
+		// Then, if it has dependant children, we add those too
+		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		foreach ($dependants as $link_info) {
+			if (!strpos($link_info['minorid'], ':')) {
+				if (!array_key_exists($link_info['minorid'], $assets_done)) {
+					printMetadataXML($link_info['minorid']);
+				}
+			}
+		}
+
+		// Now let's do the non-dependant children, shall we?
+		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
+		foreach ($children as $link_info) {
+			if (!strpos($link_info['minorid'], ':')) {
+				if (!array_key_exists($link_info['minorid'], $assets_done)) {
+					printMetadataXML($link_info['minorid']);
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+	}//end printMetadataXML()
 
 
 	/**
@@ -598,5 +663,3 @@ echo "</actions>\n\n";
 	}
 
 ?>
-
-
