@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.190 2010/08/31 06:37:12 akarelia Exp $
+* $Id: file.inc,v 1.191 2010/09/29 06:18:01 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -685,8 +685,7 @@ class File extends Asset
 			return TRUE;
 		}
 
-		$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
-
+		
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
 		$save_urls = Array();
@@ -694,11 +693,12 @@ class File extends Asset
 
 		if (!SQ_CONF_STATIC_ROOT_URL == '') {
 			// use the static root URL data
-			$web_path = str_replace(sq_web_path('data').'/', '', $web_path);
+			$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
 			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
 
 		} else {
 
+			$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
 			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
 			foreach ($site_parents as $assetid => $type_code) {
 				$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
