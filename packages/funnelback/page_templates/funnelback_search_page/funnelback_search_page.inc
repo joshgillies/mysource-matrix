@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.25 2010/09/28 00:37:56 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.26 2010/09/30 03:30:45 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -478,7 +478,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$search_vars = Array();
 		$search_vars['query'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_query', ''), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['scope'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_scope', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-		$search_vars['sort'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_sort', $this->attr('sort_order')), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$search_vars['sort'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_search_sort', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['page'] = htmlspecialchars(array_get_index($_REQUEST, 'current_result_page', 1), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['num_per_page'] = htmlspecialchars(array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage()), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
@@ -524,6 +524,13 @@ class Funnelback_Search_Page extends Listing_Engine
 							$search_vars['scope'] = $dynamic_scope;
 						}//end if
 					break;
+					
+					case 'sort_order':
+						$dynamic_sort = $pmap->getParameterValue($params);
+						if (!empty($dynamic_sort) && empty($search_vars['sort'])) {
+							$search_vars['sort'] = $dynamic_sort;
+						}//end if
+					break;
 
 					default:
 						// Do nothing
@@ -536,6 +543,10 @@ class Funnelback_Search_Page extends Listing_Engine
 			$mode = 'initial';
 		}//end if
 
+		if (empty($search_vars['sort'])) {
+			$search_vars['sort'] = $this->attr('sort_order');
+		}
+		
 		// If Stored Query is to be used, then jump to the results page directly
 		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $jump_to_result) {
 			$mode = 'results';
