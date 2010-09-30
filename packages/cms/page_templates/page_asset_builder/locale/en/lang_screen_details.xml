@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.19 2010/09/22 23:18:16 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.20 2010/09/30 23:08:33 cupreti Exp $
 *
 */
 -->
@@ -183,7 +183,7 @@
 	<section name="Mollom Spam Check" write_access="write:attributes">
 		<field attribute="use_mollom">
 			<display_name>Use Mollom Spam Check</display_name>
-			<note>Mollom will try to filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %form_mollom_captcha% or %form_mollom_captcha_image% plus %form_mollom_captcha_field% and %form_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted.</note>
+			<note>Mollom will try to filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %asset_builder_mollom_captcha% or %asset_builder_captcha_image% plus %asset_builder_mollom_captcha_field% and %asset_builder_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted.</note>
 		</field>
 		<field>
 			<display_name>Attributes To Check</display_name>
@@ -207,7 +207,7 @@
 		</field>		
 		<field attribute="mollom_captcha_regen_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
-			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used.</note>
+			<note>This text will appear when the %asset_builder_mollom_captcha_regen_link% keyword is used.</note>
 		</field>
 	</section>	
 </contents>

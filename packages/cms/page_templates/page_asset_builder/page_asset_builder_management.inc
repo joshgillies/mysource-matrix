@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.40 2010/09/01 01:08:35 cupreti Exp $
+* $Id: page_asset_builder_management.inc,v 1.41 2010/09/30 23:07:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -425,13 +425,13 @@ class Page_Asset_Builder_Management extends Asset_Management
 		$this->vars['mollom_captcha_incorrect_text'] 		= Array(
 												'added'			=> '0.9',
 												'type'			=> 'text',
-												'default'		=> 'Incorrect seurity key. Please try again',
+												'default'		=> 'Incorrect security key. Please try again',
 												'description'	=> 'Mollom error message text for incorrect captcha',
 											);										   
 		$this->vars['mollom_captcha_regen_link_text'] 	= Array(
 												'added'			=> '0.9',
 												'type'			=> 'text',
-												'default'		=> 'Regenerate seurity key',
+												'default'		=> 'Regenerate security key',
 												'description'	=> 'Mollom CAPTCHA regen link text',
 											);
 

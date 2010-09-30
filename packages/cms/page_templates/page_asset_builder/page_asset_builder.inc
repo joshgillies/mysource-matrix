@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.162 2010/09/27 00:08:38 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.163 2010/09/30 23:07:56 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1673,7 +1673,7 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
 			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
 			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
-			$keywords['asset_builder_mollom_captcha_link']  = translate('cms_asset_builder_mollom_captcha_link');
+			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
 
 		return $keywords;
@@ -1706,7 +1706,7 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
 			$keywords['asset_builder_mollom_captcha_audio'] = translate('cms_asset_builder_mollom_captcha_audio');
 			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
-			$keywords['asset_builder_mollom_captcha_link']  = translate('cms_asset_builder_mollom_captcha_link');
+			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
 
 		return $keywords;

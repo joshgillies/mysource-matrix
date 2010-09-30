@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.65 2010/09/01 01:06:34 cupreti Exp $
+* $Id: form_management.inc,v 1.66 2010/09/30 23:10:51 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -442,13 +442,13 @@ class Form_Management extends Asset_Management
 						'mollom_captcha_incorrect_text' => Array(
 															'added'			=> '0.15',
 															'type'			=> 'text',
-															'default'		=> 'Incorrect seurity key. Please try again',
+															'default'		=> 'Incorrect security key. Please try again',
 															'description'	=> 'Mollom error message text for incorrect captcha',
 														),										   
 						'mollom_captcha_regen_link_text' => Array(
 															'added'			=> '0.15',
 															'type'			=> 'text',
-															'default'		=> 'Regenerate seurity key',
+															'default'		=> 'Regenerate security key',
 															'description'	=> 'Mollom CAPTCHA regen link text',
 														),
 														   
