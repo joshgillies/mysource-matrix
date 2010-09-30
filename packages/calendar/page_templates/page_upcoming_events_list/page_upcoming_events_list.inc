@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.24.2.2 2010/09/26 23:31:24 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.24.2.3 2010/09/30 04:04:22 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24.2.2 $
+* @version $Revision: 1.24.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -424,8 +424,12 @@ class Page_Upcoming_Events_List extends Page
 
 		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
 		$first_current_date = TRUE;
+		foreach($events as $id => $event) {
+			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
+		}
 
 		foreach ($events as $id => $event) {
+			$shadow_id = $id;
 			$id = strtok($id, ':');
 			$replacements = Array();
 
@@ -446,7 +450,7 @@ class Page_Upcoming_Events_List extends Page
 
 			if ($asset && $asset->type() == 'calendar_event_recurring') {
 
-				$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
+				$current_date = $events[$shadow_id]['current_date'];
 
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
 				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date)	{
@@ -454,7 +458,13 @@ class Page_Upcoming_Events_List extends Page
 				}
 
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
-				$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
+				foreach($events as $temp_id => $temp_event) {
+					$original_id = strtok($temp_id, ':');
+					if ($original_id == $id) {
+						$events[$temp_id]['current_date'] = $next_occurance;
+						$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
+					}
+				}
 
 				$first_current_date = FALSE;
 			}
@@ -504,7 +514,7 @@ class Page_Upcoming_Events_List extends Page
 
 		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 			unset($_REQUEST['SQ_CALENDAR_DATE']);
-		}		
+		}
 
 		return Array('event_list' => $event_list);
 
