@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.8 2010/05/12 01:11:18 ewang Exp $
+* $Id: workflow_manager.inc,v 1.144.2.9 2010/09/30 04:15:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.8 $
+* @version $Revision: 1.144.2.9 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1038,7 +1038,6 @@ class Workflow_Manager extends MySource_Object
 
 		$log = $ms->newMessage();
 		$msg_reps = Array(
-						'user_name'		=> $user->name,
 						'workflow_user'	=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
@@ -1127,7 +1126,6 @@ class Workflow_Manager extends MySource_Object
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 					$msg_reps = Array(
-									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
@@ -1448,7 +1446,7 @@ class Workflow_Manager extends MySource_Object
 	* @access public
 	*/
 	function startWorkflow($assetid, $auto_approve=TRUE, $base_msg=NULL, $stream_name=NULL)
-	{
+	{log_dump($base_msg);
 		$assetid  = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -1534,7 +1532,7 @@ class Workflow_Manager extends MySource_Object
 			foreach ($schema_workflows as $schemaid => $schema_workflow) {
 				$current_step = $this->getCurrentStep($schema_workflow);
 				$publishers = $this->whoCanPublish($asset->id, $schemaid);
-
+log_dump($publishers);
 				// we don't want to be sending asset.workflow.invitation emails to users who have admin
 				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
 				if (is_null($base_msg)) {
@@ -1567,7 +1565,6 @@ class Workflow_Manager extends MySource_Object
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 					$msg_reps = Array(
-									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
@@ -1746,7 +1743,6 @@ class Workflow_Manager extends MySource_Object
 				if (empty($msg->replacements)) {
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 					$msg_reps = Array(
-									'user_name'		=> $user->name,
 									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'	=> $asset->name,
@@ -2047,7 +2043,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$msg_reps = Array(
-						'user_name'				=> $user->name,
 						'workflow_user'			=> $user->name,
 						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'			=> $asset->name,
@@ -2116,7 +2111,6 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			$msg_reps = Array(
-							'user_name'				=> $user->name,
 							'workflow_user'			=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 							'asset_name'			=> $asset->name,
