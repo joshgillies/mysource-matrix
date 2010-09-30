@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.153.2.4 2010/09/13 00:21:19 ewang Exp $
+* $Id: workflow_manager.inc,v 1.153.2.5 2010/09/30 04:19:39 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153.2.4 $
+* @version $Revision: 1.153.2.5 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1041,7 +1041,6 @@ class Workflow_Manager extends MySource_Object
 
 		$log = $ms->newMessage();
 		$msg_reps = Array(
-						'user_name'		=> $user->name,
 						'workflow_user'	=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
@@ -1132,7 +1131,6 @@ class Workflow_Manager extends MySource_Object
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 					$msg_reps = Array(
-									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
@@ -1574,7 +1572,6 @@ class Workflow_Manager extends MySource_Object
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 					$msg_reps = Array(
-									'user_name'				=> $user->name,
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
@@ -1755,7 +1752,6 @@ class Workflow_Manager extends MySource_Object
 				if (empty($msg->replacements)) {
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 					$msg_reps = Array(
-									'user_name'		=> $user->name,
 									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'	=> $asset->name,
@@ -2060,7 +2056,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$msg_reps = Array(
-						'user_name'				=> $user->name,
 						'workflow_user'			=> $user->name,
 						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'			=> $asset->name,
@@ -2131,7 +2126,6 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			$msg_reps = Array(
-							'user_name'				=> $user->name,
 							'workflow_user'			=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 							'asset_name'			=> $asset->name,
