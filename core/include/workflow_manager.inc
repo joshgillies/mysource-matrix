@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.144.2.9 2010/09/30 04:15:04 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.144.2.10 2010/09/30 04:23:57 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144.2.9 $
+* @version $Revision: 1.144.2.10 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1446,7 +1446,7 @@ class Workflow_Manager extends MySource_Object
 	* @access public
 	*/
 	function startWorkflow($assetid, $auto_approve=TRUE, $base_msg=NULL, $stream_name=NULL)
-	{log_dump($base_msg);
+	{
 		$assetid  = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -1532,7 +1532,7 @@ class Workflow_Manager extends MySource_Object
 			foreach ($schema_workflows as $schemaid => $schema_workflow) {
 				$current_step = $this->getCurrentStep($schema_workflow);
 				$publishers = $this->whoCanPublish($asset->id, $schemaid);
-log_dump($publishers);
+
 				// we don't want to be sending asset.workflow.invitation emails to users who have admin
 				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
 				if (is_null($base_msg)) {
