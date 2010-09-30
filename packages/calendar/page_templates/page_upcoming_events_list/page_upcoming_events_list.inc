@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.28 2010/09/28 04:00:04 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.29 2010/09/30 03:57:29 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -424,9 +424,8 @@ class Page_Upcoming_Events_List extends Page
 
 		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
 		$first_current_date = TRUE;
-//		$done_token = Array();
 		foreach($events as $id => $event) {
-	            $events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
+			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
 		}
 
 		foreach ($events as $id => $event) {
@@ -512,7 +511,7 @@ class Page_Upcoming_Events_List extends Page
 			$event_list .= $entry;
 
 		}//end foreach events
-		
+
 		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 			unset($_REQUEST['SQ_CALENDAR_DATE']);
 		}
