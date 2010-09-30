@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.2.2.1 2010/05/19 01:26:12 lwright Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.2.2.2 2010/09/30 00:24:12 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			return FALSE;
 		} else {
 			// Get the time that Twitter reported it as
-			$tweet_time = strtotime((string) $sxml->{created_at});
+			$tweet_time = strtotime((string) $sxml->created_at);
 		}
 
 		return Array(
@@ -382,6 +382,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		$settings['tweet_contents'] = array_get_index($request_data, 'tweet_contents');
+		$settings['if_tweet_too_long'] = array_get_index($request_data, 'if_tweet_too_long');
 		$settings['consumer_key'] = array_get_index($request_data, 'consumer_key');
 		$settings['consumer_secret'] = array_get_index($request_data, 'consumer_secret');
 		$settings['request_token'] = array_get_index($request_data, 'request_token');
@@ -587,12 +588,13 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		// Get the URL for status updating - but we need to hack around this,
 		// since OAuth attr only supports adding new fields through query params
 		// so get it to sign using that
+		$settings['tweet_contents'] = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($settings['tweet_contents'])));
 		$url = 'http://api.twitter.com/1/statuses/update.xml';
 		$url_for_signing = $url.'?status='.$settings['tweet_contents'];
 
 		// It also doesn't seem to like POST. So we will get the header as
 		// usual, then break it apart and turn it into POST data.
-		$header = $oauth_attr->getUserDataAuthHeader($url_for_signing, $settings['access_token'], $settings['access_token_secret']);
+		$header = $oauth_attr->getUserDataAuthHeader($url_for_signing, $settings['access_token'], $settings['access_token_secret'], FALSE);
 		$header = substr_replace($header, '', 0, strlen('Authorization: OAuth '));
 
 		$post_items = Array();
@@ -605,7 +607,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 			$post_items[$key] = $value;
 		}
 
-		$post_items['status'] = urlencode($settings['tweet_contents']);
+		$post_items['status'] = $settings['tweet_contents'];
 
 		foreach ($post_items as $key => $value) {
 			$post_bits[] = $key.'='.$value;

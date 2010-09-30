@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.1 2009/09/23 06:58:42 akarelia Exp $
+* $Id: oauth.inc,v 1.1.6.1 2010/09/30 00:24:35 mhaidar Exp $
 *
 */
 
@@ -281,12 +281,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	/**
 	* Encode the given input into RFC3986
 	*
-	* @param	$input	Array or String to encode
+	* @param  Mixed   $input		Array or String to encode
+	* @param  Boolean $url_encode	whether to url_encode the $input
 	*
 	* @return	string
 	* @access	private
 	*/
-	private function _encodeParam($input)
+	private function _encodeParam($input, $url_encode = TRUE)
 	{
 		// if the passed value is an array, encode both keys and values 
 		if (is_array($input)) {
@@ -296,9 +297,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			}
 			return $encoded_array;
 		} else {
-			return str_replace('+', ' ', str_replace('%7E', '~', rawurlencode(utf8_encode($input))));
+			$input = utf8_encode($input);
+			if ($url_encode) {
+				$input = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($input)));
+			}	
+			return $input;
 		}
-
+		
 	}//end _encodeParam()
 
 
@@ -398,12 +403,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	/**
 	* get parameters specified in url
 	*
-	* @param String $url	an url to take parameters from
+	* @param String  $url			an url to take parameters from
+	* @param Boolean $url_encode	whether to url_encode the query part of the $url
 	*
 	* @return Array
 	* @access private
 	*/
-	private function _getQueryParameterArray($url)
+	private function _getQueryParameterArray($url, $url_encode = TRUE)
 	{
 		if (empty($url)) return NULL;
 		
@@ -415,7 +421,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			$params = explode('&', $url_param[1]);
 			foreach ($params as $param) {
 				$param_val = explode('=', $param);
-				$query_parameters[$this->_encodeParam($param_val[0])] = $this->_encodeParam($param_val[1]);				
+				$query_parameters[$this->_encodeParam($param_val[0], $url_encode)] = $this->_encodeParam($param_val[1], $url_encode);				
 			}
 		}
 
@@ -797,10 +803,12 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	/**
 	 * Runs the remote requests.
 	 *
+	 * @param Boolean $url_encode	whether to url_encode the query part of the $url
+	 *
 	 * @access public
 	 * @return void
 	 */
-	public function getUserDataAuthHeader($url='', $access_token, $access_token_secret)
+	public function getUserDataAuthHeader($url='', $access_token, $access_token_secret, $url_encode = TRUE)
 	{
 		$this->_config = @unserialize($this->value);
 		if (empty($this->_config)) return;
@@ -827,7 +835,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// but don't encode the access token as it's already been encoded
 		$all_params = $this->_header_params = $this->_encodeParam($this->_header_params);
 		$all_params['oauth_token'] = $this->_header_params['oauth_token'] = $access_token;
-		$query_params = $this->_getQueryParameterArray($url);
+		$query_params = $this->_getQueryParameterArray($url, $url_encode);
 		if (!empty($query_params)) { 
 			// if query parameters exist, they have to be included in the signature
 			// but shouldn't be included in the header parameters
