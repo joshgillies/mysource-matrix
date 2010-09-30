@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.3.2.1 2010/06/10 05:34:51 cupreti Exp $
+* $Id: funnelback_search_page_management.inc,v 1.3.2.2 2010/09/30 03:35:42 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -104,6 +104,7 @@ class Funnelback_Search_Page_Management extends Asset_Management
 																						'query'				=> 'Query',
 																						'results_per_page'	=> 'Results per page',
 																						'scope'				=> 'Scope',
+																						'sort_order'		=> 'Sort Order',
 																					   ),
 																   ),
 										    );
