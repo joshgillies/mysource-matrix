@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.252 2010/09/03 00:34:01 ewang Exp $
+* $Id: form.inc,v 1.253 2010/09/30 23:13:19 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3940,10 +3940,6 @@ class Form extends Asset implements Bridge
 
 		$keywords += $this->_getCaptchaDisplayKeywords();
 
-		if ($this->attr('use_mollom')) {
-			$keywords += $this->_getMollomCaptchaDisplayKeywords();
-		}
-
 		return $keywords;
 
 	}//end _getConfirmationPageBodycopyKeywords()
@@ -4073,7 +4069,7 @@ class Form extends Asset implements Bridge
 		$keywords['form_mollom_captcha_image'] = translate('cms_form_mollom_captcha_image');
 		$keywords['form_mollom_captcha_audio'] = translate('cms_form_mollom_captcha_audio');
 		$keywords['form_mollom_captcha_field'] = translate('cms_form_mollom_captcha_field');
-		$keywords['form_mollom_captcha_link']  = translate('cms_form_mollom_captcha_link');		
+		$keywords['form_mollom_captcha_regen_link']  = translate('cms_form_mollom_captcha_link');		
 
 		return $keywords;
 
