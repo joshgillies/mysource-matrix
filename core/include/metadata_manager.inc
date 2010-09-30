@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.210.2.6 2010/09/29 06:27:51 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.210.2.7 2010/09/30 00:24:22 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210.2.6 $
+* @version $Revision: 1.210.2.7 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -325,14 +325,15 @@ class Metadata_Manager extends MySource_Object
 		}//end try catch
 
 		if ($granted) {
-			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 			//TODO:
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			foreach ($all_contexts as $all_contextid => $context_data) {
 				$this->generateContentFile($assetid, FALSE, $all_contextid);
 			}
+			
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
