@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.124 2010/08/04 06:31:17 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.125 2010/10/05 05:52:56 mhaidar Exp $
 *
 */
 
@@ -1829,8 +1829,8 @@ Full Node Contents :
 	<error code="CTX0002">Cannot update context "%1$s" in database: %2$s</error>
 	<error code="CTX0003">Cannot delete context ID #%1$s from database: %2$s</error>
 	<error code="CTX0004">Cannot delete %1$s context(s) from database: %2$s</error>
-	<error code="CTX0005">Cannot create new alternate context; a name is required, but was not entered</error>
-	<error code="CTX0006">Cannot change name of context "%s" to a blank; previous name was kept</error>
+	<error code="CTX0005">Cannot create new alternate context; a non-blank unique name is required, but was not entered</error>
+	<error code="CTX0006">Cannot change name of context "%s" to a blank or existing context name; previous name was kept</error>
 	<error code="CTX0007">Context "%1$s" set as requiring at least %2$s matching condition(s), but only has %3$s condition(s) set; will be marked "not valid" until rectified</error>
 	<error code="CTX0008">Accept-language condition: language code "%s" is not in the list of languages recognised by this system, previous language kept</error>
 	<error code="CTX0009">Accept-language condition: quality value of "%s" is greater than the maximum allowed value of 1.0, value will be saved as 1.0</error>

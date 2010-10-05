@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.8 2009/07/29 00:39:35 lwright Exp $
+* $Id: context_config.inc,v 1.9 2010/10/05 05:52:56 mhaidar Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1077,6 +1077,11 @@ class Context_Config extends Config
 		}
 
 		$contexts = $this->load();
+		$context_names = Array();
+		foreach ($contexts as $key => $value){
+			$context_names[] = $value['name'];
+		}
+		
 		$save_required = FALSE;
 		$saved = FALSE;
 
@@ -1115,7 +1120,7 @@ class Context_Config extends Config
 				} else {
 					$current_context = (int)$current_context;
 				}
-
+				
 				if ($current_context === NULL) {
 					// We can only be editing a context if we haven't selected one
 					// in the same page request.
@@ -1149,7 +1154,7 @@ class Context_Config extends Config
 				if ((int)array_get_index($_POST, $this->prefix.'new_alternate_context', '0') === 1) {
 					$new_name = trim(array_get_index($_POST, $this->prefix.'new_alternate_context_name', ''));
 
-					if ($new_name === '') {
+					if ($new_name === '' || in_array($new_name, $context_names)) {
 						trigger_localised_error('CTX0005', E_USER_WARNING);
 					} else {
 						// Creating a new context - include the new name
@@ -1169,14 +1174,14 @@ class Context_Config extends Config
 					}
 				}
 				}
-
+				
 				if (($current_context === NULL) && ($editing_context !== NULL)) {
 					// Editing a currently selected context
 					$new_name = trim(array_get_index($_POST, $this->prefix.'name', ''));
 
-					// If the new name is blank, refuse to change it, but allow
+					// If the new name is blank or already exists, refuse to change it, but allow
 					// the rest of the editing to continue
-					if ($new_name === '') {
+					if ($new_name === '' || ($new_name != $contexts[$editing_context]['name'] && in_array($new_name, $context_names))) {
 						trigger_localised_error('CTX0006', E_USER_NOTICE, $contexts[$editing_context]['name']);
 					} else {
 						$contexts[$editing_context]['name'] = $new_name;
