@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.344.2.4 2010/09/27 06:36:03 mhaidar Exp $
+* $Id: mysource.inc,v 1.344.2.5 2010/10/05 22:16:41 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.344.2.4 $
+* @version $Revision: 1.344.2.5 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4003,6 +4003,7 @@ class MySource extends MySource_Object
 	*/
 	private function _processUserIP()
 	{
+		if(!defined('SQ_CONF_USE_HTTP_X_FORWARDED_FOR') || !defined('SQ_CONF_FORWARDED_IP_PROXY_LIST')) return;
 		if (SQ_CONF_USE_HTTP_X_FORWARDED_FOR && SQ_CONF_FORWARDED_IP_PROXY_LIST != ''){
 			$safe_list = explode("\n", SQ_CONF_FORWARDED_IP_PROXY_LIST);
 			if (array_key_exists('REMOTE_ADDR', $_SERVER) && in_array($_SERVER['REMOTE_ADDR'], $safe_list)) {
