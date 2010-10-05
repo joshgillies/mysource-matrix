@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: quotation.inc,v 1.3 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: quotation.inc,v 1.3.18.1 2010/10/05 05:53:50 cupreti Exp $
 *
 */
 
@@ -22,8 +22,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * WYSIWYG Plugin - Quotation
 *
 * Purpose
-*     A WYSIWYG plugin to allow the user to create
-*     and manipulate tables
+*     A WYSIWYG plugin to allow the user to insert "Blockquote"
 *
 * @author  Scott Kim <skim@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
@@ -51,9 +50,7 @@ class Quotation extends WYSIWYG_Plugin
 
 
 	/**
-	* Prints a generic insert image function that can be used by any editor
-	* A URL must be entered for the image you want to insert. Alt text must
-	* also be entered before the image will be inserted.
+	* Prints a generic insert "Blockquote" function 
 	*
 	* @returns void
 	* @access  public
@@ -75,29 +72,33 @@ class Quotation extends WYSIWYG_Plugin
 				var ancestors = this.getAllAncestors();
 				for (var i = ancestors.length; --i >= 0;) {
 					var el = ancestors[i];
+					
+					// If the selected text is wrapped by "blockquote", toggle it off
 					if (el && el.tagName == "BLOCKQUOTE") {
-						alert("The selected text is already in the blockquote");
+						newNode = document.createTextNode(el.innerHTML);
+						el.parentNode.replaceChild(newNode, el);
+						
 						inside_blockquote = true;
 						break;
 					}
 				}
 
-				// Does the selected text contain any blockquote?
-				var include_blockquote = false;
-				if (parent.firstChild.tagName == "BLOCKQUOTE") {
-					alert("The selected text includes the blockquote tags");
-					include_blockquote = true;
-				} else {
-					var pattern = /<blockquote>.*<\/blockquote>/i;
+				// Remove all the "blockquotes" in select area,
+				// so that whole selected block can be wrapped by one
+				var pattern = /(<blockquote>.*?<\/blockquote>)|(<blockquote \/>)/i;
+				if (pattern.test(this.getSelectedHTML())) {
+					var nodeContent;
 					for (var i = parent.childNodes.length; --i >= 0;) {
-						if (parent.childNodes[i].tagName == "BLOCKQUOTE" || pattern.test(parent.childNodes[i].innerHTML)) {
-							alert("The selected text includes the blockquote tags");
-							include_blockquote = true;
-						}
-					}
-				}
+						if (parent.childNodes[i].tagName == "BLOCKQUOTE") {
+							nodeContent = parent.childNodes[i].innerHTML;
+						
+							newNode = document.createTextNode(nodeContent);
+							parent.replaceChild(newNode, parent.childNodes[i]);
+						}//end if
+					}//end for
+				}//end if hasBlockquotes
 
-				if (!inside_blockquote && !include_blockquote) {
+				if (!inside_blockquote) {
 
 					if (parent.tagName == "P") {
 
