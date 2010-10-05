@@ -1,5 +1,127 @@
 MYSOURCE MATRIX CHANGELOG
 
+
+VERSION 3.28.5
+
+Featured Changes
+===================================
+
+
+X-Forwarded-For Header for IP Authentication [ Feature Request #4260 ]
+-----------------------------------------------------
+
+Previously, MySource Matrix did not support IP Authentication on reverse proxies, such as Squid. As a result of this limitation, the parent server (in this case, MySource Matrix) was not able to identify the IP address of a connecting client - any connection would reveal only the originating address of the proxy server.
+
+This feature adds support for the X-Forward-For HTTP header. This header allows parent servers to discern client IPs when behind reverse proxies. This means that IP restrictions within MySource Matrix can now be used in conjunction with Squid and other reverse proxies.
+
+Setting the Default Never Delete Value For Remaps [ Feature Request #4636 ]
+-----------------------------------------------------
+
+Previously, remaps created within MySource Matrix were automatically set as Never Delete remaps. This meant that users could not delete the remaps on an asset's URLs or Web Paths screen without first manually changing this setting in the Remap Manager.
+
+This feature allows you to set the default Never Delete value for newly created remaps.
+
+A new field has been added in the Remapping Options section (previously Automatic Remapping) of the Remap Manager to set the default setting for the Never Delete field for each added remap.
+
+If this field is not enabled, remaps will be created as deletable. This erases the multiple steps that would originally have had to be taken to delete remaps that were created as Never Delete.
+
+Ignore Permissions Option in Menu Design Areas [ Feature Request #4707 ]
+-----------------------------------------------------
+
+A new setting has been added to the Menu Normal and Menu Stalks design areas to ignore permissions when displaying assets in the menu of a site. Previously, a user would only see the assets that they had permission to access in a site's menu. With this option enabled, however, users will view all live assets in the menu.
+
+If a user selects an asset that they do not have access to, they will be presented with the system login screen, where they can log in and view the asset.
+
+This option is enabled on the new Ignore Permissions field, configured via a Design Customisation.  By default, this field will be disabled, meaning that permissions will not be ignored.
+
+Metadata Value Support in Export To XML Script [ Feature Request #4716 ]
+-----------------------------------------------------
+
+The export_to_xml.php script exports details of an asset and all its children to an XML file. Previously, this script did not export any metadata associated with the specified asset or its children. This feature has been added to include the metadata of exported assets when running this script.
+
+An excerpt of an example resulting XML file:
+
+<action>
+   <action_id>set_Folder_755_metadata_schema_752</action_id>
+   <action_type>set_metadata_schema</action_type>
+   <asset>[[output://create_Folder_755.assetid]]</asset>
+   <schemaid>[[output://create_Metadata_Schema_752.assetid]]</schemaid>
+   <granted>1</granted>
+   <cascades>1</cascades>
+</action>
+
+<action>
+   <action_id>set_Folder_755_metadata_field_754</action_id>
+   <action_type>set_metadata_value</action_type>
+   <asset>[[output://create_Folder_755.assetid]]</asset>
+   <fieldid>[[output://create_Metadata_Field_Text_754.assetid]]</fieldid>
+   <value><![CDATA[test_val]]></value>
+</action>
+
+In this example, the metadata information of the assets has been included in the XML information. The metadata schema (#752) has been applied to the folder asset (#755) and the value of the metadata field (#754) has been set to test_val.
+
+iCal Data Source Record Set: Date Formatting [ Feature Request #4696 ]
+-----------------------------------------------------
+
+New attributes have been added for the iCal Data Source asset to provide alternative date formatting on iCal Data Records. The new attribute values for 'dtend', 'dtstamp', 'dtstart', 'created' and 'last-modified' can be accessed via automatically generated keyword replacements, displayed on the Details screen of the iCal Data Source.
+
+Funnelback sort order dropdown option for External Server Search [ Feature Request #4710 ]
+-----------------------------------------------------
+
+Previously if Funnelback search page is configured in Funnelback Server Search mode, it doesn't respect sort order dropdown option. Appending sort order to search page url doesn't make it work. It always searches by relevance as default.
+
+This enhancement makes sure Funnelback search page working in Server Search mode also respects sort order option. So it can search by date, title, url etc.
+
+Add Sort Order to dynamic parameters of Funnelback Search Page [ Feature Request #4717 ]
+-----------------------------------------------------
+
+Previously, there were only three dynamic parameters available in Funnelback Search page: query, scope, results_per_page
+
+A Sort order parameter has been added, so that if the search page is nested in another page, sort order can be passed from parent as dynamic parameter.
+
+
+Additional Changes and Bug Fixes
+===================================
+
+Core
+Fixed Bug #4602: Safe edit diff preview incorrect highlights
+Fixed Bug #4651: %user_name% Keyword on Workflow Custom Messages Returns Incorrect User
+Fixed Bug #4653: Default metadata checkbox generates JS error when defaults are empty
+Fixed Bug #4661: Inserting link with '%20' (percentage 20) into WYSYIWYG metadata field produces error
+Fixed Bug #4663: Selecting date in JS calendar throws error
+Fixed Bug #4664: PHP notice using Dynamic Create Locations in Asset Builder
+Fixed Bug #4667: REST Resource JavaScript - Content type header
+Fixed Bug #4669: WYSIWYG Insert Link tool: Undefined variable: asset_title
+Fixed Bug #4670: Workflow Escalation email issues with simple edit user
+Fixed Bug #4671: Funnelback search pages do not create unique enough cache keys
+Fixed Bug #4672: Funnelback search log report can not be generated by its log rotation job
+Fixed Bug #4674: install check script will sometimes report errors about funnelback
+Fixed Bug #4675: %metadata_field_*% keyword with multiple schemas
+Fixed Bug #4677: regenerate metadata by root nodes script database error
+Fixed Bug #4680: Link editor breaks when attempting to edit asset link with query string added.
+Fixed Bug #4682: fatal errors thrown when selecting some trigger event asset in User group security restriction screen
+Fixed Bug #4685: Triggers not fired when Security Restrictions are defined
+Fixed Bug #4687: Security Restrictions for asset's screen not working as expected
+Fixed Bug #4691: static root overlapping system root url breaks path calculations
+Fixed Bug #4693: Metadata Field Updated trigger condition thinks fields with 'use default' also updated
+Fixed Bug #4694: Disabling Rollback Manager via backend causes db deadlock
+Fixed Bug #4697: User group acquiring lock on detail screen doesn't enable Thumbnail section
+Fixed Bug #4702: Feature Request: Asset Builder CAPTCHA Keywords in Not Logged In Bodycopy
+Fixed Bug #4706: Twitter trigger doesn't like special characters
+Fixed Bug #4708: Malformed html of preview screen in simple edit mode
+
+Web Services
+Fixed Bug #4673: Empty response returned for assets containing non-ascii character
+Fixed Bug #4690: JS API Errors when users are deleted
+
+Search:
+Fixed Bug #4711: HTML output for metadata checkboxes in search pages is invalid
+
+Calendar:
+Fixed Bug #4660: Upcoming Events List produces incorrect output on Recurring Events on same day
+Fixed Bug #4683: Cannot clone calendar page asset having no results bodycopy
+
+
 VERSION 3.28.4
 
 Featured Changes
