@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.11 2009/01/28 00:00:09 bpearson Exp $
+#* $Id: Makefile,v 1.11.8.1 2010/10/05 02:08:29 csmith Exp $
 #*
 #*/
 
@@ -19,7 +19,7 @@
 # @author Rayn Ong <rong@squiz.net>
 
 # we always compile with java version 1.4 to maintain compatibility
-javapath = /opt/java-1.4/bin
+javapath = /usr/bin
 
 # asset map component
 component = assetmap core debug inspector matrixtree plaf ui
@@ -35,7 +35,7 @@ componentclassfiles = net/squiz/cuetree/*.class $(patsubst %,net/squiz/matrix/%/
 #    It is easily acquirable from most Netscape based browser installs
 #    Place this file in core/lib/asset_map/java/src directory
 # note on SquizKeyStore
-#    Keystore file with certificate information (mykey)
+#    Keystore file with certificate information (squiz)
 #    http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/rsa_signing.html
 #    http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/keytool.html
 #    Cerberus Ticket: #KVW-52908-317: Squiz - Code Signing Certificate
@@ -50,13 +50,13 @@ default:
 # create and sign assetmap.jar
 simple: default
 	cd src && $(javapath)/jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
-	$(javapath)/jarsigner -keystore SquizKeyStore assetmap.jar mykey
+	$(javapath)/jarsigner -keystore SquizKeyStore assetmap.jar squiz
 	$(javapath)/jarsigner -verify assetmap.jar
 
 # create and sign complexassetmap.jar
 complex: simple
 	cd src && $(javapath)/jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
-	$(javapath)/jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
+	$(javapath)/jarsigner -keystore SquizKeyStore complexassetmap.jar squiz
 	$(javapath)/jarsigner -verify complexassetmap.jar
 
 # get rid of the class files
