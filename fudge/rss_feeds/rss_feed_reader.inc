@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.17 2009/11/03 00:38:36 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.17.4.1 2010/10/06 02:22:07 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.4.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -503,6 +503,15 @@ class RSS_Feed_Reader
 					$this->{$var}[$parent][$index][$element]['_attributes'] = $data;
 				}
 			} else {
+				// RSS feeds should only have one LINK. But Atom may have multiple, with different REL attributes ('enclosure', 'alternate').
+				// Since multiple links are not part of the design here, ensure we only get 'alternate' links if attributes are provided.	
+				// This is essentially a hack, but provides better Atom support than without it. 
+				// @see http://www.atomenabled.org/developers/syndication/atom-format-spec.php#element.link
+				// @see http://bugs.matrix.squiz.net/view_bug.php?bug_id=4700
+				if ($element == 'LINK') {
+					if ((is_array ($data)) && (array_key_exists('REL', $data)) && ($data['REL'] != 'alternate')) return;
+				}
+				
 				// if the array exists and it is not empty
 				// then we get the index in which this data has to be inserted
 				if (!empty($this->{$var})) {
