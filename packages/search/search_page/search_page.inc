@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.247 2010/07/14 07:30:08 csmith Exp $
+* $Id: search_page.inc,v 1.248 2010/10/06 01:08:14 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.247 $
+* @version $Revision: 1.248 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1056,7 +1056,7 @@ class Search_Page extends Listing_Engine
 	* @access public
 	*/
 	function getFieldReplacement($field_name, $sub_field='')
-	{
+	{	
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
@@ -1103,7 +1103,6 @@ class Search_Page extends Listing_Engine
 
 						if (!is_null($asset)) {
 							$params = $asset->vars;
-
 							switch (get_class_lower($asset)) {
 								case 'metadata_field_date' :
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -1111,7 +1110,8 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus':
-								case 'metadata_field_multiple_text' :
+								case 'metadata_field_multiple_text':
+								case 'metadata_field_wysiwyg':
 									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 								break;
 								case 'metadata_field_hierarchy' :
