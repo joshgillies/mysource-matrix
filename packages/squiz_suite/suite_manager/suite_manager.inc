@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: suite_manager.inc,v 1.2 2010/10/06 00:06:02 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -733,8 +733,6 @@ class Suite_Manager extends Page
 		$dataDir = $this->data_path;
 		openssl_pkey_export_to_file($keyGenerated, $dataDir.'/privatekey.pem');
 
-		$pubKey = openssl_pkey_get_details($keyGenerated);
-
 		$info = Array(
 				 'countryName'			  => 'AU',
 				 'stateOrProvinceName'	  => 'NSW',
@@ -750,8 +748,6 @@ class Suite_Manager extends Page
 		$cert = openssl_csr_sign($csr, NULL, $keyGenerated, (365 * 10));
 		openssl_x509_export_to_file($cert, $dataDir.'/system.crt');
 		openssl_x509_export($cert, $certStr);
-
-		file_put_contents($dataDir.'/publickey', $pubKey['key']);
 
 		// Also update the current product connection information with public key in it.
 		$currProduct['connection']['cert'] = $certStr;
