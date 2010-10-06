@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.26 2009/11/27 05:39:41 bpearson Exp $
+* $Id: calendar_event_modification.inc,v 1.26.4.1 2010/10/06 22:49:38 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -97,7 +97,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		}//end if
 
 		if ($short_name) {
-			return translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
+			return translate('cal_event_modified_date', date('d M Y', iso8601_ts($this->attr('start_date'))));
 		}//end if
 
 		// Obtain the attribute value for Name from the specified Context
