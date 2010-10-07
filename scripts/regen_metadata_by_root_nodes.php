@@ -17,7 +17,7 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.4.1 $
+* @version $Revision: 1.2.4.2 $
 * @package MySource_Matrix
 */
 
@@ -152,10 +152,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                 case 0:
                     
                     require_once $SYSTEM_ROOT.'/core/include/init.inc';
-                    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-                    
-                    $conn_id = MatrixDAL::getCurrentDbId();
-                    
+                    $GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
                     
                     $mm    = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
                     
@@ -185,7 +182,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                         
                     }//end foreach
 
-                    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+                    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
                     exit(0);
                     // waiting for child exit signal
