@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.21 2010/09/23 07:47:26 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.22 2010/10/07 02:39:04 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -998,10 +998,9 @@ class Funnelback_Manager extends Asset
 
 		$config['executables'] = $path.'/executables.cfg';
 		$config['collection'] = $path.'/collection.cfg';
-		$config['fluster'] = $path.'/fluster.cfg';
+		$config['fluster'] = $path.'/contextual_navigation.cfg';
 		$config['metadata'] = $path.'/metamap.cfg';
 		$config['xml'] = $path.'/xml.cfg';
-		$config['thesaurus'] = $path.'/roget.thesaurus';
 
 		return $config;
 
@@ -1039,7 +1038,8 @@ class Funnelback_Manager extends Asset
 
 			case 'fluster':
 			case 'fluster.cfg':
-				$default_file = $this->getFunnelbackPath().'/conf/fluster.cfg';
+			case 'contextual_navigation.cfg':
+				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg'; 
 				if (file_exists($default_file) && !file_exists($file)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
@@ -1464,7 +1464,6 @@ class Funnelback_Manager extends Asset
 				$errors = stream_get_contents($pipes[2]);
 				if (!empty($errors)) {
 					error_log("\nCommand failed\n");
-					// log_dump($errors);
 				}//end if
 				fclose($pipes[2]);
 			}//end if
@@ -1693,7 +1692,6 @@ class Funnelback_Manager extends Asset
 		$click    = (($path) ? 'bin/' : '').'clix2anx';
 		$config_xml     = (($path) ? 'conf/' : '').'xml.cfg';
 		$config_metamap = (($path) ? 'conf/' : '').'metamap.cfg';
-		$config_fluster = (($path) ? 'conf/' : '').'fluster.cfg';
 		$licence        = (($path) ? 'VERSION/' : '').'squiz.lic';
 		$files = Array(
 					$indexer,
@@ -1704,7 +1702,6 @@ class Funnelback_Manager extends Asset
 					$click,
 					$config_xml,
 					$config_metamap,
-					$config_fluster,
 					$licence,
 				 );
 

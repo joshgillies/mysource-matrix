@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.12 2010/07/08 03:48:43 cupreti Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.13 2010/10/07 02:39:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -732,7 +732,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		hidden_field($prefix.'_chosen_thesaurus', $current_choice);
 		$thesaurus_types = Array('term'=>translate('fb_term_term'), 'whole'=>translate('fb_whole'), 'regex'=>translate('fb_regex'));
 		if ($wa && !empty($current_choice) && isset($collections[$current_choice])) {
-			$thesaurus_config = $asset->getCollectionDataPath($current_choice, 'conf').'/query_expansion.cfg';	
+			$thesaurus_config = $asset->getCollectionDataPath($current_choice, 'conf').'/synonyms.cfg';
 			$config = $asset->readConfiguration($thesaurus_config);
 			?>
 			<table class="sq-backend-table">
@@ -824,7 +824,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//end foreach
 
-		$config = $asset->getCollectionDataPath($collection, 'conf').'/query_expansion.cfg';
+		$config = $asset->getCollectionDataPath($collection, 'conf').'/synonyms.cfg';
 		$asset->writeConfiguration($config, $data);
 
 		return $status;
@@ -1271,7 +1271,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$collection_id = array_get_index($_POST, $prefix.'_edit_fluster', '');
 		if ($wa && !empty($collection_id) && isset($collections[$collection_id])) {
 			$coll_conf_path = $asset->getCollectionDataPath($collection_id, 'conf');
-			$fluster_config = $coll_conf_path.'/fluster.cfg';
+			$fluster_config = $coll_conf_path.'/contextual_navigation.cfg';
 			$asset->createCollectionConfig($fluster_config, 'fluster');
 			$config = $asset->readConfiguration($fluster_config, 'fluster');
 			$multi_opts = Array('cannot_end_with', 'kill_list');
@@ -1332,7 +1332,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			$collection_id = array_get_index($_POST, $prefix.'_fluster_collection_id', '');
 			if (!empty($collection_id)) {
 				$coll_conf_path = $asset->getCollectionDataPath($collection_id, 'conf');
-				$fluster_config = $coll_conf_path.'/fluster.cfg';
+				$fluster_config = $coll_conf_path.'/contextual_navigation.cfg';
 				$data = Array();
 				$options = array_get_index($_POST, $prefix.'_fluster_opts', Array());
 				$multi_options = array_get_index($_POST, $prefix.'_fluster_multi_opts', Array());
@@ -2033,7 +2033,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//end foreach
 
-		$configFile = $asset->getCollectionDataPath($collection, 'conf').'/featured_pages.cfg';
+		$configFile = $asset->getCollectionDataPath($collection, 'conf').'/best_bets.cfg';
 		$asset->writeConfiguration($configFile, $validData, 'feature', '==');
 
 	}//end _writeFeaturePagesConfiguration()
