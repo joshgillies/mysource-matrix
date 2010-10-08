@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.48 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: linking.inc,v 1.49 2010/10/08 03:17:34 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -100,8 +100,10 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 				';
 
+        $bindVars = array();
 		foreach ($assetid_keys as $assetid_key_index => $assetid_key) {
-			$assetid_keys[$assetid_key_index] = '\''.((string) $assetid_key).'\'';
+            $assetid_keys[$assetid_key_index] = ':assetid_keys_'.$assetid_key_index;
+            $bindVars['assetid_keys_'.$assetid_key_index] = (string) $assetid_key;
 		}
 		$where = ' where cl.minorid IN ('.implode(', ', $assetid_keys).')
 				  AND ct.treeid LIKE pt.treeid || \'%\'
@@ -116,6 +118,9 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 
 		try {
 			$query  = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bindVars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
