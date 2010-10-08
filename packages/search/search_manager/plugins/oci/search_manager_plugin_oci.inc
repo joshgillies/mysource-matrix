@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.23 2010/10/06 01:08:58 cupreti Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.24 2010/10/08 02:14:30 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -102,7 +102,7 @@ class Search_Manager_Plugin_OCI
 					$sub_contains_qry = trim($sub_contains_qry,$split_type);
 					$contains_str = ' contains(ai.value, '.MatrixDAL::quote($sub_contains_qry).', 1) > 0';
 				} else {
-					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, (($key_type != 'text')));
+					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, (($key_type != 'text' && $key_type != 'metadata_field_wysiwyg')));
 				}
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
