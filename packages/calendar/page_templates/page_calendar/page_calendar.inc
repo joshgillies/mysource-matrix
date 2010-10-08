@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.238 2010/09/23 06:10:47 cupreti Exp $
+* $Id: page_calendar.inc,v 1.239 2010/10/08 05:52:26 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2855,7 +2855,7 @@ class Page_Calendar extends Page
 		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*$seconds_in_day;
 		$cal_date = date('Y-m-d', $first_day);
 
-		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$seconds_in_day));
+		$last_day = add_days_to_iso($cal_date, 6);
 
 		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day);
 
@@ -2894,17 +2894,21 @@ class Page_Calendar extends Page
 		$res = Array();
 		$day_in_second = 24 * 60 * 60;	// 86400 seconds
 		$days_to_show = $this->attr('week_view_show_days');
-		for ($i = iso8601_ts($date); $i <= iso8601_ts($date) + 6*$day_in_second; $i += $day_in_second) {
+		
+		$i = iso8601_ts($date);
+		while ($i <= iso8601_ts(add_days_to_iso($date, 6))) {
+			$iso_date = iso8601_date_component(ts_iso8601($i));
 			if ($days_to_show[date('w', $i)]) {
-				$res[iso8601_date_component(ts_iso8601($i))] = Array();
+				$res[$iso_date] = Array();
 			}
+			$i = iso8601_ts(add_days_to_iso($iso_date));
 		}
 
 		$week_start_day = $this->attr('week_starts_on');
 		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*$day_in_second;
 		$cal_date = date('Y-m-d', $first_day);
 
-		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$day_in_second));
+		$last_day = add_days_to_iso($cal_date, 6);
 		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
 
 		foreach ($events as $id => $details) {
@@ -2970,12 +2974,15 @@ class Page_Calendar extends Page
 		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
 		$cal_date = date('Y-m-d', $first_day);
 
-		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*86400));
-
-		for ($i = iso8601_ts($cal_date); $i <= iso8601_ts($cal_date) + 6*86400; $i += 86400) {
+		$last_day = add_days_to_iso($cal_date, 6);
+		
+		$i = iso8601_ts($cal_date);
+		while ($i <= iso8601_ts(add_days_to_iso($cal_date, 6))) {
+			$iso_date = iso8601_date_component(ts_iso8601($i));
 			if ($days_to_show[date('w', $i)]) {
-				$res[iso8601_date_component(ts_iso8601($i))] = $partitions;
+				$res[$iso_date] = $partitions;
 			}
+			$i = iso8601_ts(add_days_to_iso($iso_date));
 		}
 
 		$plain_events = $this->groupWeekEventsByDay($plain_events, $date);
