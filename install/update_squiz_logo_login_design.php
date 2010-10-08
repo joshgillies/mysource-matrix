@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_squiz_logo_login_design.php,v 1.3 2010/08/12 00:43:40 ewang Exp $
+* $Id: update_squiz_logo_login_design.php,v 1.4 2010/10/08 03:34:52 ewang Exp $
 *
 */
 
@@ -74,7 +74,7 @@ do {
 		exit();
 	}
 } while (TRUE);
-	
+echo "\n";	
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 $design_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
@@ -101,15 +101,47 @@ foreach ($children as $id => $content) {
 			$file_name = 'matrix-logo.png';
 			$path = $SYSTEM_ROOT.'/core/assets/system/ees_login_design/design_files/files/'.$file_name;
 			$md5 = '9ade1af14bab1611aef70b91f1401d3e';
+			//parse file
+			$new_parse_file = $SYSTEM_ROOT.'/core/assets/system/ees_login_design/design_files/index.html';
+			$parse_file_md5_3_28 = 'cd9c6761bae67fdc78474a540a096e58';
+			$parse_file_md5_3_29 = '15c8ab31d536fac3c6035da4d601e690';
 			break;
+		default:
+			continue;
 	}
 
 	$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-	$info = Array();
-	$info['name'] = $file_name;
-	$info['tmp_name'] = $path;
-	$info['non_uploaded_file'] = TRUE;
+	$design_edit_fns = $design->getEditFns();
+	$type_code = $design->type();
 
+	
+	// Update design parse file for ees_login_design, there is some css changes
+	if($type_code === 'ees_login_design') {
+		$parse_file = $design->data_path.'/parse.txt';
+		$parse_file_md5 = md5(file_get_contents($parse_file));
+		if($parse_file_md5 !== $parse_file_md5_3_28 && $parse_file_md5 !== $parse_file_md5_3_29) {
+			echo 'Parse file in '.$type_code.' was modified. Skip...'."\n";
+		}
+		else if (!is_file($parse_file) || !is_file($new_parse_file)) {
+			trigger_error ('parse file is not available');
+		}
+		else {		
+			
+			// update the parse file
+			if(!_updateFile($new_parse_file, 'parse.txt', $design->data_path, $design->data_path_suffix)) {
+				trigger_error('failed to update ees parse file '.$file_name);
+				exit();
+			}
+
+			$design_edit_fns->parseAndProcessFile($design);
+			$design->generateDesignFile();
+			
+			echo 'Parse file in ees_login_design. Successfully updated...'."\n";
+		}	
+	}
+	
+	
+	// Update logo
 	$existing_ids = Array();
 	$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'file', FALSE);
 
@@ -121,12 +153,12 @@ foreach ($children as $id => $content) {
 
 	// must web-path-ify the new file name to compare, as this is eventually
 	// it's what the file will be named
-	$file_name = make_valid_web_paths(Array($info['name']));
+	$file_name = make_valid_web_paths(Array($file_name));
 	$file_name = array_shift($file_name);
 
 	$existing_fileid = 0;
+	// only pick up the file we want to update
 	foreach ($existing_info as $asset_id => $asset_info) {
-		// if the name is the same, delete the link
 		if ($asset_info['name'] == $file_name) {
 			$existing_fileid = $asset_id;
 			break;
@@ -144,28 +176,66 @@ foreach ($children as $id => $content) {
 	// check MD5 hash, make sure it is the file we want to update
 	$file_info = $file->getExistingFile();
 	if(md5_file($file_info['path']) !== $md5) {
-		trigger_error('MD5 hash does not match, '.$file_name.' has been previously modified. Skip...');
+		echo $file_name.' in '.$type_code.' was modified. Skip...'."\n";
 		continue;
 	}
 	
-	$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id, 'attributes');
-	$edit_fns = $file->getEditFns();
-	$o = NULL;
-	$success = $edit_fns->processFileUpload($file, $o, $file->getPrefix(), $info);
-
-	if ($lock_status === 1) {
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id, 'attributes');
-	}
-
-	if(!$success) {
-		trigger_error('Failed to update squiz logo image');
+	// update the actual logo file
+	if(!_updateFile($path, $file_name, $file->data_path, $file->data_path_suffix)) {
+		trigger_error('failed to update logo '.$file_name);
 		exit();
 	}
-	echo $file_name.' in '.$content[0]['type_code'].' has been successfully updated'."\n";
+
+
+	echo $file_name.' in '.$type_code.'. Successfully updated...'."\n";
+	
 }
 
 echo 'Done'."\n";
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+
+
+
+/**
+ * _updateFile
+ * Update the target file by removing it first and then replace with a new file, update file versioning of it
+ *
+ * @return Boolean
+ */
+function _updateFile ($new_file, $file_name, $data_path, $data_path_suffix) {
+	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+	$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+	
+	$file_path = $data_path.'/'.$file_name;
+	
+	if (!unlink($file_path)) {
+		trigger_error('failed to remove old file '.$file_name);
+		return FALSE;
+	}
+	
+	// copy over the new logo
+	if (string_to_file(file_get_contents($new_file), $file_path)) {
+		// add a new version to the repository
+		$file_status = $fv->upToDate($file_path);
+		if (FUDGE_FV_MODIFIED & $file_status) {
+			if (!$fv->commit($file_path, '')) {
+				trigger_localised_error('CORE0160', E_USER_WARNING);
+			}
+		}
+	} else {
+		trigger_error('Can not overwrite old file '.$file_name);
+	}
+
+	// make sure we have the latest version of our file
+	if (!$fv->checkOut($data_path_suffix.'/'.$file_name, $data_path)) {
+		trigger_localised_error('CORE0032', E_USER_WARNING);
+		return FALSE;
+	}//end if
+	
+
+	return TRUE;
+}//end _updateFile
 
 ?>
