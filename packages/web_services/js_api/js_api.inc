@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.57 2010/09/30 01:03:19 akarelia Exp $
+* $Id: js_api.inc,v 1.58 2010/10/08 01:07:12 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -554,8 +554,13 @@ class JS_Api extends Page
 						} else {
 							$level = $_REQUEST['depth'];
 						}
-						//$data = $am->getAssetTree($asset->id, $levels);
-						$data = $this->getChildren($id, $level);
+
+						// lets check for the type_codes, link_types, and link_values
+						$type_codes = (isset($_REQUEST['type_code']) && $_REQUEST['type_code'] != '') ? explode('\\,', $_REQUEST['type_code']) : Array();
+						$link_types = (isset($_REQUEST['link_type']) && $_REQUEST['link_type'] != '') ? explode('\\,', $_REQUEST['link_type']) : Array();
+						$link_values = (isset($_REQUEST['link_value']) && $_REQUEST['link_value'] != '') ?explode('\\,', $_REQUEST['link_value']) : Array() ;
+
+						$data = $this->getChildren($id, $level, $type_codes, $link_types, $link_values);
 						if (empty($data)) {
 							$this->returnError('Asset #'.$asset->id.' has no children');
 							return;
@@ -586,7 +591,13 @@ class JS_Api extends Page
 						} else {
 							$level = $_REQUEST['depth'];
 						}
-						$data = $this->getParents($asset->id, $level);
+
+						// lets check for the type_codes, link_types, and link_values
+						$type_codes = (isset($_REQUEST['type_code']) && $_REQUEST['type_code'] != '') ? explode('\\,', $_REQUEST['type_code']) : Array();
+						$link_types = (isset($_REQUEST['link_type']) && $_REQUEST['link_type'] != '') ? explode('\\,', $_REQUEST['link_type']) : Array();
+						$link_values = (isset($_REQUEST['link_value']) && $_REQUEST['link_value'] != '') ?explode('\\,', $_REQUEST['link_value']) : Array() ;
+
+						$data = $this->getParents($asset->id, $level, $type_codes, $link_types, $link_values);
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
@@ -1681,12 +1692,18 @@ class JS_Api extends Page
 	/**
 	* Description: Gets parent asset ids
 	*
-	* @param integer	$id			Asset id of the child
+	* @param integer	$id				Asset id of the child
+	* @param integer    $level			How deep to go
+	* @param array		$type_codes		type_code of assets to return
+	* @param array		$link_types		type of link we are looking to return
+	* @param array		$link_values	link values we want on the assets returned
+	*
+	* NOTE : link_types and link_values works only if the level of gettign the child assets is set to 1
 	*
 	* @return void
 	* @access public
 	*/
-	function getParents($id, $level)
+	function getParents($id, $level, $type_codes=Array(), $link_types=Array(), $link_values=Array())
 	{
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -1694,6 +1711,13 @@ class JS_Api extends Page
 
 		$parents = $am->getParents($id, '', TRUE, NULL, NULL, TRUE, NULL, $level);
 		foreach ($parents as $parent => $type_code) {
+			$parent_asset = $am->getAsset($parent);
+			// not in the type_code we want, remove it
+			if(!empty($type_codes) && !in_array($parent_asset->type(), $type_codes)) {
+				unset($childrens[$children]);
+				continue;
+			}
+
 			// Levels greater than 1 won't have a link id with the parent
 			if (!$this->hasLink($parent, $id)) {
 				$show['link_id']		= NULL;
@@ -1706,9 +1730,31 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($parent, $id, NULL, NULL, TRUE);
 				if (!$show_link) {
-					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$id.' do not have a valid link.';
+					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$id.' do not have a valid link';
 					return $data;
 				}
+
+				// abra-ka-dabra all except for the link_values we are interested in
+				if (!empty($link_values) && !in_array($show_link['value'], $link_values)) {
+					unset($childrens[$children]);
+					continue;
+				}
+
+				if(!empty($link_types)) {
+					$found = FALSE;
+					foreach($link_types as $link_type) {
+						if(defined($link_type) && (constant($link_type) == $show_link['link_type'])) {
+							$found = TRUE;
+						} else if (!defined($link_type)) {
+							$found = TRUE;
+						}
+					}
+					if(!$found) {
+						unset($childrens[$children]);
+						continue;
+					}
+				}
+
 				$show['link_id']		= $show_link['link_id'];
 				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
@@ -1717,8 +1763,7 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
-			$asset = $am->getAsset($parent);
-			$parent_arr[$asset->id] = array_merge($this->getGeneralInfo($asset), $show);
+			$parent_arr[$asset->id] = array_merge($this->getGeneralInfo($parent_asset), $show);
 
 		}//end foreach
 
@@ -1730,21 +1775,32 @@ class JS_Api extends Page
 	/**
 	* Description: Gets child asset ids
 	*
-	* @param integer	$id			Asset id of the parent
-	* @param integer	$level		How deep to go
+	* @param integer	$id				Asset id of the parent
+	* @param integer	$level			How deep to go
+	* @param array		$type_codes		type_code of assets to return
+	* @param array		$link_types		type of link we are looking to return
+	* @param array		$link_values	link values we want on the assets returned
+	*
+	* NOTE : link_types, type_codes and link_values works only if the level of gettign the child assets is set to 1
 	*
 	* @return void
 	* @access public
 	*/
-	function getChildren($id, $level)
+	function getChildren($id, $level, $type_codes=Array(), $link_types=Array(), $link_values=Array())
 	{
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$children_arr =Array();
 
-		$children = $am->getChildren($id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, $level);
-		foreach ($children as $children => $child_id) {
+		$childrens = $am->getChildren($id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, $level);
+		foreach ($childrens as $children => $child_id) {
 			$child = $am->getAsset($children);
+			// not in the type_code we want, remove it
+			if(!empty($type_codes) && !in_array($child->type(), $type_codes)) {
+				unset($childrens[$children]);
+				continue;
+			}
+
 			// Levels lower than 1 won't have a link id with the parent
 			if (!$this->hasLink($id, $children)) {
 				$show['link_id']		= NULL;
@@ -1757,9 +1813,31 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($id, $child->id, NULL, NULL, TRUE);
 				if (!$show_link) {
-					$data['error'] = 'Parent Asset #'.$id.' and Child Asset #'.$child->id.' do not have a valid link.';
+					$data['error'] = 'Parent Asset #'.$id.' and Child Asset #'.$child->id.' do not have a valid link';
 					return $data;
 				}
+
+				// abra-ka-dabra all except fo the link_values we are interested in
+				if (!empty($link_values) && !in_array($show_link['value'], $link_values)) {
+					unset($childrens[$children]);
+					continue;
+				}
+
+				if(!empty($link_types)) {
+					$found = FALSE;
+					foreach($link_types as $link_type) {
+						if(defined($link_type) && (constant($link_type) == $show_link['link_type'])) {
+							$found = TRUE;
+						} else if (!defined($link_type)) {
+							$found = TRUE;
+						}
+					}
+					if(!$found) {
+						unset($childrens[$children]);
+						continue;
+					}
+				}
+
 				$show['link_id']		= $show_link['link_id'];
 				$show['link_type']		= $show_link['link_type'];
 				$show['is_dependant']	= $show_link['is_dependant'];
@@ -2972,20 +3050,70 @@ function trashAsset(asset_ids, dataCallback)
 *
 * @param string		asset_id		Id of the asset to get children of
 * @param number		levels			Number of levels to return
+* @param array		type_codes		asset type_code that we want back
+* @param array		link_type		type of links we are looking for
+*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+* @param array		link_values		link values allowed on the asset returned
 * @param function	dataCallback	Custom callback function
 *
+*
+* NOTE : type_code, link_type and link_values are empty by default. So matrix will return everything
+*		 also these options work for direct links only i.e. levels = 1
+*
 * @version $Revision: 0.2
+*
 */
-function getChildren(asset_id, levels, dataCallback)
+function getChildren(asset_id, levels, type_codes, link_types, link_values, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var type_code = '';
+	if(isset(type_codes) && type_codes != '') {
+		if(typeof(type_codes) == 'object' ) {
+			for (var idx in type_codes) {
+				type_code = type_code + type_codes[idx] + '\\,';
+			}
+			type_code = type_code.substring(0, type_code.length-2);
+		} else {
+			type_code = type_codes;
+		}
+	}
+
+	var link_type = '';
+	if(isset(link_types) && link_types != '') {
+		if(typeof(link_types) == 'object' ) {
+			for (var idx in link_types) {
+				link_type = link_type + link_types[idx] + '\\,';
+			}
+			link_type = link_type.substring(0, link_type.length-2)
+		} else {
+			link_type = link_types;
+		}
+	}
+
+	var link_value = '';
+	if(isset(link_values) && link_values != '') {
+		if(typeof(link_values) == 'object' ) {
+			for (var idx in link_values) {
+				link_value = link_value + link_values[idx] + '\\,';
+			}
+			link_value = link_value.substring(0, link_value.length-2);
+		} else {
+			link_value = link_values;
+		}
+	}
 
 	// Check to see if we have set any levels
 	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getChildren&id=' + asset_id + '&depth=' + levels;
+	var url = '<?php echo $this->getURL(); ?>' +
+				'?key=' + api_key +
+				'&type=getChildren&id=' + asset_id +
+				'&depth=' + levels +
+				'&type_code=' + type_code +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value ;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -2997,21 +3125,71 @@ function getChildren(asset_id, levels, dataCallback)
 * This return parents of the passed id
 *
 * @param string		asset_id		Id of the asset to get parents of
-* @param number		levels			Number of levels to return 
+* @param number		levels			Number of levels to return
+* @param array		type_codes		asset type_code that we want back
+* @param array		link_type		type of links we are looking for
+*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+* @param array		link_values		link values allowed on the asset returned
 * @param function	dataCallback	Custom callback function
 *
+*
+* NOTE : type_code, link_type and link_values are empty by default. So matrix will return everything
+*		 also these options work for direct links only i.e. levels = 1
+*
 * @version $Revision: 0.2
+*
 */
-function getParents(asset_id, levels, dataCallback)
+function getParents(asset_id, levels, type_codes, link_types, link_values, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var type_code = '';
+	if(isset(type_codes) && type_codes != '') {
+		if(typeof(type_codes) == 'object' ) {
+			for (var idx in type_codes) {
+				type_code = type_code + type_codes[idx] + '\\,';
+			}
+			type_code = type_code.substring(0, type_code.length-2);
+		} else {
+			type_code = type_codes;
+		}
+	}
+
+	var link_type = '';
+	if(isset(link_types) && link_types != '') {
+		if(typeof(link_types) == 'object' ) {
+			for (var idx in link_types) {
+				link_type = link_type + link_types[idx] + '\\,';
+			}
+			link_type = link_type.substring(0, link_type.length-2);
+		} else {
+			link_type = link_types;
+		}
+	}
+
+	var link_value = '';
+	if(isset(link_values) && link_values != '') {
+		if(typeof(link_values) == 'object' ) {
+			for (var idx in link_values) {
+				link_value = link_value + link_values[idx] + '\\,';
+			}
+			link_value = link_value.substring(0, link_value.length-2);
+		} else {
+			link_value = link_values;
+		}
+	}
 
 	// Check to see if we have set any levels
 	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getParents&id=' + asset_id + '&depth=' + levels;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key +
+				'&type=getParents&id=' + asset_id +
+				'&depth=' + levels +
+				'&type_code=' + type_code +
+				'&link_type=' + link_type +
+				'&link_value=' + link_value;
+
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
