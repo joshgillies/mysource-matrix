@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.7 2010/09/15 03:55:22 ewang Exp $
+* $Id: listing_engine.inc,v 1.303.2.8 2010/10/10 23:41:31 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.7 $
+* @version $Revision: 1.303.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2083,6 +2083,24 @@ class Listing_Engine extends Page
 						}
 					}
 
+					// Keywords not evaluated above might be the ones with the modifiers
+					foreach($format_keywords as $format_keyword) {
+						if (!isset($replacements[$format_keyword])) {
+							$replacements[$format_keyword] = '';
+						}
+					}
+
+					// Apply the keyword modifiers
+					foreach($replacements as $kw => $value) {
+						$plain_keyword = parse_keyword($kw, $modifiers);
+						if (!empty($modifiers)) {
+							$replacements[$kw] = $replacements[$plain_keyword];
+								
+							// Apply modifiers
+							apply_keyword_modifiers($replacements[$kw], $modifiers);
+						}//end if
+					}//end foreach
+					
 					array_pop($this->_tmp['group_info']);
 					$format_bodycopy->setKeywordReplacements($replacements);
 					$format_bodycopy->printBody();
