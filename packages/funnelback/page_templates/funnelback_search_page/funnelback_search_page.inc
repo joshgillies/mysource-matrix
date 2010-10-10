@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.26 2010/09/30 03:30:45 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.27 2010/10/10 22:34:59 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2270,7 +2270,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$coll_path = $fm->getCollectionDataPath($collection_id);
 		$data_path = $fm->getCollectionDataPath($collection_id, 'idx');
 		$log_file = $fm->getCollectionDataPath($collection_id, 'log').'/query.log';
-		$thesaurus_config = $fm->getCollectionDataPath($collection_id, 'conf').'/query_expansion.cfg';
+		$thesaurus_config = $fm->getCollectionDataPath($collection_id, 'conf').'/synonyms.cfg';
 		$search_term = array_get_index($params, 'query', '');
 		$scope = array_get_index($params, 'scope', '');
 		$page = array_get_index($params, 'page', 1);
@@ -2384,7 +2384,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	 */
 	private function _getFlusterOptions($params)
 	{
-		$fluster = ' -fluster_enabled';
+		$fluster = ' -contextual_navigation_enabled';
 		// $cluster = array_get_index($params, 'cluster', Array());
 		// $stem = array_get_index($params, 'stem', 0);
 		$type_max = array_get_index($params, 'type_max', 0);
