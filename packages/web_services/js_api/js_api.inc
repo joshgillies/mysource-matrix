@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.59 2010/10/11 04:12:30 akarelia Exp $
+* $Id: js_api.inc,v 1.60 2010/10/11 04:25:46 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3106,6 +3106,7 @@ function getChildren(asset_id, levels, type_codes, link_types, link_values, get_
 		}
 	}
 
+	q
 	var link_value = '';
 	if(isset(link_values) && link_values != '') {
 		if(typeof(link_values) == 'object' ) {
@@ -3129,7 +3130,7 @@ function getChildren(asset_id, levels, type_codes, link_types, link_values, get_
 				'&depth=' + levels +
 				'&type_code=' + type_code +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value
+				'&link_value=' + link_value +
 				'&get_attributes=' + get_attributes;
 
 	// Make our request
@@ -3207,7 +3208,7 @@ function getParents(asset_id, levels, type_codes, link_types, link_values, get_a
 				'&depth=' + levels +
 				'&type_code=' + type_code +
 				'&link_type=' + link_type +
-				'&link_value=' + link_value
+				'&link_value=' + link_value +
 				'&get_attributes=' + get_attributes;
 
 
