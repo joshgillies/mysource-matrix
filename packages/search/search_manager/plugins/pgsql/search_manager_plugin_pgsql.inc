@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.34.2.1 2010/06/02 04:22:20 akarelia Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.34.2.2 2010/10/11 22:14:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -123,6 +123,7 @@ class Search_Manager_Plugin_PgSQL
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
+								'metadata_field_wysiwyg'		=> 'metadata_field_wysiwyg',
 							 );
 				$exact_type = Array('metadata_field_hierarchy', 'metadata_field_select', 'metadata_field_multiple_text');
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');

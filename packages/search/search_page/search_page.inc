@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.244.2.4 2010/07/22 23:14:42 akarelia Exp $
+* $Id: search_page.inc,v 1.244.2.5 2010/10/11 22:13:49 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244.2.4 $
+* @version $Revision: 1.244.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1112,6 +1112,7 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus':
 								case 'metadata_field_multiple_text' :
+								case 'metadata_field_wysiwyg':
 									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 								break;
 								case 'metadata_field_hierarchy' :
