@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.1.6.1 2010/06/30 22:50:47 mhaidar Exp $
+* $Id: http_request.inc,v 1.1.6.2 2010/10/12 23:43:30 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.1.6.1 $
+* @version $Revision: 1.1.6.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -111,6 +111,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['method'])) $current_value['method'] = 'GET';
 		if (!isset($current_value['timeout'])) $current_value['timeout'] = 10;
 		if (!isset($current_value['follow_redirect'])) $current_value['follow_redirect'] = TRUE;
+		if (!isset($current_value['disable_ssl_verify'])) $current_value['disable_ssl_verify'] = FALSE;
 		if (!isset($current_value['cache_options'])) $current_value['cache_options'] = 'HTTP';
 		if (!isset($current_value['cache_post_requests'])) $current_value['cache_post_requests'] = FALSE;
 		if (!isset($current_value['default_cache_expiry'])) $current_value['default_cache_expiry'] = 60;
@@ -186,6 +187,18 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['follow_redirect'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_follow_redirect', 1, $current_value['follow_redirect']);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_disable_ssl_verify'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['disable_ssl_verify'] ? 'Yes' : 'No');
+						} else {
+							check_box($prefix.'_disable_ssl_verify', 1, $current_value['disable_ssl_verify']);
 						}
 					?>
 				</td>
@@ -393,6 +406,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		
 		$value['timeout'] 				= (isset($_REQUEST[$prefix.'_timeout'])) ? $_REQUEST[$prefix.'_timeout'] : 0;
 		$value['follow_redirect'] 		= (isset($_REQUEST[$prefix.'_follow_redirect'])) ? $_REQUEST[$prefix.'_follow_redirect'] : FALSE;
+		$value['disable_ssl_verify']	= (isset($_REQUEST[$prefix.'_disable_ssl_verify'])) ? $_REQUEST[$prefix.'_disable_ssl_verify'] : FALSE;
 		$value['cache_options'] 		= (isset($_REQUEST[$prefix.'_cache_options'])) ? $_REQUEST[$prefix.'_cache_options'] : 'HTTP';
 		$value['cache_post_requests'] 	= (isset($_REQUEST[$prefix.'_cache_post_requests'])) ? $_REQUEST[$prefix.'_cache_post_requests'] : FALSE;
 		$value['default_cache_expiry']	= (isset($_REQUEST[$prefix.'_default_cache_expiry'])) ? $_REQUEST[$prefix.'_default_cache_expiry'] : 60;
@@ -695,6 +709,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, Array($this, '_readCurlHeaders'));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_res['request']['headers']);
 
+		if (isset($this->_config['disable_ssl_verify']) && $this->_config['disable_ssl_verify']) {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		}
+		
 		// Determine the HTTP method
 		switch ($this->_res['request']['method']) {
 		case 'GET':
