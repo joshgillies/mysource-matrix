@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.20.2.2 2010/09/01 02:00:08 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.20.2.3 2010/10/12 23:19:42 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.20.2.2 $
+* @version $Revision: 1.20.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -595,7 +595,7 @@ class Data_Source_Xml extends Data_Source
 		$value = $parameter_map->getParameterValue($variable_name);
 
 		if (empty($value)) {
-			$value = array_get_index($dynamic_vars, $variable_name, '');
+			return array_get_index($dynamic_vars, $variable_name, '');
 		}
 
 		return urlencode($value);
