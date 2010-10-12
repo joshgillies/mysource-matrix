@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.18 2009/11/02 04:58:35 ewang Exp $
+* $Id: report_incomplete_metadata.inc,v 1.18.4.1 2010/10/12 01:02:15 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,12 +78,12 @@ class Report_Incomplete_Metadata extends Report implements Bridge
 				}
 
 				$links[] = Array(
-							'assetid'		=> $result->attributes()->assetid,
-							'short_name'	=> $result->attributes()->short_name,
-							'name'			=> $result->attributes()->name,
+							'assetid'		=> (String) $result->attributes()->assetid,
+							'short_name'	=> (String) $result->attributes()->short_name,
+							'name'			=> (String) $result->attributes()->name,
 							'accessible'	=> 1,
-							'type_code'		=> $result->attributes()->type_code,
-							'status'		=> $result->attributes()->status,
+							'type_code'		=> (String) $result->attributes()->type_code,
+							'status'		=> (String) $result->attributes()->status,
 							'linkid'		=> '0',
 							'link_type'		=> SQ_LINK_TYPE_1,
 							'num_kids'		=> 0,
@@ -157,10 +157,10 @@ class Report_Incomplete_Metadata extends Report implements Bridge
 
 				$links[] = Array(
 							'linkid'			=> 0,
-							'minorid'			=> $asset->attributes()->assetid,
+							'minorid'			=> (String) $asset->attributes()->assetid,
 							'value'				=> '',
 							'link_type'			=> SQ_LINK_TYPE_1,
-							'minor_type_code'	=> $asset->attributes()->type_code,
+							'minor_type_code'	=> (String) $asset->attributes()->type_code,
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
 							'is_exclusive'		=> '0',
