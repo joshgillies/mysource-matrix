@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.42.2.12 2010/10/11 04:27:59 akarelia Exp $
+* $Id: js_api.inc,v 1.42.2.13 2010/10/13 00:33:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.42.2.12 $
+* @version $Revision: 1.42.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -381,7 +381,8 @@ class JS_Api extends Page
 			case	'getGeneral':
 				if ($this->attr('get_general')) {
 					if ($ra) {
-						$data = $this->getGeneralInfo($asset);
+						$get_attributes = isset($_REQUEST['get_attributes']) ? $_REQUEST['get_attributes'] : FALSE;
+						$data = $this->getGeneralInfo($asset, $get_attributes);
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
@@ -2760,17 +2761,19 @@ function dumpObj(obj, parent) {
 * This will return general information about the asset
 *
 * @param string		asset_id		Id of the asset we are getting info for
+* @param boolean	get_attributes	if we are getting non standard attribute values of the assets(FALSE by default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
 */
-function getGeneral(asset_id, dataCallback) 
+function getGeneral(asset_id, get_attributes, dataCallback) 
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var get_attributes = isset(get_attributes) ? get_attributes : 0;
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id + '&get_attributes=' + get_attributes;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
