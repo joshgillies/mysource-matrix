@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_update_sharepoint_record.inc,v 1.2.6.1 2010/10/13 04:04:39 mhaidar Exp $
+* $Id: cron_job_update_sharepoint_record.inc,v 1.2.6.2 2010/10/13 22:21:33 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.6.1 $
+* @version $Revision: 1.2.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,21 +143,6 @@ class Cron_Job_Update_Sharepoint_Record extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
-	/**
-	* Return TRUE if this link is deletable
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		return FALSE;
-
-	}//end isDeletableLink()
 
 
 	/**
