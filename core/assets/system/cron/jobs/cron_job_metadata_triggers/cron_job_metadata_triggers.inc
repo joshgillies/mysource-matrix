@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.5 2010/07/29 04:42:25 ewang Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.6 2010/10/13 03:48:37 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,37 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 
 	}//end create()
 
+	
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* For the expired workflow cron job, NO!  There must always be exactly one of these here.
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canDelete()
+	{
+		return FALSE;
 
+	}//end canDelete()
+	
+	
+	/**
+	* Return TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isDeletableLink($linkid)
+	{
+		return FALSE;
+
+	}//end isDeletableLink()
+	
+	
 	/**
 	* Returns name of the asset
 	*

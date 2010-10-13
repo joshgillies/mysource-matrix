@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.12 2009/01/12 22:51:51 csmith Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.13 2010/10/13 03:48:37 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,7 +131,22 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 
 	}//end canDelete()
 
+	
+	/**
+	* Return TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isDeletableLink($linkid)
+	{
+		return FALSE;
 
+	}//end isDeletableLink()
+	
+	
 	/**
 	* Run this cron job
 	*

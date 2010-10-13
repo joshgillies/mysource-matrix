@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_matrix_cache.inc,v 1.1 2010/03/19 02:52:38 lwright Exp $
+* $Id: cron_job_expired_matrix_cache.inc,v 1.2 2010/10/13 03:48:37 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,22 @@ class Cron_Job_Expired_Matrix_Cache extends Cron_Job
 
 	}//end canDelete()
 
+	
+	/**
+	* Return TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isDeletableLink($linkid)
+	{
+		return FALSE;
 
+	}//end isDeletableLink()
+	
+	
 	/**
 	* Run this cron job
 	*

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash.inc,v 1.5 2007/12/14 05:56:45 rong Exp $
+* $Id: cron_job_escalate_safe_trash.inc,v 1.6 2010/10/13 03:48:37 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,7 +128,22 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 
 	}//end canDelete()
 
+	
+	/**
+	* Return TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isDeletableLink($linkid)
+	{
+		return FALSE;
 
+	}//end isDeletableLink()
+	
+	
 	/**
 	* Run this cron job
 	*
