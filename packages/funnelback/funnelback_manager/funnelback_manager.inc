@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.22 2010/10/07 02:39:04 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.23 2010/10/13 03:40:46 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1692,6 +1692,7 @@ class Funnelback_Manager extends Asset
 		$click    = (($path) ? 'bin/' : '').'clix2anx';
 		$config_xml     = (($path) ? 'conf/' : '').'xml.cfg';
 		$config_metamap = (($path) ? 'conf/' : '').'metamap.cfg';
+		$config_fluster = (($path) ? 'conf/' : '').'contextual_navigation.cfg';
 		$licence        = (($path) ? 'VERSION/' : '').'squiz.lic';
 		$files = Array(
 					$indexer,
@@ -1702,6 +1703,7 @@ class Funnelback_Manager extends Asset
 					$click,
 					$config_xml,
 					$config_metamap,
+					$config_fluster,
 					$licence,
 				 );
 
