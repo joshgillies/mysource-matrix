@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13.2.5 2010/07/16 00:01:06 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.6 2010/10/13 03:37:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.5 $
+* @version $Revision: 1.13.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -739,7 +739,7 @@ class Funnelback_Manager extends Asset
 		}//end foreach
 		
 		if (isset($root_url_info)) unset($root_url_info);
-		
+
 		$db = MatrixDAL::getDb();
 		try {
 			if (MatrixDAL::getDbType() == 'pgsql') { 
@@ -985,10 +985,9 @@ class Funnelback_Manager extends Asset
 
 		$config['executables'] = $path.'/executables.cfg';
 		$config['collection'] = $path.'/collection.cfg';
-		$config['fluster'] = $path.'/fluster.cfg';
+		$config['fluster'] = $path.'/contextual_navigation.cfg';
 		$config['metadata'] = $path.'/metamap.cfg';
 		$config['xml'] = $path.'/xml.cfg';
-		$config['thesaurus'] = $path.'/roget.thesaurus';
 
 		return $config;
 
@@ -1026,7 +1025,8 @@ class Funnelback_Manager extends Asset
 
 			case 'fluster':
 			case 'fluster.cfg':
-				$default_file = $this->getFunnelbackPath().'/conf/fluster.cfg';
+			case 'contextual_navigation.cfg':
+				$default_file = $this->getFunnelbackPath().'/conf/contextual_navigation.cfg'; 
 				if (file_exists($default_file) && !file_exists($file)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					copy_file($default_file, $file);
@@ -1451,7 +1451,6 @@ class Funnelback_Manager extends Asset
 				$errors = stream_get_contents($pipes[2]);
 				if (!empty($errors)) {
 					error_log("\nCommand failed\n");
-					// log_dump($errors);
 				}//end if
 				fclose($pipes[2]);
 			}//end if
@@ -1680,7 +1679,7 @@ class Funnelback_Manager extends Asset
 		$click    = (($path) ? 'bin/' : '').'clix2anx';
 		$config_xml     = (($path) ? 'conf/' : '').'xml.cfg';
 		$config_metamap = (($path) ? 'conf/' : '').'metamap.cfg';
-		$config_fluster = (($path) ? 'conf/' : '').'fluster.cfg';
+		$config_fluster = (($path) ? 'conf/' : '').'contextual_navigation.cfg';
 		$licence        = (($path) ? 'VERSION/' : '').'squiz.lic';
 		$files = Array(
 					$indexer,

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.13.2.10 2010/09/30 03:35:42 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.13.2.11 2010/10/13 03:37:29 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.10 $
+* @version $Revision: 1.13.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -499,6 +499,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$pmap = $this->getAttribute('dynamic_parameters');
 		$pmap_params = $pmap->getParameters();
 		$jump_to_result = FALSE;
+
 		if (is_array($pmap_params) && !empty($pmap_params)) {
 			foreach ($pmap_params as $params) {
 				switch ($params) {
@@ -541,7 +542,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		if (empty($mode)) {
 			$mode = 'initial';
 		}//end if
-		
+
 		if (empty($search_vars['sort'])) {
 			$search_vars['sort'] = $this->attr('sort_order');
 		}//enf if
@@ -617,7 +618,7 @@ class Funnelback_Search_Page extends Listing_Engine
 					// The error has triggered inside this function
 					return $search_results;
 				}//end if
-				
+
 				$xml_results = $this->_queryFunnelback($url);
 				if (empty($xml_results)) {
 					// Something went wrong
@@ -2096,8 +2097,8 @@ class Funnelback_Search_Page extends Listing_Engine
 		$topic_max = array_get_index($search, 'topic_max', 0);
 		$site_max = array_get_index($search, 'site_max', 0);
 		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');
-		$sort = array_get_index($search, 'sort', 'rank');	
-
+		$sort = array_get_index($search, 'sort', 'rank');
+		
 		// Check for required information
 		if (empty($funnelback_url) || empty($collection)) {
 			// No server set
@@ -2168,6 +2169,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		} else {
 			$url .= '&site.max_clusters='.$this->attr('less_site_num');
 		}//end if
+
 		
 		// Add in sorting
 		if (!empty($sort) && $sort !== 'rank' && in_array($sort, $valid_sort)) {
@@ -2214,7 +2216,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			$request_parameters['proxy_user'] = $proxy_details['user'];
 			$request_parameters['proxy_pass'] = $proxy_details['password'];
 		}
-		
+
 		$request_parameters['timeout'] = 5;
 		$HTTP_Client =& new HTTP_Client($request_parameters);
 		$HTTP_Client->setMaxRedirects(2);
@@ -2266,7 +2268,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$coll_path = $fm->getCollectionDataPath($collection_id);
 		$data_path = $fm->getCollectionDataPath($collection_id, 'idx');
 		$log_file = $fm->getCollectionDataPath($collection_id, 'log').'/query.log';
-		$thesaurus_config = $fm->getCollectionDataPath($collection_id, 'conf').'/query_expansion.cfg';
+		$thesaurus_config = $fm->getCollectionDataPath($collection_id, 'conf').'/synonyms.cfg';
 		$search_term = array_get_index($params, 'query', '');
 		$scope = array_get_index($params, 'scope', '');
 		$page = array_get_index($params, 'page', 1);
@@ -2279,7 +2281,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Build the command line based on params set above
 		$command  = 'echo ';
-		$query = $query = $this->_getSearchQuery($search_term);
+		$query = $this->_getSearchQuery($search_term);
 		if (empty($query)) {
 			if ($this->attr('allow_empty')) {
 				// 'NULL' query (basically use a string with no meaning and use ! - which match everything else)
@@ -2380,7 +2382,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	 */
 	private function _getFlusterOptions($params)
 	{
-		$fluster = ' -fluster_enabled';
+		$fluster = ' -contextual_navigation_enabled';
 		// $cluster = array_get_index($params, 'cluster', Array());
 		// $stem = array_get_index($params, 'stem', 0);
 		$type_max = array_get_index($params, 'type_max', 0);
