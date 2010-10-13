@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.24.4.3 2010/09/30 04:01:40 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.24.4.4 2010/10/13 05:41:39 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24.4.3 $
+* @version $Revision: 1.24.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -617,7 +617,7 @@ class Page_Upcoming_Events_List extends Page
 
 			// get the recurring events
 			$bind_vars = Array();
-			$sql = Calendar_Common::getRecurringEventQueryBase(array_keys($root_nodes), 'period', date('Y-m-d'), $this->attr('num_events'), 'calendar_event_recurring', $bind_vars);
+			$sql = Calendar_Common::getRecurringEventQueryBase(array_keys($root_nodes), 'period', date('Y-m-d'), $this->attr('horizon'), 'calendar_event_recurring', $bind_vars);
 
 			$recur_result = Array();
 			try {
