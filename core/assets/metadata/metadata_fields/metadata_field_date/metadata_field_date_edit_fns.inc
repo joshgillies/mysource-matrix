@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.46 2010/09/09 07:10:26 akarelia Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.47 2010/10/13 02:19:16 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,8 +179,27 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default = $default[$assetid];
 			}
 
-			$field_cascade_value=FALSE;
-			$this->processInlineValueInterface($asset, $default, $field_cascade_value);
+			$field_cascade_value=FALSE;			
+			$processed = FALSE;
+
+			$prefix = $asset->getPrefix();
+			$value = array_get_index($_POST, $prefix.'_repkeys', '');
+			
+			if (!empty($value)) {
+				$default = '%'.trim($value).'%';
+				$processed = TRUE;
+			} else {
+				$field = $asset->_getDateTimeField($prefix);
+				if ($field->processField()) {
+					$value = $field->value;
+					$default = trim($value);
+					$processed = TRUE;
+				}
+			}
+
+			if (isset($_POST[$prefix.'_cascade_value'])) {
+				$field_cascade_value = TRUE;				
+			}			
 
 			if ($is_contextable === FALSE) {
 				$GLOBALS['SQ_SYSTEM']->changeContext(0);
@@ -195,7 +214,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			}
-
+			
+			return $processed;
 		}
 		return FALSE;
 
