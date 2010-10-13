@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.9 2009/01/06 06:00:23 akarelia Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.9.8.1 2010/10/13 04:04:27 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,22 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 
 	}//end canDelete()
 
+	
+	/**
+	* Return TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isDeletableLink($linkid)
+	{
+		return FALSE;
 
+	}//end isDeletableLink()
+	
+	
 	/**
 	* Run this cron job
 	*
