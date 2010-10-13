@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_funnelback_reindex.inc,v 1.3 2010/05/05 03:45:25 ewang Exp $
+* $Id: hipo_job_funnelback_reindex.inc,v 1.4 2010/10/13 06:09:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage funnelback
 */
@@ -301,6 +301,9 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 
 				// Create the XML on the filesystem
 				file_put_contents($data_path.'/sitemap.xml', $xml);
+				// Calculate max line length of metadata summary
+				preg_match('/[0-9]+/', system('wc -L '.$data_path.'/sitemap.xml'), $matches);
+				$maxLineLength = isset($matches[0]) ? $matches[0] : NULL;
 
 				// Apply login credentials
 				$user_id = $fm->attr('user');
@@ -328,6 +331,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 				$command .= ' -secmap '.escapeshellarg($data_path.'/sitemap.xml');
 				$command .= ' '.escapeshellarg($collection_id);		// Index Stem
 				$command .= ' '.implode(' ', $options);				// Command line Options
+				$command .= isset($maxLineLength) ? ' -mdsfml'.$maxLineLength : ''; // Max line length of metadata summary file
 
 				// Start the reindex process
 				$status = $fm->runCommand($command, $output, NULL, $log_file, $data_path, Array('SITE_SEARCH_ROOT'=>$coll_path));
