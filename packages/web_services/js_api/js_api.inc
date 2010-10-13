@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.60 2010/10/11 04:25:46 akarelia Exp $
+* $Id: js_api.inc,v 1.61 2010/10/13 00:23:34 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -434,7 +434,8 @@ class JS_Api extends Page
 			case	'getGeneral':
 				if ($this->attr('get_general')) {
 					if ($ra) {
-						$data = $this->getGeneralInfo($asset);
+						$get_attributes = isset($_REQUEST['get_attributes']) ? $_REQUEST['get_attributes'] : FALSE;
+						$data = $this->getGeneralInfo($asset, $get_attributes);
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
@@ -2845,17 +2846,19 @@ function dumpObj(obj, parent) {
 * This will return general information about the asset
 *
 * @param string		asset_id		Id of the asset we are getting info for
+* @param boolean	get_attributes	if we are getting non standard attribute values of the assets(FALSE by default)
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.1
 */
-function getGeneral(asset_id, dataCallback) 
+function getGeneral(asset_id, get_attributes, dataCallback) 
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var get_attributes = isset(get_attributes) ? get_attributes : 0;
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getGeneral&id=' + asset_id + '&get_attributes=' + get_attributes;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -3106,7 +3109,6 @@ function getChildren(asset_id, levels, type_codes, link_types, link_values, get_
 		}
 	}
 
-	q
 	var link_value = '';
 	if(isset(link_values) && link_values != '') {
 		if(typeof(link_values) == 'object' ) {
