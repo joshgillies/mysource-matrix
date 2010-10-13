@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_funnelback_log_rotation.inc,v 1.5 2010/10/13 03:53:41 mhaidar Exp $
+* $Id: cron_job_funnelback_log_rotation.inc,v 1.6 2010/10/13 06:11:50 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Also after log rotation, it handles the report generation
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -145,21 +145,6 @@ class Cron_Job_Funnelback_Log_Rotation extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-
-	
-	/**
-	* Return TRUE if this link is deletable
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		return FALSE;
-
-	}//end isDeletableLink()
 
 	
 	/**

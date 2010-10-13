@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.6 2010/10/13 03:48:37 mhaidar Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.7 2010/10/13 06:11:25 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,21 +100,6 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
-	/**
-	* Return TRUE if this link is deletable
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		return FALSE;
-
-	}//end isDeletableLink()
 	
 	
 	/**

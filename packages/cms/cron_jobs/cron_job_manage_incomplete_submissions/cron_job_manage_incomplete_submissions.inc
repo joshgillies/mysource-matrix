@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.5 2010/10/13 03:53:27 mhaidar Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.6 2010/10/13 06:11:41 mhaidar Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,21 +161,6 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 		return FALSE;
 
 	}//end canDelete()
-	
-	
-	/**
-	* Return TRUE if this link is deletable
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function isDeletableLink($linkid)
-	{
-		return FALSE;
-
-	}//end isDeletableLink()
 
 
 	/**
