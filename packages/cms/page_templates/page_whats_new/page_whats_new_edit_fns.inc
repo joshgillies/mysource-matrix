@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.20 2010/05/18 23:30:01 ewang Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.21 2010/10/14 06:12:15 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,7 +145,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($asset->attr('range_type') !== 'default') {
+		if ($asset->attr('range_type') != 'default') {
 			$range = $asset->attr('range_type');
 			$date_range_from = '---------- --:--:--';
 			$date_range_to   = '---------- --:--:--';
@@ -262,7 +262,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 		$write_access = $asset->writeAccess('attributes');
 		$ranges       = $asset->attr('date_ranges');
-
+		
 		if (isset($_POST[$prefix.'_new_range'])) {
 			$rangeid = -1;
 		} else if (isset($_POST[$prefix.'_range_id']) && $_POST[$prefix.'_range_id'] != 0 && isset($ranges[$_POST[$prefix.'_range_id'] - 1])) {
@@ -292,12 +292,12 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$newest_date = '---------- --:--:--';
 		} else if (array_key_exists('range_type', $ranges[$rangeid]) === TRUE) {
 			$range = $ranges[$rangeid]['range_type'];
-			$oldest_date = '---------- --:--:--';
-			$newest_date = '---------- --:--:--';
+			$oldest_date = isset($ranges[$rangeid]['oldest_date']) ? $ranges[$rangeid]['oldest_date'] : '---------- --:--:--';
+			$newest_date = isset($ranges[$rangeid]['newest_date']) ? $ranges[$rangeid]['newest_date'] : '---------- --:--:--';
 		} else {
 			$range = 'default';
-			$oldest_date = $ranges[$rangeid]['oldest_date'];
-			$newest_date = $ranges[$rangeid]['newest_date'];
+			$oldest_date = '---------- --:--:--';
+			$newest_date = '---------- --:--:--';
 		}
 
 		$range_types = Array(
