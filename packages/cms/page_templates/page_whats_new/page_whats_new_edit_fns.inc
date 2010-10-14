@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.21 2010/10/14 06:12:15 cupreti Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.22 2010/10/14 22:52:54 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,7 +145,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($asset->attr('range_type') != 'default') {
+		if ($asset->attr('range_type') !== 'default') {
 			$range = $asset->attr('range_type');
 			$date_range_from = '---------- --:--:--';
 			$date_range_to   = '---------- --:--:--';
