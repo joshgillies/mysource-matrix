@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.19.2.1 2010/05/18 23:31:06 ewang Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.19.2.2 2010/10/14 23:05:33 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19.2.1 $
+* @version $Revision: 1.19.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -292,12 +292,12 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			$newest_date = '---------- --:--:--';
 		} else if (array_key_exists('range_type', $ranges[$rangeid]) === TRUE) {
 			$range = $ranges[$rangeid]['range_type'];
-			$oldest_date = '---------- --:--:--';
-			$newest_date = '---------- --:--:--';
+			$oldest_date = isset($ranges[$rangeid]['oldest_date']) ? $ranges[$rangeid]['oldest_date'] : '---------- --:--:--';
+			$newest_date = isset($ranges[$rangeid]['newest_date']) ? $ranges[$rangeid]['newest_date'] : '---------- --:--:--';
 		} else {
 			$range = 'default';
-			$oldest_date = $ranges[$rangeid]['oldest_date'];
-			$newest_date = $ranges[$rangeid]['newest_date'];
+			$oldest_date = '---------- --:--:--';
+			$newest_date = '---------- --:--:--';
 		}
 
 		$range_types = Array(
