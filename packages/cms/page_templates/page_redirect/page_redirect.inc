@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.40 2010/08/23 02:09:13 mhaidar Exp $
+* $Id: page_redirect.inc,v 1.41 2010/10/14 00:15:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -262,6 +262,7 @@ class Page_Redirect extends Page
 
 		$keywords['javascript_redirect'] = 'JavaScript Redirect Code';
 		$keywords['redirect_url'] = 'Redirect URL';
+		$keywords['redirect_assetid'] = 'Redirect Asset Id';
 
 		return $keywords;
 
@@ -293,6 +294,9 @@ class Page_Redirect extends Page
 			}
 		} else if ($keyword === 'redirect_url') {
 			return $this->_getRedirectURL();
+		} else if ($keyword === 'redirect_assetid') {
+			$redirect_asset = $this->getRedirectAsset();
+			return empty($redirect_asset) ? '' : $redirect_asset->id;
 		} else {
 			return parent::getKeywordReplacement($keyword);
 		}
