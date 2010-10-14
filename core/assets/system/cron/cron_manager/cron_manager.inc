@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.79 2008/02/18 04:52:49 lwright Exp $
+* $Id: cron_manager.inc,v 1.80 2010/10/14 00:02:46 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,7 +195,35 @@ class Cron_Manager extends Asset
 
 	}//end moveLinkPos()
 
+	
+	/**
+	* Remove a link where this asset is the major player
+	*
+	* @param int		$linkid			the link id of the link to remove
+	* @param boolean	$check_locked	Check if the link is locked or not
+	*
+	* @return boolean
+	* @access public
+	* @see Asset_Manager::deleteAssetLink()
+	*/
+	public function deleteLink($linkid, $check_locked=TRUE)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+		if (empty($link)) {
+			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
+			return FALSE;
+		}
+		
+		if ($GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($link['minor_type_code'])){
+			trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return FALSE;
+		}
+		
+		return parent::deleteLink($linkid, $check_locked);
 
+	}//end deleteLink()
+	
+	
 	/**
 	* Set the value for the passed variable to the passed value
 	*
