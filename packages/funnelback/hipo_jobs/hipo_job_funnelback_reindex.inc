@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_funnelback_reindex.inc,v 1.3.2.1 2010/10/13 06:09:43 ewang Exp $
+* $Id: hipo_job_funnelback_reindex.inc,v 1.3.2.2 2010/10/14 23:08:39 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix
 * @subpackage funnelback
 */
@@ -302,7 +302,7 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 				// Create the XML on the filesystem
 				file_put_contents($data_path.'/sitemap.xml', $xml);
 				// Calculate max line length of metadata summary
-				preg_match('/[0-9]+/', system('wc -L '.$data_path.'/sitemap.xml'), $matches);
+				preg_match('/[0-9]+/', exec('wc -L '.$data_path.'/sitemap.xml'), $matches);
 				$maxLineLength = isset($matches[0]) ? $matches[0] : NULL;
 
 				// Apply login credentials
