@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_search.inc,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: squiz_suite_system_search.inc,v 1.2 2010/10/15 05:22:24 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -177,6 +177,45 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
         throw new Exception('Error: No urls found');
 
     }//end getPageContent()
+
+
+    /**
+     * The API function for returning the asset info. 
+     *
+     * @param array $urls     An array of the URLs to get the info for.
+     *
+     * @return array
+     */
+    public static function getAssetInfo(array $urls)
+    {
+        $info = array();
+
+        foreach ($urls as $real_url) {
+            $am = $GLOBALS['SQ_SYSTEM']->am;
+
+            $url_parts = parse_url($real_url);
+            $protocol  = array_get_index($url_parts, 'scheme', 'http');
+            $url       = str_replace($protocol.'://', '', $real_url);
+            $asset     = $am->getAssetFromUrl($protocol, $url, TRUE, TRUE);
+            if ($asset !== NULL) {
+                $type     = $asset->type();
+                $iconPath = $am->getAssetIconURL($type);
+
+                $info[$real_url] = array(
+                                    'assetid'  => $asset->id,
+                                    'name'     => $asset->attr('name'),
+                                    'icon'     => $iconPath,
+                                   );
+                $am->forgetAsset($asset, TRUE);
+                unset($asset);
+            } else {
+                $info[$real_url] = NULL;
+            }
+        }//end foreach
+
+        return $info;
+
+    }//end getAssetInfo()
 
 
 }//end class
