@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.24 2010/10/08 02:14:30 cupreti Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.25 2010/10/15 05:54:56 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -83,7 +83,7 @@ class Search_Manager_Plugin_OCI
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 
-				if ((get_class_lower($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) || get_class_lower($metadata_field) == 'metadata_field_multiple_text') {
+				if (get_class_lower($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) {
 					if (strpos($search_term,' AND ') !== FALSE) {
 						$split = ' AND ';
 						$split_type = '&';
@@ -102,7 +102,7 @@ class Search_Manager_Plugin_OCI
 					$sub_contains_qry = trim($sub_contains_qry,$split_type);
 					$contains_str = ' contains(ai.value, '.MatrixDAL::quote($sub_contains_qry).', 1) > 0';
 				} else {
-					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, (($key_type != 'text' && $key_type != 'metadata_field_wysiwyg')));
+					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, ($key_type != 'text' && $key_type != 'metadata_field_wysiwyg' && get_class_lower($metadata_field) != 'metadata_field_multiple_text'));
 				}
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
