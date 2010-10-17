@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.6 2010/06/24 07:03:32 cupreti Exp $
+* $Id: sharepoint_common.inc,v 1.7 2010/10/17 22:32:17 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -637,8 +637,11 @@ ListVersion="0" >
 					$result[$ows_ID][$attr_name]	= (string) $attr_val;
 				}//end foreach
 				
-				$remote_download_url = $connection['url'].'/'.str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
-				
+				$url_bits = parse_url($connection['url']);
+				$base_url = $url_bits['scheme'].'://'.$url_bits['host'];
+				if (isset($url_bits['port']) && !empty($url_bits['port'])) $base_url = $base_url.':'.$url_bits['port'];
+				$remote_download_url = $base_url.'/'.str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
+
 				// If files needs to served locally
 				if ($download_file) {
 					$data_path = $bridge_info['data_path'].'/'.$list_id.'/';
