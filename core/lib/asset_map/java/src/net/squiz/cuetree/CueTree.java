@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.19 2009/10/16 05:05:59 akarelia Exp $
+* $Id: CueTree.java,v 1.20 2010/10/18 05:09:50 akarelia Exp $
 *
 */
 
@@ -1082,7 +1082,7 @@ public class CueTree extends JTree {
 							sourcePath.getLastPathComponent()
 						);
 
-						// if the new position is higher up in the tree
+						//if the new position is higher up in the tree
 						if (newIndex < oldIndex) {
 							indexModifier++;
 						}
@@ -1092,7 +1092,6 @@ public class CueTree extends JTree {
 							currentPath.getParentPath().getLastPathComponent(),
 							currentPath.getLastPathComponent()
 					);
-
 
 					if (sourcePath.getParentPath() == null) {
 						indexModifier++;
@@ -1104,9 +1103,9 @@ public class CueTree extends JTree {
 					}
 
 					// bug fix for #3924 Moving assets - will not sit at bottom of a list
-					// code bit taken out " (index < oldIndex || !(currentPath.getParentPath()).equals(sourcePath.getParentPath())) " 
-					// because it cancels out each other it was like " TRUE || !(FALSE) "
-					if (indexModifier==0 ) {
+					// + bug fix for #4753 moving asset in asset map downwards will move one position further
+					// turns out the (index < oldIndex) was indeed necessary
+					if (indexModifier==0 && index < oldIndex) {
 						indexModifier++;
 					}
 
