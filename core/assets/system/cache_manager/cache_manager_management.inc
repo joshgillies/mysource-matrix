@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.15 2010/06/11 06:34:53 cupreti Exp $
+* $Id: cache_manager_management.inc,v 1.16 2010/10/18 05:24:28 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $ - 0.1
+* @version $Revision: 1.16 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,7 @@ class Cache_Manager_Management extends Asset_Management
 												   
 
 					  );
-
+					  
 	}//end constructor
 
 

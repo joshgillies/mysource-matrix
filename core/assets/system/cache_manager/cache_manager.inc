@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.83 2010/07/13 06:13:07 ewang Exp $
+* $Id: cache_manager.inc,v 1.84 2010/10/18 05:24:28 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,7 +214,6 @@ class Cache_Manager extends Asset
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE, $expiry_override='')
 	{
 		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
-		
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		
 		if (empty($perm_key)) return FALSE;
@@ -541,7 +540,7 @@ class Cache_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function sendCacheableHeaders()
+	function sendCacheableHeaders($type_code='', $assetid='')
 	{
 		// first check some obvious things
 		if (SQ_ROLLBACK_VIEW) return FALSE;
@@ -568,7 +567,14 @@ class Cache_Manager extends Asset
 			return FALSE;
 		}
 		
-		return TRUE;
+		// check type code and root node specific settings
+		// these take priority over the global setting
+		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'send_cacheable_header');
+		if ($specific !== FALSE) {
+			return $specific;
+		}
+
+		return SQ_CONF_SEND_CACHEABLE_HEADER;
 
 	}//end sendCacheableHeaders()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.20 2010/06/11 06:34:53 cupreti Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.21 2010/10/18 05:24:28 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -147,6 +147,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintCustomiseTypeCodeCaching(&$asset, &$o, $prefix)
 	{
+		
 		$write_access = $asset->writeAccess('attributes');
 
 		if (isset($_REQUEST[$prefix.'_select_type'])) {
@@ -185,6 +186,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _paintSpecificCacheManagement(&$asset, &$o, $prefix, $attr_name, $selected, $check_exists=FALSE)
 	{
+
 		$wa = $asset->writeAccess('attributes');
 		$current_values = $asset->attr($attr_name);
 		// check if the value to be configured actually exists if specified
@@ -250,7 +252,25 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
 					echo ' '.translate('use_default');
 				}
-			// field closed by asset_edit_interface
+			$o->closeField();	
+				
+				$o->openField(translate('http_header_cacheable_field'));
+				$using_default = !isset($current_values[$selected]['send_cacheable_header']);
+				if ($using_default) {
+					echo translate('using_default_value_of', SQ_CONF_SEND_CACHEABLE_HEADER ? translate('yes') : translate('no')).'<br/>';
+				} else {
+					if ($wa) {
+						combo_box($prefix.'_send_cacheable_header', Array('1' => translate('on'), '0' => translate('off')), FALSE, $current_values[$selected]['send_cacheable_header']);
+					} else {
+						echo $current_values[$selected]['send_cacheable_header'];
+					}
+				}
+				if ($wa) {
+					check_box($prefix.'_default_send_cacheable_header', '1', $using_default);
+					echo ' '.translate('use_default');
+				}
+			
+				// field closed by asset_edit_interface
 		}
 
 	}//end _paintSpecificCacheManagement();
@@ -275,7 +295,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($asset->writeAccess('attributes') && !isset($_POST[$value_get_var]) && isset($_GET[$value_get_var])) {
 			$type = $_REQUEST[$value_get_var];
-			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry');
+			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry', 'send_cacheable_header');
 			$save = FALSE;
 
 			foreach ($defaults as $default) {
@@ -283,7 +303,12 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (!isset($_POST[$prefix.'_default_'.$default])) {
 					if (!isset($current_values[$type][$default])) {
 						$save = TRUE;
-						$current_values[$type][$default] = $asset->attr($default);
+						if($default === 'send_cacheable_header') {
+							$current_values[$type][$default] = SQ_CONF_SEND_CACHEABLE_HEADER;
+						}
+						else {
+							$current_values[$type][$default] = $asset->attr($default);
+						}
 					}
 				} else {
 					$save = TRUE;

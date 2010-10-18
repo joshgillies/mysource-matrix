@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_root_url_specific.xml,v 1.1 2010/06/11 06:35:53 cupreti Exp $
+* $Id: lang_screen_send_cacheable_header.xml,v 1.1 2010/10/18 05:24:28 ewang Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 				<process_function name="processCacheableHeadersRootURLs" />
             </function_call>
             <display_name />
-			<note>Choose the system root URLs for which cacheable header should be sent regardless of other Matrix cache settings</note>			
+			<note>Choose the system root URLs for which cacheable header should be sent.</note>			
 		</field>
 	</section>	
 </contents>
