@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.3 2010/05/05 07:12:14 ewang Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.4 2010/10/18 02:40:36 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -337,43 +337,78 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
 		$all_collections = $fm->getCollections();
 		$local_collections = Array(''=>translate('funnelback_no_collection'));
+		$squiz_search_options = $this->_getSquizSearchSystems();
+		$systemid = $asset->attr('systemid');
+		$systemname = array_get_index($squiz_search_options, $systemid, '');
+		$squiz_collections = $this->_getSquizSearchCollections($systemid);
 		foreach ($all_collections as $all_col_id => $all_col_info) {
 			$local_collections[$all_col_id] = array_get_index($all_col_info, 'name', '');
 		}//end foreach
 		if ($search_type == 'integrated') {
 			$hidden_web = 'style="display:none;"';
 			$hidden_local = '';
+			$hidden_squiz = 'style="display:none;"';
+		} else if ($search_type == 'squiz') {
+			$hidden_web = 'style="display:none;"';
+			$hidden_local = 'style="display:none;"';
+			$hidden_squiz = '';
 		} else {
 			$hidden_web = '';
 			$hidden_local = 'style="display:none;"';
+			$hidden_squiz = 'style="display:none;"';
 		}//end if
 		$object_type  = 'this.form.'.$prefix.'_search_type.value';
 		$object_url1  = 'this.form.'.$prefix.'_search_url_web';
 		$object_url2  = 'document.getElementById(\''.$prefix.'_search_url_local\')';
+		$object_url3  = 'this.form.'.$prefix.'_search_url_squiz';
 		$object_coll1 = 'this.form.'.$prefix.'_search_collection_web';
 		$object_coll2 = 'this.form.'.$prefix.'_search_collection_local';
-		$js = 'onChange="chooseFunnelbackSearchType('.$object_type.', '.$object_url1.', '.$object_url2.', '.$object_coll1.', '.$object_coll2.');"';
+		$object_coll3 = 'this.form.'.$prefix.'_search_collection_squiz';
+		$js = 'onChange="chooseFunnelbackSearchType('.$object_type.', '.$object_url1.', '.$object_url2.', '.$object_url3.', '.$object_coll1.', '.$object_coll2.', '.$object_coll3.');"';
 
 		$o->openField('Search Type');
 			?>
 			<script type="text/javascript">
-				function chooseFunnelbackSearchType(type, url1, url2, coll1, coll2) {
+				function chooseFunnelbackSearchType(type, url1, url2, url3, coll1, coll2, coll3) {
 					if (type == 'web') {
-						url1.disabled=false;
-						coll1.disabled=false;
 						url1.style.display='block';
+						url1.disabled=false;
 						url2.style.display='none';
+						url2.disabled=true;
+						url3.style.display='none';
+						url3.disabled=true;
 						coll1.style.display='block';
+						coll1.disabled=false;
 						coll2.style.display='none';
 						coll2.disabled=true;
-					} else {
-						coll2.disabled=false;
+						coll3.style.display='none';
+						coll3.disabled=true;
+					} else if (type == 'squiz') {
 						url1.style.display='none';
-						url2.style.display='block';
-						coll1.style.display='none';
-						coll2.style.display='block';
 						url1.disabled=true;
+						url2.style.display='none';
+						url2.disabled=true;
+						url3.style.display='block';
+						url3.disabled=false;
+						coll1.style.display='none';
 						coll1.disabled=true;
+						coll2.style.display='none';
+						coll2.disabled=true;
+						coll3.style.display='block';
+						coll3.disabled=false;
+					} else {
+						url1.style.display='none';
+						url1.disabled=true;
+						url2.style.display='block';
+						url2.disabled=false;
+						url3.style.display='none';
+						url3.disabled=true;
+						coll1.style.display='none';
+						coll1.disabled=true;
+						coll2.style.display='block';
+						coll2.disabled=false;
+						coll3.style.display='none';
+						coll3.disabled=true;
 					}
 				}
 			</script>
@@ -393,9 +428,12 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				echo '<span id="'.$prefix.'_search_url_local" '.$hidden_local.'>';
 				echo 'Integrated Search';
 				echo '</span>';
+				echo combo_box($prefix.'_search_url_squiz', $squiz_search_options, FALSE, $systemid, 0, $hidden_squiz);
 			} else {
 				if ($search_type == 'integrated') {
 					echo 'Integrated Search';
+				} else if ($search_type == 'squiz') {
+					echo $systemname;
 				} else {
 					echo $web_url;
 				}//end if
@@ -405,12 +443,19 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if ($wa) {
 				echo text_box($prefix.'_search_collection_web', $collection, '', '', FALSE, $hidden_web);
 				echo combo_box($prefix.'_search_collection_local', $local_collections, FALSE, $collection, 0, $hidden_local);
+				echo combo_box($prefix.'_search_collection_squiz', $squiz_collections, FALSE, $collection, 0, $hidden_squiz);
 			} else {
 				if ($search_type == 'integrated') {
 					if (empty($collection) || !isset($local_collections[$collection])) {
 						echo translate('funnelback_no_collection');
 					} else {
 						echo $local_collections[$collection];
+					}//end if
+				} else if ($search_type == 'squiz') {
+					if (empty($collection) || !isset($squiz_collections[$collection])) {
+						echo translate('funnelback_no_collection');
+					} else {
+						echo $squiz_collections[$collection];
 					}//end if
 				} else {
 					echo $collection;
@@ -449,12 +494,28 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$collection = '';
 				}//end if
 				$url = '';
+				$systemid = '';
+			} else if ($type == 'squiz') {
+				$collection  = array_get_index($_POST, $prefix.'_search_collection_squiz', '');
+				$systemid    = array_get_index($_POST, $prefix.'_search_url_squiz', '');
+				$url         = '';
+				$systems     = $this->_getSquizSearchSystems();
+				$collections = $this->_getSquizSearchCollections($systemid);
+				if (!array_key_exists($systemid, $systems)) {
+					$systemid = '';
+				}
+
+				if (!array_key_exists($collection, $collections)) {
+					$collection = '';
+				}
 			} else {
 				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
 				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
+				$systemid = '';
 			}//end if
 			$asset->setAttrValue('search_type', $type);
 			$asset->setAttrValue('funnelback_url', $url);
+			$asset->setAttrValue('systemid', $systemid);
 			$asset->setAttrValue('collection', $collection);
 			$status = $asset->saveAttributes();
 		}//end if
@@ -462,6 +523,61 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $status;
 
 	}//end processFunnelbackOptions()
+
+
+	/**
+	 * Get a list of the Squiz Search known by this system.
+	 *
+	 * @return array
+	 * @access private
+	 */
+	private function _getSquizSearchSystems()
+	{
+		$systems = array();
+		$suitem  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
+		$products = $suitem->getAllProducts();
+		foreach ($products as $product) {
+			if ($product['type'] == 'Squiz Search' && $product['status'] == 'live') {
+				$productname = array_get_index($product['connection'], 'name', '');
+				$systems[$product['systemid']] = $productname;
+			}
+		}//end foreach
+
+		return $systems;
+
+	}//end _getSquizSearchSystems()
+
+
+	/**
+	 * Get a list of the collections on a Squiz Search system.
+	 *
+	 * @return array
+	 * @access private
+	 */
+	private function _getSquizSearchCollections($systemid='')
+	{
+		$collections = array();
+		$suitem      = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
+		$system      = $suitem->getProduct($systemid);
+		if (empty($system) === FALSE) {
+			$productUrl = array_get_index($system['connection'], 'url', '');
+			$request    = array();
+			$response   = $suitem->sendRequest($systemid, 'json', 'SquizSearch', 'getAvailableCollections', $request);
+			if (isset($response['curlInfo']['http_code']) === TRUE && $response['curlInfo']['http_code'] == 200) {
+				$resultData = $response['result'];
+				$resultData = (array) $suitem->decodeJson($resultData);
+				$results    = (array) $resultData['result'];
+				if (empty($results) === FALSE) {
+					foreach ($results as $k => $v) {
+						$collections[$k] = $v;
+					}
+				}
+			}//end if
+		}//end if
+
+		return $collections;
+
+	}//end _getSquizSearchCollections()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.27 2010/10/10 22:34:59 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.28 2010/10/18 02:40:36 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -611,6 +611,16 @@ class Funnelback_Search_Page extends Listing_Engine
 		// Type of search
 		$type = $this->attr('search_type');
 		switch ($type) {
+			case 'squiz':
+				// SquizSearch Query through SquizSuite.
+				$xml_results = $this->_querySquizSearch($search);
+				if (empty($xml_results)) {
+					// Something went wrong
+					trigger_localised_error('FNB0002', E_USER_WARNING);
+					return $search_results;
+				}//end if
+			break;
+
 			case 'web':
 				// Web Search ie. Using a funnelback search engine
 				$url = $this->parseURL($search);
@@ -2333,6 +2343,106 @@ class Funnelback_Search_Page extends Listing_Engine
 		return $output;
 
 	}//end _searchFunnelback()
+
+
+	/**
+	* Connect to the SquizSearch server and returns the XML from the server
+	*
+	* @param array $search	The search params
+	*
+	* @return string
+	* @access private
+	*/
+	private function _querySquizSearch($search)
+	{
+		$systemid = $this->attr('systemid');
+
+		// Get the query term
+		$query = array_get_index($search, 'query', '');
+		$query = str_replace(' ', '+', $query);
+		$query = str_replace('&', '', $query);
+
+		// Get the collection
+		$collection = $this->attr('collection');
+
+		// Get the other vars
+		$current_result_page = array_get_index($search, 'page', 1);
+		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
+		$sort = array_get_index($search, 'sort', 'rank');
+		$scope = array_get_index($search, 'scope', '');
+		$type_max = array_get_index($search, 'type_max', 0);
+		$topic_max = array_get_index($search, 'topic_max', 0);
+		$site_max = array_get_index($search, 'site_max', 0);
+
+		// Build the options.
+		$options = array();
+		$options['num_per_page'] = array_get_index($search, 'num_per_page', $this->_getNumPerPage());
+		$options['contextual_navigation_enabled'] = TRUE;
+		
+		// Check for required information
+		if (empty($systemid) || empty($collection)) {
+			// No server set
+			trigger_localised_error('FNB0003', E_USER_WARNING);
+			return '';
+		}//end if
+
+		// Add in the scope
+		if (empty($scope)) {
+			$scope = $this->attr('default_scope');
+		}//end if
+		if (!empty($scope) && $scope != 'ALL') {
+			$options['scope'] = $scope;
+		}//end if		
+
+		// Add in the paging commands
+		if ($current_result_page != 1) {
+			$options['start_at'] = ((($current_result_page-1) * $num_per_page) + 1);
+		}//end if
+
+		// Fluster more/less links
+		if (!empty($type_max)) {
+			$options['type_max_clusters'] = $type_max;
+		} else {
+			$options['type_max_clusters'] = $this->attr('less_type_num');
+		}//end if
+		if (!empty($topic_max)) {
+			$options['topic_max_clusters'] = $topic_max;
+		} else {
+			$options['topic_max_clusters'] = $this->attr('less_topic_num');
+		}//end if
+		if (!empty($site_max)) {
+			$options['site_max_clusters'] = $site_max;
+		} else {
+			$options['site_max_clusters'] = $this->attr('less_site_num');
+		}//end if
+
+		// Add in sorting
+		if (!empty($sort) && $sort !== 'rank' && in_array($sort, $valid_sort)) {
+			$options['sort'] = $sort;
+		}
+
+		$suitem = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
+		$system = $suitem->getProduct($systemid);
+		$xml    = '';
+
+		$request = array(
+					'query' 	   => $suitem->encodeJson($query),
+					'collectionid' => $collection,
+					'options'	   => $suitem->encodeJson($options),
+				   );
+		if (!empty($system)) {
+			$response   = $suitem->sendRequest($systemid, 'json', 'SquizSearch', 'Search', $request);
+			if (isset($response['curlInfo']['http_code']) === TRUE && $response['curlInfo']['http_code'] == 200) {
+				$resultData = $response['result'];
+				$resultData = (array) $suitem->decodeJson($resultData);
+				$xml        = (string) $resultData['result'];
+			}//end if
+		}//end if
+		log_dump($xml);
+
+		return $xml;
+
+	}//end _querySquizSearch()
 
 
 	/**
