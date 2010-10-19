@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method.inc,v 1.1 2009/09/21 00:17:07 lwright Exp $
+* $Id: locking_method.inc,v 1.2 2010/10/19 05:54:13 csmith Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *    where ### is the asset ID.
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.1 $
+* @version		$Revision: 1.2 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -242,6 +242,18 @@ class Locking_Method extends Asset
 		return TRUE;
 
 	}//end supportsChangeLockOwner()
+
+
+    /**
+     * Does this locking method support deleting expired locks?
+     *
+     * @return boolean
+     */
+    public static function supportsDeletingExpiredLocks()
+    {
+        return TRUE;
+
+    }//end supportsDeletingExpiredLocks()
 
 
 }//end class

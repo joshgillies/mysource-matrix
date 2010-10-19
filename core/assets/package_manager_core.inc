@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.44 2010/05/27 05:16:59 ewang Exp $
+* $Id: package_manager_core.inc,v 1.45 2010/10/19 05:54:13 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -134,6 +134,7 @@ class Package_Manager_Core extends Package_Manager
 				'tag_manager',
 				'cron_job_metadata_triggers',
 				'cron_job_expired_matrix_cache',
+				'cron_job_expired_matrix_locks',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -822,6 +823,37 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobExpiredMatrixCache()
+
+
+	/**
+	* Create the Expired Matrix Locks cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobExpiredMatrixLocks()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Expired Matrix Locks cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_expired_matrix_locks');
+
+		$cron_job = new Cron_Job_Expired_Matrix_Locks();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Expired Matrix Locks Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Expired Matrix Locks Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_matrix_locks', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobExpiredMatrixLocks()
 
 }//end class
 

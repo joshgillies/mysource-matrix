@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.2 2009/11/17 04:56:38 bpearson Exp $
+* $Id: locking_method_default.inc,v 1.3 2010/10/19 05:54:13 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.2 $
+* @version		$Revision: 1.3 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -448,6 +448,28 @@ class Locking_Method_Default extends Locking_Method
 	}//end supportsChangeLockOwner()
 
 
+    /**
+     * Does this locking method support deleting expired locks?
+     *
+     * @return boolean
+     */
+    public static function supportsDeletingExpiredLocks()
+    {
+        return TRUE;
+
+    }//end supportsDeletingExpiredLocks()
+
+
+    public static function deleteExpiredLocks()
+    {
+        require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+        $date = ts_iso8601(time());
+        $time_val = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => $date));
+        $bind_vars['expire_time'] = $time_val;
+
+		MatrixDAL::executeQuery('core', 'deleteExpiredLocks', $bind_vars);
+        return TRUE;
+    }
 }//end class
 
 ?>

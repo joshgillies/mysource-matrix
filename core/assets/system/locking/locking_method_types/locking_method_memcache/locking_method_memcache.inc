@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.1 2009/09/21 01:22:11 lwright Exp $
+* $Id: locking_method_memcache.inc,v 1.2 2010/10/19 05:54:13 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.1 $
+* @version		$Revision: 1.2 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -380,6 +380,21 @@ class Locking_Method_Memcache extends Locking_Method
 		return FALSE;
 
 	}//end supportsChangeLockOwner()
+
+
+    /**
+     * Does this locking method support deleting expired locks?
+     *
+     * Memcache has no way to do this unfortunately.
+     *
+     * @return boolean
+     */
+    public static function supportsDeletingExpiredLocks()
+    {
+        return FALSE;
+
+    }//end supportsDeletingExpiredLocks()
+
 
 
 }//end class

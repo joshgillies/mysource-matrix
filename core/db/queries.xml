@@ -1148,6 +1148,16 @@
 
 	<!-- //        LOCKING SYSTEM        // -->
 
+    <query id="deleteExpiredLocks">
+        <!-- Delete locks that are before a certain time -->
+		<primary>
+			<delete>
+				<where>
+                    <less table="sq_lock" column="expires">:expire_time</less>
+				</where>
+			</delete>
+		</primary>
+    </query>
 
 	<query id="getActiveLocks">
 		<!-- Return a list of locks that will be active at a certain time. -->
