@@ -5,7 +5,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -80,7 +80,7 @@ switch ($ACTION) {
 
 			assert_true(count($hosts) > 0, 'Cannot use Deja Vu; no hosts are defined in the Memcache configuration file');
 			assert_true(array_key_exists('deja_vu', $services) === TRUE, 'Cannot use Deja Vu; no Memcache hosts are assigned');
-			assert_true(count($services['cache_manager']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
+			assert_true(count($services['deja_vu']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
 			
 			echo "Enabling Deja Vu...\n";
 			if ($deja_vu->enable()) {
@@ -139,7 +139,7 @@ function usage()
 	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget]\n".
 		"--enable  			Enables Deja Vu in MySource Matrix\n".
 		"--disable 			Disables Deja Vu in MySource Matrix\n".
-		"--disable_force	Forcibly disables Deja Vu by editing control file\n".
+		"--disable_force			Forcibly disables Deja Vu by editing control file\n".
 		"--forget			Forgets all Deja Vu data in MySource Matrix\n".
 		"--status			Checks the current Deja Vu status\n".
 		"\nNOTE: only one of [--enable --disable --flush] option is allowed to be specified\n";

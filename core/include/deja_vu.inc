@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.3 2010/09/14 23:54:56 ewang Exp $
+*$Id: deja_vu.inc,v 1.4 2010/10/19 22:14:52 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -82,7 +82,7 @@ class Deja_Vu extends MySource_Object
 
 			assert_true(count($hosts) > 0, 'Cannot use Deja Vu; no hosts are defined in the Memcache configuration file');
 			assert_true(array_key_exists('deja_vu', $services) === TRUE, 'Cannot use Deja Vu; no Memcache hosts are assigned');
-			assert_true(count($services['cache_manager']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
+			assert_true(count($services['deja_vu']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
 
 			// If has the memcache module installed, instantiate it and try to load some config.
 			$this->_memcache = new Memcache;
