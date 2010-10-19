@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.10 2010/08/31 22:51:04 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.801.2.11 2010/10/19 23:12:51 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.10 $
+* @version $Revision: 1.801.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1213,7 +1213,12 @@ class Asset_Manager extends MySource_Object
 			foreach ($shadows as $shadow_id => $shadow) {
 				$asset = $this->getAsset($shadow_id);
 				if (method_exists($asset,'assetExists')) {
-					$shadow_asset_ids += $asset->assetExists($shadow);
+					$ret_val = $asset->assetExists($shadow);
+					if (is_array($ret_val)) {
+						$shadow_asset_ids += $ret_val;
+					} else if ($ret_val) {
+						$shadow_asset_ids[] = $shadow;
+					}
 				}
 				$this->forgetAsset($asset);
 			}
