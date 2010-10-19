@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.22 2010/05/05 07:13:52 ewang Exp $
+* $Id: ldap_user.inc,v 1.22.2.1 2010/10/19 22:42:33 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -142,6 +142,19 @@ class Ldap_User extends User
 		return $null;
 
 	}//end getWorkspace()
+
+
+	/**
+	* Generate a prefix to be used by paint() and process()
+	*
+	* @return string
+	* @access public
+	*/
+	public function getPrefix()
+	{
+		return str_replace(':', '_', str_replace(' ', '_', str_replace('.' , '_', $this->type().'_'.$this->id)));
+
+	}//end getPrefix()
 
 
 }//end class
