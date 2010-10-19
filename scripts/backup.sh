@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.34.2.1 2010/06/02 01:08:55 csmith Exp $
+#* $Id: backup.sh,v 1.34.2.2 2010/10/19 23:01:01 cupreti Exp $
 #*
 #*/
 #
@@ -344,6 +344,7 @@ matrix_318_php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/db.inc';
 function splitdsn(\$input_dsn, \$prefix='DB_')
 {
+		\$input_dsn['DSN'] = trim(\$input_dsn['DSN'], ';');
         \$start_pos = strpos(\$input_dsn['DSN'], ':') + 1;
         \$dsn = preg_split('/[\s;]/', substr(\$input_dsn['DSN'], \$start_pos));
         foreach(\$dsn as \$dsn_v) {
