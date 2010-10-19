@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.19.4.1 2010/10/18 05:34:41 akarelia Exp $
+* $Id: CueTree.java,v 1.19.4.2 2010/10/19 00:16:28 akarelia Exp $
 *
 */
 
@@ -1105,8 +1105,7 @@ public class CueTree extends JTree {
 
 					// bug fix for #3924 Moving assets - will not sit at bottom of a list
 					// + bug fix for #4753 moving asset in asset map downwards will move one position further
-					// turns out the (index < oldIndex) was indeed necessary
-					if (indexModifier==0 && index < oldIndex) {
+					if (indexModifier==0 && (index < oldIndex || !sourcePath.getParentPath().toString().equals(currentPath.getParentPath().toString())) ) {
 						indexModifier++;
 					}
 
