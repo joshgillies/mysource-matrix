@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.125 2010/10/05 05:52:56 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.126 2010/10/19 06:15:40 mhaidar Exp $
 *
 */
 
@@ -1484,6 +1484,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0037">Failed copying uploaded file (%1$s) to destination directory (%2$s/%3$s)</error>
 	<error code="CORE0038">Failed moving uploaded file (%1$s) to destination (%2$s)</error>
 	<error code="CORE0039">Failed remapping all URLs for Asset #%1$s to "%2$s</error>
+	<error code="CORE0040">Failed remapping the Asset ID #%1$s (?a=%1$s) to URL "%2$s"</error>
 	<error code="CORE0041">Failed removing "%s" from the repository</error>
 	<error code="CORE0042">Failed removing file from repository</error>
 	<error code="CORE0043">Failed renaming file, try again.</error>

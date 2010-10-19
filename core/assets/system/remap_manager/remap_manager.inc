@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.50 2010/09/17 05:34:37 mhaidar Exp $
+* $Id: remap_manager.inc,v 1.51 2010/10/19 06:15:40 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -331,9 +331,11 @@ class Remap_Manager extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$protocols = Array ( 'https' => FALSE, 'http' => FALSE );
+		$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+		
 		foreach ($urls as $url_data) {
 			if ($url_data['http']) {
-				$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
 				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
@@ -341,12 +343,33 @@ class Remap_Manager extends Asset
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
+				$protocols['http'] = TRUE;
 			}
 			if ($url_data['https']) {
-				$never_delete = ($this->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
 				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires, $never_delete, FALSE);
 				if ($retval === 0) {
 					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+				$protocols['https'] = TRUE;
+			}
+		}
+		
+		//Feature #4759: Asset ID to URL remaps.
+		foreach ($protocols as $protocol => $enabled){
+			if ($enabled){
+				//try deleting first as we want to be able to change remap entries for the assetid.
+				try {
+					$bind_vars = Array('urls' => Array($protocol.'://?a='.$assetid));
+					MatrixDAL::executeQuery('remap_manager', 'deleteRemapsByURL', $bind_vars);
+				} catch (DALException $e) {
+					throw new Exception('Unable to delete assetid remaps due to database error: '.$e->getMessage());
+				}
+				$retval = @$this->addRemapURL($protocol.'://?a='.$assetid, $new_url, $expires, $never_delete, FALSE);
+				if ($retval !== 1) {
+					trigger_localised_error('CORE0040', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
