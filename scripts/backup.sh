@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.35 2010/06/02 01:07:12 csmith Exp $
+#* $Id: backup.sh,v 1.36 2010/10/19 22:58:58 cupreti Exp $
 #*
 #*/
 #
@@ -343,14 +343,15 @@ touch "${SYSTEM_ROOT}/.extra_backup_files"
 matrix_318_php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/db.inc';
 function splitdsn(\$input_dsn, \$prefix='DB_')
-{
+{		
+		\$input_dsn['DSN'] = trim(\$input_dsn['DSN'], ';');
         \$start_pos = strpos(\$input_dsn['DSN'], ':') + 1;
         \$dsn = preg_split('/[\s;]/', substr(\$input_dsn['DSN'], \$start_pos));
         foreach(\$dsn as \$dsn_v) {
-                list(\$k, \$v) = explode('=', \$dsn_v);
-		\$var = \$prefix . strtoupper(\$k);
-		echo \$var .  '=\"' . addslashes(\$v) . '\";';
-		echo 'export ' . \$var . ';';
+			list(\$k, \$v) = explode('=', \$dsn_v);
+			\$var = \$prefix . strtoupper(\$k);
+			echo \$var .  '=\"' . addslashes(\$v) . '\";';
+			echo 'export ' . \$var . ';';
         }
 
 	\$var = \$prefix . 'USERNAME';
@@ -404,7 +405,6 @@ if (\$db_conf['db']['type'] === 'pgsql') {
 	}
 }
 "
-
 matrix_316_php_code="<?php
 define('SQ_SYSTEM_ROOT', '${SYSTEM_ROOT}');
 define('SQ_LOG_PATH',    SQ_SYSTEM_ROOT.'/data/private/logs');
