@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.154 2010/09/27 04:52:22 cupreti Exp $
+* $Id: html_form.inc,v 1.155 2010/10/19 22:11:39 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -766,8 +766,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		}
 	}
 
-	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9\-]/', '_', $name);
-
+	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9\-\.]/', '_', $name);
 
 	$type_codes = get_type_codes_string($type_codes);
 
