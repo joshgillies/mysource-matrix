@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.24 2009/07/13 10:03:35 ata Exp $
+* $Id: trigger_action_send_email.inc,v 1.24.6.1 2010/10/20 02:37:40 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 						$role_member_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($role_member);
 						
 						// If asset does not belongs to User class then there is no point in sending email to it
-						if (get_class($role_member_asset) === 'User' || get_parent_class($role_member_asset) === 'User') {
+						if ($role_member_asset instanceof User || $role_member_asset instanceof User_Group) {
 							$role_members[] = $role_member;
 						}
 						
