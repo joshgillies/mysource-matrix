@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.13 2010/05/05 07:15:42 ewang Exp $
+* $Id: trim_common.inc,v 1.13.2.1 2010/10/20 23:53:39 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -842,6 +842,7 @@ class TRIM_Common
 		$record_search_options['sort_1_descending']	= FALSE;
 		$record_search_options['sort_2_descending']	= FALSE;
 		$record_search_options['sort_3_descending']	= FALSE;
+		$record_search_options['record_type_filter'] = '';
 
 		return $record_search_options;
 
