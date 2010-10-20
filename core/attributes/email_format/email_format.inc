@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.48 2010/04/28 06:05:20 mhaidar Exp $
+* $Id: email_format.inc,v 1.49 2010/10/20 05:35:59 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -303,7 +303,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value = Array();
 
 		$wysiwyg = $this->_createEditor($prefix);
-		$value['html_format'] = $wysiwyg->process();;
+		$value['html_format'] = trim($wysiwyg->process());
 		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
 
 		$ol = new Asset_Attribute_Option_List();
