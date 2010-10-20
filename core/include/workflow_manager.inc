@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.158 2010/09/28 07:00:41 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.159 2010/10/20 02:37:58 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1039,6 +1039,13 @@ class Workflow_Manager extends MySource_Object
 		$user       = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 		$ms         = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
+		// workflow logs since the start of this workflow	
+		$log_message = '';
+		$comments = $ms->getMessages(0, 'asset.workflow.userlog', Array(), Array(), $workflow['started'], NULL, 'name', Array('assetid' => $asset->id));	
+		foreach ($comments as $comment) {
+			 $log_message  .= '"'.$comment['body'].'"'.', by '.$comment['from_name'].', '.ts_iso8601($comment['sent'])."\n";
+		}
+		
 		$log = $ms->newMessage();
 		$msg_reps = Array(
 						'workflow_user'	=> $user->name,
@@ -1047,6 +1054,7 @@ class Workflow_Manager extends MySource_Object
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 						'asset_url'		=> $asset->getURL(),
 						'asset_version'	=> $asset->version,
+						'log_message'	=> $log_message,
 					);
 		$log->replacements = $msg_reps;
 		$log->type = 'asset.workflow.log.approve';
@@ -1130,6 +1138,7 @@ class Workflow_Manager extends MySource_Object
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
+					
 					$msg_reps = Array(
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1143,6 +1152,7 @@ class Workflow_Manager extends MySource_Object
 									'reject_url'			=> current_url().$reject_url,
 									'asset_url'				=> $asset->getURL(),
 									'asset_version'			=> $asset->version,
+									'log_message'			=> $log_message,
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
@@ -1571,6 +1581,7 @@ class Workflow_Manager extends MySource_Object
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
+		
 					$msg_reps = Array(
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1585,6 +1596,7 @@ class Workflow_Manager extends MySource_Object
 									'stream'				=> $schema_workflow['stream_name'],
 									'asset_url'				=> $asset->getURL(),
 									'asset_version'			=> $asset->version,
+									'log_message'			=> '',
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1714,7 +1726,7 @@ class Workflow_Manager extends MySource_Object
 		$workflow_values = $this->getSchemaWorkflows($assetid);
 		$workflow = reset($workflow_values);
 		$publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
-
+		
 		$current_steps = $this->getWorkflowCurrentSteps($assetid);
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
 
@@ -1726,6 +1738,13 @@ class Workflow_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_rejection', $asset);
 			$generic_msg = NULL;
 
+			// workflow logs since the start of this workflow	
+			$log_message = '';
+			$comments = $ms->getMessages(0, 'asset.workflow.userlog', Array(), Array(), $workflow['started'], NULL, 'name', Array('assetid' => $asset->id));	
+			foreach ($comments as $comment) {
+				 $log_message  .= '"'.$comment['body'].'"'.', by '.$comment['from_name'].', '.ts_iso8601($comment['sent'])."\n";
+			}
+				
 			foreach ($current_steps as $schemaid => $current_step_num) {
 				// we don't want to be sending asset.workflow.announce.reject emails to users who have admin
 				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
@@ -1747,7 +1766,7 @@ class Workflow_Manager extends MySource_Object
 				// (note: the publishers get emails from each workflow - they should be
 				// combined into one at the Messaging Service end)
 				$msg->to = array_merge($msg->to, $publishers);
-
+							
 				// complete any missing internal message fields that have not been supplied
 				if (empty($msg->replacements)) {
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
@@ -1758,6 +1777,7 @@ class Workflow_Manager extends MySource_Object
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 									'asset_url'		=> $asset->getURL(),
 									'asset_version'	=> $asset->version,
+									'log_message'	=> $log_message,
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1941,6 +1961,12 @@ class Workflow_Manager extends MySource_Object
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
 		$workflow =& $schema_workflows[$schemaid];
 
+		// workflow logs since the start of this workflow	
+		$log_message = '';
+		$comments = $ms->getMessages(0, 'asset.workflow.userlog', Array(), Array(), $workflow['started'], NULL, 'name', Array('assetid' => $asset->id));	
+		foreach ($comments as $comment) {
+			 $log_message  .= '"'.$comment['body'].'"'.', by '.$comment['from_name'].', '.ts_iso8601($comment['sent'])."\n";
+		}
 
 		// mark the current step as escalated
 		$current_step =& $this->getCurrentStep($workflow);
@@ -1972,6 +1998,8 @@ class Workflow_Manager extends MySource_Object
 			$type = 'asset.workflow.stale';
 			$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
 
+
+			
 			$msg_reps = Array(
 							'asset_name'	=> $asset->attr('name'),
 							'assetid'		=> $assetid,
@@ -1984,6 +2012,7 @@ class Workflow_Manager extends MySource_Object
 							'workflow_url'	=> $url,
 							'asset_url'		=> $asset->getURL(),
 							'asset_version'	=> $asset->version,
+							'log_message'	=> $log_message,
 						);
 
 			// If there are no admins, send it to system admins instead
@@ -2071,6 +2100,7 @@ class Workflow_Manager extends MySource_Object
 						'expiry_time'			=> easy_time_total($step_before['expiry_time']),
 						'asset_url'				=> $asset->getURL(),
 						'asset_version'			=> $asset->version,
+						'log_message'			=> $log_message,
 					);
 
 		$log->replacements = $msg_reps;
@@ -2139,6 +2169,7 @@ class Workflow_Manager extends MySource_Object
 							'reject_url'			=> $root_url.'/'.$reject_url,
 							'asset_url'				=> $asset->getURL(),
 							'asset_version'			=> $asset->version,
+							'log_message'			=> $log_message,
 						);
 
 			$asset_edt_fns = $asset->getEditFns();

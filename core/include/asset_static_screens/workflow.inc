@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.60 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: workflow.inc,v 1.61 2010/10/20 02:38:35 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 
@@ -343,6 +343,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 						$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$logs = $ms->getLogs('asset.workflow.log.*', Array('assetid' => $owner->id));
+
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
 						usort($user_logs, Array('Messaging_Service', 'sortMessages'));
@@ -911,12 +912,6 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 	// are comments required?
 	$require_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
 
-	// process the status, but only if the required comment conditions are met
-	if (!empty($running_schemas) && !($require_comment && empty($message_body))) {
-		_processStatusChange($owner, $o, $prefix);
-		$updated = TRUE;
-	}
-
 	// process any messages that may have been submitted
 	if (!empty($message_body)) {
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -930,6 +925,12 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		$updated = TRUE;
 	}
 
+	// process the status, but only if the required comment conditions are met
+	if (!empty($running_schemas) && !($require_comment && empty($message_body))) {
+		_processStatusChange($owner, $o, $prefix);
+		$updated = TRUE;
+	}
+	
 	// if we dont have admin access, dont process anything
 	if (!$owner->adminAccess('workflow')) return $updated;
 
