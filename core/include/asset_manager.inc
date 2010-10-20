@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.11 2010/10/19 23:12:51 cupreti Exp $
+* $Id: asset_manager.inc,v 1.801.2.12 2010/10/20 04:45:34 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.11 $
+* @version $Revision: 1.801.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8450,26 +8450,37 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		while (!empty($paths)) {
+			$bindVars = array();
+
 			$paths_string = '';
-			foreach ($paths as $path) {
-				if (!empty($paths_string)) $paths_string .= ', ';
-				$paths_string .= '\''.$path.'\'';
+			foreach ($paths as $pathid => $path) {
+				$bindVars['path'.$pathid] = $path;
+				$paths_string .= ':path'.$pathid.',';
 			}
+			$paths_string = rtrim($paths_string, ',');
 
 			$sql = 'SELECT p.path
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON p.assetid = l.minorid ';
-			$where = 'WHERE l.majorid = \''.(string) $major->id.'\' ';
+			$where = 'WHERE l.majorid = :majorid ';
+			$bindVars['majorid'] = (string) $major->id;
+
 			if ($ignore_assetid) {
-				$where .= 'AND l.minorid <> \''.(string) $ignore_assetid.'\' ';
+				$where .= 'AND l.minorid <> :ignore_assetid ';
+				$bindVars['ignore_assetid'] = (string) $ignore_assetid;
 			}
+
 			$where .= 'AND p.path IN ('.$paths_string.')
 				AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$used_paths = MatrixDAL::executeSqlAssoc($sql.$where, 0);
+				$paths_result = MatrixDAL::preparePdoQuery($sql.$where);
+				foreach ($bindVars as $bindVar => $bindValue) {
+					MatrixDAL::bindValueToPdo($paths_result, $bindVar, $bindValue);
+				}
+				$used_paths = MatrixDAL::executePdoAssoc($paths_result, 0);
 			} catch (Exception $e) {
 				throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
 			}//end try catch
