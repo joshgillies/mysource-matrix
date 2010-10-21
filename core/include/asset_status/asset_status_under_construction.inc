@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.54 2010/05/11 23:01:50 cupreti Exp $
+* $Id: asset_status_under_construction.inc,v 1.55 2010/10/21 04:02:47 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -152,9 +152,11 @@ class Asset_Status_Under_Construction extends Asset_Status
 						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
 					}
 				} else {
-					// this asset needs to allow both statuses because it cant check metadata requirements
-					// due to it not allowing metadata
-					$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+					// this asset needs to allow status "apply for approval" and "approve change" (if workflow is complete),
+					// because asset does not allows metadata
+					if ($wf_complete) {
+						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+					}
 					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_apply_for_approval');
 				}
 			}
