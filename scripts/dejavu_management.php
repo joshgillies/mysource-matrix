@@ -5,7 +5,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -142,7 +142,7 @@ function usage()
 		"--disable_force			Forcibly disables Deja Vu by editing control file\n".
 		"--forget			Forgets all Deja Vu data in MySource Matrix\n".
 		"--status			Checks the current Deja Vu status\n".
-		"\nNOTE: only one of [--enable --disable --flush] option is allowed to be specified\n";
+		"\nNOTE: only one of [--enable --disable --forget] option is allowed to be specified\n";
 	exit();
 
 }//end usage()
