@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2010/10/22 05:56:22 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2010/10/22 06:20:58 cupreti Exp $
 *
 */
 -->
@@ -43,7 +43,7 @@
 				<process_function name="processCDATATags" />
 			</function_call>
 		</field>
-		<field name="data_delimiter">
+		<field attribute="data_delimiter">
 			<text width="25" height="1"/>
 		</field>
 
