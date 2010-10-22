@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.24 2010/10/12 23:19:23 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.25 2010/10/22 05:56:22 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -162,7 +162,7 @@ class Data_Source_Xml extends Data_Source
 				}
 			}
 		}
-
+		
 		return (!empty($url)) ? $this->_tmp[$hash] : Array();
 
 	}//end getResultSet()
@@ -627,6 +627,61 @@ class Data_Source_Xml extends Data_Source
 		return $content;
 	}
 
+	
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/	
+	public function printFrontend()
+	{	
+		$xsl_file = NULL;
+		$xsl_file_id = $this->attr('xslt_file');
+		
+		if ($xsl_file_id) {
+			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_file_id);
+			
+			if (!is_null($xsl_file) && class_exists('XSLTProcessor')) {
+				Asset::printFrontend();					
+			}			
+		}//end if
+
+
+	}//end printFrontend()
+	
+	
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printBody()
+	{	
+		// Find the XSL Stylesheet
+		$xsl_file_id = $this->attr('xslt_file');
+		$feed_url = $this->_getFeedURL();
+		
+		if (!empty($feed_url) && $xsl_file_id) {
+			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_file_id);
+			
+			if (!is_null($xsl_file)) {
+				// Do transformation
+				$xml = new DOMDocument();
+				$xml->loadXML($this->getXMLContent());
+				$xsl = new DOMDocument();
+				$xsl->loadXML($xsl_file->getContent());
+
+				$parser = new XSLTProcessor();
+				$parser->importStylesheet($xsl);
+
+				$content = $parser->transformToXML($xml);
+				echo $content;
+			}
+		}//end if
+
+	}//end printBody()	
 
 }//end class
 

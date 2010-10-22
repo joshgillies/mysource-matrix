@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_management.inc,v 1.5 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_xml_management.inc,v 1.6 2010/10/22 05:56:22 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -94,8 +94,13 @@ class Data_Source_Xml_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> ',',
 												'description'	=> 'Delimiter to seperate the data from xml record with mutiple elements with same name',
+											   ),											   
+						'xslt_file'			=> Array (
+												'added'			=> '0.3',
+												'type'			=> 'assetid',
+												'default'		=> '',
+												'description'	=> 'XSL transformation file assetid',
 											   ),
-											   
 												
 											   
 					  );
