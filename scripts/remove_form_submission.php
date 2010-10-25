@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.8 2008/02/21 23:38:55 lwright Exp $
+* $Id: remove_form_submission.php,v 1.9 2010/10/25 23:26:10 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -120,21 +120,27 @@ $assetid_in = Array();
 foreach (array_chunk($assetids, 999) as $chunk) {
 	$assetid_in[] = ' assetid IN ('.implode(', ', $chunk).')';
 }
-$in1 = '('.implode(' OR ', $assetid_in).')';
+$in_assetid = '('.implode(' OR ', $assetid_in).')';
 
-$minorid_in = Array();
+$assetid_in = Array();
 foreach (array_chunk($assetids, 999) as $chunk) {
-	$minorid_in[] = ' minorid IN ('.implode(', ', $chunk).')';
+	$assetid_in[] = ' minorid IN ('.implode(', ', $chunk).')';
 }
-$in2 = '('.implode(' OR ', $minorid_in).')';
+$in_minorid = '('.implode(' OR ', $assetid_in).')';
+
+$assetid_in = Array();
+foreach (array_chunk($assetids, 999) as $chunk) {
+	$assetid_in[] = ' majorid IN ('.implode(', ', $chunk).')';
+}
+$in_majorid = '('.implode(' OR ', $assetid_in).')';
 
 // start removing entries from the database
 echo "Removing assets ...\n";
-$sql = 'DELETE FROM sq_ast WHERE '.$in1;
+$sql = 'DELETE FROM sq_ast WHERE '.$in_assetid;
 MatrixDAL::executeSql($sql);
 
 echo "\tUpdating link table...\n";
-$sql = 'DELETE FROM sq_ast_lnk WHERE '.$in2;
+$sql = 'DELETE FROM sq_ast_lnk WHERE '.$in_minorid;
 MatrixDAL::executeSql($sql);
 
 echo "\tUpdating link tree table ...\n";
@@ -142,8 +148,33 @@ $sql = 'DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_a
 MatrixDAL::executeSql($sql);
 
 echo "\tUpdating attribute value table ...\n";
-$sql = 'DELETE FROM sq_ast_attr_val WHERE '.$in1;
+$sql = 'DELETE FROM sq_ast_attr_val WHERE '.$in_assetid;
 MatrixDAL::executeSql($sql);
+
+echo "\tUpdating metadata table ...\n";
+$sql = 'DELETE FROM sq_ast_mdata WHERE '.$in_assetid;
+MatrixDAL::executeSql($sql);
+
+echo "\tUpdating metadata value table ...\n";
+$sql = 'DELETE FROM sq_ast_mdata_val WHERE '.$in_assetid;
+MatrixDAL::executeSql($sql);
+
+echo "\tUpdating workflow table...\n";
+$sql = 'DELETE FROM sq_ast_wflow WHERE '.$in_assetid;
+MatrixDAL::executeSql($sql);
+
+echo "\tUpdating permissions table...\n";
+$sql = 'DELETE FROM sq_ast_perm WHERE '.$in_assetid;
+MatrixDAL::executeSql($sql);
+
+echo "\tUpdating roles table...\n";
+$sql = 'DELETE FROM sq_ast_role WHERE '.$in_assetid;
+MatrixDAL::executeSql($sql);
+
+echo "\tUpdating shadow link table...\n";
+$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE '.$in_majorid;
+MatrixDAL::executeSql($sql);
+ 
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
