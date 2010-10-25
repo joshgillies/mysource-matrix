@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.5.2.2 2010/10/17 22:34:40 akarelia Exp $
+* $Id: sharepoint_common.inc,v 1.5.2.3 2010/10/25 06:31:53 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5.2.2 $
+* @version $Revision: 1.5.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -646,7 +646,7 @@ ListVersion="0" >
 				if ($download_file) {
 					$data_path = $bridge_info['data_path'].'/'.$list_id.'/';
 					if (create_directory($data_path)) {
-						self::downloadFiles(Array($remote_download_url), $data_path);
+						self::downloadFiles(Array($remote_download_url), $data_path, $connection['authentication']);
 						$result[$ows_ID]['download_url'] = $bridge_info['url'].'?file_uri='.$list_id.'/'.str_replace(' ', '%20', basename($result[$ows_ID]['ows_FileRef']));
 					} else {
 						trigger_error('Unable to download the file to directory: '.$data_path, E_USER_WARNING);
@@ -655,6 +655,19 @@ ListVersion="0" >
 				} else {
 					$result[$ows_ID]['download_url'] = $remote_download_url;
 				}
+				
+				// Also download the file attachment to local
+				if ($download_file && isset($result[$ows_ID]['ows_Attachments']) && $result[$ows_ID]['ows_Attachments']) {
+					$data_path = $bridge_info['data_path'].'/'.$list_id.'/';
+					if (create_directory($data_path)) {
+						self::downloadFiles(Array($result[$ows_ID]['ows_Attachments']), $data_path, $connection['authentication']);
+						$result[$ows_ID]['ows_Attachments'] = $bridge_info['url'].'?file_uri='.$list_id.'/'.str_replace(' ', '%20', basename($result[$ows_ID]['ows_Attachments']));
+					} else {
+						trigger_error('Unable to download the file attachment to directory: '.$data_path, E_USER_WARNING);
+						$result[$ows_ID]['ows_Attachments'] = '';
+					}
+				}
+  	                                 
 			}//end foreach
 
 		} catch (SoapFault $sf) {
@@ -735,25 +748,25 @@ ListVersion="0" >
     *
     * @param array	$urls		the array of document urls to download.
     * @param string	$save_path	the destination to save to
+    * @param string $auth		http authentication
     *
     * @return int		// The number of file(s) downloaded
     * @access public
     */
-    private static function downloadFiles($urls, $save_path)
+    private static function downloadFiles($urls, $save_path, $auth)
     {
 		$mh	= curl_multi_init();
 		foreach ($urls as $i => $url) {
 			$final_path	= $save_path.str_replace('%20', ' ', basename($url));
-			if (!is_file($final_path)) {
-				$conn[$i]	= curl_init($url);
-				$fp[$i]		= fopen($final_path, "w");
-				curl_setopt($conn[$i], CURLOPT_FILE, $fp[$i]);
-				curl_setopt($conn[$i], CURLOPT_HEADER ,0);
-				curl_setopt($conn[$i], CURLOPT_CONNECTTIMEOUT, 60);
-				curl_setopt($conn[$i], CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-				curl_setopt($conn[$i], CURLOPT_USERPWD, "administrator:password");
-				curl_multi_add_handle($mh,$conn[$i]);
-			}//end if
+			$conn[$i]	= curl_init($url);
+			$fp[$i]		= fopen($final_path, "w");
+			curl_setopt($conn[$i], CURLOPT_FILE, $fp[$i]);
+			curl_setopt($conn[$i], CURLOPT_HEADER ,0);
+			curl_setopt($conn[$i], CURLOPT_CONNECTTIMEOUT, 60);
+			curl_setopt($conn[$i], CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+			if (isset($auth['login']) && isset($auth['password']))
+				curl_setopt($conn[$i], CURLOPT_USERPWD, $auth['login'].':'.$auth['password']);
+			curl_multi_add_handle($mh,$conn[$i]);
 		}//end foreach
 
 		do {
