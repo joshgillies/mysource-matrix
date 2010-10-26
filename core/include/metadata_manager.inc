@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.222 2010/09/29 04:31:10 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.223 2010/10/26 06:32:30 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1716,7 +1716,7 @@ class Metadata_Manager extends MySource_Object
 					default :
 						if (substr($keyword, 0, 11) == 'asset_role_') {
 							echo '$metadata_roles_info = Array();'."\n";
-							if (preg_match('/asset_role_([^_]*)(.*)$/', $keyword, $matches)) {
+							if (preg_match('/asset_role_([0-9]+)(.*)$/', $keyword, $matches)) {
 								$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 								$role_assetid = $matches[1];
 								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, '.(($fetch_global_roles)?'TRUE':'FALSE').', TRUE);'."\n";
