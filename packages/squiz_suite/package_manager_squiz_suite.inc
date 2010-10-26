@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_squiz_suite.inc,v 1.1.1.1 2010/09/29 01:11:55 bpearson Exp $
+* $Id: package_manager_squiz_suite.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -90,18 +90,6 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 		pre_echo('Squiz Suite Manager Asset Id : '.$suite_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('suite_manager', $suite_manager->id);
-
-        $web_path = $suite_manager->getURL();
-        if (!empty($web_path)) {
-            $connection = array('url' => $web_path, 'name'=>'Squiz Matrix');
-            $systemid   = $suite_manager->registerProduct('matrix', 'Squiz Matrix', $connection);
-
-            // Set it as the current system.
-            $suite_manager->updateProduct($systemid, 'current', TRUE);
-
-            // Generate private/public keys for the secure communication.
-            $suite_manager->generateSystemKeyPair();
-        }//end if
 
 		return $suite_manager;
 

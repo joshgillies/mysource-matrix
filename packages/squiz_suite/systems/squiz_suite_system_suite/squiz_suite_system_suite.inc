@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -455,7 +455,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$message = $suite_manager->parseSuiteXML($xml);
 
             $systemid    = $message['system_id'];
-            $systemUrl   = $message['system_url'];
             $updateType  = $message['update_type'];
             $updateValue = $message['update_value'];
             $product     = $suite_manager->getProduct($systemid);

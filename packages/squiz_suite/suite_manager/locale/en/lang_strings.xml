@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: lang_strings.xml,v 1.2 2010/10/26 23:45:44 bpearson Exp $
 *
 *
 * Squiz Suite Package Localised Strings File
@@ -30,5 +30,10 @@
     <string source="suite_status">Status</string>
     <string source="suite_activate">Activate</string>
     <string source="suite_new_product_url">Product URL to register</string>
+    <string source="suite_not_registered">Product is not registered</string>
     <string source="suite_new_is_matrix">Is Squiz Matrix System?</string>
+    <string source="suite_tools_register">Register System ID</string>
+    <string source="suite_tools_deregister">Deregister System ID</string>
+    <string source="suite_register">Register or regenerate the System ID for this product.</string>
+    <string source="suite_deregister">Deregister the System ID for this product.</string>
 </strings>

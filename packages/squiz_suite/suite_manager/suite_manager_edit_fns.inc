@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.1.1.1 2010/09/29 01:11:55 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -69,20 +69,38 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 
-        $currentProduct = $asset->getCurrentProduct();
-        if (empty($currentProduct)) {
+        $current_product = $asset->getCurrentProduct();
+        if (empty($current_product)) {
             echo translate('suite_not_registered');
         } else {
             $o->openField(translate('suite_system_id'));
-                echo array_get_index($currentProduct, 'systemid', '');
+                echo array_get_index($current_product, 'systemid', '');
             $o->closeField();
             $o->openField(translate('suite_system_name'));
-                echo array_get_index($currentProduct['connection'], 'name', '');
+				$system_name = array_get_index($current_product['connection'], 'name', '');
+				if ($wa) {
+					echo text_box($prefix.'_current_name', $system_name, 30);
+				} else {
+	                echo $system_name;
+				}
             $o->closeField();
             $o->openField(translate('suite_system_url'));
-                echo array_get_index($currentProduct['connection'], 'url', '');
+                echo array_get_index($current_product['connection'], 'url', '');
             $o->closeField();
-        }//emd if
+        }//end if
+
+		if ($wa) {
+			$o->openField(translate('suite_tools_register'));
+				echo check_box($prefix.'_register', '1', FALSE, 'if (this.checked == true) { if (!confirm(\'Are you sure?\')) { this.checked = false } };');	
+				echo label(translate('suite_register'), $prefix.'_register');
+			$o->closeField();
+			if (!empty($current_product)) {
+				$o->openField(translate('suite_tools_deregister'));
+					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\'Are you sure?\')) { this.checked = false } };');	
+					echo label(translate('suite_deregister'), $prefix.'_deregister');
+				$o->closeField();
+			}
+		}
 
 		return TRUE;
 
@@ -101,9 +119,116 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSystemId(&$asset, &$o, $prefix)
 	{
+		$wa = $asset->writeAccess('attributes');
+        $current_product = $asset->getCurrentProduct();
+
+		$register = array_get_index($_POST, $prefix.'_register', '0');
+		$deregister = array_get_index($_POST, $prefix.'_deregister', '0');
+
+		if ($deregister == '1' && !empty($current_product)) {
+			$systemid = array_get_index($current_product, 'systemid', '0');
+			if (!empty($systemid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				try {
+					$asset->removeProduct($systemid, TRUE);
+				} catch (PDOException $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}//end try
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				// Remove happened, so finish processing (you cannot deregister and then register on the same screen)
+				return TRUE;
+			}//end if
+		}//end if
+
+		if ($register == '1') {
+			if (empty($current_product)) {
+				// New product, register.
+				$systemid = self::_getSystemid();
+				$connection = array(
+								'name' => 'Squiz Matrix',
+								'url'  => $asset->getUrl(),
+							  );
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				try {
+					$asset->registerProduct($systemid, 'Squiz Matrix', $connection);
+					$asset->updateProduct($systemid, 'current', TRUE);
+					$asset->generateSystemKeyPair();
+				} catch (PDOException $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}//end try
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} else {
+				// New systemid, keep old details.
+				$connection = array_get_index($current_product, 'connection', array());
+				$type       = 'Squiz Matrix';
+				$systemid   = array_get_index($current_product, 'systemid', 0);
+				$newid      = self::_getSystemid();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				try {
+					$asset->removeProduct($systemid, TRUE);
+					$asset->registerProduct($newid, $type, $connection);
+					$asset->updateProduct($newid, 'current', TRUE);
+					$asset->generateSystemKeyPair();
+				} catch (PDOException $e) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}//end try
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}//end if
+		}//end if
+
+		// Finally, save the name by reloading the current product.
+        $current_product = $asset->getCurrentProduct();
+		if ($wa && !empty($current_product)) {
+			$systemid     = array_get_index($current_product, 'systemid', 0);
+			$connection   = array_get_index($current_product, 'connection', array());
+			$current_name = array_get_index($connection, 'name', '');
+			$new_name     = array_get_index($_POST, $prefix.'_current_name', '');
+			if (!empty($new_name) && $new_name !== $current_name) {
+				// Change the name
+				$connection['name'] = $new_name;
+				$asset->updateProduct($systemid, 'connection', $connection);
+
+				// Send the request to other systems
+				$message      = array(
+								 'updateType'  => 'name',
+								 'updateValue' => $new_name,
+								);
+				$liveProducts = $asset->getLiveProducts();
+				foreach ($liveProducts as $liveProduct) {
+					$response = $asset->sendRequest($liveProduct['systemid'], 'xml', 'SquizSuite', 'suiteProductUpdate', $message);
+				}//end foreach
+			}//end if
+		}//end if
+
         return TRUE;
 
 	}//end processSystemId()
+
+
+	/**
+	 * Get a random system id.
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function _getSystemid()
+	{
+		$systemid = 'matrix-';
+		$chars    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		$charsLen = strlen($chars);
+		$randLen  = 10;
+		for ($i = 0; $i < $randLen; $i++) {
+			$idx       = rand(0, ($charsLen - 1));
+			$systemid .= $chars[$idx];
+		}
+
+		return $systemid;
+
+	}//end _getSystemid()
 
 
 	/**
@@ -218,9 +343,10 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintRegister(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('attributes');
+		$wa      = $asset->writeAccess('attributes');
+		$current = $asset->getCurrentProduct();
 
-        if ($wa) {
+        if ($wa && !empty($current)) {
             echo translate('suite_new_product_url').' ';
             text_box($prefix.'_new_product', '');
         }//end if

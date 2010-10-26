@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.2 2010/10/06 00:06:02 bpearson Exp $
+* $Id: suite_manager.inc,v 1.3 2010/10/26 23:45:44 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -203,6 +203,29 @@ class Suite_Manager extends Page
 
 
 	/**
+	 * Get the list of live suite products.
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public function getLiveProducts()
+	{
+		$products = $this->getAllProducts();
+		$live     = array();
+
+		foreach ($products as $product) {
+			$status = array_get_index($product, 'status', '');
+			if ($status == 'live') {
+				$live[] = $product;
+			}//end if
+		}//end foreach
+
+		return $live;
+
+	}//end getAllProducts()
+
+
+	/**
 	 * Get the product information for the given systemid.
 	 *
 	 * @param string $systemid Unique ID of the product.
@@ -372,16 +395,17 @@ class Suite_Manager extends Page
 	/**
 	 * Remove the product from the suite.
 	 *
-	 * @param string $systemid Unique ID of the product.
+	 * @param string	$systemid	Unique ID of the product.
+	 * @param boolean	$current	If TRUE, can remove the current product.
 	 *
 	 * @return boolean
 	 * @access public
 	 */
-	public function removeProduct($systemid)
+	public function removeProduct($systemid, $current=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
-			$bind_vars = Array('systemid' => $systemid, 'current'=>'0');
+			$bind_vars = Array('systemid' => $systemid, 'current'=>(int) $current);
 			MatrixDAL::executeQuery('squiz_suite_package', 'removeProduct', $bind_vars);
 		} catch (PDOException $e) {
 			trigger_localised_error('SQS0031', E_USER_ERROR);
@@ -596,9 +620,9 @@ class Suite_Manager extends Page
 	 * @param mixed $data	The content to encode into JSON 
 	 *
 	 * @return string
-	 * @access private
+	 * @access public
 	 */
-	private function _encodeJson($data)
+	public function encodeJson($data)
 	{
 		if (!function_exists('json_encode')) {
 			require_once 'Services/JSON.php';
@@ -610,7 +634,7 @@ class Suite_Manager extends Page
 
 		return $output;
 
-	}//end _encodeJson()
+	}//end encodeJson()
 
 
 	/**
@@ -619,9 +643,9 @@ class Suite_Manager extends Page
 	 * @param string $data	The content to encode into JSON 
 	 *
 	 * @return string
-	 * @access private
+	 * @access public
 	 */
-	private function _decodeJson($data)
+	public function decodeJson($data)
 	{
 		if (strtolower($data) === 'null') {
 			return NULL;
@@ -643,7 +667,7 @@ class Suite_Manager extends Page
 
 		}//end if
 
-	}//end _decodeJson()
+	}//end decodeJson()
 
 
 	/**
@@ -688,10 +712,10 @@ class Suite_Manager extends Page
         $encrypted = array_get_index($_POST, '_enc', NULL);
 		foreach ($requiredParams as $param) {
 			$value = array_get_index($_POST, $param['name'], NULL);
-			$value = $this->_decodeJson($value);
+			$value = $this->decodeJson($value);
 
             if ($value === NULL && $encrypted !== NULL && array_key_exists($param['name'], $encrypted) === TRUE) {
-                $value = $this->_decodeJson($encrypted[$param['name']]);
+                $value = $this->decodeJson($encrypted[$param['name']]);
             }
 
 			if ($value === NULL && $param['optional'] === FALSE) {
@@ -761,11 +785,12 @@ class Suite_Manager extends Page
 	 *
 	 * @param string $targetid ID of the destined system.
 	 * @param string $msgType  Type of message to send.
+	 * @param array  $options  The details of the message.
 	 *
 	 * @return void
 	 * @access public
 	 */
-	public function sendMessage($targetid, $msgType)
+	public function sendMessage($targetid, $msgType, array $options=array())
 	{
         if ($msgType !== 'suiteConnect') {
             $productInfo = $this->getProduct($targetid);
@@ -776,7 +801,7 @@ class Suite_Manager extends Page
         }//end if
 
 		$dom = $this->_createSuiteMessageDOMTemplate();
-		$this->_createSuiteMessageDOM($dom, $msgType);
+		$this->_createSuiteMessageDOM($dom, $msgType, $options);
 		$xml = $dom->saveXML();
 
 		$msg	= Array();
@@ -959,7 +984,8 @@ class Suite_Manager extends Page
 		$success = curl_exec($ch);
 		if ($success === FALSE) {
 			$errMsg = 'cURL failed:'.curl_error($ch);
-			throw new Exception($errMsg);
+			trigger_localised_error('SQS0022', E_USER_WARNING, $url);
+			log_dump($errMsg);
 		}
 
 		// As CURLOPT_RETURNTRANSFER is set on, $success will have
@@ -1276,7 +1302,7 @@ class Suite_Manager extends Page
 			}
 
             // JSON encode data, before encryption
-            $msg['_enc'] = $this->_encodeJson($msg['_enc']);
+            $msg['_enc'] = $this->encodeJson($msg['_enc']);
 			$enc = $this->encryptData($msg['_pubKeySystemid'], $msg['_enc']);
 			$msg['_enc']	  = $enc['encrypted'];
 			$msg['_password'] = $enc['password'];
@@ -1303,7 +1329,7 @@ class Suite_Manager extends Page
 
 		$encrypted	   = $this->decryptData($encrypted, $password);
         if ($encrypted !== FALSE) {
-    		$_POST['_enc']    = $this->_decodeJson($encrypted);
+    		$_POST['_enc']    = $this->decodeJson($encrypted);
 
             $systemid = NULL;
             if (is_array($encrypted) === TRUE) {
@@ -1805,7 +1831,7 @@ class Suite_Manager extends Page
         $type = '';
         $result = '';
         if (is_scalar($content) === TRUE) {
-            $result = $this->_encodeJson($content);
+            $result = $this->encodeJson($content);
         } else if ($content === NULL) {
             $result = 'null';
         } else if (is_array($content) === TRUE) {
@@ -1820,7 +1846,7 @@ class Suite_Manager extends Page
             switch ($type) {
                 case 'struct':
                     foreach ($content as $key => $val) {
-                        $arr[] = $this->_encodeJson((string) $key).':'.$this->_buildJsonString($val);
+                        $arr[] = $this->encodeJson((string) $key).':'.$this->_buildJsonString($val);
                     }//end foreach
 
                     $result = '{'.implode(',', $arr).'}';

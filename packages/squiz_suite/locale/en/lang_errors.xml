@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: lang_errors.xml,v 1.2 2010/10/26 23:45:44 bpearson Exp $
 *
 */
 
@@ -27,6 +27,7 @@
 	<!-- Squiz Suite Connection Errors -->
 	<error code="SQS0020">Unable to register new product</error>
 	<error code="SQS0021"><![CDATA[Unable to activate new product. Received %s error code.]]></error>
+	<error code="SQS0022"><![CDATA[Unable to connect to URL %s.]]></error>
 
     <!-- Squiz Suite Database Errors -->
 	<error code="SQS0030">Unable to access the Database</error>
