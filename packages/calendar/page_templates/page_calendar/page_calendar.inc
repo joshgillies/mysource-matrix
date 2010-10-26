@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.239 2010/10/08 05:52:26 mhaidar Exp $
+* $Id: page_calendar.inc,v 1.240 2010/10/26 05:06:55 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2806,8 +2806,9 @@ class Page_Calendar extends Page
 			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
 		}
-
+		
 		// get the single events
+		$bind_vars = Array();
 		$start_date_stamp = Calendar_Common::_getDayStamp($date);
 		$end_date_stamp = $start_date_stamp + 6;
 		$date_sql = '(cd.start_date_ds BETWEEN :start_date_ds AND :end_date_ds) OR (cd.start_date_ds < :start_date_ds_1 AND cd.end_date_ds >= :start_date_ds_2)';
