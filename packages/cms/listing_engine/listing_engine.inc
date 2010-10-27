@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.303.2.8 2010/10/10 23:41:31 cupreti Exp $
+* $Id: listing_engine.inc,v 1.303.2.9 2010/10/27 23:38:03 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.303.2.8 $
+* @version $Revision: 1.303.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,6 +51,16 @@ class Listing_Engine extends Page
 	*/
 	var $requires_form = FALSE;
 
+	/**
+	* @var string suffix to data dir where the performance of listing should be logged
+	*/
+	var $performance_log_file_name = 'performance';
+	
+	/**
+	* @var int number of max assets can list without triggering a performance warning
+	*/
+	var $performance_threshold = 1000;
+	
 
 	function __construct($assetid=0)
 	{
@@ -629,6 +639,20 @@ class Listing_Engine extends Page
 
 
 		$children = $this->getAssetList();
+		
+		
+		/*
+		 * Performance Monitor
+		 * Log performance warnings when listing engine tries to list a large number of assets
+		 * 
+		 */
+		$total_numbers = isset($children) ? count($children) : 0;
+		if ($total_numbers >= $this->performance_threshold) {
+			$log_contents = 'Listing page #'.$this->id.' is trying to list '.$total_numbers.' assets, which exceeds the performance monitor threshold of '.$this->performance_threshold;
+			log_write($log_contents, $this->performance_log_file_name, E_USER_WARNING);
+		}
+		
+		
 		$exclude_assets = $this->attr('exclude_assets');
 
 		// get children of exclude root nodes, add them to the exclude list
