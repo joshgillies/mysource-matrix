@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/10/28 02:38:27 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.6 2010/10/28 02:45:01 cupreti Exp $
 *
 */
 -->
@@ -25,14 +25,6 @@
 			<display_name>Description</display_name>
 			<note />
 		</field>
-		<field attribute="event_status_id">
-			<display_name>Event Status Id</display_name>
-			<note />
-		</field>
-		<field attribute="event_status">
-			<display_name>Event Status Name</display_name>
-			<note />
-		</field>		
 		<field>
 			<display_name>Start and End</display_name>
 			<note />
