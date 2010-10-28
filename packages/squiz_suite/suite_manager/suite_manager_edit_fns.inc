@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.3 2010/10/28 10:07:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -91,12 +91,16 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
 		if ($wa) {
 			$o->openField(translate('suite_tools_register'));
-				echo check_box($prefix.'_register', '1', FALSE, 'if (this.checked == true) { if (!confirm(\'Are you sure?\')) { this.checked = false } };');	
+                $click = '';
+                if (!empty($current_product)) {
+                    $click = 'if (this.checked === true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked= false }};';
+                }
+				echo check_box($prefix.'_register', '1', FALSE, $click);	
 				echo label(translate('suite_register'), $prefix.'_register');
 			$o->closeField();
 			if (!empty($current_product)) {
 				$o->openField(translate('suite_tools_deregister'));
-					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\'Are you sure?\')) { this.checked = false } };');	
+					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked = false } };');	
 					echo label(translate('suite_deregister'), $prefix.'_deregister');
 				$o->closeField();
 			}
@@ -278,7 +282,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
             if ($wa) {
                 echo '<td>';
-                if ($product['status'] !== 'live') {
+                if ($product['type'] != 'unknown' && $product['status'] !== 'live') {
                     check_box($prefix.'_activate[]', $id);
                 }
                 echo '</td>';

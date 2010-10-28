@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.3 2010/10/28 10:07:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -110,6 +110,12 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 				$errMsg = 'User-agent string can not be parsed.';
 				throw new Exception($errMsg);
 			}
+
+            $current_product = $suite_manager->getCurrentProduct();
+            if (empty($current_product) || !isset($current_product['connection']['url'])) {
+                $errMsg = 'The system is not ready to accept any connection request.';
+                throw new Exception($errMsg);
+            }
 
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$xml	 = array_get_index($_POST, 'xml', NULL);

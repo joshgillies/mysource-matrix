@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.3 2010/10/26 23:45:44 bpearson Exp $
+* $Id: suite_manager.inc,v 1.4 2010/10/28 10:07:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -884,7 +884,7 @@ class Suite_Manager extends Page
 	public function sendRequest($targetid, $format, $system, $action, $message=Array())
 	{
 		$currProductInfo = $this->getCurrentProduct();
-		$userAgentStr	 = $this->_userAgentPrefix.$currProductInfo['type'].'/4.0';
+		$userAgentStr	 = $this->_userAgentPrefix.array_get_index($currProductInfo, 'type', 'Squiz Matrix').'/4.0';
         $productInfo     = $this->getProduct($targetid);
 
         $apiURL = '';
@@ -936,7 +936,7 @@ class Suite_Manager extends Page
                 }
 
                 if (!isset($message['_enc']['_systemid'])) {
-                    $message['_enc']['_systemid'] = $currProductInfo['systemid'];
+                    $message['_enc']['_systemid'] = array_get_index($currProductInfo, 'systemid', NULL);
                 }
             }//end if
         }//end if
@@ -1025,10 +1025,13 @@ class Suite_Manager extends Page
 		$sysurlEl  = $dom->createElement('system_url');
 		$sysnameEl = $dom->createElement('system_name');
 
-		$this->buildResponseXMLDom($sysidEl, $productInfo['systemid']);
-		$this->buildResponseXMLDom($systypeEl, $productInfo['type']);
-		$this->buildResponseXMLDom($sysurlEl, $productInfo['connection']['url']);
-		$this->buildResponseXMLDom($sysnameEl, $productInfo['connection']['name']);
+        if (!empty($productInfo)) {
+            $this->buildResponseXMLDom($sysidEl, $productInfo['systemid']);
+            $this->buildResponseXMLDom($systypeEl, $productInfo['type']);
+            $this->buildResponseXMLDom($sysurlEl, $productInfo['connection']['url']);
+            $this->buildResponseXMLDom($sysnameEl, $productInfo['connection']['name']);
+        }//end if
+
 		$msgElem->appendChild($sysidEl);
 		$msgElem->appendChild($systypeEl);
 		$msgElem->appendChild($sysurlEl);
@@ -1065,10 +1068,12 @@ class Suite_Manager extends Page
 				// Both of CON_REQUEST and CON_REQUEST_ACK will send
 				// the system's public key together.
 				$currProduct = $this->getCurrentProduct();
-				$pubKey		 = $currProduct['connection']['cert'];
-				$pubkeyEl	 = $dom->createElement('cert');
-				$this->buildResponseXMLDom($pubkeyEl, $pubKey);
-				$msgEl->appendChild($pubkeyEl);
+                if (!empty($currProduct)) {
+                    $pubKey		 = $currProduct['connection']['cert'];
+                    $pubkeyEl	 = $dom->createElement('cert');
+                    $this->buildResponseXMLDom($pubkeyEl, $pubKey);
+                    $msgEl->appendChild($pubkeyEl);
+                }//end if
 			break;
 
             case 'suiteProductSync':
