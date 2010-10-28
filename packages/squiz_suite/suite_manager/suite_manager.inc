@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.4 2010/10/28 10:07:00 bpearson Exp $
+* $Id: suite_manager.inc,v 1.5 2010/10/28 21:57:49 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -556,7 +556,7 @@ class Suite_Manager extends Page
             if ($request['system'] === 'SquizSuite' && strpos($request['action'], 'suiteConnect') === 0) {
                 // suiteConnect methods are allowed past
                 $check = TRUE;
-            } else {
+            } else if ($this->_suiteSystemUser === TRUE) {
                 if (isset($request['_enc']['matrix']['username']) && isset($request['_enc']['matrix']['password'])) {
                     $auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
                     $auth_systems = $auth_folder->getAuthSystems();
@@ -1332,9 +1332,10 @@ class Suite_Manager extends Page
 			return;
 		}
 
-		$encrypted	   = $this->decryptData($encrypted, $password);
+		$encrypted = $this->decryptData($encrypted, $password);
         if ($encrypted !== FALSE) {
-    		$_POST['_enc']    = $this->decodeJson($encrypted);
+    		$encrypted     = $this->decodeJson($encrypted);
+    		$_POST['_enc'] = $encrypted;
 
             $systemid = NULL;
             if (is_array($encrypted) === TRUE) {
