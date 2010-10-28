@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2010/05/05 07:11:14 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5.2.1 2010/10/28 03:58:38 cupreti Exp $
 *
 */
 -->
@@ -71,4 +71,10 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Transformations" write_access="write:links">
+        <field attribute="xslt_file">
+            <assetid type_codes="xsl_file:D" />
+        </field>
+	</section>
+	
 </contents>

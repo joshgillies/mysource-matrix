@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/05/05 07:11:15 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5.2.1 2010/10/28 03:58:38 cupreti Exp $
 *
 */
 -->
@@ -90,4 +90,12 @@
 			have to be preceded and succeeded with a '%' sign or else the keyword will be considered a normal string.  </note>
 		</field>
 	</section>
+
+	<section name="Transformations">
+		<field attribute="xslt_file">>
+			<display_name>XSL Transformation</display_name>
+			<note>Select the XSL file for XSL Transformation. You can view the XSLT output by previewing the XML Datasoruce asset.</note>
+		</field>
+	</section>	
+	
 </contents>
