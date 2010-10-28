@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.25 2010/04/13 06:29:23 mhaidar Exp $
+* $Id: search_manager_edit_fns.inc,v 1.25.2.1 2010/10/28 05:26:55 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.25.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1023,7 +1023,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (!isset($weights[$comp]['weight'])) {
 					$asset_weights[$comp]['weight'] = 1;
 				} else {
-					$asset_weights[$comp]['weight'] = $weights[$comp]['weight'];
+					$asset_weights[$comp]['weight'] = (int) $weights[$comp]['weight'];
 				}
 			}
 			if (!isset($info['indexed'])) {
@@ -1053,7 +1053,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (!isset($weights[$name]['weight'])) {
 					$attr_weights[$name]['weight'] = 1;
 				} else {
-					$attr_weights[$name]['weight'] = $weights[$name]['weight'];
+					$attr_weights[$name]['weight'] = (int) $weights[$name]['weight'];
 				}
 			}
 			if (!isset($info['indexed'])) {
@@ -1086,7 +1086,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				$weight = ((int) $info['weight'] > 0) ? $info['weight'] : NULL;
 				if (!is_null($weight)) {
-					$weights[$assetid]['weight'] = $weight;
+					$weights[$assetid]['weight'] = (int) $weight;
 				}
 				$weights[$assetid]['indexed'] = array_get_index($info, 'indexed', FALSE);
 			}
@@ -1105,7 +1105,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			// save any values from a metadata asset that was selected using the asset finder
 			$weights[$assetid] = Array(
-									'weight'	=> $weight,
+									'weight'	=> (int) $weight,
 									'type_code'	=> $type_code,
 									'indexed'	=> 1,
 								 );
