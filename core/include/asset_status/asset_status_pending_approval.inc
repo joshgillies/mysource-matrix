@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.48 2010/05/11 23:01:50 cupreti Exp $
+* $Id: asset_status_pending_approval.inc,v 1.48.2.1 2010/10/28 03:50:58 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -110,9 +110,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
-					// due to it not allowing metadata
-					$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
-					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+					// due to it not allowing metadata, but only if workflow is complete
+					if ($wf_complete) {
+						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');
+						$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
+					}
 				}
 
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
