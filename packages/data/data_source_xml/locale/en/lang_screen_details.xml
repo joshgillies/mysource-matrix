@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2010/10/22 06:00:05 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.7 2010/10/29 04:29:47 cupreti Exp $
 *
 */
 -->
@@ -94,7 +94,7 @@
 	<section name="Transformations">
 		<field attribute="xslt_file">>
 			<display_name>XSL Transformation</display_name>
-			<note>Select the XSL file for XSL Transformation. You can view the XSLT output by previewing the XML Datasoruce asset.</note>
+			<note>Select the XSL file for XSL Transformation. You can view the XSLT output by previewing the XML Datasource asset.</note>
 		</field>
 	</section>	
 </contents>
