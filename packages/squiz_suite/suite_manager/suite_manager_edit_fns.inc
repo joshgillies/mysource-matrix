@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.3 2010/10/28 10:07:00 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.4 2010/10/29 07:06:13 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -279,6 +279,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
             echo '</td>';
             echo '<td>';
             echo ucwords($product['status']);
+            echo '</td>';
 
             if ($wa) {
                 echo '<td>';
@@ -291,6 +292,20 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 echo '</td>';
             }//end if
             echo '</tr>';
+            
+            // Further for Matrix products, add a username/password field.
+            if ($wa && $product['type'] == 'Squiz Matrix') {
+                echo '<tr>';
+                echo '<td>'.translate('username').'</td>';
+                echo '<td colspan="2">';
+                echo text_box($prefix.'_username['.$product['systemid'].']', array_get_index($product['connection'], 'username', ''), 30);
+                echo '</td>';
+                echo '<td>'.translate('password').'</td>';
+                echo '<td colspan="2">';
+                echo password_box($prefix.'_password['.$product['systemid'].']', array_get_index($product['connection'], 'password', ''), 30);
+                echo '</td>';
+                echo '</tr>';
+            }//end if
         }//end foreach
 
         echo '</table>';
@@ -323,12 +338,61 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
             if ($response['curlInfo']['http_code'] !== 200) {
                 trigger_localised_error('SQS0021', E_USER_WARNING, $response['curlInfo']['http_code']);
+            } else {
+                // Send the sync message.
+                $current_product = $asset->getCurrentProduct();
+                $target_product  = $asset->getProduct($activate_system);
+                if (!empty($current_product) && !empty($target_product)) {
+                    if ($target_product['type'] != 'Squiz Update') {
+                        $message = array('sync_direction' => 'broadcast');
+                        $b_response = $asset->sendMessage($target_product['systemid'], 'suiteProductSync', $message);
+                    }
+                }//end if
             }//end if
         }//end foreach
 
         foreach ($remove as $remove_system) {
             $asset->removeProduct($remove_system);
         }//end foreach
+
+        // Matrix usernames and passwords save.
+        $usernames = array_get_index($_POST, $prefix.'_username', array());
+        $passwords = array_get_index($_POST, $prefix.'_password', array());
+        $broadcast = FALSE;
+        foreach ($usernames as $systemid => $username) {
+            $product = $asset->getProduct($systemid);
+            if (!empty($product)) {
+                $current_user = array_get_index($product['connection'], 'username', '');
+                if (!empty($username) && $username !== $current_user) {
+                    $connection = array_get_index($product, 'connection', array());
+                    $connection['username'] = $username;
+                    $asset->updateProduct($systemid, 'connection', $connection);
+                    $broadcast = TRUE;
+                }
+            }//end if
+        }//end foreach
+        foreach ($passwords as $systemid => $password) {
+            $product = $asset->getProduct($systemid);
+            if (!empty($product)) {
+                $current_pass = array_get_index($product['connection'], 'password', '');
+                if (!empty($password) && $password !== $current_pass) {
+                    $connection = array_get_index($product, 'connection', array());
+                    $connection['password'] = $password;
+                    $asset->updateProduct($systemid, 'connection', $connection);
+                    $broadcast = TRUE;
+                }
+            }//end if
+        }//end foreach
+
+        if ($broadcast === TRUE) {
+            $all_products = $asset->getAllProducts();
+            foreach ($all_products as $p) {
+                if (!empty($p) && $p['status'] != 'live') {
+                    $message = array('sync_direction' => 'broadcast');
+                    $asset->sendMessage($p['systemid'], 'suiteProductSync', $message);
+                }
+            }
+        }
 
         return TRUE;
 
@@ -373,6 +437,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	function processRegister(&$asset, &$o, $prefix)
 	{
         $product_url = array_get_index($_POST, $prefix.'_new_product', '');
+        $product_url = trim($product_url);
         $product_url = rtrim($product_url, '/');
 
         if (!empty($product_url)) {
@@ -384,8 +449,8 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
             if ($response['curlInfo']['http_code'] === 404) {
                 // It might be another Matrix system, try without __api
-                $product_url = substr($product_url, strpos($product_url, '__api'));
-                $response = $asset->sendMessage($product_url);
+                $product_url = substr($product_url, 0, strpos($product_url, '__api'));
+                $response = $asset->sendMessage($product_url, 'suiteConnect');
             }//end if
 
             if ($response['curlInfo']['http_code'] === 200) {

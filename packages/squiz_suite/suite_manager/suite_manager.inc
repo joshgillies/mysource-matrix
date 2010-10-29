@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.5 2010/10/28 21:57:49 bpearson Exp $
+* $Id: suite_manager.inc,v 1.6 2010/10/29 07:06:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -568,8 +568,10 @@ class Suite_Manager extends Page
                         $user = $system->authenticateUser($request['_enc']['matrix']['username'], $request['_enc']['matrix']['password']);
                         if (!is_null($user)) {
                             $GLOBALS['SQ_SYSTEM']->loginUser($user);
-                            $check = TRUE;
                             $GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
+                            if ($this->_suiteSystemUser === TRUE) {
+                                $check = TRUE;
+                            }
                             break;
                         }//end if
                         $GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
@@ -984,7 +986,6 @@ class Suite_Manager extends Page
 		$success = curl_exec($ch);
 		if ($success === FALSE) {
 			$errMsg = 'cURL failed:'.curl_error($ch);
-			trigger_localised_error('SQS0022', E_USER_WARNING, $url);
 			log_dump($errMsg);
 		}
 
@@ -1082,10 +1083,22 @@ class Suite_Manager extends Page
                 $productsEl->setAttribute('type', 'array');
                 $msgEl->appendChild($productsEl);
                 foreach ($products as $product) {
-                    if ($product['current'] === FALSE && $product['status'] === 'live') {
-                        $productEl = $dom->createElement('product');
-                        $this->buildResponseXMLDom($productEl, $product);
-                        $productsEl->appendChild($productEl);
+                    if ($product['current'] == FALSE && $product['status'] == 'live') {
+                        $addProduct = TRUE;
+
+                        if ($product['type'] == 'Squiz Matrix') {
+                            $username = array_get_index($product['connection'], 'username', '');
+                            $password = array_get_index($product['connection'], 'password', '');
+                            if (empty($username) && empty($password)) {
+                                $addProduct = FALSE;
+                            }
+                        }
+
+                        if ($addProduct) {
+                            $productEl = $dom->createElement('product');
+                            $this->buildResponseXMLDom($productEl, $product);
+                            $productsEl->appendChild($productEl);
+                        }
                     }
                 }//end foreach
 
@@ -1118,12 +1131,13 @@ class Suite_Manager extends Page
 	/**
 	 * Parse the passed XML file and return.
 	 *
-	 * @param string $xml SquizSuite specific XML message string.
+	 * @param string $xml    SquizSuite specific XML message string.
+     * @param array  $fields The required fields to parse.
 	 *
 	 * @return array
 	 * @access public
 	 */
-	public function parseSuiteXML($xml)
+	public function parseSuiteXML($xml, $fields=array())
 	{
 		$doc	= new DomDocument();
 		$result = $doc->loadXML($xml);
@@ -1133,19 +1147,32 @@ class Suite_Manager extends Page
 		}
 
 		$result = Array();
-		$fields = Array(
-					'system_id',
-					'system_url',
-					'system_type',
-					'system_name',
-					'cert',
-				  );
+        if (empty($fields)) {
+            $fields = Array(
+                        'system_id',
+                        'system_url',
+                        'system_type',
+                        'system_name',
+                        'cert',
+                      );
+        }
+
 		foreach ($fields as $field) {
 			$fieldEl = $doc->getElementsByTagName($field)->item(0);
 			if ($fieldEl === NULL) {
 				$result[$field] = NULL;
 			} else {
-				$result[$field] = $fieldEl->nodeValue;
+                if ($fieldEl->nodeType === XML_ELEMENT_NODE) {
+                    $callback = Array(
+                                    'Suite_Manager',
+                                    'getResponseFromXMLDom',
+                                );
+                    $params   = Array($fieldEl);
+
+                    $result[$field] = Suite_Manager::getResponseFromXMLDom($fieldEl);
+                } else {
+    				$result[$field] = $fieldEl->nodeValue;
+                }
 			}
 		}
 
@@ -1344,7 +1371,7 @@ class Suite_Manager extends Page
                 $dom = new DomDocument();
                 $dom->loadXML($encrypted);
                 $systemidDom = $dom->getElementsByTagName('system_id')->item(0);
-                $systemid    = $this->getResponseFromXMLDom($systemidDom);
+                $systemid    = Suite_Manager::getResponseFromXMLDom($systemidDom);
             }//end if
 
             if ($systemid !== NULL) {
@@ -1552,7 +1579,7 @@ class Suite_Manager extends Page
 
 			$parentNode->setAttribute('type', $type);
 			$this->_addTextToNode($parentNode, $textVal);
-		} else if (is_Array($content) === TRUE) {
+		} else if (is_array($content) === TRUE) {
 			$type = 'array';
 
 			$keys = array_keys($content);
@@ -1616,17 +1643,17 @@ class Suite_Manager extends Page
 	 *
 	 * @return mixed
 	 */
-	public function getResponseFromXMLDom($parentNode)
+	public static function getResponseFromXMLDom($parentNode)
 	{
 		$response = '';
 		if ($parentNode->hasAttribute('type') === TRUE) {
 			$type  = $parentNode->getAttribute('type');
 			$func  = '_get'.ucwords($type).'Response';
-			if (method_exists($this, $func) === TRUE) {
-				$callback = Array(
-								$this,
-								$func,
-							);
+            $callback = Array(
+                            'Suite_Manager',
+                            $func,
+                        );
+			if (is_callable($callback) === TRUE) {
 				$params   = Array($parentNode);
 				$response = call_user_func_Array($callback, $params);
 			} else {
@@ -1653,7 +1680,7 @@ class Suite_Manager extends Page
 		if ($parentNode->hasChildNodes() === TRUE) {
 			foreach ($parentNode->childNodes as $child) {
 				if ($child->nodeType === XML_ELEMENT_NODE) {
-					$response[] = $this->getResponseFromXMLDom($child);
+					$response[] = Suite_Manager::getResponseFromXMLDom($child);
 				}
 			}
 		}
@@ -1677,7 +1704,7 @@ class Suite_Manager extends Page
 			foreach ($parentNode->childNodes as $child) {
 				$key = $child->nodeName;
 				if ($child->nodeType === XML_ELEMENT_NODE) {
-					$response[$key] = $this->getResponseFromXMLDOM($child);
+					$response[$key] = Suite_Manager::getResponseFromXMLDom($child);
 				}
 			}
 		}

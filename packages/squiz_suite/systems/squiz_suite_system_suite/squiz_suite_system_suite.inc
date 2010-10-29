@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.3 2010/10/28 10:07:00 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.4 2010/10/29 07:06:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -118,9 +118,10 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
             }
 
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
-			$xml	 = array_get_index($_POST, 'xml', NULL);
-			$xml	 = html_entity_decode($xml);
-			$message = $suite_manager->parseSuiteXML($xml);
+            $required = array('system_id', 'system_url', 'system_name', 'system_type', 'cert');
+			$xml	  = array_get_index($_POST, 'xml', NULL);
+			$xml	  = html_entity_decode($xml);
+			$message  = $suite_manager->parseSuiteXML($xml, $required);
 
 			// All the required fields exist?
 			$required = Array(
@@ -215,10 +216,11 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			}
 
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
-			$enc	 = array_get_index($_POST, '_enc', Array());
-            $xml     = array_get_index($enc, 'xml', NULL);
-			$xml	 = html_entity_decode($xml);
-			$message = $suite_manager->parseSuiteXML($xml);
+            $required = array('system_id', 'system_url', 'system_name', 'system_type', 'cert');
+			$enc	  = array_get_index($_POST, '_enc', Array());
+            $xml      = array_get_index($enc, 'xml', NULL);
+			$xml	  = html_entity_decode($xml);
+			$message  = $suite_manager->parseSuiteXML($xml, $required);
 
 			// All the required fields exist?
 			$required = Array(
@@ -288,7 +290,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
                 $dom->loadXML($response);
 
                 $responseDom = $dom->getElementsByTagName('result')->item(0);
-                $response    = $suite_manager->getResponseFromXMLDom($responseDom);
+                $response    = Suite_Manager::getResponseFromXMLDom($responseDom);
                 if ($response !== 'ok') {
                     $errMsg = 'suiteConnectAckAck message did not reach to '.$systemUrl;
 			        $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -329,10 +331,11 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			}
 
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
-			$enc	 = array_get_index($_POST, '_enc', Array());
-            $xml     = array_get_index($enc, 'xml', NULL);
-			$xml	 = html_entity_decode($xml);
-			$message = $suite_manager->parseSuiteXML($xml);
+            $required = array('system_id', 'system_url');
+			$enc	  = array_get_index($_POST, '_enc', Array());
+            $xml      = array_get_index($enc, 'xml', NULL);
+			$xml	  = html_entity_decode($xml);
+			$message  = $suite_manager->parseSuiteXML($xml, $required);
 
 			// All the required fields exist?
 			$required = Array(
@@ -360,6 +363,22 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$suite_manager->logReceivedMessage($systemid, 'suiteConnectAckAck');
 
 			$suite_manager->updateProduct($systemid, 'status', 'live');
+
+            // Update product shouldn't get involved with this.
+            $currProduct = $suite_manager->getCurrentProduct();
+            if ($currProduct['type'] !== 'Squiz Update' && $productInfo['type'] !== 'Squiz Update') {
+                // The final acknowlegement has been received.
+                // Send the list of my connected products for syncing.
+                $allProducts = $suite_manager->getAllProducts();
+                foreach ($allProducts as $product) {
+                    if ($product['current'] === TRUE || $product['systemid'] === $systemid || $product['status'] !== 'live') {
+                        continue;
+                    }
+
+                    $options  = array('sync_direction' => 'one');
+                    $response = $suite_manager->sendMessage($product['systemid'], 'suiteProductSync', $options);
+                }
+            }//end if
             $response = 'ok';
             return $response;
 		} catch (Exception $e) {
@@ -388,10 +407,11 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
 
             // Parse the posted XML file. Exception will be thrown in case error occurs.
-			$enc	 = array_get_index($_POST, '_enc', Array());
-			$xml	 = array_get_index($enc, 'xml', NULL);
-			$xml	 = html_entity_decode($xml);
-			$message = $suite_manager->parseSuiteXML($xml);
+            $required = array('system_id', 'system_url', 'products', 'sync_direction');
+			$enc	  = array_get_index($_POST, '_enc', Array());
+			$xml	  = array_get_index($enc, 'xml', NULL);
+			$xml	  = html_entity_decode($xml);
+			$message  = $suite_manager->parseSuiteXML($xml, $required);
 
             $systemid  = $message['system_id'];
             $systemUrl = $message['system_url'];
@@ -403,10 +423,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
                     continue;
                 }
 
-                $connection         = array();
-                $connection['url']  = $product['connection']['url'];
-                $connection['cert'] = $product['connection']['cert'];
-                $connection['name'] = $product['connection']['name'];
+                $connection = $product['connection'];
                 $suite_manager->registerProduct($product['systemid'], $product['type'], $connection);
                 $suite_manager->updateProduct($product['systemid'], 'status', 'live');
             }//end foreach
@@ -455,10 +472,11 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
 
             // Parse the posted XML file. Exception will be thrown in case error occurs.
-			$enc	 = array_get_index($_POST, '_enc', Array());
-			$xml	 = array_get_index($enc, 'xml', NULL);
-			$xml	 = html_entity_decode($xml);
-			$message = $suite_manager->parseSuiteXML($xml);
+            $required = array('system_id', 'system_url', 'updateType', 'updateValue');
+			$enc	  = array_get_index($_POST, '_enc', Array());
+			$xml	  = array_get_index($enc, 'xml', NULL);
+			$xml	  = html_entity_decode($xml);
+			$message  = $suite_manager->parseSuiteXML($xml, $required);
 
             $systemid    = $message['system_id'];
             $updateType  = $message['update_type'];
