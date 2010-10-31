@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.84.2.4 2010/08/18 03:43:45 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.84.2.5 2010/10/31 21:55:50 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.4 $
+* @version $Revision: 1.84.2.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1293,6 +1293,16 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						253 : '&yacute;',	// small y acute
 						254 : '&thorn;',	// small thorn
 						255 : '&yuml;',		// small y dieresis or umlaut
+						256 : '&#256;',     // uppercase roman A with macron
+						257 : '&#257;',		// lowercase roman a with macron
+						274 : '&#274;',		// uppercase roman E with macron
+						275 : '&#275;',		// lowercase roman e with macron
+						298 : '&#298;',		// uppercase roman I with macron
+						299 : '&#299;',		// lowercase roman i with macron
+						332 : '&#332;',		// uppercase roman O with macron
+						333 : '&#333;',		// lowercase roman o with macron
+						362 : '&#362;',		// uppercase roman U with macron
+						363 : '&#363;',		// lowercase roman u with macron
 						338 : '&OElig;',	// capital ligature OE
 						339 : '&oelig;',	// small ligature oe
 						352 : '&Scaron;',	// capital S with caron
