@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.819 2010/10/18 22:27:58 csmith Exp $
+* $Id: asset_manager.inc,v 1.820 2010/11/01 00:50:50 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.819 $
+* @version $Revision: 1.820 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9656,7 +9656,7 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}
 		$rootid = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_snippet', 'SQ_SNIPPET_ROOT');
-		if (empty($rootid)) {
+		if (empty($rootid) || !$this->assetExists($rootid)) {
 			// snippet root preference not set
 			return Array();
 		}
