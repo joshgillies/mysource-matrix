@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.4 2010/10/29 07:06:13 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.5 2010/11/01 23:25:38 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -80,8 +80,8 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 
 		$summary = Array(
 					Array('label' => 'Version', 'value' => $version),
-					Array('label' => 'No. Assets', 'value' => $numberOfAssets),
-					Array('label' => 'No. Root URLs', 'value' => $numberOfRootUrls),
+					Array('label' => 'Assets', 'value' => $numberOfAssets),
+					Array('label' => 'Root URLs', 'value' => $numberOfRootUrls),
 				   );
 
 		return $summary;
