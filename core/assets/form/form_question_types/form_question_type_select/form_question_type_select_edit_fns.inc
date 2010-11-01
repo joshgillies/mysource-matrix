@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.13 2010/10/31 23:36:56 ewang Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.14 2010/11/01 00:28:29 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -525,10 +525,11 @@ function processOptions(&$asset, &$o, $prefix)
 
 	$key_value_count = count($key_value);
 	$value_count = count($value);
-	if (($key_value_count > 0) && ($key_value_count == $value_count)) {
+	if($key_value_count != $value_count) return;
+	if ($key_value_count > 0) {
 		$values = array_combine($key_value, $value);
 	} else {
-		return;
+		$values = Array();
 	}
 
 	$processed_value = $values;
