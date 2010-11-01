@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.1.2.2 2010/10/13 03:10:17 akarelia Exp $
+* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.1.2.3 2010/11/01 23:06:16 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 
 /**
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 * @subpackage scripts 
 */
@@ -82,7 +82,8 @@ foreach($collections as $index => $collection ) {
 
 	foreach ($file_paths as $new_path => $file_path) {
 		if(file_exists($data_path.$file_path)) {
-			if(copy($data_path.$file_path, $data_path.$new_path)) {bam($data_path.$file_path);
+			if(!copy($data_path.$file_path, $data_path.$new_path)) {
+				bam($data_path.$file_path);
 				$all_good = FALSE;
 			}
 		}
