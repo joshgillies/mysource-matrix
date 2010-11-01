@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.344.2.5 2010/10/05 22:16:41 ewang Exp $
+* $Id: mysource.inc,v 1.344.2.6 2010/11/01 06:05:23 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.344.2.5 $
+* @version $Revision: 1.344.2.6 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -442,7 +442,7 @@ class MySource extends MySource_Object
 				$backend = new Backend();
 				$this->backend = &$backend;
 
-				$current_url     = current_url(FALSE);
+				$current_url     = current_url(FALSE, TRUE);
 				$designid        = $GLOBALS['SQ_SYSTEM']->am->getDesignFromUrl($current_url);
 				$design_no_frame = NULL;
 				if (!empty($designid)) {
