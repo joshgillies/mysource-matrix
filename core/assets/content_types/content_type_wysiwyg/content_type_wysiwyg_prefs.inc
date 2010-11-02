@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.25 2009/08/26 00:09:12 mbrydon Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.25.4.1 2010/11/02 23:56:13 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.4.1 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -338,7 +338,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				}
 				?>
 				<tr>
-				<td><a href="#" id="prefs[SQ_WYSIWYG_LINK_TYPES][add]" onclick="sq_wysiwyg_link_types_addAnother(this.parentNode.parentNode); return false;">Add another...</a></td>
+				<td colspan="3"><a href="#" id="prefs[SQ_WYSIWYG_LINK_TYPES][add]" onclick="sq_wysiwyg_link_types_addAnother(this.parentNode.parentNode); return false;">Add another...</a></td>
 				</tr>
 				</table>
 				<script type="text/javascript">
@@ -487,10 +487,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					if (array_get_index($value, 'delete', FALSE)) {
 						unset($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'][$key]);
 					}
-
-					// Then re-order the rest so that we start from zero again
-					$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
 				}
+				// Re-order so that we start from zero again
+				$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
 			}
 		}
 
