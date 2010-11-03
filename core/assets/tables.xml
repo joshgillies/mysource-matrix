@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.68.2.1 2010/07/06 23:08:03 mhaidar Exp $
+* $Id: tables.xml,v 1.68.2.2 2010/11/03 00:17:55 csmith Exp $
 *
 */
 -->
@@ -1583,7 +1583,7 @@
 					<description>The directory suffix from the repository root that this file is situated in</description>
 				</column>
 				<column name="filename" allow_null="0">
-					<type>VARCHAR(150)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default>''</default>
 					<description />
