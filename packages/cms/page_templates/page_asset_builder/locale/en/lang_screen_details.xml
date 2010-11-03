@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.20 2010/09/30 23:08:33 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.21 2010/11/03 04:07:43 ewang Exp $
 *
 */
 -->
@@ -183,7 +183,7 @@
 	<section name="Mollom Spam Check" write_access="write:attributes">
 		<field attribute="use_mollom">
 			<display_name>Use Mollom Spam Check</display_name>
-			<note>Mollom will try to filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %asset_builder_mollom_captcha% or %asset_builder_captcha_image% plus %asset_builder_mollom_captcha_field% and %asset_builder_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted.</note>
+			<note>Mollom is an external tool which can filter out the submission made by an automated agent. If it is unsure it will use CAPTCHA to verify the legit submission. If this option is set to 'yes', %asset_builder_mollom_captcha% or %asset_builder_captcha_image% plus %asset_builder_mollom_captcha_field% and %asset_builder_mollom_captcha_regen_link% keywords must be included for form submissions to be accepted. API keys can be set in External Tool Configuration.</note>
 		</field>
 		<field>
 			<display_name>Attributes To Check</display_name>
