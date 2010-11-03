@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_squiz_logo_login_design.php,v 1.4 2010/10/08 03:34:52 ewang Exp $
+* $Id: update_squiz_logo_login_design.php,v 1.5 2010/11/03 04:14:31 ewang Exp $
 *
 */
 
@@ -64,16 +64,6 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 echo 'Updating new Squiz Logo for login design, password change design, EES login design ...'."\n";
 
-do {
-	echo "Note: If the Logo image have been modified in above designs, this script will skip it. Proceed? (Yes/No) : ";
-	$answer = rtrim(fgets(STDIN, 4094));
-	if ($answer == 'Yes') {
-		break;
-	} else if ($answer == 'No') {
-		echo "\nBye\n";
-		exit();
-	}
-} while (TRUE);
 echo "\n";	
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
