@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.13.2.6 2010/10/13 03:37:29 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.13.2.7 2010/11/04 05:21:32 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13.2.6 $
+* @version $Revision: 1.13.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -834,6 +834,10 @@ class Funnelback_Manager extends Asset
 					// *Sigh* ignore empty urls
 					if (empty($url)) continue;
 
+					// Make sure we only accept site urls which has the same root domain as __data file url
+					$system_root_url = sq_root_url($asset_url, FALSE);
+                    if(strpos($url, $system_root_url) !== 0) continue;
+                    
 					// Create the site url
 					if ($http) {
 						$site_url[] = 'http://'.$url;
