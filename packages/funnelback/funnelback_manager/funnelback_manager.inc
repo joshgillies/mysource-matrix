@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.23 2010/10/13 03:40:46 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.24 2010/11/04 05:11:47 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -437,7 +437,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($http_url)) {
 						$sitemap_xml = $this->_generateXML($http_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset, $url_info['url']);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'http:') === 0) {
 									$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
@@ -450,7 +450,7 @@ class Funnelback_Manager extends Asset
 					if (!empty($https_url)) {
 						$sitemap_xml = $this->_generateXML($https_url, $asset);
 						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset);
+							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset, $url_info['url']);
 							foreach ($site_urls as $site_url) {
 								if (strpos($site_url, 'https:') === 0) {
 									$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
@@ -816,7 +816,7 @@ class Funnelback_Manager extends Asset
 	 * @return string
 	 * @access protected
 	 */
-	protected function _getSiteURL($root_urlid='0', $protocol='https', &$asset)
+	protected function _getSiteURL($root_urlid='0', $protocol='https', &$asset, $asset_url)
 	{
 		// Sanity check ;)
 		if ($protocol == 'https') {
@@ -846,7 +846,11 @@ class Funnelback_Manager extends Asset
 
 					// *Sigh* ignore empty urls
 					if (empty($url)) continue;
-
+					
+					// Make sure we only accept site urls which has the same root domain as __data file url
+					$system_root_url = sq_root_url($asset_url, FALSE);
+                    if(strpos($url, $system_root_url) !== 0) continue;
+                    
 					// Create the site url
 					if ($http) {
 						$site_url[] = 'http://'.$url;
