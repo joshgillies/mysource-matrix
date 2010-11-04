@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.6 2010/10/29 07:06:13 bpearson Exp $
+* $Id: suite_manager.inc,v 1.7 2010/11/04 01:09:09 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -147,7 +147,7 @@ class Suite_Manager extends Page
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return translate('suite_manager');
+		return 'Squiz Suite Manager';
 
 	}//end _getName()
 
