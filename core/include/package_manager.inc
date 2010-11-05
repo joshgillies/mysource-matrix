@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.90 2008/04/16 23:31:43 gsherwood Exp $
+* $Id: package_manager.inc,v 1.91 2010/11/05 04:43:57 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -659,6 +659,7 @@ class Package_Manager extends MySource_Object
 					}
 				break;
 
+				case 'system_asset':
 				case 'asset':
 					if (in_array($required_code, $deferred_assets)) {
 						// we have to defer an asset that depends on another deferred asset
@@ -670,6 +671,11 @@ class Package_Manager extends MySource_Object
 						// if the test failed, but this asset is in this package, check it's version from that
 						if (!$ok && isset($this->assets[$required_code])) {
 							$ok = version_compare($this->assets[$required_code]['version'], $required_version, '>=');
+						}
+						// If it's a system_asset check AND it has already passed the other checks,
+						// make sure the system_asset is actually available.
+						if ($required_type === 'system_asset' && $ok) {
+							$ok = $GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($required_code);
 						}
 					}
 				break;
