@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.1.1 2010/09/29 01:11:56 bpearson Exp $
+* $Id: asset.xml,v 1.2 2010/11/05 04:47:48 csmith Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>page</parent_type>
 	<requirements>
-		<requirement type="asset">
+		<requirement type="system_asset">
 			<code>web_folder_web_services</code>
 			<version>0.1</version>
 		</requirement>
