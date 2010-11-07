@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.7 2010/11/04 01:09:09 bpearson Exp $
+* $Id: suite_manager.inc,v 1.8 2010/11/07 23:28:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -654,7 +654,7 @@ class Suite_Manager extends Page
 		} else {
 			if (!function_exists('json_decode')) {
 				require_once 'Services/JSON.php';
-				$json = new Services_JSON();
+				$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
 				$output = $json->decode($data);
 			} else {
 				$output = json_decode($data, TRUE);
