@@ -1,6 +1,203 @@
 MYSOURCE MATRIX CHANGELOG
 
 
+VERSION 3.28.6
+
+Featured Changes
+===================================
+
+REST Resource Assets: Ignore SSL Certificate Verification Option for http_request Attribute [ Feature Request #4511 ]
+-----------------------------------------------------
+
+A new option has been added to the REST Resource and REST Resource Javascript assets to disable SSL certificate verification on HTTP requests.
+
+This option is enabled via a new Disabled SSL certificate verification field on the Details screen of the REST Resource and REST Resource Javascript assets.
+
+Previously, if the SSL verification failed on a request, no data would be returned on the REST asset. This was problematic in cases where the request host used self-signed certificate verification. When enabled, this option allows the REST assets to bypass SSL verification in the request, resolving such issues.
+
+
+New Parameters to Filter Results on the JS API's getParents and getChildren Functions [ Feature Request #4733 ]
+-----------------------------------------------------
+
+The Javascript API's getParents and getChildren functions return an asset's parents and children, respectively. Previously, these functions did not allow users to filter these results, instead returning all parents or child assets, by default. This feature adds new type_code, link_type and link_value parameters to these functions, allowing users to filter the returned assets accordingly.
+
+    * type_code: The asset type to return (e.g. page_standard)
+    * link_type: The link type to return (SQ_LINK_TYPE_1, 2, 3 or NOTICE)
+    * link_value: The link values allowed on the returned assets
+
+The new format of these functions are as follows:
+
+    getChildren(asset_id, levels, type_codes, link_types, link_values, dataCallback)
+
+
+    getParents(asset_id, levels, type_codes, link_types, link_values, dataCallback)
+
+
+Specify Attributes to Return on the JS API's getParents, getChildren and getGeneral Functions [ Feature Request #4740 ]
+-----------------------------------------------------
+
+Previously, the getParents, getChildren and getGeneral functions on the Javascript API did not return non-standard attributes on asset responses. For example, on an Image asset, the varieties, variety_count and title attributes values will not be sent by MySource Matrix. This meant that users would have to make additional API calls to retrieve the appropriate attribute values. This feature adds an new parameter on these functions to specify to return these additional attribute values.
+
+    * get_attributes: whether or not to return the non-standard attribute values of an asset (FALSE by default)
+
+The new format of these functions are as follows:
+
+    getChildren(asset_id, levels, type_codes, link_types, link_values, get_attributes, dataCallback)
+
+
+    getParents(asset_id, levels, type_codes, link_types, link_values, get_attributes, dataCallback)
+
+
+    getGeneral(asset_id, get_attributes, dataCallback)
+
+
+SharePoint Connector Compatible with Sub-Level SharePoint Sites [ Feature Request #4741 ]
+-----------------------------------------------------
+
+Previously, MySource Matrix's Sharepoint Connector asset would only function correctly when connected at the SharePoint site root and did not support connecting to sub-level SharePoint sites.  For example, the Sharepoint Connector would work correctly with a system at http://sharepointurl/ but not with a system at http://sharepointurl/sub/.
+
+This restriction meant that when using the Sharepoint Connector on the SharePoint Saved Search or Sharepoint List Item Submission Action (Custom Form), only lists created at the root level of the SharePoint site could be accessed and not from sub-level sites.
+
+This feature extends the functionality of the Sharepoint Connector asset to connect with sub-level SharePoint sites
+
+
+New Keyword Replacement to Display the Asset ID of a Redirect Page [ Feature Request #4752 ]
+-----------------------------------------------------
+
+A new keyword replacement has been added for the Redirect Page to print the Asset ID of the page the user is being redirected to.
+
+    * %redirect_assetid%: The asset ID of the Redirect Page
+
+This keyword replacement could be used, for example, on an applied Paint Layout to display the asset ID to users during a redirect timeout.
+
+
+Manifest of MD5 Hashes for Matrix System Files [ Feature Request #4757 ]
+-----------------------------------------------------
+
+A manifest will now be included in the MySource Matrix tarball download, listing the MD5 hashes of each standard Matrix file on the system (except the manifest itself). This manifest can be used as a reference guide, for example, to locate non-standard files in a deployed Matrix installation.
+
+An excerpt of the manifest is shown below:
+
+6b2ca5e4795baf2bebb714249f9a6e04  matrix_dev/core/assets/bodycopy/bodycopy/asset.xml
+827e416592e2e0240c28114a470ea4b7  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy_edit_fns.inc
+b8db7331980b341941cd2204cde693ce  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy.inc
+31a791ab3053e9ce378a12a116e5bedb  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy_management.inc
+f5c1bf3fc8d003c067ada6b187d9e4be  matrix_dev/core/assets/bodycopy/bodycopy_container/asset.xml
+8e5c7729f5e8dee030d06d7356801d24  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_edit_fns.inc
+726210b6c89553627c73bde18021c5a0  matrix_dev/core/assets/bodycopy/bodycopy_container/.#bodycopy_container_edit_fns.inc.1.70
+79efe02b27e2d98d798addd7c5671ff4  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container.inc
+6e9494b59a82eb4b607ab61753c4a51f  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_management.inc
+6fe16692241f4f11f39b2b4feb6d1eab  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_prefs.inc
+d1c7e1f228da66062bdb996152d43c2a  matrix_dev/core/assets/bodycopy/bodycopy_container/CVS/Entries
+d9886be8775855d54e7244fcb7d3b4d4  matrix_dev/core/assets/bodycopy/bodycopy_container/CVS/Repository
+15fd551f7d0c90de0298443ac1aa8ace  matrix_dev/core/assets/bodycopy/bodycopy_container
+
+
+Automatic Asset ID URL Remaps on Deletion [ Feature Request #4759 ]
+-----------------------------------------------------
+
+When an asset is moved to the trash, users have the option of adding URL remapping. These remaps direct the URL of the trashed asset to another asset, for example, a Page not found asset.
+
+Asset ID URLs (e.g. http://example.com/site/?a=100) are frequently used by the WYSIWYG editor's insert link plug-in to link to other assets within the system. As these URLs link to assets directly, however, they were previously not able to locate trashed assets and thus could not be redirected to the appropriate remap.
+
+This feature includes the direct asset ID URL of a trashed asset during URL remapping, as shown above, allowing these asset ID links to function correctly.
+
+
+Expired Matrix Locks Cron Job [ Feature Request #4761 ]
+-----------------------------------------------------
+
+A new cron job has been added to the Matrix cron manager to clean up expired locks. Expired locks are locks acquired by a user but not manually released. These locks expire after 10 minutes and remain stored in the sq_lock database table.
+
+The Expired Matrix Locks cron job is scheduled to clear these expired locks each time the cron manager is run, improving the stability and performance of your system.
+
+
+New Keyword Replacement to Print Comment Logs in Workflow Messages [ Feature Request #4765 ]
+-----------------------------------------------------
+
+A new keyword replacement has been added to the Workflow Schema asset to allow comment logs to be printed in custom messages. The %log_message% keyword replacement will print the content, user and date of comments.
+
+This keyword replacement can be used on the following custom workflow messages:
+
+    * Workflow Invitation Message
+    * Workflow Approval Message
+    * Workflow Rejection Message
+    * Workflow Stale Message
+    * Workflow Escalated Message
+
+
+Applying XSL Transformation on an XML Data Source Asset [ Feature Request #4769 ]
+-----------------------------------------------------
+
+A new field has been added to the XML Data Source asset to allow XSL transformation on the content of the data source feed. This allows users to stylise this data source content and preview it in the backend.
+
+In the XSL Transformation field (on the Details screen), select an XSL file for XSL transformation.  You can preview the XSLT output on the Preview screen of the XML Data Source asset.
+
+This feature is an extension of the XML File asset's existing XSL transformation options.
+
+Additional Changes and Bug Fixes
+===================================
+
+Minor Enhancements
+Minor Enhancement #4774: Remove Form Submissions Script Enhancement
+Minor Enhancement #4778: Log Warning on Listing Engines when Attempting to List in Excess of 1000 Assets
+Minor Enhancement #4779: Change Length of Filename Field in sq_file_vers_file table
+Minor Enhancement #4785: squiz_server init.d script doesn't wait long enough
+
+
+Core
+Fixed Bug #4602: Safe edit diff preview incorrect highlights
+Fixed Bug #4722: regen_metadata_by_root_node.php script causes cron deadlocks
+Fixed Bug #4724: Context names should be unique
+Fixed Bug #4728: Searching with metadata WYSIWYG field does not return any results
+Fixed Bug #4734: Keyword modifiers not working on group_name keywords
+Fixed Bug #4744: Incomplete metadata report and safe trash report throws warning illegal offset in linking screen
+Fixed Bug #4747: Can't save keyword selection
+Fixed Bug #4750: Funnelback OEM indexer breaks when there is a lengthy metadata summary in sitemap.xml
+Fixed Bug #4753: Moving asset in asset map downwards will move one position further
+Fixed Bug #4754: Searching on multiple text metadata field on oracle can do only exact match on the text
+Fixed Bug #4755: Unsupported operand types in core/include/asset_manager.inc on line 1214
+Fixed Bug #4756: Quotes in a webpath can cause issues
+Fixed Bug #4764: Send email trigger action to LDAP users in Roles not working
+Fixed Bug #4766: HTML/Plain text emails
+Fixed Bug #4767: TRIM Saved Search broken if Search Parent Container is defined
+Fixed Bug #4768: Invalid available workflow status for an asset that doesn't have metadata screen
+Fixed Bug #4773: SharePoint Saved Search download file function issues: authentication broken, doesn't support file attachment
+Fixed Bug #4780: Maori special character issue with WYSIWYG when using IE browser
+Fixed Bug #4781: Cosmetic warning in select question of form when populating option list with key only (or value only)
+Fixed Bug #4782: "Asset doesn't exist" warning message on Page's Edit Contents screen when Snippet Root asset is deleted
+Fixed Bug #4783: No frames in Simple Edit Interface feature not removing Simple Edit frames
+Fixed Bug #4786: WYSIWYG link types global prefs deletion error
+Fixed Bug #4787: Metadata select field default value not selected if Frontend Part set to "Value"
+
+CMS
+Fixed Bug #4718: No way of disabling blockquotes
+Fixed Bug #4751: What's New asset date ranges screen doesn't save dates for specified range
+
+Search
+Fixed Bug #4771: Crash if non-integral search weights are used
+
+LDAP
+Fixed Bug #4760: Creating new link dpesn't work from the Linking screen for LDAP user with a "." in CN
+
+Bulkmail
+Fixed Bug #4425: Bulkmail job never completing
+
+Calendar
+Fixed Bug #4730: Missing locale string in calendar_event_modification
+Fixed Bug #4732: Calendar Week View not showing last day - Daylight Savings
+Fixed Bug #4776: Calendar Page in Week view, warning undefined variable $bind_vars
+
+Data
+Fixed Bug #4745: XML Data Source dynamic inputs being re-coded when request is made
+
+Web Services
+Fixed Bug #4404: SOAP SetAssetMetadata() Web Services method does not encode metadata value
+
+Funnelback Package
+Fixed Bug #4510: Quotes not working in Funnelback search query
+
+
+
 VERSION 3.28.5
 
 Featured Changes
