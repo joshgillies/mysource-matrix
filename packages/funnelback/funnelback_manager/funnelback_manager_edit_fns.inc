@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.13 2010/10/07 02:39:04 akarelia Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.14 2010/11/08 01:53:03 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -114,11 +114,16 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$choice = array_get_index($_POST, $prefix.'_indexing', FALSE);
 		if ($wa) {
-			if ($choice == '1' && $asset->checkInstalled()) {
+			if ($choice == '1')
 				$asset->setAttrValue('indexing', TRUE);
+
+				if ($asset->checkInstalled() === FALSE) {
+					log_dump('Funnelback is enabled, but the binaries are not installed');
+				}
 			} else {
 				$asset->setAttrValue('indexing', FALSE);
 			}//end if
+
 			$status = $asset->saveAttributes();
 		}//end if
 
