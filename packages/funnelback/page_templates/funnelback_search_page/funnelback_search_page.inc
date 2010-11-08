@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.29 2010/11/08 01:41:47 csmith Exp $
+* $Id: funnelback_search_page.inc,v 1.30 2010/11/08 01:46:49 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2367,6 +2367,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Get the other vars
 		$current_result_page = array_get_index($search, 'page', 1);
+		$num_per_page = array_get_index($search, 'num_per_page', $this->_getNumPerPage());
 		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
 		$sort = array_get_index($search, 'sort', 'rank');
 		$scope = array_get_index($search, 'scope', '');
@@ -2376,7 +2377,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Build the options.
 		$options = array();
-		$options['num_per_page'] = array_get_index($search, 'num_per_page', $this->_getNumPerPage());
+		$options['num_per_page'] = $num_per_page;
 		$options['contextual_navigation_enabled'] = TRUE;
 		
 		// Check for required information
