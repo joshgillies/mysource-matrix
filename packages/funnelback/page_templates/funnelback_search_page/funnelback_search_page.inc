@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.28 2010/10/18 02:40:36 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.29 2010/11/08 01:41:47 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2438,7 +2438,11 @@ class Funnelback_Search_Page extends Listing_Engine
 				$xml        = (string) $resultData['result'];
 			}//end if
 		}//end if
-		log_dump($xml);
+
+        // Services_JSON will forcibly change Content-type header to json, which is not expected
+        if (!headers_sent()) {
+            header('Content-type: text/html;');
+        }
 
 		return $xml;
 
