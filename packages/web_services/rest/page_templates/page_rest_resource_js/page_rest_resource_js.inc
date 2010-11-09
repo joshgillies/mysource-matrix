@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.7 2010/09/29 05:20:54 ewang Exp $
+* $Id: page_rest_resource_js.inc,v 1.7.2.1 2010/11/09 22:19:10 ewang Exp $
 *
 */
 
@@ -81,11 +81,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 			if (!function_exists('json_encode')) {
 				require_once 'Services/JSON.php';
 				$json = new Services_JSON();
-				$js .= '_REST = ' . $json->encode($this->_res) . ";\n";
-				// Services_JSON will forcibly change Content-type header to json, which is not expected
-				if(!headers_sent()) {
-					header('Content-type: text/html;');
-				}
+				$js .= '_REST = ' . $json->encodeUnsafe($this->_res) . ";\n";
 			} else {
 				$js .= '_REST = ' .json_encode($this->_res) . ";\n";
 			}
