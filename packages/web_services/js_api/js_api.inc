@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61 2010/10/13 00:23:34 akarelia Exp $
+* $Id: js_api.inc,v 1.62 2010/11/10 04:50:29 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -401,6 +401,22 @@ class JS_Api extends Page
 			break;
 
 
+			case	'getRoles':
+				if ($this->attr('get_roles')) {
+					$assetid = isset($_REQUEST['assetid']) && $_REQUEST['assetid'] != '' ? $_REQUEST['assetid'] : NULL;
+					$roleid = isset($_REQUEST['roleid']) && $_REQUEST['roleid'] != '' ? $_REQUEST['roleid'] : NULL;
+					$userid = isset($_REQUEST['userid']) && $_REQUEST['userid'] != '' ? $_REQUEST['userid'] : NULL;
+					$include_assetid = isset($_REQUEST['include_assetid']) && $_REQUEST['include_assetid'] != '' ? $_REQUEST['include_assetid'] : FALSE;
+					$include_globals = isset($_REQUEST['include_globals']) && $_REQUEST['include_globals'] != '' ? $_REQUEST['include_globals'] : FALSE;
+					$expand_groups = isset($_REQUEST['expand_groups']) && $_REQUEST['expand_groups'] != '' ? $_REQUEST['expand_groups'] : FALSE;
+					$inc_dependants = isset($_REQUEST['inc_dependants']) && $_REQUEST['inc_dependants'] != '' ? $_REQUEST['inc_dependants'] : TRUE;
+					$data = $am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants);
+				} else {
+					$this->returnError('The getRoles function must be activated');
+				}//end else
+
+			break;
+			
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
@@ -1056,7 +1072,7 @@ class JS_Api extends Page
 					$this->returnError('The getWorkflowSchema function must be activated');
 				}
 			break;
-
+			
 			case 'createFileAsset' :
 
                 if($this->attr('create_asset'))  {
@@ -4106,6 +4122,49 @@ function importAssetsFromXML(assetID, filePath, dataCallback)
 
 }// end importAssetsFromXML()
 
+
+/**
+* Returns an array of roles and the users/groups which can perform it
+*
+* @param int		$assetid			the assetid of the asset the role is applied to
+* @param int		$roleid				the assetid of the the role that is applied
+* @param int		$userid				the assetid of the user performing the role
+* @param boolean	$include_assetid	whether to include the assetid in the returned array
+* @param boolean	$include_globals	whether to query the role view which includes
+*										expanded global roles as individual users
+* @param boolean	$expand_groups		when TRUE, any groups defined within a role will be
+*										replaced with the userids in that group.
+*										If FALSE, return the groupids
+* @param boolean	$inc_dependants		If false it will filter out the dependant assets
+*
+* @return array
+* @access public
+*/
+function getRoles(assetid, roleid, userid, include_assetid, include_globals, expand_groups, inc_dependants, dataCallback) 
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var assetid = isset(assetid) ? assetid : '';
+	var roleid = isset(roleid) ? roleid : '';
+	var userid = isset(userid) ? userid : '';
+	var include_assetid = isset(include_assetid) && ( include_assetid.toString().toLowerCase() != 'null' && include_assetid != '' ) ? include_assetid : 0;
+	var include_globals = isset(include_globals) && ( include_globals.toString().toLowerCase() != 'null' && include_globals != '' ) ? include_globals : 0;
+	var expand_groups = isset(expand_groups) && ( expand_groups.toString().toLowerCase() != 'null' && expand_groups != '' ) ? expand_groups : 0;
+	var inc_dependants = isset(inc_dependants) && ( inc_dependants.toString().toLowerCase() != 'null' && inc_dependants != '' ) ? inc_dependants : 1;
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getRoles&assetid=' + assetid
+	 + '&roleid=' + roleid
+	 + '&userid=' + userid
+	 + '&include_assetid=' + include_assetid
+	 + '&include_globals=' + include_globals  
+	 + '&expand_groups=' + expand_groups
+	 + '&inc_dependants=' + inc_dependants;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getMetadata
 
 <?php
 

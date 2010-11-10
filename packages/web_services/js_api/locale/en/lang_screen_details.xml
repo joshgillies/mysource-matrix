@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2010/09/23 23:07:51 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.15 2010/11/10 04:50:29 ewang Exp $
 *
 */
 -->
@@ -132,6 +132,10 @@
             <display_name>Set Asset WebPath</display_name>
             <note />
         </field>
+        <field attribute="get_roles">
+            <display_name>Get Roles Information</display_name>
+            <note />
+        </field>
 		<field attribute="set_file_content">
             <display_name>Set File Content</display_name>
             <note>Allows user to set content of Editable (CSS, JS, Text, XML, XSL) File type Assets</note>
@@ -140,7 +144,6 @@
             <display_name>Import Assets from XML</display_name>
             <note>Allows user to import assets under a particular root node from a structured XML file</note>
         </field>
-
     </section>
     <section name="Linking" write_access="write:attributes">
         <field attribute="create_link">
