@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.12 2010/11/10 06:20:25 cupreti Exp $
 *
 */
 -->
@@ -59,9 +59,13 @@
 		</field>
 	</section>
 	<section name="Email Validation">
-		<field attribute="use_email_validation">
+		<field>
 			<display_name>Use Email Validation</display_name>
 			<note>Should the account remain inactive until the user verifies the email address they have given?</note>
+			<function_call>
+				<paint_function name="paintUseEmailValidation" />
+				<process_function name="processUseEmailValidation" />
+			</function_call>			
 		</field>
 		<field attribute="validation_email_format">
 			<display_name>Email Format</display_name>
