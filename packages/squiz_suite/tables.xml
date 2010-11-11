@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1.1.1 2010/09/29 01:11:55 bpearson Exp $
+* $Id: tables.xml,v 1.1.1.1.2.1 2010/11/11 02:26:38 ewang Exp $
 *
 */
 -->
@@ -37,7 +37,7 @@
 					<default />
 					<description />
 				</column>
-				<column name="current" allow_null="0">
+				<column name="is_current" allow_null="0">
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default>'0'</default>

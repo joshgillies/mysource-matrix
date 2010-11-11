@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.4 2010/10/29 07:06:13 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.4.2.1 2010/11/11 02:26:39 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -157,7 +157,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				try {
 					$asset->registerProduct($systemid, 'Squiz Matrix', $connection);
-					$asset->updateProduct($systemid, 'current', TRUE);
+					$asset->updateProduct($systemid, 'is_current', TRUE);
 					$asset->generateSystemKeyPair();
 				} catch (PDOException $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -174,7 +174,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 				try {
 					$asset->removeProduct($systemid, TRUE);
 					$asset->registerProduct($newid, $type, $connection);
-					$asset->updateProduct($newid, 'current', TRUE);
+					$asset->updateProduct($newid, 'is_current', TRUE);
 					$asset->generateSystemKeyPair();
 				} catch (PDOException $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -263,7 +263,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
         $products = $asset->getAllProducts();
         foreach ($products as $product) {
-            if ($product['current'] == '1') continue;
+            if ($product['is_current'] == '1') continue;
 
             $id = $product['systemid'];
 
