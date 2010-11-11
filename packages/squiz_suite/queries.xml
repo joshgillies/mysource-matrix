@@ -22,7 +22,7 @@
       <delete>
         <where>
             <equal table="sq_suite_product" column="systemid">:systemid</equal>
-            <equal table="sq_suite_product" column="current">:current</equal>
+            <equal table="sq_suite_product" column="is_current">:is_current</equal>
         </where>
       </delete>
     </primary>
@@ -34,7 +34,7 @@
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
            <field table="p1" column="status"/>
-           <field table="p1" column="current"/>
+           <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
         </fields>
         <from>
@@ -53,7 +53,7 @@
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
            <field table="p1" column="status"/>
-           <field table="p1" column="current"/>
+           <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
         </fields>
         <from>
@@ -72,14 +72,14 @@
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
            <field table="p1" column="status"/>
-           <field table="p1" column="current"/>
+           <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
         <where>
-          <equal table="p1" column="current">:current</equal>
+          <equal table="p1" column="is_current">:is_current</equal>
         </where>
       </select>
     </primary>
@@ -91,7 +91,7 @@
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
            <field table="p1" column="status"/>
-           <field table="p1" column="current"/>
+           <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
         </fields>
         <from>

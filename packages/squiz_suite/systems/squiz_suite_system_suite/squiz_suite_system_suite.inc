@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.5 2010/11/01 23:25:38 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.6 2010/11/11 02:25:52 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -371,7 +371,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
                 // Send the list of my connected products for syncing.
                 $allProducts = $suite_manager->getAllProducts();
                 foreach ($allProducts as $product) {
-                    if ($product['current'] === TRUE || $product['systemid'] === $systemid || $product['status'] !== 'live') {
+                    if ($product['is_current'] === TRUE || $product['systemid'] === $systemid || $product['status'] !== 'live') {
                         continue;
                     }
 
@@ -433,7 +433,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
             if (isset($message['sync_direction']) && $message['sync_direction'] === 'broadcast') {
                 $allProducts = $suite_manager->getAllProducts();
                 foreach ($allProducts as $product) {
-                    if ($product['current'] === TRUE || $product['status'] !== 'live') {
+                    if ($product['is_current'] === TRUE || $product['status'] !== 'live') {
                         continue;
                     }
 

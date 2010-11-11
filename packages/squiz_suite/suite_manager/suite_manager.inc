@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.8 2010/11/07 23:28:00 bpearson Exp $
+* $Id: suite_manager.inc,v 1.9 2010/11/11 02:25:52 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -274,7 +274,7 @@ class Suite_Manager extends Page
 	public function getCurrentProduct()
 	{
 		try {
-			$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getCurrentProduct', Array('current'=>'1'));
+			$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getCurrentProduct', Array('is_current'=>'1'));
 		} catch (PDOException $e) {
 			trigger_localised_error('SQS0030', E_USER_ERROR);
 			return Array();
@@ -328,7 +328,7 @@ class Suite_Manager extends Page
 			$attrValue = serialize($attrValue);
 		}
 
-		if ($attrName == 'current' && is_bool($attrValue) === TRUE) {
+		if ($attrName == 'is_current' && is_bool($attrValue) === TRUE) {
 			$attrValue = ($attrValue) ? '1' : '0';
 		}
 
@@ -405,7 +405,7 @@ class Suite_Manager extends Page
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
-			$bind_vars = Array('systemid' => $systemid, 'current'=>(int) $current);
+			$bind_vars = Array('systemid' => $systemid, 'is_current'=>(int) $current);
 			MatrixDAL::executeQuery('squiz_suite_package', 'removeProduct', $bind_vars);
 		} catch (PDOException $e) {
 			trigger_localised_error('SQS0031', E_USER_ERROR);
@@ -1083,7 +1083,7 @@ class Suite_Manager extends Page
                 $productsEl->setAttribute('type', 'array');
                 $msgEl->appendChild($productsEl);
                 foreach ($products as $product) {
-                    if ($product['current'] == FALSE && $product['status'] == 'live') {
+                    if ($product['is_current'] == FALSE && $product['status'] == 'live') {
                         $addProduct = TRUE;
 
                         if ($product['type'] == 'Squiz Matrix') {
