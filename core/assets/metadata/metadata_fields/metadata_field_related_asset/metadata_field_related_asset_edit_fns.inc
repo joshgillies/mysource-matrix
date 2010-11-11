@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_related_asset_edit_fns.inc,v 1.1 2010/06/22 01:00:03 cupreti Exp $
+* $Id: metadata_field_related_asset_edit_fns.inc,v 1.2 2010/11/11 04:58:15 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Metadata_Field_Related_Asset_Edit_Fns
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,13 +70,13 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($write_access) {
 			$ra_styles = ($is_default && $enable_default) ? 'display:none' : 'display:block';
-    	    echo '<div id="'.$prefix.'_ra_contianer'.'" style="float:left; '.$ra_styles.'">';
+    	    echo '<div id="'.$prefix.'_ra_container'.'" style="float:left; '.$ra_styles.'">';
 			asset_finder($prefix.'_value', $value_str);
 			echo '</div>';
 
 			$default_ra_styles = !($is_default && $enable_default) ? 'display:none' : 'display:block';
-    	    echo '<div id="'.$prefix.'_default_ra_contianer'.'" style="float:left; '.$default_ra_styles.'">';
-			echo !$default_value ? 'No defualt asset!' : get_asset_tag_line($default_value);
+    	    echo '<div id="'.$prefix.'_default_ra_container'.'" style="float:left; '.$default_ra_styles.'">';
+			echo !$default_value ? 'No default asset!' : get_asset_tag_line($default_value);
 			echo '</div>';
 
 			if ($enable_default) {
@@ -101,8 +101,8 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 				<script type="text/javascript"><!--
 				//<![CDATA[
 					function handleMetadataRelatedAssetDefaultClickFor<?php echo $prefix; ?>() {
-						var ra_div = document.getElementById('<?php echo $prefix.'_ra_contianer'; ?>');
-						var default_ra_div = document.getElementById('<?php echo $prefix.'_default_ra_contianer'; ?>');
+						var ra_div = document.getElementById('<?php echo $prefix.'_ra_container'; ?>');
+						var default_ra_div = document.getElementById('<?php echo $prefix.'_default_ra_container'; ?>');
 	
 						if (ra_div.style.display == 'block') {
 							ra_div.style.display = 'none';
