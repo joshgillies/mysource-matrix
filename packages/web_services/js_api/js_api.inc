@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.1 2010/11/10 04:49:58 ewang Exp $
+* $Id: js_api.inc,v 1.61.2.2 2010/11/12 00:46:46 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.1 $
+* @version $Revision: 1.61.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3489,7 +3489,7 @@ function removeLink(parent_id, child_id, link_type, link_value, dataCallback)
 	var link_value = isset(link_value) ? link_value : '';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id + '&link_type=' + link_type + '&link_value=' + link_value..replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,';
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") ;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -3592,7 +3592,7 @@ function moveLink(old_parent_id, child_id, old_link_type, old_link_value, new_pa
 	var old_link_value = isset(old_link_value) ? old_link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
 
 	var new_link_type = (isset(new_link_type) && new_link_type != '' ) ? new_link_type.toUpperCase() : 'SQ_LINK_TYPE_1';
-	var new_link_value = isset(new_link_value) ? new_link_value..replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
+	var new_link_value = isset(new_link_value) ? new_link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
 	new_position      = (isset(new_position) && new_position != '') ? new_position : '0';
 
 	// Build our string
@@ -3788,7 +3788,7 @@ function getLinkId(parent_id, child_id, link_type, link_value, all_info, dataCal
 	var link_value = isset(link_value) ? link_value	: '';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id + '&all_info=' + all_info + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,';;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id + '&all_info=' + all_info + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") ;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -4126,16 +4126,17 @@ function importAssetsFromXML(assetID, filePath, dataCallback)
 /**
 * Returns an array of roles and the users/groups which can perform it
 *
-* @param int		$assetid			the assetid of the asset the role is applied to
-* @param int		$roleid				the assetid of the the role that is applied
-* @param int		$userid				the assetid of the user performing the role
-* @param boolean	$include_assetid	whether to include the assetid in the returned array
-* @param boolean	$include_globals	whether to query the role view which includes
+* @param int		assetid				the assetid of the asset the role is applied to
+* @param int		roleid				the assetid of the the role that is applied
+* @param int		userid				the assetid of the user performing the role
+* @param boolean	include_assetid		whether to include the assetid in the returned array
+* @param boolean	include_globals		whether to query the role view which includes
 *										expanded global roles as individual users
-* @param boolean	$expand_groups		when TRUE, any groups defined within a role will be
+* @param boolean	expand_groups		when TRUE, any groups defined within a role will be
 *										replaced with the userids in that group.
 *										If FALSE, return the groupids
-* @param boolean	$inc_dependants		If false it will filter out the dependant assets
+* @param boolean	inc_dependants		If false it will filter out the dependant assets
+* @param function	dataCallback		Custom callback function
 *
 * @return array
 * @access public
