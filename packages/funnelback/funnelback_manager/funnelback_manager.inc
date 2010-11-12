@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.24 2010/11/04 05:11:47 ewang Exp $
+* $Id: funnelback_manager.inc,v 1.24.2.1 2010/11/12 05:11:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -739,7 +739,7 @@ class Funnelback_Manager extends Asset
 			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR (f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\')';
 			$bind_vars['url'.$index] = $single_url.'/%';
 			$bind_vars['assetid'.$index] = $assetid;
-			$bind_vars['root_url'.$index] = $root_url;
+			$bind_vars['root_url'.$index] = $protocol.'://'.$root_url;
 		}//end foreach
 
 		// Compile a list of assets to be excluded based on URL
