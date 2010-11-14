@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.33 2010/11/03 05:54:19 mhaidar Exp $
+* $Id: metadata_field_select.inc,v 1.33.2.1 2010/11/14 22:27:34 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -386,7 +386,11 @@ class Metadata_Field_Select extends Metadata_Field
 
 		}//end switch
 
-		return $replacement;
+		$value='';
+		$value_components = $this->attr('value_components');
+		$this->decodeValueString($replacement, $value, $value_components);
+
+		return $value;
 
 	}//end getAdditionalKeywordReplacement()
 
