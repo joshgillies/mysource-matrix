@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.26 2007/12/17 22:36:25 lwright Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.26.12.1 2010/11/15 04:03:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -381,6 +381,63 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processCreateFormCustomisation()
 
+	
+	/**
+	* Paints the interface for Use Email Validation option
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUseEmailValidation(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');
+		$current_value = $asset->attr('use_email_validation');
+		$options = Array(1 => 'Yes', 0 => 'No');  	 
+
+		if ($write_access) {
+			combo_box($prefix.'_use_email_validation', $options, FALSE,  $current_value);
+		} else {
+			echo $options[$current_value];
+		}
+		
+		return $write_access;
+
+	}//end paintEmailValidation()
+
+
+	/**
+	* Process the interface for Use Email Validation option
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseEmailValidation(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_use_email_validation'])) {
+		
+			$use_email_validation = $_POST[$prefix.'_use_email_validation'];			
+			if ($asset->setAttrValue('use_email_validation', $use_email_validation) && $use_email_validation) {
+				
+				// if we are using email validation - create validation assets
+				$pending_accounts_groupid = $asset->_getPendingAccountsGroupId();
+				if (empty($pending_accounts_groupid)) {
+					$asset->_createPendingAccountsGroup();
+				}
+			}			
+
+		}
+		
+		return TRUE;
+
+	}//end processEmailValidation()	
 
 }//end class
 
