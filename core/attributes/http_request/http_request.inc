@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.5 2010/10/12 23:42:42 ewang Exp $
+* $Id: http_request.inc,v 1.6 2010/11/15 01:27:31 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -709,6 +709,17 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->_config['timeout']);
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, Array($this, '_readCurlHeaders'));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_res['request']['headers']);
+
+		if (defined('SQ_PA_ENABLED') && SQ_PA_ENABLED && defined('SQ_PA_HOSTNAME') && SQ_PA_HOSTNAME) {
+			curl_setopt($ch, CURLOPT_PROXY, SQ_PA_HOSTNAME);
+
+			if (defined('SQ_PA_PORT') && SQ_PA_PORT) {
+				curl_setopt($ch, CURLOPT_PROXYPORT, SQ_PA_PORT);
+			}
+			if (defined('SQ_PA_USERNAME') && SQ_PA_USERNAME && defined('SQ_PA_PASSWORD') && SQ_PA_PASSWORD) {
+				curl_setopt($ch, CURLOPT_PROXYUSERPWD, SQ_PA_USERNAME.':'.SQ_PA_PASSWORD);
+			}
+		}// if proxy enabled
 
 		if (isset($this->_config['disable_ssl_verify']) && $this->_config['disable_ssl_verify']) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
