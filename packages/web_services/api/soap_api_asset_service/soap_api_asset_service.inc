@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.20 2010/09/13 01:28:37 akarelia Exp $
+* $Id: soap_api_asset_service.inc,v 1.21 2010/11/15 05:41:02 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -895,6 +895,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$attr_name			= array_get_index($request_info, 'AttributeName', '');
 		$type_code			= array_get_index($request_info, 'TypeCode', '');
 		if (!empty($assetids) && !empty($attr_name) && !empty($type_code)) {
+			if (is_string($assetids) === TRUE) $assetids = array($assetids);
 			$attribute_values	= $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, $type_code, $assetids);
 			$final_attribute_values	= Array();
 			$i = 0;
