@@ -42,8 +42,8 @@ if [ -d $CHECKOUT_DIR ]; then
 	exit 1
 fi
 
-PACKAGES="bulkmail calendar cms data ecommerce filesystem funnelback google_maps import_tools ipb ldap news rest search sharepoint squid trim web_services"
-FUDGE_PACKAGES="antivirus datetime_field db_extras dev colour csv file_versioning general image image_editor js_calendar ldap rss_feeds standards_lists var_serialise wysiwyg"
+PACKAGES="bulkmail calendar cms data ecommerce filesystem funnelback google_maps import_tools ipb ldap news search sharepoint squid squiz_suite trim web_services"
+FUDGE_PACKAGES="antivirus colour csv datetime_field db_extras dev file_versioning general image image_editor js_calendar ldap mollom rss_feeds standards_lists var_serialise wysiwyg"
 
 echo "Checking out mysource matrix core .. "
 
