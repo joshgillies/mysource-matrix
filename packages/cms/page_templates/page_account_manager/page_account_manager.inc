@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.72 2009/07/13 00:46:28 akarelia Exp $
+* $Id: page_account_manager.inc,v 1.72.8.1 2010/11/15 04:03:25 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,14 +145,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
-		}
-
-		// if we are using email validation - ensure that the validation assets are created
-		if ($this->attr('use_email_validation')) {
-			$pending_accounts_groupid = $this->_getPendingAccountsGroupId();
-			if (empty($pending_accounts_groupid)) {
-				$this->_createPendingAccountsGroup();
-			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
