@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.18 2010/02/21 23:00:49 akarelia Exp $
+* $Id: form_question_type_select.inc,v 1.18.4.1 2010/11/17 22:08:35 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,8 +126,12 @@ class Form_Question_Type_Select extends Form_Question
 
 			// if allow empty is true, add the '-- Leave Empty --' as the first option
 			if ($this->attr('allow_empty')) {
-				$empty = Array(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET) => html_entity_decode($this->attr('empty_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-				$options = array_merge($empty, $options);
+				if(array_key_exists(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $options)) {
+					trigger_localised_error('CORE0302', E_USER_NOTICE);
+				} else {
+					$empty = Array(html_entity_decode($this->attr('empty_key'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET) => html_entity_decode($this->attr('empty_text'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$options = $empty + $options;
+				}
 			}
 		}
 
