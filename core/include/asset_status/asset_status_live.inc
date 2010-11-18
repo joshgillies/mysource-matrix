@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.38 2009/12/23 23:20:56 lwright Exp $
+* $Id: asset_status_live.inc,v 1.39 2010/11/18 03:28:50 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -83,7 +83,7 @@ class Asset_Status_Live extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because LIVE doesnt need workflow
-			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
+			pre_echo('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
 			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('status_change_place_up_for_review');
@@ -135,6 +135,7 @@ class Asset_Status_Live extends Asset_Status
 
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
+									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
