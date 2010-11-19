@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.11 2010/10/13 06:11:41 mhaidar Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.12 2010/11/19 04:43:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,16 +194,19 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					$user_assetids = MatrixDAL::executePdoAll($query);
 
 					foreach($user_assetids as $user_row) {
+						
 						$user_assetid = $user_row['assetid'];
-						$user_linkid  = $user_row['linkid'];
-
+						
+						$resent_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_group->id, $user_assetid, SQ_LINK_NOTICE, 'validation_email_resent');
+						if (!empty($resent_link)) continue;
+						
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
-						// Resend the validation and update the link to TYPE_2
-						$asset->resendValidation($user->attr('username'));
-						$GLOBALS['SQ_SYSTEM']->am->updateLink($user_linkid, SQ_LINK_TYPE_2);
+						// Resend the validation and create a notice link so email does not get resent in future cron runs.
+						if ($asset->resendValidation($user->attr('username'))) $GLOBALS['SQ_SYSTEM']->am->createAssetLink($pending_group, $user, SQ_LINK_NOTICE, 'validation_email_resent');
 
 						unset($user);
+						
 					}
 				}
 

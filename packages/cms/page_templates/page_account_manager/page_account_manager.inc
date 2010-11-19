@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.73 2010/11/10 06:20:25 cupreti Exp $
+* $Id: page_account_manager.inc,v 1.74 2010/11/19 04:43:01 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -948,17 +948,21 @@ class Page_Account_Manager extends Page_Asset_Builder
 							}
 							$replacements[$attr] = $user->attr($attr);
 						}
-
-						$replacements['validation_url'] = current_url().'?action=validate&amid='.$validation_key;
+						$url = SQ_IN_CRON ? $this->getURL() : current_url();
+						$replacements['validation_url'] = $url.'?action=validate&amid='.$validation_key;
 
 						// add an email to the TO list for the user who just signed up
 						$email_attr = $this->getAttribute('validation_email_format');
 						$new_value = unserialize($email_attr->value);
 						$new_value['to'][] = $replacements['email'];
-						$email_attr->value = serialize($new_value);
-
+						$new_email_attr = new Asset_Attribute_Email_Format(0, serialize($new_value));
+						if (is_null($new_email_attr)) {
+							$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+							return FALSE;
+						}
+					
 						// let the email format attribute send the email for us
-						$email_attr->sendMail($replacements);
+						$new_email_attr->sendMail($replacements);
 						$this->_replacements['resend_validation_success'] = $this->getKeywordReplacement('re_send_validation_success');
 						return TRUE;
 
@@ -1077,6 +1081,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (!empty($pending_accounts_groupid)) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_accounts_groupid, $userid, SQ_LINK_TYPE_1);
 			if (!empty($link)) {
+				$resent_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_accounts_groupid, $userid, SQ_LINK_NOTICE, 'validation_email_resent');
+				if (!empty($resent_link)) $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($resent_link['linkid']);
 				return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 			}
 		}
