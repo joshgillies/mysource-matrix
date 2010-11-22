@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.21 2010/11/15 05:41:02 akarelia Exp $
+* $Id: soap_api_asset_service.inc,v 1.22 2010/11/22 11:51:32 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -76,6 +76,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'SetAssetStatus'			=> '1',
 				'TrashAsset'				=> '1',
 				'LoginUser'					=> '1',
+				'GetUserIdByUsername'		=> '1',
 			   );
 
     }//end getFunctionList()
@@ -1073,6 +1074,48 @@ class Soap_Api_Asset_Service extends Soap_Api
 			   );
 
 	}//end LoginUser()
+	
+	
+	/**
+	* Description: This operation will return the user asset ID of the request username
+	*
+	* @param string  $request  The request information
+	*
+	* @return void
+	* @access public
+	*/
+	function GetUserIdByUsername($request)
+	{
+		$request_info = (Array) $request;
+		$username = array_get_index($request_info, 'Username', '');
+
+		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
+		
+		// try each auth system in order to see if we can load a user asset
+		$user = NULL;
+		foreach ($auth_systems as $systemid) {
+			$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			
+			$user = $system->locateUser($username);
+			if (!is_null($user)) break;
+		}
+
+
+		if (is_null($user)) {
+			$assetid = '';
+		} else {
+			$assetid = $user->id;
+		}
+		
+		return Array('AssetID' => $assetid);
+		
+	}//end GetUserIdByUsername()
 
 	
 	/**
@@ -1335,6 +1378,14 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                                'LoginUserResponse'=> Array (
                                                                                            	  'SessionID'       => self::$string_non_optional,
                                                                                            	  'SessionKey'      => self::$string_non_optional,
+                                                                                             ),
+                                                              ),
+                            'GetUserIdByUsername'		=> Array (
+                                                               'GetUserIdByUsername'        => Array (
+                                                                                           	  'Username'	=> self::$string_non_optional,
+                                                                                             ),
+                                                               'GetUserIdByUsernameResponse'=> Array (
+                                                                                           	  'AssetID'		=> self::$string_non_optional,
                                                                                              ),
                                                               ),
 						  );
