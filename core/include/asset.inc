@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.728 2010/08/04 06:31:17 mhaidar Exp $
+* $Id: asset.inc,v 1.729 2010/11/22 06:20:20 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.728 $
+* @version $Revision: 1.729 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3741,6 +3741,9 @@ class Asset extends MySource_Object
 		} else if (strcmp('asset_name', $keyword) == 0) {
 			$replacement = $this->name;
 			$replacement = str_replace('&', '&amp;', $replacement);
+		} else if (strcmp('asset_name_linked', $keyword) == 0) {
+			$name = str_replace('&', '&amp;', $this->name);
+			$replacement = '<a href="'.$this->getURL().'">'.$name.'</a>';
 		} else if (strcmp('asset_short_name', $keyword) == 0) {
 			$replacement = $this->short_name;
 			$replacement = str_replace('&', '&amp;', $replacement);
