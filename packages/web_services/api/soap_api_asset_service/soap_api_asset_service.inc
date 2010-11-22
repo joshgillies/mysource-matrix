@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.22 2010/11/22 11:51:32 ata Exp $
+* $Id: soap_api_asset_service.inc,v 1.23 2010/11/22 12:31:41 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -114,7 +114,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$asset_name		= array_get_index($request_info, 'Name', '');
 		$link_type		= array_get_index($request_info, 'LinkType', '1');
 		$link_value		= array_get_index($request_info, 'LinkValue', '');
-		$sort_order		= array_get_index($request_info, 'SortOrder', '');
+		$sort_order		= array_get_index($request_info, 'SortOrder', -1);
 		$is_dependant	= array_get_index($request_info, 'IsDependant', '0');
 		$is_exclusive	= array_get_index($request_info, 'IsExclusive', '0');
 		$file_content	= array_get_index($request_info, 'FileContentBase64', '');
@@ -185,7 +185,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 		}
 		// Create a normal asset
 		else {
-			$asset->setAttrValue('name', $asset_name);
+			// Not all assets have 'name' attribute, e.g. user asset
+			if (isset($asset->vars['name']) && ($asset_name != '')) {
+				$asset->setAttrValue('name', $asset_name);
+			}
 			$linkid = $asset->create($link_info);	
 		}
 
@@ -1196,7 +1199,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 							'CreateAsset'				=> Array (
 															'CreateAsset'			=> Array (
 											    										'TypeCode'			=> $asset_type,
-																						'Name'				=> self::$string_non_optional,
+																						'Name'				=> self::$string_optional,
 																						'ParentID'			=> self::$string_non_optional,
 																						'LinkType'			=> $link_type,
 																						'LinkValue'			=> self::$string_optional,
