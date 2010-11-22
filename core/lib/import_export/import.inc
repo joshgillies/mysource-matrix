@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.20 2008/07/16 04:55:40 gsherwood Exp $
+* $Id: import.inc,v 1.21 2010/11/22 06:16:07 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -52,7 +52,7 @@ function get_import_actions($import_file)
 
 	// print an error if one occured
 	if ($error_code = xml_get_error_code($p)) {
-		echo 'XML Error: '.xml_error_string($error_code)."\n";
+		echo 'XML Error: '.xml_error_string($error_code).' Line:'.xml_get_current_line_number($p).' Col:'.xml_get_current_column_number($p)."\n";
 		exit();
 	}
 
