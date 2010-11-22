@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.729 2010/11/22 06:20:20 cupreti Exp $
+* $Id: asset.inc,v 1.730 2010/11/22 06:31:22 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.729 $
+* @version $Revision: 1.730 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3831,6 +3831,7 @@ class Asset extends MySource_Object
 						}
 
 					} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
+						
 						// Try it with metadata keyword underscores replaced with spaces
 						// (additional keyword never has its spaces removed when
 						// sent to the metadata field)
