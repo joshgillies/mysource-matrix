@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.240 2010/10/26 05:06:55 cupreti Exp $
+* $Id: page_calendar.inc,v 1.240.2.1 2010/11/22 06:02:24 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.240.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3087,7 +3087,7 @@ class Page_Calendar extends Page
 		$res =& Calendar_Common::expandEventList($res, $date, $date, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
 		Calendar_Common::processExceptions($res);
 
-		$compare_start_ts = create_function('$a, $b', 'if ($a[\'start_date_ts\'] < $b[\'start_date_ts\']) return -1; else return 1;');
+		uasort($res, Array('Calendar_Common', 'compareStartDates'));
 
 		return $res;
 
