@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.20.2.1 2010/11/15 05:40:26 akarelia Exp $
+* $Id: soap_api_asset_service.inc,v 1.20.2.2 2010/11/23 05:14:40 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -76,6 +76,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'SetAssetStatus'			=> '1',
 				'TrashAsset'				=> '1',
 				'LoginUser'					=> '1',
+				'GetUserIdByUsername'		=> '1',
 			   );
 
     }//end getFunctionList()
@@ -113,7 +114,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$asset_name		= array_get_index($request_info, 'Name', '');
 		$link_type		= array_get_index($request_info, 'LinkType', '1');
 		$link_value		= array_get_index($request_info, 'LinkValue', '');
-		$sort_order		= array_get_index($request_info, 'SortOrder', '');
+		$sort_order		= array_get_index($request_info, 'SortOrder', -1);
 		$is_dependant	= array_get_index($request_info, 'IsDependant', '0');
 		$is_exclusive	= array_get_index($request_info, 'IsExclusive', '0');
 		$file_content	= array_get_index($request_info, 'FileContentBase64', '');
@@ -184,7 +185,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 		}
 		// Create a normal asset
 		else {
-			$asset->setAttrValue('name', $asset_name);
+			// Not all assets have 'name' attribute, e.g. user asset
+  	        if (isset($asset->vars['name']) && ($asset_name != '')) {
+				$asset->setAttrValue('name', $asset_name);
+  	        }
 			$linkid = $asset->create($link_info);	
 		}
 
@@ -1076,6 +1080,48 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	
 	/**
+	* Description: This operation will return the user asset ID of the request username
+	*
+	* @param string  $request  The request information
+	*
+	* @return void
+	* @access public
+	*/
+	function GetUserIdByUsername($request)
+	{
+		$request_info = (Array) $request;
+		$username = array_get_index($request_info, 'Username', '');
+
+		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
+		
+		// try each auth system in order to see if we can load a user asset
+		$user = NULL;
+		foreach ($auth_systems as $systemid) {
+			$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			
+			$user = $system->locateUser($username);
+			if (!is_null($user)) break;
+		}
+
+
+		if (is_null($user)) {
+			$assetid = '';
+		} else {
+			$assetid = $user->id;
+		}
+		
+		return Array('AssetID' => $assetid);
+		
+	}//end GetUserIdByUsername()
+	
+	
+	/**
 	* Description: This operation will set status for an asset
 	*
 	* @param string  $request  The request information
@@ -1153,7 +1199,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 							'CreateAsset'				=> Array (
 															'CreateAsset'			=> Array (
 											    										'TypeCode'			=> $asset_type,
-																						'Name'				=> self::$string_non_optional,
+																						'Name'				=> self::$string_optional,
 																						'ParentID'			=> self::$string_non_optional,
 																						'LinkType'			=> $link_type,
 																						'LinkValue'			=> self::$string_optional,
@@ -1335,6 +1381,14 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                                'LoginUserResponse'=> Array (
                                                                                            	  'SessionID'       => self::$string_non_optional,
                                                                                            	  'SessionKey'      => self::$string_non_optional,
+                                                                                             ),
+                                                              ),
+							'GetUserIdByUsername'	=> Array (
+                                                               'GetUserIdByUsername'        => Array (
+                                                                                           	  'Username'	=> self::$string_non_optional,
+                                                                                             ),
+                                                               'GetUserIdByUsernameResponse'=> Array (
+                                                                                           	  'AssetID'		=> self::$string_non_optional,
                                                                                              ),
                                                               ),
 						  );
