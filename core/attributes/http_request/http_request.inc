@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.6 2010/11/15 01:27:31 cupreti Exp $
+* $Id: http_request.inc,v 1.7 2010/11/23 00:47:32 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -520,7 +520,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$this->_performRequests();
 
 		// encode responses if necessary
-		if (isset($this->_config['convert_to_ut8']) && ($this->_config['convert_to_utf8'])) {
+		if (isset($this->_config['convert_to_utf8']) && ($this->_config['convert_to_utf8'])) {
 			$doc_encoding = $this->_config['document_encoding'];
 
 			// UTF-8 is not supported yet. this option is going to be used when Entity conversion is supported.
