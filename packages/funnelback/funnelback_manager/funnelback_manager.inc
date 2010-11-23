@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.25 2010/11/12 04:58:33 mhaidar Exp $
+* $Id: funnelback_manager.inc,v 1.26 2010/11/23 00:19:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -588,6 +588,9 @@ class Funnelback_Manager extends Asset
 		$found_url = false;
 		$base_url = $root_url;
 		while ($base_url !== '.') {
+			//if we have reached http:// or https:// break out coz that WILL match
+			if($base_url == 'http:' || $base_url == 'https:') break;
+
 			if (strpos($url, $base_url) === 0) {
 				$found_url = true;
 				break;
@@ -739,7 +742,11 @@ class Funnelback_Manager extends Asset
 			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR (f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\')';
 			$bind_vars['url'.$index] = $single_url.'/%';
 			$bind_vars['assetid'.$index] = $assetid;
-			$bind_vars['root_url'.$index] = $protocol.'://'.$root_url;
+			if (strpos($root_url, 'http:') === FALSE && strpos($root_url, 'https:') === FALSE) {
+				$bind_vars['root_url'.$index] = $protocol.'://'.$root_url;
+			} else {
+				$bind_vars['root_url'.$index] = $root_url;
+			}
 		}//end foreach
 
 		// Compile a list of assets to be excluded based on URL
