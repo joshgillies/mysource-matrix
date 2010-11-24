@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.8 2010/06/25 05:48:14 csmith Exp $
+* $Id: convert_database.php,v 1.8.2.1 2010/11/24 05:04:03 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -174,6 +174,17 @@ foreach ($packages as $package) {
 		$xml_files[] = $xml_path;
 	}
 }
+
+/**
+ * This is a list of tables where nulls 
+ * will be converted to an empty string.
+ *
+ * (no 'sq_' at the start!)
+ */
+$nulls_convert_list = array(
+	'ast_lnk',
+);
+
 
 /**
  * If it's the first run, we'll do some extra work
@@ -345,6 +356,16 @@ foreach ($xml_files as $xml_filename) {
 					 */
 					if (!in_array($data_key, $columns)) {
 						continue;
+					}
+
+					/**
+					 * Oracle treats '' as NULL, so if the source is oracle
+					 * change NULL to an empty string - but only for certain tables.
+					 */
+					if (in_array($tablename, $nulls_convert_list)) {
+						if ($source_dsn['type'] === 'oci' && $data_value === NULL) {
+							$data_value = '';
+						}
 					}
 
 					/**
