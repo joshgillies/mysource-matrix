@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.34.12.2 2010/11/24 22:39:35 akarelia Exp $
+* $Id: dev.inc,v 1.34.12.3 2010/11/24 22:46:34 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34.12.2 $
+* @version $Revision: 1.34.12.3 $
 * @package Fudge
 * @subpackage dev
 */
@@ -442,13 +442,13 @@ function get_backtrace()
 		$info = '';
 		if (isset($elem['line'])) $info = 'line='.$elem['line'];
 		$file = '';
-		$class_name = substr($file, 0, strpos($file, '.'));
 
 		if (isset($elem['file'])) {
 			$file = basename($elem['file']);
 			substr($file, 0, strpos($file, '.'));
 		}
 
+		$class_name = substr($file, 0, strpos($file, '.'));
 		if (empty($elem['class'])) {
 			$info .= ' file='.$file;
 		} else {
