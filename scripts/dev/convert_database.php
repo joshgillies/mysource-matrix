@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.7 2009/07/27 04:13:47 csmith Exp $
+* $Id: convert_database.php,v 1.7.6.1 2010/11/24 05:02:56 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -142,6 +142,16 @@ try {
 	echo "Unable to connect to the destination db: " . $e->getMessage() . "\n";
 	$db_error = true;
 }
+
+/**
+ * This is a list of tables where nulls 
+ * will be converted to an empty string.
+ *
+ * (no 'sq_' at the start!)
+ */
+$nulls_convert_list = array(
+			'ast_lnk',
+		);
 
 /**
  * If we got an error connecting to either system, just stop.
@@ -314,6 +324,16 @@ foreach ($xml_files as $xml_filename) {
 				 */
 				if (!in_array($data_key, $columns)) {
 					continue;
+				}
+
+ 				/**
+				 * Oracle treats '' as NULL, so if the source is oracle
+				 * change NULL to an empty string - but only for certain tables.
+				 */
+				if (in_array($tablename, $nulls_convert_list)) {
+					if ($source_dsn['type'] === 'oci' && $data_value === NULL) {
+						$data_value = '';
+					}
 				}
 
 				/**
