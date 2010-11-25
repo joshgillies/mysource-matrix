@@ -358,7 +358,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	public function processBundledAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
+		
 		if (empty($this->_running_vars['sub_job']) === FALSE) {
 			$sub_job = $hh->getJob($this->_running_vars['sub_job']);
 			if (empty($sub_job) === TRUE) {
@@ -379,6 +379,11 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			}
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			
+			if (isset($this->_running_vars['no_status_integrity'][$assetid])) {
+				$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level ^ SQ_SECURITY_STATUS_INTEGRITY);
+			}
 
 			// NULL asset status means we should be skipping this asset instead
 			if ($new_asset_status !== NULL) {
@@ -500,7 +505,12 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
 			$step_data['complete']     = FALSE;
 		}
-
+		
+		if (isset($this->_running_vars['no_status_integrity'][$assetid])) {
+			unset($this->_running_vars['no_status_integrity'][$assetid]);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+		
 		return TRUE;
 
 	}//end processBundledAsset()
@@ -910,6 +920,10 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 					}
 
 				} else if ($new_status === SQ_STATUS_UNDER_CONSTRUCTION) {
+				
+					//Bug Fix #4829: we want to reject all assets in the bundle regardless of permission to
+					$this->_running_vars['no_status_integrity'][$assetid] = TRUE;
+					
 					// Reject changes, revert from "Approving" to "Editing":
 					// - Pre-live workflowed assets go back to Under Construction.
 					// - Post-live workflowed assets go back to Safe Editing.
