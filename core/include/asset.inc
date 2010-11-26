@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.728.2.1 2010/11/25 03:30:56 mhaidar Exp $
+* $Id: asset.inc,v 1.728.2.2 2010/11/26 05:08:15 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.728.2.1 $
+* @version $Revision: 1.728.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3923,6 +3923,7 @@ class Asset extends MySource_Object
 			} else if (strpos($workflow_keyword, 'start_time:') === 0) {
 				$replacement = date('d-m-Y H:i:s', $current_step['started']);
 			} else if (strpos($workflow_keyword, 'expiry_time:') === 0) {
+				if (empty($current_step['expiry_time'])) return $replacement;
 				$replacement = date('d-m-Y H:i:s', $current_step['started'] + $current_step['expiry_time']);
 			} else if (strpos($workflow_keyword, 'conditions:') === 0) {
 				$asset_names = Array();
