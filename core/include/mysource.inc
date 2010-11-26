@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.356 2010/11/01 06:01:22 ewang Exp $
+* $Id: mysource.inc,v 1.357 2010/11/26 00:20:09 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356 $
+* @version $Revision: 1.357 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -690,8 +690,8 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
+					&& empty($_POST) && current_protocol() != 'https' && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() 
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 					$this->_sendHTTPHeaders($asset);
 				} else {

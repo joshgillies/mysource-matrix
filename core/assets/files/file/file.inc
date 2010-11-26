@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.192 2010/11/11 00:29:14 mhaidar Exp $
+* $Id: file.inc,v 1.193 2010/11/26 00:20:09 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1172,8 +1172,8 @@ class File extends Asset
 			}
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
+				&& empty($_POST) && current_protocol() != 'https' && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
