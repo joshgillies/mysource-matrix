@@ -9,7 +9,7 @@
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* $Id: edit_interface_screen_details.xml,v 1.6 2009/05/27 06:15:27 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2010/11/26 02:29:14 mhaidar Exp $
 *
 */
 -->
@@ -19,6 +19,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache_globally">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
