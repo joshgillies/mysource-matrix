@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.41 2010/11/25 04:23:17 akarelia Exp $
+* $Id: www.inc,v 1.42 2010/11/26 03:52:57 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package Fudge
 * @subpackage General
 */
@@ -55,12 +55,16 @@ function relative_href($from,$to)
 	$to_bits   = preg_split('/\\/+/', trim($to));
 
 	$splitted = preg_split('/:\\/\\//', $to);
-	$to_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($splitted[0], $splitted[1]);
-	// bug fix #3740 asset_lnk variable in parse file not returning correct URL
-	// if we are recaching let not send keyword replacement like ../../whatever 
-	// the ../../ will break the URL when initially they are using _recache and
-	// later if the try it without the _recache
-	if ($recaching && (!is_null($to_asset) && $to_asset->id > 0)) return './?a='.$to_asset->id;
+
+	// check to see if we have the whole array to play with, else just continue with regular stuff
+	if(isset($splitted[0]) && isset($splitted[1])) {
+		$to_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($splitted[0], $splitted[1], TRUE, TRUE);
+		// bug fix #3740 asset_lnk variable in parse file not returning correct URL
+		// if we are recaching let not send keyword replacement like ../../whatever 
+		// the ../../ will break the URL when initially they are using _recache and
+		// later if the try it without the _recache
+		if ($recaching && (!is_null($to_asset) && $to_asset->id > 0)) return './?a='.$to_asset->id;
+	}
 
 
 	// Ensure the first element is the protocol
