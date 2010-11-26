@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.198 2010/06/01 03:28:41 mhaidar Exp $
+* $Id: backend.inc,v 1.198.2.1 2010/11/26 03:14:28 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.198.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1436,7 +1436,9 @@ class Backend extends MySource_Object
 			}
 			$extra = '/?'.$hide_frames.$limbo_assetid.$asset_ei_screen;
 			$redirect_url = strip_url(current_url()).$extra;
-			if (!SQ_DESIGN_NO_FRAME) {
+			// bug fix : #4831 	While in Rollback mode Asset Map is hidden 
+			// if we are in backend we dont need to worry about hiding frames
+			if (!SQ_DESIGN_NO_FRAME || strpos($redirect_url ,SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
 				$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 			}//end if
 		}
