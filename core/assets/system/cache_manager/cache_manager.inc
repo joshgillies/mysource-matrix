@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.84 2010/10/18 05:24:28 ewang Exp $
+* $Id: cache_manager.inc,v 1.84.2.1 2010/11/26 03:40:25 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,6 +171,11 @@ class Cache_Manager extends Asset
 	*/
 	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
 	{
+		
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
+			return FALSE;
+		}
+		
 		// this will not check specifically set root node options
 		// if any root node specific options are configured, it will return TRUE blindly and the DB will be checked for a cache entry
 		if (!$this->cacheEnabled($asset_type)) return FALSE;

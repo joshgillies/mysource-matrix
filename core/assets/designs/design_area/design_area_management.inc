@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.18 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area_management.inc,v 1.18.14.1 2010/11/26 03:40:04 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,15 @@ class Design_Area_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'Whether this DA should cache its output',
+											   ),
+						'cache_globally'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+												'description'	=> 'Whether this DA should omit the URL from its cache entry',
 											   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2009/08/17 06:05:28 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4.6.1 2010/11/26 03:40:05 mhaidar Exp $
 *
 */
 -->
@@ -21,6 +21,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache_globally">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

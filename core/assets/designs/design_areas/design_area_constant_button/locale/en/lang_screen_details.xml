@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.3.20.1 2010/11/26 03:40:05 mhaidar Exp $
 *
 */
 -->
@@ -24,6 +24,10 @@
 		<field attribute="cache">
 			<display_name>Cache?</display_name>
 			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
+		</field>
+		<field attribute="cache_globally">
+			<display_name>Cache Globally?</display_name>
+			<note>When enabled this design area will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the design area content is not dynamic based on URL. &lt;br/&gt; The URL recache suffix will not work for globally cached design areas. However you can clear global design area cache using the cache manager. </note>
 		</field>
 	</section>
 	<section name="Link">

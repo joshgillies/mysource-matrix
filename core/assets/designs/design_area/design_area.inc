@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.66 2009/07/22 01:23:53 lwright Exp $
+* $Id: design_area.inc,v 1.66.8.1 2010/11/26 03:40:04 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -355,7 +355,7 @@ class Design_Area extends Asset
 			echo '
 			<?php
 				$cm = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
+				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', !'.$this->attr('cache_globally').');
 
 				if ($asset_contents'.$instance_id.' === FALSE) {
 			?>
@@ -422,7 +422,7 @@ class Design_Area extends Asset
 					$asset_contents'.$instance_id.' = ob_get_contents();
 					ob_end_clean();
 					$cm = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
+					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.', !'.$this->attr('cache_globally').');
 				}
 				echo $asset_contents'.$instance_id.';
 			?>
