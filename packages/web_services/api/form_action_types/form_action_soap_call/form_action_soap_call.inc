@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.4 2010/11/09 00:18:40 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.5 2010/11/28 22:45:16 cupreti Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 
 // WSDL sometime defines a complex type in a loop, we need to get out of this loop if it repeats too many times while parsing
@@ -28,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -64,7 +65,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		<div id="<?php echo $prefix ?>_connection_div" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
 				<tr>
-					<td width="100"><p>WSDL</p></td>
+					<td width="120"><p>WSDL</p></td>
 					<td><p><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120); ?></p></td>
 				</tr>
 				<tr>
@@ -78,6 +79,10 @@ class Form_Action_SOAP_Call extends Form_Action
 				</tr>
 				<tr>
 					<td colspan="2"><?php echo translate('use_http_authentication'); ?></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('mute_exceptions'); ?></td>
+					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
 				</tr>
 			</table>
 		</div>
@@ -208,6 +213,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		$settings['wsdl']					= array_get_index($_POST, $prefix.'_wsdl', NULL);
 		$settings['login']					= array_get_index($_POST, $prefix.'_login', NULL);
 		$settings['password']				= array_get_index($_POST, $prefix.'_password', NULL);
+		$settings['mute_exceptions']			= array_get_index($_POST, $prefix.'_mute_exceptions', NULL);
 		$settings['passphrase']				= array_get_index($_POST, $prefix.'_passphrase', NULL);
 		$settings['action']					= array_get_index($_POST, $prefix.'_action', NULL);
 
@@ -336,14 +342,14 @@ class Form_Action_SOAP_Call extends Form_Action
 		$function = $settings['action'];
 		$wsdl = $settings['wsdl'];
 		$options = self::_getSoapOptions($settings);
-	
 
 		// Work out the parameters of that soap function
 		for($i = 0, $param = Array(); $i < count($settings['actions'][$settings['action']]); $i++) {
 			if(isset($settings[$settings['action'].'parameters'.$i])) {	
+				
 				$soap_message = self::getKeywordReplacementsFromForm($settings[$settings['action'].'parameters'.$i], $form);		
 				$object = @simplexml_load_string($soap_message);
-
+				
 				if($object === FALSE) {
 					// Just string argument, replace file content keywords
 					$object = self::getFileContentReplacementsFromForm ($soap_message, $form);
@@ -353,10 +359,10 @@ class Form_Action_SOAP_Call extends Form_Action
 					// Convert XML to array, replace file content keywords, xml is not friendly for binary data
 					$object = self::_toArray($object, $form);	
 				}
+				
 				$param[] = $object;
 			}
 		}
-
 
 
 		// Get an array of parameters
@@ -366,7 +372,15 @@ class Form_Action_SOAP_Call extends Form_Action
 			$eval_string .= '$param['.$index.']';
 		}
 
-		// Make SOAP call		
+		// Enable backtrace option
+		$options['trace'] = 1;
+
+		// If SOAP exceptions are to be silenced
+		if ($settings['mute_exceptions']) {
+			$options['exceptions'] = 0;
+		}
+
+		// Make SOAP call
 		try {
 			$client = new SoapClient($wsdl, $options);
 			eval('$data = $client->$function('.$eval_string.');');
@@ -376,7 +390,7 @@ class Form_Action_SOAP_Call extends Form_Action
 			$form->submission_errors = array_merge($form->submission_errors, Array($e->getMessage()));
 			return FALSE;
 		}
-
+		
 		// Store results in session
 		self::_store_results ($data);
 
@@ -572,21 +586,28 @@ class Form_Action_SOAP_Call extends Form_Action
 	public static function getKeywordReplacementsFromForm($content, &$form)
 	{
 		$matches = Array();
-		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $content, $set_matches, PREG_SET_ORDER);
+		$found = preg_match_all('/%(response_(\d+_)?q\d+[^%]*)%/U', $content, $set_matches, PREG_SET_ORDER);
 		$matches = array_merge($matches, $set_matches);
-		$found = preg_match_all('/%(question_name_(\\d+_)?q\\d+(_raw)?)%/U', $content, $set_matches, PREG_SET_ORDER);
+		$found = preg_match_all('/%(question_name_(\d+_)?q\d+[^%]*)%/U', $content, $set_matches, PREG_SET_ORDER);
 		$matches = array_merge($matches, $set_matches);
-		$found = preg_match_all('/%(form_submission_.*)%/U', $content, $set_matches, PREG_SET_ORDER);
+		$found = preg_match_all('/%(form_submission_[^%]*)%/U', $content, $set_matches, PREG_SET_ORDER);
 		$matches = array_merge($matches, $set_matches);
 
 		foreach ($matches as $match) {
 			if (empty($match)) continue;
 			$count = 0;
-			do {		
-				$content = preg_replace('/%'.$match[1].'%/U', $form->_getThankYouKeywordReplacement($match[1]), $content, 1, $count);
+			do {
+				// Apply keyword modifiers, if any
+				$full_keyword = $match[1];
+				$keyword = parse_keyword($full_keyword, $modifiers);
+
+				$replacement = $form->_getThankYouKeywordReplacement($keyword);
+				if (!empty($modifiers)) {
+					apply_keyword_modifiers($replacement, $modifiers);
+				}
+				$content = preg_replace('/%'.str_replace('^', '\^', $match[1]).'%/U', $replacement, $content, 1, $count);
 			} while ($count > 0);
 		}//end foreach
-		
 		
 		return $content;
 	}//end getKeywordReplacementsFromForm()
@@ -599,20 +620,25 @@ class Form_Action_SOAP_Call extends Form_Action
 	*/
 	public static function getFileContentReplacementsFromForm($content, &$form)
 	{
-		if(preg_match('|%file_upload_([0-9]*_)?q([0-9]*)?%|', $content, $question_matches)) {
-			if (empty($question_matches[1])) {
+		preg_match_all('|%file_upload_([0-9]*_)?q([0-9]+)[^%]*%|U', $content, $matches);		
+		
+		foreach($matches[1] as $key => $section_match) {
+			$question_match = $matches[2][$key];
+			if (empty($section_match)) {
 				// One asset ID
 				$section_assetid = $form->id;
-				$question_assetid = $question_matches[2];
+				$question_assetid = $question_match;
 			} else {
-				$section_assetid = str_replace('_', '', $question_matches[1]);
-				$question_assetid = $question_matches[2];
+				$section_assetid = str_replace('_', '', $section_match);
+				$question_assetid = $question_match;
 			}
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 			if(empty($question_asset) || get_class($question_asset) != 'Form_Question_Type_File_Upload') return $content;
 			// is the file an asset or just raw file in data dir?
+			
+			$replacement = '';
 			if(isset($question_asset->extra_data['filesystem_path'])) {
-				$content = file_get_contents($question_asset->extra_data['filesystem_path']);
+				$replacement = file_get_contents($question_asset->extra_data['filesystem_path']);
 			}
 			else {
 				$uploaded_assetid = array_get_index($question_asset->extra_data, 'existing_file_assetid', array_get_index($question_asset->extra_data, 'new_file_assetid', NULL));
@@ -620,11 +646,28 @@ class Form_Action_SOAP_Call extends Form_Action
 					$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
 					$info = $file->getExistingFile();
 					if(isset($info['path']))
-						$content = file_get_contents($info['path']);
+						$replacement = file_get_contents($info['path']);
 				}
 			}
+			
+			// Apply keyword modifiers, if any
+			$full_keyword = trim($matches[0][$key], '%');
+			$keyword = parse_keyword($full_keyword, $modifiers);
+			if (!empty($modifiers)) {
+				apply_keyword_modifiers($replacement, $modifiers);
+				
+				$keyword = $full_keyword;
+			}
+			
+			if (empty($section_match)) {
+				$content = str_replace('%'.$keyword.'%', $replacement, $content);
+			} else {
+				$content = str_replace('%'.$keyword.'%', $replacement, $content);
+			}
 		}//end foreach	
+		
 		return $content;
+		
 	}//end getKeywordReplacementsFromForm()
 
 	

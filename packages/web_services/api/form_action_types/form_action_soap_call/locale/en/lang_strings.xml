@@ -19,4 +19,5 @@
 	<string source="response_message_note">Response will be stored in global session vars.They can be printed using keywords as below.</string>
 	<string source="response_keywords">Keywords Available</string>
 	<string source="no_cert">No certificate file found</string>
+	<string source="mute_exceptions">Mute SOAP Exceptions</string>
 </strings>
