@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.23 2010/10/19 22:39:47 akarelia Exp $
+* $Id: ldap_user.inc,v 1.23.2.1 2010/11/30 00:51:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -63,7 +63,17 @@ class Ldap_User extends User
 
 	}//end constructor
 
-
+	/**
+	* ldap user doesn't need to reload because it's shadow asset
+	* otherwise parrent::reload will just break because it assumes asset is not shadow
+	*
+	* @return void
+	* @access public
+	*/
+	function reload()
+	{	
+	}//end reload()
+	
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
