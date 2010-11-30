@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.47 2010/07/28 01:05:31 cupreti Exp $
+* $Id: matrix_insert_link.inc,v 1.47.2.1 2010/11/30 04:40:48 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -368,11 +368,12 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += ' onClick="' + param["onClick"] + '"';
 							}
 
-							new_middle = new_middle.replace(/%asset_summary_[0-9]+%/gim, '');
+							html += '>' + new_middle + '</a>';
+
+							// insert file summary keyword
+							html = html.replace(/%asset_summary_[0-9]+%/gim, '');
 							if (param['show_summary'] && param['assetid']) {
-								html += '>' + new_middle + ' %asset_summary_' + param['assetid'] + '%</a>';
-							} else {
-								html += '>' + new_middle + '</a>';
+								html = '<span class="include_asset_summary">' + html + "%asset_summary_" + param['assetid'] + "%" + '</span>';
 							}
 
 							editor.insertHTML('', range);
@@ -410,11 +411,14 @@ class matrix_insert_link extends wysiwyg_plugin
 								inside_html = inside_html.replace(re, "$1");
 							}
 							
-							inside_html = inside_html.replace(/%asset_summary_[0-9]+%/gim, '');
-							if (param['show_summary'] && param['assetid']) {
-								inside_html = inside_html + " %asset_summary_" + param['assetid'] + "%";
-							}
 							html += '>' + inside_html + '</a>';
+
+							// insert file summary keyword
+							html = html.replace(/%asset_summary_[0-9]+%/gim, '');
+							if (param['show_summary'] && param['assetid']) {
+								html = '<span class="include_asset_summary">' + html + "%asset_summary_" + param['assetid'] + "%" + '</span>';
+							}
+							
 							html = editor.make_absolute_urls(html);
 
 							// replace with new URL
