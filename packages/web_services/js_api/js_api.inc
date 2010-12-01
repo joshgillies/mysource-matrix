@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.64 2010/11/23 04:53:17 akarelia Exp $
+* $Id: js_api.inc,v 1.65 2010/12/01 23:36:09 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -411,6 +411,8 @@ class JS_Api extends Page
 					$expand_groups = isset($_REQUEST['expand_groups']) && $_REQUEST['expand_groups'] != '' ? $_REQUEST['expand_groups'] : FALSE;
 					$inc_dependants = isset($_REQUEST['inc_dependants']) && $_REQUEST['inc_dependants'] != '' ? $_REQUEST['inc_dependants'] : TRUE;
 					$data = $am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants);
+					if(empty($data))
+						$data[] = 'No roles data is found';
 				} else {
 					$this->returnError('The getRoles function must be activated');
 				}//end else
@@ -2746,7 +2748,7 @@ function jsonToObj(json)
 	// Make the conversion
 	// Don't worry, even the creator of JSON says eval is ok here
 	var jsonObj = eval('(' + json + ')');
-
+	
 	return jsonObj;
 
 }//end jsonToObj
