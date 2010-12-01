@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.48 2010/11/30 04:40:11 ewang Exp $
+* $Id: matrix_insert_link.inc,v 1.49 2010/12/01 01:21:02 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -315,6 +315,21 @@ class matrix_insert_link extends wysiwyg_plugin
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_height += 5;
 
+				// Should we insert the span wrapping around the asset summary?
+				// Avoid inserting it repeatedly
+				var insert_asset_summary_span = true;
+				if(current_a) {
+					var parent = current_a.parentNode;
+					if(parent) {
+						if(parent.nodeName == 'SPAN' && parent.className == 'include_asset_summary') {
+								if(editor.getSelectedHTML().match(/<span class="?include_asset_summary"?>/gi) == null) {
+									insert_asset_summary_span = false;
+								}
+						}
+					}
+				}
+
+				
 				this._popupDialog("matrixInsertLink", strPage, 750, popup_height, true, function(param) {
 					if (param && param["url"] != "") {
 
@@ -367,14 +382,19 @@ class matrix_insert_link extends wysiwyg_plugin
 							if (param["onClick"] != null && param["onClick"] != "") {
 								html += ' onClick="' + param["onClick"] + '"';
 							}
-
-
-							html += '>' + new_middle + '</a>';
+				
 
 							// insert file summary keyword
-							html = html.replace(/%asset_summary_[0-9]+%/gim, '');
+							new_middle = new_middle.replace(/%asset_summary_[0-9]+%/gim, '');
+							
 							if (param['show_summary'] && param['assetid']) {
-								html = '<span class="include_asset_summary">' + html + "%asset_summary_" + param['assetid'] + "%" + '</span>';
+								html += '>' + new_middle + "%asset_summary_" + param['assetid'] + "%" + '</a>';		
+								if (insert_asset_summary_span) {
+									html = '<span class="include_asset_summary">' + html + '</span>';
+								}				
+							}
+							else {
+								html += '>' + new_middle + '</a>';
 							}
 							
 							editor.insertHTML('', range);
@@ -401,6 +421,8 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += ' onClick="' + param["onClick"] + '"';
 							}
 
+
+							
 							// remove existing link(s) before inserting a new link
 							if (current_a) {
 								current_a.parentNode.removeChild(current_a);
@@ -411,18 +433,23 @@ class matrix_insert_link extends wysiwyg_plugin
 								var re = new RegExp(e, "gim");
 								inside_html = inside_html.replace(re, "$1");
 							}
+
+
 							
-
-							html += '>' + inside_html + '</a>';
-
 							// insert file summary keyword
-							html = html.replace(/%asset_summary_[0-9]+%/gim, '');
+							inside_html = inside_html.replace(/%asset_summary_[0-9]+%/gim, '');
 							if (param['show_summary'] && param['assetid']) {
-								html = '<span class="include_asset_summary">' + html + "%asset_summary_" + param['assetid'] + "%" + '</span>';
+								html += '>' + inside_html + "%asset_summary_" + param['assetid'] + "%" + '</a>';	
+								if (insert_asset_summary_span) {
+									html = '<span class="include_asset_summary">' + html + '</span>';
+								}
 							}
-							
+							else {
+								html += '>' + inside_html + '</a>';
+							}
+								
 							html = editor.make_absolute_urls(html);
-
+		
 							// replace with new URL
 							editor.insertHTML(html, range);
 						}
