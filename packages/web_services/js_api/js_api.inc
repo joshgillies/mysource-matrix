@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.3 2010/11/23 04:54:13 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.4 2010/12/01 23:37:57 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.3 $
+* @version $Revision: 1.61.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -410,6 +410,8 @@ class JS_Api extends Page
 					$expand_groups = isset($_REQUEST['expand_groups']) && $_REQUEST['expand_groups'] != '' ? $_REQUEST['expand_groups'] : FALSE;
 					$inc_dependants = isset($_REQUEST['inc_dependants']) && $_REQUEST['inc_dependants'] != '' ? $_REQUEST['inc_dependants'] : TRUE;
 					$data = $am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants);
+					if(empty($data))
+						$data[] = 'No roles data is found';
 				} else {
 					$this->returnError('The getRoles function must be activated');
 				}//end else
