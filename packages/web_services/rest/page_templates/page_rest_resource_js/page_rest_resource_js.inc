@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.8 2010/11/09 22:18:27 ewang Exp $
+* $Id: page_rest_resource_js.inc,v 1.9 2010/12/01 02:33:12 mhaidar Exp $
 *
 */
 
@@ -164,7 +164,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 
 			// Handle errors
 			if ((isset($js_errors)) && (strlen($js_errors) > 0 )) {
-				trigger_error($js_errors);
+				trigger_error(__CLASS__ . " (#$this->id) " . $js_errors);
 				$errors = TRUE;
 			}
 		} 
