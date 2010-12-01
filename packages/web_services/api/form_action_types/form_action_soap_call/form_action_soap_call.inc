@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.5 2010/11/28 22:45:16 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.6 2010/12/01 07:52:25 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -391,6 +391,15 @@ class Form_Action_SOAP_Call extends Form_Action
 			return FALSE;
 		}
 		
+		if ($settings['mute_exceptions'] && get_class($data) == 'SoapFault') {
+			$soap_response = $client->__getLastResponse();
+			$data = NULL;
+			// Create the SOAP call return object from last SOAP request
+			if (preg_match('|<([^:]+:)?Body>(.*)</([^:]+:)?Body>|msi', $soap_response, $match)) {
+				$data = simplexml_load_string($match[2]);
+            }
+		}
+
 		// Store results in session
 		self::_store_results ($data);
 
