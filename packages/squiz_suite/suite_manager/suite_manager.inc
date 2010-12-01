@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.9 2010/11/11 02:25:52 ewang Exp $
+* $Id: suite_manager.inc,v 1.10 2010/12/01 05:57:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -65,27 +65,27 @@ class Suite_Manager extends Page
 	 * @var array
 	 */
 	private $_responseCode = Array(
-							  200 => 'OK',
-							  304 => 'Not Modified',
-							  400 => 'Bad Request',
-							  401 => 'Unauthorized',
-							  403 => 'Forbidden',
-							  404 => 'Not Found',
-							  405 => 'Method Not Allowed',
-							  406 => 'Not Acceptable',
-							  420 => 'Enhance Your Calm',
-							  500 => 'Internal Server Error',
-							  502 => 'Bad Gateway',
-							  503 => 'Service Unavailable',
-							 );
+			200 => 'OK',
+			304 => 'Not Modified',
+			400 => 'Bad Request',
+			401 => 'Unauthorized',
+			403 => 'Forbidden',
+			404 => 'Not Found',
+			405 => 'Method Not Allowed',
+			406 => 'Not Acceptable',
+			420 => 'Enhance Your Calm',
+			500 => 'Internal Server Error',
+			502 => 'Bad Gateway',
+			503 => 'Service Unavailable',
+			);
 
 
 	/**
-	* Constructor
-	*
-	* @param int	$assetid	the asset id to be loaded
-	*
-	*/
+	 * Constructor
+	 *
+	 * @param int	$assetid	the asset id to be loaded
+	 *
+	 */
 	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
@@ -95,14 +95,14 @@ class Suite_Manager extends Page
 
 
 	/**
-	* Create this asset
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @return mixed int|boolean
-	* @access public
-	* @see Asset::create()
-	*/
+	 * Create this asset
+	 *
+	 * @param array	&$link	information used to create the initial link
+	 *
+	 * @return mixed int|boolean
+	 * @access public
+	 * @see Asset::create()
+	 */
 	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
@@ -137,14 +137,14 @@ class Suite_Manager extends Page
 
 
 	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
+	 * Returns name of the asset
+	 *
+	 * @param boolean	$short_name	whether or not we are after the shortname or the full name
+	 *
+	 * @return string
+	 * @access private
+	 * @see Asset::_getName()
+	 */
 	function _getName($short_name=FALSE)
 	{
 		return 'Squiz Suite Manager';
@@ -153,11 +153,11 @@ class Suite_Manager extends Page
 
 
 	/**
-	* Can this asset have its last significant link removed (putting it in the trash)?
-	*
-	* @return boolean
-	* @access public
-	*/
+	 * Can this asset have its last significant link removed (putting it in the trash)?
+	 *
+	 * @return boolean
+	 * @access public
+	 */
 	function canDelete()
 	{
 		return FALSE;
@@ -166,11 +166,11 @@ class Suite_Manager extends Page
 
 
 	/**
-	* returns FALSE always because we don't want to be able to clone a funnelback manager
-	*
-	* @return boolean
-	* @access public
-	*/
+	 * returns FALSE always because we don't want to be able to clone a funnelback manager
+	 *
+	 * @return boolean
+	 * @access public
+	 */
 	function canClone()
 	{
 		return FALSE;
@@ -181,25 +181,51 @@ class Suite_Manager extends Page
 	/**
 	 * Get the list of all suite products.
 	 *
+	 * @param boolean $includeCurrent If TRUE, the result includes the current product.
+	 * @param boolean $includeDeleted If TRUE, the result includes the products marked for deletion.
+	 * @param array   $excludeTypes   If specified, the types will be excluded from the result.
+	 * @param array   $includeStatus  If specified, only statuses specified will be returned.
+	 *
 	 * @return array
 	 * @access public
 	 */
-	public function getAllProducts()
+	public function getProducts($includeCurrent=TRUE, $includeDeleted=TRUE, $excludeTypes=array(), $includeStatus=array())
 	{
-		$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getAllProducts');
-        foreach ($results as &$p) {
-            $p['connection'] = unserialize($p['connection']);
+		$products = MatrixDAL::executeAssoc('squiz_suite_package', 'getAllProducts');
+		foreach ($products as &$p) {
+			$p['connection'] = unserialize($p['connection']);
 
-            // Adding to product cache.
-            $systemid = $p['systemid'];
-            if (array_key_exists($systemid, $this->_productCache) === FALSE) {
-                $this->_productCache[$systemid] = $p;
-            }//end if
-        }//end foreach
+			// Adding to product cache.
+			$systemid = $p['systemid'];
+			if (array_key_exists($systemid, $this->_productCache) === FALSE) {
+				$this->_productCache[$systemid] = $p;
+			}//end if
+		}//end foreach
+
+		$results = array();
+		foreach ($products as $i => $product) {
+			if ($includeCurrent === FALSE && $product['is_current'] == TRUE) {
+				continue;
+			}
+
+			if ($includeDeleted === FALSE && $product['sync_status'] === 'D') {
+				continue;
+			}
+
+			if (empty($excludeTypes) === FALSE && in_array($product['type'], $excludeTypes) === TRUE) {
+				continue;
+			}
+
+			if (empty($includeStatus) === FALSE && in_array($product['status'], $includeStatus) === FALSE) {
+				continue;
+			}
+
+			$results[] = $product;
+		}//end foreach
 
 		return $results;
 
-	}//end getAllProducts()
+	}//end getProducts()
 
 
 	/**
@@ -210,19 +236,20 @@ class Suite_Manager extends Page
 	 */
 	public function getLiveProducts()
 	{
-		$products = $this->getAllProducts();
-		$live     = array();
+		$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getAllProducts');
+		foreach ($results as &$p) {
+			$p['connection'] = unserialize($p['connection']);
 
-		foreach ($products as $product) {
-			$status = array_get_index($product, 'status', '');
-			if ($status == 'live') {
-				$live[] = $product;
+			// Adding to product cache.
+			$systemid = $p['systemid'];
+			if (array_key_exists($systemid, $this->_productCache) === FALSE) {
+				$this->_productCache[$systemid] = $p;
 			}//end if
 		}//end foreach
 
-		return $live;
+		return $results;
 
-	}//end getAllProducts()
+	}//end getLiveProducts()
 
 
 	/**
@@ -239,9 +266,9 @@ class Suite_Manager extends Page
 			return Array();
 		}//end if
 
-        if (array_key_exists($systemid, $this->_productCache) === TRUE) {
-            return $this->_productCache[$systemid];
-        }
+		if (array_key_exists($systemid, $this->_productCache) === TRUE) {
+			return $this->_productCache[$systemid];
+		}
 
 		try {
 			$bind_vars = Array('systemid' => $systemid);
@@ -258,11 +285,49 @@ class Suite_Manager extends Page
 		$product			   = array_pop($results);
 		$product['connection'] = unserialize($product['connection']);
 
-        // Cache the result
-        $this->_productCache[$systemid] = $product;
+		// Cache the result
+		$this->_productCache[$systemid] = $product;
 		return $product;
 
 	}//end getProduct()
+
+
+	/**
+	 * Returns the current system ID.
+	 *
+	 * @return string
+	 */
+	public function getSystemId()
+	{
+		$currProduct = $this->getCurrentProduct();
+		return $currProduct['systemid'];
+
+	}//end getSystemId()
+
+
+	/**
+	 * Returns the attribute of the product.
+	 *
+	 * @param string $systemid System ID of the product.
+	 * @param string $attrName Attribute name to get.
+	 *
+	 * @return mixed
+	 * @access public
+	 */
+	public function getProductAttribute($systemid, $attrName)
+	{
+		$product = $this->getProduct($systemid);
+		if (empty($product) === FALSE) {
+			if (array_key_exists($attrName, $product) === TRUE) {
+				return $product[$attrName];
+			} else if (array_key_exists($attrName, $product['connection']) === TRUE) {
+				return $product['connection'][$attrName];
+			}
+		}
+
+		return NULL;
+
+	}//end getProductAttribute()
 
 
 	/**
@@ -292,25 +357,25 @@ class Suite_Manager extends Page
 	}//end getCurrentProduct()
 
 
-    /**
-     * Get the product list of the given type.
-     *
-     * @param string $type Type of product to get.
-     *
-     * @return array
-     */
-    public function getProductsByType($type)
-    {
+	/**
+	 * Get the product list of the given type.
+	 *
+	 * @param string $type Type of product to get.
+	 *
+	 * @return array
+	 */
+	public function getProductsByType($type)
+	{
 		$results = MatrixDAL::executeAssoc('squiz_suite_package', 'getProductsByType', Array('type'=>$type));
 
-        foreach ($result as &$product) {
-            $product['connection'] = unserialize($product['connection']);
-            $this->_productCache[$product['systemid']] = $product;
-        }
+		foreach ($result as &$product) {
+			$product['connection'] = unserialize($product['connection']);
+			$this->_productCache[$product['systemid']] = $product;
+		}
 
-        return $result;
+		return $result;
 
-    }//end getProductsByType()
+	}//end getProductsByType()
 
 
 	/**
@@ -346,10 +411,27 @@ class Suite_Manager extends Page
 		}//end try-catch
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-        // Remove the old value from cache
-        if (isset($this->_productCache[$systemid]) === TRUE) {
-            unset($this->_productCache[$systemid]);
-        }
+		// Remove the old value from cache
+		if (isset($this->_productCache[$systemid]) === TRUE) {
+			unset($this->_productCache[$systemid]);
+		}
+
+		// Special case here. If the systemid has changed, then other products have to be updated as well.
+		if ($attrName === 'systemid') {
+			$p = $this->getProduct($attrValue);
+			if (!empty($p) && $p['is_current'] === TRUE) {
+				$incCurrent = FALSE;
+				$incDeleted = FALSE;
+				$excTypes   = array('Squiz Update');
+				$incStatus  = array('live');
+				$products   = $this->getProducts($incCurrent, $incDeleted, $excTypes, $incStatus);
+				foreach ($products as $product) {
+					if ($product['knows_me_as'] === NULL) {
+						$this->updateProduct($product['systemid'], 'knows_me_as', $systemid);
+					}
+				}
+			}//end if
+		}//end if
 
 		return TRUE;
 
@@ -362,23 +444,25 @@ class Suite_Manager extends Page
 	 * @param string $systemid	 The name of the product.
 	 * @param string $type		 The type of the product to invite.
 	 * @param string $connection The connection details of the product.
+	 * @param string $knowsMeAs  The systemid which other products think this is.
 	 *
 	 * @return string
 	 * @access public
 	 */
-	public function registerProduct($systemid, $type, $connection)
+	public function registerProduct($systemid, $type, $connection, $knowsMeAs=NULL)
 	{
 		if (is_array($connection) === TRUE) {
-		   $connection = serialize($connection);
+			$connection = serialize($connection);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
 			$bind_vars = Array(
-							'systemid'		=> $systemid,
-							'type'			=> $type,
-							'connection'	=> $connection,
-						 );
+					'systemid'		=> $systemid,
+					'type'			=> $type,
+					'connection'	=> $connection,
+					'knowsMeAs'     => $knowsMeAs,
+					);
 			MatrixDAL::executeQuery('squiz_suite_package', 'registerProduct', $bind_vars);
 		} catch (PDOException $e) {
 			trigger_localised_error('SQS0031', E_USER_ERROR);
@@ -427,28 +511,28 @@ class Suite_Manager extends Page
 	 */
 	public function printFrontend()
 	{
-        $responseContent = Array();
+		$responseContent = Array();
 
-        // Stop browsers from looking inside the looking glass.
-        if (!isset($_SERVER['HTTP_USER_AGENT']) || strpos($_SERVER['HTTP_USER_AGENT'], 'SquizSuite') !== 0) {
-            parent::printFrontend();
-            exit;
-        }//end if
+		// Stop browsers from looking inside the looking glass.
+		if (!isset($_SERVER['HTTP_USER_AGENT']) || strpos($_SERVER['HTTP_USER_AGENT'], 'SquizSuite') !== 0) {
+			parent::printFrontend();
+			exit;
+		}//end if
 
-        // Only allow communications if live.
-        if ($this->status != SQ_STATUS_LIVE) {
-            $responseContent['exception'] = 'Forbidden';
-            $this->_sendHeader(403);
-            $this->_sendResponse($responseContent);
-            exit;
-        }//end if
+		// Only allow communications if live.
+		if ($this->status != SQ_STATUS_LIVE) {
+			$responseContent['exception'] = 'Forbidden';
+			$this->_sendHeader(403);
+			$this->_sendResponse($responseContent);
+			exit;
+		}//end if
 
 		// Only support POST method.
 		$requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
 		if ($requestMethod !== 'post') {
 			$responseContent['exception'] = 'The request method is not supported.';
 			$this->_sendHeader(405);
-            header('Allow: POST');
+			header('Allow: POST');
 			$this->_sendResponse($responseContent);
 			exit;
 		}
@@ -463,12 +547,12 @@ class Suite_Manager extends Page
 		$request['action'] = array_get_index($_POST, '_action', NULL);
 		$request['format'] = array_get_index($_POST, '_format', 'xml');
 		$request['assetid'] = NULL;
-        if ($request['system'] === NULL && $request['_enc'] !== NULL) {
-            // Encrypted request found, load 'em up
-            $request['system'] = array_get_index($request['_enc'], '_system', NULL);
-            $request['action'] = array_get_index($request['_enc'], '_action', NULL);
-            $request['format'] = array_get_index($request['_enc'], '_format', 'xml');
-        }//end if
+		if ($request['system'] === NULL && $request['_enc'] !== NULL) {
+			// Encrypted request found, load 'em up
+			$request['system'] = array_get_index($request['_enc'], '_system', NULL);
+			$request['action'] = array_get_index($request['_enc'], '_action', NULL);
+			$request['format'] = array_get_index($request['_enc'], '_format', 'xml');
+		}//end if
 
 		if ($request['system'] === NULL || $request['action'] === NULL) {
 			$responseContent['exception'] = 'Failed to get system and action from the request';
@@ -477,13 +561,13 @@ class Suite_Manager extends Page
 			exit;
 		}//end if
 
-        // Permission check
-        if ($this->_checkPermission($request) === FALSE) {
-            $responseContent['exception'] = 'Forbidden';
-            $this->_sendHeader(403);
-            $this->_sendResponse($responseContent, $request['format']);
-            exit;
-        }//end if
+		// Permission check
+		if ($this->_checkPermission($request) === FALSE) {
+			$responseContent['exception'] = 'Forbidden';
+			$this->_sendHeader(403);
+			$this->_sendResponse($responseContent, $request['format']);
+			exit;
+		}//end if
 
 		// Is the requested service available?
 		$api = $this->getAPI($request['system'], $request['action']);
@@ -512,9 +596,9 @@ class Suite_Manager extends Page
 			exit;
 		}
 
-		$system		  = $api['system'];
-		$action		  = $api['action'];
-		$assetid	  = $request['assetid'];
+		$system	 = $api['system'];
+		$action	 = $api['action'];
+		$assetid = $request['assetid'];
 
 		try {
 			if ($system != 'squizsuite') {
@@ -524,9 +608,9 @@ class Suite_Manager extends Page
 			}
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($class);
 			$callback = Array(
-							$class,
-							$action,
-						);
+					$class,
+					$action,
+					);
 			$responseContent['result'] = call_user_func_array($callback, $params);
 			$response = 200;
 		} catch (Exception $e) {
@@ -536,7 +620,7 @@ class Suite_Manager extends Page
 
 		$this->_sendHeader($response);
 		$this->_sendResponse($responseContent, $request['format']);
-        exit;
+		exit;
 
 	}//end printFrontend()
 
@@ -551,34 +635,34 @@ class Suite_Manager extends Page
 	 */
 	private function _checkPermission($request)
 	{
-        $check = FALSE;
-        if (isset($request['system']) && isset($request['action'])) {
-            if ($request['system'] === 'SquizSuite' && strpos($request['action'], 'suiteConnect') === 0) {
-                // suiteConnect methods are allowed past
-                $check = TRUE;
-            } else if ($this->_suiteSystemUser === TRUE) {
-                if (isset($request['_enc']['matrix']['username']) && isset($request['_enc']['matrix']['password'])) {
-                    $auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
-                    $auth_systems = $auth_folder->getAuthSystems();
+		$check = FALSE;
+		if (isset($request['system']) && isset($request['action'])) {
+			if ($request['system'] === 'SquizSuite' && strpos($request['action'], 'suiteConnect') === 0) {
+				// suiteConnect methods are allowed past
+				$check = TRUE;
+			} else if ($this->_suiteSystemUser === TRUE) {
+				if (isset($request['_enc']['matrix']['username']) && isset($request['_enc']['matrix']['password'])) {
+					$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+					$auth_systems = $auth_folder->getAuthSystems();
 
-                    $user = NULL;
-                    foreach ($auth_systems as $systemid) {
-                        $system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
-                        if (is_null($system)) continue;
-                        $user = $system->authenticateUser($request['_enc']['matrix']['username'], $request['_enc']['matrix']['password']);
-                        if (!is_null($user)) {
-                            $GLOBALS['SQ_SYSTEM']->loginUser($user);
-                            $GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
-                            if ($this->_suiteSystemUser === TRUE) {
-                                $check = TRUE;
-                            }
-                            break;
-                        }//end if
-                        $GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
-                    }//end foreach
-                }//end if
-            }//end if
-        }//end if
+					$user = NULL;
+					foreach ($auth_systems as $systemid) {
+						$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+						if (is_null($system)) continue;
+						$user = $system->authenticateUser($request['_enc']['matrix']['username'], $request['_enc']['matrix']['password']);
+						if (!is_null($user)) {
+							$GLOBALS['SQ_SYSTEM']->loginUser($user);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
+							if ($this->_suiteSystemUser === TRUE) {
+								$check = TRUE;
+							}
+							break;
+						}//end if
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($system, TRUE);
+					}//end foreach
+				}//end if
+			}//end if
+		}//end if
 
 		return $check;
 
@@ -705,20 +789,20 @@ class Suite_Manager extends Page
 		$parameters = $method->getParameters();
 		foreach ($parameters as $parameter) {
 			$requiredParams[] = Array(
-								 'name'		=> $parameter->getName(),
-								 'optional' => $parameter->isOptional(),
-								);
+					'name'		=> $parameter->getName(),
+					'optional' => $parameter->isOptional(),
+					);
 		}
 
 		$params = Array();
-        $encrypted = array_get_index($_POST, '_enc', NULL);
+		$encrypted = array_get_index($_POST, '_enc', NULL);
 		foreach ($requiredParams as $param) {
 			$value = array_get_index($_POST, $param['name'], NULL);
 			$value = $this->decodeJson($value);
 
-            if ($value === NULL && $encrypted !== NULL && array_key_exists($param['name'], $encrypted) === TRUE) {
-                $value = $this->decodeJson($encrypted[$param['name']]);
-            }
+			if ($value === NULL && $encrypted !== NULL && array_key_exists($param['name'], $encrypted) === TRUE) {
+				$value = $this->decodeJson($encrypted[$param['name']]);
+			}
 
 			if ($value === NULL && $param['optional'] === FALSE) {
 				return FALSE;
@@ -749,9 +833,9 @@ class Suite_Manager extends Page
 
 		// Generate public/private key pairs.
 		$keyInfo = Array(
-					'private_key_bits' => 2048,
-					'private_key_type' => OPENSSL_KEYTYPE_RSA,
-				   );
+				'private_key_bits' => 2048,
+				'private_key_type' => OPENSSL_KEYTYPE_RSA,
+				);
 
 		$keyGenerated = openssl_pkey_new($keyInfo);
 
@@ -760,13 +844,13 @@ class Suite_Manager extends Page
 		openssl_pkey_export_to_file($keyGenerated, $dataDir.'/privatekey.pem');
 
 		$info = Array(
-				 'countryName'			  => 'AU',
-				 'stateOrProvinceName'	  => 'NSW',
-				 'localityName'			  => 'Sydney',
-				 'organizationName'		  => 'Squiz Suite',
-				 'organizationalUnitName' => $currProduct['type'],
-				 'commonName'			  => $currProduct['systemid'],
-				 'emailAddress'			  => $currProduct['systemid'].'@squizsuite.com',
+				'countryName'			  => 'AU',
+				'stateOrProvinceName'	  => 'NSW',
+				'localityName'			  => 'Sydney',
+				'organizationName'		  => 'Squiz Suite',
+				'organizationalUnitName' => $currProduct['type'],
+				'commonName'			  => $currProduct['systemid'],
+				'emailAddress'			  => $currProduct['systemid'].'@squizsuite.com',
 				);
 		$csr  = openssl_csr_new($info, $keyGenerated);
 		openssl_csr_export_to_file($csr, $dataDir.'/system.csr');
@@ -794,15 +878,15 @@ class Suite_Manager extends Page
 	 */
 	public function sendMessage($targetid, $msgType, array $options=array())
 	{
-        if ($msgType !== 'suiteConnect') {
-            $productInfo = $this->getProduct($targetid);
-            if (empty($productInfo) === TRUE) {
-                $errMsg = $targetid.' is not known. Cannot send '.$msgType.' to it.';
-                throw new Exception($errMsg);
-            }
-        }//end if
+		if ($msgType !== 'suiteConnect') {
+			$productInfo = $this->getProduct($targetid);
+			if (empty($productInfo) === TRUE) {
+				$errMsg = $targetid.' is not known. Cannot send '.$msgType.' to it.';
+				throw new Exception($errMsg);
+			}
+		}//end if
 
-		$dom = $this->_createSuiteMessageDOMTemplate();
+		$dom = $this->_createSuiteMessageDOMTemplate($targetid);
 		$this->_createSuiteMessageDOM($dom, $msgType, $options);
 		$xml = $dom->saveXML();
 
@@ -823,12 +907,12 @@ class Suite_Manager extends Page
 
 		$this->logSentMessage($targetid, $msgType);
 		$result = $this->sendRequest(
-		    $targetid,
-            $format,
-            $system,
-            $action,
-			$msg
-		);
+				$targetid,
+				$format,
+				$system,
+				$action,
+				$msg
+				);
 
 		if ($result['curlInfo']['http_code'] !== 200) {
 			$errMsg  = 'HTTP Response '.$result['curlInfo']['http_code']."\n";
@@ -836,39 +920,39 @@ class Suite_Manager extends Page
 			$this->logErrorMessage($errMsg);
 		}
 
-        return $result;
+		return $result;
 
 	}//end sendMessage()
 
 
-    /**
-     * Returns TRUE if the system is a Matrix system.
-     *
-     * @param string    $targetid   The targetid of the system to check.
-     *
-     * @return boolean
-     */
-    private function _isMatrixSystem($targetid)
-    {
-        $isMatrix = FALSE;
+	/**
+	 * Returns TRUE if the system is a Matrix system.
+	 *
+	 * @param string    $targetid   The targetid of the system to check.
+	 *
+	 * @return boolean
+	 */
+	private function _isMatrixSystem($targetid)
+	{
+		$isMatrix = FALSE;
 
-        $product = $this->getProduct($targetid);
-        if (empty($product) === FALSE) {
-            if ($product['type'] === 'Squiz Matrix') {
-                // Aye, its Matrix!
-                $isMatrix = TRUE;
-            }
-        } else {
-            // An Unknown system, maybe it is a system trying to register
-            // Attempt to determine if it is Matrix from the URL
-            if (strpos($targetid, '__api') === FALSE) {
-                $isMatrix = TRUE;
-            }
-        }
+		$product = $this->getProduct($targetid);
+		if (empty($product) === FALSE) {
+			if ($product['type'] === 'Squiz Matrix') {
+				// Aye, its Matrix!
+				$isMatrix = TRUE;
+			}
+		} else {
+			// An Unknown system, maybe it is a system trying to register
+			// Attempt to determine if it is Matrix from the URL
+			if (strpos($targetid, '__api') === FALSE) {
+				$isMatrix = TRUE;
+			}
+		}
 
-        return $isMatrix;
+		return $isMatrix;
 
-    }//end _isMatrixSystem()
+	}//end _isMatrixSystem()
 
 
 	/**
@@ -878,7 +962,7 @@ class Suite_Manager extends Page
 	 * @param string $format   The format to return the results as.
 	 * @param string $system   The system on the destination system.
 	 * @param string $action   The action on the destination system.
-     * @param array  $message  The message to send.
+	 * @param array  $message  The message to send.
 	 *
 	 * @return array
 	 * @access public
@@ -887,71 +971,364 @@ class Suite_Manager extends Page
 	{
 		$currProductInfo = $this->getCurrentProduct();
 		$userAgentStr	 = $this->_userAgentPrefix.array_get_index($currProductInfo, 'type', 'Squiz Matrix').'/4.0';
-        $productInfo     = $this->getProduct($targetid);
+		$productInfo     = $this->getProduct($targetid);
+		$systemidKnownAs = $this->productKnowsMeAs($targetid);
 
-        $apiURL = '';
+		$apiURL = '';
 		if ($action === 'suiteConnect') {
-            $apiURL = $targetid;
+			$apiURL = $targetid;
 		} else {
-            $apiURL = $productInfo['connection']['url'];
+			$apiURL = $productInfo['connection']['url'];
 		}
 
-        if ($this->_isMatrixSystem($targetid)) {
-            $message['_format'] = $format;
-            $message['_system'] = $system;
-            $message['_action'] = $action;
-            if ($action !== 'suiteConnect') {
-                // Only set the username/password if the _enc array is set.
-                if (!isset($message['_enc']) || is_array($message['_enc'])) {
-                    if (!isset($message['_pubKeySystemid'])) {
-                        $message['_pubKeySystemid'] = $targetid;
-                    }
+		if ($this->_isMatrixSystem($targetid)) {
+			$message['_format'] = $format;
+			$message['_system'] = $system;
+			$message['_action'] = $action;
+			if ($action !== 'suiteConnect') {
+				// Only set the username/password if the _enc array is set.
+				if (!isset($message['_enc']) || is_array($message['_enc'])) {
+					if (!isset($message['_pubKeySystemid'])) {
+						$message['_pubKeySystemid'] = $targetid;
+					}
 
-                    if (!isset($message['_enc']['_systemid'])) {
-                        $message['_enc']['_systemid'] = $currProductInfo['systemid'];
-                    }
+					if (!isset($message['_enc']['_systemid'])) {
+						$message['_enc']['_systemid'] = $systemidKnownAs;
+					}
 
-                    if (isset($productInfo['connection']['username'])) {
-                        if (!isset($message['_enc']['matrix'])) {
-                            $message['_enc']['matrix'] = array();
-                        }
+					if (isset($productInfo['connection']['username'])) {
+						if (!isset($message['_enc']['matrix'])) {
+							$message['_enc']['matrix'] = array();
+						}
 
-                        $message['_enc']['matrix']['username'] = $productInfo['connection']['username'];
-                    }
+						$message['_enc']['matrix']['username'] = $productInfo['connection']['username'];
+					}
 
-                    if (isset($productInfo['connection']['password'])) {
-                        $message['_enc']['matrix']['password'] = $productInfo['connection']['password'];
-                    }
-                }//end if
-            }//end if
-        } else {
-    		$apiURL = rtrim($apiURL, '/');
-            $apiURL .= '/'.$format;
-            $apiURL .= '/'.$system;
-            $apiURL .= '/'.$action;
-            if ($action !== 'suiteConnect') {
-                // Set the encryption for all requests except suiteConnect,
-                // so the target system treats this request as a superuser.
-                if (!isset($message['_enc'])) {
-                    $message['_enc'] = array();
-                    $message['_pubKeySystemid'] = $targetid;
-                }
+					if (isset($productInfo['connection']['password'])) {
+						$message['_enc']['matrix']['password'] = $productInfo['connection']['password'];
+					}
+				}//end if
+			}//end if
+		} else {
+			$apiURL = rtrim($apiURL, '/');
+			$apiURL .= '/'.$format;
+			$apiURL .= '/'.$system;
+			$apiURL .= '/'.$action;
+			if ($action !== 'suiteConnect') {
+				// Set the encryption for all requests except suiteConnect,
+				// so the target system treats this request as a superuser.
+				if (!isset($message['_enc'])) {
+					$message['_enc'] = array();
+					$message['_pubKeySystemid'] = $targetid;
+				}
 
-                if (!isset($message['_enc']['_systemid'])) {
-                    $message['_enc']['_systemid'] = array_get_index($currProductInfo, 'systemid', NULL);
-                }
-            }//end if
-        }//end if
+				if (!isset($message['_enc']['_systemid'])) {
+					$message['_enc']['_systemid'] = $systemidKnownAs;
+				}
+			}//end if
+		}//end if
 
 		$response = $this->sendCURLAPIRequest(
-		    $apiURL,	
-			$message,
-			$userAgentStr
-		);
+				$apiURL,	
+				$message,
+				$userAgentStr
+				);
 
-        return $response;
+		return $response;
 
 	}//end sendRequest()
+
+
+	/**
+	 * Returns the current systemid the other system knows me as.
+	 *
+	 * @param string $systemid The systemid to query
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function productKnowsMeAs($systemid)
+	{
+		$currentProduct = $this->getCurrentProduct();
+		$product        = $this->getProduct($systemid);
+
+		if (empty($product) === FALSE && $product['knows_me_as'] !== NULL && $product['knows_me_as'] !== $currentProduct['systemid']) {
+			return $product['knows_me_as'];
+		}
+
+		return $currentProduct['systemid'];
+
+	}//end productKnowsMeAs()
+
+
+	/**
+	 * Pull other suite system's information and sync itself.
+	 *
+	 * This action will be run directly by the cron job. It requests suite info to all
+	 * live connected products and updates the information accordingly.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function syncWithLiveProducts()
+	{
+		$all_products = $this->getProducts(FALSE, TRUE, array('Squiz Update'));
+
+		// First collect the systems marked for deletion and addition.
+		// Once it pulls from all live systems, and if everyone has the same
+		// addition/deletion, then we can remove the sync_status. If any of the
+		// systems have not got the message, then we will turn the flag to be 
+		// FALSE, and sync_status will remain.
+		$markedForDeletion = array();
+		$markedForAddition = array();
+		foreach ($all_products as $product) {
+			if ($product['sync_status'] === 'D') {
+				$markedForDeletion[$product['systemid']] = TRUE;
+			}
+
+			if ($product['sync_status'] === 'A') {
+				$markedForAddition[$product['systemid']] = TRUE;
+			}
+		}//end foreach
+
+		// Let's loop through each connected live system and pull their information.
+		$current_product   = $this->getCurrentProduct();
+		$current_prod_info = $this->getSuiteProductInfo($current_product);
+		$connection_failed = FALSE;
+
+		foreach ($all_products as $product) {
+			if ($product['status'] !== 'live' || $product['sync_status'] === 'D') {
+				continue;
+			}
+
+			$current_prod_info['knowsMeAs'] = $this->productKnowsMeAs($product['systemid']);
+
+			$response = $this->sendMessage($product['systemid'], 'suiteSyncProduct', $current_prod_info);
+			$response = $this->getSuiteMessageResult($response);
+
+			if ($response === FALSE) {
+				$connection_failed = TRUE;
+				$this->updateProduct($product['systemid'], 'status', 'failed');
+				continue;
+			}
+
+			// This product knew me as a different ID, but the suiteSyncProduct request was successful
+			if ($current_prod_info['knowsMeAs'] !== $current_product['systemid']) {
+				$this->updateProduct($product['systemid'], 'knows_me_as', $current_product['systemid']);
+			}
+
+			// Passing deleted/added products via reference, and each function will modify directly
+			$this->syncProductDetails($product, $response);
+			$this->syncDeletedProducts($response['deleted'], $markedForDeletion, $markedForAddition);
+			$this->syncConnectedProducts($product['systemid'], $response['connected'], $markedForDeletion, $markedForAddition);
+		}//end foreach
+
+		// EVERY system has been processed successfully, move on to process sync status.
+		if ($connection_failed === FALSE) {
+			foreach ($markedForDeletion as $sysid => $canBeRemoved) {
+				if ($canBeRemoved === TRUE) {
+					$this->removeProduct($sysid);
+				}
+			}
+
+			foreach ($markedForAddition as $sysid => $canBeAdded) {
+				if ($canBeAdded === TRUE) {
+					$this->updateProduct($sysid, 'sync_status', '');
+				}
+			}
+		}
+
+	}//end syncWithLiveProducts()
+
+
+	/**
+	 * Sync the product details like product name, URL etc.
+	 *
+	 * @param array $product_info		The Product Information to sync with.
+	 * @param array $new_product_info	The response from the product.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function syncProductDetails(array $product_info, array $new_product_info)
+	{
+		$updated = FALSE;
+
+		// Certificate changes.
+		if ($product_info['connection']['cert'] !== $new_product_info['cert']) {
+			$product_info['connection']['cert'] = $new_product_info['cert'];
+			$updated = TRUE;
+		}
+
+		// Name changes.
+		if ($product_info['connection']['name'] !== $new_product_info['name']) {
+			$product_info['connection']['name'] = $new_product_info['name'];
+			$updated = TRUE;
+		}
+
+		// URL changes.
+		if ($product_info['connection']['url'] !== $new_product_info['apiurl']) {
+			$product_info['connection']['url'] = $new_product_info['apiurl'];
+			$updated = TRUE;
+		}
+
+		// Product was updated.
+		if ($updated === TRUE) {
+			$this->updateProduct($product_info['systemid'], 'connection', $product_info['connection']);
+		}
+
+	}//end syncProductDetails()
+
+
+	/**
+	 * Sync the deleted products.
+	 *
+	 * @param array $deleted			List of deleted products.
+	 * @param array &$markedForDeletion List of deleted products.
+	 * @param array &$markedForAddition List of added products.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function syncDeletedProducts(array $deleted, array &$markedForDeletion, array &$markedForAddition)
+	{
+		foreach ($deleted as $p) {
+			$res = $this->getProduct($p['systemid']);
+			if (empty($res) === TRUE) {
+				// Deleted.
+				continue;
+			} else if ($res['sync_status'] === 'D') {
+				// Also good, going to remove this one.
+				continue;
+			} else if ($res['status'] === 'live') {
+				// Deleting this product.
+				$this->removeProduct($p['systemid']);
+
+				// If just added, but marked for deleted.
+				if (empty($markedForAddition) === FALSE && isset($markedForAddition[$p['systemid']]) === TRUE) {
+					unset($markedForAddition[$p['systemid']]);
+				}
+			}
+		}//end foreach
+
+	}//end syncDeletedProducts()
+
+
+	/**
+	 * Sync the connection products.
+	 *
+	 * @param string $systemid				The ID of the current system.
+	 * @param array  $connected				List of connected products.
+	 * @param array  &$markedForDeletion 	List of deleted products.
+	 * @param array  &$markedForAddition 	List of added products.
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function syncConnectedProducts($systemid, array $connected, array &$markedForDeletion, array &$markedForAddtion)
+	{
+		$connectedIds = array();
+		foreach ($connected as $p) {
+			$res = $this->getProduct($p['systemid']);
+			if (empty($res) === TRUE) {
+				// Hmmm ... I think I need to add this one.
+				$this->registerProduct($p['systemid'], $p['type'], $p['connection']);
+				$this->updateProduct($p['systemid'], 'status', 'live');
+			} else if ($res['sync_status'] === 'D') {
+				// Added something, but system is marked for deletion.
+				// Cannot remove the entry just yet.
+				$markedForDeletion[$p['systemid']] = FALSE;
+			} else if ($res['status'] !== 'live') {
+				// Have the same system, the status is not live.
+				$this->updateProduct($p['systemid'], 'status', 'live');
+			}//end if
+
+			$connectedIds[] = $p['systemid'];
+		}//end foreach
+
+		// Get all the systemids which have been added to this system,
+		// but not existing in the other one.
+		if (empty($markedForAddition) === FALSE) {
+			$notAddedYet = array_diff(array_keys($markedForAddition), $connectedIds);
+			foreach ($notAddedYet as $notAddedId) {
+				if ($systemid !== $notAddedId) {
+					$markedForAddition[$notAddedId] = FALSE;
+				}
+			}
+		}
+
+	}//end syncConnectedProducts()
+
+
+	/**
+	 * Returns the sync data to send to other product.
+	 *
+	 * @param array $current_product The Current Product Info Array.
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public function getSuiteProductInfo(array $current_product)
+	{
+		$result = array(
+				'systemid'	=> $current_product['systemid'],
+				'type'		=> $current_product['type'],
+				'name'		=> $current_product['connection']['name'],
+				'apiurl'	=> $current_product['connection']['url'],
+				'cert'		=> $current_product['connection']['cert'],
+				'added'		=> array(),
+				'deleted' 	=> array(),
+				'connected'	=> array(),
+				);
+
+		// Get the information about the connected systems.
+		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
+		$products = $suite_manager->getProducts(FALSE, TRUE, array('Squiz Update'));
+		foreach ($products as $p) {
+			if ($p['status'] !== 'live') {
+				// Only send the message about the live systems.
+				continue;
+			}
+
+			if ($p['sync_status'] === 'D') {
+				$result['deleted'][] = $p;
+			} else {
+				$result['connected'][] = $p;
+			}
+		}
+
+		return $result;
+
+	}//end getSuiteProductInfo()
+
+
+	/**
+	 * Helper function to get the result from suite message response string.
+	 *
+	 * @param string $response Suite message response string.
+	 *
+	 * @return mixed
+	 * @access public
+	 */
+	public function getSuiteMessageResult($response)
+	{
+		if ($response['curlInfo']['http_code'] !== 200) {
+			return FALSE;
+		}
+
+		$result    = $response['result'];
+		if (strpos($result, '<?xml') !== 0) {
+			return FALSE;
+		} else {
+			$dom = new DOMDocument('1.0');
+			$dom->loadXML($result);
+
+			$responseDOM = $dom->getElementsByTagName('result')->item(0);
+			$response    = Suite_Manager::getResponseFromXMLDom($responseDOM);
+			return $response;
+		}
+
+	}//end getSuiteMessageResult()
 
 
 	/**
@@ -993,9 +1370,9 @@ class Suite_Manager extends Page
 		// the result of the request.
 		$curlinfo = curl_getinfo($ch);
 		$result   = Array(
-						'result'	=> $success,
-						'curlInfo' => $curlinfo,
-					);
+				'result'	=> $success,
+				'curlInfo' => $curlinfo,
+				);
 		curl_close($ch);
 		return $result;
 
@@ -1008,10 +1385,12 @@ class Suite_Manager extends Page
 	 * Every suite messages are based on this template. It includes
 	 * systemid, system type and the URL of the system.
 	 *
+	 * @param string $targetid System ID of the system the message is for.
+	 *
 	 * @return object
 	 * @access private
 	 */
-	private function _createSuiteMessageDOMTemplate()
+	private function _createSuiteMessageDOMTemplate($targetid)
 	{
 		$dom	 = new DomDocument('1.0', 'utf-8');
 		$msgElem = $dom->createElement('message');
@@ -1026,12 +1405,13 @@ class Suite_Manager extends Page
 		$sysurlEl  = $dom->createElement('system_url');
 		$sysnameEl = $dom->createElement('system_name');
 
-        if (!empty($productInfo)) {
-            $this->buildResponseXMLDom($sysidEl, $productInfo['systemid']);
-            $this->buildResponseXMLDom($systypeEl, $productInfo['type']);
-            $this->buildResponseXMLDom($sysurlEl, $productInfo['connection']['url']);
-            $this->buildResponseXMLDom($sysnameEl, $productInfo['connection']['name']);
-        }//end if
+		if (!empty($productInfo)) {
+			// Note that this system is identifying itself as the target system thinks who I am!
+			$this->buildResponseXMLDom($sysidEl, $this->productKnowsMeAs($targetid));
+			$this->buildResponseXMLDom($systypeEl, $productInfo['type']);
+			$this->buildResponseXMLDom($sysurlEl, $productInfo['connection']['url']);
+			$this->buildResponseXMLDom($sysnameEl, $productInfo['connection']['name']);
+		}//end if
 
 		$msgElem->appendChild($sysidEl);
 		$msgElem->appendChild($systypeEl);
@@ -1048,7 +1428,7 @@ class Suite_Manager extends Page
 	 *
 	 * @param object &$dom	  DOM object to work with.
 	 * @param string $msgType Type of the message to send.
-     * @param array  $options Extra options if required.
+	 * @param array  $options Extra options if required.
 	 *
 	 * @return object
 	 * @access private
@@ -1069,59 +1449,24 @@ class Suite_Manager extends Page
 				// Both of CON_REQUEST and CON_REQUEST_ACK will send
 				// the system's public key together.
 				$currProduct = $this->getCurrentProduct();
-                if (!empty($currProduct)) {
-                    $pubKey		 = $currProduct['connection']['cert'];
-                    $pubkeyEl	 = $dom->createElement('cert');
-                    $this->buildResponseXMLDom($pubkeyEl, $pubKey);
-                    $msgEl->appendChild($pubkeyEl);
-                }//end if
-			break;
-
-            case 'suiteProductSync':
-                $products   = $this->getAllProducts();
-                $productsEl = $dom->createElement('products');
-                $productsEl->setAttribute('type', 'array');
-                $msgEl->appendChild($productsEl);
-                foreach ($products as $product) {
-                    if ($product['is_current'] == FALSE && $product['status'] == 'live') {
-                        $addProduct = TRUE;
-
-                        if ($product['type'] == 'Squiz Matrix') {
-                            $username = array_get_index($product['connection'], 'username', '');
-                            $password = array_get_index($product['connection'], 'password', '');
-                            if (empty($username) && empty($password)) {
-                                $addProduct = FALSE;
-                            }
-                        }
-
-                        if ($addProduct) {
-                            $productEl = $dom->createElement('product');
-                            $this->buildResponseXMLDom($productEl, $product);
-                            $productsEl->appendChild($productEl);
-                        }
-                    }
-                }//end foreach
-
-                if (array_key_exists('sync_direction', $options) === TRUE) {
-                    $syncDir = $dom->createElement('sync_direction');
-                    $this->buildResponseXMLDom($syncDir, $options['sync_direction']);
-                    $msgEl->appendChild($syncDir);
-                }
-            break;
-
-            case 'suiteProductUpdate':
-                $updateTypeEl = $dom->createElement('update_type');
-                $updateValEl  = $dom->createElement('update_value');
-                $this->buildResponseXMLDom($updateTypeEl, $options['updateType']);
-                $this->buildResponseXMLDom($updateValEl, $options['updateValue']);
-                $msgEl->appendChild($updateTypeEl);
-                $msgEl->appendChild($updateValEl);
-            break;
+				if (!empty($currProduct)) {
+					$pubKey		 = $currProduct['connection']['cert'];
+					$pubkeyEl	 = $dom->createElement('cert');
+					$this->buildResponseXMLDom($pubkeyEl, $pubKey);
+					$msgEl->appendChild($pubkeyEl);
+				}//end if
+				break;
 
 			default:
 				// No default behaviour.
-			break;
+				break;
 		}//end switch
+
+		if (empty($options) === FALSE) {
+			$optionsEl = $dom->createElement('options');
+			$this->buildResponseXMLDom($optionsEl, $options);
+			$msgEl->appendChild($optionsEl);
+		}
 
 		return $dom;
 
@@ -1132,7 +1477,7 @@ class Suite_Manager extends Page
 	 * Parse the passed XML file and return.
 	 *
 	 * @param string $xml    SquizSuite specific XML message string.
-     * @param array  $fields The required fields to parse.
+	 * @param array  $fields The required fields to parse.
 	 *
 	 * @return array
 	 * @access public
@@ -1147,32 +1492,32 @@ class Suite_Manager extends Page
 		}
 
 		$result = Array();
-        if (empty($fields)) {
-            $fields = Array(
-                        'system_id',
-                        'system_url',
-                        'system_type',
-                        'system_name',
-                        'cert',
-                      );
-        }
+		if (empty($fields)) {
+			$fields = Array(
+					'system_id',
+					'system_url',
+					'system_type',
+					'system_name',
+					'cert',
+					);
+		}
 
 		foreach ($fields as $field) {
 			$fieldEl = $doc->getElementsByTagName($field)->item(0);
 			if ($fieldEl === NULL) {
 				$result[$field] = NULL;
 			} else {
-                if ($fieldEl->nodeType === XML_ELEMENT_NODE) {
-                    $callback = Array(
-                                    'Suite_Manager',
-                                    'getResponseFromXMLDom',
-                                );
-                    $params   = Array($fieldEl);
+				if ($fieldEl->nodeType === XML_ELEMENT_NODE) {
+					$callback = Array(
+							'Suite_Manager',
+							'getResponseFromXMLDom',
+							);
+					$params   = Array($fieldEl);
 
-                    $result[$field] = Suite_Manager::getResponseFromXMLDom($fieldEl);
-                } else {
-    				$result[$field] = $fieldEl->nodeValue;
-                }
+					$result[$field] = Suite_Manager::getResponseFromXMLDom($fieldEl);
+				} else {
+					$result[$field] = $fieldEl->nodeValue;
+				}
 			}
 		}
 
@@ -1215,10 +1560,10 @@ class Suite_Manager extends Page
 	public function logReceivedMessage($systemid, $msgType)
 	{
 		/*
-			E.g)
-			[RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
-			[SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
-		*/
+		   E.g)
+		   [RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
+		   [SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
+		 */
 
 		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$log  = '[RECEIVED '.readable_datetime(time()).'] '.$msgType;
@@ -1251,10 +1596,10 @@ class Suite_Manager extends Page
 	public function logSentMessage($systemid, $msgType)
 	{
 		/*
-			E.g)
-			[RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
-			[SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
-		*/
+		   E.g)
+		   [RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
+		   [SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
+		 */
 
 		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$log		 = '[SENT '.readable_datetime(time()).'] '.$msgType;
@@ -1281,11 +1626,11 @@ class Suite_Manager extends Page
 	 */
 	public function logErrorMessage($errorMessage='')
 	{
-		/*
-			E.g)
-			[RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
-			[SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
-		*/
+	/*
+	   E.g)
+	   [RECEIVED 02:23:18] CON_REQUEST from search (http://squiz-search.net) (172.293.283.281)
+	   [SENT 02:23:18] CON_REQUEST to search (http://squiz-search.net) (172.293.283.281)
+	 */
 
 		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$log  = '[ERROR '.readable_datetime(time()).'] '.$errorMessage;
@@ -1333,8 +1678,8 @@ class Suite_Manager extends Page
 				return $msg;
 			}
 
-            // JSON encode data, before encryption
-            $msg['_enc'] = $this->encodeJson($msg['_enc']);
+			// JSON encode data, before encryption
+			$msg['_enc'] = $this->encodeJson($msg['_enc']);
 			$enc = $this->encryptData($msg['_pubKeySystemid'], $msg['_enc']);
 			$msg['_enc']	  = $enc['encrypted'];
 			$msg['_password'] = $enc['password'];
@@ -1360,28 +1705,28 @@ class Suite_Manager extends Page
 		}
 
 		$encrypted = $this->decryptData($encrypted, $password);
-        if ($encrypted !== FALSE) {
-    		$encrypted     = $this->decodeJson($encrypted);
-    		$_POST['_enc'] = $encrypted;
+		if ($encrypted !== FALSE) {
+			$encrypted     = $this->decodeJson($encrypted);
+			$_POST['_enc'] = $encrypted;
 
-            $systemid = NULL;
-            if (is_array($encrypted) === TRUE) {
-                $systemid = $encrypted['_systemid'];
-            } else if (strpos($encrypted, '<?xml') === 0) {
-                $dom = new DomDocument();
-                $dom->loadXML($encrypted);
-                $systemidDom = $dom->getElementsByTagName('system_id')->item(0);
-                $systemid    = Suite_Manager::getResponseFromXMLDom($systemidDom);
-            }//end if
+			$systemid = NULL;
+			if (is_array($encrypted) === TRUE) {
+				$systemid = $encrypted['_systemid'];
+			} else if (strpos($encrypted, '<?xml') === 0) {
+				$dom = new DomDocument();
+				$dom->loadXML($encrypted);
+				$systemidDom = $dom->getElementsByTagName('system_id')->item(0);
+				$systemid    = Suite_Manager::getResponseFromXMLDom($systemidDom);
+			}//end if
 
-            if ($systemid !== NULL) {
-                $product = $this->getProduct($systemid);
-                if (empty($product) === FALSE && $product['status'] === 'live') {
-                    // This system is live and valid, therefore we can allow the system to act as superuser.
-                    $this->_suiteSystemUser = TRUE;
-                }
-            }//end if
-        }//end if
+			if ($systemid !== NULL) {
+				$product = $this->getProduct($systemid);
+				if (empty($product) === FALSE && $product['status'] === 'live') {
+					// This system is live and valid, therefore we can allow the system to act as superuser.
+					$this->_suiteSystemUser = TRUE;
+				}
+			}//end if
+		}//end if
 
 	}//end decryptAPIData()
 
@@ -1420,9 +1765,9 @@ class Suite_Manager extends Page
 			}
 
 			$result = Array(
-						'encrypted'	=> $encryptedMsg,
-						'password'	=> $encryptedPass,
-					  );
+					'encrypted'	=> $encryptedMsg,
+					'password'	=> $encryptedPass,
+					);
 			return $result;
 		}//end if
 
@@ -1454,10 +1799,10 @@ class Suite_Manager extends Page
 
 		$decrypted = '';
 		$result    = openssl_private_decrypt(
-			$password,
-			$passdec,
-			$priKey
-		);
+				$password,
+				$passdec,
+				$priKey
+				);
 
 		if ($result === FALSE) {
 			return FALSE;
@@ -1601,7 +1946,7 @@ class Suite_Manager extends Page
 						$parentNode->appendChild($valueElem);
 						$this->buildResponseXMLDom($valueElem, $val);
 					}
-				break;
+					break;
 
 				case 'struct':
 					foreach ($content as $key => $val) {
@@ -1614,7 +1959,7 @@ class Suite_Manager extends Page
 						$parentNode->appendChild($keyElem);
 						$this->buildResponseXMLDom($keyElem, $val);
 					}
-				break;
+					break;
 
 				case 'base64':
 					foreach ($content as $key => $val) {
@@ -1625,11 +1970,11 @@ class Suite_Manager extends Page
 						$parentNode->setAttribute($key, $val);
 					}//end foreach
 					$this->_addTextToNode($parentNode, $content['_base64'], TRUE);
-				break;
+					break;
 
 				default:
 					// No default behaviour.
-				break;
+					break;
 			}//end switch
 		}//end if
 
@@ -1649,13 +1994,13 @@ class Suite_Manager extends Page
 		if ($parentNode->hasAttribute('type') === TRUE) {
 			$type  = $parentNode->getAttribute('type');
 			$func  = '_get'.ucwords($type).'Response';
-            $callback = Array(
-                            'Suite_Manager',
-                            $func,
-                        );
+			$callback = Array(
+					'Suite_Manager',
+					$func,
+					);
 			if (is_callable($callback) === TRUE) {
 				$params   = Array($parentNode);
-				$response = call_user_func_Array($callback, $params);
+				$response = call_user_func_array($callback, $params);
 			} else {
 				$response = $parentNode->nodeValue;
 				settype($response, $type);
@@ -1797,56 +2142,56 @@ class Suite_Manager extends Page
 	 *					    				 send reponse. It includes 'system', 'action',
 	 *					    				 'assetid', 'result' and optional 'exception'
 	 *					    				 in case for error case.
-     * @param string    $outputFormat       The type of response expecting to be sent back.
+	 * @param string    $outputFormat       The type of response expecting to be sent back.
 	 *
 	 * @return void
 	 * @access private
 	 */
 	private function _sendResponse(array $responseContent, $outputFormat='xml')
 	{
-        $outputFormat = (string) $outputFormat;
-        switch ($outputFormat) {
-            case 'json':
-                header('Content-type: application/json');
-                $json = $this->_buildJsonString($responseContent);
+		$outputFormat = (string) $outputFormat;
+		switch ($outputFormat) {
+			case 'json':
+				header('Content-type: application/json');
+				$json = $this->_buildJsonString($responseContent);
 
-                echo $json;
-            break;
+				echo $json;
+				break;
 
-            case 'xml':
-            default:
-                header('Content-Type: text/xml; charset=utf-8');
-                $dom	 = new DomDocument('1.0', 'utf-8');
-                $rspElem = $dom->createElement('rsp');
-                $dom->appendChild($rspElem);
+			case 'xml':
+			default:
+				header('Content-Type: text/xml; charset=utf-8');
+				$dom	 = new DomDocument('1.0', 'utf-8');
+				$rspElem = $dom->createElement('rsp');
+				$dom->appendChild($rspElem);
 
-                // System and Action requested.
-                $fields = Array(
-                            'system',
-                            'action',
-                            'assetid',
-                            'new_token',
-                            'next_token',
-                            'exception',
-                          );
-                foreach ($fields as $field) {
-                    if (array_key_exists($field, $responseContent) === TRUE) {
-                        $fieldElem = $dom->createElement($field);
-                        $this->buildResponseXMLDom($fieldElem, $responseContent[$field]);
-                        $rspElem->appendChild($fieldElem);
-                    }
-                }
+				// System and Action requested.
+				$fields = Array(
+						'system',
+						'action',
+						'assetid',
+						'new_token',
+						'next_token',
+						'exception',
+						);
+				foreach ($fields as $field) {
+					if (array_key_exists($field, $responseContent) === TRUE) {
+						$fieldElem = $dom->createElement($field);
+						$this->buildResponseXMLDom($fieldElem, $responseContent[$field]);
+						$rspElem->appendChild($fieldElem);
+					}
+				}
 
-                if (array_key_exists('result', $responseContent) === TRUE) {
-                    $resultElem = $dom->createElement('result');
-                    $this->buildResponseXMLDom($resultElem, $responseContent['result']);
-                    $rspElem->appendChild($resultElem);
-                }
+				if (array_key_exists('result', $responseContent) === TRUE) {
+					$resultElem = $dom->createElement('result');
+					$this->buildResponseXMLDom($resultElem, $responseContent['result']);
+					$rspElem->appendChild($resultElem);
+				}
 
-                $xml = $dom->saveXML();
-                echo $xml;
-            break;
-        }//end switch
+				$xml = $dom->saveXML();
+				echo $xml;
+				break;
+		}//end switch
 
 	}//end _sendResponse()
 
@@ -1854,49 +2199,49 @@ class Suite_Manager extends Page
 	/**
 	 * Build the JSON response string. 
 	 *
-     * @param mixed $content    The content to JSON-ify
+	 * @param mixed $content    The content to JSON-ify
 	 *
 	 * @return string
 	 * @access private
 	 */
 	private function _buildJsonString($content)
 	{
-        $type = '';
-        $result = '';
-        if (is_scalar($content) === TRUE) {
-            $result = $this->encodeJson($content);
-        } else if ($content === NULL) {
-            $result = 'null';
-        } else if (is_array($content) === TRUE) {
-            $type = 'array';
+		$type = '';
+		$result = '';
+		if (is_scalar($content) === TRUE) {
+			$result = $this->encodeJson($content);
+		} else if ($content === NULL) {
+			$result = 'null';
+		} else if (is_array($content) === TRUE) {
+			$type = 'array';
 			$keys = array_keys($content);
 			$diff = array_diff_key($content, $keys);
 			if (count($diff) !== 0) {
 				$type = 'struct';
 			}
 
-            $arr = array();
-            switch ($type) {
-                case 'struct':
-                    foreach ($content as $key => $val) {
-                        $arr[] = $this->encodeJson((string) $key).':'.$this->_buildJsonString($val);
-                    }//end foreach
+			$arr = array();
+			switch ($type) {
+				case 'struct':
+					foreach ($content as $key => $val) {
+						$arr[] = $this->encodeJson((string) $key).':'.$this->_buildJsonString($val);
+					}//end foreach
 
-                    $result = '{'.implode(',', $arr).'}';
-                break;
+					$result = '{'.implode(',', $arr).'}';
+					break;
 
-                case 'array':
-                default:
-                    foreach ($content as $val) {
-                        $arr[] = $this->_buildJsonString($val);
-                    }//end foreach
+				case 'array':
+				default:
+					foreach ($content as $val) {
+						$arr[] = $this->_buildJsonString($val);
+					}//end foreach
 
-                    $result = '['.implode(',', $arr).']';
-                break;
-            }//end switch
-        }//end if
+					$result = '['.implode(',', $arr).']';
+					break;
+			}//end switch
+		}//end if
 
-        return $result;
+		return $result;
 
 	}//end _buildJsonString()
 

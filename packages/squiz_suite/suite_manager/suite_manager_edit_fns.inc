@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.5 2010/11/11 02:25:52 ewang Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.6 2010/12/01 05:57:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -261,10 +261,8 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 			</tr>
         <?php
 
-        $products = $asset->getAllProducts();
+        $products = $asset->getProducts(FALSE, TRUE);
         foreach ($products as $product) {
-            if ($product['is_current'] == '1') continue;
-
             $id = $product['systemid'];
 
             echo '<tr>';
@@ -283,12 +281,16 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
             if ($wa) {
                 echo '<td>';
-                if ($product['type'] != 'unknown' && $product['status'] !== 'live') {
+                if ($product['type'] != 'unknown' && $product['status'] !== 'live' && $product['status'] !== 'failed') {
                     check_box($prefix.'_activate[]', $id);
                 }
                 echo '</td>';
                 echo '<td>';
-                check_box($prefix.'_remove[]', $id);
+				$checked = FALSE;
+				if ($product['sync_status'] === 'D') {
+					$checked = TRUE;
+				}
+                check_box($prefix.'_remove[]', $id, $checked);
                 echo '</td>';
             }//end if
             echo '</tr>';
@@ -336,23 +338,33 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
             $response = $asset->sendMessage($activate_system, 'suiteConnectAck');
 
+		if (!headers_sent()) {
+			header('Content-type: text/html;');
+		}
+
             if ($response['curlInfo']['http_code'] !== 200) {
                 trigger_localised_error('SQS0021', E_USER_WARNING, $response['curlInfo']['http_code']);
-            } else {
-                // Send the sync message.
-                $current_product = $asset->getCurrentProduct();
-                $target_product  = $asset->getProduct($activate_system);
-                if (!empty($current_product) && !empty($target_product)) {
-                    if ($target_product['type'] != 'Squiz Update') {
-                        $message = array('sync_direction' => 'broadcast');
-                        $b_response = $asset->sendMessage($target_product['systemid'], 'suiteProductSync', $message);
-                    }
-                }//end if
             }//end if
         }//end foreach
 
+	$live_products = $asset->getProducts(FALSE, FALSE, array('Squiz Update'), array('live'));
+	$live_prod_ids = array();
+	foreach ($live_products as $live_product) {
+		$live_prod_ids[] = $live_product['systemid'];
+	}
+
+	$updateSyncStatus    = TRUE;
+	$productsToSyncAfter = array_diff($live_prod_ids, $remove);
+	if (empty($productsToSyncAfter) === TRUE) {
+		$updateSyncStatus = FALSE;
+	}
+
         foreach ($remove as $remove_system) {
-            $asset->removeProduct($remove_system);
+		if ($updateSyncStatus === TRUE) {
+			$asset->updateProduct($remove_system, 'sync_status', 'D');
+		} else {
+			$asset->removeProduct($remove_system);
+		}
         }//end foreach
 
         // Matrix usernames and passwords save.
@@ -367,7 +379,6 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                     $connection = array_get_index($product, 'connection', array());
                     $connection['username'] = $username;
                     $asset->updateProduct($systemid, 'connection', $connection);
-                    $broadcast = TRUE;
                 }
             }//end if
         }//end foreach
@@ -379,20 +390,9 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                     $connection = array_get_index($product, 'connection', array());
                     $connection['password'] = $password;
                     $asset->updateProduct($systemid, 'connection', $connection);
-                    $broadcast = TRUE;
                 }
             }//end if
         }//end foreach
-
-        if ($broadcast === TRUE) {
-            $all_products = $asset->getAllProducts();
-            foreach ($all_products as $p) {
-                if (!empty($p) && $p['status'] != 'live') {
-                    $message = array('sync_direction' => 'broadcast');
-                    $asset->sendMessage($p['systemid'], 'suiteProductSync', $message);
-                }
-            }
-        }
 
         return TRUE;
 
@@ -441,6 +441,10 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
         $product_url = rtrim($product_url, '/');
 
         if (!empty($product_url)) {
+			if (strpos($product_url, 'http://') !== 0 && strpos($product_url, 'https://') !== 0) {
+				$product_url = 'http://'.$product_url;
+			}
+
             if (strpos($product_url, '__api') !== (strlen($product_url) - 5)) {
                 $product_url .= '/__api';
             }

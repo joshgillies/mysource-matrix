@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.2 2010/11/11 02:25:52 ewang Exp $
+* $Id: tables.xml,v 1.3 2010/12/01 05:57:00 bpearson Exp $
 *
 */
 -->
@@ -50,6 +50,26 @@
 					</type_variations>
 					<default />
 					<description>Details of the system</description>
+				</column>
+				<column name="knows_me_as" allow_null="1">
+					<type>VARCHAR(150)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sync_status" allow_null="1">
+					<type>VARCHAR(5)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="last_contacted" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
 				</column>
 			</columns>
 			<keys>

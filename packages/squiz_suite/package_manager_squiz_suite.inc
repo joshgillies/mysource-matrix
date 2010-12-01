@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_squiz_suite.inc,v 1.2 2010/10/26 23:45:44 bpearson Exp $
+* $Id: package_manager_squiz_suite.inc,v 1.3 2010/12/01 05:57:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -56,6 +56,7 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 	{
 		$system_assets = Array(
 							'suite_manager',
+							'cron_job_sync_suite_products',
 						 );
 		$installed_assets = Array();
 
@@ -94,6 +95,37 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 		return $suite_manager;
 
 	}//end createSuiteManager()
+
+
+	/**
+	* Create the sync suite products cron job 
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobSyncSuiteProducts()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Sync Squiz Suite Products cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_sync_suite_products');
+
+		$cron_job = new Cron_Job_Sync_Suite_Products();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Sync Squiz Suite Products Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Sync Squiz Suite Products Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_sync_suite_products', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobSyncSuiteProducts()
 
 
 }//end class
