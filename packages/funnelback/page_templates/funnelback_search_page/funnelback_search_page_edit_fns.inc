@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.4 2010/10/18 02:40:36 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.4.2.1 2010/12/02 02:12:44 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -535,7 +535,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$systems = array();
 		$suitem  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
-		$products = $suitem->getAllProducts();
+		$products = $suitem->getProducts(FALSE, FALSE);
 		foreach ($products as $product) {
 			if ($product['type'] == 'Squiz Search' && $product['status'] == 'live') {
 				$productname = array_get_index($product['connection'], 'name', '');
