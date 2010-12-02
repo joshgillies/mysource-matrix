@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.248.2.1 2010/07/27 23:55:51 ewang Exp $
+* $Id: form.inc,v 1.248.2.2 2010/12/02 23:44:54 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.248.2.1 $
+* @version $Revision: 1.248.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4392,7 +4392,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
 
 		ob_start();
-			submit_button($this->getPrefix().'_save', $button_name, '', $this->attr('reset_button_extras'));
+			submit_button($this->getPrefix().'_save', $button_name);
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()
@@ -4455,7 +4455,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
 
 		ob_start();
-			reset_button($this->getPrefix().'_reset', $button_name);
+			reset_button($this->getPrefix().'_reset', $button_name, '', $this->attr('reset_button_extras'));
 		return ob_get_clean();
 
 	}//end getResetButtonKeywordReplacement()
