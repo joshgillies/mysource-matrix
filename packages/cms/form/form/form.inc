@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.253 2010/09/30 23:13:19 cupreti Exp $
+* $Id: form.inc,v 1.254 2010/12/02 23:43:53 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3460,7 +3460,6 @@ class Form extends Asset implements Bridge
 	*/
 	function &getSubmissionAsset()
 	{
-
 		if (!$this->submission_asset) {
 			// Find the submission asset, but ensure we are getting it from _POST first
 			$submission_assetid = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
@@ -4510,7 +4509,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
 
 		ob_start();
-			submit_button($this->getPrefix().'_save', $button_name, '', $this->attr('reset_button_extras'));
+			submit_button($this->getPrefix().'_save', $button_name);
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()
@@ -4573,7 +4572,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
 
 		ob_start();
-			reset_button($this->getPrefix().'_reset', $button_name);
+			reset_button($this->getPrefix().'_reset', $button_name, '', $this->attr('reset_button_extras'));
 		return ob_get_clean();
 
 	}//end getResetButtonKeywordReplacement()
