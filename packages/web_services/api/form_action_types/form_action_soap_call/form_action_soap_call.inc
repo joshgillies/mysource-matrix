@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.2.2.1 2010/06/24 00:09:02 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.2.2.2 2010/12/02 03:52:02 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -675,7 +675,17 @@ class Form_Action_SOAP_Call extends Form_Action
 	  if(is_array($data)) {
 	  	$result = Array();
 	  	foreach ($data as $index => $element) {
-	  		$result[$index] = self::_toArray($element, $form);
+			if (get_class($element) == 'SimpleXMLElement') {
+				$xml_content = $element->asXML();
+				if (preg_match("|^<$index>\s*<!\[CDATA\[(.*?)\]\]>\s*</$index>\s*$|msi", $xml_content, $matches)) {
+					$xml_content = "<$index>".$matches[1]."</$index>";
+				}
+
+				$result[$index] = @new SoapVar($xml_content, XSD_ANYXML);
+
+			} else {
+				$result[$index] = self::_toArray($element, $form);
+			}
 	  	}
 	  	return $result;
 	  }
