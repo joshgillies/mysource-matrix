@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.42.2.14 2010/10/18 02:55:51 akarelia Exp $
+* $Id: js_api.inc,v 1.42.2.15 2010/12/02 04:30:43 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.42.2.14 $
+* @version $Revision: 1.42.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1643,7 +1643,7 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
-			$parent_arr[$asset->id] = array_merge($this->getGeneralInfo($parent_asset), $show);
+			$parent_arr[$parent_asset->id] = array_merge($this->getGeneralInfo($parent_asset), $show);
 
 		}//end foreach
 
