@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.4 2010/10/18 02:40:36 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.5 2010/12/02 02:15:14 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -534,14 +534,16 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	private function _getSquizSearchSystems()
 	{
 		$systems = array();
-		$suitem  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
-		$products = $suitem->getAllProducts();
-		foreach ($products as $product) {
-			if ($product['type'] == 'Squiz Search' && $product['status'] == 'live') {
-				$productname = array_get_index($product['connection'], 'name', '');
-				$systems[$product['systemid']] = $productname;
-			}
-		}//end foreach
+		$suitem  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager', TRUE);
+		if ($suitem !== NULL) {
+			$products = $suitem->getProducts(FALSE, FALSE);
+			foreach ($products as $product) {
+				if ($product['type'] == 'Squiz Search' && $product['status'] == 'live') {
+					$productname = array_get_index($product['connection'], 'name', '');
+					$systems[$product['systemid']] = $productname;
+				}
+			}//end foreach
+		}//end if
 
 		return $systems;
 
@@ -557,21 +559,23 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	private function _getSquizSearchCollections($systemid='')
 	{
 		$collections = array();
-		$suitem      = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
-		$system      = $suitem->getProduct($systemid);
-		if (empty($system) === FALSE) {
-			$productUrl = array_get_index($system['connection'], 'url', '');
-			$request    = array();
-			$response   = $suitem->sendRequest($systemid, 'json', 'SquizSearch', 'getAvailableCollections', $request);
-			if (isset($response['curlInfo']['http_code']) === TRUE && $response['curlInfo']['http_code'] == 200) {
-				$resultData = $response['result'];
-				$resultData = (array) $suitem->decodeJson($resultData);
-				$results    = (array) $resultData['result'];
-				if (empty($results) === FALSE) {
-					foreach ($results as $k => $v) {
-						$collections[$k] = $v;
+		$suitem      = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager', TRUE);
+		if ($suitem !== NULL) {
+			$system      = $suitem->getProduct($systemid);
+			if (empty($system) === FALSE) {
+				$productUrl = array_get_index($system['connection'], 'url', '');
+				$request    = array();
+				$response   = $suitem->sendRequest($systemid, 'json', 'SquizSearch', 'getAvailableCollections', $request);
+				if (isset($response['curlInfo']['http_code']) === TRUE && $response['curlInfo']['http_code'] == 200) {
+					$resultData = $response['result'];
+					$resultData = (array) $suitem->decodeJson($resultData);
+					$results    = (array) $resultData['result'];
+					if (empty($results) === FALSE) {
+						foreach ($results as $k => $v) {
+							$collections[$k] = $v;
+						}
 					}
-				}
+				}//end if
 			}//end if
 		}//end if
 
