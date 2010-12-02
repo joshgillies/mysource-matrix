@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.49 2010/12/01 01:21:02 ewang Exp $
+* $Id: matrix_insert_link.inc,v 1.50 2010/12/02 05:20:32 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -73,11 +73,34 @@ class matrix_insert_link extends wysiwyg_plugin
 				var editor = this; // for nested functions
 
 				var current_a = this.getClosest("a");
-
-				if (!current_a) return false;
+				
+				if (!current_a) {
+					if (HTMLArea.is_ie) { //IMG tag support for IE as they land in controlRange collection.
+						var sel = this._getSelection();
+						var range = this._createRange(sel);
+						if (sel.type == "Control"){
+							for (i = 0; i < range.length; i++){
+								if (range.item(i).tagName == "IMG"){
+									if (range.item(i).parentNode.tagName == "A"){//check parent is anchor
+										current_a = range.item(i).parentNode;
+										break;
+									}
+								}
+							}
+						}
+						
+					} 
+					if (!current_a) return false; //still not found
+				}
 				var inside_html = current_a.innerHTML;
 				var selection =  editor.getSelectedHTML();
-
+				//IMG tag support
+				//Firefox: selection same as inside_html but attributes re-arranged.
+				//IE: can't get selection because lands in controlRange collection (see above).
+				//selection only needed to process partial selection so just equate to inside_html (see below).
+				var reg = new RegExp("^\s*<img ?[^>]+src=[^>]+>\s*$", "i");
+				if (!selection || selection.match(reg)) selection = inside_html;
+				
 				// Remove surrounding anchor tag from selected HTML for comparison
 				if (HTMLArea.is_ie) {
 					// Remove anchor start and end
@@ -104,7 +127,7 @@ class matrix_insert_link extends wysiwyg_plugin
 					// turns into "<a>before</a> selection <a>after</a>"
 					var remove_tag = HTMLArea.getHTML(current_a, true).replace(re, "$1$2$5$3$1$4$5");
 					// Remove empty link tags
-					var e = '\<a [^\>]+></a>';
+					var e = '\<a [^\>]+>\\s*</a>';
 					var re = new RegExp(e, "gi");
 					inside_html = remove_tag.replace(re, "");
 				}
