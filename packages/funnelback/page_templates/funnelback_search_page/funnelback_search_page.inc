@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.30 2010/11/08 01:46:49 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.30.2.1 2010/12/02 04:29:41 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -858,6 +858,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$current_result_page = (($last_record % $num_per_page) != 0) ? $current_result_page+1 : $current_result_page;
 		$category   = array_get_index($summary['fluster'], 'category', Array('type' => Array(), 'topic' => Array(), 'site' => Array()));
 		$category_type = array_get_index($category, $type, Array());
+		$keyword = parse_keyword($keyword, $modifiers);
 
 		$replacement = '%'.$keyword.'%';
 		if (strpos($keyword, 'page_list') === 0) {
@@ -868,6 +869,14 @@ class Funnelback_Search_Page extends Listing_Engine
 				$show_pages = $total_pages;
 			}//end if
 			$replacement = $this->_paintSlidingPageNavigation($mode, $current_result_page, $total_pages, $show_pages, $num_per_page, $queries);
+		} else if (strpos($keyword, 'result_meta') === 0) {
+			// Metadata keywords
+			$metadata_class = substr($keyword, 12, 1);
+			$replacement    = '';
+			if ($metadata_class !== 'S') {
+				$metadata_field = 'meta_'.$metadata_class;
+				$replacement    = array_get_index(array_get_index($results, $index, Array()), $metadata_field, '');
+			}
 		} else {
 			// Everything else
 			switch ($keyword) {
@@ -1342,6 +1351,8 @@ class Funnelback_Search_Page extends Listing_Engine
 				break;
 			}//end switch
 		}//end if
+
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 
@@ -2946,11 +2957,16 @@ class Funnelback_Search_Page extends Listing_Engine
 						 *		<filetype></filetype>
 						 *		<tier></tier>
 						 *		<docnum></docnum>
+						 *		<md f="T"></md>
 						 * </result>
 						 */
 						if ($single_result->hasChildNodes()) {
 							foreach ($single_result->childNodes as $value) {
-								$each_result[$value->nodeName] = utf8_decode($value->nodeValue);
+								$nodeName = $value->nodeName;
+								if ($nodeName == 'md' && $value->hasAttribute('f')) {
+									$nodeName = 'meta_'.$value->getAttribute('f');
+								}
+								$each_result[$nodeName] = utf8_decode($value->nodeValue);
 							}//end foreach
 						}//end if
 
