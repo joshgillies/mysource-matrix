@@ -8,11 +8,13 @@
           <field>systemid</field>
           <field>type</field>
           <field>connection</field>
+          <field>knows_me_as</field>
         </fields>
         <values>
           <value column="systemid">:systemid</value>
           <value column="type">:type</value>
           <value column="connection">:connection</value>
+          <value column="knows_me_as">:knowsMeAs</value>
         </values>
       </insert>
     </primary>
@@ -36,31 +38,15 @@
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
+           <field table="p1" column="knows_me_as"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
         <where>
           <in table="p1" column="systemid">:systemid</in>
-        </where>
-      </select>
-    </primary>
-  </query>
-  <query id="getProductsByType">
-    <primary>
-       <select>
-        <fields>
-           <field table="p1" column="systemid"/>
-           <field table="p1" column="type"/>
-           <field table="p1" column="status"/>
-           <field table="p1" column="is_current"/>
-           <field table="p1" column="connection"/>
-        </fields>
-        <from>
-          <table alias="p1">sq_suite_product</table>
-        </from>
-        <where>
-          <in table="p1" column="type">:type</in>
         </where>
       </select>
     </primary>
@@ -74,12 +60,37 @@
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
+           <field table="p1" column="knows_me_as"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
         <where>
           <equal table="p1" column="is_current">:is_current</equal>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getProductsByType">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="is_current"/>
+           <field table="p1" column="connection"/>
+           <field table="p1" column="knows_me_as"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="type">:type</in>
         </where>
       </select>
     </primary>
@@ -93,11 +104,38 @@
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
+           <field table="p1" column="knows_me_as"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
       </select>
     </primary>
+  </query>
+  <query id="getLiveProducts">
+  	<primary>
+      <select>
+        <fields>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="is_current"/>
+           <field table="p1" column="connection"/>
+           <field table="p1" column="knows_me_as"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+		<where>
+			<equal table="p1" column="current">false</equal>
+			<equal table="p1" column="status">'live'</equal>
+			<not-equal table="p1" column="sync_status">'D'</not-equal>
+		</where>
+      </select>
+	</primary>
   </query>
 </queries>
