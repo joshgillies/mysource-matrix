@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.30.2.1 2010/12/02 04:29:41 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.30.2.2 2010/12/03 02:38:42 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1544,7 +1544,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							value="'.$this->attr('submit_button_text').'" />';
 					} else {
 						$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
-							listing_form.current_result_page.value=\'1\';
+							if (typeof listing_form.current_result_page != \'undefined\' ) listing_form.current_result_page.value=\'1\';
 							if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
 							return true;
 						" value="'.$this->attr('submit_button_text').'" />';
