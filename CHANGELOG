@@ -1,5 +1,57 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.28.7
+
+Complete Changelog
+===================================
+
+Minor Enhancements
+Minor Enhancement #4820: SOAP API: New Function to Return User Asset ID
+Minor Enhancement #4821: SOAP API: CreateAsset No Longer Requires Asset Name
+Minor Enhancement #4830: Allow Public Users in Permitted User Groups to Send Cacheable Headers
+Minor Enhancement #4836: WYSIWYG Editor's Include Summary on Insert File Link Utilises Span Tags
+Minor Enhancement #4839: Additional Information for REST Resource JavaScript Errors
+Minor Enhancement #4840: In WYSIWYG, remove link plugin doesn't work for links on an image
+
+Core
+Fixed Bug #3740: asset_lnk variable in parse file not returning correct URL
+Fixed Bug #4667: REST Resource JavaScript - Content type header
+Fixed Bug #4797: Account manager cannot be cloned when email validation is enabled
+Fixed Bug #4800: %asset_metadata_X_value% keyword outputs backslash character when used on multiple select field
+Fixed Bug #4806: Globals asset name linked keyword does not escape characters
+Fixed Bug #4809: Keys for the options get corrupted if they are numeric for form_question_type_select
+Fixed Bug #4811: Account Manager sends multiple emails when re-sending emails for pending accounts
+Fixed Bug #4812: workflow Up for Review message, keyword not getting replaced
+Fixed Bug #4814: fudge/dev/dev.inc:.get_backtrace() not safely checking for missing lines/files
+Fixed Bug #4817: REST assets cannot convert encodings
+Fixed Bug #4826: scripts/dev/convert_database.php doesn't convert the NULL
+Fixed Bug #4829: Rejecting workflow bundle does not return all bundled assets into editing status
+Fixed Bug #4831: While in Rollback mode Asset Map is hidden
+Fixed Bug #4834: Using DB connector in trigger action 'Execute Database Query' doesn't work for Oracle
+Fixed Bug #4835: show edit diff for safe edit mode asset throws warning for LDAP user
+
+CMS
+Fixed Bug #4843: "Reset Button Extras" does not work on Custom Form
+
+Search
+Fixed Bug #4838: Searching on thesaurus metadata field which has more than one term on it fails on oracle
+
+Calendar
+Fixed Bug #4819: Calendar event are not sorted on day view
+
+Import Tools
+Fixed Bug #4795: "Allow Unrestricted" in Bulk File Import Tool
+
+Web Services
+Fixed Bug #4794: 'Make SOAP Call' form submission action ignoring CDATA content in SOAP request
+Fixed Bug #4805: getAttributeValuesByName does not return content with a single entry
+
+Funnelback
+Fixed Bug #4473: In Funnelback, when caching, an entry is created with the wrong root url
+Fixed Bug #4803: Live and public files are not indexed by Funnelback
+Fixed Bug #4816: Funnelback Search - Jscript error - after clicking search prior to search page postback
+Fixed Bug #4832: Undefined index: asset_url
+
 
 VERSION 3.28.6
 
