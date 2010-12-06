@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.357 2010/11/26 00:20:09 mhaidar Exp $
+* $Id: mysource.inc,v 1.358 2010/12/06 23:35:48 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.357 $
+* @version $Revision: 1.358 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -302,7 +302,11 @@ class MySource extends MySource_Object
 				$session_set = TRUE;
 			}
 
-			session_start();
+			if (SQ_CONF_SESSION_HANDLER === 'memcache') {
+				@session_start();
+			} else { 
+				session_start();
+			}
 
 			$restore_session = FALSE;
 			if (isset($_SESSION['activated']) === TRUE && $_SESSION['activated'] === 1) {
@@ -316,7 +320,11 @@ class MySource extends MySource_Object
 				session_destroy();
 				$this->_clearSession();
 				session_id($new_session_id);
-				session_start();
+				if (SQ_CONF_SESSION_HANDLER === 'memcache') {
+					@session_start();
+				} else { 
+					session_start();
+				}
 				$restore_session = TRUE;
 			}//end if
 
