@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.16 2010/07/15 05:33:44 csmith Exp $
+* $Id: ipb.inc,v 1.17 2010/12/07 04:17:07 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -292,7 +292,7 @@ class Ipb
 					$member_key = $username;
 				} else {
 					$sql = 'SELECT m.member_id FROM '.$this->db->obj['sql_tbl_prefix'].'members m
-						WHERE m.name=\''.$username.'\';';
+						WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';';
 					$member_info = $this->_getResult($sql, Array(), TRUE);
 					$member_id = array_get_index($member_info, 'member_id', 0);
 					if (empty($member_id)) return FALSE;
