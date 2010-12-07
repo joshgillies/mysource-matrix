@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.4 2010/12/01 23:37:57 ewang Exp $
+* $Id: js_api.inc,v 1.61.2.5 2010/12/07 23:29:29 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.4 $
+* @version $Revision: 1.61.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1156,7 +1156,7 @@ class JS_Api extends Page
                 }
 			break;
 
-			case 'setContentOfEditiableFileAsset' :
+			case 'setContentOfEditableFileAsset' :
 
 				if($this->attr('set_file_content'))  {
 					if ($wa) {
@@ -1190,7 +1190,7 @@ class JS_Api extends Page
 						$this->returnError('You do not have permissions to Edit this asset');
 					}
 				} else {
-					$this->returnError('The setContentOfEditiableFileAsset function must be activated');
+					$this->returnError('The setContentOfEditableFileAsset function must be activated');
 				}
 
 			break;
@@ -4078,7 +4078,7 @@ function createFileAsset(parentID, type_code, friendly_name, link_type, link_val
 * @param	function	dataCallback	Custom callback function
 *
 */
-function setContentOfEditiableFileAsset(assetID, content, dataCallback)
+function setContentOfEditableFileAsset(assetID, content, dataCallback)
 {
 	// Create blank function
     var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -4087,14 +4087,14 @@ function setContentOfEditiableFileAsset(assetID, content, dataCallback)
 
     var url = '<?php echo $this->getURL(); ?>' +
                 '?key=' + api_key +
-				'&type=setContentOfEditiableFileAsset&id=' + assetID +
+				'&type=setContentOfEditableFileAsset&id=' + assetID +
 				'&content=' + content ;
 
     // Make our request
     makeRequest(url, true, dataCallback);
 
 
-}// end setContentOfEditiableFileAsset()
+}// end setContentOfEditableFileAsset()
 
 
 /**
@@ -4167,7 +4167,7 @@ function getRoles(assetid, roleid, userid, include_assetid, include_globals, exp
 	// Make our request
 	makeRequest(url, true, dataCallback);
 
-}//end getMetadata
+}//end getRoles
 <?php
 
 	}//end printJs
