@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.30 2010/12/06 05:17:11 akarelia Exp $
+* $Id: page_multiple_page.inc,v 1.31 2010/12/07 22:47:54 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -847,32 +847,33 @@ class Page_Multiple_Page extends Page
 	*/
 	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
-	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-	if (!parent::cloneComponents($clone, $components, $override)) {
-	    $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-	    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-	    return FALSE;
-	}
+		if (!parent::cloneComponents($clone, $components, $override)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
 
-	if (in_array('attributes', $components) || in_array('all', $components)) {
-	    $current_ids = Array();
-	    // save the information
-	    // Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
-	    // do this because, page_multiple_page saves its current child page asset ids 
-	    // is the attributes, if we dont make it empty, newly cloned asset takes 
-	    // child pages from the sorce as its own child
-	    $clone->setAttrValue('current_page_ids', $current_ids);
-	    $clone->saveAttributes();
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$current_ids = Array();
+			// save the information
+			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
+			// do this because, page_multiple_page saves its current child page asset ids 
+			// is the attributes, if we dont make it empty, newly cloned asset takes 
+			// child pages from the sorce as its own child
+			$clone->setAttrValue('current_page_ids', $current_ids);
+			$clone->saveAttributes();
 
-	    // Change the content of the content type to replace question id.
+			// Change the content of the content type to replace question id.
+		}
+		// if cloning we need this to update webpaths later
+		$this->_tmp['no_sort_order_paths'] = TRUE;
 
-	}
-
-	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-	return TRUE;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
 
 	}//end cloneComponents()
 
