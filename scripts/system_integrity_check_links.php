@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_links.php,v 1.4 2008/09/16 06:58:35 ewang Exp $
+* $Id: system_integrity_check_links.php,v 1.4.12.1 2010/12/08 04:13:15 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Go through all WYSIWYG content types and ensure all ./?a=xx links are valid
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.12.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -31,6 +31,12 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// login as root user to avoid problems with safe edit assets
+$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+}
 
 $ROOT_ASSETID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
 if ($ROOT_ASSETID == 1) {
@@ -58,7 +64,12 @@ foreach ($wysiwygids as $wysiwygid => $type_code_data) {
 
 	foreach ($internal_assetids as $assetid) {
 		printWYSIWYGName('WYSIWYG #'.$wysiwyg->id.' - LINK #'.$assetid);
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+		if(!empty($assetid)) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+		}
+		else {
+			$asset = NULL;
+		}
 		if (is_null($asset)) {
 			// the asset was invalid
 			printUpdateStatus('INVALID');
