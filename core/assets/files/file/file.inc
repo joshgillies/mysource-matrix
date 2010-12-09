@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.193 2010/11/26 00:20:09 mhaidar Exp $
+* $Id: file.inc,v 1.194 2010/12/09 05:04:06 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1508,6 +1508,63 @@ class File extends Asset
 		return $summary;
 
 	}//end getAssetSummary()
+
+
+	/**
+	* Returns original URL for a __data type url for file type assets
+	*
+	* @param string		data_url	asset's __data  url out of which we get the original URL
+	* @param string		site_url	url of site under which we have our asset
+
+	*
+	* @return array
+	* @access public
+	*/
+	public function getOriginalURL($data_url, $site_url)
+	{
+		$original_url = Array();
+
+		// if the url passed doenst have __data in it then there is nothing to do
+		// just return it right away
+		if(strpos($data_url, '__data') === FALSE) return $data_url;
+
+		// *should never happen*
+		if(empty($site_url)) return $data_url;
+
+		$site_parts = explode('://', $site_url);
+		$site = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($site_parts[0], $site_parts[1]);
+
+		$site_treeid = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($site->id);
+
+		$web_paths = $this->getWebPaths();
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, '', TRUE, NULL, NULL, TRUE, 1, 1);
+
+		$url_found = Array();
+		foreach($parents as $parentid => $type_code) {
+			if($site->id != $parentid){
+				$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+			} else {
+				$parent_asset = $site;
+			}
+			$parent_urls = $parent_asset->getURLs();
+			foreach ($parent_urls as $index => $parent_url) {
+				if(strpos($parent_url['url'], $site_parts[1]) !== FALSE || $parent_url['url'] == $site_url) {
+					$url_found = $parent_url;
+					break(2);
+				}
+			}
+		}
+
+		if(!empty($url_found)) {
+			$construct_url = ($url_found['https'] == '1') ? 'https://' : 'http://';
+			foreach ($web_paths as $webpath) {
+				$original_url[] = $construct_url.$url_found['url'].'/'.$webpath;
+			}
+		}
+
+		return $original_url;
+
+	}//end getOriginalURL()
 
 
 }//end class
