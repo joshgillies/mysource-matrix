@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.27 2010/12/09 05:02:13 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.28 2010/12/09 23:32:38 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -463,11 +463,11 @@ class Funnelback_Manager extends Asset
 								if(strpos($http_url,'__data') !== FALSE) {
 									$original_urls = $asset->getOriginalURL($http_url, $site_url);
 								} else {
-									$original_urls = Array($http_url);
+									$original_urls = Array($https_url);
 								}
 								foreach($original_urls as $original_url) {
-									if (strpos($site_url, 'http:') === 0) {
-										$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
+									if (strpos($site_url, 'https:') === 0) {
+										$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
 									}//end if
 								}
 							}//end foreach
@@ -756,8 +756,9 @@ class Funnelback_Manager extends Asset
 			$single_url = rtrim($single_url, '/');
 			$root_url = rtrim($root_url, '/');
 			$protocol = parse_url($single_url, PHP_URL_SCHEME);
-			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR ((f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\') AND (f.original_url LIKE :url'.$index.'))';
+			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR ((f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\') AND (f.original_url LIKE :original_url'.$index.'))';
 			$bind_vars['url'.$index] = $single_url.'/%';
+			$bind_vars['original_url'.$index] = $single_url.'/%';
 			$bind_vars['assetid'.$index] = $assetid;
 			if (strpos($root_url, 'http:') === FALSE && strpos($root_url, 'https:') === FALSE) {
 				$bind_vars['root_url'.$index] = $protocol.'://'.$root_url;
@@ -775,7 +776,7 @@ class Funnelback_Manager extends Asset
 		if (!empty($excluded)) {
 			$exclude_string = ' AND (('.implode(') AND (', $excluded).'))';
 		}//end if
-		
+
 		if (isset($root_url_info)) unset($root_url_info);
 
 		$db = MatrixDAL::getDb();
