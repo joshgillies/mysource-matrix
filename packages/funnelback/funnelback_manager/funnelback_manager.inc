@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.26 2010/11/23 00:19:29 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.27 2010/12/09 05:02:13 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -409,6 +409,7 @@ class Funnelback_Manager extends Asset
 
 		// The work code, we need URL, assetid and root_urlid for the table (primary key)
 		$urls = $asset->getURLs();
+
 		// Delete first, ask questions later...
 		if ($this->_cleanupEntriesByAssetid($asset->id)) {
 			if (!empty($urls)) {
@@ -439,9 +440,16 @@ class Funnelback_Manager extends Asset
 						if (!empty($sitemap_xml)) {
 							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset, $url_info['url']);
 							foreach ($site_urls as $site_url) {
-								if (strpos($site_url, 'http:') === 0) {
-									$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
-								}//end if
+								if(strpos($http_url,'__data') !== FALSE) {
+									$original_urls = $asset->getOriginalURL($http_url, $site_url);
+								} else {
+									$original_urls = Array($http_url);
+								}
+								foreach($original_urls as $original_url) {
+									if (strpos($site_url, 'http:') === 0) {
+										$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
+									}//end if
+								}
 							}//end foreach
 						}//end if
 					}//end if
@@ -452,9 +460,16 @@ class Funnelback_Manager extends Asset
 						if (!empty($sitemap_xml)) {
 							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset, $url_info['url']);
 							foreach ($site_urls as $site_url) {
-								if (strpos($site_url, 'https:') === 0) {
-									$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml);
-								}//end if
+								if(strpos($http_url,'__data') !== FALSE) {
+									$original_urls = $asset->getOriginalURL($http_url, $site_url);
+								} else {
+									$original_urls = Array($http_url);
+								}
+								foreach($original_urls as $original_url) {
+									if (strpos($site_url, 'http:') === 0) {
+										$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
+									}//end if
+								}
 							}//end foreach
 						}//end if
 					}//end if
@@ -560,17 +575,18 @@ class Funnelback_Manager extends Asset
 	/**
 	 * Add an entry for the url and assetid
 	 *
-	 * @param string	$url		The url of the broadcasting asset
-	 * @param int		$assetid	The assetid of the broadcasting asset
-	 * @param string	$root_url	The root url of the asset
-	 * @param int		$root_urlid	The root url id of the asset
-	 * @param boolean	$live		Is the broadcasting asset live?
-	 * @param string	$xml		The xml ready for the sitemap
+	 * @param string	$url			The url of the broadcasting asset
+	 * @param int		$assetid		The assetid of the broadcasting asset
+	 * @param string	$root_url		The root url of the asset
+	 * @param int		$root_urlid		The root url id of the asset
+	 * @param boolean	$live			Is the broadcasting asset live?
+	 * @param string	$xml			The xml ready for the sitemap
+	 * @param string	$original_url	the original_url the __data url points to
 	 *
 	 * @return boolean
 	 * @access private
 	 */
-	public function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml)
+	public function _addEntry($url, $assetid, $root_url, $root_urlid, $live, $xml, $original_url)
 	{
 		/**
 		 * Make sure the url we're looking at starts with the right root_url
@@ -616,7 +632,7 @@ class Funnelback_Manager extends Asset
 			$results = MatrixDAL::executePdoOne($check_query);
 			if (empty($results)) {
 				// Entry does not exist, adding a new entry
-				$sql = 'INSERT INTO sq_fnb_idx (url, assetid, root_url, root_urlid, live, xml) VALUES (:url, :assetid, :root_url, :root_urlid, :live, :xml)';
+				$sql = 'INSERT INTO sq_fnb_idx (url, assetid, root_url, root_urlid, live, xml, original_url) VALUES (:url, :assetid, :root_url, :root_urlid, :live, :xml, :original_url)';
 				$query = MatrixDAL::preparePDOQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'url', $url);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
@@ -624,6 +640,7 @@ class Funnelback_Manager extends Asset
 				MatrixDAL::bindValueToPdo($query, 'root_urlid', $root_urlid);
 				MatrixDAL::bindValueToPdo($query, 'live', ($live) ? '1' : '0');
 				MatrixDAL::bindValueToPdo($query, 'xml', $xml);
+				MatrixDAL::bindValueToPdo($query, 'original_url', $original_url);
 				MatrixDAL::execPdoQuery($query);
 			}//end if
 		} catch (PDOException $e) {
@@ -739,7 +756,7 @@ class Funnelback_Manager extends Asset
 			$single_url = rtrim($single_url, '/');
 			$root_url = rtrim($root_url, '/');
 			$protocol = parse_url($single_url, PHP_URL_SCHEME);
-			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR (f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\')';
+			$where[] = '((f.url LIKE :url'.$index.$include_collection_sql.') AND f.root_urlid IN (SELECT urlid FROM sq_ast_url WHERE assetid=:assetid'.$index.')) OR ((f.root_url = :root_url'.$index.' AND f.root_urlid=\'0\') AND (f.original_url LIKE :url'.$index.'))';
 			$bind_vars['url'.$index] = $single_url.'/%';
 			$bind_vars['assetid'.$index] = $assetid;
 			if (strpos($root_url, 'http:') === FALSE && strpos($root_url, 'https:') === FALSE) {
@@ -782,6 +799,7 @@ class Funnelback_Manager extends Asset
 			$sql .= ')';
 			$sql .= $exclude_string;
 			$sql .= ' ORDER BY f.url';
+
 			$query = MatrixDAL::preparePDOQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'dependant', '0');
 			if ($public) MatrixDAL::bindValueToPdo($query, 'live', '1');
@@ -789,6 +807,7 @@ class Funnelback_Manager extends Asset
 				MatrixDAL::bindValueToPdo($query, $var_name, $var_value);
 			}//end foreach
 			$results = MatrixDAL::executePdoAssoc($query);
+
 		} catch (Exception $e) {
 			trigger_error('DB Error '.$e->getMessage());
 			return Array();
