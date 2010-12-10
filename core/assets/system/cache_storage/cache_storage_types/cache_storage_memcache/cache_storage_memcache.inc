@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.9 2010/07/22 00:27:29 ewang Exp $
+ * $Id: cache_storage_memcache.inc,v 1.10 2010/12/10 05:27:59 mhaidar Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -175,7 +175,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 			}
 			
 			// Save the actual cache entry
-			$ok = $this->_memcache->set($mcache_key, $data, FALSE, $expiry - time());
+			$ok = $this->_memcache->set($mcache_key, $data, FALSE, $expiry);
 			return $ok;
 		} else {
 			return FALSE;
