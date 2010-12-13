@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.77 2010/07/14 01:14:20 csmith Exp $
+* $Id: step_02.php,v 1.77.2.1 2010/12/13 02:22:15 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,6 +80,15 @@ if (!(SQ_CONF_TECH_EMAIL) && !(SQ_CONF_DEFAULT_EMAIL)) {
 	}
 }
 
+if (DAL::getDbType() === 'oci') {
+	$query      = "SELECT value FROM nls_session_parameters WHERE parameter='NLS_DATE_FORMAT'";
+	$value      = DAL::executeSqlAssoc($query, 0);
+	$nls_format = $value[0];
+	$expected   = 'YYYY-MM-DD HH24:MI:SS';
+	if ($nls_format !== $expected) {
+		trigger_error('NLS_DATE_FORMAT has not been set correctly. It needs to be '.$expected, E_USER_ERROR);
+	}
+}
 
 $cached_table_columns = Array();
 
