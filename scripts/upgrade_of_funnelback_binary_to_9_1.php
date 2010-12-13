@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.1.2.3 2010/11/01 23:06:16 ewang Exp $
+* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.1.2.4 2010/12/13 01:00:39 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 
 /**
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 * @subpackage scripts 
 */
@@ -48,19 +48,9 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
 
 $root_user	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-// Check that the correct root password was entered.
-// Yes this is checked for each site because even if this individual forked process is killed
-// the parent process still runs and continues to fork more processes.
-if (!$root_user->comparePassword($root_password)) {
-	// only show the error once
-	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
-	exit;
-}
+
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
