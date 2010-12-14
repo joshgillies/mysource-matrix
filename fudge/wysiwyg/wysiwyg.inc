@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.84.2.5 2010/10/31 21:55:50 ewang Exp $
+* $Id: wysiwyg.inc,v 1.84.2.6 2010/12/14 06:00:35 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.5 $
+* @version $Revision: 1.84.2.6 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -845,16 +845,24 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 									sFocusNode = sFocusNode.childNodes[0];
 							}
 
-							if (sFocusNode.nodeName != '#text') {
+							if (sAnchorNode.nodeName != '#text') {
 								empty_node = document.createTextNode('');
-								sAnchorNode.appendChild(empty_node);
+								if (sAnchorNode.nodeName != 'BR') {
+									sAnchorNode.appendChild(empty_node);
+								} else {
+									sAnchorNode.parentNode.insertBefore(empty_node, sAnchorNode.nextSibling);
+								}
 								sAnchorNode = empty_node;
 								sAnchorOffset = 0;
 							}
 
 							if (sFocusNode.nodeName != '#text') {
 								empty_node = document.createTextNode('');
-								sFocusNode.appendChild(empty_node);
+								if (sFocusNode.nodeName != 'BR') {
+									sFocusNode.appendChild(empty_node);
+								} else {
+									sFocusNode.parentNode.insertBefore(empty_node, sFocusNode.nextSibling);
+								}
 								sFocusNode = empty_node;
 								sFocusOffset = 0;
 							}
