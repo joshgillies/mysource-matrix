@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.16 2010/07/15 05:33:44 csmith Exp $
+* $Id: ipb.inc,v 1.16.2.1 2010/12/14 03:03:56 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -292,7 +292,7 @@ class Ipb
 					$member_key = $username;
 				} else {
 					$sql = 'SELECT m.member_id FROM '.$this->db->obj['sql_tbl_prefix'].'members m
-						WHERE m.name=\''.$username.'\';';
+						WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';';
 					$member_info = $this->_getResult($sql, Array(), TRUE);
 					$member_id = array_get_index($member_info, 'member_id', 0);
 					if (empty($member_id)) return FALSE;
@@ -319,7 +319,7 @@ class Ipb
 							FROM
 								'.$this->db->obj['sql_tbl_prefix'].'members
 							WHERE
-								name=\''.$username.'\';
+								name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';
 					';
 					$db_result = $this->db->query($sql);
 					$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
@@ -845,7 +845,7 @@ class Ipb
 		switch ($this->version) {
 			case '3_0_2':
 				$member_id_field = $this->_getMemberIdField(); 
-				$sql = 'SELECT m.*, \'\' as vdir, me.field_3 as aim_name, me.field_4 as msnname, me.field_5 as website, me.field_6 as icq_number, me.field_8 as location, me.field_9 as interests, me.field_10 as yahoo, ue.avatar_type as photo_type, ue.avatar_location as photo_location, ue.avatar_size as photo_dimensions, ue.notes, ue.links, ue.bio, ue.ta_size, ue.signature, ue.avatar_location, ue.avatar_size, ue.avatar_type FROM '.$this->db->obj['sql_tbl_prefix'].'members m LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'profile_portal ue ON ue.pp_member_id=m.member_id LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'pfields_content me ON me.member_id=m.member_id WHERE m.name=\''.htmlspecialchars($member_name, ENT_QUOTES).'\'';
+				$sql = 'SELECT m.*, \'\' as vdir, me.field_3 as aim_name, me.field_4 as msnname, me.field_5 as website, me.field_6 as icq_number, me.field_8 as location, me.field_9 as interests, me.field_10 as yahoo, ue.avatar_type as photo_type, ue.avatar_location as photo_location, ue.avatar_size as photo_dimensions, ue.notes, ue.links, ue.bio, ue.ta_size, ue.signature, ue.avatar_location, ue.avatar_size, ue.avatar_type FROM '.$this->db->obj['sql_tbl_prefix'].'members m LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'profile_portal ue ON ue.pp_member_id=m.member_id LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'pfields_content me ON me.member_id=m.member_id WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($member_name, ENT_QUOTES)).'\'';
 			break;
 			default:
 				$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($member_name, ENT_QUOTES)).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
