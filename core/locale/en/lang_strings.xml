@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.377 2010/10/19 05:54:13 csmith Exp $
+* $Id: lang_strings.xml,v 1.377.2.1 2010/12/14 22:56:06 ewang Exp $
 *
 */
 
@@ -2263,6 +2263,9 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_thumbnail">The img tag for the thumbnail attached to the asset</string>
 	<string source="asset_thumbnail_url">The URL only for the thumbnail attached to the asset</string>
 	<string source="asset_thumbnail_caption">The caption for the thumbnail attached to the asset</string>
+	<string source="asset_thumbnail_assetid">The asset id for the thumbnail attached to the asset</string>
+	<string source="asset_thumbnail_title">The friendly name for the thumbnail attached to the asset</string>
+	<string source="asset_thumbnail_name">The file name for the thumbnail attached to the asset</string>
 
 	<string source="asset_status_changed">The date and time the asset was last changed (yyyy-mm-dd hh:mm:ss)</string>
 	<string source="asset_status_changed_short">The date when the asset was changed (yyyy-mm-dd)</string>

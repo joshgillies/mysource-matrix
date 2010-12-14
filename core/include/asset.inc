@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.728.2.3 2010/12/02 04:02:33 cupreti Exp $
+* $Id: asset.inc,v 1.728.2.4 2010/12/14 22:56:06 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.728.2.3 $
+* @version $Revision: 1.728.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3471,6 +3471,9 @@ class Asset extends MySource_Object
 								'asset_thumbnail',
 								'asset_thumbnail_url',
 								'asset_thumbnail_caption',
+								'asset_thumbnail_assetid',
+								'asset_thumbnail_title',
+								'asset_thumbnail_name',
 							);
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -3540,6 +3543,9 @@ class Asset extends MySource_Object
 			$keywords['asset_thumbnail']['description']                   = 'The img tag for the thumbnail attached to the asset';
 			$keywords['asset_thumbnail_url']['description']               = 'The URL only for the thumbnail attached to the asset';
 			$keywords['asset_thumbnail_caption']['description']           = 'The caption for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_assetid']['description']           = 'The asset id for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_title']['description']             = 'The friendly name for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_name']['description']              = 'The file name for the thumbnail attached to the asset';
 
 		}//end if
 
@@ -3616,6 +3622,9 @@ class Asset extends MySource_Object
 								'asset_thumbnail',
 								'asset_thumbnail_url',
 								'asset_thumbnail_caption',
+								'asset_thumbnail_assetid',
+								'asset_thumbnail_title',
+								'asset_thumbnail_name',
 								'asset_status_description',
 								'asset_status_colour',
 							);
