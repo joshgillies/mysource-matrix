@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rebuild_cache.php,v 1.4 2010/03/22 23:19:45 bpearson Exp $
+* $Id: funnelback_rebuild_cache.php,v 1.5 2010/12/14 02:59:15 akarelia Exp $
 *
 */
 
@@ -31,11 +31,6 @@ $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 $ROOT_NODE_ID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
-
-// if the id entered is not an int (should not complain normally)
-if (!is_int($ROOT_NODE_ID)) {
-	trigger_error("You need to supply an integer\n", E_USER_ERROR);
-}
 
 // if the asset does not exists
 if (($ROOT_NODE_ID > 1) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($ROOT_NODE_ID)) {
