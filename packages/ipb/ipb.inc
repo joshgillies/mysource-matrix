@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.18 2010/12/14 00:59:22 mhaidar Exp $
+* $Id: ipb.inc,v 1.19 2010/12/14 03:03:27 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -319,7 +319,7 @@ class Ipb
 							FROM
 								'.$this->db->obj['sql_tbl_prefix'].'members
 							WHERE
-								name=\''.$username.'\';
+								name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';
 					';
 					$db_result = $this->db->query($sql);
 					$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
