@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.29 2010/06/30 16:02:55 ata Exp $
+* $Id: page_multiple_page.inc,v 1.29.2.1 2010/12/15 04:10:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -317,7 +317,11 @@ class Page_Multiple_Page extends Page
 			$this->saveWebPaths($good_paths, FALSE);
 		}
 
-		if (!empty($this->_tmp['no_sort_order_paths']) || !empty($new_paths)) {
+		// when trying to rearrange we specifically dont want to run the following code because of
+		// bug #4845 'Multiple Page' asset throws MySource Warning when trying to re-arrange the pages
+		// after re-arranging the pages, adding or deleting new pages linksUpdate() is called again
+		// which is when the following block of code should be executed
+		if ((isset($this->_tmp['no_sort_order_paths']) && $this->_tmp['no_sort_order_paths'] ) && (isset($new_paths) && !empty($new_paths))) {
 			foreach ($new_paths as $pageid => $new_webpaths) {
 				$page = $am->getAsset($pageid, '', TRUE);
 				if (!empty($page)) {
@@ -863,8 +867,9 @@ class Page_Multiple_Page extends Page
 	    $clone->saveAttributes();
 
 	    // Change the content of the content type to replace question id.
-
 	}
+	// if cloning we need this to update webpaths later
+	$this->_tmp['no_sort_order_paths'] = TRUE;
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
