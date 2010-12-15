@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.28 2010/12/09 23:32:38 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.29 2010/12/15 00:56:13 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -542,7 +542,22 @@ class Funnelback_Manager extends Asset
 		}//end if
 
 		// Add in the metadata
+		// get schemas first using just getMetadata() but it wont get us the default value on the asset
+		// which is not good enough for us so get the default values later again and merge it
 		$metadata = $mm->getMetadata($asset->id);
+
+		// now the default values
+		$schemas_applied = $mm->getSchemas($asset->id, TRUE);
+		$default_values = Array();
+		foreach($schemas_applied as $schemaid) {
+			$defaults = $mm->getSchemaDefaultValues($schemaid);
+			// get the correct format of the array
+			foreach ($defaults as $field_id => $field_info) {
+				if(isset($metadata[$field_id])) continue;
+				$metadata[$field_id][0] = $field_info;
+			}
+		}
+
 		foreach ($metadata as $info) {
 			$name = $info[0]['name'];
 
