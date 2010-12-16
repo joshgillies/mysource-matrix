@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.11 2006/12/06 05:13:04 bcaldwell Exp $
+* $Id: ldap.inc,v 1.11.18.1 2010/12/16 02:23:32 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.18.1 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -295,6 +295,25 @@ class Ldap
 		return true;
 
 	}//end deleteEntry()
+	
+	
+	/** 
+	* Escapes the given string according to RFC 2254 so that they can be safely used in LDAP filters.
+	* 
+	* @param string	$str	the string to escape
+	* 
+	* @return string
+	* @access public
+	*/
+	function escape_filter_value($str){
+		
+	    $metaChars = array('\\', '(', ')', '*');
+	    $quotedMetaChars = array();
+	    foreach ($metaChars as $key => $value) $quotedMetaChars[$key] = '\\'.dechex(ord($value));
+	    $str=str_replace($metaChars,$quotedMetaChars,$str); //replace them
+	    return ($str);
+	    
+	}
 
 
 }//end class

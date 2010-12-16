@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.24.2.1 2010/07/01 06:36:40 mhaidar Exp $
+* $Id: authentication_ldap.inc,v 1.24.2.2 2010/12/16 02:23:35 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24.2.1 $
+* @version $Revision: 1.24.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -289,7 +289,8 @@ class Authentication_LDAP extends Authentication
 		} else {
 			$auth_base_dn = $bridge->attr('root_dn');
 		}
-
+		
+		$username = $ldap->escape_filter_value($username); //See #4860 Can't authenticate LDAP username with brackets
 		// Check for extra LDAP filtering
 		$auth_filter = trim($bridge->attr('auth_filter'));
 		if (!empty($auth_filter)) {
