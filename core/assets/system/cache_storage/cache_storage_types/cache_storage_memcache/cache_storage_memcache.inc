@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.9 2010/07/22 00:27:29 ewang Exp $
+ * $Id: cache_storage_memcache.inc,v 1.9.2.1 2010/12/16 03:15:09 mhaidar Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.9.2.1 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -151,6 +151,11 @@ class Cache_Storage_Memcache extends Cache_Storage
 		if (!$this->_memcache) $this->initMemcache();
 		
 		if ($this->_memcache) {
+			// 0 is handled as infinite rather than 0 seconds in memcache. If we have 0,
+			// don't set in cache, so that we're compatible with the standard cache storage.
+			$expiry_length = $expiry - time();
+			if ($expiry_length === 0) return FALSE;
+			
 			// For the indexes, we want just the base URL, no query string or trailing slash.
 			$index_url = md5(trim(preg_replace('/\?.*/', '', $url), '/'));
 			
@@ -175,7 +180,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 			}
 			
 			// Save the actual cache entry
-			$ok = $this->_memcache->set($mcache_key, $data, FALSE, $expiry - time());
+			$ok = $this->_memcache->set($mcache_key, $data, FALSE, $expiry_length);
 			return $ok;
 		} else {
 			return FALSE;
