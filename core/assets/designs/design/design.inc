@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.153 2010/10/05 05:44:20 mhaidar Exp $
+* $Id: design.inc,v 1.154 2010/12/16 02:14:26 hlliauw Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -717,13 +717,19 @@ echo '/*
 				}
 			break;
 
+			case 'pragma' :
+				if (!empty($args['pragma'])) {
+					echo '<', '?php header('.$this->_safeStringLiteral('Pragma: '.$args['pragma']).'); ?', '>';
+				}
+			break;
+
 			case 'content_attachment' :
 				if (!empty($args['extension'])) {
 					echo '<', '?php $asset_name = htmlspecialchars($ASSET->name).\'.'.$args['extension'].'\'; ?'.'>';
 					echo '<'.'?php header("Content-Disposition: attachment; filename=$asset_name"); ?'.'>';
 				}
 			break;
-
+			
 			case 'site_link' :
 				if (!empty($args['full_url']) && in_array($args['full_url'], Array('yes', 'true', '1'))) {
 					$res_exp = '$ASSET_LINEAGE[0][\'protocol\'].\'://\'.$ASSET_LINEAGE[0][\'url\']';
