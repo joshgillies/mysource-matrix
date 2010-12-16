@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.8 2010/03/19 02:45:12 lwright Exp $
+ * $Id: cache_storage_memcache.inc,v 1.8.2.1 2010/12/16 03:16:38 mhaidar Exp $
  *
  */
 
@@ -38,7 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.8.2.1 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -148,8 +148,13 @@ class Cache_Storage_Memcache extends Cache_Storage
 		if (!$this->_memcache) $this->initMemcache();
 
 		if ($this->_memcache) {
+			// 0 is handled as infinite rather than 0 seconds in memcache. If we have 0,
+			// don't set in cache, so that we're compatible with the standard cache storage.
+			$expiry_length = $expiry - time();
+			if ($expiry_length === 0) return FALSE;
+			
 			$url = md5($url);
-			$ok = $this->_memcache->set("contentcache:$cache_key|$perm_key|$url|$assetid", $data, FALSE, $expiry - time());
+			$ok = $this->_memcache->set("contentcache:$cache_key|$perm_key|$url|$assetid", $data, FALSE, $expiry_length);
 			return $ok;
 		} else {
 			return FALSE;
