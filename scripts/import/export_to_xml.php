@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.10 2010/09/29 23:46:11 cupreti Exp $
+* $Id: export_to_xml.php,v 1.11 2010/12/16 04:58:35 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -256,7 +256,8 @@ echo "</actions>\n\n";
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
 				if ($attr_name == 'html') { $value = _parseValue($value); }
-				echo "   <value><![CDATA[".$value."]]></value>\n";
+
+				echo "   <value><![CDATA["._escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
@@ -559,7 +560,7 @@ echo "</actions>\n\n";
 				echo "   <action_type>set_metadata_value</action_type>\n";				
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <fieldid>".(isset($asset_id_map[$field_id]) ? "[[output://create_".$asset_id_map[$field_id].".assetid]]" : $field_id)."</fieldid>\n";
-				echo "   <value><![CDATA[".$field_info[0]['value']."]]></value>\n";
+				echo "   <value><![CDATA["._escapeCDATA($field_info[0]['value'])."]]></value>\n";
 				echo "</action>\n\n";
 			} // end foreach metadata
 		} // end foreach schema
@@ -660,6 +661,21 @@ echo "</actions>\n\n";
 	*/
 	function isSerialized($str) {
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
+	}
+
+
+									
+	/**
+	* If the value string contains CDATA section, escape it
+	*
+	* @param string		$value
+	*
+	* @return string
+	* @access public
+	*/
+	function _escapeCDATA($value)
+	{
+		return preg_replace('|(<\!\[CDATA\[.*?)\]\]\>|ms', '$1]]]]><![CDATA[>', $value);
 	}
 
 ?>
