@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_metadata_schema.inc,v 1.4 2009/07/16 06:45:49 lwright Exp $
+* $Id: trigger_action_remove_metadata_schema.inc,v 1.4.8.1 2010/12/19 22:02:01 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that removes a metadata schema
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,6 +108,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 										'granted'			=> -1,
 										'schemaid'			=> $schema_to_delete,
 										'previous_access'	=> NULL,
+										'cascades'			=> TRUE,
 									  );
 				}//end foreach
 				$vars	= Array(
@@ -128,6 +129,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 									'granted'			=> -1,
 									'schemaid'			=> $settings['schemaid'],
 									'previous_access'	=> NULL,
+									'cascades'			=> TRUE,
 								  );
 				$vars	= Array(
 							'assets'			=> Array(
