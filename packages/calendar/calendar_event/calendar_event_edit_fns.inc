@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.45 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.46 2010/12/20 02:02:43 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -368,9 +368,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		foreach ($checkbox_attributes as $name => $value) {
 			$checkbox_attrs_code .= ' '.$name.'="'.$value.'"';
 		}
-
 		?>
-		<input class="sq-form-field" type="checkbox" <?php echo $checked_text ?> value="1" name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" <?php echo $checkbox_attrs_code; ?>" />at
+		<input class="sq-form-field" type="checkbox" <?php echo $checked_text ?> value="1" name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" <?php echo $checkbox_attrs_code; ?> />at
 
 		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" <?php echo $attrs_code; ?> /> :
 
