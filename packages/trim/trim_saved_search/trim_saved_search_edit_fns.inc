@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.11 2010/05/05 07:15:42 ewang Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.12 2010/12/21 21:22:12 hlliauw Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -622,7 +622,10 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 					}
 					// record fields type
 					$fields_type[(String) $field->Name] = (String) $field->Type;
+					// add custom matrix fields in correct order
+					if((String) $field->Name == 'recContents') $st_fields['recContainerTitle'] = 'Container Title';
 				}
+				
 				
 			} catch (SoapFault $e) {
 				trigger_error($e->getMessage(), E_USER_WARNING);

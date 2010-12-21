@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.21 2010/05/05 07:15:42 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.22 2010/12/21 21:22:12 hlliauw Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -186,7 +186,7 @@ class TRIM_Saved_Search extends Data_Source
 	public function updateCachedResult($forced=FALSE)
 	{
 		$hash	= $this->getHashKey();
-
+		
 		// Check the cache
 		$result = $this->getCachedResults($hash);
 		if (!empty($result)) {
@@ -382,7 +382,9 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function getTRIMRecords($connection)
 	{
-
+		
+		$containers = Array();
+	
 		$string_search_clause				= $this->getDynamicVariableValue('search_clauses');
 		$parent_container_record_number	= $this->getDynamicVariableValue('search_parent_container');
 		$classification_title = $this->attr('classification');
@@ -392,6 +394,10 @@ class TRIM_Saved_Search extends Data_Source
 		$record_properties	= $this->getDynamicVariableValue('result_fields');
 		$search_limit		= $this->getDynamicVariableValue('limit');
 
+		if(array_key_exists('recContainerTitle', $record_properties) && !array_key_exists('$recContainer', $record_properties)) {
+			$record_properties['recContainer'] = 'Container';
+		}
+		
 		// Get classification and sub-classification structure
 		$classifications = Array();
 		if(!empty($classification_title)) {
@@ -409,11 +415,7 @@ class TRIM_Saved_Search extends Data_Source
 			// make sure classification is in the returned results
 			$record_properties['recClassification'] = 'Classification';
 		}
-
-		
-		
-		
-		
+	
 		// Search clauses will be directly inserted to xml request
 		// Because TRIM convertToXml will mess up the order	
 		$search_clauses_xml = TRIM_Common::constructRecordSearchClauseGroupedXml($string_search_clause, $classifications);
@@ -432,9 +434,8 @@ class TRIM_Saved_Search extends Data_Source
 					  );
 					
 		$file_path = NULL;
+		
 		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch', $search_clauses_xml);
-
-
 
 		// inserting classification grouping keywords
 		if(!empty($classification_title)) {
@@ -501,6 +502,22 @@ class TRIM_Saved_Search extends Data_Source
 			}
 		}
 		
+		if(array_key_exists('recContainerTitle', $record_properties)) {
+			$record_properties = Array('recTitle' => 1 );
+			foreach ($object_list as $index => $record_info) {
+				if($record_info['recContainer']!='') {
+					if(!array_key_exists($record_info['recContainer'], $containers)) {
+						$results = TRIM_Common::getRecordPropertiesFromUri($connection, $record_info['recContainer'], $record_properties);
+						foreach($results as $r) {
+							$containers[$record_info['recContainer']] = $r['recTitle'];
+						}
+					}
+					$object_list[$index]['recContainerTitle'] = $containers[$record_info['recContainer']];
+				} else {
+					$object_list[$index]['recContainerTitle'] = '';
+				}
+			}
+		}
 		
 		return $object_list;
 

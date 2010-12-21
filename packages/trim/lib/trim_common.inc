@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.14 2010/10/20 23:52:10 ewang Exp $
+* $Id: trim_common.inc,v 1.15 2010/12/21 21:22:12 hlliauw Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -680,6 +680,7 @@ class TRIM_Common
 						'recConsignment'					=> 'Consignment',
 						'recContainer'						=> 'Container',
 						'recContents'						=> 'Contained Records',
+						'recContainerTitle'					=> 'Container Title',
 						'recCreatorLoc'						=> 'Creator',
 						'recCurrDisp'						=> 'Disposition',
 						'recCurrentAction'					=> 'Current Action',
@@ -937,13 +938,12 @@ class TRIM_Common
 			}
 			
 
-
 			// Now its time to get the data
 			$data = $client->ExecuteXml(Array('xml'	=> $xml));
 
 			// The data returned is in XML format, so we have to parse it.
 			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
-	
+
 			if (isset($operations['Fetch'])) {
 				return $object_list;
 			} else if (isset($operations['Download'])) {
@@ -1008,8 +1008,8 @@ class TRIM_Common
         return $trim_userid;
 
 	}//end executeGetAssigneeRequest()
-
-
+	
+	
 	/**
 	* This function create a record in TRIM.
 	*
@@ -1292,5 +1292,26 @@ class TRIM_Common
 		}//end if
 
 	}//end test_trim_connection()
+	
+	/**
+	* This function return specific properties of a record based on URI
+	*
+	* @param array $connection - details
+	* @param string $uri - uri of desired subject
+	* @param array $record_properties - array of return properties
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getRecordPropertiesFromUri($connection, $uri, $record_properties) 
+	{
+		$operations = Array (
+								'Fetch'						=> self::constructFetch($record_properties, 1),
+								'ShortcutRecordUri'			=> self::constructShortcutRecordUri($uri),
+							  );
+		$object_list = self::executeRequest($connection, $operations, 'Fetch');
+		
+		return $object_list;
+	}
 
 }//end class
