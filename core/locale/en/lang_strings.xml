@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.379 2010/12/16 03:18:00 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.380 2010/12/21 00:35:15 ewang Exp $
 *
 */
 
@@ -478,6 +478,7 @@
 	<string source="cron_future_status_for">Future Status for %s</string>
 	<string source="cron_future_permission_for">Future Permission for %s</string>
 	<string source="create_new_link_for">Creating a new link for %1$s under %2$s</string>
+	<string source="delete_link_for">Delete link for %1$s under %2$s</string>
 	<string source="deleting_link_id">Deleting Link Id #%s</string>
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
 	<string source="cron_altered_asset_status">Altered status of %1$s from %2$s to %3$s</string>
