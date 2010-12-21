@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.22 2010/12/21 21:22:12 hlliauw Exp $
+* $Id: trim_saved_search.inc,v 1.23 2010/12/21 22:18:11 hlliauw Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -394,7 +394,7 @@ class TRIM_Saved_Search extends Data_Source
 		$record_properties	= $this->getDynamicVariableValue('result_fields');
 		$search_limit		= $this->getDynamicVariableValue('limit');
 
-		if(array_key_exists('recContainerTitle', $record_properties) && !array_key_exists('$recContainer', $record_properties)) {
+		if(array_key_exists('recContainerTitle', $record_properties) && !array_key_exists('recContainer', $record_properties)) {
 			$record_properties['recContainer'] = 'Container';
 		}
 		
