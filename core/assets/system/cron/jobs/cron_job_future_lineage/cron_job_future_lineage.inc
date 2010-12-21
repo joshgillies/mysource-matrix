@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.35 2009/08/03 06:27:13 ewang Exp $
+* $Id: cron_job_future_lineage.inc,v 1.35.6.1 2010/12/21 00:40:13 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,7 +266,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			if (!empty($link)) {
 				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
-					$str = ' - '.translate('asset_from_under_asset', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $old_major->name, $old_major->id));
+					$str = translate('delete_link_for', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $old_major->name, $old_major->id));
 				}
 			}
 		}
@@ -309,7 +309,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			if (!empty($link)) {
 				$old_minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!is_null($old_minor)) {
-					$str = ' - '.translate('asset_from_under_asset', translate('asset_format', $old_minor->name, $old_minor->id), translate('asset_format', $major->name, $major->id));
+					$str = translate('delete_link_for', translate('asset_format', $old_minor->name, $old_minor->id), translate('asset_format', $major->name, $major->id));
 				}	
 
 			}

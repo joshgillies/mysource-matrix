@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_lineage.inc,v 1.2 2008/11/19 22:51:07 bpearson Exp $
+* $Id: trigger_action_delete_future_lineage.inc,v 1.2.10.1 2010/12/21 00:40:56 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -289,7 +289,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 							if ($write_access) {
 								$attr_options = Array();
 								foreach ($attrs as $attr_name => $attr_type) {
-									if ($attr_type == 'datetime') {
+									if ($attr_type['type'] == 'datetime') {
 										$attr_options[$attr_name] = $attr_name;
 									}
 								}
@@ -355,7 +355,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
 				$dummy_asset = new $settings['asset_type'];
 				$attr = $dummy_asset->getAttribute($settings['attribute']);
-				if (is_null($attr) || (get_class($attr) != 'Asset_Attribute_Datetime')) {
+				if (is_null($attr) || (get_class($attr) != 'Asset_Attribute_DateTime')) {
 					// selected asset type does not have an attribute with the selected name, so reset
 					$settings['attribute'] = '';
 				}
