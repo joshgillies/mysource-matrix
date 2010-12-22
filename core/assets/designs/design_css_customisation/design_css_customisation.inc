@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.16 2007/12/13 21:45:12 bshkara Exp $
+* $Id: design_css_customisation.inc,v 1.17 2010/12/22 05:49:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -371,6 +371,9 @@ class Design_Css_Customisation extends Design_Css
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
 				$file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
+			} else if ($this->attr('static_url_versioning')){
+				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];
 			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}

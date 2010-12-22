@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2010/05/05 01:16:53 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.4 2010/12/22 05:49:56 mhaidar Exp $
 *
 */
 -->
@@ -24,6 +24,10 @@
 		<field attribute="limbo_no_frames">
 			<display_name>No frames in Simple Edit Interface</display_name>
 			<note />
+		</field>
+		<field attribute="static_url_versioning">
+			<display_name>Include file version in static URL</display_name>
+			<note>This will help bust external caching of statically served content.</note>
 		</field>
 	</section>
 	<section name="Parse File">

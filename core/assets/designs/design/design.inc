@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.154 2010/12/16 02:14:26 hlliauw Exp $
+* $Id: design.inc,v 1.155 2010/12/22 05:49:55 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -972,6 +972,9 @@ echo '/*
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
 				$file_url = $system_root_url.'/?a='.$minorid;
+			} else if ($this->attr('static_url_versioning')){
+				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];
 			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}

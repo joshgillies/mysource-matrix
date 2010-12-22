@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2007/06/04 01:20:55 rong Exp $
+* $Id: lang_screen_details.xml,v 1.8 2010/12/22 05:49:55 mhaidar Exp $
 *
 */
 -->
@@ -48,6 +48,10 @@
 		<field attribute="strip_whitespace">
 			<display_name>Strip Whitespace</display_name>
 			<note>Whether to strip extra whitespace from the cached CSS file.</note>
+		</field>
+		<field attribute="static_url_versioning">
+			<display_name>Include file version in static URL</display_name>
+			<note>This will help bust external caching of statically served content.</note>
 		</field>
 	</section>
 	<section name="Associated Files">

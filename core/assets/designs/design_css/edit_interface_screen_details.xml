@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2007/06/04 01:20:55 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2010/12/22 05:49:55 mhaidar Exp $
 *
 */
 -->
@@ -41,6 +41,9 @@
 		</field>
 		<field attribute="strip_whitespace">
 			<boolean true_text="on" false_text="off"/>
+		</field>
+		<field attribute="static_url_versioning">
+			<boolean true_text="yes" false_text="no"/>
 		</field>
 	</section>
 	<section name="Associated Files" write_access="write:parsing" read_access="write:">

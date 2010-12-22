@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.40 2010/07/13 06:11:26 ewang Exp $
+* $Id: design_css.inc,v 1.41 2010/12/22 05:49:55 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,11 +555,34 @@ echo '/*
 			}
 		}
 		$this->_tmp['updated_cache'] = TRUE;
+		$this->updateLinkedCssDesignAreas();
 		return $cache_asset->_updated();
 
 	}//end _updateCacheFile()
 
-
+	
+	/**
+	* Regenerates design files for linked css design areas of other designs.
+	* Accommodate Feature #4808: Version numbers in __data URLs
+	* 
+	* @return void
+	* @access public
+	*/
+	public function updateLinkedCssDesignAreas()
+	{
+		
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design_area_linked_css', TRUE, 'minor', 'linked_css_asset');
+		foreach ($css_links as $clink) {
+			$design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($clink['majorid'], SQ_LINK_TYPE_3, 'design', FALSE, 'minor');
+			foreach ($design_links as $dlink) {
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($dlink['majorid'], $dlink['major_type_code'], TRUE);
+				$design->generateDesignFile(FALSE);
+			}
+		}
+		
+	}//end updateLinkedCssDesignAreas()
+	
+	
 	/**
 	* Gets the static cache file asset id of this CSS asset
 	*
@@ -575,7 +598,7 @@ echo '/*
 
 	}//end getCacheFileId()
 
-
+	
 	/**
 	* Creates the cache file asset that this CSS asset will display in the cache
 	*
@@ -670,6 +693,9 @@ echo '/*
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
 				$file_url = $system_root_url.'/?a='.$minorid;
+			} else if ($this->attr('static_url_versioning')){
+				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];
 			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}

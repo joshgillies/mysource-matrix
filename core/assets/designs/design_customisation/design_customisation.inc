@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.55 2008/06/03 01:18:30 bshkara Exp $
+* $Id: design_customisation.inc,v 1.56 2010/12/22 05:49:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -457,6 +457,9 @@ class Design_Customisation extends Design
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') {
 				$file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
+			} else if ($this->attr('static_url_versioning')){
+				$served_by_apache = strpos($file_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+				if ($served_by_apache) $file_url .= '?v='.$file_info['version'];
 			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
@@ -475,6 +478,9 @@ class Design_Customisation extends Design
 			$css_url = $css_link_urls[$minorid];
 			if ($css_url == '') {
 				$css_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
+			} else if ($this->attr('static_url_versioning')){
+				$served_by_apache = strpos($css_url, '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($css_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
+				if ($served_by_apache) $css_url .= '?v='.$css_info['version'];
 			}
 			$CSS_URLS[$css_info['name']] = $css_url;
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.21 2010/05/05 01:16:53 hnguyen Exp $
+* $Id: design_management.inc,v 1.22 2010/12/22 05:49:55 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,9 +66,47 @@ class Design_Management extends Asset_Management
                                                                    ),
 												'description'	=> 'LIMBO no frame options for each design, not using frames while inside LIMBO mode',
 											   ),
+						'static_url_versioning' => Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty' => FALSE),
+										  )
 					  );
 
 	}//end constructor
+	
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('UPGRADING DESIGN FROM v < 0.3');
+
+			// get all design assets
+			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', FALSE, TRUE);
+			foreach ($design_ids as $design_id => $type) {
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($design_id, $type['type_code']);
+				$design->setAttrValue('static_url_versioning', FALSE);
+				$design->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+				unset($design);
+			}
+			
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
