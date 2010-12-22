@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.41 2010/12/22 05:49:55 mhaidar Exp $
+* $Id: design_css.inc,v 1.42 2010/12/22 06:09:58 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -562,8 +562,8 @@ echo '/*
 
 	
 	/**
-	* Regenerates design files for linked css design areas of other designs.
-	* Accommodate Feature #4808: Version numbers in __data URLs
+	* Regenerates design files of linked css design areas of other designs (linked to this css design file).
+	* Accommodate Feature #4808: Version numbers in __data URLs because the file versions are not loaded dynamically.
 	* 
 	* @return void
 	* @access public
