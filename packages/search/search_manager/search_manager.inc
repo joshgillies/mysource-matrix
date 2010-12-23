@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.233.2.2 2010/08/18 05:04:11 akarelia Exp $
+* $Id: search_manager.inc,v 1.233.2.3 2010/12/23 02:52:44 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.2 $
+* @version $Revision: 1.233.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1408,25 +1408,25 @@ class Search_Manager extends Asset
 	function getIndexableMetadataContent(&$asset, $fieldids=Array(), $all_contexts=TRUE)
 	{
 		$index_content = Array();
-		$flag_match_found = FALSE;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
-
+		
 		if (is_null($asset)) return $index_content;
 
         // Get the current contextid
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_list = $all_contexts ? array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts()) : Array($contextid);
-
+		
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
 		}
-
+		
 		foreach ($fieldids as $fieldid => $field_type) {
 
+			$flag_match_found = FALSE;
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($fieldid, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
-
+			
 			foreach ($current_links as $link) {
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				$restrictions = $section->attr('restrict');
@@ -1445,10 +1445,18 @@ class Search_Manager extends Asset
 							}
 						}
 					}
-				if (!$flag_match_found) return $index_content;
+				} else {
+					// There is at least one section without any restrictions where this field is linked to
+					$flag_match_found = TRUE;
 				}
+
+				// No need to check futher restrictions on other metadata sections
+				if ($flag_match_found) break;
 			}
 
+			if (!$flag_match_found) {
+				continue;
+			}
 
 			// dont index this fieldid if getMetadataWeighting return false
 			if (FALSE === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
