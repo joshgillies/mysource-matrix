@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_search.inc,v 1.2 2010/10/15 05:22:24 bpearson Exp $
+* $Id: squiz_suite_system_search.inc,v 1.3 2010/12/23 01:09:05 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -194,9 +194,11 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
             $am = $GLOBALS['SQ_SYSTEM']->am;
 
             $url_parts = parse_url($real_url);
-            $protocol  = array_get_index($url_parts, 'scheme', 'http');
-            $url       = str_replace($protocol.'://', '', $real_url);
-            $asset     = $am->getAssetFromUrl($protocol, $url, TRUE, TRUE);
+            $protocol  = array_get_index($url_parts, 'scheme', '');
+			if (empty($protocol) === FALSE) {
+	            $url = str_replace($protocol.'://', '', $real_url);
+			}
+            $asset = $am->getAssetFromUrl($protocol, $url, TRUE, TRUE);
             if ($asset !== NULL) {
                 $type     = $asset->type();
                 $iconPath = $am->getAssetIconURL($type);
