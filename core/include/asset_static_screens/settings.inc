@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.56.4.2 2010/06/28 06:19:28 mhaidar Exp $
+* $Id: settings.inc,v 1.56.4.3 2010/12/23 00:46:38 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.56.4.2 $
+* @version $Revision: 1.56.4.3 $
 * @package MySource_Matrix
 */
 
@@ -842,7 +842,7 @@ function processSettings(&$owner, &$o, &$ei)
 					}
 				}
 
-				if ($new_designid) {
+				if ($new_designid|| !$design instanceof Design) {
 					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
