@@ -1,5 +1,39 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.28.8
+
+Complete Changelog
+===================================
+
+Minor Enhancements
+Minor Enhancement #4837: Memcache Session Handler: Silent Failover on Multiple Servers.
+
+Core
+Fixed Bug #4848: Cache Storage Memcache uses '0' expiry incorrectly.
+Fixed Bug #4855: System integrity check link script failed on safe edit asset and 0 assetid.
+Fixed Bug #4857: Oracle - step_02 should refuse to run with incorrect NLS_DATE_FORMAT.
+Fixed Bug #4860: Can't authenticate LDAP username with brackets.
+Fixed Bug #4862: In WYSIWYG if there is a "br" tag at the end of the line then pressing enter at the end of that line will break the paragraph.
+Fixed Bug #4865: Remove Metadata Schema trigger action doesn't work expectedly when "Cascade schema changes" option is enabled.
+Fixed Bug #4866: Misreporting of asset changes in system logs.
+Fixed Bug #4871: No attributes found for Single Calendar Event in Delete Future Lineage trigger action.
+Fixed Bug #4872: Only an assetid of a Design asset should be allowed in the design-to-be-used textbox.
+
+CMS
+Fixed Bug #4845: Multiple Page asset throws MySource Warning when trying to re-arrange the pages.
+
+Search
+Fixed Bug #4876: Searching on thesaurus metadata field which has more than one term on it fails on oracle.
+
+Calendar
+Fixed Bug #4827: Start and End fields of Single Calendar Event produce unnecessary quotes.
+
+Funnelback
+Fixed Bug #4844: Funnelback searching for file type assets outside collection.
+Fixed Bug #4863: Default Metadata Field values are not cached/indexed by Funnelback.
+Fixed Bug #4879: Funnelback Rebuild Cache Script Fails.
+
+
 VERSION 3.28.7
 
 Complete Changelog
