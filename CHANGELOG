@@ -1,5 +1,76 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.0.2
+
+Featured Changes
+===================================
+
+Additional Keyword Replacements for Thumbnail Assets [ Feature Request #4864 ]
+-----------------------------------------------------
+
+Three new keyword replacements have been added to return the name and  ID information of thumbnail assets. The following keywords are now  available:
+
+    * %asset_thumbnail_title%: the friendly name of the thumbnail.
+    * %asset_thumbnail_name%: the file name of the thumbnail.
+    * %asset_thumbnail_assetid%: the asset ID of the thumbnail.
+
+These keywords replacements can be used in conjunction with the  existing thumbnail and image keyword replacements as well as general  Matrix keywords. 
+
+Design Asset: New Pragma Global Variable [ Feature Request #4867 ]
+-----------------------------------------------------
+
+Global variables allow you to print information in a design, such as  the name of the site or the page the user is currently viewing. This  feature adds a new global variable to add an implementation pragma HTTP  header on the design.
+
+An example of the Pragma global variable is shown below. In this example, the parameter no-cache has been set.
+
+<MySource_PRINT id_name="%global%" var="pragma" content_type="no-cache" />
+
+This global variable has been added for implementation purposes within Internet Explorer.
+
+TRIM Feature Request for Cron Job [ Feature Request #4875 ]
+-----------------------------------------------------
+
+The ability to modify the (when) attribute of the saved search cron job through the details interface has been added.
+
+A new custom field in the TRIM saved search also allow the result set to contain a text version of a records container called (Container Title).
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+Minor Enhancement #4837: Memcache Session Handler: Silent Failover on Multiple Servers.
+
+Core
+Fixed Bug #4848: Cache Storage Memcache uses '0' expiry incorrectly.
+Fixed Bug #4855: System integrity check link script failed on safe edit asset and 0 assetid.
+Fixed Bug #4857: Oracle - step_02 should refuse to run with incorrect NLS_DATE_FORMAT.
+Fixed Bug #4860: Can't authenticate LDAP username with brackets.
+Fixed Bug #4862: In WYSIWYG if there is a "br" tag at the end of the line then pressing enter at the end of that line will break the paragraph.
+Fixed Bug #4865: Remove Metadata Schema trigger action doesn't work expectedly when "Cascade schema changes" option is enabled.
+Fixed Bug #4866: Misreporting of asset changes in system logs.
+Fixed Bug #4871: No attributes found for Single Calendar Event in Delete Future Lineage trigger action.
+Fixed Bug #4872: Only an assetid of a Design asset should be allowed in the design-to-be-used textbox.
+Fixed Bug #4873:Squiz Suite - getAssetInfo() returns false positives.
+
+CMS
+Fixed Bug #4845: Multiple Page asset throws MySource Warning when trying to re-arrange the pages.
+
+Search
+Fixed Bug #4876: Searching on thesaurus metadata field which has more than one term on it fails on oracle.
+
+Calendar
+Fixed Bug #4827: Start and End fields of Single Calendar Event produce unnecessary quotes.
+
+Web Services
+Fixed Bug #4853: setContentOfEditiableFileAsset() method name misspelled?
+
+Funnelback
+Fixed Bug #4844: Funnelback searching for file type assets outside collection.
+Fixed Bug #4863: Default Metadata Field values are not cached/indexed by Funnelback.
+Fixed Bug #4879: Funnelback Rebuild Cache Script Fails.
+
+
 VERSION 4.0.1
 
 Featured Changes
