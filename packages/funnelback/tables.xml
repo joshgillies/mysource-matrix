@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.2 2010/12/09 05:02:13 akarelia Exp $
+* $Id: tables.xml,v 1.3 2011/01/03 22:28:37 ewang Exp $
 *
 */
 -->
@@ -57,7 +57,7 @@
 					<default />
 					<description>The compiled sitemap xml of asset that will be indexed</description>
 				</column>
-				<column name="original_url" allow_null="0">
+				<column name="original_url" allow_null="1">
 					<type>VARCHAR(500)</type>
 					<type_variations />
 					<default />
