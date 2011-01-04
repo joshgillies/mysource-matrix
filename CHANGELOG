@@ -27,13 +27,6 @@ An example of the Pragma global variable is shown below. In this example, the pa
 
 This global variable has been added for implementation purposes within Internet Explorer.
 
-TRIM Feature Request for Cron Job [ Feature Request #4875 ]
------------------------------------------------------
-
-The ability to modify the (when) attribute of the saved search cron job through the details interface has been added.
-
-A new custom field in the TRIM saved search also allow the result set to contain a text version of a records container called (Container Title).
-
 
 Additional Changes and Bug Fixes
 =================================== 
