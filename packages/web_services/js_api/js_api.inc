@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.42.2.16 2010/12/07 23:32:30 akarelia Exp $
+* $Id: js_api.inc,v 1.42.2.17 2011/01/04 23:43:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.42.2.16 $
+* @version $Revision: 1.42.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -160,7 +160,7 @@ class JS_Api extends Page
 			$referer_url = str_replace(current_protocol().'://', '', $_SERVER['HTTP_REFERER']);
 
 			// if we are in Backend or limbo remove everything after _edit or _admin
-			// or else getAssetFromURL eill get confused and wont return us correct asset
+			// or else getAssetFromURL will get confused and wont return us correct asset
 			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE) {
 				$referer_url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'(.)*/', '', $referer_url);
 			} else if (strpos($referer_url, SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
@@ -1152,8 +1152,14 @@ class JS_Api extends Page
 		} else {
 			// We need to make sure this is a URL
 			if (strpos($id, 'http://') !== FALSE || strpos($id, 'https://') !== FALSE) {
+				// figure out if we are on dealing with a http or a https url here
+				// results will be wrong here further if we let Matrix assume if the
+				// protocol is always http
+				$url_parts = parse_url($id);
+				$protocol = (isset($url_parts['scheme']) && !empty($url_parts['scheme'])) ? $url_parts['scheme'] : 'http';
+
 				// Set our asset reference
-				$asset = $am->getAssetFromURL('', strip_url($id, TRUE), TRUE, TRUE);
+				$asset = $am->getAssetFromURL($protocol, strip_url($id, TRUE), TRUE, TRUE);
 				if (is_null($asset)) $this->returnError($id.' is not a valid URL');
 				return $asset;
 			} else {
