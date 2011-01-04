@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.820 2010/11/01 00:50:50 cupreti Exp $
+* $Id: asset_manager.inc,v 1.821 2011/01/04 03:13:34 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.820 $
+* @version $Revision: 1.821 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4184,6 +4184,9 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		// remove the last reailing comma from the string
+		$majorids_str = rtrim($majorids_str, ',');
+
 		if (empty($majorids_str)) return $assetids;
 
 		$exclude_list_before_quote = $exclude_list;
@@ -4249,8 +4252,17 @@ class Asset_Manager extends MySource_Object
 			$sql   .= '
 				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
 		}
-		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
-					 AND ('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0) ';
+
+		$majorids_array = explode(',', $majorids_str);
+		$in_clause = Array();
+
+		foreach (array_chunk($majorids_array, 999) as $chunk) {
+			$in_clause[] = ' (l.majorid IN ('.implode(', ', $chunk).'))';
+		}
+
+
+		$where = ' ('.implode(' OR ',$in_clause).')  AND ('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0) ';
+
 		if (!empty($exclude_list)) {
 			$where .= 'AND a.assetid NOT IN ('.$exclude_str.')';
 		}
