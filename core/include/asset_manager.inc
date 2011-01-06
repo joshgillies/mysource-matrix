@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.820.2.1 2011/01/04 23:49:32 akarelia Exp $
+* $Id: asset_manager.inc,v 1.820.2.2 2011/01/06 00:24:13 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.820.2.1 $
+* @version $Revision: 1.820.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9093,7 +9093,12 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($sort_by)) {
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
+			if (!is_null($access)) {
+				$group_by .= ', a.'.$sort_by;
+			}
 		}
+
+		$where = rtrim($where, 'AND ');
 
 		$sql_array = Array(
 						'select'		=> '('.$select,
