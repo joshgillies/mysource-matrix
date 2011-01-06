@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.293.2.4 2010/07/09 05:41:32 ewang Exp $
+* $Id: asset_map.inc,v 1.293.2.5 2011/01/06 04:45:14 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.293.2.4 $
+* @version $Revision: 1.293.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -318,8 +318,9 @@ class Asset_Map
 			// Check the cookies
 			if (isset($_COOKIE['lastSelectedAssetId']) && isset($_COOKIE['lastSelectedLinkId'])) {
 				$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($_COOKIE['lastSelectedAssetId']);
+				$id_parts = explode(':', $_COOKIE['lastSelectedAssetId']);
 				foreach ($link_lineages as $lineage) {
-					if ($lineage['linkid'] == $_COOKIE['lastSelectedLinkId']) {
+					if ($lineage['linkid'] == $_COOKIE['lastSelectedLinkId'] || (($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) && isset($id_parts[1]))) {
 						$asset_lineage = array_keys($lineage['lineage']);
 						$assetids = '';
 						$sort_orders = '';
