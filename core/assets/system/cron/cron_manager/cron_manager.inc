@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.79.10.1 2010/10/14 00:04:46 mhaidar Exp $
+* $Id: cron_manager.inc,v 1.79.10.2 2011/01/06 23:32:32 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79.10.1 $
+* @version $Revision: 1.79.10.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -833,13 +833,13 @@ class Cron_Manager extends Asset
 		$build_up = Array();
 
 		$build_up['hour']['bridge'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
-										BETWEEN '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
-										AND '.MatrixDAL::quote('%B%59').'
+										> '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
+										AND ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') <= '.MatrixDAL::quote('%B%59').'
 										OR ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
 										BETWEEN '.MatrixDAL::quote('%C%00').' AND '.MatrixDAL::quote('%D%'.$end_f['minutes']);
 		
-		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') BETWEEN '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
-									AND '.MatrixDAL::quote('%B%'.$end_f['minutes']);
+		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') > '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
+									AND ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') <= '.MatrixDAL::quote('%B%'.$end_f['minutes']);
 
 		$build_up['day']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'), Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'), $build_up['hour']['bridge']);
 		$build_up['day']['all'] = str_replace(Array('%A%', '%B%'), Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'), $build_up['hour']['all']);
