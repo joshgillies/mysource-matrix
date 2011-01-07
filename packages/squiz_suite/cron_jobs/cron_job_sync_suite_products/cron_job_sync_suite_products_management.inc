@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_sync_suite_products_management.inc,v 1.1.2.2 2010/12/02 00:56:48 bpearson Exp $
+* $Id: cron_job_sync_suite_products_management.inc,v 1.1.2.3 2011/01/07 00:36:59 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>	
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -44,7 +44,7 @@ class Cron_Job_Sync_Suite_Products_Management extends Asset_Management
 									'default'	=> 'repeating',
 								   ),
 						'when'	=> Array(
-									'default'	=> 'HR=0,00:00',
+									'default'	=> 'HR=00',
 								   ),
 					  );
 
