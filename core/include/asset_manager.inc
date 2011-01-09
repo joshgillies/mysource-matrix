@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.15 2011/01/06 00:21:39 cupreti Exp $
+* $Id: asset_manager.inc,v 1.801.2.16 2011/01/09 22:19:03 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.15 $
+* @version $Revision: 1.801.2.16 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -978,34 +978,47 @@ class Asset_Manager extends MySource_Object
 		$dbtype = MatrixDAL::getDbType();
 		$bind_vars = Array();
 		if ($dbtype === 'pgsql') {
-			/**
-			* We make two parts of a query here
-			* This is for performance reasons
-			* If we get lots of asset id's in the where clause,
-			* performance isn't great
-			* so use an intersect query to break it down
-			* (this lets the db use different indexes)
-			*
-			* The first part of the query gets the asset id's with the right attribute id's
-			* the second part gets the right asset id's
-			* then intersect
-			*/
-
-			$sql1 = 'SELECT assetid, custom_val
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
-			$where1 = 'attrid IN ('.$sub_sql.') ';
-			$where1 .= ' AND contextid = :contextid_1';
-			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1);
-
-			$sql2 = 'SELECT assetid, custom_val
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
-			$where2 = $in;
-			$where2 .= ' AND contextid = :contextid_2';
-			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2);
-
-			$sql = $sql1 . $where1 . ' INTERSECT ' . $sql2 . $where2;
-			$bind_vars['contextid_1'] = $contextid;
-			$bind_vars['contextid_2'] = $contextid;
+			if (count($assetids) <= 10) {
+				/**
+				* For small number of assetids, we can safely nest them in where clause.
+				*/
+				$sql = 'SELECT assetid, custom_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+				$where = 'attrid IN ('.$sub_sql.') AND '.$in;
+				$where .= ' AND contextid = :contextid';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+				$sql .= $where;
+				$bind_vars['contextid'] = $contextid;				
+			}
+			else {
+				/**
+				* We make two parts of a query here
+				* This is for performance reasons
+				* If we get lots of asset id's in the where clause,
+				* performance isn't great
+				* so use an intersect query to break it down
+				* (this lets the db use different indexes)
+				*
+				* The first part of the query gets the asset id's with the right attribute id's
+				* the second part gets the right asset id's
+				* then intersect
+				*/
+	
+				$sql1 = 'SELECT assetid, custom_val
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+				$where1 = 'attrid IN ('.$sub_sql.') ';
+				$where1 .= ' AND contextid = :contextid_1';
+				$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1);
+	
+				$sql2 = 'SELECT assetid, custom_val
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+				$where2 = $in;
+				$where2 .= ' AND contextid = :contextid_2';
+				$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2);
+	
+				$sql = $sql1 . $where1 . ' INTERSECT ' . $sql2 . $where2;
+				$bind_vars['contextid_1'] = $contextid;
+				$bind_vars['contextid_2'] = $contextid;
+			}
 		}
 
 		/**
