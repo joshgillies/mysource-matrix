@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2010/05/05 07:09:18 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.12 2011/01/11 02:48:23 mhaidar Exp $
 *
 */
 -->
@@ -63,12 +63,12 @@
 		<field attribute="start_tag">
 			<display_name>Start Tag</display_name>
 			<note>
-			Content on the remote page will be discarded until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle <![CDATA[&lt;&#33;-- START --&gt;]]>).
+			Content on the remote page will be discarded until this tag is reached. You can use standard HTML elements or define your own tag to use (for example <![CDATA[&#38;#60;&#33;-- START --&#62;]]>).
 			</note>
 		</field>
 		<field attribute="end_tag">
 			<display_name>End Tag</display_name>
-			<note>After the Start Tag has been encountered, all the content on the remote page will be captured until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle <![CDATA[&lt;&#33;-- END --&gt;]]>). If this tag is not found, everything is captured till the end of page.</note>
+			<note>After the Start Tag has been encountered, all the content on the remote page will be captured until this tag is reached. You can use standard HTML elements or define your own tag to use (for example <![CDATA[&#38;#60;&#33;-- END --&#62;]]>). If this tag is not found, everything is captured till the end of page.</note>
 		</field>
 		<field attribute="no_tag_clear">
 			<display_name>When Tag(s) Not Found</display_name>
