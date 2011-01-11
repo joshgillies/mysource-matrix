@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.21 2009/09/23 01:44:14 cupreti Exp $
+* $Id: form_question_type_datetime.inc,v 1.21.4.1 2011/01/11 21:50:24 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -369,8 +369,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	{
 		$replacement_mapping = Array (
 								'y'	=> Array ('y', 'Y'),
-								'm'	=> Array ('m', 'n'),
-								'd' => Array ('d', 'j'),
+								'm'	=> Array ('m', 'n', 'F', 'M'),
+								'd' => Array ('d', 'j', 'S', 'D', 'l'),
 								'h'	=> Array ('h', 'H', 'g', 'G'),
 								'i' => Array ('i'),
 								's'	=> Array ('s'),
