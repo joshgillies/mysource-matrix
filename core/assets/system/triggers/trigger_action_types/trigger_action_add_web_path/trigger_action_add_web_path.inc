@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.14 2009/04/22 06:22:16 ewang Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.15 2011/01/12 06:06:45 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,11 +88,14 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		if (!empty($settings['remove_all'])) {
 			$web_paths_new = Array($web_path);
 		}
-
+		
+		// don't add remaps, if set so
+		$add_auto_remaps = !isset($settings['dont_add_remap']) || !$settings['dont_add_remap'];
+		
 		// only save the new paths if they have changed
 		// (note that lookups are updated by the saveWebPaths fn)
 		if ($web_paths_new !== $web_paths_old) {
-			if (!$state['asset']->saveWebPaths($web_paths_new)) {
+			if (!$state['asset']->saveWebPaths($web_paths_new, $add_auto_remaps)) {
 				return FALSE;
 			}
 
@@ -180,7 +183,10 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		echo '<label for='.$prefix.'[make_lowercase]'.'>'.translate('trigger_add_web_path_make_lowercase').'.</label>';
 		echo '<br />';
 		check_box($prefix.'[update_children]', '1', array_get_index($settings, 'update_children', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_add_web_path_update_children').'.</label>';	
+		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_add_web_path_update_children').'.</label>';
+		echo '<br />';
+		check_box($prefix.'[dont_add_remap]', '1', array_get_index($settings, 'dont_add_remap', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+		echo '<label for='.$prefix.'[dont_add_remap]'.'>'.translate('trigger_add_web_path_dont_add_remap').'.</label>';	
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -208,11 +214,12 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$settings['remove_all'] = array_get_index($request_data, 'remove_all', '');
 		$settings['make_lowercase'] = array_get_index($request_data, 'make_lowercase', '');
 		$settings['update_children'] = array_get_index($request_data, 'update_children', '');
+		$settings['dont_add_remap'] = array_get_index($request_data, 'dont_add_remap', '');
 		return FALSE;
 
 	}//end processInterface()
 
-
+	
 	/**
 	* Get the list of locks that the action needs acquire before executing
 	*

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.380 2010/12/21 00:35:15 ewang Exp $
+* $Id: lang_strings.xml,v 1.381 2011/01/12 06:07:57 cupreti Exp $
 *
 */
 
@@ -2562,6 +2562,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_remove_web_path_remove_all">Delete all webpaths</string>
 	<string source="trigger_remove_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 	<string source="trigger_remove_web_path_update_children">Update lookups for children</string>
+	<string source="trigger_add_web_path_dont_add_remap">Don't add remap</string>
 
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
