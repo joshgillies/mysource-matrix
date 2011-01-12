@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.377.2.3 2010/12/21 00:37:20 ewang Exp $
+* $Id: lang_strings.xml,v 1.377.2.4 2011/01/12 06:01:32 cupreti Exp $
 *
 */
 
@@ -2557,6 +2557,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 	<string source="trigger_add_web_path_make_lowercase">Make the new webpath in lowercase</string>
 	<string source="trigger_add_web_path_update_children">Update lookups for children</string>
+	<string source="trigger_add_web_path_dont_add_remap">Don't add remap</string>
 
 	<!-- Remove Web Path Trigger Actions -->
 	<string source="trigger_remove_web_path_remove_all">Delete all webpaths</string>
