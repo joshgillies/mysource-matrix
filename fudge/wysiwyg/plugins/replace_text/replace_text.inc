@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.9.4.1 2010/07/15 01:33:20 mhaidar Exp $
+* $Id: replace_text.inc,v 1.9.4.2 2011/01/12 03:45:09 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9.4.1 $
+* @version $Revision: 1.9.4.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -170,7 +170,6 @@ class Replace_Text extends WYSIWYG_Plugin
 					if (selected_html) {
 						if (types.length>0) {
 							editor.insertHTML(curHTML);
-							editor.deleteEmpty();
 						}
 					} else {
 						if (types.length>0) editor.setHTML(curHTML);
