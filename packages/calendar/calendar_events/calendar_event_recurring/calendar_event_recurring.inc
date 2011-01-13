@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.93 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: calendar_event_recurring.inc,v 1.94 2011/01/13 22:16:24 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -479,7 +479,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					break;
 
 					case 'M':
-						$first_occur = add_months_to_iso($date, -$period).'-'.date('d', $date);
+						$first_occur = add_months_to_iso($date, -$period).'-'.date('d', strtotime($date));
 					break;
 
 				}
