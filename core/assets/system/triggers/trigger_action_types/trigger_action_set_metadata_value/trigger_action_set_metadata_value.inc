@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.38 2010/07/14 05:11:49 csmith Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.38.2.1 2011/01/13 22:19:03 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,10 +57,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
-		// null value indicates default
-		if (empty($settings['value']) && !is_null($settings['value'])) {
-			return FALSE;
-		}
+		// do not return false already from here incase we are using parameter map for gettign the value
 
 		// If no context ID is set at ALL, then presume it's an old trigger, and
 		// that we use the current context instead.
@@ -91,9 +88,15 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			//
 			// Sanitise the value for equal signs (=)
 			// As per Bug #2951 HTML Submitted becomes malformed due to a simple equals sign
+			require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 			$value = Metadata_Field::encodeValueString($value, Array());
 		} else {
 			$value = $settings['value'];
+		}
+
+		// null value indicates default
+		if (empty($value) && !is_null($value)) {
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
