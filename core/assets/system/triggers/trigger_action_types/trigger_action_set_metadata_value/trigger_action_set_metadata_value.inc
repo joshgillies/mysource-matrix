@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.36 2010/05/10 11:44:31 ata Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.36.2.1 2011/01/13 22:18:51 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,10 +57,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
-		// null value indicates default
-		if (empty($settings['value']) && !is_null($settings['value'])) {
-			return FALSE;
-		}
+		// do not return false already from here incase we are using parameter map for gettign the value
 
 		// If no context ID is set at ALL, then presume it's an old trigger, and
 		// that we use the current context instead.
@@ -91,9 +88,15 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			//
 			// Sanitise the value for equal signs (=)
 			// As per Bug #2951 HTML Submitted becomes malformed due to a simple equals sign
-			$value = str_replace('=', '\=', $value);
+			require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
+			$value = Metadata_Field::encodeValueString($value, Array());
 		} else {
 			$value = $settings['value'];
+		}
+
+		// null value indicates default
+		if (empty($value) && !is_null($value)) {
+			return FALSE;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
@@ -239,7 +242,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				hidden_field($prefix.'[form_printed]', 1);
 
 				// attribute friendly prefix
-				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				$new_prefix = str_replace(array('[',']'), '_', $prefix);
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
@@ -358,7 +361,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$settings['field_name']	= $metadata_field->name;
 			$settings['value']		= $result;
 
-			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+			$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
 			if ($new_prefix) {
 				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');
