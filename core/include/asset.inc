@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.734 2010/12/14 22:48:40 ewang Exp $
+* $Id: asset.inc,v 1.735 2011/01/14 05:30:59 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.734 $
+* @version $Revision: 1.735 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4136,14 +4136,6 @@ class Asset extends MySource_Object
 			return TRUE;
 		}
 
-		// if the asset is in the middle of workflow and the current user
-		// can approve the asset, we really need to give them read access to it
-		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$publishers = $wfm->whoCanPublish($this->id);
-		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-			return TRUE;
-		}
-
 		// if asset is not live we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE) {
 			// if we are in rollback view mode, bypass extra write access checks or we
@@ -4153,7 +4145,20 @@ class Asset extends MySource_Object
 			}
 			return $this->writeAccess('', $assetids, FALSE);
 		}
-		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
+		
+		if ($this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids)){
+			return TRUE;
+		} else if ($this->status & SQ_SC_STATUS_PENDING) {
+			// if the asset is in the middle of workflow and the current user
+			// can approve the asset, we really need to give them read access to it
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$publishers = $wfm->whoCanPublish($this->id);
+			if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
+				return TRUE;
+			}
+		}
+		
+		return FALSE;
 
 	}//end readAccess()
 
