@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5.6.1 2010/11/26 03:40:05 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.5.6.2 2011/01/17 21:49:26 cupreti Exp $
 *
 */
 -->
@@ -52,7 +52,7 @@
 			<note>Define whether to show the divider at the start of the asset lineage</note>
 		</field>
 		<field attribute="suffix_with_divider">
-			<display_name>Sufix With Divider</display_name>
+			<display_name>Suffix With Divider</display_name>
 			<note>Define whether to show the divider at the end of the asset lineage</note>
 		</field>
 		<field attribute="prefix_with_home_link">
@@ -60,7 +60,7 @@
 			<note>Define whether to show a link to the Site at the start of the asset lineage</note>
 		</field>
 		<field attribute="suffix_with_current_link">
-			<display_name>Sufix With Current Link</display_name>
+			<display_name>Suffix With Current Link</display_name>
 			<note>Define whether to show a hyperlink to the current page in the asset lineage</note>
 		</field>
 		<field attribute="show_hidden_links">
