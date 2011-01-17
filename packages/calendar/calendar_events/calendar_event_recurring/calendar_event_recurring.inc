@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.94 2011/01/13 22:16:24 mhaidar Exp $
+* $Id: calendar_event_recurring.inc,v 1.95 2011/01/17 06:13:34 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -469,23 +469,29 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res['start'] = $date;
 			} else {
 				$period = substr($this->attr('frequency'), 3);
+				if (!$period) $period = 1;
 				switch (substr($this->attr('frequency'), 0, 1)) {
 					case 'D':
 						$first_occur = add_days_to_iso($date, -$period);
 					break;
 
 					case 'W':
-						$first_occur = add_days_to_iso($date, -$period);
+						$first_occur = add_days_to_iso($date, -$period*7);
 					break;
 
 					case 'M':
-						$first_occur = add_months_to_iso($date, -$period).'-'.date('d', strtotime($date));
+						$first_occur = add_months_to_iso($date, -$period).'-'.date('d', iso8601_ts($date));
 					break;
 
 				}
 				$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 			}
-			$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / 86400);
+			$duration = $this->getDuration() / 86400;
+			$res['end'] = add_days_to_iso($res['start'], $duration);
+			if ($date > $res['end']){
+				$res['start'] = $this->getFirstOccurrenceAfter($date);
+				$res['end'] = add_days_to_iso($res['start'], $duration);
+			}
 			if ($this->getStartTime()) {
 				$res['start'] .= ' '.$this->getStartTime();
 			}
