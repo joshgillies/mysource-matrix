@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.95 2011/01/17 06:13:34 mhaidar Exp $
+* $Id: calendar_event_recurring.inc,v 1.96 2011/01/17 22:49:50 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -467,6 +467,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$res = Array();
 			if ($this->hasOccurrenceOnDate($date)) {
 				$res['start'] = $date;
+			} else if (!$this->getEndDate()) {
+				$res['start'] = $this->getFirstOccurrenceAfter($date);
 			} else {
 				$period = substr($this->attr('frequency'), 3);
 				if (!$period) $period = 1;
