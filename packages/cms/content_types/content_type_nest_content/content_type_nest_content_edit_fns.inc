@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.67 2010/06/22 01:49:46 mhaidar Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.67.2.1 2011/01/18 02:52:58 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -347,19 +347,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 							$nested_asset->printBody();
 						} else {
-							// we have found the paint layout to use... we might need to fool the system
-							// into thinking we are printing the frontend of that asset
-							$switched_frontend = FALSE;
-							if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
-								$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
-								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $nested_asset;
-								$switched_frontend = TRUE;
-							}
-							$arbitrary_paint_layout->paint($nested_asset);
-
-							if ($switched_frontend) {
-								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
-							}
+							$nested_asset->printBodyWithPaintLayout($arbitrary_paint_layout->id);
 						}//end else
 					break;
 				}//end switch
