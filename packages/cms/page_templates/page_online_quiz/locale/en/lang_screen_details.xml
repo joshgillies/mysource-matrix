@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10 2009/08/20 06:08:34 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.11 2011/01/18 02:37:08 cupreti Exp $
 *
 */
 -->
@@ -147,9 +147,7 @@
 		<field attribute="group_by">
 			<display_name>List Format</display_name>
 			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
-			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
-			&lt;br/&gt;A Random listing displays one or more assets in random order.
-			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			&lt;br/&gt;Custom Grouping allows a list based on user specified grouping conditions.
 			</note>
 		</field>
 		<field attribute="num_per_page">
