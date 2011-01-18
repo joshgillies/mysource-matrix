@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.33 2010/06/22 06:29:44 bpearson Exp $
+* $Id: event_manager.inc,v 1.34 2011/01/18 05:42:47 akarelia Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -268,13 +268,13 @@ class Event_Manager extends MySource_Object
 
 					$function = 'get'.(($options['side_of_link'] == 'minor') ? 'Parents' : 'Children');
 					$assetids = $GLOBALS['SQ_SYSTEM']->am->$function($broadcaster->id, $listener_type_code, $options['strict_type_code']);
-					if (empty($assetids)) return false;
+					if (empty($assetids)) continue;
 				}
 
 			} else {
 
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($broadcaster->id, $options['link_type'], $listener_type_code, true, $options['side_of_link'], $options['value'], $options['is_dependant'], $options['is_exclusive']);
-				if (empty($links)) return false;
+				if (empty($links)) continue;
 
 				$assetids = Array();
 				foreach ($links as $link) {
