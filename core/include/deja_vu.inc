@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.4 2010/10/19 22:14:52 ewang Exp $
+*$Id: deja_vu.inc,v 1.5 2011/01/19 22:31:17 cupreti Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -350,7 +350,10 @@ class Deja_Vu extends MySource_Object
 	 */
 	public function onAssetTypeUpdate(&$broadcaster, $vars = Array())
 	{
-		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
+		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($contexts as $contextid => $context) {
+			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
+		}
 		
 	}//end onAttributeChange
 	
