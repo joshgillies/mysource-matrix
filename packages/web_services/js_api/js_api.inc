@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.6 2011/01/04 23:42:39 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.7 2011/01/19 23:03:13 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.6 $
+* @version $Revision: 1.61.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -441,10 +441,18 @@ class JS_Api extends Page
 			restore_error_handler();
 			return;
 		}
-		
+
 		// Set some shortcuts
 		$ra = $asset->readAccess();
-		$wa = $asset->writeAccess();
+
+		//check if there is any runing workflow schema on it
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
+		if(!empty($running_wfs)) {
+			$wa = $asset->writeAccess();
+		} else {
+			$wa = $asset->writeAccess('', Array(), FALSE);
+		}
 
 		// Check to see what we should return
 		switch ($type) {
