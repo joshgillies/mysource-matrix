@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.823 2011/01/09 22:14:56 ewang Exp $
+* $Id: asset_manager.inc,v 1.824 2011/01/20 00:50:28 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.823 $
+* @version $Revision: 1.824 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9387,27 +9387,32 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if (!empty($tree_result)) {
+				$where_array = Array();
 				$trees_done = array();
-				$where = 't.treeid IN (';
-				foreach ($tree_result as $tree_row) {
-					$treeid = $tree_row['treeid'];
-					while (strlen($treeid) > 0) {
-						$quoted_treeid = MatrixDAL::Quote($treeid);
-						/**
-						 * See if we've dealt with this id before.
-						 * It's not necessarily all the results from $tree_result we need to worry about
-						 * Rather the shared 'parent' tree id's.
-						 * eg they all have base tree id 0000, we only need to include that once.
-						 */
-						if (!in_array($quoted_treeid, $trees_done)) {
-							$where .= $quoted_treeid . ',';
-							$trees_done[] = $quoted_treeid;
+				foreach (array_chunk($tree_result, 499) as $chunk) {
+					$where_string = '(t.treeid IN (';
+					foreach ($chunk as $tree_row) {
+						$treeid = $tree_row['treeid'];
+						while (strlen($treeid) > 0) {
+							$quoted_treeid = MatrixDAL::Quote($treeid);
+							/**
+							 * See if we've dealt with this id before.
+							 * It's not necessarily all the results from $tree_result we need to worry about
+							 * Rather the shared 'parent' tree id's.
+							 * eg they all have base tree id 0000, we only need to include that once.
+							 */
+							if (!in_array($quoted_treeid, $trees_done)) {
+								$where_string .= $quoted_treeid . ',';
+								$trees_done[] = $quoted_treeid;
+							}
+							$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
 						}
-						$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
 					}
+					$where_string = rtrim($where_string, ',');
+					$where_string .= '))';
+					$where_array[] = $where_string;
 				}
-				$where = rtrim($where, ',');
-				$where .= ')';
+				$where = '('.implode(' OR ', $where_array).')';
 			}
 		}
 
