@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.30.2.2 2010/12/03 02:38:42 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.30.2.3 2011/01/20 23:54:57 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.30.2.2 $
+* @version $Revision: 1.30.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1259,7 +1259,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						$queries = Array();
 						$query_found = FALSE;
 						foreach ($parts as $switch => $param) {
-							if ($switch == 'query_prox') {
+							if (strpos($switch, 'query') === 0) {
 								$queries[$this->getPrefix().'_search_query'] = $param;
 								$query_found = TRUE;
 							} else {
@@ -2070,6 +2070,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	 */
 	private function _getQueryVars($query_string)
 	{
+		// get rid of any leadin '?' if any
+		$query_string = ltrim($query_string, '?');
+
 		// The regex expression expects a start & so let us do that first
 		if (strpos($query_string, '&') !== 0) {
 			$query_string = '&'.$query_string;
