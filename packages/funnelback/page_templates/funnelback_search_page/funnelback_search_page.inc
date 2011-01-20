@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.32 2010/12/03 02:25:15 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.33 2011/01/20 23:22:35 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -487,6 +487,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$search_vars['type_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_type_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['topic_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_topic_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$search_vars['site_max'] = htmlspecialchars(array_get_index($_REQUEST, $prefix.'_site_max_clusters', ''), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+
 		$search_vars['cluster'] = Array();
 		foreach ($_GET as $index => $value) {
 			if (strpos($index, $prefix.'_cluster') !== FALSE) {
@@ -1259,7 +1260,7 @@ class Funnelback_Search_Page extends Listing_Engine
 						$queries = Array();
 						$query_found = FALSE;
 						foreach ($parts as $switch => $param) {
-							if ($switch == 'query_prox') {
+							if (strpos($switch, 'query') === 0) {
 								$queries[$this->getPrefix().'_search_query'] = $param;
 								$query_found = TRUE;
 							} else {
@@ -2070,6 +2071,9 @@ class Funnelback_Search_Page extends Listing_Engine
 	 */
 	private function _getQueryVars($query_string)
 	{
+		// get rid of any leadin '?' if any
+		$query_string = ltrim($query_string, '?');
+
 		// The regex expression expects a start & so let us do that first
 		if (strpos($query_string, '&') !== 0) {
 			$query_string = '&'.$query_string;
