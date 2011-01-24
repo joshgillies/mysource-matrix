@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.29 2010/12/15 00:56:13 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.30 2011/01/24 05:48:03 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -376,21 +376,12 @@ class Funnelback_Manager extends Asset
 		if (in_array($asset_type, $excluded_types)) {
 			return $this->_cleanupEntriesByAssetid($asset->id);
 		}//end if
-
+		
 		// Exclude By Root Node
 		if (!empty($excluded_nodes)) {
-			foreach ($excluded_nodes as $excluded_node) {
-				// The asset is the root node
-				if ($asset->id == $excluded_node) {
-					return $this->_cleanupEntriesByAssetid($asset->id);
-				}//end if
-
-				// The asset is under the root node
-				$excluded_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($excluded_node);
-				if (array_key_exists($asset->id, $excluded_children)) {
-					return $this->_cleanupEntriesByAssetid($asset->id);
-				}//end if
-			}//end foreach
+			if ($GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($asset->id, $excluded_nodes)) {
+				return $this->_cleanupEntriesByAssetid($asset->id);
+			}
 		}//end if
 
 		// Geeez, if the action is a status change, we *need* to hack the status, otherwise it doesn't register
