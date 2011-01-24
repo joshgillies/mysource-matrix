@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.824 2011/01/20 00:50:28 akarelia Exp $
+* $Id: asset_manager.inc,v 1.825 2011/01/24 05:53:27 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.824 $
+* @version $Revision: 1.825 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4679,6 +4679,7 @@ class Asset_Manager extends MySource_Object
 			// are moving though, we need a different check which is done in moveLink()
 			if (!$moving) {
 				if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== TRUE) {
+					log_dump(get_backtrace());
 					trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
@@ -9958,7 +9959,55 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getDesignHideFrameValues()
-
+	
+	
+	/**
+	* Checks whehter the given asset is under specific root nodes
+	*
+	* @param string	$assetid	the asset ID of the asset to see if it's under specific root nodes
+	* @param array	$root_nodes	an array of assetids of root nodes
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isUnderRootNodes($assetid, $root_nodes=Array()) 
+	{
+		assert_valid_assetid($assetid);
+		if (empty($root_nodes)) return FALSE;
+		
+		// get treeids of root nodes
+		$root_node_treeids = $this->getAssetTreeids($root_nodes);
+		
+		// put all the treeids of root nodes into an array of 'where' conditions
+		// i.e.
+		//Array
+		//(
+		//    [0] => t.treeid LIKE '00060000%'
+		//    [1] => t.treeid LIKE '00060001%'
+		//    [2] => t.treeid LIKE '000600020000%'
+		//)	
+		$all_root_treeids = Array();
+		foreach ($root_node_treeids as $root_node_assetid => $treeids) {
+			foreach ($treeids as $treeid) {
+				$all_root_treeids[] = 't.treeid LIKE '. MatrixDAL::quote($treeid[0] . '%');
+			}//end foreach
+		}//end foreach
+		
+		// query the db to see if the asset is under the treeids
+		$sql = 'SELECT l.linkid 
+				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid 
+				WHERE l.minorid=:assetid and (' . implode(' OR ', $all_root_treeids) . ')';
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+		// if there is a match, that means the asset in question is under at leasat one of the root nodes
+		return empty($result) ? FALSE : TRUE;
+		
+	}//end isUnderRootNodes()
 
 }//end class
 ?>
