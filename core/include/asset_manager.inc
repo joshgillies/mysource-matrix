@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.827 2011/01/24 06:29:36 csmith Exp $
+* $Id: asset_manager.inc,v 1.828 2011/01/24 23:03:52 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.827 $
+* @version $Revision: 1.828 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9002,9 +9002,10 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
-				$union_where = "((".$union_where.") OR (sl.link_type != ".SQ_LINK_NOTICE." AND sl.majorid=shadow_ids.minorid))";
-				# See bug 4914 for why this is a join and not a subselect.
-				$union_from .= ", (SELECT DISTINCT l.minorid $from $ds_where) shadow_ids";
+				# See bug 4914 for why this is a left join and not a subselect.
+				# We also need to do the link_type check when doing the shadow_ids part.
+				$union_where = "((".$union_where.") OR (shadow_ids.minorid IS NOT NULL AND sl.link_type != ".SQ_LINK_NOTICE."))";
+				$union_from .= " LEFT JOIN (SELECT DISTINCT l.minorid $from $ds_where) shadow_ids ON (sl.majorid=shadow_ids.minorid)";
 			}
 
 			$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
