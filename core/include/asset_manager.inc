@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.826 2011/01/24 06:09:23 cupreti Exp $
+* $Id: asset_manager.inc,v 1.827 2011/01/24 06:29:36 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.826 $
+* @version $Revision: 1.827 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9002,7 +9002,9 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
-				$union_where = '(('.$union_where.") or (sl.link_type != ".SQ_LINK_NOTICE." AND sl.majorid IN (SELECT DISTINCT l.minorid $from $ds_where)))";
+				$union_where = "((".$union_where.") OR (sl.link_type != ".SQ_LINK_NOTICE." AND sl.majorid=shadow_ids.minorid))";
+				# See bug 4914 for why this is a join and not a subselect.
+				$union_from .= ", (SELECT DISTINCT l.minorid $from $ds_where) shadow_ids";
 			}
 
 			$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
