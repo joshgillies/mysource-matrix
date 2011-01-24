@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.825 2011/01/24 05:53:27 cupreti Exp $
+* $Id: asset_manager.inc,v 1.826 2011/01/24 06:09:23 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.825 $
+* @version $Revision: 1.826 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4679,7 +4679,6 @@ class Asset_Manager extends MySource_Object
 			// are moving though, we need a different check which is done in moveLink()
 			if (!$moving) {
 				if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== TRUE) {
-					log_dump(get_backtrace());
 					trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return 0;
