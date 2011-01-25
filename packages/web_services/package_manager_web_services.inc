@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_web_services.inc,v 1.7 2010/05/05 07:16:12 ewang Exp $
+* $Id: package_manager_web_services.inc,v 1.8 2011/01/25 00:59:41 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -78,7 +78,12 @@ class Package_Manager_Web_Services extends Package_Manager
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_web_services');
-		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$folder_link = Array(
+				'asset' 		=> &$root_folder, 
+				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'is_exclusive' 	=> 1,
+				'is_locked'		=> 1,
+			);
 		$web_services_folder = new Web_Folder_Web_Services();
 		$web_services_folder->setAttrValue('name', 'Web Services Folder');
 		if (!$web_services_folder->create($folder_link)) {
@@ -99,6 +104,7 @@ class Package_Manager_Web_Services extends Package_Manager
 						'sort_order'	=> '',
 						'is_dependant'	=> 0,
 						'is_exclusive'	=> 0,
+						'is_locked'		=> 1,
 					  );
 		$design = new Design();
 		$design->setAttrValue('id_name', 'Soap Server Design');

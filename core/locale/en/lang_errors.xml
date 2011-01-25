@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.127 2010/11/17 07:15:51 akarelia Exp $
+* $Id: lang_errors.xml,v 1.128 2011/01/25 00:58:41 cupreti Exp $
 *
 */
 
@@ -243,7 +243,7 @@
 	<!--- HIPO0085 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
 	<!--- HIPO0086 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
 
-	<error code="HIPO0087">Unable to move asset #%s, the link is locked</error>
+	<error code="HIPO0087">Unable to move asset #%s, the link is locked. Please check the settings on the Linking screen</error>
 
 	<error code="HIPO0088">Unable to change status of asset #%s, the asset ID is invalid or does not exist</error>
 		<!-- core/hipo/jobs/hipo_job_edit_status.inc: -->
