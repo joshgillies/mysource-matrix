@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.736 2011/01/25 00:57:31 cupreti Exp $
+* $Id: asset.inc,v 1.737 2011/01/25 01:17:42 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.736 $
+* @version $Revision: 1.737 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -399,7 +399,7 @@ class Asset extends MySource_Object
 			}
 
 			// Create the link to the parent asset
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive'], $link['is_locked']);
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive'], FALSE, $link['is_locked']);
 			if (!$linkid) {
 				if (!$parent_was_locked) {
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links');
