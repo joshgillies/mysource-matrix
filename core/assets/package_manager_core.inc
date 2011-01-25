@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.45 2010/10/19 05:54:13 csmith Exp $
+* $Id: package_manager_core.inc,v 1.46 2011/01/25 00:55:48 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -180,6 +180,7 @@ class Package_Manager_Core extends Package_Manager
 						'link_type'		=> SQ_LINK_TYPE_1,
 						'is_exclusive'	=> 1,
 						'sort_order'	=> 0,
+						'is_locked' 	=> 1,
 					  );
 		$trash_folder = new Trash_Folder();
 		if (!$trash_folder->create($trash_link)) {
@@ -205,7 +206,11 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('public_user');
 		$public_user = new Public_User();
-		$public_user_link = Array('asset' => &$users_folder, 'link_type' => SQ_LINK_TYPE_1);
+		$public_user_link = Array(
+				'asset' 	=> &$users_folder, 
+				'link_type' => SQ_LINK_TYPE_1,
+				'is_locked' => 1,
+			);
 		if (!$public_user->create($public_user_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Public Access User');
 		}
@@ -230,7 +235,13 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
 		$system_management_folder = new System_Management_Folder();
-		$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1, 'sort_order' => 0);
+		$system_management_folder_link = Array(
+				'asset' 		=> &$root_folder, 
+				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'is_exclusive' 	=> 1, 
+				'sort_order' 	=> 0, 
+				'is_locked' 	=> 1,
+			);
 		if (!$system_management_folder->create($system_management_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'System Management Folder');
 		}
@@ -582,7 +593,12 @@ class Package_Manager_Core extends Package_Manager
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_designs');
-		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$folder_link = Array(
+				'asset' 		=> &$root_folder, 
+				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'is_exclusive' 	=> 1, 
+				'is_locked' 	=> 1,
+			);
 		$designs_folder = new Web_Folder_Designs();
 		$designs_folder->setAttrValue('name', 'Designs Folder');
 		if (!$designs_folder->create($folder_link)) {
@@ -607,7 +623,12 @@ class Package_Manager_Core extends Package_Manager
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_media');
-		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$folder_link = Array(
+				'asset' 		=> &$root_folder, 
+				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'is_exclusive' 	=> 1, 
+				'is_locked' 	=> 1,
+			);
 		$media_folder = new Web_Folder_Media();
 		$media_folder->setAttrValue('name', 'Media Folder');
 		if (!$media_folder->create($folder_link)) {
@@ -632,7 +653,12 @@ class Package_Manager_Core extends Package_Manager
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_users');
-		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$folder_link = Array(
+				'asset' 		=> &$root_folder, 
+				'link_type' 	=> SQ_LINK_TYPE_1, 
+				'is_exclusive' 	=> 1, 
+				'is_locked' 	=> 1,
+			);
 		$users_folder = new Web_Folder_Users();
 		$users_folder->setAttrValue('name', 'Users Folder');
 		if (!$users_folder->create($folder_link)) {

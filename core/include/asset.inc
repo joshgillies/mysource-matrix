@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.735 2011/01/14 05:30:59 mhaidar Exp $
+* $Id: asset.inc,v 1.736 2011/01/25 00:57:31 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.735 $
+* @version $Revision: 1.736 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -216,7 +216,8 @@ class Asset extends MySource_Object
 	*        'value'         => [link value],
 	*        'sort_order'    => [link sort order],
 	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
+	*        'is_exclusive'  => [0|1],
+	*		 'is_locked'	 => [0|1]
 	*        )
 	* </pre>
 	*
@@ -247,7 +248,7 @@ class Asset extends MySource_Object
 				assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot create asset with an insignificant link type');
 			}
 		}
-
+		
 		// disable the triggering system. we do not want to broadcast any nested events, only our own
 		$trigger_level_changed = FALSE;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
@@ -357,6 +358,9 @@ class Asset extends MySource_Object
 			if (!isset($link['is_exclusive'])) {
 				$link['is_exclusive'] = 0;
 			}
+			if (!isset($link['is_locked'])) {
+				$link['is_locked'] = 0;
+			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				// Acquire the links lock on the new parent
@@ -395,7 +399,7 @@ class Asset extends MySource_Object
 			}
 
 			// Create the link to the parent asset
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive'], $link['is_locked']);
 			if (!$linkid) {
 				if (!$parent_was_locked) {
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links');
@@ -2754,15 +2758,16 @@ class Asset extends MySource_Object
 	* @param string		$exclusive	'0' / '1' on whether the this asset is linked exclusivly
 	*								to the asset that will be linked by this new link
 	* @param boolean	$moving		moving
+	* @param string     $locked     whether or not this asset's link is locked
 	*
 	* @return int
 	* @access public
 	* @see Asset_Manager::createAssetLink()
 	*/
-	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE, $locked=0)
 	{
 		if (!$this->id) return 0;
-		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
+		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving, $locked);
 
 	}//end createLink()
 
