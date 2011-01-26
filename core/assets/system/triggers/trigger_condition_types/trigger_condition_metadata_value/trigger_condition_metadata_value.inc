@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.6 2011/01/25 04:22:31 akarelia Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.7 2011/01/26 21:20:31 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,8 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 
 		$unfiltered_metadata_value = $GLOBALS['SQ_SYSTEM']->getMetadataManager()->getMetadataValueByAssetid($state['assetid'], $settings['asset_id'], TRUE);
 		$keywords = extract_keywords($unfiltered_metadata_value);
+
+		$replacement = Array();
 		foreach ($keywords as $keyword) {
 			$replacement[$keyword] = $state['asset']->getKeywordReplacement($keyword);
 		}
