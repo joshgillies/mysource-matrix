@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.7 2011/01/26 21:20:31 akarelia Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.8 2011/01/26 21:59:31 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 	{
 		if (empty($settings['asset_id'])) return FALSE;
 		if (!isset($settings['value']) || ($settings['value'] == '')) return FALSE;
-		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['asset_id']);
+		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['assetid']);
 		
 		$compared_value = $settings['value'];
 
