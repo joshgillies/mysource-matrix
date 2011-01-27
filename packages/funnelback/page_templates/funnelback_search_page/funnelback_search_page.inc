@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.33 2011/01/20 23:22:35 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.34 2011/01/27 22:47:38 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -111,6 +111,7 @@ class Funnelback_Search_Page extends Listing_Engine
 													'result_url_click_js',
 													'result_size',
 													'result_type',
+													'result_meta_X'
 											   ),
 						'featured_format'	=> Array(
 													'featured_trigger',
@@ -2325,7 +2326,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$command .= escapeshellarg($query.' '.$metadata_scope);
 		$command .= ' | '.$bin_path.'padre-sw';				// Pipe the query to the search command (padre-sw)
 		$command .= ' '.escapeshellarg($collection_id);		// Index Stem aka Collection
-		$command .= ' -res xml -SMqb -spelling_enabled -qlog_file='.$log_file.$fluster;
+		$command .= ' -res xml -SMboth -SF'.$this->_getMetadataFields().' -spelling_enabled -qlog_file='.$log_file.$fluster;
 		$command .= $this->_getUserKeys();
 		if (!empty($scope) && $scope != 'ALL') {
 			$command .= ' -scope '.escapeshellarg($scope);
@@ -2354,7 +2355,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Make sure the 'NULL' query doesn't come through in the results
 		$output = str_replace($nullquery, '', $output);
-
+ 
 		return $output;
 
 	}//end _searchFunnelback()
@@ -2542,6 +2543,34 @@ class Funnelback_Search_Page extends Listing_Engine
 		return $fluster;
 
 	}//end _getFlusterOptions()
+
+
+	/**
+	 * Get the metadata fields.
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function _getMetadataFields()
+	{
+			$scope = '';
+
+			$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+			$all_metadata_config = array_get_index($fm->attr('metamap'), $this->attr('collection'), Array());
+
+			$fields = Array();
+			foreach($all_metadata_config as $metamap) {
+				if ($metamap['alias'] !== 'S') {
+					$fields[] = $metamap['alias'];
+				}
+			}
+
+			$fields = array_unique($fields);
+
+			return implode($fields);
+
+	}//end _getMetadataFields()
+
 
 
 	/**
