@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: quotation.inc,v 1.4 2010/10/05 05:53:19 cupreti Exp $
+* $Id: quotation.inc,v 1.5 2011/01/28 03:47:38 mhaidar Exp $
 *
 */
 
@@ -63,8 +63,7 @@ class Quotation extends WYSIWYG_Plugin
 			HTMLArea.prototype._insertBlockquote = function() {
 				var editor = this; // for nested functions
 
-				var sel = this._getSelection();
-				var range = this._createRange(sel);
+				var selection =  this.getSelectedHTML();
 				var parent = this.getParentElement();
 
 				// Is the selected text is inside blockquote?
@@ -75,25 +74,24 @@ class Quotation extends WYSIWYG_Plugin
 					
 					// If the selected text is wrapped by "blockquote", toggle it off
 					if (el && el.tagName == "BLOCKQUOTE") {
-						newNode = document.createTextNode(el.innerHTML);
-						el.parentNode.replaceChild(newNode, el);
-						
+						var pattern = new RegExp("<blockquote>\r?\n?"+el.innerHTML+"\r?\n?<\/blockquote>", "i");
+						el.parentNode.innerHTML = el.parentNode.innerHTML.replace(pattern, el.innerHTML);
 						inside_blockquote = true;
 						break;
 					}
 				}
 
-				// Remove all the "blockquotes" in select area,
-				// so that whole selected block can be wrapped by one
-				var pattern = /(<blockquote>.*?<\/blockquote>)|(<blockquote \/>)/i;
-				if (pattern.test(this.getSelectedHTML())) {
+				// Remove all the "blockquotes" in select area
+				var pattern = /(<blockquote>\r?\n?.*?\r?\n?<\/blockquote>)|(\r?\n?<blockquote \/>)/i;
+				if (pattern.test(selection)) {
+					inside_blockquote = true;
 					var nodeContent;
 					for (var i = parent.childNodes.length; --i >= 0;) {
 						if (parent.childNodes[i].tagName == "BLOCKQUOTE") {
 							nodeContent = parent.childNodes[i].innerHTML;
-						
-							newNode = document.createTextNode(nodeContent);
-							parent.replaceChild(newNode, parent.childNodes[i]);
+							
+							pattern = new RegExp("<blockquote>\r?\n?"+nodeContent+"\r?\n?<\/blockquote>", "i");
+							parent.childNodes[i].parentNode.innerHTML = parent.childNodes[i].parentNode.innerHTML.replace(pattern, nodeContent);
 						}//end if
 					}//end for
 				}//end if hasBlockquotes
@@ -101,20 +99,30 @@ class Quotation extends WYSIWYG_Plugin
 				if (!inside_blockquote) {
 
 					if (parent.tagName == "P") {
+						var parent_html = parent.innerHTML;
+						parent_html = parent_html.replace(/^\s*/, "").replace(/\s*$/, "");//trim whitespace
 
-						if (HTMLArea.is_gecko) {
-							var content = range;
-						} else if (HTMLArea.is_ie) {
-							var content = range.text;
+						// Remove surrounding paragraph tag from selected HTML for comparison
+						if (HTMLArea.is_ie) {
+							// Remove newlines from paragraph HTML so we can perform a meaningful comparison
+							e = '\r\n';
+							re = new RegExp(e, "i");
+							selection = selection.replace(re, "");
+							// Remove paragraph start and end
+							var e = '^<p[^>]*>';
+							var re = new RegExp(e, "i");
+							selection = selection.replace(re, "");
+							e = '</p>$';
+							re = new RegExp(e, "i");
+							selection = selection.replace(re, "");
 						}
-
-						if (parent.innerHTML == content) {
+						
+						if (parent_html == selection) {
 							// the whole paragraph is selected, now wrap it with
 							// blockquote tags
 							var blockquote = this._doc.createElement("blockquote");
 							var paragraph = this._doc.createElement("p");
-							var text = this._doc.createTextNode(content);
-							paragraph.appendChild(text);
+							paragraph.innerHTML = selection;
 							blockquote.appendChild(paragraph);
 
 							var parent_parent = parent.parentNode;
