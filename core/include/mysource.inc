@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.359 2010/12/07 03:00:38 mhaidar Exp $
+* $Id: mysource.inc,v 1.360 2011/01/28 05:53:03 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.359 $
+* @version $Revision: 1.360 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -619,6 +619,7 @@ class MySource extends MySource_Object
 								}
 
 								header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+								header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 							}
 
 							// last resort, display little green error
@@ -3910,6 +3911,7 @@ class MySource extends MySource_Object
 			}
 
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 
 		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
