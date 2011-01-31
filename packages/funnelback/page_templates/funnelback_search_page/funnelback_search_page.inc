@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.34 2011/01/27 22:47:38 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.35 2011/01/31 01:11:45 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2349,7 +2349,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				// Default to rank, already handled by default by Funnelback
 			break;
 		}//end switch
-		
+
 		// Searching... Searching... Searching...
 		$status = $fm->runCommand($command, $output, NULL, NULL, $data_path, Array('SITE_SEARCH_ROOT' => $coll_path));
 
