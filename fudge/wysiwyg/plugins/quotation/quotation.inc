@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: quotation.inc,v 1.6 2011/01/31 04:09:18 mhaidar Exp $
+* $Id: quotation.inc,v 1.7 2011/01/31 04:22:12 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Scott Kim <skim@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
