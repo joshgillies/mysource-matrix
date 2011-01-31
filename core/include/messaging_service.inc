@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.73 2009/10/09 05:21:12 ewang Exp $
+* $Id: messaging_service.inc,v 1.73.6.1 2011/01/31 23:27:33 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.6.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -451,8 +451,6 @@ class Messaging_Service extends MySource_Object
 	{
 		$db = DAL::getDb();
 
-		$bind_vars = Array();
-
 		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
 		}
@@ -462,12 +460,11 @@ class Messaging_Service extends MySource_Object
 			if (is_string($get_user_name)) {
 				$select_clause .= ',
 						CASE
-							WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
+							WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN '.MatrixDAL::quote(SQ_SYSTEM_SHORT_NAME.' System').'
 							ELSE a.'.$get_user_name.'
 						END as from_name';
 				$select_clause .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
 						' ELSE a.type_code END as type_code';
-				$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
 			}
 		} else {
 			$select_clause = 'COUNT(msgid) AS message_count';
@@ -479,8 +476,7 @@ class Messaging_Service extends MySource_Object
 		if (is_null($userid)) {
 			$where = 'm.userto != \'0\'';
 		} else {
-			$where = 'm.userto = :userid';
-			$bind_vars['userid'] = $userid;
+			$where = 'm.userto = '.MatrixDAL::quote($userid);
 		}
 
 		if (is_string($get_user_name)) {
@@ -492,11 +488,9 @@ class Messaging_Service extends MySource_Object
 
 		if (!is_null($type)) {
 			if (substr($type, -2) == '.*') {
-				$where .= ' AND m.type LIKE :substrtype';
-				$bind_vars['substrtype'] = substr($type, 0, -1).'%';
+				$where .= ' AND m.type LIKE '.MatrixDAL::quote(substr($type, 0, -1).'%');
 			} else {
-				$where .= ' AND m.type = :type';
-				$bind_vars['type'] = $type;
+				$where .= ' AND m.type = '.MatrixDAL::quote($type);
 			}
 		}
 		if (!empty($statii)) {
@@ -514,17 +508,14 @@ class Messaging_Service extends MySource_Object
 		}
 		if (!empty($parameters)) {
 			foreach ($parameters as $param_key => $param_value) {
-				$where .= ' AND m.parameters LIKE :parameters';
-				$bind_vars['parameters'] = '%'.$param_key.':'.$param_value.';%';
+				$where .= ' AND m.parameters LIKE '.MatrixDAL::quote('%'.$param_key.':'.$param_value.';%');
 			}
 		}
 		if (!is_null($from)) {
-			$where .= ' AND m.sent >= :sent_from';
-			$bind_vars['sent_from'] = ts_iso8601($from);
+			$where .= ' AND m.sent >= '.MatrixDAL::quote(ts_iso8601($from));
 		}
 		if (!is_null($to)) {
-			$where .= ' AND m.sent <= :sent_to';
-			$bind_vars['sent_to'] = ts_iso8601($to);
+			$where .= ' AND m.sent <= '.MatrixDAL::quote(ts_iso8601($to));
 		}
 
 		$sql .= ' '.$where;
@@ -539,11 +530,7 @@ class Messaging_Service extends MySource_Object
 
 		// Begin try block
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			foreach ($bind_vars as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-			}
-			$result = MatrixDAL::executePdoAll($query);
+			$result = MatrixDAL::executeSqlAll($sql);
 
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
