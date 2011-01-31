@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.24.2.3 2010/12/15 03:38:14 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.24.2.4 2011/01/31 01:29:58 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.24.2.3 $
+* @version $Revision: 1.24.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -519,8 +519,9 @@ class Funnelback_Manager extends Asset
 		 *	- Public permission and live status, give a "public" lock
 		 *  - Specific permission, add the lock
 		 */
-		$permissions = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
+		$permissions    = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
 		$public_user_id = $am->getSystemAssetId('public_user');
+		$root_user_id   = $am->getSystemAssetId('root_user');
 		if (empty($permissions)) {
 			// No permissions found, therefore return nothing, so the asset does NOT get indexed
 			return '';
@@ -535,8 +536,8 @@ class Funnelback_Manager extends Asset
 			}//end foreach
 
 			// Give the root user, "GOD" access
-			if (!in_array("'12'", $all_permissions)) {
-				$all_permissions[] = "'".$this->encodeText(htmlspecialchars('12', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+			if (!in_array("'".$root_user_id."'", $all_permissions)) {
+				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($root_user_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
 			}//end if
 			$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
 		}//end if
@@ -573,8 +574,8 @@ class Funnelback_Manager extends Asset
 				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 			}//end foreach
 			replace_keywords($value, $replacements);
-			$name = $this->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$name = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+			$value = htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
 		}//end foreach
 		$xml .= '<fbmeta name="SQUIZASSETID" content="'.$asset->id.'" />';
@@ -595,7 +596,7 @@ class Funnelback_Manager extends Asset
 	 * @param string	$root_url		The root url of the asset
 	 * @param int		$root_urlid		The root url id of the asset
 	 * @param boolean	$live			Is the broadcasting asset live?
-	 * @param string	$xml			The xml ready for the sitemapa
+	 * @param string	$xml			The xml ready for the sitemap
 	 * @param string	$original_url	the original_url the __data url points to
 	 *
 	 * @return boolean
@@ -1561,11 +1562,12 @@ class Funnelback_Manager extends Asset
 		}
 
 		// Remove Quote marks
-		$text = str_replace('"', '&ldquo;', $text);
-		$text = str_replace("'", '&lsquo;', $text);
+		$text = str_replace('"', '', $text);
+		$text = str_replace("'", '', $text);
 
 		// Remove spaces (character 0x20)
-		$text = str_replace(' ', '&nbsp;', $text);
+		$text = str_replace(' ', '', $text);
+		$text = str_replace('&nbsp;', '', $text);
 
 		return $text;
 
