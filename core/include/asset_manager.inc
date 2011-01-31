@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.828 2011/01/24 23:03:52 csmith Exp $
+* $Id: asset_manager.inc,v 1.829 2011/01/31 00:11:42 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.828 $
+* @version $Revision: 1.829 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3621,6 +3621,13 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
+		if ($only_significant) {
+			$link_types = SQ_SC_LINK_SIGNIFICANT;
+		} else {
+			$link_types = SQ_SC_LINK_ALL;
+		}//end if
+
 		/**
 		 * get the parent treeid's for this asset.
 		 *
@@ -3632,7 +3639,7 @@ class Asset_Manager extends MySource_Object
 		 * which is a nice win.
 		 *
 		 */
-		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size)';
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size, :rb_date, :link_types)';
 
 		$treeids = array();
 		if (MatrixDAL::getDbType() === 'oci') {
@@ -3640,8 +3647,10 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$treeids_query = "SELECT " . SQ_TABLE_RUNNING_PREFIX . "get_lineage_treeids AS treeid FROM " . $in_sql;
 		}
-		$treeid_bind_vars['assetid']   = (string) $assetid;
-		$treeid_bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
+		$treeid_bind_vars['assetid']   	= (string) $assetid;
+		$treeid_bind_vars['tree_size'] 	= (int) SQ_CONF_ASSET_TREE_SIZE;
+		$treeid_bind_vars['rb_date'] 	= NULL;
+		$treeid_bind_vars['link_types'] = (int) $link_types;
 
 		try {
 			$tree_query = MatrixDAL::preparePdoQuery($treeids_query);
@@ -3649,6 +3658,7 @@ class Asset_Manager extends MySource_Object
 				MatrixDAL::bindValueToPdo($tree_query, $bind_var, $bind_value);
 			}
 			$tree_result = MatrixDAL::executePdoAssoc($tree_query);
+		
 		} catch (Exception $e) {
 			throw $e;
 		}
@@ -3671,6 +3681,7 @@ class Asset_Manager extends MySource_Object
 					$treeids[] = $quoted_treeid;
 				}
 			}
+			
 			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
 			unset($treeids);
 
@@ -3699,13 +3710,6 @@ class Asset_Manager extends MySource_Object
 			 */
 			$result = array();
 		}
-
-		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
-		if ($only_significant) {
-			$link_types = SQ_SC_LINK_SIGNIFICANT;
-		} else {
-			$link_types = SQ_SC_LINK_ALL;
-		}//end if
 
 		$asset_links = $this->getLinks($assetid, $link_types, '', TRUE, 'minor');
 
@@ -9002,6 +9006,7 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
+				
 				# See bug 4914 for why this is a left join and not a subselect.
 				# We also need to do the link_type check when doing the shadow_ids part.
 				$union_where = "((".$union_where.") OR (shadow_ids.minorid IS NOT NULL AND sl.link_type != ".SQ_LINK_NOTICE."))";
