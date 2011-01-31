@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.7 2011/01/19 23:03:13 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.8 2011/01/31 05:24:46 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.7 $
+* @version $Revision: 1.61.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -400,6 +400,7 @@ class JS_Api extends Page
 
 			break;
 
+
 			case	'getRoles':
 				if ($this->attr('get_roles')) {
 					$assetid = isset($_REQUEST['assetid']) && $_REQUEST['assetid'] != '' ? $_REQUEST['assetid'] : NULL;
@@ -541,19 +542,27 @@ class JS_Api extends Page
 				if ($this->attr('set_metadata')) {
 					if ($wa) {
 						if (isset($_REQUEST['field_id']) && isset($_REQUEST['field_val'])) {
+							require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 
 							$field_ids = explode('\\,', $_REQUEST['field_id']);
 							$field_vals = explode('\\,', $_REQUEST['field_val']);
 
 							foreach($field_vals as $index =>  $fieldVal) {
 								$field_vals[$index] = str_replace($replace_these, $replace_with, $fieldVal);
+								$field_vals[$index] = Metadata_Field::encodeValueString($field_vals[$index], Array());
 							}
 
-							$this->setAssetMetadata($asset->id, $field_ids, $field_vals);
-							$i = 0;
-							foreach($field_vals as $index =>  $fieldVal) {
-								$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.str_replace($replace_these, $replace_with, $fieldVal).'" for Asset "'.$asset->name.'" (#'.$asset->id.')';
-								$i++;
+							$result = $this->setAssetMetadata($asset->id, $field_ids, $field_vals);
+							if($result) {
+								$i = 0;
+								foreach($field_vals as $index =>  $fieldVal) {
+									$value = str_replace($replace_these, $replace_with, $fieldVal);
+									$to_decode = Array('\=', '\;', '\\\\');
+									$decoded_str = Array('=', ';', '\\');
+									$value = str_replace($to_decode, $decoded_str, $value);
+									$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.$value.'" for Asset "'.$asset->name.'" (#'.$asset->id.')';
+									$i++;
+								}
 							}
 						} else {
 							$this->returnError('Please enter both the field id and value');
@@ -2081,8 +2090,14 @@ class JS_Api extends Page
 			}//end for
 			$am->releaseLock($assetid, 'metadata');
 
+			// if the Metadata wasnt set correctly, dont even worry about regenerating the metadata file
+			// just return from here telling the user it was a big time fail ;)
+			if(!$s_result) {
+				$this->returnError('Unable to set Matadata for Asset #'.$assetid);
+				return FALSE;
+			}
+
 			// instead for doing it for every field, lets regen content file just once here
-			
 			if ($regen_all_contexts) {
 				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 				foreach ($all_contexts as $contextid => $context_data) {
@@ -2094,13 +2109,12 @@ class JS_Api extends Page
 			} else {
 				if (!$mm->generateContentFile($assetid)) $g_result = FALSE;
 			}
-			
+
 			if ($s_result && $g_result) {
-				return Array (
-						'success'	=> 'The metadata has been correctly set',
-					   );
+				return TRUE;
 			} else {
-				$this->returnError('Unable To Regenerate Metadata For Asset');
+				$this->returnError('Unable To Regenerate Metadata For Asset #'.$assetid);
+				return FALSE;
 			}//end else
 		} else {
 			$this->returnError('Please provide both AssetID and FieldID of the metadata field');
@@ -3505,7 +3519,7 @@ function removeLink(parent_id, child_id, link_type, link_value, dataCallback)
 	var link_value = isset(link_value) ? link_value : '';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") ;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=removeLink&id=' + child_id + '&parent_id=' + parent_id + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -3804,7 +3818,7 @@ function getLinkId(parent_id, child_id, link_type, link_value, all_info, dataCal
 	var link_value = isset(link_value) ? link_value	: '';
 
 	// Build our string
-	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id + '&all_info=' + all_info + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") ;
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=getLinkId&id=' + child_id + '&parent_id=' + parent_id + '&all_info=' + all_info + '&link_type=' + link_type + '&link_value=' + link_value.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -4138,7 +4152,6 @@ function importAssetsFromXML(assetID, filePath, dataCallback)
 }// end importAssetsFromXML()
 
 
-
 /**
 * Returns an array of roles and the users/groups which can perform it
 *
@@ -4182,6 +4195,7 @@ function getRoles(assetid, roleid, userid, include_assetid, include_globals, exp
 	makeRequest(url, true, dataCallback);
 
 }//end getRoles
+
 <?php
 
 	}//end printJs
