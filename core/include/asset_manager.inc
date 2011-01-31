@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.829 2011/01/31 00:11:42 cupreti Exp $
+* $Id: asset_manager.inc,v 1.830 2011/01/31 23:44:56 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.829 $
+* @version $Revision: 1.830 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3581,6 +3581,13 @@ class Asset_Manager extends MySource_Object
 			return $link_lineages;
 
 		}//end if shadow asset
+		
+		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
+		if ($only_significant) {
+			$link_types = SQ_SC_LINK_SIGNIFICANT;
+		} else {
+			$link_types = SQ_SC_LINK_ALL;
+		}//end if
 
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
@@ -3597,9 +3604,9 @@ class Asset_Manager extends MySource_Object
 
 		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 		$sub_where = 'l.minorid = :minorid';
-		// Bug Fix #3835 Notice links Lineage shown when clicking on binoculars icon
-		if (MatrixDAL::getDbType() === 'oci' && $only_significant) $sub_where .= ' and link_type < '.SQ_SC_LINK_SIGNIFICANT;
+		$sub_where .= ' and link_type < :link_types';
 		$bind_vars['minorid'] = (string)$assetid;
+		$bind_vars['link_types'] = $link_types;
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
 
@@ -3620,13 +3627,6 @@ class Asset_Manager extends MySource_Object
 				$bind_vars['from_treeid'] = $from_treeid.'%';
 			}
 		}
-
-		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
-		if ($only_significant) {
-			$link_types = SQ_SC_LINK_SIGNIFICANT;
-		} else {
-			$link_types = SQ_SC_LINK_ALL;
-		}//end if
 
 		/**
 		 * get the parent treeid's for this asset.
@@ -3681,7 +3681,7 @@ class Asset_Manager extends MySource_Object
 					$treeids[] = $quoted_treeid;
 				}
 			}
-			
+
 			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
 			unset($treeids);
 
@@ -3710,7 +3710,7 @@ class Asset_Manager extends MySource_Object
 			 */
 			$result = array();
 		}
-
+		
 		$asset_links = $this->getLinks($assetid, $link_types, '', TRUE, 'minor');
 
 		$link_info = Array();
