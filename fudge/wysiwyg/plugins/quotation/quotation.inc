@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: quotation.inc,v 1.5 2011/01/28 03:47:38 mhaidar Exp $
+* $Id: quotation.inc,v 1.6 2011/01/31 04:09:18 mhaidar Exp $
 *
 */
 
@@ -116,6 +116,7 @@ class Quotation extends WYSIWYG_Plugin
 							re = new RegExp(e, "i");
 							selection = selection.replace(re, "");
 						}
+						selection = selection.replace(/^\s*/, "").replace(/\s*$/, "");//trim whitespace
 						
 						if (parent_html == selection) {
 							// the whole paragraph is selected, now wrap it with
