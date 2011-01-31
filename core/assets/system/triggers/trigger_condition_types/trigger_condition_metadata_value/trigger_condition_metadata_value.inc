@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.5 2009/08/19 14:16:41 ata Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.5.4.1 2011/01/31 22:41:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,11 +54,20 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 	{
 		if (empty($settings['asset_id'])) return FALSE;
 		if (!isset($settings['value']) || ($settings['value'] == '')) return FALSE;
-		
+		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['assetid']);
+
 		$compared_value = $settings['value'];
 
-		$metadata_value = $GLOBALS['SQ_SYSTEM']->getMetadataManager()->getMetadataValueByAssetid($state['assetid'], $settings['asset_id'], TRUE);
-		
+		$unfiltered_metadata_value = $GLOBALS['SQ_SYSTEM']->getMetadataManager()->getMetadataValueByAssetid($state['assetid'], $settings['asset_id'], TRUE);
+		$keywords = extract_keywords($unfiltered_metadata_value);
+
+		$replacement = Array();
+		foreach ($keywords as $keyword) {
+			$replacement[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+		}
+
+		$metadata_value = replace_keywords( $unfiltered_metadata_value, $replacement);
+
 		if (!is_null($metadata_value)) {
 			switch (array_get_index($settings, 'match', 'exact')) {
 				case 'exact':
