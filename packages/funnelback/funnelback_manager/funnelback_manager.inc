@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.31 2011/01/31 01:11:45 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.32 2011/01/31 01:58:53 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -353,6 +353,12 @@ class Funnelback_Manager extends Asset
 		// if funnelback manager is updated then there is infinite recursion!!!
 		if ($asset->id == $this->id) return FALSE;
 
+		// We need the URL, if the asset has no url, bail early.
+		$urls = $asset->getURLs();
+		if (empty($urls)) {
+			return $this->_cleanupEntriesByAssetid($asset->id);
+		}
+
 		$action = array_get_index($vars, 'action', '');
 
 		// If the action is delete, just delete and do not worry about the rest
@@ -403,69 +409,67 @@ class Funnelback_Manager extends Asset
 
 		// Delete first, ask questions later...
 		if ($this->_cleanupEntriesByAssetid($asset->id)) {
-			if (!empty($urls)) {
-				// Now go through each url, adding the correct entries back in, with the correct xml
-				foreach ($urls as $url_info) {
-					// This should *never* happen
-					if (empty($url_info['url'])) continue;
+			// Now go through each url, adding the correct entries back in, with the correct xml
+			foreach ($urls as $url_info) {
+				// This should *never* happen
+				if (empty($url_info['url'])) continue;
 
-					// Find the root url
-					$root_urlid = FALSE;
-					foreach ($lookups as $lookup) {
-						$lookup_url = array_get_index($lookup, 'url', '');
-						if ($url_info['url'] == $lookup_url) {
-							// This is the correct URL, now for the root url id
-							$root_urlid = array_get_index($lookup, 'root_urlid', FALSE);
-							break;
-						}//end if
-					}//end foreach
-					if ($root_urlid === FALSE) continue;
-
-					// Compile the URLs
-					$http_url  = (($url_info['http']) ? 'http://'.$url_info['url'] : '');
-					$https_url = (($url_info['https']) ? 'https://'.$url_info['url'] : '');
-
-					// HTTP Url found, add entry
-					if (!empty($http_url)) {
-						$sitemap_xml = $this->_generateXML($http_url, $asset);
-						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset, $url_info['url']);
-							foreach ($site_urls as $site_url) {
-								if(strpos($http_url,'__data') !== FALSE) {
-									$original_urls = $asset->getOriginalURL($http_url, $site_url);
-								} else {
-									$original_urls = Array($http_url);
-								}
-								foreach($original_urls as $original_url) {
-									if (strpos($site_url, 'http:') === 0) {
-										$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
-									}//end if
-								}
-							}//end foreach
-						}//end if
-					}//end if
-
-					// HTTPS Url found, add entry
-					if (!empty($https_url)) {
-						$sitemap_xml = $this->_generateXML($https_url, $asset);
-						if (!empty($sitemap_xml)) {
-							$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset, $url_info['url']);
-							foreach ($site_urls as $site_url) {
-								if(strpos($http_url,'__data') !== FALSE) {
-									$original_urls = $asset->getOriginalURL($http_url, $site_url);
-								} else {
-									$original_urls = Array($https_url);
-								}
-								foreach($original_urls as $original_url) {
-									if (strpos($site_url, 'https:') === 0) {
-										$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
-									}//end if
-								}
-							}//end foreach
-						}//end if
+				// Find the root url
+				$root_urlid = FALSE;
+				foreach ($lookups as $lookup) {
+					$lookup_url = array_get_index($lookup, 'url', '');
+					if ($url_info['url'] == $lookup_url) {
+						// This is the correct URL, now for the root url id
+						$root_urlid = array_get_index($lookup, 'root_urlid', FALSE);
+						break;
 					}//end if
 				}//end foreach
-			}//end if
+				if ($root_urlid === FALSE) continue;
+
+				// Compile the URLs
+				$http_url  = (($url_info['http']) ? 'http://'.$url_info['url'] : '');
+				$https_url = (($url_info['https']) ? 'https://'.$url_info['url'] : '');
+
+				// HTTP Url found, add entry
+				if (!empty($http_url)) {
+					$sitemap_xml = $this->_generateXML($http_url, $asset);
+					if (!empty($sitemap_xml)) {
+						$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset, $url_info['url']);
+						foreach ($site_urls as $site_url) {
+							if(strpos($http_url,'__data') !== FALSE) {
+								$original_urls = $asset->getOriginalURL($http_url, $site_url);
+							} else {
+								$original_urls = Array($http_url);
+							}
+							foreach($original_urls as $original_url) {
+								if (strpos($site_url, 'http:') === 0) {
+									$this->_addEntry($http_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
+								}//end if
+							}
+						}//end foreach
+					}//end if
+				}//end if
+
+				// HTTPS Url found, add entry
+				if (!empty($https_url)) {
+					$sitemap_xml = $this->_generateXML($https_url, $asset);
+					if (!empty($sitemap_xml)) {
+						$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset, $url_info['url']);
+						foreach ($site_urls as $site_url) {
+							if(strpos($http_url,'__data') !== FALSE) {
+								$original_urls = $asset->getOriginalURL($http_url, $site_url);
+							} else {
+								$original_urls = Array($https_url);
+							}
+							foreach($original_urls as $original_url) {
+								if (strpos($site_url, 'https:') === 0) {
+									$this->_addEntry($https_url, $asset->id, $site_url, $root_urlid, $live, $sitemap_xml, $original_url);
+								}//end if
+							}
+						}//end foreach
+					}//end if
+				}//end if
+			}//end foreach
 		} else {
 			// Failed to delete
 			return FALSE;
