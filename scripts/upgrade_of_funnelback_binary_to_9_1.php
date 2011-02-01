@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.2.2.1 2010/12/03 04:43:45 ewang Exp $
+* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.2.2.2 2011/02/01 00:58:59 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 
 /**
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix
 * @subpackage scripts 
 */
@@ -36,7 +36,7 @@ if (php_sapi_name() != 'cli') {
 }
 
 if (count($argv) < 1) {
-    echo "USAGE : php scripts/script_to_update_xml_for_submission.php <SYSTEM_ROOT> ROOT_NODE<ASSETID> [--regen]\n";
+    echo "USAGE : php scripts/upgrade_of_funnelback_binary_to_9_1.php <SYSTEM_ROOT>\n";
     exit();
 }//end if
 
