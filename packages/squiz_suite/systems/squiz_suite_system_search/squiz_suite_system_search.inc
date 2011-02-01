@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_search.inc,v 1.3 2010/12/23 01:09:05 bpearson Exp $
+* $Id: squiz_suite_system_search.inc,v 1.4 2011/02/01 05:51:24 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -49,8 +49,8 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
     /**
     * Returns a list of sitemap xml for use with Funnelback. 
     *
-    * @param array  $urls       An array of urls to get the sitemap for.
-    * @param array  $excludes   An array of urls to exclude from the sitemap.
+    * @param array $urls     An array of urls to get the sitemap for.
+    * @param array $excludes An array of urls to exclude from the sitemap.
     *
     * @return string
     * @access public
@@ -95,6 +95,33 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 
 		// Add in the Product Key for SquizSuite
 		foreach ($xml as $index => $piece) {
+            if ($systemid !== NULL) {
+                // If the requesterid is set, then we must add the requesterid on the fly.
+                preg_match('/<fbmeta name="access_locks" content="(.*?)" \/>/i', $piece, $matches);
+
+                if (isset($matches[1])) {
+                    preg_match_all('/\'(.*?)(\'\,|\'$)/i', $matches[1], $userid_matches);
+                    if (isset($userid_matches[1])) {
+                        $userids      = $userid_matches[1];
+                        $real_userids = array();
+                        foreach ($userids as $userid) {
+                            if ($userid == 'public') {
+                                $real_userids[] = "'public'"; 
+                            } else {
+                                $real_userids[] = "'".$systemid.'://'.$userid."'";
+                            }//end if
+                        }//end foreach
+
+                        $real_userids_string = implode(',', $real_userids);
+                        
+                        // Finally, replace the corrected string.
+                        $pattern = '/<fbmeta name="access_locks" content="(.*?)" \/>/i';
+                        $replace = '<fbmeta name="access_locks" content="'.$real_userids_string.'" />';
+                        $piece   = preg_replace($pattern, $replace, $piece);
+                    }
+                }
+            }
+
 			$xml[$index] = preg_replace('/<url>(.*?)<\/url>/i', '<url>\\1<fbmeta name="SQUIZPRODUCTID" content="'.$systemid.'" /></url>', $piece);
 		}
         

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.35 2011/01/31 01:11:45 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.36 2011/02/01 05:48:51 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2327,7 +2327,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$command .= ' | '.$bin_path.'padre-sw';				// Pipe the query to the search command (padre-sw)
 		$command .= ' '.escapeshellarg($collection_id);		// Index Stem aka Collection
 		$command .= ' -res xml -SMboth -SF'.$this->_getMetadataFields().' -spelling_enabled -qlog_file='.$log_file.$fluster;
-		$command .= $this->_getUserKeys();
+		$command .= ' -userkeys="'.implode(',', $this->_getUserKeys()).'"';
 		if (!empty($scope) && $scope != 'ALL') {
 			$command .= ' -scope '.escapeshellarg($scope);
 		}//end if
@@ -2393,8 +2393,9 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Build the options.
 		$options = array();
-		$options['num_per_page'] = $num_per_page;
+		$options['num_per_page']                  = $num_per_page;
 		$options['contextual_navigation_enabled'] = TRUE;
+        $options['userkeys']                      = $this->_getUserKeys(TRUE);
 		
 		// Check for required information
 		if (empty($systemid) || empty($collection)) {
@@ -2468,39 +2469,50 @@ class Funnelback_Search_Page extends Listing_Engine
 
 	/**
 	 * Get the user keys based on the current logged in user
+     *
+     * @param boolean $useSuiteSystemId Use the Suite System ID in the response keys.
 	 *
-	 * @return string
+	 * @return array
 	 * @access private
 	 */
-	private function _getUserKeys()
+	private function _getUserKeys($useSuiteSystemId=FALSE)
 	{
 		// Default to the public user keys
-		$userkeys = ' -userkeys="public"';
+		$keys    = array("'public'");
 		$user_id = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		if (!empty($user_id)) {
 			// Return if public user
 			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetId('public_user');
-			if ($user_id == $public_user) return $userkeys;
+			if ($user_id == $public_user) return $keys;
 
 			// Collate the user and his/her groups
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 			if (!is_null($user)) {
-				$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
-				$keys = Array($user->id, $public_user, 'public');
+                $prefix = '';
+                if ($useSuiteSystemId == TRUE) {
+                    $sm      = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
+                    $current = $sm->getCurrentProduct();
+                    $prefix  = array_get_index($current, 'systemid', '');
+                    if (!empty($prefix)) $prefix .= '://';
+                }//end if
+
+				$fm     = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+				$keys   = Array($user->id, $public_user, 'public');
 				$groups = $user->getUserGroups();
-				$keys = array_merge($keys, $groups);
+				$keys   = array_merge($keys, $groups);
 				sort($keys);
 
 				// Nasty.... but essential
 				foreach ($keys as $index => $key) {
-					$keys[$index] = "'".$fm->encodeText((string) $key)."'";
+					if ($key === 'public') continue;
+					$keys[$index] = "'".$prefix.$fm->encodeText((string) $key)."'";
 				}//end foreach
 
 				$userkeys = ' -userkeys="'.implode(',', $keys).'"';
 			}//end if
 		}//end if
 
-		return $userkeys;
+		return $keys;
 
 	}//end _getUserKeys()
 
