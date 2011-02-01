@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_management.inc,v 1.10 2007/12/06 04:28:51 lwright Exp $
+* $Id: design_customisation_management.inc,v 1.11 2011/02/01 04:50:21 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,7 +41,38 @@ class Design_Customisation_Management extends Asset_Management
 
 	}//end constructor
 
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
 
+		if (version_compare($current_version, '0.2', '<')) {
+			pre_echo('UPGRADING DESIGN CUSTOMISATION FROM v < 0.2');
+
+			// get all design assets
+			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design_customisation', TRUE, TRUE);
+			foreach ($design_ids as $design_id => $type) {
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($design_id, $type['type_code']);
+				$design->setAttrValue('static_url_versioning', FALSE);
+				$design->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+				unset($design);
+			}
+			
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
+	
 }//end class
 
 

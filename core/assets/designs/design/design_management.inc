@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.22 2010/12/22 05:49:55 mhaidar Exp $
+* $Id: design_management.inc,v 1.23 2011/02/01 04:50:20 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,7 @@ class Design_Management extends Asset_Management
 			pre_echo('UPGRADING DESIGN FROM v < 0.3');
 
 			// get all design assets
-			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', FALSE, TRUE);
+			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', TRUE, TRUE);
 			foreach ($design_ids as $design_id => $type) {
 				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($design_id, $type['type_code']);
 				$design->setAttrValue('static_url_versioning', FALSE);

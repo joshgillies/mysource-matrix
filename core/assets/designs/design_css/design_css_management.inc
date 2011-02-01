@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.12 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_css_management.inc,v 1.13 2011/02/01 04:50:20 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,9 +56,46 @@ class Design_Css_Management extends Asset_Management
 											'default'		=> FALSE,
 											'parameters'	=> Array('allow_empty' => FALSE),
 										  );
+		$this->vars['static_url_versioning'] = Array(
+												'added'			=> '0.4',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array('allow_empty' => FALSE),
+										  );
 
 	}//end constructor
+	
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
 
+		if (version_compare($current_version, '0.4', '<')) {
+			pre_echo('UPGRADING DESIGN CSS FROM v < 0.4');
+
+			// get all design assets
+			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design_css', TRUE, TRUE);
+			foreach ($design_ids as $design_id => $type) {
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($design_id, $type['type_code']);
+				$design->setAttrValue('static_url_versioning', FALSE);
+				$design->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+				unset($design);
+			}
+			
+		}//end if
+		return TRUE;
+
+	}//end _upgrade(
 
 }//end class
 ?>
