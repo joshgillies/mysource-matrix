@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.42 2010/12/22 06:09:58 mhaidar Exp $
+* $Id: design_css.inc,v 1.43 2011/02/01 06:10:57 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,32 +555,9 @@ echo '/*
 			}
 		}
 		$this->_tmp['updated_cache'] = TRUE;
-		$this->updateLinkedCssDesignAreas();
 		return $cache_asset->_updated();
 
 	}//end _updateCacheFile()
-
-	
-	/**
-	* Regenerates design files of linked css design areas of other designs (linked to this css design file).
-	* Accommodate Feature #4808: Version numbers in __data URLs because the file versions are not loaded dynamically.
-	* 
-	* @return void
-	* @access public
-	*/
-	public function updateLinkedCssDesignAreas()
-	{
-		
-		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design_area_linked_css', TRUE, 'minor', 'linked_css_asset');
-		foreach ($css_links as $clink) {
-			$design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($clink['majorid'], SQ_LINK_TYPE_3, 'design', FALSE, 'minor');
-			foreach ($design_links as $dlink) {
-				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($dlink['majorid'], $dlink['major_type_code'], TRUE);
-				$design->generateDesignFile(FALSE);
-			}
-		}
-		
-	}//end updateLinkedCssDesignAreas()
 	
 	
 	/**

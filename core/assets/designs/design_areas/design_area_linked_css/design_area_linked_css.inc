@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.27 2010/12/22 05:49:56 mhaidar Exp $
+* $Id: design_area_linked_css.inc,v 1.28 2011/02/01 06:10:57 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,9 +159,6 @@ class Design_Area_Linked_Css extends Design_Area
 		$css_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 		$cache_file_assetid = $css_asset->getCacheFileId();
 		
-		$cache_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($cache_file_assetid);
-		$cache_file_version = '?v='.$cache_file_asset->version; //Feature #4808: Version numbers in __data URLs
-		
 		// The code we are about to add to the design file will check if caching
 		// is enabled for the css asset and if so will try to get a URL
 		// from the cache file asset.  But if for any reason it didn't get a
@@ -175,7 +172,8 @@ class Design_Area_Linked_Css extends Design_Area
 			$versioning	= $GLOBALS[\'SQ_SYSTEM\']->am->getAttributeValuesByName(\'static_url_versioning\',\'design_css\',Array('.$css_assetid.'));
 			$served_by_apache = strpos($linked_css_'.$this->attr('id_name').'_url, \'/__data/\') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($linked_css_'.$this->attr('id_name').'_url, SQ_CONF_STATIC_ROOT_URL.\'/\') !== FALSE);
 			if ($served_by_apache && (isset($versioning[\''.$css_assetid.'\']) &&  ($versioning[\''.$css_assetid.'\'] == 1))) {
-				$linked_css_'.$this->attr('id_name').'_url .= \''.$cache_file_version.'\';
+				$cache_file_version = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo('.$cache_file_assetid.', Array(), TRUE, \'version\');
+				if (!empty($cache_file_version['.$cache_file_assetid.'])) $linked_css_'.$this->attr('id_name').'_url .= \'?v=\'.$cache_file_version['.$cache_file_assetid.'];
 			}
 		}
 		
