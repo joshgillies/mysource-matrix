@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.20 2010/05/10 11:48:01 ata Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.20.2.1 2011/02/01 03:36:31 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -960,7 +960,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$regen_all_contexts = FALSE;
 		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
-			$metadata[$fieldid]['value'] = $new_data;
+			$metadata[$fieldid][0]['value'] = $new_data;
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
 				$regen_all_contexts = TRUE;
