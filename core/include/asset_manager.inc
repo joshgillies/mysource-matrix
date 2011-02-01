@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.830 2011/01/31 23:44:56 cupreti Exp $
+* $Id: asset_manager.inc,v 1.831 2011/02/01 23:06:46 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.830 $
+* @version $Revision: 1.831 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1070,7 +1070,81 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAttributeValuesByName()
 
+	
+	/**
+	* Get all the attribute values of the given assetid and type code.
+	* This method is similar to asset:_loadVars() except it does not unserialize any attributes.
+	* Return array of name => array (attrid, type, value, is_contextable, use_default)
+	* 
+	* If there are no custom value for an attribute, its default value will be loaded.
+	* If no asset ID is provided, this function just loads the default values for the asset type.
+	* This method will also allow you to get attribute values for a different context.
+	*
+	* @param mixed		$assetid		(int | string) the asset id to be loaded
+	* @param string		$type_code		the type of $assetid
+	* @param int		$contextid		The ID of the context we wish to get the value of the attr for.
+	*									(If omitted, use the currently active context.)
+	*
+	* @return array
+	* @access public
+	*/
+	function getAllAttributeValues($assetid='', $type_code, $contextid=NULL)
+	{
+		
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
 
+		// Right, now we need to get any values that this asset has customised
+		$vars = Array();
+
+		$sql = '';
+		// if we have an id then we need to load with current vars
+		if ($assetid) {
+			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
+			// DEFAULT VALUES IF WE DO
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value, atr.is_contextable, v.use_default
+					FROM (sq_ast_attr atr
+					  LEFT OUTER JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val WHERE contextid = :contextid) v
+						ON (atr.attrid = v.attrid AND v.assetid = :assetid'
+						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').'))
+						WHERE atr.type_code = :type_code';
+		} else {
+			// else just load all defaults
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value, atr.is_contextable, \'1\' as use_default
+					FROM sq_ast_attr atr
+					WHERE atr.type_code = :type_code';
+		}// end if
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+			// Only bind it if we are using the first query, not binding when going in the else above
+			if ($assetid) {
+				MatrixDAL::bindValueToPdo($query, 'contextid', $contextid, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'assetid',   $assetid, PDO::PARAM_STR);
+			}//end if
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
+
+			if (empty($result)) {
+				$vars = Array();
+			} else {
+				$vars = $result;
+				foreach (array_keys($vars) as $name) {
+					$vars[$name] = $vars[$name][0];
+					unset($vars[$name][0]);
+				}
+			}
+
+			unset($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to load variables of asset #'.$assetid.' ('.$type_code.') due to database error: '.$e->getMessage());
+		}
+
+		return $vars;
+
+	}//end getAllAttributeValues()
+	
 //--        ASSETS        --//
 
 
