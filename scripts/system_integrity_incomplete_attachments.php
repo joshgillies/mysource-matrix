@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.3.4.1 2010/07/26 23:18:51 mhaidar Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.3.4.2 2011/02/02 23:59:59 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.4.1 $
+* @version $Revision: 1.3.4.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -75,11 +75,18 @@ foreach ($form_assetids as $assetid) {
 				}//end if
 				echo "\n";
 			} else {
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($incomplete_submission_asset, TRUE);
+				if (isset($incomplete_submission_asset)) {
+					unset($incomplete_submission_asset->_tmp);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($incomplete_submission_asset, TRUE);
+				}
+				unset($incomplete_submission_asset);
 			}//end if
+			unset($incomplete_submission->_tmp);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($incomplete_submission, TRUE);
 			unset($incomplete_submission);
 		}//end if
 	}//end foreach
+	unset($asset->_tmp);
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 	unset($asset);
 }//end foreach
