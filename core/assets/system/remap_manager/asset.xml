@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2008/01/17 02:48:11 mbrydon Exp $
+* $Id: asset.xml,v 1.6.10.1 2011/02/03 05:20:51 cupreti Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>remap_manager</type_code>
-	<version>0.2.1</version>
+	<version>0.2.2</version>
 	<name>Remap Manager</name>
 	<description>The URL Remap Manager looks after URLs in the system that no longer point to assets to ensure that they point to a replacement asset instead.</description>
 	<instantiable>yes</instantiable>

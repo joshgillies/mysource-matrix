@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_management.inc,v 1.10.10.1 2010/09/20 03:57:01 mhaidar Exp $
+* $Id: remap_manager_management.inc,v 1.10.10.2 2011/02/03 05:20:51 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.10.1 $
+* @version $Revision: 1.10.10.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,12 +56,41 @@ class Remap_Manager_Management extends Asset_Management
 						'never_delete_remap_default'	=> Array(
 											'added'		=> '0.2.1',
 											'type'		=> 'boolean',
-											'default'	=> TRUE,
-										   ),				   
+											'default'	=> FALSE,
+										   ),
 					  );
 
 	}//end constructor
 
+
+    /**
+    * Upgrade this asset type
+    *
+    * @param string $current_version    the version of the asset that is currenly installed
+    *
+    * @return boolean
+    * @access public
+    */
+    public function _upgrade($current_version)
+    {
+        if (!parent::_upgrade($current_version)) return FALSE;
+		
+		if (version_compare($current_version, '0.2.2', '<')) {
+			
+			$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+
+			$sql = "SELECT custom_val FROM sq_ast_attr a, sq_ast_attr_val v where v.assetid = '".$rm->id."' AND a.name='never_delete_remap_default' AND a.attrid=v.attrid";
+			$record = MatrixDAL::executeSqlAssoc($sql);
+
+			if (empty($record)) {
+				$rm->setAttrValue('never_delete_remap_default', '1');
+				$rm->saveAttributes();
+			}
+		}
+
+		return TRUE;
+
+	}//end _updrade()
 
 }//end class
 

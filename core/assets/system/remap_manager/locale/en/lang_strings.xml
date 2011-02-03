@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2.12.1 2010/09/20 03:57:01 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.2.12.2 2011/02/03 05:20:51 cupreti Exp $
 *
 */
 
@@ -23,4 +23,7 @@
     <string source="remap_manager_auto_add_remaps_note">This option defines the default behaviour when altering the Web Paths of an asset. This can be overridden on an asset-by-asset basis when changing Web Paths.</string>
 	<string source="remap_manager_never_delete_remap_default_question">Never Delete added remaps?</string>
   	<string source="remap_manager_never_delete_remap_default_note">This option defines the default setting for the "Never Delete" field of each added remap.</string>
+	<string source="purge_all_remaps">Purge All Remaps</string>
+	<string source="purge_all_remaps_note">This will delete all the remaps having "Never Delete" option set to "No".</string>	
+	<string source="confirm_purge_all_remaps" js="1">Are you sure you want to delete all the remaps having "Never Delete" option set to "No"?</string>	
 </strings>
