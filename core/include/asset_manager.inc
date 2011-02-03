@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.820.2.4 2011/01/31 23:09:04 akarelia Exp $
+* $Id: asset_manager.inc,v 1.820.2.5 2011/02/03 04:41:01 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.820.2.4 $
+* @version $Revision: 1.820.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3581,6 +3581,13 @@ class Asset_Manager extends MySource_Object
 			return $link_lineages;
 
 		}//end if shadow asset
+		
+		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
+		if ($only_significant) {
+			$link_types = SQ_SC_LINK_SIGNIFICANT;
+		} else {
+			$link_types = SQ_SC_LINK_ALL;
+		}//end if		
 
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
@@ -3597,9 +3604,9 @@ class Asset_Manager extends MySource_Object
 
 		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 		$sub_where = 'l.minorid = :minorid';
-		// Bug Fix #3835 Notice links Lineage shown when clicking on binoculars icon
-		if (MatrixDAL::getDbType() === 'oci' && $only_significant) $sub_where .= ' and link_type < '.SQ_SC_LINK_SIGNIFICANT;
+		$sub_where .= ' and link_type < :link_types';
 		$bind_vars['minorid'] = (string)$assetid;
+		$bind_vars['link_types'] = $link_types;
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
 
@@ -3632,7 +3639,7 @@ class Asset_Manager extends MySource_Object
 		 * which is a nice win.
 		 *
 		 */
-		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size)';
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids(:assetid, :tree_size, :rb_date, :link_types)';
 
 		$treeids = array();
 		if (MatrixDAL::getDbType() === 'oci') {
@@ -3640,8 +3647,10 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$treeids_query = "SELECT " . SQ_TABLE_RUNNING_PREFIX . "get_lineage_treeids AS treeid FROM " . $in_sql;
 		}
-		$treeid_bind_vars['assetid']   = (string) $assetid;
-		$treeid_bind_vars['tree_size'] = (int) SQ_CONF_ASSET_TREE_SIZE;
+		$treeid_bind_vars['assetid']	= (string) $assetid;
+		$treeid_bind_vars['tree_size']	= (int) SQ_CONF_ASSET_TREE_SIZE;
+		$treeid_bind_vars['rb_date']	= NULL;
+		$treeid_bind_vars['link_types']	= (int) $link_types;
 
 		try {
 			$tree_query = MatrixDAL::preparePdoQuery($treeids_query);

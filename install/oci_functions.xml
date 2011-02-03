@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.1 2008/01/02 22:03:49 lwright Exp $
+* $Id: oci_functions.xml,v 1.1.14.1 2011/02/03 04:41:36 cupreti Exp $
 *
 */
 -->
@@ -170,7 +170,7 @@
 	</sql_element>
     <sql_element display_name="sq_get_lineage_treeids Function">
         <![CDATA[
-        CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL) RETURN VARCHAR_2000_TABLE IS
+        CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL, link_types IN INTEGER := NULL) RETURN VARCHAR_2000_TABLE IS
 				offset int;
 				next_treeid VARCHAR2(2000);
 				db_treeid VARCHAR2(2000);
@@ -189,6 +189,10 @@
 
 				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
 						    WHERE l.minorid = "' || minorid || '"';
+
+				IF link_types IS NOT NULL THEN
+					sql_str := sql_str || ' AND l.link_type < "' || link_types || '"';
+				END IF;
 
 				IF rb_date IS NOT NULL THEN
                     sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'

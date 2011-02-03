@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.18 2010/09/21 06:37:17 csmith Exp $
+* $Id: pgsql_functions.xml,v 1.18.2.1 2011/02/03 04:41:36 cupreti Exp $
 *
 */
 -->
@@ -226,9 +226,9 @@
             ' language plpgsql;
         ]]>
     </sql_element>
-    <sql_element display_name="sq_get_lineage_treeids(VARCHAR, INT, TIMESTAMP) Function">
+    <sql_element display_name="sq_get_lineage_treeids(VARCHAR, INT, TIMESTAMP, INT) Function">
         <![CDATA[
-            CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(VARCHAR, INT, TIMESTAMP) RETURNS SETOF BYTEA AS '
+            CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(VARCHAR, INT, TIMESTAMP, INT) RETURNS SETOF BYTEA AS '
             DECLARE
                 treeids RECORD;
                 urloffset int;
@@ -239,6 +239,7 @@
                 rb_date ALIAS FOR $3;
                 table_prefix VARCHAR;
                 sql VARCHAR;
+				link_types ALIAS FOR $4;
             BEGIN
                 IF rb_date IS NULL THEN
                     table_prefix := ''sq_'';
@@ -246,8 +247,13 @@
                     table_prefix := ''sq_rb_'';
                 END IF;
 
-                sql := ''SELECT t.treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
-                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l where l.minorid = '''''' || minorid || '''''''';
+                sql := ''SELECT t.treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t 
+					ON l.linkid = t.linkid
+                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l WHERE l.minorid = '''''' || minorid || '''''''';
+
+				IF link_types IS NOT NULL THEN
+                	sql := sql || '' AND l.link_type < '''''' || link_types || '''''''';
+				END IF;
 
                 IF rb_date IS NOT NULL THEN
                     -- note the extra bracket at the end of this statement to close the IN clause above
