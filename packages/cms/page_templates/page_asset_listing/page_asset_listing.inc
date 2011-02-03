@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.133 2009/07/30 04:39:06 cupreti Exp $
+* $Id: page_asset_listing.inc,v 1.133.6.1 2011/02/03 05:47:19 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.133.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -388,7 +388,7 @@ class Page_Asset_Listing extends Listing_Engine
 							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
 							$bind_prefix = 'gc_'.$root_asset_id.'_';
-							$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE, $link_value_wanted, $bind_prefix);
+							$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, TRUE, $link_value_wanted, $bind_prefix);
 							$sql = $ret_val['sql_array'];
 							$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
 
@@ -439,7 +439,7 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'random' :
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE, $link_value_wanted);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
