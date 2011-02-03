@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.37 2010/09/17 05:34:37 mhaidar Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.37.2.1 2011/02/03 05:25:17 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,6 +188,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$total_assets = $remap_info['total_remaps'];
 		$remap_urls = $remap_info['remap_rows'];
 
+		$o->openField(translate('purge_all_remaps'));
+		combo_box($prefix.'_purge_all_remaps', Array(0 => translate('no'), 1 => translate('yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_all_remaps'))) { this.value = 0; } } \"". ($write_access ? '' : "disabled"));
+		$o->note(translate('purge_all_remaps_note'));
+		$o->closeField();		
+
 		$o->openField('Original URL Filter');
 		text_box($prefix.'_URL_FILTER', $url_filter, 30);
 		$o->note(translate('remap_manager_url_filter_note'));
@@ -297,17 +302,17 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($write_access) {
+						$never_delete_remap = (isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete'];
 							?>
 							<td class="sq-backend-table-cell">
 								<?php
-								check_box($prefix.'_delete_remap['.$url_info['url'].']');
+								check_box($prefix.'_delete_remap['.$url_info['url'].']', 1, FALSE, '', $never_delete_remap ? 'disabled' : '');
 								?>
 							</td>
 							<td class="sq-backend-table-cell">
 								<?php
-								if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
+								if ($never_delete_remap) {
 									check_box($prefix.'_never_delete_remap['.$url_info['url'].']',1, TRUE);
-
 								} else {
 									check_box($prefix.'_never_delete_remap['.$url_info['url'].']');
 								}
@@ -402,6 +407,16 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			} catch (Exception $e) {
 				throw new Exception('Unable to get remap urls due to the following database error: '.$e->getMessage());
+			}
+		}
+
+		// Purge all remaps with "Never Delete" option set to "No"
+		if (isset($_POST[$prefix.'_purge_all_remaps']) && $_POST[$prefix.'_purge_all_remaps']) {
+			try {
+				$bind_vars = Array('never_delete' => '0');
+				MatrixDAL::executeQuery('remap_manager', 'deleteRemapsByNeverDeleteOption', $bind_vars);
+			} catch (DALException $e) {
+				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
 		}
 

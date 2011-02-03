@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.85 2010/09/17 05:34:38 mhaidar Exp $
+* $Id: asset_edit_fns.inc,v 1.85.2.1 2011/02/03 05:26:01 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.85.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -224,7 +224,7 @@ class Asset_Edit_Fns extends MySource_Object
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
 				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 4 : 3 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
@@ -243,6 +243,7 @@ class Asset_Edit_Fns extends MySource_Object
 						<?php
 					}
 				?>
+				<td class="sq-backend-table-header"><?php echo translate('never_delete'); ?></td>
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
@@ -262,12 +263,14 @@ class Asset_Edit_Fns extends MySource_Object
 							?>
 							<td class="sq-backend-table-cell">
 								<?php
-								check_box($prefix.'_delete_remap['.$url_info['url'].']');
+								check_box($prefix.'_delete_remap['.$url_info['url'].']', 1, FALSE, '', $url_info['never_delete'] ? 'disabled' : '');
 								?>
 							</td>
 							<?php
 						}
 					?>
+					
+					<td class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
 				}//end foreach
