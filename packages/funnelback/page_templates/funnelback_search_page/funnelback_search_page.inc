@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.30.2.5 2011/02/01 06:00:23 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.30.2.6 2011/02/04 05:56:24 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.30.2.5 $
+* @version $Revision: 1.30.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2375,7 +2375,6 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Get the query term
 		$query = array_get_index($search, 'query', '');
-		$query = str_replace(' ', '+', $query);
 		$query = str_replace('&', '', $query);
 
 		// Get the collection
