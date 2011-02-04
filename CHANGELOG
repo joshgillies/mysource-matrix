@@ -1,828 +1,104 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 4.0.0
+SION 4.2.0 RC1
 
 Featured Changes
 ===================================
 
-SOAP CreateAsset() set required attribute values [ Feature Request #4417 ]
+
+Version numbers in __data URLs [ Feature Request #4808 ]
 -----------------------------------------------------
 
-A new parameter has been added to the CreateAsset function (SOAP API Asset Service) to allow the setting of attributes. Previously, only the name of the asset could be set when creating an asset using this function. As such, there was no way to create assets with required attributes, such as a Single Calendar Event asset (Start Time attribute required).
+It's difficult to manage cache expiration of statically served content, since this content is served blind by apache.
 
-    * AttributeInfo: the attribute information to set for the created asset. As this is a complexType parameter, it takes multiple elements: AttributeName and AttributeValue.
+That is, you can edit a file, or CSS asset for example, but until the browser forces the request of a new version (further compounded by reverse proxies), the old version will continue to be served.
 
-      For example:
+A common pattern for dealing with this is to add version numbers to the URL for the static file. Often, this is simply added as a query string for simplicity.
 
-      Array('AttributeName' => 'description', 'AttributeValue' => test desc)
+The effect being, when the file is updated and you bust the cache on the page, the URL for the file is different (since it's versioned), and so the browser gets the fresh version of the asset.
 
-The new format of the CreateAsset function is as follows:
+This can be a huge boost in caching strategies, allowing people to be more aggressive with their cache policy and empowering them to bust the 'perceived' cache on static files more easily.
 
-<soap:Body>
-  <ns1:CreateAsset>
-    <TypeCode>AssetType</TypeCode>
-    <Name>string</Name>
-    <ParentID>string</ParentID>
-    <LinkType>LinkType</LinkType>
-    <LinkValue>string</LinkValue>
-    <SortOrder>int</SortOrder>
-    <IsDependant>string</IsDependant>
-    <IsExclusive>string</IsExclusive>
-    <FileName>string</FileName>
-    <FileContentBase64>string</FileContentBase64> 
-    <AttributeInfo>AttributeInfo</AttributeInfo>
-  </ns1:CreateAsset>
-</soap:Body>
-
-
-New Image Title Field in the WYSIWYG's Insert Image Tool [ Feature Request #4424 ]
+TRIM Feature Request for Cron Job [ Feature Request #4875 ]
 -----------------------------------------------------
 
-A new field has been added to the WYSIWYG' s Insert Image tool, allowing you to specify a title for an image upon insertion.
+Added ability to modify the (when) attribute of the saved search cron job through the details interface.
 
-The Image Title field can be accessed on the Insert Image pop-up. Once you have selected and Image asset, enter a title or description that you wish to display for the image and click the Create Image button.
+Also added a custom field in saved search to allow the result set to contain a text version of a records container called (Container Title)
 
-This title will be displayed on the front end when a user hovers their cursor over the image.
+	Remap Manager: Never Delete Enhancements [ Feature Request #4890 ]
+	-----------------------------------------------------
 
+	The Remap Manager's Never Delete option allows you to lock specific remaps from being deleted. This new feature improves this existing functionality by adding a variety of enhancements.
 
-Record Merchant Reference No. Before Processing Payment [ Feature Request #4451 ]
------------------------------------------------------
+	A new option has been added to the Remap Manager to purge all remaps in the system except those marked as Never Delete. This option is enabled through a new field on the Details screen of the Remap Manager.
 
-Some payment gateways like SagePay and Datacash generates their merchant reference numbers just before processing payments because the customers can try to pay many times until his card is accepted. We need to record the last reference numbers to the pending orders so that if the payments succeed but Matrix fails to update the order statuses, we will have these numbers to track in the real payment gateways.
+	Setting this field to Yes and clicking Commit will purge all remaps in the system that are not marked as Never Delete.
 
+	The Web Paths screen of an asset would previously list its remaps but would provide no indication of whether the remap was marked as Never Delete or not. A new column has now been added for remaps on the Web Paths screen to display whether the remap is marked as Never Delete.
 
-Changing the Link Type When Creating a New Asset [ Feature Request #4452 ]
------------------------------------------------------
+	Previously, delete fields were available to all remaps listed in the Remap Manager or on the Web Paths screens of assets. These fields were ineffective when used on remaps marked as Never Delete, however they were still accessible. These delete fields will now only be enabled for use on remaps not marked as Never Delete. The delete field will be disabled on remaps marked as Never Delete, as shown in the figure above.
 
-When creating an asset within Squiz Matrix, the asset would previously be created as a TYPE_1 linked asset. This was an automated process, which meant that if you wanted the asset to be TYPE_2 linked, you would need to configure its Link Type on the asset's Linking screen. This new feature gives you the convenience of selecting the Link Type of an asset when creating it, allowing you to create TYPE_2 linked assets in a single step.
+	The Remap Manager's Never Delete Added Remaps? field will now be disabled by default, meaning that users must manually enable this option. This field was previously enabled by default; Existing installations using the previous default will retain their settings when being updating.
 
-When creating a new asset, you will notice the new Link section on the Create screen. In the Link Type field, simply select the Link Type to create the asset as, for example TYPE_2. When committed, the asset will be created as the chosen link type.
+	Slight performance improvement in rebuilding cache [ Feature Request #4925 ]
+	-----------------------------------------------------
 
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
+	A slight performance improvement can be achieved by testing if the asset has no urls first up and finishing, since a url is needed to be indexed by funnelback.
 
+	Improved permissions in Squiz Search [ Feature Request #4926 ]
+	-----------------------------------------------------
 
-%order_xml% Keyword Replacement for E-Commerce Checkout Page [ Feature Request #4453 ]
------------------------------------------------------
+	Improved permissions in Squiz Search will be handled by adding the systemid to all but the public key when retrieving the sitemap.
 
-This new keyword replacement (%order_xml%) has been added to the E-Commerce package's Checkout Page asset. Using this keyword replacement on the Receipt bodycopy of the Checkout Page will provide XML format information for newly created orders.
 
+	Additional Changes and Bug Fixes
+	=================================== 
 
-A-Z Asset Listing: Option to Display All Assets on a Single Page [ Feature Request #4461 ]
------------------------------------------------------
+	Minor Enhancements
+	Minor Enhancement #4804: HTTP Request Header Acknowledges System Proxy Settings.
+	Minor Enhancement #4869: Exporting Asset Attributes with CDATA Values.
+	Minor Enhancement #4891: Asset Manager: getAttributeValuesByName Enhancements.
+	Minor Enhancement #4894: Asset::readAccess Makes Unnecessary Calls to the Workflow Manager.
+	Minor Enhancement #4895: Don't Add Remap Option on the Add Web Path Trigger Action.
+	Minor Enhancement #4912: Improved Performance of the Workflow Screen.
+	Minor Enhancement #4913: Asset Manager: getAttributeValuesByName Enhancements.
+	Minor Enhancement #4916: System Asset Links Locked by Default.
+	Minor Enhancement #4923: Enhancement: When Painting 404 not found Page and Sending Cacheable Header is Enabled, Expiry header is Not Set.
 
-New fields are available on an Asset Listing page for A-Z listings. These options allow users to display A-Z listings as a single page, when previously, only multiple page listings were available.
+	Core
+	Fixed Bug #4856: Replace Text 'selected text only' not working in IE7+8.
+	Fixed Bug #4881: Date/Time form output.
+	Fixed Bug #4885: Daily cron jobs run twice.
+	Fixed Bug #4886: "Update lookups" HIPO Job in File::saveAttributes() creating issue.
+	Fixed Bug #4889: Incorrect default when attribute on Sync Product cron job.
+	Fixed Bug #4896: Trigger action "Set Metadata Value" fails when using parameter map.
+	Fixed Bug #4903: Online Quiz List Format field description lists unavailable formats.
+	Fixed Bug #4904: Typo on design_area_asset_lineage screen.
+	Fixed Bug #4905: Quotation button in WYSIWYG view, unquote results in escaped html.
+	Fixed Bug #4906: 'AssetStatusUpdate' event broadcasted but onAssetStatusUpdate() never executed.
+	Fixed Bug #4907: Error when changing content type in a non default context.
+	Fixed Bug #4910: When an asset is linked to a big number of parents, you will easily get Oracle error ORA-01795: maximum number of expressions in a list is 1000.
+	Fixed Bug #4915: Metadata value trigger condition does not consider keywords.
+	Fixed Bug #4924: DB error when a design asset is notice linked to too many assets.
+	Fixed Bug #4930: Global Search and Replace doesn't replace metadata.
 
-When using a multiple page A-Z listing, users navigate through pages of assets, with each page representing a different letter. Single page A-Z listings list all these assets on the one page, categorised under letter headings (configured in the A-Z Letter Format field).
+	CMS
+	Fixed Bug #4878: ORA-01795 on Site Map asset.
+	Fixed Bug #4880: Insert image doesn't remember location of last image variety uploaded.
+	Fixed Bug #4892: Small typos in Remote Content asset Details screen.
+	Fixed Bug #4901: Using a nested asset in simple edit layout which has an arbitrary paint layout set, will throw PHP notices.
 
-Clicking a letter on the page list at the top of the screen will automatically take you to the corresponding section of the page. For example, clicking L will navigate the user to the assets listed under the L heading.
+	Calendar
+	Fixed Bug #4899: Recurring calendar event instance date keyword bugs.
 
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
+	Web Services
+	Fixed Bug #4877: JS API Fails on https only domains.
+	Fixed Bug #4909: JS API setAssetStatus permission denied for user with write permissions.
+	Fixed Bug #4920: JS API not escaping metadata correctly.
+	Fixed Bug #4922: JS API returns invalid JSON.
 
+	Funnelback Package
+	Fixed Bug #4911: Contextual Navigation links not working with Funnelback Server Search.
+	Fixed Bug #4921: The Sitemap XML generated by Matrix is not escaping nbsp chars.
 
-Search and Replace WYSIWYG Plugin [ Feature Request #4467 ]
------------------------------------------------------
-
-A Search and Replace plugin has been added for the WYSIWYG editor, allowing users to search for text, replacing it with a specified replace string. For example, you could search for all uses of the word 'canine' in your page and replace those instances with the word 'dog'.
-
-By default, this plugin will be enabled and the Search And Replace icon will appear in the WYSIWYG editor, as shown below.
-
-Clicking this icon will display the Search and Replace pop-up where you can search for text, choosing to replace matches on either an all, selection or individual basis. A number of replace options are also available.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
-
-
-Allow Cacheable Headers to be Sent Based on Root URL [ Feature Request #4471 ]
------------------------------------------------------
-
-A new Root URL Specific screen is available on the cache manager to set the system root URLs to send cacheable headers for, independent of Matrix's cache settings.
-
-Previously, Matrix would only send cacheable headers if the Send Cacheable Header setting was enabled (on the System Configuration screen) and if caching was enabled for the asset. For systems using third party cache, such as Squid cache, not sending cacheable headers would result in the caching system not receiving the appropriate headers.
-
-This new screen sets the cacheable root URLs, for which cacheable headers will always be sent, so long as the sending of cacheable headers is enabled on the System Configuration screen. By default, all system URLs will be selected on this screen.
-
-
-Changing the Status of an Asset from Up For Review to Archived [ Feature Request #4477 ]
------------------------------------------------------
-
-New functionality has been added to allow the archiving of assets that are Up For Review. Previously, users would have to make an asset Live, through the asset's approval process, or change its status to Safe Edit before being able to set an asset as Archived. This feature allows users to bypass these steps, directly changing the status of an Up For Review asset to Archived.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference. 
-
-
-Dynamically Changing the Nested Asset [ Feature Request #4485 ]
------------------------------------------------------
-
-New Dynamic Option fields are available in nested content division and design areas, allowing you to dynamically change the nested asset using a GET parameter in the site URL.
-
-Once a GET variable has been set in the GET Variable Name field, it can be used in the URL of the page in conjunction with an asset ID, to change the asset being nested.
-
-In this example, the GET parameter has been set to 'id' and is calling asset #150 as the nested asset. The content of asset #150 will be nested in the site in place of the originally set nested asset.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference. 
-
-
-New Related Asset Metadata Field Type [ Feature Request #4489 ]
------------------------------------------------------
-
-A new metadata field type is now available to allow users to select related assets as metadata values. Attributes from these related assets can then by dynamically retrieved through the use of keyword replacements, used within the content of the page.
-
-The Related Asset metadata field can be selected on the Details screen of a Metadata Schema, as shown below.
-
-When this schema is applied to an asset, users will be able to select an asset from the asset map to specify as a related asset.
-
-You can retrieve attributes of related assets using the following keyword replacement format:
-
-%metadata_asset_<related_asset_field_name>_<asset_attribute>%
-
-For example, %metadata_asset_Related_Asset_asset_url% will return the URL of the asset that has been selected in the Related Asset field.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference. 
-
-
-Allow Users to Specify an Asset Listing's Start Position [ Feature Request #4495 ]
------------------------------------------------------
-
-An option is now available on an Asset Listing Page, allowing users to specify an asset position to start the listing at. This setting is configured via a new Start Position field, located on the listing's Details screen.
-
-By default, this field is set to 0, meaning that this option is disabled and the listing will list the assets as normal. Setting this field to 5, for example, will start the listing from the fifth asset and list the remaining assets from that position.
-
-When using custom groupings, this setting will apply to the individual group listings.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
-
-
-REST Resource Assets: Ignore SSL Certificate Verification Option for http_request Attribute [ Feature Request #4511 ]
------------------------------------------------------
-
-A new option has been added to the REST Resource and REST Resource Javascript assets to disable SSL certificate verification on HTTP requests.
-
-This option is enabled via a new Disabled SSL certificate verification field on the Details screen of the REST Resource and REST Resource Javascript assets.
-
-Previously, if the SSL verification failed on a request, no data would be returned on the REST asset. This was problematic in cases where the request host used self-signed certificate verification. When enabled, this option allows the REST assets to bypass SSL verification in the request, resolving such issues.
-
-
-Keyword Replacements for Multiple Page Assets Contextable [ Feature Request #4520 ]
------------------------------------------------------
-
-The following keyword replacements for Multiple Page assets have been made contextable:
-
-    * %current_page_name%
-    * %previous_page_name%
-    * %previous_page_link%
-    * %next_page_name%
-    * %next_page_link%
-    * %page_name_x%
-    * %page_link_x%
-    * %toc_unordered%
-    * %toc_ordered%
-    * %navigation_menu_selection_list%
-
-These keyword replacements would previously only return values for the default context. The correct values from the current context will now be returned when these keyword replacements are used on the Multiple Page asset.
-
-This feature further enhances the role of Contexts within Squiz Matrix, increasing the information that can be supported over multiple contexts.
-
-
-_recache on Memcache Cache Storage [ Feature Request #4524 ]
------------------------------------------------------
-
-Previously, when the Memcache Cache Storage type was enabled in the Cache Manager, assets could not be recached using the _recache suffix on the frontend. This feature adds a new version of memcache cache storage, which maintains a small index of URLs and asset IDs, enabling recaching on the front-end.
-
-
-Stop Users from Creating a Hyperlink to Non-Live Assets [ Feature Request #4537 ]
------------------------------------------------------
-
-A new preference has been added for users to stop the creation of hyperlinks from a live asset to an asset that is not live. For example, if the Home page of your site is live, users will not be able to create a link on that page to an asset which is under construction, such as a Word document. The document would need to be made live before a link could be created.
-
-This preference is accessed via a new field on the Global Preferences screen (in the System Configuration). By default, this preference is set to 'No'.
-
-When this field is set to 'Yes', a warning will be displayed on the Edit Contents screen when users attempt to create a hyperlink to non-live assets (on commit).
-
-The invalid link will not be committed, however all other content will be committed as normal.
-
-This is a Features Bazaar feature, chosen for development by attendees of the 2009 MySource Matrix User Conference.
-
-
-Deja Vu: An Extension of Memcache for Persistent Matrix Data Storage [ Feature Request #4549 ]
------------------------------------------------------
-
-Deja Vu is an extension of Memcache, providing memory storage for asset objects, metadata values and locale strings. It is designed to move common data loading into a more persistent memory, improving the scalability of sites.
-
-Currently, Squiz Matrix can only use Memcache to store front end page content on a site. While cached page response times are generally acceptable under this system, users may experience large loading at frequent intervals due to aggressive cache expiration. Deja Vu combats these issues by extending the current concept of Memcache within Matrix, using memory to store object, metadata and locale data.
-
-Deja Vu is fully optional for Memcache and is configured in the data/private/conf/memcache.inc file (a sample of this configuration is found in install/memcache-inc.sample). A management script (scripts/dejavu_management.php) allows you to easily enable and disable Deja Vu through the following commands:
-
-$ php scripts/dejavu_management.php -s . --enable
-
-$ php scripts/dejavu_management.php -s . --disable
-
-$ php scripts/dejavu_management.php -s . --disable-force
-
-Please note that Deja Vu should only be setup with a single dedicated Memcache instance (on one Matrix instance) to avoid causing issues with sessions or content caching. We also recommend that only large scale systems with aggressive cache expiry strategies implement the Deja Vu extension.
-
-
-Force Lowercase on Squiz Matrix Usernames [ Feature Request #4562 ]
------------------------------------------------------
-
-A new configuration setting has been added to the main.inc system configuration file to force lowercase characters on Squiz Matrix usernames.
-
-This option can be manually set on the following line of the main.inc file:
-
-define('SQ_CONF_FORCE_LOWERCASE_USERNAME', false);
-
-Setting this option to true will automatically create new users with lowercase usernames, regardless of the input on the create user screen.
-
-This setting will be applied when creating the following User types:
-
-    * User
-    * Simple Edit User
-    * Backend User
-    * System Administrator
-
-Please be aware, however, that this option does not affect any previously created users that may have uppercase letters in their usernames. Before configuring this option, you should clean your database of such users to prevent any unexpected behaviour.
-
-This setting is not recommended for systems with complex user structures.
-
-
-Asset ID Query String Translates to Valid URL [ Feature Request #4573 ]
------------------------------------------------------
-
-When creating links in Squiz Matrix, you can append an asset ID query string to point to a specific asset. An example of this is shown below:
-
-http://www.example.com?a=<ASSET_ID>
-
-http://www.example.com?a=100 
-
-Currently, such links are only translated to valid URLs on the front end when used in the bodycopy content of a page. In the example below, the link is pointing to asset #100, the Home page. On the frontend, the link is translated to the valid URL of the Home page.
-
-http://www.example.com?a=100
-
-http://www.example.com/home
-
-This feature extends this functionality to the page content of all assets in the system (for example, the summary of a News Item asset), resulting in a more consistent performance throughout Squiz Matrix.
-
-
-Filter Front End User Form Inputs [ Feature Request #4581 ]
------------------------------------------------------
-
-A new global preference has been added to filter form inputs made by users on the front end. This preference will strip script tags, strip Matrix keyword replacements and escape html from user inputs in forms such as Asset Builders and Custom Forms. Such inputs, in rare cases, can affect Squiz Matrix's back end operations and may cause unexpected and potentially adverse behaviour. This preference completely eradicates this risk, improving the security of your system (and peace of mind).
-
-This preference can be set through the new Filter Front End User Input field on the Global Preferences screen. When enabled, user's form inputs on the front end will be filtered accordingly.
-
-
-Allow Multiple Uses of URL Matches Trigger Condition [ Feature Request #4601 ]
------------------------------------------------------
-
-Currently, only a handful of Trigger Conditions can be used multiple times on a trigger. This feature adds the 'URL matches' condition to this select group, allowing you to use the condition more than once on a single trigger.
-
-This can be useful in cases where you may want to match against two URL condition or match on one condition whilst not matching on another.
-
-This enhancement provides you with the ability to create more refined conditions for your triggers.
-
-
-Promotional Code Asset for E-Commerce [ Feature Request #4631 ]
------------------------------------------------------
-
-A new Promotional Code asset has been added to the E-Commerce Package to allow customers to receive discounts when entering store promotional codes. These discounts are based on rules, configured in the Promotional Code asset.
-
-The Promotional Code asset can be found in the E-Commerce section of the New Child/Add menu.
-
-You can set the promotional code and specify which items to apply the promotional discount to on the Details screen of the Promotional Code asset. You can also create a promotional rule, based on the quantity of assets purchased. A fixed or percentile discount can be configured for every X number of assets sold.
-
-The promotional code is parsed to the Ecommerce Form Page through a request variable, configured on the Details screen of the Ecommerce Form Page asset. For example, if the Asset Promotional Code Request Variable is set as 'promotional_code', the promotional code will be sent to the e-com form as follows:
-
-http://example.com/ecom_form_page?promotional_code=CODE  
-
-If this request satisfies the Promotional Code configured for the purchased item, the discount will be applied to the e-commerce order.
-
-
-Performance of getAttributeValuesByName Improved [ Feature Request #4643 ]
------------------------------------------------------
-
-Modifications have been made to the getAttributeValuesByName function to provide greater efficiency, most notably on pages with large amounts of metadata content.
-
-
-Tool to Import Assets from an XML File [ Feature Request #4648 ]
------------------------------------------------------
-
-Squiz Matrix's import_from_xml.php script performs actions passed to it from an XML file (including the creation of assets, setting metadata etc.). This new feature introduces the functionality of this script to the Matrix back end, with a new import Assets from XML tool.
-
-The tool can be accessed from Squiz Matrix's System Tools screen.
-
-On the Import Assets from XML Tool screen, select the XML file to use (an example XML file structure is provided at /__data/asset_types/tool_import_assets_from_xml/files/example.xml). You can also select a root asset if one is not specified in your XML file.
-
-This function has been added to provide more flexibility for Squiz Matrix's integration with the Easy Edit Suite.
-
-
-Mollom Spam Prevention Service [ Feature Request #4658 ]
------------------------------------------------------
-
-Mollom is an advanced spam prevention service that analyses the quality of content posted to sites and automatically determines whether this content is unwanted (spam) or legitimate. Image and audio CAPTCHAs are provided for content that Mollom deems inconclusive (or 'unsure'), effectively eliminating the need for the moderation of submissions.
-
-Mollom can be activated on Matrix's External Tools Configuration screen and requires Public and Private keys from a registered Mollom user account. Matrix also offers a Test mode for the implementation process.
-
-Once activated, Mollom protection can be configured for use on both Custom Form and Asset Builder pages. Further spam check options are available on the configuration screen of these assets, including the questions to check and the content that is expected for these questions. For example, if you have a Name question on your form, you can set it as an Author Name question. This indicates to Mollom the type of content that is expected and it will check submissions accordingly.
-
-
-Publish Static Content Script [ Feature Request #4678 ]
------------------------------------------------------
-
-A new script has been added for publishing the static content of specified assets to a set directory in your system. This script can be set to run automatically, creating snapshots of your system for later reference (e.g. debugging purposes).There are no restrictions on asset types.
-
-This script takes the following arguments:
-
-    * The system root
-    * The asset ids of the asset to publish the static content of (comma separated)
-    * The directory to publish the static content to
-    * --_nocache: whether to publish the _nocache version of the asset. 
-
-An example of its usage is shown below.
-
-php publish_static_content.php SYSTEM_ROOT asset_ids STORAGE_PATH [--_nocache]
-
-
-php publish_static_content.php SYSTEM_ROOT 45, 101, 54 home/static_content --_nocache
-
-
-JS API Function to Import Assets from an XML File [ Feature Request #4701 ]
------------------------------------------------------
-
-A new function has been added to the Javascript API to import assets from an XML file. This feature will be introduced alongside the Import Assets From XML system tool and is an extension of the functionality of Matrix's import_from_xml.php script.
-
-The importAssetsFromXML function is enabled through a new field on the Details screen of the Javascript API.
-
-This function takes three parameters:
-
-    * assetID: the asset under which the assets will be imported under.
-    * filepath: the path to the file on the file system.
-    * dataCallback: the custom callback function (optional).
-
-The format of the importAssetsFromXML function is shown below:
-
-function importAssetsFromXML (assetID, filepath, dataCallback)
-
-For example, if you want to import assets from an XML file under asset #100, the function can be used as follows:
-
-    importAssetsFromXML (100, /path/to/our/xml/file/import_from_this_file.xml);
-
-An example XML file structure is provided at /__data/asset_types/tool_import_assets_from_xml/files/example.xml.
-
-
-Funnelback Package Compatible with the Funnelback 9.1 OEM Bindaries [ Feature Request #4731 ]
------------------------------------------------------
-
-This minor enhancement to the Funnelback package adds compatibility with the Funnelback 9.1 OEM binaries, which were previously unsupported. Users should note that these changes will not be compatible with previous versions of the OEM binaries. Squiz Matrix will only support Funnelback 9.1 OEM binaries in the integrated search. Users should ensure they have a compatible version of the OEM binaries before upgrading their systems.
-
-
-New Parameters to Filter Results on the JS API's getParents and getChildren Functions [ Feature Request #4733 ]
------------------------------------------------------
-
-The Javascript API's getParents and getChildren functions return an asset's parents and children, respectively. Previously, these functions did not allow users to filter these results, instead returning all parents or child assets, by default. This feature adds new type_code, link_type and link_value parameters to these functions, allowing users to filter the returned assets accordingly.
-
-    * type_code: The asset type to return (e.g. page_standard)
-    * link_type: The link type to return (SQ_LINK_TYPE_1, 2, 3 or NOTICE)
-    * link_value: The link values allowed on the returned assets
-
-The new format of these functions are as follows:
-
-    getChildren(asset_id, levels, type_codes, link_types, link_values, dataCallback)
-
-
-    getParents(asset_id, levels, type_codes, link_types, link_values, dataCallback)
-
-
-Specify Attributes to Return on the JS API's getParents, getChildren and getGeneral Functions [ Feature Request #4740 ]
------------------------------------------------------
-
-Previously, the getParents, getChildren and getGeneral functions on the Javascript API did not return non-standard attributes on asset responses. For example, on an Image asset, the varieties, variety_count and title attributes values will not be sent by Squiz Matrix. This meant that users would have to make additional API calls to retrieve the appropriate attribute values. This feature adds an new parameter on these functions to specify to return these additional attribute values.
-
-    * get_attributes: whether or not to return the non-standard attribute values of an asset (FALSE by default)
-
-The new format of these functions are as follows:
-
-    getChildren(asset_id, levels, type_codes, link_types, link_values, get_attributes, dataCallback)
-
-
-    getParents(asset_id, levels, type_codes, link_types, link_values, get_attributes, dataCallback)
-
-
-    getGeneral(asset_id, get_attributes, dataCallback)
-
-
-SharePoint Connector Compatible with Sub-Level SharePoint Sites [ Feature Request #4741 ]
------------------------------------------------------
-
-Previously, Squiz Matrix's Sharepoint Connector asset would only function correctly when connected at the SharePoint site root and did not support connecting to sub-level SharePoint sites.  For example, the Sharepoint Connector would work correctly with a system at http://sharepointurl/ but not with a system at http://sharepointurl/sub/.
-
-This restriction meant that when using the Sharepoint Connector on the SharePoint Saved Search or Sharepoint List Item Submission Action (Custom Form), only lists created at the root level of the SharePoint site could be accessed and not from sub-level sites.
-
-This feature extends the functionality of the Sharepoint Connector asset to connect with sub-level SharePoint sites
-
-
-New Keyword Replacement to Display the Asset ID of a Redirect Page [ Feature Request #4752 ]
------------------------------------------------------
-
-A new keyword replacement has been added for the Redirect Page to print the Asset ID of the page the user is being redirected to.
-
-    * %redirect_assetid%: The asset ID of the Redirect Page
-
-This keyword replacement could be used, for example, on an applied Paint Layout to display the asset ID to users during a redirect timeout.
-
-
-Manifest of MD5 Hashes for Matrix System Files [ Feature Request #4757 ]
------------------------------------------------------
-
-A manifest will now be included in the Squiz Matrix tarball download, listing the MD5 hashes of each standard Matrix file on the system (except the manifest itself). This manifest can be used as a reference guide, for example, to locate non-standard files in a deployed Matrix installation.
-
-An excerpt of the manifest is shown below:
-
-6b2ca5e4795baf2bebb714249f9a6e04  matrix_dev/core/assets/bodycopy/bodycopy/asset.xml
-827e416592e2e0240c28114a470ea4b7  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy_edit_fns.inc
-b8db7331980b341941cd2204cde693ce  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy.inc
-31a791ab3053e9ce378a12a116e5bedb  matrix_dev/core/assets/bodycopy/bodycopy/bodycopy_management.inc
-f5c1bf3fc8d003c067ada6b187d9e4be  matrix_dev/core/assets/bodycopy/bodycopy_container/asset.xml
-8e5c7729f5e8dee030d06d7356801d24  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_edit_fns.inc
-726210b6c89553627c73bde18021c5a0  matrix_dev/core/assets/bodycopy/bodycopy_container/.#bodycopy_container_edit_fns.inc.1.70
-79efe02b27e2d98d798addd7c5671ff4  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container.inc
-6e9494b59a82eb4b607ab61753c4a51f  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_management.inc
-6fe16692241f4f11f39b2b4feb6d1eab  matrix_dev/core/assets/bodycopy/bodycopy_container/bodycopy_container_prefs.inc
-d1c7e1f228da66062bdb996152d43c2a  matrix_dev/core/assets/bodycopy/bodycopy_container/CVS/Entries
-d9886be8775855d54e7244fcb7d3b4d4  matrix_dev/core/assets/bodycopy/bodycopy_container/CVS/Repository
-15fd551f7d0c90de0298443ac1aa8ace  matrix_dev/core/assets/bodycopy/bodycopy_container
-
-
-Automatic Asset ID URL Remaps on Deletion [ Feature Request #4759 ]
------------------------------------------------------
-
-When an asset is moved to the trash, users have the option of adding URL remapping. These remaps direct the URL of the trashed asset to another asset, for example, a Page not found asset.
-
-Asset ID URLs (e.g. http://example.com/site/?a=100) are frequently used by the WYSIWYG editor's insert link plug-in to link to other assets within the system. As these URLs link to assets directly, however, they were previously not able to locate trashed assets and thus could not be redirected to the appropriate remap.
-
-This feature includes the direct asset ID URL of a trashed asset during URL remapping, as shown above, allowing these asset ID links to function correctly.
-
-
-Expired Matrix Locks Cron Job [ Feature Request #4761 ]
------------------------------------------------------
-
-A new cron job has been added to the Matrix cron manager to clean up expired locks. Expired locks are locks acquired by a user but not manually released. These locks expire after 10 minutes and remain stored in the sq_lock database table.
-
-The Expired Matrix Locks cron job is scheduled to clear these expired locks each time the cron manager is run, improving the stability and performance of your system.
-
-
-New Keyword Replacement to Print Comment Logs in Workflow Messages [ Feature Request #4765 ]
------------------------------------------------------
-
-A new keyword replacement has been added to the Workflow Schema asset to allow comment logs to be printed in custom messages. The %log_message% keyword replacement will print the content, user and date of comments.
-
-This keyword replacement can be used on the following custom workflow messages:
-
-    * Workflow Invitation Message
-    * Workflow Approval Message
-    * Workflow Rejection Message
-    * Workflow Stale Message
-    * Workflow Escalated Message
-
-
-Applying XSL Transformation on an XML Data Source Asset [ Feature Request #4769 ]
------------------------------------------------------
-
-A new field has been added to the XML Data Source asset to allow XSL transformation on the content of the data source feed. This allows users to stylise this data source content and preview it in the backend.
-
-In the XSL Transformation field (on the Details screen), select an XSL file for XSL transformation.  You can preview the XSLT output on the Preview screen of the XML Data Source asset.
-
-This feature is an extension of the XML File asset's existing XSL transformation options.
-
-Additional Changes and Bug Fixes
-===================================
-
-Minor Enhancement
-
-Minor Enhancement #4507: Improving the Memory Load when Converting Database Types
-Minor Enhancement #4508: System Integrity Check Indexes Script Checks Locale Settings
-Minor Enhancement #4512: Remap Manager Performance Improvements
-Minor Enhancement #4528: CVS Checkout Script Update
-Minor Enhancement #4686: Improved Performance on generateGetChildrenQuery()
-Minor Enhancement #4705: Asset ID and Asset Type Added to the Metadata that Funnelback can Index
-Minor Enhancement #4774: Remove Form Submissions Script Enhancement/li>
-Minor Enhancement #4775: %asset_role_ASSETID% checks for integer before passing to eval()
-Minor Enhancement #4778: Log Warning on Listing Engines when Attempting to List in Excess of 1000 Assets
-Minor Enhancement #4779: Change Length of Filename Field in sq_file_vers_file table
-Minor Enhancement #4785: squiz_server init.d script doesn't wait long enough
-Minor Enhancement #4792: add feature to allow packages to require system assets
-
-Core
-Fixed Bug #4354: Cannot see the OK/Cancel button
-Fixed Bug #4356: Memory Leak when working with Status Objects
-Fixed Bug #4369: Backslash in user DN can break searches in Search Manager
-Fixed Bug #4521: moveLink() function in asset_manager.inc doesn't accept link value in argument
-Fixed Bug #4556: Replace Text script does not work on asset attributes of WYSIWYG type
-Fixed Bug #4602: Safe edit diff preview incorrect highlights
-Fixed Bug #4657: WYSIWYG Metadata produces errors
-Fixed Bug #4666: Deja Vu can remember incomplete metadata
-Fixed Bug #4679: Deja Vu needs to forget all asset contexts when changing status
-Fixed Bug #4688: Upcoming events list asset not displaying recurring calendar events
-Fixed Bug #4714: Java certificate expired
-Fixed Bug #4722: regen_metadata_by_root_node.php script causes cron deadlocks
-Fixed Bug #4724: Context names should be unique
-Fixed Bug #4728: Searching with metadata WYSIWYG field does not return any results
-Fixed Bug #4734: Keyword modifiers not working on group_name keywords
-Fixed Bug #4736: LDAP entries with apostrophes can cause issues on Linking screen
-Fixed Bug #4743: Default matrix cron jobs can be moved to trash
-Fixed Bug #4744: Incomplete metadata report and safe trash report throws warning illegal offset in linking screen
-Fixed Bug #4747: Can't save keyword selection
-Fixed Bug #4750: Funnelback OEM indexer breaks when there is a lengthy metadata summary in sitemap.xml
-Fixed Bug #4753: Moving asset in asset map downwards will move one position further
-Fixed Bug #4754: Searching on multiple text metadata field on oracle can do only exact match on the text
-Fixed Bug #4755: Unsupported operand types in core/include/asset_manager.inc on line 1214
-Fixed Bug #4756: Quotes in a webpath can cause issues
-Fixed Bug #4763: When deja vu is enabled, it will throw error if cache manager is not allocated to memcache server in memcache.inc
-Fixed Bug #4764: Send email trigger action to LDAP users in Roles not working
-Fixed Bug #4766: HTML/Plain text emails
-Fixed Bug #4767: TRIM Saved Search broken if Search Parent Container is defined
-Fixed Bug #4768: Invalid available workflow status for an asset that doesn't have metadata screen
-Fixed Bug #4773: SharePoint Saved Search download file function issues: authentication broken, doesn't support file attachment
-Fixed Bug #4780: Maori special character issue with WYSIWYG when using IE browser
-Fixed Bug #4781: Cosmetic warning in select question of form when populating option list with key only (or value only)
-Fixed Bug #4782: "Asset doesn't exist" warning message on Page's Edit Contents screen when Snippet Root asset is deleted
-Fixed Bug #4783: No frames in Simple Edit Interface feature not removing Simple Edit frames
-Fixed Bug #4786: WYSIWYG link types global prefs deletion error
-Fixed Bug #4787: Metadata select field default value not selected if Frontend Part set to "Value"
-
-CMS
-Fixed Bug #3997: Proxy headers are incorrect
-Fixed Bug #4718: No way of disabling blockquotes
-Fixed Bug #4751: What's New asset date ranges screen doesn't save dates for specified range
-
-Search
-Fixed Bug #4771: Crash if non-integral search weights are used
-
-LDAP
-Fixed Bug #4760: Creating new link doesn't work from the Linking screen for LDAP user with a "." in CN
-
-Bulkmail
-Fixed Bug #4425: Bulkmail job never completing
-
-Calendar
-Fixed Bug #4730: Missing locale string in calendar_event_modification
-Fixed Bug #4732: Calendar Week View not showing last day - Daylight Savings
-Fixed Bug #4776: Calendar Page in Week view, warning undefined variable $bind_vars
-
-E-Commerce
-Fixed Bug #4454: Orders are always completed if no payment gateway specified in delivery method
-
-Data
-Fixed Bug #4745: XML Data Source dynamic inputs being re-coded when request is made
-
-Web Services
-Fixed Bug #4279: Individual Notice Links cannot be targeted with removeLink() and updateLink() functions
-Fixed Bug #4404: SOAP SetAssetMetadata() Web Services method does not encode metadata value
-Fixed Bug #4617: Passing an extra attribute into SOAP CreateAsset fails
-
-Funnelback Package
-Fixed Bug #4510: Quotes not working in Funnelback search query
-
-
-VERSION 3.28.0
-
-Featured Changes
-==================================
-
-ALLOW MULTIPLE "asset_contents_paint_#" KEYWORDS IN TYPE FORMAT BODYCOPY [ Feature Request #4347 ]
------------------------------
-When printing an asset in a Listing Engine, the type format only supports one instance of printing asset contents with an arbitrary bodycopy, using "asset_contents_paint_#".
-This feature allows multiple arbitrary paint layout keywords be used in the one type format.
-
-
-ALLOW ACCESS TO ASSET KEYWORDS FROM ALTERNATE CONTEXTS [ Feature Request #4373 ]
------------------------------
-This new keyword feature allows you to draw a keyword replacement from a context other than the currently used one.
-The new feature works like a keyword modifier, using the name of the context as its parameter. For instance, %asset_keyword^context:Context_Name%. If a keyword is not contextable, this modifier will have no effect. 
-
-
-ALLOW ACCESS TO ASSET KEYWORDS FROM ALTERNATE CONTEXTS [ Feature Request #4316 ]
------------------------------
-Allow you to update the status of a Twitter account from a trigger, based on the content of the triggering asset.
-Global keywords and keywords of the triggering asset are supported in the Tweet format.
-The Set Twitter Status Trigger Action which were added to this release requires the I18N_UnicodeNormalizer PEAR package, version 1.0.0 to be installed.
-
-
-JS API FUNCTION TO GET APPLIED WORKFLOW [ Feature Request #4395 ]
------------------------------
-Added a JS API function which could return applied/denied workflow schema on a asset.
-Alternately we could pass in an extra argument to see if the applied workflow (if any) is currently running on the asset. 
-
-
-%asset_url_CONTEXT% KEYWORD [ Feature Request #4348 ]
------------------------------
-When a site has multiple URLs with different base contexts, this keyword will only return the asset URL of a Context if that Context is set as a Base Context of the Site URL. 
-e.g. %asset_url_Default_Context% will return the asset URL in default context and %asset_url_French% will return the asset URL for French context.   
-
-
-%globals_context% KEYWORD [ Feature Request #4350 ]
------------------------------
-A new global keyword %globals_context% which returns the name of the current context.
-
-
-MAKE METADATA SELECTION FIELD CONSISTENT IN DIFFERENT CONTEXTS [ Feature Request #4341 ]
------------------------------
-Assume that you have 2 contexts in your Matrix system, a default context in English and an alternate context in French.
-Create a new Metadata Schema with a Selection Field named Title with 2 options in 2 contexts:mr => Mr (English) and Monsieur (French), ms => Ms (English) and Mademoiselle (French) 
-This feature will work in a way that if Mr is selected in English, Monsieur would be selected automatically in French.
-
-
-JS API ABILLITY TO SPECIFY _admin/_edit ACCESS [ Feature Request #4372 ]
------------------------------
-Right now when JS API function call is made it behaves like called in the backend. For example if the status of an asset is changed and if this results in workflow email to be generated, then the links in the email will have _admin links.
-This feature allows function call can be made to act as if it was made from Simple Edit Interface. So in the case like above example we could have an _edit link in the emails instead.
-
-
-HIDE FRAMES IN SIMPLE EDIT MODE [ Feature Request #4347 ]
------------------------------
-In simple edit mode, there is always the top bar frame and side bar asset map frame which is hidden. 
-This new option of design asset would allow user to remove this frames completely and only display the main frame. This option is per design.
-
-
-
-EXIT DESIGN AREA [ Feature Request #4378 ]
------------------------------
-New design area called "exit". This design area is used when the design needed to stop printing the ignore the rest of the body. Can be used in conjunction with design area if condition.
-
-
-NEW SOAP AUTHENTICATION FEATURE ALLOW USER TO LOGIN [ Feature Request #4377 ]
------------------------------
-A new API function is added to SOAP Asset Service to allow authentication to MySource Matrix using username and password. Upon logging in, the API function will produce a session id and a session key, which can be used to authenticate cross domain.
-
-
-DISPLAY KEY OR VALUE OF METADATA SELECTION FIELD [ Feature Request #1404 ]
------------------------------
-New keywords are added to display the key to a selection metadata on one screen and the value on another. The keywords will be %asset_metadata_X_key%  and %asset_metadata_X_value%
-
-
-ADDITIONAL FEATURES FOR SOAP API [ Feature Request #4307 ]
------------------------------
-A number of SOAP API functions has been added to the web services package. Here is the summary:
-Asset service new features:
-- Get page content
-- Get asset type descendants
-- Get assets children, lineages, typecode, name in batch
-- Get Asset Urls by root node
-Link service new features:
-- Get parent assets under particular tree
-- Get lineages under a particular root node
-File service new feature:
-- Get image information: title, size, width, height, mimetype
-
-
-WYSIWYG SNIPPETS PERFORMANCE ENHANCEMENT [ Feature Request #4127 ]
------------------------------
-Queries related to permission checking when loading Snippet keywords can now be disabled when rended in the drop-down list of keywords shown when printing the WYSIWYG container.
-This can provide a noticable performance enhancement. The option to configure permission checking is available under Global Preferences for the Snippet Content Type.
-
-
-TARGET REMAP URL ON WEB PATHS SCREEN [ Feature Request #4220 ]
------------------------------
-In line with the display in Remap Manager, the asset Web Paths screen now shows the Target URL in the Remaps list.
-
-
-REFACTORING OF CLEAR CACHE CODE FOR SYSTEM CACHE TYPES [ Feature Request #4243 ]
------------------------------
-Code to handle clearing caches has been moved into the cache type, in order to prevent unnecessary calls to the MySource Matrix database for systems using non-default caching mechanisms such as Memcache.
-
-
-BULKMAIL ALLOWS MULTIPLE SUBSCRIPTION OF AN EMAIL ADDRESS [ Feature Request #3131 ]
------------------------------
-An "already subscribed" message is sent to users via email, when an email address is submitted to a Bulkmail Subscription Page for which this address already exists on the relevant lists.
-This functionality is only available when Subscribe Verification is enabled to the subscription page, and is applicable to both public and Matrix users.
-
-
-USAGE SCREEN FOR SCHEMAS [ Feature Request #3871 ]
------------------------------
-A "Usage" screen is now available for Metadata and Workflow Schemas, to show where these are referenced in the system. This is implemented similarly to the existing "Usage" screen for Designs.
-
-
-EXPIRED MATRIX CACHE CRON JOB [ Feature Request #4004 ]
------------------------------
-An "Expired Matrix Cache" Cron Job has been added to clean up expired cache entries on invocation of the Matrix cron script run.php. This is set to every 15 minutes by default on new installations.
-
-
-ABILITY TO DOWNLOAD CURRENT LOG FROM THE LOG MANAGER [ Feature Request #4267 ]
------------------------------
-A "Download File" button is now available to download current logs (ie; those which have not been rotated).
-
-
-NEW KEYWORDS FOR DATETIME FIELDS [ Feature Request #4276 ]
------------------------------
-Additional formats are available for Datetime field types which allow these values to be displayed relative to the current date, and with or without a time component.
-The keywords to use this functionality are as follows (using %asset_created% as an example):
-- %asset_created_relative%     -> "3 days ago"
-- %asset_created_relative-dow% -> "5pm on Tuesday"
-
-
-FILESYSTEM BRIDGE [ Feature Request #4290 ]
------------------------------
-A Filesystem Bridge asset is now available which provides shadow  assets representing a server file system. A path to the filesystem location is provided, and files and directories are represented by Physical File and Physical Folder asset types.
-This allows files to be browsed from within MySource Matrix, even though they are not real assets.
-An "Import File" tool is also available under Tools, to allow the referenced files to be imported as solid assets into MySource Matrix.
-
-
-XML/XSL FILE ASSETS [ Feature Request #4291 ]
------------------------------
-XML and XSL File assets are now available. The XML File asset allows an association with an XSL File asset for extensible stylesheet language styling of the file upon preview.
-
-
-STATUS, PERMISSION AND HIPO SCRIPTS [ Feature Request #4292 ]
------------------------------
-Command-line scripts have been added to manipulate asset status and permissions en masse, as well as to manage running of HIPO Jobs.
-The script usage for each is as follows:
-php scripts/status_change.php [matrix_dir] [root_node] [status_code] [child_nodes]
--[root_node]   the assetid of the asset from which to apply status changes
--[status_code] a valid status number (eg; 16 for Live etc.)
--[child_nodes] optional and will decend to children if specified as 'y'
-php scripts/permission_change.php [matrix_dir] [root_node] [user_id] [permission] [grant] [child_nodes]
--[root_node]   the assetid of the asset from which to apply/deny permissions
--[user_id]     the assetid of the user
--[permission]  specified as either 'read', 'write' or 'admin'
--[grant]       will grant permissions when specified as 'y', deny when specified as 'n'
--[child_nodes] will include child nodes when specified as 'y', or won't (ie; apply only to the root_node) when specified as 'n'
-php scripts/hipo_management.php [matrix_dir]
--This script provides user prompts for all operations 
-
-
-REMAP MANAGER: TOTAL REMAPS [ Feature Request #3432 ]
------------------------------
-The total number of Remaps displayed in Remap Manager is now shown within the list.
-
-
-REMAP MANAGER: EXPORT TO CSV [ Feature Request #3449 ]
------------------------------
-A "Download File" button is provided within the Remap Manager to export Remap entries to CSV format.
-
-
-LINK ASSET: ALLOW LINKING UNDER STANDARD PAGE ASSETS[ Feature Request #4281 ]
------------------------------
-Link Assets can now be linked under Standard Pages. 
-
-
-PASSWORD CHANGE SCREEN: FORCE SECURE LOGIN FUNCTIONALITY [ Feature Request #4306 ]
------------------------------
-The Force Secure Login rules applied to a Site are now respected when a user is presented with a Matrix-generated Password Change screen.
-
-
-BACKUP SCRIPT: "DATABASE BACKUP ONLY" OPTION [ Feature Request #4310 ]
------------------------------
-A new switch --database-only is available in the Matrix backup script which will create a database dump only instead of a combined database and filesystem backup. 
-      
-
-DIFFERENTIATE BETWEEN MATRIX REMAPS AND CUSTOM REMAPS [ Feature Request #474 ]
------------------------------
-A new column "Type" is now available in the asset Remap List and Remap Manager, to denote whether the remap was created by MySource Matrix (specified as "Automatic") or by the user (specified as "Manual").
-
-
-WHAT'S NEW PAGE: PRE-CONFIGURED TIME FRAMES [ Feature Request #2062 ]
------------------------------
-The Date Range specifications for What's New Page now allows selection from a:
-- Fixed date and time (dd-mm-yyyy hh:ii:ss)
-- Period relative to the current date and time (x [time period] in the [past/future])
-- Period relative to a fixed time on current date (x [time period] [before/after] today at hh:ii:ss) 
-
-
-JS API: SET ASSET STATUS [ Feature Request #4252 ]
------------------------------
-A new Javascript function has been added to the JS API to set the status of an asset and dependent assets. This status can be optionally cascaded to non-dependent child assets.
-E.g. setAssetStatus([asset_id], [status], [cascade], [dataCallback]);
-      
-
-JS API ENHANCEMENTS [ Feature Request #4200 ]
------------------------------
-Configurable number of asset levels in call to getParents()
--The getParents() asset function in the JS API has been modified to allow a second argument referring to the number of levels to return, similar to getChildren(). When omitted, or set to 0, all parent asset IDs will be returned. Previous functionality of getParents() was to return only the first level, equivalent to setting levels to 1.
-Multiple Set Attribute function
--A new function "setMultipleAttributes()" is now available in the JS API. This function takes a single array of attribute names and their corresponding values to enable updating multiple attributes for an asset in one request. 
-
-
-JS API: LOOKUPS UPDATED WHEN PERFORMING WEBPATH ACTIONS [ Feature Request #4142 ]
------------------------------
-JS API functions which manipulate or remove asset links, as given below, will update related lookups to ensure these actions are completed in accordance with normal backend operation.
-The modified JS API functions are moveLinks(), trashAsset(), removeLink(), createLink().
-Implementations should include an "in progress" or spinner device as these actions will take some time to complete and return.
-
-
-JS API: PROVISION OF ASSET, GLOBAL AND SIMPLE EDIT KEYWORD REPLACEMENTS [ Feature Request #4210 ]
------------------------------
-A new function, getKeywordsReplacements(), has been added to the JS API to return keyword replacements for requested asset, global and Simple Edit keywords.
-The function signature is: getKeywordsReplacements(asset_id, keywords_array, dataCallback)
-
-
-JS API: ASSET LOCK EXTENDED FUNCTIONALITY [ Feature Request #4238 ]
------------------------------
-The asset lock acquisition and release functionality has been improved
-- new function getLocksInfo() to return information about locks acquired, the user holding locks, and lock expiry time
-- any other error that might have occurred during processing of locks
-- locks may be acquired on dependent or non-dependent child assets
-- locks can now be forcibly acquired
-- new function getLocksInfo() which will return
-
-
-JS API: UPDATE AND TRASH MULTIPLE ASSET LINKS, GET CHILD COUNT FUNCTIONALITY [ Feature Request #4271 ]
------------------------------
-A new function updateMultipleLinks() has been added, as well as an extension to the trashAsset() function to provide the ability to perform these operations upon multiple assets. The trashAsset() function can still operate on a single asset as given by current functionality.
-Link sort order, type, value, and locking can be controlled from the link update functions. Another new function getChildCount() has been included to obtain the number of direct children and/or dependents.
