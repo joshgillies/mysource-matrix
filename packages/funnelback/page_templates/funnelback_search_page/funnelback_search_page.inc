@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.36 2011/02/01 05:48:51 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.37 2011/02/04 05:55:11 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2355,7 +2355,7 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Make sure the 'NULL' query doesn't come through in the results
 		$output = str_replace($nullquery, '', $output);
- 
+
 		return $output;
 
 	}//end _searchFunnelback()
@@ -2375,7 +2375,6 @@ class Funnelback_Search_Page extends Listing_Engine
 
 		// Get the query term
 		$query = array_get_index($search, 'query', '');
-		$query = str_replace(' ', '+', $query);
 		$query = str_replace('&', '', $query);
 
 		// Get the collection
@@ -2395,7 +2394,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$options = array();
 		$options['num_per_page']                  = $num_per_page;
 		$options['contextual_navigation_enabled'] = TRUE;
-        $options['userkeys']                      = $this->_getUserKeys(TRUE);
+		$options['userkeys']                      = $this->_getUserKeys(TRUE);
 		
 		// Check for required information
 		if (empty($systemid) || empty($collection)) {
@@ -2469,8 +2468,8 @@ class Funnelback_Search_Page extends Listing_Engine
 
 	/**
 	 * Get the user keys based on the current logged in user
-     *
-     * @param boolean $useSuiteSystemId Use the Suite System ID in the response keys.
+	 *
+	 * @param boolean $useSuiteSystemId Use the Suite System ID in the response keys.
 	 *
 	 * @return array
 	 * @access private
