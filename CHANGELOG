@@ -1,4 +1,68 @@
 MYSOURCE MATRIX CHANGELOG
+VERSION 3.28.9
+
+Featured Changes
+===================================
+
+Remap Manager: Never Delete Enhancements [ Feature Request #4890 ]
+-----------------------------------------------------
+
+The Remap Manager's Never Delete option allows you to lock specific remaps from being deleted. This new feature improves this existing functionality by adding a variety of enhancements.
+
+A new option has been added to the Remap Manager to purge all remaps in the system except those marked as Never Delete. This option is enabled through a new field on the Details screen of the Remap Manager.
+
+Setting this field to Yes and clicking Commit will purge all remaps in the system that are not marked as Never Delete.
+
+The Web Paths screen of an asset would previously list its remaps but would provide no indication of whether the remap was marked as Never Delete or not. A new column has now been added for remaps on the Web Paths screen to display whether the remap is marked as Never Delete.
+
+Previously, delete fields were available to all remaps listed in the Remap Manager or on the Web Paths screens of assets. These fields were ineffective when used on remaps marked as Never Delete, however they were still accessible. These delete fields will now only be enabled for use on remaps not marked as Never Delete. The delete field will be disabled on remaps marked as Never Delete, as shown in the figure above.
+
+The Remap Manager's Never Delete Added Remaps? field will now be disabled by default, meaning that users must manually enable this option. This field was previously enabled by default; Existing installations using the previous default will retain their settings when being updating.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+Minor Enhancement #4891: Asset Manager: getAttributeValuesByName Enhancements.
+Minor Enhancement #4912: Improved Performance of the Workflow Screen.
+Minor Enhancement #4923: Enhancement: When Painting 404 not found Page and Sending Cacheable Header is Enabled, Expiry header is Not Set.
+
+Core
+Fixed Bug #4856: Replace Text 'selected text only' not working in IE7+8.
+Fixed Bug #4881: Date/Time form output.
+Fixed Bug #4882: Cannot order by and check permission with getChildren.
+Fixed Bug #4885: Daily cron jobs run twice.
+Fixed Bug #4886: "Update lookups" HIPO Job in File::saveAttributes() creating issue.
+Fixed Bug #4896: Trigger action "Set Metadata Value" fails when using parameter map.
+Fixed Bug #4903: Online Quiz List Format field description lists unavailable formats.
+Fixed Bug #4904: Typo on design_area_asset_lineage screen.
+Fixed Bug #4905: Quotation button in WYSIWYG view, unquote results in escaped html.
+Fixed Bug #4906: 'AssetStatusUpdate' event broadcasted but onAssetStatusUpdate() never executed.
+Fixed Bug #4910: When an asset is linked to a big number of parents, you will easily get Oracle error ORA-01795: maximum number of expressions in a list is 1000.
+Fixed Bug #4915: Metadata value trigger condition does not consider keywords.
+Fixed Bug #4924: DB error when a design asset is notice linked to too many assets.
+Fixed Bug #4930: Global Search and Replace doesn't replace metadata.
+Fixed Bug #4931: Incomplete attachments integer overflows memory_limit.
+
+CMS
+Fixed Bug #4878: ORA-01795 on Site Map asset.
+Fixed Bug #4880: Insert image doesn't remember location of last image variety uploaded.
+Fixed Bug #4892: Small typos in Remote Content asset Details screen.
+Fixed Bug #4901: Using a nested asset in simple edit layout which has an arbitrary paint layout set, will throw PHP notices.
+
+Calendar
+Fixed Bug #4899: Recurring calendar event instance date keyword bugs.
+
+Web Services
+Fixed Bug #4877: JS API Fails on https only domains.
+Fixed Bug #4909: JS API setAssetStatus permission denied for user with write permissions.
+Fixed Bug #4920: JS API not escaping metadata correctly.
+Fixed Bug #4922: JS API returns invalid JSON.
+
+Funnelback Package
+Fixed Bug #4911: Contextual Navigation links not working with Funnelback Server Search.
+
 
 VERSION 3.28.8
 
