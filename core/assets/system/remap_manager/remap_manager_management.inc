@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_management.inc,v 1.11.2.1 2011/02/03 05:25:17 cupreti Exp $
+* $Id: remap_manager_management.inc,v 1.11.2.2 2011/02/07 23:00:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Remap_Manager_Management extends Asset_Management
 			
 			$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 
-			$sql = "SELECT custom_val FROM sq_ast_attr a, sq_ast_attr_val v where v.assetid = '".$rm->id."' AND a.name='never_delete_remap_default' AND a.attrid=v.attrid;";
+			$sql = "SELECT custom_val FROM sq_ast_attr a, sq_ast_attr_val v where v.assetid = '".$rm->id."' AND a.name='never_delete_remap_default' AND a.attrid=v.attrid";
 			$record = MatrixDAL::executeSqlAssoc($sql);
 
 			if (empty($record)) {
