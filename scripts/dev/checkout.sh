@@ -78,6 +78,11 @@ fi
 
 cd ..
 
+# Generate a manifest file for automatic_upgrades
+# to work with.
+find . -type f -not -path ./MANIFEST -a -not -path "*/CVS/*" -print0 | sort -z -k 2 | xargs -0 md5sum > /tmp/MANIFEST.$$
+mv /tmp/MANIFEST.$$ ./MANIFEST
+
 echo ""
 echo "Everything has been checked out into the $CHECKOUT_DIR/ folder."
 echo "Please visit http://matrix.squiz.net/resources/installation/ for installation instructions."
