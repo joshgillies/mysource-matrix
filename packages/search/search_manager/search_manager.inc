@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.238 2010/12/22 02:02:02 cupreti Exp $
+* $Id: search_manager.inc,v 1.238.2.1 2011/02/08 03:14:06 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.238.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1020,6 +1020,12 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
+		
+		// This could be out of a transaction at this point, and in db1 (the
+		// read-only db). Change to db2, and wrap in a transaction so it doesn't
+		// autocommit all over the place
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
 			if ($contextids === NULL) {
@@ -1045,8 +1051,12 @@ class Search_Manager extends Asset
 
 			$affected_rows = MatrixDAL::executeQuery('search_manager', 'flushIndexableContent', $bind_vars);
 		} catch (DALException $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			throw new Exception('Unable to flush indexable content due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();		
 
 	}//end flushIndexableContent()
 
@@ -1075,6 +1085,12 @@ class Search_Manager extends Asset
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
 
+		// This could be out of a transaction at this point, and in db1 (the
+		// read-only db). Change to db2, and wrap in a transaction so it doesn't
+		// autocommit all over the place
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		try {
 			$bind_vars = Array(
 							'assetid'		=> $assetid,
@@ -1086,11 +1102,15 @@ class Search_Manager extends Asset
 			} else {
 				$bind_vars['components'] = NULL;
 			}
-
+			
 			$affected_rows = MatrixDAL::executeQuery('search_manager', 'flushDefaultIndexableContent', $bind_vars);
 		} catch (DALException $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			throw new Exception('Unable to flush default indexable content due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end flushIndexableContent()
 

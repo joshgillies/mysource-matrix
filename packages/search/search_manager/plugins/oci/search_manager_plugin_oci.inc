@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.26 2010/12/01 00:11:34 akarelia Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.26.2.1 2011/02/08 03:14:06 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -57,7 +57,11 @@ class Search_Manager_Plugin_OCI
 
 			case 'include_all':
 				$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
-				if (!$contains_str) return Array();
+				if (!$contains_str) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return Array();
+				}
+
 				$base_query['where'][] = $contains_str;
 			break;
 
@@ -66,7 +70,10 @@ class Search_Manager_Plugin_OCI
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attribute->name);
 
 				$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
-				if (!$contains_str) return Array();
+				if (!$contains_str) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return Array();
+				}
 				$base_query['where'][] = $contains_str;
 			break;
 
@@ -105,7 +112,10 @@ class Search_Manager_Plugin_OCI
 
 					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, ($key_type != 'text' && $key_type != 'metadata_field_wysiwyg' && get_class_lower($metadata_field) != 'metadata_field_multiple_text' && ($key_type != 'thesaurus')));
 				}
-				if (!$contains_str) return Array();
+				if (!$contains_str) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return Array();
+				}
 				$base_query['where'][] = $contains_str;
 			break;
 
@@ -115,7 +125,10 @@ class Search_Manager_Plugin_OCI
 					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
 
 					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
-					if (!$contains_str) return Array();
+					if (!$contains_str) {
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return Array();
+					}
 					$base_query['where'][] = $contains_str;
 				} else {
 					trigger_error('Invalid standard search field '.$field, E_USER_WARNING);

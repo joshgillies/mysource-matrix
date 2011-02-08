@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.37 2010/10/06 01:09:23 cupreti Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.37.4.1 2011/02/08 03:14:06 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -90,13 +90,18 @@ class Search_Manager_Plugin_PgSQL
 		switch ($data_source['type']) {
 
 			case 'include_all':
-				if (!$sm->isWordIndexable($search_term)) return NULL;
-
+				if (!$sm->isWordIndexable($search_term)) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return NULL;
+				}
 				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 			break;
 
 			case 'asset_attrib':
-				if (!$sm->isWordIndexable($search_term)) return NULL;
+				if (!$sm->isWordIndexable($search_term)) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return NULL;
+				}
 
 				$attrid = $data_source['params']['attrid'];
 				$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
@@ -129,7 +134,10 @@ class Search_Manager_Plugin_PgSQL
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 
 				if ($key_type !== 'selection') {
-					if (!$sm->isWordIndexable($search_term)) return NULL;
+					if (!$sm->isWordIndexable($search_term)) {
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return NULL;
+					}
 				}
 
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
@@ -142,7 +150,10 @@ class Search_Manager_Plugin_PgSQL
 			break;
 
 			case 'standard':
-				if (!$sm->isWordIndexable($search_term)) return NULL;
+				if (!$sm->isWordIndexable($search_term)) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return NULL;
+				}
 
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_text_fields[$field])) {
