@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.32 2011/01/31 01:58:53 bpearson Exp $
+* $Id: funnelback_manager.inc,v 1.32.2.1 2011/02/08 02:18:04 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -656,9 +656,12 @@ class Funnelback_Manager extends Asset
 			}//end if
 		} catch (PDOException $e) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			trigger_error('Unable to add entry to database: '.$e->getMessage());
 			return FALSE;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return TRUE;
@@ -689,6 +692,7 @@ class Funnelback_Manager extends Asset
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
