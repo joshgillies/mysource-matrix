@@ -70,9 +70,9 @@ function RegenerateMetadataSchema(schemaid)
 function RegenerateMetadataAsset(assetid)
 {
 	var soapBody	= "\
-<ns1:RegenerateMetadataSchema>\
+<ns1:RegenerateMetadataAsset>\
 <AssetID>"+assetid+"</AssetID>\
-</ns1:RegenerateMetadataSchema>";
+</ns1:RegenerateMetadataAsset>";
 	return soapBody;
 }//end RegenerateMetadataAsset
 

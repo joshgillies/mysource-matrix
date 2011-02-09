@@ -68,13 +68,40 @@ function GetFileInformation(assetid)
 * @return void
 * @access public
 */
-function Upload(assetid)
+function Upload(assetid, content_base64, filename)
 {
 	var soapBody	= "\
 <ns1:Upload>\
 <AssetID>"+assetid+"</AssetID>\
+<FileContentBase64>"+content_base64+"</FileContentBase64>\
+<FileName>"+filename+"</FileName>\
 </ns1:Upload>";
 
 	return soapBody;
 
 }//end Upload
+
+
+/**
+* Description: This operation return the information about the image on the assetid
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'	 => [The AssetID of the image to get information for],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetImageInformation(assetid)
+{
+	var soapBody	= "\
+<ns1:GetImageInformation>\
+<AssetID>"+assetid+"</AssetID>\
+</ns1:GetImageInformation>";
+
+	return soapBody;
+
+}//end GetImageInformation
