@@ -109,8 +109,8 @@ function send(host_location, soapRequest, callback_fnc)
 function multiple_elements_to_string(array_elements, element_name)
 {
 	var result_str	= '';
-	for (var i = 0; i < statuses.length; i++) {
-		result_str	+= '<'+element_name+'>'+statuses[i]+'</'+element_name+'>';
+	for (var i = 0; i < array_elements.length; i++) {
+		result_str	+= '<'+element_name+'>'+array_elements[i]+'</'+element_name+'>';
 	}//end for
 	
 	return result_str;
