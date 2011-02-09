@@ -73,8 +73,8 @@ function Upload(assetid, content_base64, filename)
 	var soapBody	= "\
 <ns1:Upload>\
 <AssetID>"+assetid+"</AssetID>\
-<FileContentBase64>"+assetid+"</FileContentBase64>\
-<FileName>"+assetid+"</FileName>\
+<FileContentBase64>"+content_base64+"</FileContentBase64>\
+<FileName>"+filename+"</FileName>\
 </ns1:Upload>";
 
 	return soapBody;
