@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.6 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_search_service.inc,v 1.6.6.1 2011/02/09 04:55:50 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -69,11 +69,12 @@ class Soap_Api_Search_Service extends Soap_Api
     * @param array  $request_info	$request information
     * <pre>
     * Array (
-    * 		'AssetTypes'	=> [Asset Types in Matrix]
-    * 		'Limit'			=> [The maximum number of results returned]
-    * 		'RootIDs'		=> [Search under the specified root nodes]
-    * 		'ResultFormat'	=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
-	*		'Statuses'		=> [Only search for the specified statuses],
+    * 		'AssetTypes'		=> [Asset Types in Matrix]
+    * 		'Limit'				=> [The maximum number of results returned]
+    * 		'RootIDs'			=> [Search under the specified root nodes]
+    * 		'ResultFormat'		=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
+	*		'Statuses'			=> [Only search for the specified statuses],
+	*		'ExcludeRootNodes'	=> [Whether to exclude root nodes in search result],
     *        )
     * </pre>
 	*
@@ -152,14 +153,16 @@ class Soap_Api_Search_Service extends Soap_Api
     * @param array  $request_info	$request information
     * <pre>
     * Array (
-    * 		'AssetTypes'	=> [Asset Types in Matrix]
-    * 		'ExcludeWords'	=> [Words to be excluded from the search]
-    * 		'FieldLogic'	=> [Either AND or OR results between fields]
-    * 		'Limit'			=> [The maximum number of results returned]
-    * 		'RootIDs'		=> [Search under the specified root nodes]
-    * 		'RootLogic'		=> [Either AND or OR results between rootnodes]
-    * 		'ResultFormat'	=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
-	*		'Statuses'		=> [Only search for the specified statuses],
+    * 		'AssetTypes'		=> [Asset Types in Matrix]
+    * 		'ExcludeWords'		=> [Words to be excluded from the search]
+    * 		'FieldLogic'		=> [Either AND or OR results between fields]
+    * 		'Limit'				=> [The maximum number of results returned]
+    * 		'RootIDs'			=> [Search under the specified root nodes]
+    * 		'RootLogic'			=> [Either AND or OR results between rootnodes]
+    * 		'ResultFormat'		=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
+	*		'Statuses'			=> [Only search for the specified statuses],
+	*		'SearchFields'		=> [Search fields],
+	*		'ExcludeRootNodes'	=> [Whether to exclude root nodes in search result],
     *        )
     * </pre>
 	*

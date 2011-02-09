@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_permission_role_service.inc,v 1.5 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_permission_role_service.inc,v 1.5.6.1 2011/02/09 04:55:50 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -108,7 +108,7 @@ class Soap_Api_Permission_Role_Service extends Soap_Api
     *		'AssetID'			=> [The asset in query],
 	*		'UserID'			=> [The user which the permission is applying for],
 	*		'PermissionLevel'	=> [Read Write Admin],
-	*		'Granted'			=> [Apply, Deny, Revoke],
+	*		'Grant'				=> [Apply, Deny, Revoke],
     *		'Cascade'			=> [Whether to cascade permission down to children],
     *        )
     * </pre>
@@ -172,7 +172,7 @@ class Soap_Api_Permission_Role_Service extends Soap_Api
     *		'AssetID'			=> [The asset in query],
 	*		'PermissionLevel'	=> [Read Write Admin],
 	*		'Granted'			=> [Apply, Deny, Revoke],
-	*		'Effective'			=> [Check for effective permission (write = read + write)],
+	*		'AndGreater'		=> [Check for effective permission (write = read + write)],
 	*		'ExpandGroups'		=> [Return userids inside a group instead just groupid],
 	*		'AllInfo'			=> [Apply, Deny, Revoke],
     *        )

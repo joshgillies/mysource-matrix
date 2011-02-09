@@ -17,7 +17,7 @@
 * @return void
 * @access public
 */
-function DeleteLink(linkid)
+function DeleteAssetLink(linkid)
 {
 	var soapBody	= "\
 <ns1:DeleteAssetLink>\
@@ -372,10 +372,10 @@ function GetLinkByAsset(assetid, other_assetid, link_type, link_value, side_of_l
 * @return void
 * @access public
 */
-function CreateLink(majorid, minorid, link_type, link_value, sort_order, is_dependant, is_exclusive)
+function CreateAssetLink(majorid, minorid, link_type, link_value, sort_order, is_dependant, is_exclusive)
 {
 	var soapBody	= "\
-<ns1:CreateLink>\
+<ns1:CreateAssetLink>\
 <MajorID>"+majorid+"</MajorID>\
 <MinorID>"+minorid+"</MinorID>\
 <LinkType>"+link_type+"</LinkType>\
@@ -383,8 +383,65 @@ function CreateLink(majorid, minorid, link_type, link_value, sort_order, is_depe
 <SortOrder>"+sort_order+"</SortOrder>\
 <IsDependant>"+is_dependant+"</IsDependant>\
 <IsExclusive>"+is_exclusive+"</IsExclusive>\
-</ns1:CreateLink>";
+</ns1:CreateAssetLink>";
 	
 	return soapBody;
-}//end CreateLink
+}//end CreateAssetLink
 
+
+/**
+* Description: This function returns the link lineages by root node
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'		=> [Assetid of an asset to find lineages of],
+*		'RootNode'		=> [Assetid of root node],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetLinkLineages(assetid, root_node)
+{
+	var soapBody	= "\
+<ns1:GetLinkLineages>\
+<AssetID>"+assetid+"</AssetID>\
+<RootNode>"+root_node+"</RootNode>\
+</ns1:GetLinkLineages>";
+	
+	return soapBody;
+}//end GetLinkLineages
+
+
+/**
+* Description: This function returns the parents under the tree
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'		=> [Assetid of an asset to find lineages of],
+*		'RootID'		=> [Assetid of root node],
+*		'MinLevel'		=> [Minimum tree level],
+*		'MaxLevel'		=> [Maximum tree level],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetParentsUnderTree(assetid, root_node, min_level, max_level)
+{
+	var soapBody	= "\
+<ns1:GetParentsUnderTree>\
+<AssetID>"+assetid+"</AssetID>\
+<RootID>"+root_node+"</RootID>\
+<MinLevel>"+min_level+"</MinLevel>\
+<MaxLevel>"+max_level+"</MaxLevel>\
+</ns1:GetParentsUnderTree>";
+	
+	return soapBody;
+}//end GetParentsUnderTree
