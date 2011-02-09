@@ -10,18 +10,19 @@
 * @param array  $request_info	$request information
 * <pre>
 * Array (
-* 		'AssetTypes'	=> [Asset Types in Matrix]
-* 		'Limit'			=> [The maximum number of results returned]
-* 		'RootIDs'		=> [Search under the specified root nodes]
-* 		'ResultFormat'	=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
-*		'Statuses'		=> [Only search for the specified statuses],
+* 		'AssetTypes'		=> [Asset Types in Matrix]
+* 		'Limit'				=> [The maximum number of results returned]
+* 		'RootIDs'			=> [Search under the specified root nodes]
+* 		'ResultFormat'		=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
+*		'Statuses'			=> [Only search for the specified statuses],
+*		'ExcludeRootNodes'  => [Whether to exclude root nodes in search result],
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function BasicSearch(asset_types, limit, rootids, result_format, statuses)
+function BasicSearch(asset_types, limit, rootids, result_format, statuses, exclude_root_nodes)
 {
 	var asset_types_str	= multiple_elements_to_string(asset_types, "AssetTypes");
 	var rootids_str		= multiple_elements_to_string(rootids, "RootIDs");
@@ -33,6 +34,7 @@ asset_types_str+
 rootids_str+
 "<ResultFormat>"+result_format+"</ResultFormat>"+
 statuses_str+
+"<ExcludeRootNodes>"+exclude_root_nodes+"</ExcludeRootNodes>"+
 "</ns1:BasicSearch>";
 
 	return soapBody;
@@ -46,21 +48,23 @@ statuses_str+
 * @param array  $request_info	$request information
 * <pre>
 * Array (
-* 		'AssetTypes'	=> [Asset Types in Matrix]
-* 		'ExcludeWords'	=> [Words to be excluded from the search]
-* 		'FieldLogic'	=> [Either AND or OR results between fields]
-* 		'Limit'			=> [The maximum number of results returned]
-* 		'RootIDs'		=> [Search under the specified root nodes]
-* 		'RootLogic'		=> [Either AND or OR results between rootnodes]
-* 		'ResultFormat'	=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
-*		'Statuses'		=> [Only search for the specified statuses],
+* 		'AssetTypes'		=> [Asset Types in Matrix]
+* 		'ExcludeWords'		=> [Words to be excluded from the search]
+* 		'FieldLogic'		=> [Either AND or OR results between fields]
+* 		'Limit'				=> [The maximum number of results returned]
+* 		'RootIDs'			=> [Search under the specified root nodes]
+* 		'RootLogic'			=> [Either AND or OR results between rootnodes]
+* 		'ResultFormat'		=> [The final output of the web service. E.g: %asset_name% - %asset_created%]
+*		'Statuses'			=> [Only search for the specified statuses],
+*		'SearchFields'      => [Search fields],
+*		'ExcludeRootNodes'  => [Whether to exclude root nodes in search result],
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function AdvancedSearch(asset_types, exclude_words, field_logic, limit, result_format, rootids, root_logic, statuses, search_fields)
+function AdvancedSearch(asset_types, exclude_words, field_logic, limit, result_format, rootids, root_logic, statuses, search_fields, exclude_root_nodes)
 {
 	var asset_types_str		= multiple_elements_to_string(asset_types, "AssetTypes");
 	var exclude_words_str	= multiple_elements_to_string(exclude_words, "ExcludeWords");
@@ -123,6 +127,7 @@ rootids_str+
 "<RootLogic>"+root_logic+"</RootLogic>"+
 statuses_str+
 "<SearchFields>"+search_field_string+"</SearchFields>"+
+"<ExcludeRootNodes>"+exclude_root_nodes+"</ExcludeRootNodes>"+
 "</ns1:AdvancedSearch>";
 
 	return soapBody;

@@ -1,5 +1,5 @@
 /**
- * This file contain all the SOAP Body used to request the Workflow Service API.
+ * This file contain all the SOAP Body used to request the Permission and Role Service API.
  * 
  */
 
@@ -40,7 +40,7 @@ function HasAccess(assetid, permission_level)
 *		'AssetID'			=> [The asset in query],
 *		'UserID'			=> [The user which the permission is applying for],
 *		'PermissionLevel'	=> [Read Write Admin],
-*		'Granted'			=> [Apply, Deny, Revoke],
+*		'Grant'				=> [Apply, Deny, Revoke],
 *		'Cascade'			=> [Whether to cascade permission down to children],
 *        )
 * </pre>
@@ -48,13 +48,14 @@ function HasAccess(assetid, permission_level)
 * @return void
 * @access public
 */
-function SetPermission(assetid, userid, permission_level, cascade)
+function SetPermission(assetid, userid, permission_level, grant, cascade)
 {
 	var soapBody	= "\
 <ns1:SetPermission>\
 <AssetID>"+assetid+"</AssetID>\
 <UserID>"+userid+"</UserID>\
 <PermissionLevel>"+permission_level+"</PermissionLevel>\
+<Grant>"+grant+"</Grant>\
 <Cascade>"+cascade+"</Cascade>\
 </ns1:SetPermission>";
 
@@ -72,7 +73,7 @@ function SetPermission(assetid, userid, permission_level, cascade)
 *		'AssetID'			=> [The asset in query],
 *		'PermissionLevel'	=> [Read Write Admin],
 *		'Granted'			=> [Apply, Deny, Revoke],
-*		'Effective'			=> [Check for effective permission (write = read + write)],
+*		'AndGreater'		=> [Check for effective permission (write = read + write)],
 *		'ExpandGroups'		=> [Return userids inside a group instead just groupid],
 *		'AllInfo'			=> [Apply, Deny, Revoke],
 *        )
@@ -88,7 +89,7 @@ function GetPermission(assetid, permission_level, granted, effective, expand_gro
 <AssetID>"+assetid+"</AssetID>\
 <PermissionLevel>"+permission_level+"</PermissionLevel>\
 <Granted>"+granted+"</Granted>\
-<Effective>"+effective+"</Effective>\
+<AndGreater>"+effective+"</AndGreater>\
 <ExpandGroups>"+expand_groups+"</ExpandGroups>\
 <AllInfo>"+all_info+"</AllInfo>\
 </ns1:GetPermission>";
