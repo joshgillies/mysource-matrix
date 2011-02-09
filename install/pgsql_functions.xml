@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.19 2011/01/31 00:11:57 cupreti Exp $
+* $Id: pgsql_functions.xml,v 1.20 2011/02/09 03:20:56 csmith Exp $
 *
 */
 -->
@@ -21,16 +21,17 @@
             -- creates a function that grants access to the secondary user.
             -- This function should be called after all the tables in the system
             -- have been created
-            CREATE OR REPLACE FUNCTION sq_grant_access(character varying) RETURNS TEXT AS '
+            CREATE OR REPLACE FUNCTION sq_grant_access(character varying, character varying) RETURNS TEXT AS '
             DECLARE
                 user_name ALIAS FOR $1;
+                access_type ALIAS FOR $2;
                 tablerow RECORD;
                 tablename TEXT;
             BEGIN
                 FOR tablerow IN SELECT c.relname AS name FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN (''r'',''v'',''S'','''') AND n.nspname NOT IN (''pg_catalog'', ''pg_toast'') AND pg_catalog.pg_table_is_visible(c.oid) LOOP
                     tablename=tablerow.name;
                     RAISE NOTICE ''tablename is %'', tablename;
-                    EXECUTE ''GRANT ALL ON '' || quote_ident(tablename) || '' TO '' || quote_ident(user_name::text);
+                    EXECUTE ''GRANT '' || access_type::TEXT || '' ON '' || quote_ident(tablename) || '' TO '' || quote_ident(user_name::text);
                 END LOOP;
                 RETURN ''access granted.'';
             END;

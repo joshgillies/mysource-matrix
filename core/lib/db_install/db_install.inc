@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.67 2010/09/22 01:36:17 cupreti Exp $
+* $Id: db_install.inc,v 1.68 2011/02/09 03:20:56 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -676,12 +676,13 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$tertiary_dsn  = $db_conf['db3'];
 		$cache_dsn     = $db_conf['dbcache'];
 		$search_dsn    = $db_conf['dbsearch'];
-		$grant_sql     = 'SELECT sq_grant_access(:user)';
+		$grant_sql     = 'SELECT sq_grant_access(:user, :access_type)';
 
 		// grant to the primary user
 		try {
 			$query = MatrixDAL::preparePdoQuery($grant_sql);
 			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
+			MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 			MatrixDAL::execPdoQuery($query);
 		} catch (DALException $e) {
 			throw $e;
@@ -692,6 +693,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $secondary_dsn['user']);
+				MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
@@ -703,6 +705,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $tertiary_dsn['user']);
+                MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
@@ -716,8 +719,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$postgres_db = DAL::getDbType() == 'pgsql';
 		$diff_dbcache_user = $primary_dsn['user'] != $cache_dsn['user'] && $secondary_dsn['user'] != $cache_dsn['user'] && $tertiary_dsn['user'] != $cache_dsn['user'];;
 		$diff_dbcache_dsn = $primary_dsn['DSN'] != $cache_dsn['DSN'];
-		
-		// grant to the cache user, if dsn is defined and is differnet from primary dns or if the cache user is different 
+
+		// grant to the cache user, if dsn is defined and is differnet from primary dns or if the cache user is different
 		if ($postgres_db && !is_null($cache_dsn) && ($diff_dbcache_user || $diff_dbcache_dsn)) {
 			// Change db connection only if the cache dns is differnet from the primary dsn
 			if ($diff_dbcache_dsn) {
@@ -728,6 +731,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $cache_dsn['user']);
+				MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
@@ -736,7 +740,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			if ($verbose) {
 				pre_echo('PGSQL CACHE USER PERMISSIONS FIXED');
 			}
-			
+
 			if ($diff_dbcache_dsn) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -746,9 +750,9 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$diff_dbsearch_user = $primary_dsn['user'] != $search_dsn['user'] && $secondary_dsn['user'] != $search_dsn['user'] && $tertiary_dsn['user'] != $search_dsn['user'] && $cache_dsn['user'] != $search_dsn['user'];
 		$diff_dbsearch_dsn = $primary_dsn['DSN'] != $search_dsn['DSN'];
 
-		// grant to the search user, if dsn is defined and is differnet from primary dns or if the search user is different 
+		// grant to the search user, if dsn is defined and is differnet from primary dns or if the search user is different
 		if ($postgres_db && !is_null($search_dsn) && ($diff_dbsearch_user || $diff_dbsearch_dsn)) {
-			
+
 			// Change db connection only if the search dns is differnet from the primary dsn
 			if ($diff_dbsearch_dsn) {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
@@ -758,6 +762,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $search_dsn['user']);
+				MatrixDAL::bindValueToPdo($query, 'access_type', 'SELECT');
 				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
