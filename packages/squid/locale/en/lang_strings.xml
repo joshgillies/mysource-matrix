@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2010/07/30 03:25:52 ewang Exp $
+* $Id: lang_strings.xml,v 1.6.4.1 2011/02/09 22:18:28 akarelia Exp $
 *
 *
 * Squid Package Localised Strings File
@@ -47,7 +47,7 @@
 	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
 	
 	<string source="squid_tool_url_port_field">Add Port to URL</string>
-	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running MySource Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
+	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
 
 	<string source="squid_clear_this">Clear this cache %s </string>
 	<string source="squid_clear_at">at</string>

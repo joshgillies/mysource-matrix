@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.43 2011/02/01 06:10:57 mhaidar Exp $
+* $Id: design_css.inc,v 1.43.2.1 2011/02/09 22:20:24 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -387,7 +387,7 @@ class Design_Css extends Design
 		switch ($var) {
 			case 'css_header' :
 echo '/*
-  Running MySource Matrix
+  Running Squiz Matrix
   Developed by Squiz - http://www.squiz.net
   MySource, MySource Matrix and Squiz.net are registered Trademarks of Squiz Pty Ltd
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
