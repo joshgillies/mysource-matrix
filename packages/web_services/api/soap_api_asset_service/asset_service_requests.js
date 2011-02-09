@@ -97,14 +97,14 @@ function GetAsset(assetid)
 * @return void
 * @access public
 */
-function GetURLs(assetid)
+function GetAssetURLs(assetid)
 {
 	var soapBody	= "\
-<ns1:GetURLs>\
+<ns1:GetAssetURLs>\
 <AssetID>"+assetid+"</AssetID>\
-</ns1:GetURLs>";
+</ns1:GetAssetURLs>";
 	return soapBody;	
-}//end GetURLs
+}//end GetAssetURLs
 
 
 /**
@@ -214,24 +214,26 @@ function TrashAsset(assetid)
 *
 * <pre>
 * Array (
-*		'AssetID'	 		=> [The ID of the asset in query],
-*		'NumberOfClone'		=> [How many new clone assets]
-*		'NewParentID'		=> [The new parent]
-*		'NumberOfClone'		=> [Number of asset to be cloned],
+*		'AssetID'	 			 => [The ID of the asset in query],
+*		'NewParentID'			 => [The new parent]
+*		'NumberOfClone'			 => [Number of asset to be cloned],
+*		'PositionUnderNewParent' => [Position Under New Parent (sort order)]
+*		'LinkType'				 => [Creation link type]
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function CloneAsset(assetid, parentid, new_parentid, num_clone)
+function CloneAsset(assetid, new_parentid, num_clone, position, link_type)
 {
 	var soapBody	= "\
 <ns1:CloneAsset>\
 <AssetID>"+assetid+"</AssetID>\
-<CurrentParentID>"+parentid+"</CurrentParentID>\
 <NewParentID>"+new_parentid+"</NewParentID>\
 <NumberOfClone>"+num_clone+"</NumberOfClone>\
+<PositionUnderNewParent>"+position+"</PositionUnderNewParent>\
+<LinkType>"+link_type+"</LinkType>\
 </ns1:CloneAsset>";
 	return soapBody;
 	
@@ -246,7 +248,7 @@ function CloneAsset(assetid, parentid, new_parentid, num_clone)
 * <pre>
 * Array (
 *		'TypeCode'	 		=> [The ID of the asset in query],
-*		'AttributeDetail'	=> [The Details of the attribute],
+*		'AttributeDetail'	=> [The Details of the attribute e.g details = new Array('name', 'attrid')],
 *        )
 * </pre>
 *
@@ -257,10 +259,17 @@ function GetAssetTypeAttribute(type_code, details)
 {
 	var soapBody	= "\
 <ns1:GetAssetTypeAttribute>\
-<TypeCode>"+type_code+"</TypeCode>\
-<Details>"+details+"</Details>\
+<TypeCode>"+type_code+"</TypeCode>";
+
+for (var i in details) {
+	soapBody += "\
+<AttributeDetail>"+details[i]+"</AttributeDetail>";
+}
+
+soapBody += "\
 </ns1:GetAssetTypeAttribute>";
 	return soapBody;
+	
 }//end GetAssetTypeAttribute()
 
 
@@ -302,14 +311,14 @@ function GetAssetWebPaths(assetid)
 * @return void
 * @access public
 */
-function GetAvailableKeywords(assetid)
+function GetAssetAvailableKeywords(assetid)
 {
 	var soapBody	= "\
-<ns1:GetAvailableKeywords>\
+<ns1:GetAssetAvailableKeywords>\
 <AssetID>"+assetid+"</AssetID>\
-</ns1:GetAvailableKeywords>";
+</ns1:GetAssetAvailableKeywords>";
 	return soapBody;
-}//end GetAvailableKeywords()
+}//end GetAssetAvailableKeywords()
 
 
 /**
@@ -387,3 +396,162 @@ function GetAllStatuses()
 </ns1:GetAllStatuses>";
 	return soapBody;	
 }//end GetAllStatuses()
+
+
+/**
+* Description: This function return the asset information (name, typecode, children assets, lineage) about the requested asset.
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'AssetIDs'				=> [The ID of the asset in query],
+*        'FinderAttributes'		=> [children|lineage],
+*        'RootNode'				=> [The ID of the root asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetAssetsInfo(assetid, finder_attr, root_assetid)
+{
+	var soapBody	= "\
+<ns1:GetAssetsInfo>\
+<AssetIDs>"+assetid+"</AssetIDs>\
+<FinderAttributes>"+finder_attr+"</FinderAttributes>\
+<RootNode>"+root_assetid+"</RootNode>\
+</ns1:GetAssetsInfo>";
+	return soapBody;
+	
+}//end GetAssetsInfo
+
+
+/**
+* Description: This operation will return all the type descendants of an asset type.
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'TypeCode'	 		=> [The ID of the asset in query]
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetAssetTypeDescendants(type_code)
+{
+	var soapBody	= "\
+<ns1:GetAssetTypeDescendants>\
+<TypeCode>"+type_code+"</TypeCode>\
+</ns1:GetAssetTypeDescendants>";
+	return soapBody;
+	
+}//end GetAssetTypeDescendants()
+
+
+/**
+* Description: This function return the page contents for asset in query
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'AssetID'				=> [The ID of the asset in query],
+*        'RootNodeID'			=> [The ID of the root asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetPageContents(assetid, root_assetid)
+{
+	var soapBody	= "\
+<ns1:GetPageContents>\
+<AssetID>"+assetid+"</AssetID>\
+<RootNodeID>"+root_assetid+"</RootNodeID>\
+</ns1:GetPageContents>";
+	return soapBody;
+	
+}//end GetPageContents
+
+
+/**
+* Description: This operation will return a SessionID and SessionKey on successful validation
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'Username'
+*        'Password'	
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function LoginUser(username, password)
+{
+	var soapBody	= "\
+<ns1:LoginUser>\
+<Username>"+username+"</Username>\
+<Password>"+password+"</Password>\
+</ns1:LoginUser>";
+	return soapBody;
+	
+}//end LoginUser
+
+
+/**
+* Description: This operation will return the user asset ID of the request username
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'Username'
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetUserIdByUsername(username)
+{
+	var soapBody	= "\
+<ns1:GetUserIdByUsername>\
+<Username>"+username+"</Username>\
+</ns1:GetUserIdByUsername>";
+	return soapBody;
+	
+}//end GetUserIdByUsername
+
+
+/**
+* Description: This operation will set status for an asset
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'AssetID'			=> [The ID of the asset in query],
+*        'StatusValue'		=> [e.g Live = 16],
+*        'DependantsOnly'	=> [0|1],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function SetAssetStatus(assetid, status, dependants_only)
+{
+	var soapBody	= "\
+<ns1:SetAssetStatus>\
+<AssetID>"+assetid+"</AssetID>\
+<StatusValue>"+status+"</StatusValue>\
+<DependantsOnly>"+dependants_only+"</DependantsOnly>\
+</ns1:SetAssetStatus>";
+	return soapBody;
+	
+}//end SetAssetStatus
+
+
