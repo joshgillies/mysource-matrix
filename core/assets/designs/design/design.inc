@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.153.2.1 2010/12/16 03:01:42 ewang Exp $
+* $Id: design.inc,v 1.153.2.2 2011/02/09 22:11:54 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153.2.1 $
+* @version $Revision: 1.153.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -665,7 +665,7 @@ class Design extends Design_Area
 		switch ($var) {
 			case 'html_header' :
 echo '<!--
-  Running MySource Matrix
+  Running Squiz Matrix
   Developed by Squiz - http://www.squiz.net
   MySource, MySource Matrix and Squiz.net are registered Trademarks of Squiz Pty Ltd
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>

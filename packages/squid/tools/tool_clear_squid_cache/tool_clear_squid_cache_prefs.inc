@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_prefs.inc,v 1.6 2010/07/30 03:25:37 ewang Exp $
+* $Id: tool_clear_squid_cache_prefs.inc,v 1.6.2.1 2011/02/09 22:12:58 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ if (!defined('SQ_SQUID_CACHE_SLASH_DENY')) {
 *    List of host names to be used when purging the Squid Cache in the Global Prefs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -72,7 +72,7 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 													   ),
 						'SQ_SQUID_URL_PORT'			=> Array(
 														'name'			=> 'squid_tool_url_port_field',
-														'description'	=> 'You can specify a port to add to each URL when submitted to Squid. If you are running MySource Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.',
+														'description'	=> 'You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.',
 														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
