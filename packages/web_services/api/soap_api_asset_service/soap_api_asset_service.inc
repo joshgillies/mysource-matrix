@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.23.2.1 2011/02/10 05:24:56 cupreti Exp $
+* $Id: soap_api_asset_service.inc,v 1.23.2.2 2011/02/10 22:08:31 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -589,7 +589,20 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$request_info 	= (Array) $request;
 		$type_code			= array_get_index($request_info, 'TypeCode', '');
 		$details			= array_get_index($request_info, 'AttributeDetail', Array ('name', 'type'));
-
+		
+		if (!is_array($details)) $details = Array($details);
+		//need to group by 'name' field so make sure its first.
+		if (!in_array('name', $details)) {
+			array_unshift($details, 'name');
+		} else {
+			if (count($details) == 1){
+				$details = Array ('name', 'type');//need atleast two so we can still group by 'name'.
+			} else if ($details[0] != 'name'){
+				$details = array_diff($details, Array('name'));
+				array_unshift($details, 'name');
+			}
+		}
+		
 		if (!empty($type_code)) {
 			$attribute_details	= $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type_code, $details);
 			$i = 0;
