@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.23 2010/11/22 12:31:41 ata Exp $
+* $Id: soap_api_asset_service.inc,v 1.23.2.1 2011/02/10 05:24:56 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -356,11 +356,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$request_info 	= (Array) $request;
 		$url			= array_get_index($request_info, 'URL', '');
 		if (!empty($url)) {
-			$pattern    = '/(http|https):\/\//';
+			$pattern    = '#(http://|https://|^)#';
 			$url_split	= preg_split($pattern, $url, -1, PREG_SPLIT_DELIM_CAPTURE);
-			$protocol	= $url_split[1];
+			$protocol	= rtrim($url_split[1], '://');
 			$main_url	= $url_split[2];
-			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $main_url);
+			
+			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $main_url, TRUE, TRUE);
 			$asset_xml	= '';
 			if (!is_null($asset)) {
 				$asset_xml	= self::objectToXML($asset);
