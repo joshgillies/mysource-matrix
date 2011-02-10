@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.6 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.7 2011/02/10 04:38:17 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -322,6 +322,10 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 		$url						= array_get_index($request_info, 'URL', '');
 		$design_type				= array_get_index($request_info, 'DesignType', '');		// ( frontend || user-defined || login ) || override
 		$user_defined_design_name	= array_get_index($request_info, 'UserDefinedDesignName', '');
+
+		// Design is associated with the domain bit only (i.e. url without protocol)
+		$url = ltrim($url, 'http://');
+		$url = ltrim($url, 'https://');
 
 		$design_name	= self::getDesignNameFromType($design_type);
         // Is it not user defined design
