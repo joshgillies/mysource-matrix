@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.6 2010/12/01 05:57:00 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.6.2.1 2011/02/11 14:03:57 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -85,7 +85,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 				}
             $o->closeField();
             $o->openField(translate('suite_system_url'));
-                echo array_get_index($current_product['connection'], 'url', '');
+                echo array_get_index($current_product, 'url', '');
             $o->closeField();
         }//end if
 
@@ -149,15 +149,15 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 		if ($register == '1') {
 			if (empty($current_product)) {
 				// New product, register.
-				$systemid = self::_getSystemid();
+				$systemid   = self::_getSystemid();
+				$url        = $asset->getUrl();
 				$connection = array(
 								'name' => 'Squiz Matrix',
-								'url'  => $asset->getUrl(),
 							  );
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				try {
-					$asset->registerProduct($systemid, 'Squiz Matrix', $connection);
-					$asset->updateProduct($systemid, 'is_current', TRUE);
+					$suiteid = $asset->registerProduct($systemid, 'Squiz Matrix', $url, $connection);
+					$asset->updateProduct($suiteid, 'is_current', TRUE);
 					$asset->generateSystemKeyPair();
 				} catch (PDOException $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -166,16 +166,10 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} else {
 				// New systemid, keep old details.
-				$connection = array_get_index($current_product, 'connection', array());
-				$type       = 'Squiz Matrix';
-				$systemid   = array_get_index($current_product, 'systemid', 0);
 				$newid      = self::_getSystemid();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				try {
-					$asset->removeProduct($systemid, TRUE);
-					$asset->registerProduct($newid, $type, $connection);
-					$asset->updateProduct($newid, 'is_current', TRUE);
-					$asset->generateSystemKeyPair();
+					$asset->updateProduct($current_product['suiteid'], 'systemid', $newid);
 				} catch (PDOException $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return FALSE;
@@ -187,14 +181,13 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 		// Finally, save the name by reloading the current product.
         $current_product = $asset->getCurrentProduct();
 		if ($wa && !empty($current_product)) {
-			$systemid     = array_get_index($current_product, 'systemid', 0);
 			$connection   = array_get_index($current_product, 'connection', array());
 			$current_name = array_get_index($connection, 'name', '');
 			$new_name     = array_get_index($_POST, $prefix.'_current_name', '');
 			if (!empty($new_name) && $new_name !== $current_name) {
 				// Change the name
 				$connection['name'] = $new_name;
-				$asset->updateProduct($systemid, 'connection', $connection);
+				$asset->updateProduct($current_product['suiteid'], 'connection', $connection);
 
 				// Send the request to other systems
 				$message      = array(
@@ -203,7 +196,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 								);
 				$liveProducts = $asset->getLiveProducts();
 				foreach ($liveProducts as $liveProduct) {
-					$response = $asset->sendRequest($liveProduct['systemid'], 'xml', 'SquizSuite', 'suiteProductUpdate', $message);
+					$response = $asset->sendRequest($liveProduct['suiteid'], 'xml', 'SquizSuite', 'suiteProductUpdate', $message);
 				}//end foreach
 			}//end if
 		}//end if
@@ -263,11 +256,11 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
         $products = $asset->getProducts(FALSE, TRUE);
         foreach ($products as $product) {
-            $id = $product['systemid'];
+            $id = $product['suiteid'];
 
             echo '<tr>';
             echo '<td>';
-            echo $id;
+            echo $product['systemid'];
             echo '</td>';
             echo '<td>';
             echo array_get_index($product['connection'], 'name', '');
@@ -300,11 +293,11 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 echo '<tr>';
                 echo '<td>'.translate('username').'</td>';
                 echo '<td colspan="2">';
-                echo text_box($prefix.'_username['.$product['systemid'].']', array_get_index($product['connection'], 'username', ''), 30);
+                echo text_box($prefix.'_username['.$product['suiteid'].']', array_get_index($product['connection'], 'username', ''), 30);
                 echo '</td>';
                 echo '<td>'.translate('password').'</td>';
                 echo '<td colspan="2">';
-                echo password_box($prefix.'_password['.$product['systemid'].']', array_get_index($product['connection'], 'password', ''), 30);
+                echo password_box($prefix.'_password['.$product['suiteid'].']', array_get_index($product['connection'], 'password', ''), 30);
                 echo '</td>';
                 echo '</tr>';
             }//end if
@@ -350,7 +343,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	$live_products = $asset->getProducts(FALSE, FALSE, array('Squiz Update'), array('live'));
 	$live_prod_ids = array();
 	foreach ($live_products as $live_product) {
-		$live_prod_ids[] = $live_product['systemid'];
+		$live_prod_ids[] = $live_product['suiteid'];
 	}
 
 	$updateSyncStatus    = TRUE;
@@ -371,25 +364,26 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
         $usernames = array_get_index($_POST, $prefix.'_username', array());
         $passwords = array_get_index($_POST, $prefix.'_password', array());
         $broadcast = FALSE;
-        foreach ($usernames as $systemid => $username) {
-            $product = $asset->getProduct($systemid);
+        foreach ($usernames as $suiteid => $username) {
+            $product = $asset->getProduct($suiteid);
             if (!empty($product)) {
                 $current_user = array_get_index($product['connection'], 'username', '');
                 if (!empty($username) && $username !== $current_user) {
                     $connection = array_get_index($product, 'connection', array());
                     $connection['username'] = $username;
-                    $asset->updateProduct($systemid, 'connection', $connection);
+                    $asset->updateProduct($suiteid, 'connection', $connection);
                 }
             }//end if
         }//end foreach
-        foreach ($passwords as $systemid => $password) {
-            $product = $asset->getProduct($systemid);
+
+        foreach ($passwords as $suiteid => $password) {
+            $product = $asset->getProduct($suiteid);
             if (!empty($product)) {
                 $current_pass = array_get_index($product['connection'], 'password', '');
                 if (!empty($password) && $password !== $current_pass) {
                     $connection = array_get_index($product, 'connection', array());
                     $connection['password'] = $password;
-                    $asset->updateProduct($systemid, 'connection', $connection);
+                    $asset->updateProduct($suiteid, 'connection', $connection);
                 }
             }//end if
         }//end foreach
@@ -461,9 +455,9 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 $tempid     = uniqid();
                 $systemType = 'unknown';
                 $systemName = 'Unknown System';
-                $connection = array('url' => $product_url, 'name' => $systemName);
-                $asset->registerProduct($tempid, $systemType, $connection);
-                $asset->updateProduct($tempid, 'status', 'pending');
+                $connection = array('name' => $systemName);
+                $suiteid    = $asset->registerProduct($tempid, $systemType, $product_url, $connection);
+                $asset->updateProduct($suiteid, 'status', 'pending');
             } else {
                 trigger_localised_error('SQS0020', E_USER_WARNING, $response['curlInfo']['http_code']);
             }//end if
