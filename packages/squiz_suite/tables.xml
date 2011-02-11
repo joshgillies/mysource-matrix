@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.3 2010/12/01 05:57:00 bpearson Exp $
+* $Id: tables.xml,v 1.4 2011/02/11 13:45:57 bpearson Exp $
 *
 */
 -->
@@ -19,6 +19,12 @@
 	<tables>
 		<table name="suite_product" require_rollback="0">
 			<columns>
+				<column name="suiteid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description>The unique id of the system</description>
+				</column>
 				<column name="systemid" allow_null="0">
 					<type>VARCHAR(150)</type>
 					<type_variations />
@@ -27,6 +33,12 @@
 				</column>
 				<column name="type" allow_null="0">
 					<type>VARCHAR(50)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(2000)</type>
 					<type_variations />
 					<default />
 					<description />
@@ -51,12 +63,6 @@
 					<default />
 					<description>Details of the system</description>
 				</column>
-				<column name="knows_me_as" allow_null="1">
-					<type>VARCHAR(150)</type>
-					<type_variations />
-					<default />
-					<description />
-				</column>
 				<column name="sync_status" allow_null="1">
 					<type>VARCHAR(5)</type>
 					<type_variations />
@@ -71,19 +77,28 @@
 					<default />
 					<description />
 				</column>
+				<column name="token" allow_null="1">
+					<type>VARCHAR(30)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
-					<column name="systemid" />
+					<column name="suiteid" />
 				</primary_key>
 			</keys>
 			<indexes>
 				<index>
+					<column name="systemid" />
 					<column name="type" />
 					<column name="status" />
 				</index>
 			</indexes>
 		</table>
 	</tables>
-	<sequences />
+	<sequences>
+		<sequence name="suite" />
+	</sequences>
 </schema>

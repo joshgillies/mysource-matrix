@@ -5,16 +5,18 @@
     <primary>
       <insert>
         <fields table="sq_suite_product">
+          <field>suiteid</field>
           <field>systemid</field>
           <field>type</field>
+          <field>url</field>
           <field>connection</field>
-          <field>knows_me_as</field>
         </fields>
         <values>
+          <value column="suiteid">:suiteid</value>
           <value column="systemid">:systemid</value>
           <value column="type">:type</value>
+          <value column="url">:url</value>
           <value column="connection">:connection</value>
-          <value column="knows_me_as">:knowsMeAs</value>
         </values>
       </insert>
     </primary>
@@ -23,7 +25,7 @@
     <primary>
       <delete>
         <where>
-            <equal table="sq_suite_product" column="systemid">:systemid</equal>
+            <equal table="sq_suite_product" column="suiteid">:suiteid</equal>
             <equal table="sq_suite_product" column="is_current">:is_current</equal>
         </where>
       </delete>
@@ -33,20 +35,22 @@
     <primary>
        <select>
         <fields>
+           <field table="p1" column="suiteid"/>
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
-           <field table="p1" column="knows_me_as"/>
            <field table="p1" column="sync_status"/>
            <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
         <where>
-          <in table="p1" column="systemid">:systemid</in>
+          <in table="p1" column="suiteid">:suiteid</in>
         </where>
       </select>
     </primary>
@@ -55,14 +59,16 @@
     <primary>
        <select>
         <fields>
+           <field table="p1" column="suiteid"/>
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
-           <field table="p1" column="knows_me_as"/>
            <field table="p1" column="sync_status"/>
            <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
@@ -73,18 +79,93 @@
       </select>
     </primary>
   </query>
+  <query id="getProductBySystemid">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="suiteid"/>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="is_current"/>
+           <field table="p1" column="connection"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="systemid">:systemid</in>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getProductBySystemidURL">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="suiteid"/>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="is_current"/>
+           <field table="p1" column="connection"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="systemid">:systemid</in>
+          <in table="p1" column="url">:url</in>
+        </where>
+      </select>
+    </primary>
+  </query>
+  <query id="getProductByToken">
+    <primary>
+       <select>
+        <fields>
+           <field table="p1" column="suiteid"/>
+           <field table="p1" column="systemid"/>
+           <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
+           <field table="p1" column="status"/>
+           <field table="p1" column="is_current"/>
+           <field table="p1" column="connection"/>
+           <field table="p1" column="sync_status"/>
+           <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
+        </fields>
+        <from>
+          <table alias="p1">sq_suite_product</table>
+        </from>
+        <where>
+          <in table="p1" column="token">:token</in>
+        </where>
+      </select>
+    </primary>
+  </query>
   <query id="getProductsByType">
     <primary>
        <select>
         <fields>
+           <field table="p1" column="suiteid"/>
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
-           <field table="p1" column="knows_me_as"/>
            <field table="p1" column="sync_status"/>
            <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
@@ -99,18 +180,23 @@
     <primary>
       <select>
         <fields>
+           <field table="p1" column="suiteid"/>
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
-           <field table="p1" column="knows_me_as"/>
            <field table="p1" column="sync_status"/>
            <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>
         </from>
+	<order-by>
+	 <field table="p1" column="suiteid" />
+	</order-by>
       </select>
     </primary>
   </query>
@@ -118,14 +204,16 @@
   	<primary>
       <select>
         <fields>
+           <field table="p1" column="suiteid"/>
            <field table="p1" column="systemid"/>
            <field table="p1" column="type"/>
+           <field table="p1" column="url"/>
            <field table="p1" column="status"/>
            <field table="p1" column="is_current"/>
            <field table="p1" column="connection"/>
-           <field table="p1" column="knows_me_as"/>
            <field table="p1" column="sync_status"/>
            <field table="p1" column="last_contacted"/>
+           <field table="p1" column="token"/>
         </fields>
         <from>
           <table alias="p1">sq_suite_product</table>

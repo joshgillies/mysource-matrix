@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.5 2010/12/02 02:15:14 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.6 2011/02/11 13:54:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -330,17 +330,17 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function paintFunnelbackOptions(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('attributes');
-		$search_type = $asset->attr('search_type');
-		$web_url   = $asset->attr('funnelback_url');
-		$collection = $asset->attr('collection');
-		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
-		$all_collections = $fm->getCollections();
-		$local_collections = Array(''=>translate('funnelback_no_collection'));
+		$wa                   = $asset->writeAccess('attributes');
+		$search_type          = $asset->attr('search_type');
+		$web_url              = $asset->attr('funnelback_url');
+		$collection           = $asset->attr('collection');
+		$fm                   = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager');
+		$all_collections      = $fm->getCollections();
+		$local_collections    = Array(''=>translate('funnelback_no_collection'));
 		$squiz_search_options = $this->_getSquizSearchSystems();
-		$systemid = $asset->attr('systemid');
-		$systemname = array_get_index($squiz_search_options, $systemid, '');
-		$squiz_collections = $this->_getSquizSearchCollections($systemid);
+		$suiteid              = $asset->attr('systemid');
+		$systemname           = array_get_index($squiz_search_options, $suiteid, '');
+		$squiz_collections    = $this->_getSquizSearchCollections($suiteid);
 		foreach ($all_collections as $all_col_id => $all_col_info) {
 			$local_collections[$all_col_id] = array_get_index($all_col_info, 'name', '');
 		}//end foreach
@@ -428,7 +428,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				echo '<span id="'.$prefix.'_search_url_local" '.$hidden_local.'>';
 				echo 'Integrated Search';
 				echo '</span>';
-				echo combo_box($prefix.'_search_url_squiz', $squiz_search_options, FALSE, $systemid, 0, $hidden_squiz);
+				echo combo_box($prefix.'_search_url_squiz', $squiz_search_options, FALSE, $suiteid, 0, $hidden_squiz);
 			} else {
 				if ($search_type == 'integrated') {
 					echo 'Integrated Search';
@@ -497,12 +497,12 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$systemid = '';
 			} else if ($type == 'squiz') {
 				$collection  = array_get_index($_POST, $prefix.'_search_collection_squiz', '');
-				$systemid    = array_get_index($_POST, $prefix.'_search_url_squiz', '');
+				$suiteid     = array_get_index($_POST, $prefix.'_search_url_squiz', '');
 				$url         = '';
 				$systems     = $this->_getSquizSearchSystems();
-				$collections = $this->_getSquizSearchCollections($systemid);
-				if (!array_key_exists($systemid, $systems)) {
-					$systemid = '';
+				$collections = $this->_getSquizSearchCollections($suiteid);
+				if (!array_key_exists($suiteid, $systems)) {
+					$suiteid = '';
 				}
 
 				if (!array_key_exists($collection, $collections)) {
@@ -515,7 +515,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}//end if
 			$asset->setAttrValue('search_type', $type);
 			$asset->setAttrValue('funnelback_url', $url);
-			$asset->setAttrValue('systemid', $systemid);
+			$asset->setAttrValue('systemid', $suiteid);
 			$asset->setAttrValue('collection', $collection);
 			$status = $asset->saveAttributes();
 		}//end if
@@ -540,7 +540,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			foreach ($products as $product) {
 				if ($product['type'] == 'Squiz Search' && $product['status'] == 'live') {
 					$productname = array_get_index($product['connection'], 'name', '');
-					$systems[$product['systemid']] = $productname;
+					$systems[$product['suiteid']] = $productname;
 				}
 			}//end foreach
 		}//end if
@@ -553,19 +553,21 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	 * Get a list of the collections on a Squiz Search system.
 	 *
+	 * @param string $suiteid The ID of the suite product.
+	 *
 	 * @return array
 	 * @access private
 	 */
-	private function _getSquizSearchCollections($systemid='')
+	private function _getSquizSearchCollections($suiteid='')
 	{
 		$collections = array();
 		$suitem      = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager', TRUE);
 		if ($suitem !== NULL) {
-			$system      = $suitem->getProduct($systemid);
+			$system      = $suitem->getProduct($suiteid);
 			if (empty($system) === FALSE) {
-				$productUrl = array_get_index($system['connection'], 'url', '');
+				$productUrl = array_get_index($system, 'url', '');
 				$request    = array();
-				$response   = $suitem->sendRequest($systemid, 'json', 'SquizSearch', 'getAvailableCollections', $request);
+				$response   = $suitem->sendRequest($suiteid, 'json', 'SquizSearch', 'getAvailableCollections', $request);
 				if (isset($response['curlInfo']['http_code']) === TRUE && $response['curlInfo']['http_code'] == 200) {
 					$resultData = $response['result'];
 					$resultData = (array) $suitem->decodeJson($resultData);
