@@ -62,7 +62,7 @@ if ($dbType == 'pgsql') {
 } else {
 	// Oracle.
 	// Remove old indexes and keys.
-	MatrixDAL::executeSql('ALTER TABLE ONLY sq_suite_product DROP CONSTRAINT suite_product_pk');
+	MatrixDAL::executeSql('ALTER TABLE sq_suite_product DROP CONSTRAINT suite_product_pk');
 	MatrixDAL::executeSql('DROP INDEX sq_suite_product_type');
 
 	// Create a new sequence.
@@ -106,11 +106,11 @@ if ($dbType == 'pgsql') {
 	}//end foreach
 	
 	// Set the not null constraint on columns.
-	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ALTER COLUMN suiteid SET NOT NULL');
-	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ALTER COLUMN url SET NOT NULL');
+	MatrixDAL::executeSql('ALTER TABLE sq_suite_product MODIFY suiteid NOT NULL');
+	MatrixDAL::executeSql('ALTER TABLE sq_suite_product MODIFY url NOT NULL');
 
 	// Set the new constraints and keys
-	MatrixDAL::executeSql('ALTER TABLE ONLY sq_suite_product ADD CONSTRAINT suite_product_pk PRIMARY KEY (suiteid)');
+	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ADD CONSTRAINT suite_product_pk PRIMARY KEY (suiteid)');
 	MatrixDAL::executeSql('CREATE INDEX sq_suite_product_type ON sq_suite_product (systemid, type, status)');
 }//end if
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
