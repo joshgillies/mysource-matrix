@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay_management.inc,v 1.6 2009/09/08 14:25:58 ata Exp $
+* $Id: payment_gateway_sagepay_management.inc,v 1.7 2011/02/11 16:57:56 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -80,6 +80,7 @@ class Payment_Gateway_SagePay_Management extends Asset_Management
 																							'USD' => 'USD',
 																							'EUR' => 'EUR',
 																							'JPY' => 'JPY',
+																							'CAD' => 'CAD',
 																						   ),
 																	   ),
 												   ),
