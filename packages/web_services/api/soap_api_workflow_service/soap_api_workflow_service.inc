@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.9 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_workflow_service.inc,v 1.10 2011/02/11 00:25:30 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -548,13 +548,13 @@ class Soap_Api_Workflow_Service extends Soap_Api
 															'assetids'			=> Array ( $assetid),
 															'granted'			=> $grant_val,
 															'schemaid'			=> $schemaid,
-															'cascades'			=> $cascade,
+															'cascades'			=> $auto_cascade,
 															'previous_access'	=> NULL,
-															'dependants_only'	=> !($cascade && $auto_cascade) && $has_dependants,
+															'dependants_only'	=> (!($cascade && $auto_cascade) && $has_dependants) || (!$has_dependants && !$cascade), 
 														),
 													   ),
 							  );
-
+							  
 			$errors	= $hh->freestyleHipo('hipo_job_edit_workflow_schemas', $running_vars);
 			if (empty($errors)) {
 				return Array (
