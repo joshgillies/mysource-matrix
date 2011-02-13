@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.2 2010/09/22 05:54:05 akarelia Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.3 2011/02/13 23:42:09 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -133,7 +133,27 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function prepare()
 	{
+		$this->_running_vars['import_action_outputs'] = Array();
 		$file_info = $this->_running_vars['file_info'];
+		$import_actions = get_import_actions($file_info);
+
+		// if we want to explictily target the root node under which the structure is imported , do it
+		if(isset($this->_running_vars['create_under_assetid']) && $this->_running_vars['create_under_assetid'] != 0) {
+			$import_actions['actions'][0]['action'][0]['parentid'][0] = $this->_running_vars['create_under_assetid'];
+		}
+		
+		// fix the file import path, it should be relative to the export dir
+		foreach ($import_actions['actions'][0]['action'] as $id => $action) {
+			if($action['action_type'][0] === 'create_file_asset') {
+				$action['file_path'][0] = dirname($file_info).'/'.$action['file_path'][0];
+				$import_actions['actions'][0]['action'][$id] = $action;
+			}
+		}
+		
+		$this->_running_vars['import_actions'] = $import_actions;
+		$this->_running_vars['total_count'] = count($import_actions['actions'][0]['action']);
+		
+		
 		if (empty($file_info)) {
 			trigger_localised_error('HIPO0095', E_USER_NOTICE);
 			return FALSE;
@@ -166,21 +186,18 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function processImportAsset(&$step_data, $prefix)
 	{
-		$import_actions = get_import_actions($this->_running_vars['file_info']);
-		// if we want to explictily target the root node under which the structure is imported , do it
-		if(isset($this->_running_vars['create_under_assetid']) && $this->_running_vars['create_under_assetid'] != 0) {
-			$import_actions['actions'][0]['action'][0]['parentid'][0] = $this->_running_vars['create_under_assetid'];
-		}
+		$import_actions = $this->_running_vars['import_actions'];
+		
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$import_action_outputs = Array();
+		$action = array_shift($import_actions['actions'][0]['action']);
 		// Loop through the Actions from the XML File
-		foreach ($import_actions['actions'][0]['action'] as $action) {
+		if(!empty($action)) {
 			// Execute the action
-			if (!execute_import_action($action, $import_action_outputs)) {
+			if (!execute_import_action($action, $this->_running_vars['import_action_outputs'])) {
 				trigger_error('Action ID "'.$action['action_id'][0].'" could not be executed', E_USER_WARNING);
 			}
 		}
@@ -189,14 +206,25 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		$this->_running_vars['import_actions'] = $import_actions;
+		
 		// update progress
-		$step_data['percent_done'] = 100;
-		$step_data['complete']     = TRUE;
-
-		// done with everything ? delete the file
-		if ($this->_running_vars['delete_after_import']) {
-			unlink($this->_running_vars['file_info']);
+		if (count($import_actions['actions'][0]['action']) == 0) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+	
+			// done with everything ? delete the file
+			if ($this->_running_vars['delete_after_import']) {
+				// unlink the import dir
+				$command = "rm -rf ".dirname($this->_running_vars['file_info']); 
+				system($command);
+			}
 		}
+		else {
+			$step_data['percent_done'] = (($this->_running_vars['total_count'] - count($import_actions['actions'][0]['action'])) / $this->_running_vars['total_count']) * 100;
+			$step_data['complete']     = FALSE;
+		}
+
 		return TRUE;
 
 	}//end processImport()
