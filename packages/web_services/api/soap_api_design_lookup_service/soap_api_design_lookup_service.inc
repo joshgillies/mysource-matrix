@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.6.4.1 2011/02/10 05:26:41 cupreti Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.6.4.2 2011/02/13 22:08:26 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6.4.1 $
+* @version $Revision: 1.6.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -87,10 +87,12 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 		$request_info				= (Array) $request;
 		$new_designid				= array_get_index($request_info, 'DesignID', '');
 		$assetid					= array_get_index($request_info, 'AssetID', '');
-		$design_type				= array_get_index($request_info, 'DesignType', '');		// ( frontend || user-defined || login ) || override
+		$design_type				= array_get_index($request_info, 'DesignType', '');
 		$user_defined_design_name	= array_get_index($request_info, 'UserDefinedDesignName', '');
 
 		$design_name	= self::getDesignNameFromType($design_type);
+		if (empty($design_name)) throw new SoapFault('Server', 'The Design Type is invalid. Operation Aborted.');
+		
 		$designs_ok		= TRUE;
 		$design_changed	= FALSE;
 
