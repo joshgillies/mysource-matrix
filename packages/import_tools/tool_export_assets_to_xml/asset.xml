@@ -13,17 +13,17 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.2.1 2011/02/14 00:36:01 ewang Exp $
+* $Id: asset.xml,v 1.1.4.2 2011/02/14 00:36:01 ewang Exp $
 *
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>import_tools</package>
-	<type_code>tool_import_assets_from_xml</type_code>
+	<type_code>tool_export_assets_to_xml</type_code>
 	<version>0.1</version>
-	<name>Import Assets from XML Tool</name>
-	<description>Imports Assets from a tar file containing structured XML file and associated physical files, into Matrix system</description>
+	<name>Export Assets to XML Tool</name>
+	<description>Exports Assets to a tar file constaining structured XML file and associated physical files</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>tool</parent_type>
