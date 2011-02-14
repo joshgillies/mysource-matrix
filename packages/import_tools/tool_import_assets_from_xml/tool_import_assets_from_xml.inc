@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_assets_from_xml.inc,v 1.2 2010/09/22 05:54:05 akarelia Exp $
+* $Id: tool_import_assets_from_xml.inc,v 1.2.4.1 2011/02/14 00:20:44 ewang Exp $
 *
 */
 
@@ -26,9 +26,10 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose
 *
 *    Tool for importing assets into Matrix
-*
+*    
+* @author  Edison Wang <ewang@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -91,38 +92,35 @@ class Tool_Import_Assets_From_Xml extends Tool
 	*/
 	public static function processTool(&$o, $type_code)
 	{
+
 		// error: xml file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
 			trigger_localised_error('IMP0002', E_USER_NOTICE);
 			return FALSE;
 		} else {
-			if(substr($file_info['name'], -4) != '.xml') {
-				//not an XML file :-o Abort Abort !
-				trigger_error('File Provided not a XML file', E_USER_ERROR);
+			
+			// make import directory, move xml files there
+			$import_dir = SQ_DATA_PATH.'/private/import_assets'.time();
+
+			if (!move_file($file_info['tmp_name'], $import_dir.'/'.$file_info['name'])) {
+				trigger_error('Could not move uploaded file from tmp directory to data dir');
 				return FALSE;
 			}
-
-			$filename = str_replace('.xml', '', $file_info['name']);
-			//upload successful move the file to data directory
-			$i = 0;
-
-			$temp_filename = SQ_DATA_PATH.'/public/'.$filename.'_'.$i.'.xml';
-			while(!move_file($file_info['tmp_name'], $temp_filename))
-			{
-				if($i == 10 ){
-					//tried too many time? quit now
-					trigger_error('Could not move uploaded file from tmp directory to data dir');
-					return FALSE;
-				}
-				// looks we couldnt move the file coz it prolly already exists
-				// try changinghte file name
-				$i++;
-				$temp_filename = SQ_DATA_PATH.'/public/'.$filename.'_'.$i.'.xml';
-			}
+			
+			// set right permission
 			$om = umask(0000);
-			chmod($temp_filename, 0664);
+			chmod($import_dir.'/'.$file_info['name'], 0774);
 			umask($om);
+			
+			// untar tarball if required
+			if (substr($file_info['name'], -7) == '.tar.gz' || substr($file_info['name'], -4) == '.tgz') {
+				require_once 'Archive/Tar.php';
+				$tar_ball = new Archive_Tar($import_dir.'/'.$file_info['name']);
+				$tar_ball->extract($import_dir);
+			}
+			// get the main xml export file, it has to be one
+			$temp_filename = array_shift(glob($import_dir.'/*.xml'));			
 		}
 
 		$root_node_id 	= $_POST[$type_code.'_create_under_assetid']['assetid'];
@@ -135,6 +133,11 @@ class Tool_Import_Assets_From_Xml extends Tool
 				return FALSE;
 			}
 		}
+		
+		if (empty($temp_filename)) {
+			trigger_error('There is not xml file found');
+			return FALSE;
+		}
 
 		// set HIPO running_vars
 		$vars['file_info'] = $temp_filename;
@@ -145,6 +148,8 @@ class Tool_Import_Assets_From_Xml extends Tool
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_import_assets_from_xml', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');
 		$url = $hh->runQueuedJobs();
+		
+		   
 		if (!empty($url)) $o->setRedirect($url);
 
 		return TRUE;
