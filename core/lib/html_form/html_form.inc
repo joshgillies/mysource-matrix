@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.156 2010/10/19 22:20:46 akarelia Exp $
+* $Id: html_form.inc,v 1.156.4.1 2011/02/14 00:05:13 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.156.4.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -788,8 +788,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		if (in_array('reset', $buttons)) {
 			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
-		?>
-			<script type="text/javascript">
+		?><script type="text/javascript">
 				if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
 					<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
 				} else {
@@ -800,8 +799,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 					}
 					<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
 				}
-			</script>
-		<?php
+			</script><?php
 	}
 
 }//end asset_finder()

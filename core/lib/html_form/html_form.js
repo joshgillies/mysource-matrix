@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.52 2009/06/18 07:07:13 akarelia Exp $
+* $Id: html_form.js,v 1.52.10.1 2011/02/14 00:05:13 ewang Exp $
 *
 */
 
@@ -657,6 +657,8 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
     tmp_assetid.style.width = '7ex';
 	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
 	parentElt.insertBefore(tmp_assetid, moreButton);
+	// create an space, consistent with normal asset finder
+    parentElt.insertBefore(document.createTextNode(' '), moreButton);
 	var changeButton = createButton(safeName+'_change_btn', 'Change', mapFrame+'.asset_finder_change_btn_press(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+");");
 	parentElt.insertBefore(changeButton, moreButton);
 	if (showClear) {
