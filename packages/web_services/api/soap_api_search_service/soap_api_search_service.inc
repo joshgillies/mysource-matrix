@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.7 2011/02/09 03:41:58 cupreti Exp $
+* $Id: soap_api_search_service.inc,v 1.8 2011/02/14 22:18:09 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -122,7 +122,7 @@ class Soap_Api_Search_Service extends Soap_Api
 
 			$results = $sm->processBasicSearch($search_info, TRUE);
 			$final_result	= Array();
-			if (!empty($search_result_format) && !empty($results)) {
+			if (!empty($results)) {
 				foreach ($results as $assetid => $info) {
 					if ($exclude_root_nodes) {
 						if (in_array($assetid, $search_roots)) {
@@ -130,11 +130,13 @@ class Soap_Api_Search_Service extends Soap_Api
 							continue;
 						}//end if
 					}//end if
-					$final_result[]	=	self::formatAssetResult($assetid, $search_result_format);
+					if (!empty($search_result_format)) {
+						$final_result[]	=	self::formatAssetResult($assetid, $search_result_format);
+					} else {
+						$final_result[] = $assetid;
+					}
 				}//end foreach
-			} else {
-				$final_result	= array_keys($results);
-			}//end else
+			}
 
 			return Array (
 					'BasicSearchResult'	=> $final_result,
