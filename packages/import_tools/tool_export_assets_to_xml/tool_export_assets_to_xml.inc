@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.1 2011/02/13 23:42:09 ewang Exp $
+* $Id: tool_export_assets_to_xml.inc,v 1.2 2011/02/14 01:02:22 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -92,6 +92,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 	
 	        // Get the source file
 	        readfile($export_dir.'/export.tgz');
+			return;
 			@ob_flush();
 			return;
 		}
