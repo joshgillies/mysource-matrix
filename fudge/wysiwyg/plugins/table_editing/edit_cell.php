@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_cell.php,v 1.9 2011/02/15 02:18:15 cupreti Exp $
+* $Id: edit_cell.php,v 1.10 2011/02/15 06:14:53 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Cell Edit Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -175,7 +175,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 										<tr>
 											<td class="label">Width:</td>
 											<td>
-											<input type="text" id="f_width" size="5" value="<?php echo $_GET['f_width']; ?>" />
+											<input type="text" id="f_width" size="5" value="<?php echo htmlspecialchars($_GET['f_width']); ?>" />
 											<select id="f_widthUnit">
 												<option value="px" <?php echo ($_GET['f_widthUnit'] == 'px') ? 'selected' : ''; ?>>px</option>
 												<option value="%"  <?php echo ($_GET['f_widthUnit'] == '%')  ? 'selected' : ''; ?>>%</option>
@@ -185,7 +185,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 										<tr>
 											<td class="label">Height:</td>
 											<td>
-											<input type="text" id="f_height" size="5" value="<?php echo $_GET['f_height']; ?>" />
+											<input type="text" id="f_height" size="5" value="<?php echo htmlspecialchars($_GET['f_height']); ?>" />
 											<select id="f_heightUnit">
 												<option value="px" <?php echo ($_GET['f_heightUnit'] == 'px') ? 'selected' : ''; ?>>px</option>
 												<option value="%"  <?php echo ($_GET['f_heightUnit'] == '%')  ? 'selected' : ''; ?>>%</option>
@@ -238,7 +238,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 									<td class="label">Background:</td>
 									<td width="100%">
 									<input type="hidden" id="f_bgcolor" value="<?php echo htmlspecialchars($_GET['f_bgcolor']); ?>">
-									<span class="buttonColor" id="f_bgcolor_button"><span class="buttonColor-chooser" id="f_bgcolor_chooser" style="background-color: #<?php echo $_GET['f_bgcolor']; ?>" onClick="Javascript: colorPopup('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_bgcolor_unset" style="background-color: #<?php echo $_GET['f_bgcolor']; ?>" onClick="Javascript: nullColor('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
+									<span class="buttonColor" id="f_bgcolor_button"><span class="buttonColor-chooser" id="f_bgcolor_chooser" style="background-color: #<?php echo htmlspecialchars($_GET['f_bgcolor']); ?>" onClick="Javascript: colorPopup('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_bgcolor_unset" style="background-color: #<?php echo htmlspecialchars($_GET['f_bgcolor']); ?>" onClick="Javascript: nullColor('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
 									</td>
 								</tr>
 								<tr>
