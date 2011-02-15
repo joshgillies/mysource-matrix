@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_youtube.php,v 1.1 2008/10/31 03:46:51 bpearson Exp $
+* $Id: embed_youtube.php,v 1.2 2011/02/15 02:18:14 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed YouTube Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -287,13 +287,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
 												<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '480' : $_REQUEST['f_width']?>" />
+												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '480' : htmlspecialchars($_REQUEST['f_width']) ?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label"><?php echo translate('height'); ?>:</td>
 												<td>
-												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '385' : $_REQUEST['f_height']?>" />
+												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '385' : htmlspecialchars($_REQUEST['f_height']) ?>" />
 												</td>
 											</tr>
 										</table>
@@ -314,13 +314,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label">Primary Border <?php echo translate('colour'); ?>:</td>
 												<td>
-												<input type="text" name="colour1" id="f_colour1" size="8" title="Colour 1" value="<?php echo empty($_REQUEST['f_colour1']) ? '' : $_REQUEST['f_colour1']?>" />
+												<input type="text" name="colour1" id="f_colour1" size="8" title="Colour 1" value="<?php echo empty($_REQUEST['f_colour1']) ? '' : htmlspecialchars($_REQUEST['f_colour1']) ?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Secondary Border <?php echo translate('colour'); ?>:</td>
 												<td>
-												<input type="text" name="colour2" id="f_colour2" size="8" title="Colour 2" value="<?php echo empty($_REQUEST['f_colour2']) ? '' : $_REQUEST['f_colour2']?>" />
+												<input type="text" name="colour2" id="f_colour2" size="8" title="Colour 2" value="<?php echo empty($_REQUEST['f_colour2']) ? '' : htmlspecialchars($_REQUEST['f_colour2']) ?>" />
 												</td>
 											</tr>
 										</table>

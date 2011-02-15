@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.29 2010/06/17 04:38:16 cupreti Exp $
+* $Id: embed_movie.php,v 1.30 2011/02/15 02:18:14 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -440,13 +440,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
 												<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '100' : $_REQUEST['f_width']?>" />
+												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '100' : htmlspecialchars(_REQUEST['f_width']) ?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label"><?php echo translate('height'); ?>:</td>
 												<td>
-												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '100' : $_REQUEST['f_height']?>" />
+												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '100' : htmlspecialchars($_REQUEST['f_height']) ?>" />
 												</td>
 											</tr>
 										</table>
