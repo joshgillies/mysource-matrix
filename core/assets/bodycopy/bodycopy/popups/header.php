@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.8 2007/10/25 23:23:03 rong Exp $
+* $Id: header.php,v 1.8.16.1 2011/02/15 02:55:55 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,7 +126,7 @@
 	}
 ?>
 
-<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" <?php echo $_GET['body_extra']?>>
+<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" <?php echo htmlspecialchars($_GET['body_extra']) ?>>  	 
 
 <table <?php echo $table_width?> <?php echo $table_height?> cellspacing="1" cellpadding="0" border="0" bgcolor="#402F48">
 	<tr>
