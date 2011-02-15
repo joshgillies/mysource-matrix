@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.10.22.1 2011/02/15 02:55:31 cupreti Exp $
+* $Id: insert_image.php,v 1.10.22.2 2011/02/15 23:21:01 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.22.1 $
+* @version $Revision: 1.10.22.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -203,7 +203,7 @@
 
 				<div class="fl"><?php echo translate('border_thickness'); ?>:</div>
 				<input type="text" name="border" id="f_border" size="5"
-				title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
+				title="Leave empty for no border" value="<?php echo htmlspecialchars($_REQUEST['f_border']) ?>" />
 
 				<div class="space"></div>
 			</fieldset>
