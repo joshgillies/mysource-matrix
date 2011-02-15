@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.240.2.1 2010/11/22 06:02:24 akarelia Exp $
+* $Id: page_calendar.inc,v 1.240.2.2 2011/02/15 02:54:33 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.240.2.1 $
+* @version $Revision: 1.240.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1961,10 +1961,10 @@ class Page_Calendar extends Page
 				<input type="hidden" name="SQ_CALENDAR_NEW_LOC" id="SQ_CALENDAR_NEW_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_OLD_LOC" id="SQ_CALENDAR_OLD_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
-				<input type="hidden" name="SQ_CALENDAR_DATE" value="<?php echo $_REQUEST['SQ_CALENDAR_DATE']; ?>" />
+				<input type="hidden" name="SQ_CALENDAR_DATE" value="<?php echo htmlspecialchars($_REQUEST['SQ_CALENDAR_DATE']); ?>" />
 				<input type="hidden" name="SQ_CALENDAR_NEW_DATE" id="SQ_CALENDAR_NEW_DATE" />
 				<input type="hidden" name="SQ_CALENDAR_NEW_TIME" id="SQ_CALENDAR_NEW_TIME" />
-				<input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', ''); ?>" />
+				<input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo htmlspecialchars(array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', '')); ?>" />				
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
 			</form>
 		<!-- /DRAG AND DROP SUPPORT -->

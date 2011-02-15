@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.46 2010/09/20 02:12:48 cupreti Exp $
+* $Id: insert_link.php,v 1.46.2.1 2011/02/15 02:53:35 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix
 */
 
@@ -131,7 +131,7 @@ if (!isset($_GET['new_window'])) {
 
 			function Init() {
 				__dlg_init("matrixInsertLink");
-				enable_new_window(document.main_form, <?php echo $_GET['new_window']?>);
+				enable_new_window(document.main_form, <?php echo htmlspecialchars($_GET['new_window']) ?>);
 
 
 				var patterns = {<?php
@@ -164,10 +164,6 @@ if (!isset($_GET['new_window'])) {
 					// we need to make sure that the url does not have any single quote
 					setUrl('', '<?php echo str_replace("'", '%27', $_GET['url']); ?>');
 				}
-				//var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
-				//var re = new RegExp(e, '');
-				//var results = re.exec('<?php echo $_GET['url']?>');
-				//setUrl(results[1], results[2]);
 			};
 
 			function onOK() {
@@ -599,7 +595,7 @@ if (!isset($_GET['new_window'])) {
 																		</tr>
 																		<tr>
 																			<td colspan="3">
-																				<?php echo translate('size'); ?> : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
+																				<?php echo translate('size'); ?> : <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['width']) ?>" size="3" name="width"> (w) x <input type="text" value="<?php echo htmlspecialchars($_GET['new_window_options']['height']) ?>" size="3" name="height"> (h)
 																			</td>
 																		</tr>
 																	</table>

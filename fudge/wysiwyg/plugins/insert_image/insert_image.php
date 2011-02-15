@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.10 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: insert_image.php,v 1.10.20.1 2011/02/15 02:53:34 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.20.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -160,13 +160,13 @@
 					<tr>
 						<td style="width: 7em; text-align: right"><?php echo translate('image_url'); ?>:</td>
 						<td>
-							<input type="text" name="url" id="f_url" style="width:75%" title="Enter the image URL here" value="<?php echo $_REQUEST['f_url']?>" />
+							<input type="text" name="url" id="f_url" style="width:75%" title="Enter the image URL here" value="<?php echo htmlspecialchars($_REQUEST['f_url']) ?>" />
 							<button name="preview" onclick="return onPreview();" title="Preview the image in a new window"><?php echo translate('preview'); ?></button>
 						</td>
 					</tr>
 					<tr>
 						<td style="width: 7em; text-align: right">Alternate text:</td>
-						<td><input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" /></td>
+						<td><input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" /></td>
 					</tr>
 				</tbody>
 			</table>
@@ -214,12 +214,12 @@
 				<div class="space"></div>
 
 				<div class="fr"><?php echo translate('horizontal'); ?>:</div>
-				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
+				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo htmlspecialchars($_REQUEST['f_horiz']) ?>" />
 
 				<p />
 
 				<div class="fr"><?php echo translate('vertical'); ?>:</div>
-				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
+				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo htmlspecialchars($_REQUEST['f_vert']) ?>" />
 
 				<div class="space"></div>
 			</fieldset>
