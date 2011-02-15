@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_cell.php,v 1.8 2006/12/06 05:11:11 bcaldwell Exp $
+* $Id: edit_cell.php,v 1.8.22.1 2011/02/15 02:55:32 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Cell Edit Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.22.1 $
 * @package MySource_Matrix
 */
 
@@ -237,22 +237,22 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 								<tr>
 									<td class="label">Background:</td>
 									<td width="100%">
-									<input type="hidden" id="f_bgcolor" value="<?php echo $_GET['f_bgcolor']; ?>">
+									<input type="hidden" id="f_bgcolor" value="<?php echo htmlspecialchars($_GET['f_bgcolor']); ?>">
 									<span class="buttonColor" id="f_bgcolor_button"><span class="buttonColor-chooser" id="f_bgcolor_chooser" style="background-color: #<?php echo $_GET['f_bgcolor']; ?>" onClick="Javascript: colorPopup('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_bgcolor_unset" style="background-color: #<?php echo $_GET['f_bgcolor']; ?>" onClick="Javascript: nullColor('f_bgcolor');" onMouseOver="Javascript: colorButton('f_bgcolor', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_bgcolor', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
 									</td>
 								</tr>
 								<tr>
 									<td class="label">Foreground:</td>
 									<td width="100%">
-									<input type="hidden" id="f_color" value="<?php echo $_GET['f_color']; ?>">
-									<span class="buttonColor" id="f_color_button"><span class="buttonColor-chooser" id="f_color_chooser" style="background-color: #<?php echo $_GET['f_color']; ?>" onClick="Javascript: colorPopup('f_color');" onMouseOver="Javascript: colorButton('f_color', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_color', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_color_unset" style="background-color: #<?php echo $_GET['f_color']; ?>" onClick="Javascript: nullColor('f_color');" onMouseOver="Javascript: colorButton('f_color', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_color', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
+									<input type="hidden" id="f_color" value="<?php echo htmlspecialchars($_GET['f_color']); ?>">
+									<span class="buttonColor" id="f_color_button"><span class="buttonColor-chooser" id="f_color_chooser" style="background-color: #<?php echo htmlspecialchars($_GET['f_color']); ?>" onClick="Javascript: colorPopup('f_color');" onMouseOver="Javascript: colorButton('f_color', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_color', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_color_unset" style="background-color: #<?php echo htmlspecialchars($_GET['f_color']); ?>" onClick="Javascript: nullColor('f_color');" onMouseOver="Javascript: colorButton('f_color', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_color', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
 									</td>
 								</tr>
 								<tr>
 									<td class="label" valign="top">Border:</td>
 									<td width="100%" valign="top">
-									<input type="hidden" id="f_borderColor" value="<?php echo $_GET['f_borderColor']; ?>">
-									<span class="buttonColor" id="f_borderColor_button"><span class="buttonColor-chooser" id="f_borderColor_chooser" style="background-color: #<?php echo $_GET['f_borderColor']; ?>" onClick="Javascript: colorPopup('f_borderColor');" onMouseOver="Javascript: colorButton('f_borderColor', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_borderColor', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_borderColor_unset" style="background-color: #<?php echo $_GET['f_borderColor']; ?>" onClick="Javascript: nullColor('f_borderColor');" onMouseOver="Javascript: colorButton('f_borderColor', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_borderColor', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
+									<input type="hidden" id="f_borderColor" value="<?php echo htmlspecialchars($_GET['f_borderColor']); ?>">
+									<span class="buttonColor" id="f_borderColor_button"><span class="buttonColor-chooser" id="f_borderColor_chooser" style="background-color: #<?php echo htmlspecialchars($_GET['f_borderColor']); ?>" onClick="Javascript: colorPopup('f_borderColor');" onMouseOver="Javascript: colorButton('f_borderColor', 'buttonColor-hilite');" onMouseOut="Javascript: colorButton('f_borderColor', 'buttonColor');"></span><span title="Unset Colour" class="buttonColor-nocolor" id="f_borderColor_unset" style="background-color: #<?php echo htmlspecialchars($_GET['f_borderColor']); ?>" onClick="Javascript: nullColor('f_borderColor');" onMouseOver="Javascript: colorButton('f_borderColor', 'buttonColor-hilite'); this.className = 'buttonColor-nocolor-hilite';" onMouseOut="Javascript: colorButton('f_borderColor', 'buttonColor'); this.className = 'buttonColor-nocolor';">&#x00d7;</span></span>
 									&nbsp;
 									<select id="f_borderStyle">
 										<option value="none"   <?php echo ($_GET['f_borderStyle'] == 'none')   ? 'selected' : ''; ?>>None</option>
@@ -266,7 +266,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 										<option value="outset" <?php echo ($_GET['f_borderStyle'] == 'outset') ? 'selected' : ''; ?>>Outset</option>
 									</select>
 									&nbsp;
-									<input type="text" id="f_borderWidth" size="5" value="<?php echo $_GET['f_borderWidth']; ?>" /> px
+									<input type="text" id="f_borderWidth" size="5" value="<?php echo htmlspecialchars($_GET['f_borderWidth']); ?>" /> px
 									</td>
 								</tr>
 							</table>
