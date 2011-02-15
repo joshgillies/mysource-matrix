@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.8 2010/07/15 04:43:37 csmith Exp $
+* $Id: tag_suggestion.php,v 1.8.4.1 2011/02/15 21:40:58 cupreti Exp $
 *
 */
 
@@ -20,19 +20,22 @@
 	if (!isset($_GET['assetid'])) return FALSE;
 	if (!isset($_GET['prefix'])) return FALSE;
 
-
-
 	$assetid = $_GET['assetid'];
 	assert_valid_assetid($assetid);
-	$prefix = $_GET['prefix'];
+	$prefix = htmlspecialchars($_GET['prefix']);
 
 	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	
+	// Make sure the current user has read access on this asset
+	if (!$asset->readAccess()) {
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+		exit;
+	}
+
 	$button_name = 'sq_asset_finder_'.$prefix.'_tags_more_btn';
 	$labelname = 'sq_asset_finder_'.$prefix.'_tags';
 	$idname = $prefix.'_tags';
-
-
-
+	
 ?>
 
 		<?php
