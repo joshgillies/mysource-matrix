@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.66 2010/09/30 23:10:51 cupreti Exp $
+* $Id: form_management.inc,v 1.67 2011/02/16 23:38:47 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,8 +451,15 @@ class Form_Management extends Asset_Management
 															'default'		=> 'Regenerate security key',
 															'description'	=> 'Mollom CAPTCHA regen link text',
 														),
-														   
-														   
+						'disable_keyword_replacements'		=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from user input',
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+													   						   ),
+													  	),
 					  );
 
 	}//end constructor
@@ -499,6 +506,43 @@ class Form_Management extends Asset_Management
 			   );
 
 	}//end _getFileList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		if (version_compare($current_version, '0.16', '<')) {
+			pre_echo('STARTING FORM UPGRADE TO VERSION 0.16');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			foreach ($children as $assetid) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$asset->setAttrValue('disable_keyword_replacements', FALSE);
+				if(!$asset->saveAttributes()) {
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					return FALSE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end foreach
+
+			pre_echo('FORM UPGRADE COMPLETE');
+
+		}//end if
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
