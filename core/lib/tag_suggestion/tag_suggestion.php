@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.9 2011/02/15 21:40:21 cupreti Exp $
+* $Id: tag_suggestion.php,v 1.10 2011/02/16 03:45:30 cupreti Exp $
 *
 */
 
@@ -21,13 +21,17 @@
 	if (!isset($_GET['prefix'])) return FALSE;
 
 	$assetid = $_GET['assetid'];
-	assert_valid_assetid($assetid);
+	if (!assert_valid_assetid($assetid)) {
+		exit;
+	}
 	$prefix = htmlspecialchars($_GET['prefix']);
 
 	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-	
+	if (is_null($asset)) {
+		exit;
+	}
 	// Make sure the current user has read access on this asset
-	if (!$asset->readAccess()) {
+	if (!$asset->writeAccess()) {
 		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
 		exit;
 	}
