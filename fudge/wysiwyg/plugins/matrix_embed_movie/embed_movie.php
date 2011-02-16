@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.29.4.1 2011/02/15 02:55:31 cupreti Exp $
+* $Id: embed_movie.php,v 1.29.4.2 2011/02/16 06:34:28 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.4.1 $
+* @version $Revision: 1.29.4.2 $
 * @package MySource_Matrix
 */
 
@@ -440,7 +440,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
 												<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '100' : htmlspecialchars(_REQUEST['f_width']) ?>" />
+												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '100' : htmlspecialchars($_REQUEST['f_width']) ?>" />
 												</td>
 											</tr>
 											<tr>
