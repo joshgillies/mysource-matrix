@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.248 2010/10/06 01:08:14 cupreti Exp $
+* $Id: search_page.inc,v 1.249 2011/02/16 23:41:01 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2377,6 +2377,11 @@ class Search_Page extends Listing_Engine
 			}//end foreach
 		}//end if
 
+		// check if we are allowing the keywords to be replaced in user input
+		if($this->attr('disable_keyword_replacements')) {
+			$queries = $this->_sanitizeQueries($queries);
+		}
+
 		// save the search terms into the session so that we can use them for
 		// search within search results
 		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
@@ -3403,6 +3408,38 @@ class Search_Page extends Listing_Engine
 		return $original_search_results;
 
 	}//end getMultiWordSynonymSearchResults
+
+
+	/**
+	* This func will sanitize (remove '%') the keywords if they
+	* are in user input and the options is selected to sanitize 'em
+	*
+	* @param array	$queries	array of queries that are supposed to be processedA
+	*
+	* @return array
+	* @access private
+	*/
+	private function _sanitizeQueries(Array $queries)
+	{
+		foreach($queries as $field => $query) {
+			if(is_array($query)) {
+				$queries[$field] = $this->_sanitizeQueries($query);
+			} else {
+				// sanitise it by removing '%' from keywords so that
+				// they dont go ahead and try to fetch it replacement
+				$keywords = extract_keywords($query);
+				foreach ($keywords as $keyword) {
+					$pattern = '/(%*)'.$keyword.'(%*)/';
+					$query = preg_replace($pattern, $keyword, $query);
+				}
+				$queries[$field] = $query;
+			}
+		}
+
+		return $queries;
+
+	}//end _sanitizeQueries()
+
 
 
 }//end class
