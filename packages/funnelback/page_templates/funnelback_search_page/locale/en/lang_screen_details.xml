@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2010/05/25 23:25:09 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.4.4.1 2011/02/16 23:37:17 akarelia Exp $
 *
 */
 -->
@@ -100,4 +100,11 @@
 			<note />
 		</field>
 	</section>
+	<section name="Security Enhancement" write_access="write:attributes">
+		<field attribute="disable_keyword_replacements">
+			<display_name>Disable Keyword Replacements</display_name>
+			<note>If set to Yes, Funnelback Search Page will not replace the keywords that might be used in the user input on the frontend.</note>
+		</field>
+	</section>
+
 </contents>

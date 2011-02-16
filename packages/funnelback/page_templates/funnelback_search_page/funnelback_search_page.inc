@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.36 2011/02/01 05:48:51 bpearson Exp $
+* $Id: funnelback_search_page.inc,v 1.36.2.1 2011/02/16 23:37:16 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -496,6 +496,10 @@ class Funnelback_Search_Page extends Listing_Engine
 				$search_vars['cluster'][$count] = $value;
 			}//end if
 		}//end foreach
+
+		if($this->attr('disable_keyword_replacements') && isset($search_vars['query']) && !empty($search_vars['query'])) {
+			$search_vars['query'] = $this->_sanitizeQueries($search_vars['query']);
+		}
 
 		// Process any dynamic vars
 		$pmap = $this->getAttribute('dynamic_parameters');
@@ -1431,8 +1435,12 @@ class Funnelback_Search_Page extends Listing_Engine
 					if (!empty($dynamic_query) && empty($current_value)) {
 						$current_value = $dynamic_query;
 					}//end if
-					$this->registerFormField($field_name);
 
+					if($this->attr('disable_keyword_replacements') && !empty($current_value)) {
+						$current_value = $this->_sanitizeQueries($current_value);
+					}
+
+					$this->registerFormField($field_name);
 					$replacement = '<input type="text" name="'.$field_name.'" id="'.$field_name.'" value="'.$current_value.'" />';
 				break;
 
@@ -3028,6 +3036,37 @@ class Funnelback_Search_Page extends Listing_Engine
 		return $results;
 
 	}//end processSearchResults()
+
+
+	/**
+	* This func will sanitize (remove '%') the keywords if they
+	* are in user input and the options is selected to sanitize 'em
+	*
+	* @param string	$queries	array of queries that are supposed to be processedA
+	*
+	* @return string
+	* @access private
+	*/
+	private function _sanitizeQueries($queries)
+	{
+		if(is_array($queries)) {
+			foreach($queries as $field => $query) {
+				$queries[$field] = $this->_sanitizeQueries($query);
+			}
+		} else {
+			// sanitise it by removing '%' from keywords so that
+			// they dont go ahead and try to fetch it replacement
+			$keywords = extract_keywords($queries);
+			foreach ($keywords as $keyword) {
+				$pattern = '/(%*)'.$keyword.'(%*)/';
+				$queries = preg_replace($pattern, $keyword, $queries);
+			}
+		}
+
+		return $queries;
+
+	}//end _sanitizeQueries()
+
 
 }//end class
 
