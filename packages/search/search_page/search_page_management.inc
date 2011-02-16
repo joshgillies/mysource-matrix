@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.67 2009/08/20 06:15:49 ewang Exp $
+* $Id: search_page_management.inc,v 1.67.8.1 2011/02/16 23:34:45 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -320,6 +320,14 @@ class Search_Page_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> ' <b>%page_number%</b>',
 										);
+		$this->vars['disable_keyword_replacements']		= Array(
+															'added'			=> '0.25',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from the user input',
+															'parameters'	=> Array('allow_empty' => FALSE),
+														  );
+
 	}//end constructor
 
 
@@ -348,6 +356,43 @@ class Search_Page_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		if (version_compare($current_version, '0.25', '<')) {
+			pre_echo('STARTING SEARCH PAGE UPGRADE TO VERSION 0.25');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			foreach ($children as $assetid) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$asset->setAttrValue('disable_keyword_replacements', FALSE);
+				if(!$asset->saveAttributes()) {
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					return FALSE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end foreach
+
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE');
+
+		}//end if
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
