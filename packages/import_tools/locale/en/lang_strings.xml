@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15.4.1 2011/02/14 00:20:44 ewang Exp $
+* $Id: lang_strings.xml,v 1.15.4.2 2011/02/17 05:17:02 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -95,7 +95,7 @@
 <!-- Import Assets from XML Tool -->
 <string source="tool_import_assets_from_xml_hipo_name">Hipo Job Import Assets From XML</string>
 <string source="tool_import_assets_from_xml_file_upload">Import XML File</string>
-<string source="tool_import_assets_from_xml_file_upload_note">Select the XML file to import Assets from. Structure should be as in <![CDATA[<a href="%s" target="_blank">example.xml</a>]]></string>
+<string source="tool_import_assets_from_xml_file_upload_note">Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <![CDATA[<a href="%s" target="_blank">example.xml</a>]]></string>
 <string source="tool_import_assets_from_xml_create_under">Import Asset under (optional)</string>
 <string source="tool_import_assets_from_xml_create_under_note">If Asset is specified the assets are imported under that asset</string>
 
