@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.77.8.1 2011/02/17 01:08:51 akarelia Exp $
+* $Id: site_edit_fns.inc,v 1.77.8.2 2011/02/17 22:21:58 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77.8.1 $
+* @version $Revision: 1.77.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -302,7 +302,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	
 			// check to see if user has provided 'http://' or 'https://' in the url provided
 			// might have to warn them about the it
-			if(strpos($url,'http') === 0) {
+			if(preg_match('/^http(s)?:/', $url)) {
 				trigger_localised_error('CORE0303', E_USER_WARNING, $url);
 				return FALSE;
 			}
