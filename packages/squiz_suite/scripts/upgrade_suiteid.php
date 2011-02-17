@@ -13,7 +13,10 @@ if ($dbType == 'pgsql') {
 	MatrixDAL::executeSql('DROP INDEX sq_suite_product_type');
 
 	// Create a new sequence.
-	MatrixDAL::executeSql('CREATE SEQUENCE sq_suite_seq INCREMENT BY 1');
+	$sequence = MatrixDAL::executeSqlAssoc("SELECT sequence_name FROM information_schema.sequences WHERE sequence_name='sq_suite_seq'");
+	if (empty($sequence)) {
+		MatrixDAL::executeSql('CREATE SEQUENCE sq_suite_seq INCREMENT BY 1');
+	}//end if
 
 	// Add new columns.
 	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ADD COLUMN suiteid INTEGER');
@@ -66,7 +69,10 @@ if ($dbType == 'pgsql') {
 	MatrixDAL::executeSql('DROP INDEX sq_suite_product_type');
 
 	// Create a new sequence.
-	MatrixDAL::executeSql('CREATE SEQUENCE sq_suite_seq INCREMENT BY 1');
+	$sequence = MatrixDAL::executeSqlAssoc("SELECT sequence_name FROM user_sequences WHERE sequence_name='SQ_SUITE_SEQ'");
+	if (empty($sequence)) {
+		MatrixDAL::executeSql('CREATE SEQUENCE sq_suite_seq INCREMENT BY 1');
+	}
 
 	// Add new columns.
 	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ADD suiteid INTEGER');
