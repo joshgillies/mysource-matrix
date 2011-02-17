@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.128 2011/01/25 00:58:41 cupreti Exp $
+* $Id: lang_errors.xml,v 1.128.2.1 2011/02/17 01:15:14 akarelia Exp $
 *
 */
 
@@ -1527,6 +1527,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0080">URL "%1$s" contains a path "%2$s" which was deemed to be not valid. A valid version is "%3$s"</error>
 	<error code="CORE0081">URL "%1$s" is already in use by "%2$s" [#%3$s]</error>
 	<error code="CORE0082">URL "%s" is not based upon an existing System Root URL</error>
+	<error code="CORE0303">URL "%s" is not valid. Remove any protocol provided and try again</error>
 	<error code="CORE0083">Unable to create a %s with a blank name</error>
 	<error code="CORE0084">Unable to create a %s without a username and password</error>
 	<error code="CORE0085">Unable to create another "%s", it is a System Asset and you are only allowed one</error>
