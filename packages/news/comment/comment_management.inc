@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_management.inc,v 1.5 2010/05/04 03:58:06 mhaidar Exp $
+* $Id: comment_management.inc,v 1.5.6.1 2011/02/18 02:31:25 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -70,6 +70,49 @@ class Comment_Management extends Asset_Management
 
 	}//end _getFileList()
 
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		if (version_compare($current_version, '0.11', '<')) {			
+			
+			// Get the existing preferences
+			include SQ_DATA_PATH.'/private/conf/preferences.inc';
+			$new_preferences = $preferences;			
+			
+			if (!isset($new_preferences['comment']['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'])) {
+				pre_echo('UPGRADING COMMENT GLOBAL PREFERENCES SETTINGS TO VERSION 0.11');
+				
+				$new_preferences['comment']['SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'] = Array(
+																							'name' => 'comment_disable_keyword_replacements',
+																							'description' => 'Whether to replace the keywords in the comment',
+																							'default' => '0',
+																							'protected' => FALSE,
+																						);
+				// Output the new preference file
+				$str = '<'.'?php $preferences = '.var_export($new_preferences, TRUE).'; ?'.'>';
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+					pre_echo('COMMENT GLOBAL PREFERENCES SETTINGS UPGRADE FAILED!');
+				} else {
+					pre_echo('COMMENT GLOBAL PREFERENCES SETTINGS UPGRADE COMPLETED');
+				}
+			}//end if
+
+		}//end if
+
+		return TRUE;
+
+	}//end _upgrade()
 
 }//end class
 
