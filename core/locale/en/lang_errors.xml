@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.130 2011/02/18 03:21:17 cupreti Exp $
+* $Id: lang_errors.xml,v 1.131 2011/02/18 03:22:28 cupreti Exp $
 *
 */
 
@@ -1807,7 +1807,7 @@ Full Node Contents :
 	<error code="CORE0302">Cannot use 'Empty Text Key' provided. It is duplicate to one of the keys in provided Options</error>
 	
 	<!-- Image file -->
-	<error code="CORE0304">Uploaded file is not a image file</error>
+	<error code="CORE0304">Uploaded file is not an image file</error>
 	
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
