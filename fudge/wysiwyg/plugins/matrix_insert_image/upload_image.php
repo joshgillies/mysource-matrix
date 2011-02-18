@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.2 2009/05/15 06:38:05 ewang Exp $
+* $Id: upload_image.php,v 1.2.8.1 2011/02/18 03:28:02 cupreti Exp $
 *
 */
 
@@ -18,12 +18,18 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.8.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once dirname(__FILE__).'/../../../../core/assets/files/image/image.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) {
+	echo return_javascript_error('You cannot upload file as a non-backend user');
+	exit;
+}
+
 // Check if something was submitted
 if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
 	// No file submitted
@@ -46,7 +52,8 @@ if (!is_null($root_node)) {
 	// Prepare the image for uploading
 	$new_image->_tmp['uploading_file'] = TRUE;
 	$_FILES['create_image_upload']['filename'] = $_FILES['create_image_upload']['name'];
-
+	$_FILES['create_image_upload']['path'] = $_FILES['create_image_upload']['tmp_name'];
+	
 	// Check for valid file types
 	$invalid_file_type = $new_image->validFile($_FILES['create_image_upload']);
 	if (!$invalid_file_type) {
