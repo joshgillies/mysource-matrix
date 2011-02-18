@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.195 2011/01/05 00:38:24 cupreti Exp $
+* $Id: file.inc,v 1.195.2.1 2011/02/18 03:30:20 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.195.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -988,12 +988,17 @@ class File extends Asset
 		$ext = get_file_type($info['filename']);
 		if (!empty($this->allowed_extensions) && !in_array($ext, $this->allowed_extensions)) {
 			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, strtolower(translate('or'))), strtoupper($ext));
+			// Get rid of temp copy of the uploaded file
+			unlink($info['path']);
+
 			return FALSE;
 		}
 
 		if ($this->_validFileSize($info, $pre_uploaded) && $this->_validFileExtension($info, $pre_uploaded)) {
 			return TRUE;
 		}
+		
+		unlink($info['path']);
 
 		return FALSE;
 
