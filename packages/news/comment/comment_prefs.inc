@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.9 2009/01/16 02:28:12 mbrydon Exp $
+* $Id: comment_prefs.inc,v 1.10 2011/02/18 02:18:26 cupreti Exp $
 *
 */
 
@@ -33,6 +33,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 	define ('SQ_COMMENT_HTML_STRIP',	2);
 }
 
+
 /**
 * Comment_Prefs
 *
@@ -41,7 +42,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -94,6 +95,12 @@ class Comment_Prefs extends Prefs
 													'default'		=> NULL,
 													'protected'		=> FALSE,
 												   ),
+						'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'	=> Array(
+													'name'			=> 'comment_disable_keyword_replacements',
+													'description'	=> 'Whether to replace the keywords in the comment',
+													'default'		=> 1,
+													'protected'		=> FALSE,
+												   ),												   
 					 );
 
 	/**
@@ -168,6 +175,11 @@ class Comment_Prefs extends Prefs
 		$this->url_processor = new Asset_Attribute_Url();
 		$this->url_processor->_edit_params['protocols'] = Array('http','https');
 		$this->url_processor->_edit_params['width'] = '60';
+		
+		$this->disable_keyword_replacements = Array(
+												0 => "No",
+												1 => "Yes",
+											);
 
 		$this->html_conf_options = Array(
 									SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
@@ -201,7 +213,7 @@ class Comment_Prefs extends Prefs
 		}
 
 		foreach ($prefs as $pref_value) {
-			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref_value)))).'Backend';
+			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref_value)))).'Backend';			
 			if (!method_exists($this, $fn)) continue;
 
 			// call individual paint function for each pref
@@ -340,6 +352,42 @@ class Comment_Prefs extends Prefs
 	}//end paintSqCommentHtmlConfBackend()
 
 
+	/**
+	* Paints the interface for allowing keyword replacement
+	*
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
+	{
+		if ($print_sub_title) {
+			$o->openField(translate($this->pref_vars[$pref_name]['name']));
+		} else {
+			$o->openField('&nbsp;');
+		}
+
+			$current_conf = $this->pref_vars[$pref_name]['default'];
+
+			$readonly = !($have_lock && $is_admin);
+
+			if ($readonly) {
+				echo array_get_index($this->disable_keyword_replacements, $current_conf);
+			} else {
+				combo_box($pref_name, $this->disable_keyword_replacements, FALSE, $current_conf);
+			}
+
+		$o->closeField();
+
+	}//end paintSqCommentDisableKeywordReplacementBackend()
+
+	
 	/**
 	* Paints the interface for allowing HTML in comments
 	*
@@ -494,6 +542,32 @@ class Comment_Prefs extends Prefs
 	}//end processSqCommentHtmlConfBackend()
 
 
+	/**
+	* Processes the interface for configuring the disable keyword replacement option
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSqCommentDisableKeywordReplacementsBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
+	{
+		$new_setting = array_get_index($_POST, $pref);
+
+		if (!is_null($new_setting)) {
+			$this->pref_vars[$pref]['default'] = $new_setting;
+			
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end processSqCommentDisableKeywordReplacementBackend()
+
+	
 	/**
 	* Processes the interface for configuring the maximum comment length
 	*

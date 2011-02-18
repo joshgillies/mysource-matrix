@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.18 2009/11/27 05:49:22 bpearson Exp $
+* $Id: comment.inc,v 1.19 2011/02/18 02:18:26 cupreti Exp $
 *
 */
 
@@ -35,7 +35,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -402,6 +402,17 @@ class Comment extends Page
 				// nothing at the moment
 			break;
 		}
+		
+		$disable_keyword_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS');
+		
+		if ($disable_keyword_conf) {			
+			require_once SQ_FUDGE_PATH.'/general/text.inc';			
+			$keywords = extract_keywords($value);
+			
+			foreach ($keywords as $keyword) {				
+				$value = str_replace('%'.$keyword.'%', $keyword, $value);
+			}
+		}//end if disable keyword replacements
 
 		return $value;
 
