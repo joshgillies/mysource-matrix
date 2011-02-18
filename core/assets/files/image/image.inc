@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.81 2010/05/11 02:08:04 lwright Exp $
+* $Id: image.inc,v 1.82 2011/02/18 03:16:00 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1376,6 +1376,30 @@ class Image extends File implements Bridge
 		return Array();
 
 	}//end getAssetMapAssetInfo()
+	
+	
+	/**
+	* Checks a file on the file system to see if it can be used as a valid image file
+	*
+	* @param array	$info	an array of information about the uploaded file
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function validFile(Array $info)
+	{
+		if (!parent::validFile($info)) {
+			return FALSE;
+		}
+		
+		if (getimagesize($info['path']) === FALSE) {
+			trigger_localised_error('CORE0304', E_USER_WARNING);
+			return FALSE;
+		}			
+
+		return TRUE;
+
+	}//end validFile()	
 
 
 }//end class
