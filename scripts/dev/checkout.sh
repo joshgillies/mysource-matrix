@@ -19,7 +19,7 @@ print_usage()
 	echo "To install into a new directory, specify that as the second argument"
 	echo "If this isn't specified, it will default to 'squiz_matrix'"
 	echo "To do this, you must specify a version number to check out, eg:"
-	echo "$0 mysource_3-24-2 squiz_matrix_3-24-2"
+	echo "$0 mysource_4-0-4 squiz_matrix_4-0-4"
 	exit 1
 }
 
