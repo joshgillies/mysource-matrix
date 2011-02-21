@@ -85,6 +85,7 @@ mv /tmp/MANIFEST.$$ ./MANIFEST
 
 echo ""
 echo "Everything has been checked out into the $CHECKOUT_DIR/ folder."
-echo "Please visit http://matrix.squizsuite.net/quick-start-guide/manual-installation/ for installation instructions."
+echo "For installation instructions, please visit"
+echo "http://matrix.squizsuite.net/quick-start-guide/manual-installation/"
 echo ""
 
