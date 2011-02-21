@@ -7,19 +7,19 @@ CVS="/usr/bin/cvs"
 print_usage()
 {
 	echo ""
-	echo "This script will check out MySource Matrix based on a version number you supply."
-	echo "It will check out into a directory called 'mysource_matrix'."
+	echo "This script will check out Squiz Matrix based on a version number you supply."
+	echo "It will check out into a directory called 'squiz_matrix'."
 	echo "Version numbers are based on releases. They are named the same way:"
-	echo "mysource_3-xx-y"
-	echo "For example, if you want 3.24.2, the version number will be mysource_3-24-2"
+	echo "mysource_4-xx-y"
+	echo "For example, if you want 4.0.4, the version number will be mysource_4-0-4"
 	echo ""
 	echo "So to use this script, it becomes:"
-	echo "$0 mysource_3-24-2"
+	echo "$0 mysource_4-0-4"
 	echo ""
 	echo "To install into a new directory, specify that as the second argument"
-	echo "If this isn't specified, it will default to 'mysource_matrix'"
+	echo "If this isn't specified, it will default to 'squiz_matrix'"
 	echo "To do this, you must specify a version number to check out, eg:"
-	echo "$0 mysource_3-24-2 mysource_matrix_3-24-2"
+	echo "$0 mysource_3-24-2 squiz_matrix_3-24-2"
 	exit 1
 }
 
@@ -30,7 +30,7 @@ fi
 
 VERSION=$1
 
-CHECKOUT_DIR="mysource_matrix"
+CHECKOUT_DIR="squiz_matrix"
 if [ "x$2" != "x" ]; then
 	CHECKOUT_DIR=$2
 fi
@@ -45,16 +45,16 @@ fi
 PACKAGES="bulkmail calendar cms data ecommerce filesystem funnelback google_maps import_tools ipb ldap news search sharepoint squid squiz_suite trim web_services"
 FUDGE_PACKAGES="antivirus colour csv datetime_field db_extras dev file_versioning general image image_editor js_calendar ldap mollom rss_feeds standards_lists var_serialise wysiwyg"
 
-echo "Checking out mysource matrix core .. "
+echo "Checking out squiz matrix core .. "
 
-$CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR mysource_matrix > /dev/null
+$CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR squiz_matrix > /dev/null
 
 if [ $? -gt 0 ]; then
 	echo "There was a problem checking out the matrix core"
 	exit
 fi
 
-echo "Checking out mysource matrix packages .. "
+echo "Checking out squiz matrix packages .. "
 
 cd $CHECKOUT_DIR/packages/
 
@@ -85,6 +85,6 @@ mv /tmp/MANIFEST.$$ ./MANIFEST
 
 echo ""
 echo "Everything has been checked out into the $CHECKOUT_DIR/ folder."
-echo "Please visit http://matrix.squiz.net/resources/installation/ for installation instructions."
+echo "Please visit http://matrix.squizsuite.net/quick-start-guide/manual-installation/ for installation instructions."
 echo ""
 
