@@ -10,7 +10,7 @@ print_usage()
 	echo "This script will check out Squiz Matrix based on a version number you supply."
 	echo "It will check out into a directory called 'squiz_matrix'."
 	echo "Version numbers are based on releases. They are named the same way:"
-	echo "mysource_4-xx-y"
+	echo "mysource_4-x-y"
 	echo "For example, if you want 4.0.4, the version number will be mysource_4-0-4"
 	echo ""
 	echo "So to use this script, it becomes:"
