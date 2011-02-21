@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.2.20.1 2011/02/21 02:29:08 cupreti Exp $
 *
 */
 -->
@@ -62,4 +62,10 @@
 			<note>Defines the name of the button to reset (clear) the form</note>
 		</field>
 	</section>
+	<section name="Security Enhancement">
+		<field attribute="disable_keyword_replacements">
+			<display_name>Disable Keyword Replacements</display_name>
+			<note>If set to Yes, Form will not replace the keywords that might be used in the user input on the frontend.</note>
+		</field>
+	</section>	
 </contents>
