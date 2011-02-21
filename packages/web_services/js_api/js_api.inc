@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.8 2011/01/31 05:24:46 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.9 2011/02/21 22:56:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.8 $
+* @version $Revision: 1.61.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1976,7 +1976,7 @@ class JS_Api extends Page
 							$response[] = 'Asset deleted but unable to Update Lookups on the Asset "'.$asset->name.'" (#'.$asset->id.')';
 						} else {
 							//all good? let the user know what we did
-							$response[] = 'Asset "'.$asset->name.'" (#'.$assetid.') successfully moved to Thrash';
+							$response[] = 'Asset "'.$asset->name.'" (#'.$asset->id.') successfully moved to Trash';
 						}
 					}
 					$am->releaseLock($id, 'all');
