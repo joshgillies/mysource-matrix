@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.7 2011/02/16 23:42:02 akarelia Exp $
+* $Id: funnelback_search_page_management.inc,v 1.8 2011/02/21 04:14:21 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -274,43 +274,6 @@ class Funnelback_Search_Page_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		if (!parent::_upgrade($current_version)) return FALSE;
-
-		if (version_compare($current_version, '0.2', '<')) {
-			pre_echo('STARTING FUNNELBACK SEARCH PAGE UPGRADE TO VERSION 0.2');
-
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
-			foreach ($children as $assetid) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
-				$asset->setAttrValue('disable_keyword_replacements', FALSE);
-				if(!$asset->saveAttributes()) {
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-					return FALSE;
-				}
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}//end foreach
-
-			pre_echo('FUNNEL SEARCH PAGE UPGRADE COMPLETE');
-
-		}//end if
-
-		return TRUE;
-
-	}//end _upgrade()
 
 
 }//end class
