@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_management.inc,v 1.7 2011/02/21 02:46:32 cupreti Exp $
+* $Id: comment_management.inc,v 1.8 2011/02/21 02:48:28 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -73,4 +73,4 @@ class Comment_Management extends Asset_Management
 	
 }//end class
 
-?>f
+?>
