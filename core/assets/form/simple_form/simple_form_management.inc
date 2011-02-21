@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_management.inc,v 1.6 2009/11/27 05:37:14 bpearson Exp $
+* $Id: simple_form_management.inc,v 1.6.8.1 2011/02/21 02:29:27 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +83,15 @@ class Simple_Form_Management extends Asset_Management
 																'allow_empty'	=> FALSE,
 															   ),
 										   ),
+						'disable_keyword_replacements'		=> Array(
+															'added'			=> '0.1',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from user input',
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+													   						   ),
+													  	),										   
 					  );
 
 	}//end constructor
