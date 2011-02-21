@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.6 2010/10/18 02:40:36 bpearson Exp $
+* $Id: funnelback_search_page_management.inc,v 1.6.2.1 2011/02/21 04:21:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -238,6 +238,15 @@ class Funnelback_Search_Page_Management extends Asset_Management
 																			),
 											),
 									  );
+									  
+		$this->vars['disable_keyword_replacements'] = Array(
+										'added'			=> '0.2',
+										'type'			=> 'boolean',
+										'default'		=> TRUE,
+										'description'	=> 'If true, will not replace any keywords from the user input',
+										'parameters'	=> Array('allow_empty' => FALSE),
+									   );
+									  
 	}//end constructor
 
 
