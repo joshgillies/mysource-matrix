@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.66 2010/09/30 23:10:51 cupreti Exp $
+* $Id: form_management.inc,v 1.66.2.1 2011/02/21 04:18:50 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,7 +451,15 @@ class Form_Management extends Asset_Management
 															'default'		=> 'Regenerate security key',
 															'description'	=> 'Mollom CAPTCHA regen link text',
 														),
-														   
+						'disable_keyword_replacements'		=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from user input',
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+													   						   ),
+													  	),														   
 														   
 					  );
 
