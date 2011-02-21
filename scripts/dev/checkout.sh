@@ -47,7 +47,7 @@ FUDGE_PACKAGES="antivirus colour csv datetime_field db_extras dev file_versionin
 
 echo "Checking out squiz matrix core .. "
 
-$CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR squiz_matrix > /dev/null
+$CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR mysource_matrix > /dev/null
 
 if [ $? -gt 0 ]; then
 	echo "There was a problem checking out the matrix core"
