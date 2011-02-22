@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.43.2.1 2010/12/02 22:31:26 akarelia Exp $
+* $Id: data_source_db.inc,v 1.43.2.2 2011/02/22 22:36:15 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.43.2.1 $
+* @version $Revision: 1.43.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -360,18 +360,6 @@ class Data_Source_DB extends Data_Source
 			case 'oracle':
 			case 'oci':
 				$type = 'oci';
-				// If there is an "oci:" prefix, strip it and store this data in the DB type index
-				$dsn_lower = strtolower($dsn);
-				if (substr($dsn_lower, 0, 4) == 'oci:') {
-					$dsn = substr($dsn, 4);
-					// Also we may have arrived from the separate fields interface or manually entered a "dbname=" PDO_OCI-type DSN
-					// In such cases we will be nice and strip the leading "dbname=" for a simple PHP OCI-friendly format
-					$dsn_lower = strtolower($dsn);
-					if (substr($dsn_lower, 0, 7) == 'dbname=') {
-						$dsn = substr($dsn, 7);
-					} 
-				}
-
 			break;
 			case 'pgsql':
 				$type = 'pgsql';
@@ -380,7 +368,20 @@ class Data_Source_DB extends Data_Source
 				$type = 'pgsql';
 			break;
 		}
-
+		
+		//	If there is an "oci:" prefix, strip it and store this data in the DB type index
+		$dsn_lower = strtolower($dsn);
+		if (substr($dsn_lower, 0, 4) == 'oci:') {
+			$dsn = substr($dsn, 4);
+			$type = 'oci';
+			// Also we may have arrived from the separate fields interface or manually entered a "dbname=" PDO_OCI-type DSN
+			// In such cases we will be nice and strip the leading "dbname=" for a simple PHP OCI-friendly format
+			$dsn_lower = strtolower($dsn);
+			if (substr($dsn_lower, 0, 7) == 'dbname=') {
+				$dsn = substr($dsn, 7);
+			} 
+		}
+		
 		return Array('DSN' => $dsn, 'user' => $user, 'password' => $password, 'type' => $type);
 
 	}//end constructDSNArray()
