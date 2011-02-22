@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.834 2011/02/22 05:17:36 akarelia Exp $
+* $Id: asset_manager.inc,v 1.835 2011/02/22 05:38:55 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.834 $
+* @version $Revision: 1.835 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9483,7 +9483,7 @@ class Asset_Manager extends MySource_Object
 							 * eg they all have base tree id 0000, we only need to include that once.
 							 */
 							if (!in_array($treeid, $trees_done)) {
-								$where .= MatrixDAL::Quote($treeid) . ',';
+								$where_string .= MatrixDAL::Quote($treeid) . ',';
 								$trees_done[] = $treeid;
 							}
 							
