@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.10 2011/02/22 03:31:17 akarelia Exp $
+* $Id: state.js,v 1.11 2011/02/22 22:24:54 akarelia Exp $
 *
 */
 
@@ -53,12 +53,12 @@ function saveState()
 			// Don't save buttons
 		} else if (el.name == 'sq_context_switcher') {
 			// Don't save Context Switcher
-		} else if (el.name.search(/^page_custom_form_[0-9]+_export_format$/) == 0) {
+		} else if (typeof el.name != 'undefined' && el.name.search(/^page_custom_form_[0-9]+_export_format$/) == 0) {
 			// Dont save the change in format of the
 			// download file on form submisons log screen.
 			// see bug #4952 "Unsaved changes" JS popup in 
 			// IE when exporting Form Submissions
-		}else if (el.type =='checkbox' || el.type == 'radio') {
+		} else if (el.type =='checkbox' || el.type == 'radio') {
 			// Save the checkbox/radio
 			if (el.checked) {
 				currentState += recordField(i, '1');
