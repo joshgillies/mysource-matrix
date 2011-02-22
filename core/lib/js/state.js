@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.9.6.1 2011/02/22 03:37:06 akarelia Exp $
+* $Id: state.js,v 1.9.6.2 2011/02/22 22:26:55 akarelia Exp $
 *
 */
 
@@ -53,7 +53,7 @@ function saveState()
 			// Don't save buttons
 		} else if (el.name == 'sq_context_switcher') {
 			// Don't save Context Switcher
-		} else if (el.name.search(/^page_custom_form_[0-9]+_export_format$/) == 0) {
+		} else if (typeof el.name != 'undefined' && el.name.search(/^page_custom_form_[0-9]+_export_format$/) == 0) {
 			// Dont save the change in format of the
 			// download file on form submisons log screen.
 			// see bug #4952 "Unsaved changes" JS popup in 
