@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: connectivity.php,v 1.4 2009/07/20 03:17:03 bpearson Exp $
+* $Id: connectivity.php,v 1.4.6.1 2011/02/22 22:03:03 cupreti Exp $
 *
 */
 
@@ -23,9 +23,14 @@ require_once 'HTTP/Client.php';
 *     Check if a remote page exists (returns 200 OK)
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 */
 
+// Prevent the access to the script from the outside world
+require_once dirname(__FILE__).'/../../include/init.inc';
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')) {
+    exit;
+}
 
 $url = '';
 if (isset($_REQUEST['connect_url'])) {

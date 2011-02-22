@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.7 2007/12/06 04:46:50 rong Exp $
+* $Id: keywords.php,v 1.7.12.1 2011/02/22 22:03:24 cupreti Exp $
 *
 */
 -->
@@ -25,7 +25,7 @@
 
 <html>
 	<head>
-		<title><?php echo ucwords(str_replace('_', ' ', $_GET['type_code'])) ?> Format Keyword Replacements</title>
+		<title><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $_GET['type_code']))) ?> Format Keyword Replacements</title>
 		<style>
 			body {
 				background-color:	#FFFFFF;
@@ -49,7 +49,7 @@
 	</head>
 
 	<body>
-		<p><b><i>The following keyword replacements may be used for <?php echo ucwords(str_replace('_', ' ', $_GET['type_code'])); ?> asset values.<br/>Note that the percentage signs (%) are required.</i></b></p>
+		<p><b><i>The following keyword replacements may be used for <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $_GET['type_code']))); ?> asset values.<br/>Note that the percentage signs (%) are required.</i></b></p>
 
 		<p>
 		<fieldset>

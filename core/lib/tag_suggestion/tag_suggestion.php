@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.7 2006/12/05 05:07:54 bcaldwell Exp $
+* $Id: tag_suggestion.php,v 1.7.18.1 2011/02/22 22:03:03 cupreti Exp $
 *
 */
 
@@ -20,18 +20,25 @@
 	if (!isset($_GET['assetid'])) return FALSE;
 	if (!isset($_GET['prefix'])) return FALSE;
 
-
-
 	$assetid = $_GET['assetid'];
-	assert_valid_assetid($assetid);
-	$prefix = $_GET['prefix'];
+	if (!assert_valid_assetid($assetid)) {
+		exit;
+	}
+	$prefix = htmlspecialchars($_GET['prefix']);
 
 	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	if (is_null($asset)) {
+		exit;
+	}
+	// Make sure the current user has read access on this asset
+	if (!$asset->writeAccess()) {
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+		exit;
+	}
+
 	$button_name = 'sq_asset_finder_'.$prefix.'_tags_more_btn';
 	$labelname = 'sq_asset_finder_'.$prefix.'_tags';
 	$idname = $prefix.'_tags';
-
-
 
 ?>
 
@@ -137,7 +144,7 @@ if (empty($sm)) {
 	<body>
 	<?php
 		require_once dirname(__FILE__).'/../../include/backend_outputter.inc';
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 		$o->addOnLoad('checkTagsLeft()');
 		$o->openSection(translate('suggested_tags_for').' '.get_asset_tag_line($asset->id));
 		$o->openField('');

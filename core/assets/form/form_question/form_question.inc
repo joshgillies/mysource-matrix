@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.43 2009/10/09 02:48:41 ewang Exp $
+* $Id: form_question.inc,v 1.43.4.1 2011/02/22 22:03:03 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -621,13 +621,28 @@ class Form_Question extends Asset
 	* Override this function in a child (ie. question type) if any special
 	* processing of the answer is required.
 	*
+	* $param object	$parent	the form this question is attached to
+	*
 	* @return boolean
 	* @access public
 	*/
-	function populate()
+	function populate(Asset $parent=NULL)
 	{
 		if (isset($_POST['q'.$this->id])) {
-			$this->setValue($_POST['q'.$this->id]);
+			// check if we are allowing the keywords to be replaced in answer
+			if($parent->attr('disable_keyword_replacements')) {
+				$value = $_POST['q'.$this->id];
+				// sanitise it by removing '%' from keywords so that
+				// they dont go ahead and try to fetch it replacement
+				$keywords = extract_keywords($value);
+				foreach ($keywords as $keyword) {
+					$pattern = '/(%*)'.$keyword.'(%*)/';
+					$value = preg_replace($pattern, $keyword, $value);
+				}
+				$this->setValue($value);
+			} else {
+				$this->setValue($_POST['q'.$this->id]);
+			}
 		}
 		return TRUE;
 

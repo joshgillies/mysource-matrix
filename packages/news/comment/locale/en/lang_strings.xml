@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2007/08/17 03:42:35 nbhradwaj Exp $
+* $Id: lang_strings.xml,v 1.2.12.1 2011/02/22 22:03:36 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -23,4 +23,5 @@
 <string source="maximum_rating">Maximum Rating</string>
 <string source="rated_image">Rated Image</string>
 <string source="blank_image">Blank Image</string>
+<string source="comment_disable_keyword_replacements">Disable Keyword Replacements</string>
 </strings>

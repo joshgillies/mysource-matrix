@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.64 2009/11/27 05:42:14 bpearson Exp $
+* $Id: form_management.inc,v 1.64.4.1 2011/02/22 22:03:24 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.64.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -410,8 +410,16 @@ class Form_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> 'Valid CAPTCHA is required, but none is found in this form submission',
 														'is_contextable'	=> TRUE,
-														   ),								   
-														   
+														   ),
+						'disable_keyword_replacements'		=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from user input',
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+													   						   ),
+													  	),														   
 					  );
 
 	}//end constructor

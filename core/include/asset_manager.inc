@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.801.2.18 2011/02/03 04:43:51 cupreti Exp $
+* $Id: asset_manager.inc,v 1.801.2.19 2011/02/22 22:03:03 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.801.2.18 $
+* @version $Revision: 1.801.2.19 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1591,7 +1591,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		for ($i = 0; $i < count($assetids); $i++) {
-			$assetids[$i] = '\''.(string) $assetids[$i].'\'';
+			$assetids[$i] = MatrixDAL::quote($assetids[$i]);
 		}
 
 		// break up the assets into chunks of 1000 so that oracle does not complain

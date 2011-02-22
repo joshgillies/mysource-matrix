@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.67 2009/08/20 06:15:49 ewang Exp $
+* $Id: search_page_management.inc,v 1.67.4.1 2011/02/22 22:03:44 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -320,6 +320,15 @@ class Search_Page_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> ' <b>%page_number%</b>',
 										);
+		
+		$this->vars['disable_keyword_replacements']		= Array(
+															'added'			=> '0.22',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'description'	=> 'If true, will not replace any keywords from the user input',
+															'parameters'	=> Array('allow_empty' => FALSE),
+														  );
+										
 	}//end constructor
 
 

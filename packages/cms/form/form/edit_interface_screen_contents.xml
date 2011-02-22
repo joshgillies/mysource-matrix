@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.35 2009/06/15 04:30:57 ewang Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.35.6.1 2011/02/22 22:03:24 cupreti Exp $
 *
 */
 -->
@@ -206,4 +206,9 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Security Enhancement">
+		<field attribute="disable_keyword_replacements">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>	
 </contents>

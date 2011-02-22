@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.49 2009/04/08 00:42:22 ewang Exp $
+* $Id: insert_image.php,v 1.49.6.1 2011/02/22 22:03:12 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.6.1 $
 * @package MySource_Matrix
 */
 
@@ -501,7 +501,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
-													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
+													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
 												</td>
 											</tr>
 											<tr>
@@ -639,31 +639,31 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 										<tr>
 											<td class="label"><?php echo translate('border_thickness'); ?>:</td>
 											<td>
-												<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
+												<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo htmlspecialchars($_REQUEST['f_border']) ?>" />
 											</td>
 										</tr>
 										<tr>
 											<td class="label"><?php echo translate('horizontal'); ?>:</td>
 											<td>
-												<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
+												<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo htmlspecialchars($_REQUEST['f_horiz']) ?>" />
 											</td>
 										</tr>
 										<tr>
 											<td class="label"><?php echo translate('vertical'); ?>:</td>
 											<td>
-												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
+												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo htmlspecialchars($_REQUEST['f_vert']) ?>" />
 											</td>
 										</tr>
 										<tr>
 											<td class="label"><?php echo translate('name'); ?>:</td>
 											<td>
-												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo $_REQUEST['f_image_id']?>" />
+												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo htmlspecialchars($_REQUEST['f_image_id']) ?>" />
 											</td>
 										</tr>
 										<tr>
 											<td class="label"><?php echo translate('class'); ?>:</td>
 											<td>
-												<input type="text" name="image_class" id="f_image_class" size="20" title="Class" value="<?php echo $_REQUEST['f_image_class']?>" />
+												<input type="text" name="image_class" id="f_image_class" size="20" title="Class" value="<?php echo htmlspecialchars($_REQUEST['f_image_class']) ?>" />
 											</td>
 										</tr>
 									</table>
@@ -684,14 +684,14 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 												<?php
 												switch ($disable_resize) {
 													case 'yes':
-														echo $_REQUEST['f_width'].'&nbsp;px';
+														echo htmlspecialchars($_REQUEST['f_width']).'&nbsp;px';
 														?>
-														<input type="hidden" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+														<input type="hidden" name="width" id="f_width" size="5" title="Width" value="<?php echo htmlspecialchars($_REQUEST['f_width']) ?>" />
 														<?php
 													break;
 													case 'no':
 														?>
-														<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />&nbsp;px
+														<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo htmlspecialchars($_REQUEST['f_width']) ?>" />&nbsp;px
 														<?php
 													break;
 												}
@@ -704,14 +704,14 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 												<?php
 												switch ($disable_resize) {
 													case 'yes':
-														echo $_REQUEST['f_height'].'&nbsp;px';
+														echo htmlspecialchars($_REQUEST['f_height']).'&nbsp;px';
 														?>
-														<input type="hidden" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+														<input type="hidden" name="height" id="f_height" size="5" title="Height" value="<?php echo htmlspecialchars($_REQUEST['f_height']) ?>" />
 														<?php
 													break;
 													case 'no':
 														?>
-														<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />&nbsp;px
+														<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo htmlspecialchars($_REQUEST['f_height']) ?>" />&nbsp;px
 														<?php
 													break;
 												}
