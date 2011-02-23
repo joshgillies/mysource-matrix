@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.82 2011/02/18 03:16:00 cupreti Exp $
+* $Id: image.inc,v 1.83 2011/02/23 04:47:48 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1393,7 +1393,7 @@ class Image extends File implements Bridge
 		}
 		
 		if (getimagesize($info['path']) === FALSE) {
-			trigger_localised_error('CORE0304', E_USER_WARNING);
+			trigger_error('Uploaded file is not a valid image file', E_USER_WARNING);
 			return FALSE;
 		}			
 
