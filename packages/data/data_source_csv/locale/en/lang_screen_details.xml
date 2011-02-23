@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.2.6.1 2011/02/23 03:26:16 mhaidar Exp $
 *
 */
 -->
@@ -53,7 +53,7 @@
 			<paint_function name="paintKeywords" />
 			<process_function name="processKeywords" />
 		</function_call>
-		<display_name>Available Keywords For the Data Source RecordSet Asset</display_name>
+		<display_name>Available Keywords For the Data Source Record Set Asset</display_name>
 		<note>The above are the avaialable keywords for the record set assets. You can choose to have one or more keywords
 		or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
 		have to be preceded and succeeded with a '%' sign or else it can be considered as a normal string.  </note>
