@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.44 2011/02/16 23:39:27 akarelia Exp $
+* $Id: form_question.inc,v 1.45 2011/02/23 03:50:21 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -630,7 +630,7 @@ class Form_Question extends Asset
 	{
 		if (isset($_POST['q'.$this->id])) {
 			// check if we are allowing the keywords to be replaced in answer
-			if($parent->attr('disable_keyword_replacements')) {
+			if(isset($parent) && $parent->attr('disable_keyword_replacements')) {
 				$value = $_POST['q'.$this->id];
 				// sanitise it by removing '%' from keywords so that
 				// they dont go ahead and try to fetch it replacement
