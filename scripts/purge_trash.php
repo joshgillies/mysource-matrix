@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.4 2008/02/18 05:28:41 lwright Exp $
+* $Id: purge_trash.php,v 1.4.14.1 2011/02/23 23:48:51 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.14.1 $
 * @package MySource_Matrix
 */
 
@@ -52,8 +52,7 @@ $root_password = rtrim(fgets(STDIN, 4094));
 // check that the correct root password was entered
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
+	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
 
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
@@ -91,7 +90,8 @@ if (!empty($purge_rootnode)) {
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
 if (count($errors)) {
-	echo print_r($errors, TRUE);
+	trigger_error(print_r($errors, TRUE), E_USER_WARNING);
+	exit(1);
 } else {
 	echo "\npurge_trash.php: Completed.\n";
 }
