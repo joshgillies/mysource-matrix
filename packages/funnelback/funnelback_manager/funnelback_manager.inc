@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.24.2.5 2011/02/08 02:20:09 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.24.2.6 2011/02/23 23:52:48 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.24.2.5 $
+* @version $Revision: 1.24.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1332,7 +1332,14 @@ class Funnelback_Manager extends Asset
 						$query = array_get_index($line_contents, 0, '%');
 						$term = array_get_index($line_contents, 1, '');
 						$expansion = array_get_index($line_contents, 2, '');
-						$query_exp = (($query == '+') ? 'whole' : 'term');
+						if ($query == '+') {
+							$query_exp = 'whole';
+						} else if ($query == '~') {
+							$query_exp = 'regex';
+						} else if ($query == '%') {
+							$query_exp = 'term';
+						}
+
 						if (!empty($term) && !empty($expansion)) {
 							// No point having a nothing there
 							$data[] = Array(
