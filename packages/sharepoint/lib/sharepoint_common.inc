@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.9 2010/10/27 00:49:57 ewang Exp $
+* $Id: sharepoint_common.inc,v 1.9.2.1 2011/02/23 07:04:17 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -638,8 +638,10 @@ ListVersion="0" >
 				}//end foreach
 				
 				//url encode the spaces in file url
-				$result[$ows_ID]['ows_FileRef'] = str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
-				$result[$ows_ID]['ows_Attachments'] = str_replace(' ', '%20', $result[$ows_ID]['ows_Attachments']);
+				if(isset($result[$ows_ID]['ows_FileRef']))
+					$result[$ows_ID]['ows_FileRef'] = str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
+				if(isset($result[$ows_ID]['ows_Attachments']))
+					$result[$ows_ID]['ows_Attachments'] = str_replace(' ', '%20', $result[$ows_ID]['ows_Attachments']);
 				
 				
 				$url_bits = parse_url($connection['url']);
@@ -762,7 +764,7 @@ ListVersion="0" >
     {
 		$mh	= curl_multi_init();
 		foreach ($urls as $i => $url) {
-			$final_path	= $save_path.basename($url);
+			$final_path	= $save_path.urldecode(basename($url));
 			$conn[$i]	= curl_init($url);
 			$fp[$i]		= fopen($final_path, "w");
 			curl_setopt($conn[$i], CURLOPT_FILE, $fp[$i]);
