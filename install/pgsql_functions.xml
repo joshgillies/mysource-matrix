@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.19 2011/01/31 00:11:57 cupreti Exp $
+* $Id: pgsql_functions.xml,v 1.19.2.1 2011/02/23 00:44:28 akarelia Exp $
 *
 */
 -->
@@ -305,15 +305,15 @@
             ' language plpgsql;
         ]]>
     </sql_element>
-    <sql_element display_name="sq_rb_get_lineage_treeids(VARCHAR, INT) Function">
+    <sql_element display_name="sq_rb_get_lineage_treeids(VARCHAR, INT, TIMESTAMP, INT) Function">
         <![CDATA[
-            CREATE OR REPLACE FUNCTION sq_rb_get_lineage_treeids(VARCHAR, INT) RETURNS SETOF BYTEA AS '
+            CREATE OR REPLACE FUNCTION sq_rb_get_lineage_treeids(VARCHAR, INT, TIMESTAMP, INT) RETURNS SETOF BYTEA AS '
             DECLARE
                 rec record;
                 rb_date TIMESTAMP;
             BEGIN
                 rb_date := sq_get_rollback_timestamp();
-                for rec in select sq_get_lineage_treeids from sq_get_lineage_treeids($1, $2, rb_date) loop
+                for rec in select sq_get_lineage_treeids from sq_get_lineage_treeids($1, $2, rb_date, $4) loop
                     return next rec.sq_get_lineage_treeids;
                 end loop;
                 return;
