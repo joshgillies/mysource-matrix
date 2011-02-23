@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.33 2011/02/08 02:18:54 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.34 2011/02/23 23:51:53 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -888,11 +888,11 @@ class Funnelback_Manager extends Asset
 
 					// *Sigh* ignore empty urls
 					if (empty($url)) continue;
-					
+
 					// Make sure we only accept site urls which has the same root domain as __data file url
 					$system_root_url = sq_root_url($asset_url, FALSE);
                     if(strpos($url, $system_root_url) !== 0) continue;
-                    
+
 					// Create the site url
 					if ($http) {
 						$site_url[] = 'http://'.$url;
@@ -1328,7 +1328,14 @@ class Funnelback_Manager extends Asset
 						$query = array_get_index($line_contents, 0, '%');
 						$term = array_get_index($line_contents, 1, '');
 						$expansion = array_get_index($line_contents, 2, '');
-						$query_exp = (($query == '+') ? 'whole' : 'term');
+						if ($query == '+') {
+							$query_exp = 'whole';
+						} else if ($query == '~') {
+							$query_exp = 'regex';
+						} else if ($query == '%') {
+							$query_exp = 'term';
+						}
+
 						if (!empty($term) && !empty($expansion)) {
 							// No point having a nothing there
 							$data[] = Array(
