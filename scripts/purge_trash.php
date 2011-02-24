@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.5 2011/02/23 23:46:55 mhaidar Exp $
+* $Id: purge_trash.php,v 1.6 2011/02/24 22:39:49 mhaidar Exp $
 *
 */
 
@@ -25,11 +25,13 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
+
 if (php_sapi_name() != 'cli') {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
@@ -42,19 +44,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
-
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
-}
-
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
