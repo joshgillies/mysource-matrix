@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.11 2010/05/05 07:11:16 ewang Exp $
+* $Id: xml_user_bridge.inc,v 1.11.4.1 2011/02/24 02:41:03 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -111,7 +111,11 @@ class XML_User_Bridge extends Asset implements Bridge
 		}
 		if (!file_exists($filename)) return;
 
-		$root = simplexml_load_file($filename);
+		$root = @simplexml_load_file($filename);
+		if (empty($root)) {
+			return;
+		}
+
 		$this->groups = Array();
 		$this->group_members = Array();
 		$this->user_memberships = Array();
