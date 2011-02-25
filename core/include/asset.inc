@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.737 2011/01/25 01:17:42 cupreti Exp $
+* $Id: asset.inc,v 1.738 2011/02/25 03:23:21 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.737 $
+* @version $Revision: 1.738 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5738,12 +5738,11 @@ class Asset extends MySource_Object
 						}
 
 						// check if another asset is using the new URL
-						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
+						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url = :new_url';
 						$existing_asset_with_url_id = NULL;
 						try {
 							$query = MatrixDAL::preparePdoQuery($sql);
-							MatrixDAL::bindValueToPdo($query, 'escape', '\\');
-							MatrixDAL::bindValueToPdo($query, 'new_url', str_replace('_', '\\_', $new_url));
+							MatrixDAL::bindValueToPdo($query, 'new_url', $new_url);
 							$existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
 						} catch (Exception $e) {
 							throw new Exception('Cannot check if another asset is already using URL "'.$new_url.'": '.$e->getMessage());
