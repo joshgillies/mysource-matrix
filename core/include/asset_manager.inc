@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.831.2.2 2011/02/22 06:02:30 akarelia Exp $
+* $Id: asset_manager.inc,v 1.831.2.3 2011/02/25 02:44:41 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.831.2.2 $
+* @version $Revision: 1.831.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -10051,10 +10051,11 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	public function isUnderRootNodes($assetid, $root_nodes=Array()) 
+	public function isUnderRootNodes($assetid, $root_nodes=Array(), $return_matched_nodes=FALSE)
 	{
 		assert_valid_assetid($assetid);
 		if (empty($root_nodes)) return FALSE;
+		$matched_root_nodes = Array();
 		
 		// get treeids of root nodes
 		$root_node_treeids = $this->getAssetTreeids($root_nodes);
@@ -10075,19 +10076,37 @@ class Asset_Manager extends MySource_Object
 		}//end foreach
 		
 		// query the db to see if the asset is under the treeids
-		$sql = 'SELECT l.linkid 
+		$sql = 'SELECT l.majorid, t.treeid
 				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid 
 				WHERE l.minorid=:assetid and (' . implode(' OR ', $all_root_treeids) . ')';
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
-			$result = MatrixDAL::executePdoOne($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}
-		// if there is a match, that means the asset in question is under at leasat one of the root nodes
-		return empty($result) ? FALSE : TRUE;
+		// if we don't have to return which root nodes matched, just return if we found a match or not
+		if (!$return_matched_nodes) {
+			// if there is a match, that means the asset in question is under at least one of the root nodes
+			return !empty($result);
+		} else {
+			// if we need to return the matched root nodes, find which ones match the root nodes
+			foreach ($result as $root_node) {
+				foreach ($root_node_treeids as $root_node_assetid => $treeids) {
+					foreach ($treeids as $treeid) {
+						if (substr($root_node['treeid'], 0, strlen($treeid[0])) == $treeid[0]) {
+							$matched_root_nodes[] = $root_node_assetid;
+						}
+					}
+				}
+			}
+
+			// return the root nodes that matched
+			return $matched_root_nodes;
+		}
 		
+	
 	}//end isUnderRootNodes()
 
 }//end class
