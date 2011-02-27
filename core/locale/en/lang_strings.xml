@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.381 2011/01/12 06:07:57 cupreti Exp $
+* $Id: lang_strings.xml,v 1.381.2.1 2011/02/27 23:05:07 akarelia Exp $
 *
 */
 
@@ -1322,6 +1322,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<string source="trigger_set_role_no_role_selected">No Role Selected</string>
 	<string source="trigger_set_role_no_users_selected">No Users Selected</string>
+	<string source="trigger_set_role_user_firing_trigger">Use Current User(one who fires the trigger)</string>
+	<string source="delete_all_before_adding">Delete all the Users from the Role before assigning new one</string>
 
 	<string source="trigger_set_tag_no_tag_selected">No Tag Selected</string>
 	<string source="trigger_set_tag_select_tag">Select a tag to apply:</string>
