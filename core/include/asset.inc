@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.738 2011/02/25 03:23:21 csmith Exp $
+* $Id: asset.inc,v 1.739 2011/02/27 23:57:16 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.738 $
+* @version $Revision: 1.739 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6191,6 +6191,89 @@ class Asset extends MySource_Object
 		return $string;
 
 	}//end replaceKeywordsInString()
+	
+	
+	/**
+	* Fast Track is way of flagging on this asset, "it's currently 
+	* safe to skip certain expensive tasks". This is useful when 
+	* trying to avoid things like search reindexing from happening
+	* multiple times when it only needs to happen once (during asset
+	* creation for example).
+	*
+	* As such, it's a less than ideal yet pragmatic way to find a 
+	* "fast path" for the spaghetti that is asset builder / applying 
+	* schemas / regenerating metadata / reindexing search in multiple 
+	* context sauce.
+	*
+	* e.g.
+	* 
+	* $asset->fastTrack(Array(	'metadata_manager_generate_content_file', 
+	*							'search_manager_reindex_metadata', 
+	*							'trigger_event_metadata_updated'));
+	*
+	* // Do stuff that may trigger events in loops for those tasks..
+	*
+	* $asset->unFastTrack(Array(	'metadata_manager_generate_content_file', 
+	*								'search_manager_reindex_metadata', 
+	*								'trigger_event_metadata_updated'));
+	*
+	* // Now do those tasks once.
+	*
+	* @see CMS::Page_Asset_Builder
+	* @see Metadata_Manager
+	* @param Mixed $tasks Identifiers to be fast tracked.
+	* @return void
+	* @access public
+	*/
+	public function fastTrack($tasks)
+	{
+		if (!is_array($tasks)) $tasks = Array($tasks);
+		if (!isset($this->_tmp['fast_track'])) $this->_tmp['fast_track'] = Array();
+		
+		foreach($tasks as $task) {
+			$this->_tmp['fast_track'][$task] = TRUE;
+		}
+		
+	}//end fastTrack()
+	
+	
+	/**
+	* Remove the given task from being fast tracked, usually so that
+	* the caller can finally perform the given tasks sanely (once).
+	*
+	* @see CMS::Page_Asset_Builder
+	* @see Metadata_Manager
+	* @param Mixed $tasks Identifiers to be removed from fast track.
+	* @return void
+	* @access public
+	*/
+	public function unFastTrack($tasks)
+	{
+		if (!is_array($tasks)) $tasks = Array($tasks);
+		if (!isset($this->_tmp['fast_track'])) $this->_tmp['fast_track'] = Array();
+		
+		foreach($tasks as $task) {
+			$this->_tmp['fast_track'][$task] = FALSE;
+		}
+		
+	}//end unFastTrack()
+	
+	
+	/**
+	* Determine if the given task should be fast tracked. Generally called from the
+	* place doing the expensive task.
+	*
+	* @see Trigger_Manager
+	* @see Search_Manger
+	* @see Metadata_Manager
+	* @access public
+	*/
+	public function shouldFastTrack($task)
+	{
+		if (isset($this->_tmp['fast_track'][$task])) return $this->_tmp['fast_track'][$task];
+		return FALSE;
+		
+	}//end shouldFastTrack()
 
 
 }//end class

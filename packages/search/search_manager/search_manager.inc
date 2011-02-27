@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.240 2011/02/11 02:55:29 akarelia Exp $
+* $Id: search_manager.inc,v 1.241 2011/02/27 23:58:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.241 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1327,6 +1327,10 @@ class Search_Manager extends Asset
 	*/
 	function onMetadataUpdate(&$broadcaster, $vars=Array())
 	{
+		if (!$this->attr('indexing')) return FALSE;
+		// We've been told not to do this right now
+		if ($broadcaster->shouldFastTrack('search_manager_reindex_metadata')) return FALSE;
+		
 		$this->reindexMetadata($broadcaster->id, $vars, TRUE);
 
 	}//end onMetadataUpdate()

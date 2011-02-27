@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.224 2010/12/14 22:48:40 ewang Exp $
+* $Id: metadata_manager.inc,v 1.225 2011/02/27 23:57:16 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -326,14 +326,16 @@ class Metadata_Manager extends MySource_Object
 
 		if ($granted) {
 			//TODO:
-			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-			foreach ($all_contexts as $all_contextid => $context_data) {
-				$this->generateContentFile($assetid, FALSE, $all_contextid);
+			if (!$asset->shouldFastTrack('metadata_manager_generate_content_file')) {
+				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				foreach ($all_contexts as $all_contextid => $context_data) {
+					$this->generateContentFile($assetid, FALSE, $all_contextid);
+				}
+
+				$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+				$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 			}
-			
-			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1834,9 +1836,35 @@ class Metadata_Manager extends MySource_Object
 
 		if ($contextid === 'all') {
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			$last_contextid = end(array_keys($all_contexts));
+			$temp_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 			$ok = TRUE;
+
+			// Since we're doing this for all contexts, and search indexing events should ideally
+			// be handled once for all contexts to avoid num_contexts * num_contexts iterations,
+			// we need to ensure search reindexing is "fast tracked".
+			//
+			// We ensure reindex tasks are fast tracked for all but the last context, so the reindex
+			// events will be handled correctly once at the end.	
 			foreach ($all_contexts as $contextid => $context_data) {
+
+				// Get the asset in each context
+				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+
+				// If we're not the last context, fast track!
+				if ($contextid != $last_contextid) {
+					$temp_asset->fastTrack(Array('search_manager_reindex_metadata', 'trigger_event_metadata_updated'));
+				}
+
 				$ok = $ok && $this->generateContentFile($assetid, TRUE, $contextid, $update_asset);
+
+				// Reset fast tracked tasks.
+				if ($contextid != $last_contextid) {
+					$temp_asset->unFastTrack(Array('search_manager_reindex_metadata', 'trigger_event_metadata_updated'));
+				}
+
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 			}
 		} else {
 			$ok = $this->generateContentFile($assetid, TRUE, $contextid, $update_asset);
