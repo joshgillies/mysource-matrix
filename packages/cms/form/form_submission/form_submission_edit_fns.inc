@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.31 2009/11/10 03:41:35 akarelia Exp $
+* $Id: form_submission_edit_fns.inc,v 1.31.8.1 2011/02/28 05:56:59 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,7 +141,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 					$q_summary .= ' [ <a href="./?a='.$uploade_file_id.'" target="_blank" >'.'Click to download'.'</a> ]';
 				}
 			} else {
-				$q_summary = htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
+				$q_summary = htmlentities($q->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'&nbsp;';
 			}			
 			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q_summary;
 			
@@ -244,11 +244,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 					$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $question_asset->failed_rules);
 				} else {
 					$value = $question_asset->getValue();
-					if (is_string($value)) {
-						$value = htmlentities($value, ENT_NOQUOTES);
-					}
 					$attributes['answers'][$q_id]['answer'] = $value;
-					$attributes['summary'][$q_id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+					$attributes['summary'][$q_id]['answer'] = $question_asset->getSummary();
 					$attributes['summary'][$q_id]['name'] = $question_asset->getVal('title');
 				}
 				unset($unanswered_questions[$q_id]);
@@ -267,11 +264,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $question_asset->failed_rules);
 			} else {
 				$value = $question_asset->getValue();
-				if (is_string($value)) {
-					$value = htmlentities($value, ENT_NOQUOTES);
-				}
 				$attributes['answers'][$question_asset->id]['answer'] = $value;
-				$attributes['summary'][$question_asset->id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+				$attributes['summary'][$question_asset->id]['answer'] = $question_asset->getSummary();
 				$attributes['summary'][$question_asset->id]['name'] = $question_asset->getVal('title');
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset); // make sure that attr change doesn't stick
