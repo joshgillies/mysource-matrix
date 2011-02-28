@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.13 2011/02/27 22:06:31 akarelia Exp $
+* $Id: trigger_action_set_role.inc,v 1.14 2011/02/28 22:25:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		// check the optional settings, assign defaults
 		$roleid						= array_get_index($settings, 'roleid', 0);
 		$role_action				= array_get_index($settings, 'role_action', 'add');
-		$current_user				= array_get_index($settings, 'use_current_user', 'add');
+		$current_user				= array_get_index($settings, 'use_current_user', FALSE);
 		$userids					= array_get_index($settings, 'userid', Array());
 		$cascade					= array_get_index($settings, 'cascade', FALSE);
 		$cascade_to_dependents		= array_get_index($settings, 'cascade_to_dependents', FALSE);
