@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.163 2010/09/30 23:07:56 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.163.4.1 2011/02/28 00:15:49 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.163.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -662,7 +662,20 @@ class Page_Asset_Builder extends Page
 					if ($this->attr('allow_public_user')) {
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
-
+					
+					// Fast track!
+					// Due to the way that events are broadcast and handled, and the complexity introduced with 
+					// contexts, we can find ourselves re-regenerating/reindexing metadata, and firing off 
+					// multiple trigger events for metadata regeneration with the same details.
+					//
+					// Using these 'fast track' settings, we can skip work we know will be completed later.
+					// They are unset accordingly later..
+					$new_asset->fastTrack(	Array(
+												'metadata_manager_generate_content_file', 
+												'search_manager_reindex_metadata', 
+												'trigger_event_metadata_updated',
+											));
+					
 					$create_success = $new_asset->processBackend($o, $link);
 					$new_asset_linkid = FALSE;
 					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
@@ -775,8 +788,19 @@ class Page_Asset_Builder extends Page
 									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids);
 								}
 							}
+
+							// set metadata without reindexing and reset the switch to skip reindex
 							$mm->setMetadata($new_asset->id, $metadata_values);
+							
+							// Fast track's mission is accomplished, reset.
+							$new_asset->unFastTrack(	Array(
+														'metadata_manager_generate_content_file', 
+														'search_manager_reindex_metadata', 
+														'trigger_event_metadata_updated',
+													));
+													
 							$mm->regenerateMetadata($new_asset->id, 'all');
+							
 							$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'metadata');
 							if ($metadata_run_level_changed) {
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();

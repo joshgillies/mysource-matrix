@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.70 2010/07/27 23:23:55 csmith Exp $
+* $Id: trigger_manager.inc,v 1.70.4.1 2011/02/28 00:15:22 akarelia Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.70.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1054,6 +1054,9 @@ class Trigger_Manager extends Asset implements Bridge
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (!$this->attr('enabled')) return TRUE;
+		// We've been told not to do this right now
+		if ($broadcaster->shouldFastTrack($event_name)) return FALSE;
+		
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
