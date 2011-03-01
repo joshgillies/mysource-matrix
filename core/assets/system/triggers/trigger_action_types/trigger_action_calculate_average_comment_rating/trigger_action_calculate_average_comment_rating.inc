@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.11 2010/05/10 11:46:53 ata Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.11.4.1 2011/03/01 05:20:53 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,11 +89,13 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				foreach ($comment_links as $link_info) {
 					// skip asset if we are deleting it
 					if ($link_info['minorid'] === $assetdeleted) continue;
-					$numofratings++;
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
 					$rating = $asset->attr('rating');
 					// means this rating hasn't been set, i.e. default value
 					if ($rating === '-1') continue;
+					// include the asset to total assets only if we are getting the rating from it
+					// unrated comment should be kept at distance
+					$numofratings++;
 					$sumofratings += $rating;
 				}
 
