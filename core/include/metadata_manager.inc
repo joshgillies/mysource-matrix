@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.225 2011/02/27 23:57:16 akarelia Exp $
+* $Id: metadata_manager.inc,v 1.226 2011/03/02 22:45:52 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.225 $
+* @version $Revision: 1.226 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1837,8 +1837,6 @@ class Metadata_Manager extends MySource_Object
 		if ($contextid === 'all') {
 			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 			$last_contextid = end(array_keys($all_contexts));
-			$temp_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
 			$ok = TRUE;
 
 			// Since we're doing this for all contexts, and search indexing events should ideally
@@ -1851,6 +1849,7 @@ class Metadata_Manager extends MySource_Object
 
 				// Get the asset in each context
 				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+				$temp_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				// If we're not the last context, fast track!
 				if ($contextid != $last_contextid) {
