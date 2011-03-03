@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.237.2.2 2011/02/08 03:20:23 cupreti Exp $
+* $Id: search_manager.inc,v 1.237.2.3 2011/03/03 00:01:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.237.2.2 $
+* @version $Revision: 1.237.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1441,7 +1441,14 @@ class Search_Manager extends Asset
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
 		}
-		
+
+		// Get all metadata for each context in advance. This is quicker
+		// than getting it for each context for each field later..
+		$all_metadata = Array();
+		foreach ($context_list as $c) {
+			$all_metadata[$c] = $mm->getMetadata($asset->id, 0, $c);
+		}
+
 		foreach ($fieldids as $fieldid => $field_type) {
 
 			$flag_match_found = FALSE;
@@ -1494,9 +1501,9 @@ class Search_Manager extends Asset
 			$context_to_index = $is_contextable ? $context_list : Array($context_list[0]);
 			
 			foreach($context_to_index as $this_contextid) {
-				
-				// Get metadata for this context
-				$metadata = $mm->getMetadata($asset->id, 0, $this_contextid);
+
+				// Get metadata for this context (here's one we prepared earlier)
+				$metadata = $all_metadata[$this_contextid];
 
 				if (isset($metadata[$field->id][0]['value'])) {
 					$value = $metadata[$field->id][0]['value'];
