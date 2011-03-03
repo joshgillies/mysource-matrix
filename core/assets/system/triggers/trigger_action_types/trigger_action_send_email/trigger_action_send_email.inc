@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.28 2010/11/04 01:01:20 mhaidar Exp $
+* $Id: trigger_action_send_email.inc,v 1.28.2.1 2011/03/03 22:39:37 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,13 +139,13 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			// paramater map parameters
 			$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-			$paramater_map_assetid = $atr_parameter_map->getParameterValue('user_assetid');
+			$paramater_map_assetids = $atr_parameter_map->getParameterValue('user_assetid');
 
-			$paramater_map_email = $atr_parameter_map->getParameterValue('user_email');
+			$paramater_map_emails = $atr_parameter_map->getParameterValue('user_email');
 
 			$unserialised = unserialize($email_format_value);
-			$unserialised['to'] = array_merge($unserialised['to'],(array)$paramater_map_email);
-			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],(array)$paramater_map_assetid);
+			$unserialised['to'] = array_merge($unserialised['to'], self::_parseCommaSeparatedString($paramater_map_emails));
+			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'], self::_parseCommaSeparatedString($paramater_map_assetids));
 			$email_format_value = serialize($unserialised);
 		}
 
@@ -243,8 +243,8 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
-		$atr_parameter_map->setParameter('user_assetid', 'Recipient Asset ID');
-		$atr_parameter_map->setParameter('user_email', 'Recipient E-mail Address');
+		$atr_parameter_map->setParameter('user_assetid', 'Recipient Asset IDs');
+		$atr_parameter_map->setParameter('user_email', 'Recipient E-mail Addresses');
 
 		//parameter map for Asset To Send
 		$ast2send_param_map_value = array_get_index($settings, 'asset_to_send_map', serialize(Array()));
@@ -418,6 +418,30 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		return Array($state['assetid'] => Array('lookups'));
 
 	}//end getLocks()
+	
+	
+	/**
+	 * Return a parsed array of substrings from a comma separated string. All spaces around the
+	 * commas and empty strings will be removed from the result.
+	 * For example, the string "1 , 2, ,3" will be parsed to the array Array(1,2,3) 
+	 * 
+	 * @param string $str	The comma separated string to be parsed
+	 * @return array		The parsed array
+	 */
+	private static function _parseCommaSeparatedString($str)
+	{
+		$result = Array();
+		$pieces = explode(',', $str);
+		foreach ($pieces as $piece) {
+			$item = trim($piece);
+			if ($item != '') {
+				$result[] = $item;
+			}
+		}
+		
+		return $result;
+		
+	}//end _parseCommaSeparatedString()
 
 
 }//end class
