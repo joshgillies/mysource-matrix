@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.299 2011/01/06 04:20:45 mhaidar Exp $
+* $Id: asset_map.inc,v 1.300 2011/03/03 03:19:51 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299 $
+* @version $Revision: 1.300 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -745,6 +745,7 @@ class Asset_Map
 	*/
 	function _getAssetInfo($assetid, $linkid=0)
 	{
+		
 		$attrs = Array();
 		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
@@ -1429,6 +1430,11 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
+		// block public users from probing
+		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
+		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend())))
+			exit();
+			
 		if (!count((array)$input->children())) {
 			throw new Exception('Failed to get the assets due to an empty XML');
 		}
