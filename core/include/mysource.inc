@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.356.2.4 2011/01/28 05:55:50 ewang Exp $
+* $Id: mysource.inc,v 1.356.2.5 2011/03/03 00:21:55 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356.2.4 $
+* @version $Revision: 1.356.2.5 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -812,15 +812,15 @@ class MySource extends MySource_Object
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 		}
 
-		ob_start();
-			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-			$asset->printFrontend();
-			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-			$content = ob_get_contents();
-		ob_end_clean();
-
 		// not cached or has expired
 		if ($cache_info === FALSE) {
+			ob_start();
+				$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+				$asset->printFrontend();
+				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+				$content = ob_get_contents();
+			ob_end_clean();
+
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 
@@ -880,8 +880,8 @@ class MySource extends MySource_Object
 				header('HTTP/1.1 304 Not Modified');
 				exit(1);
 			} else {
-				// not sending 304 header, print the cached content
-				echo $content;
+				// not sending 304 header, print the content
+				$asset->printFrontend();
 			}
 		}
 
