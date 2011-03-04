@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.5.2.1 2011/02/11 14:05:09 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.5.2.2 2011/03/04 02:56:07 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -494,7 +494,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$collection = '';
 				}//end if
 				$url = '';
-				$systemid = '';
+				$suiteid = '';
 			} else if ($type == 'squiz') {
 				$collection  = array_get_index($_POST, $prefix.'_search_collection_squiz', '');
 				$suiteid     = array_get_index($_POST, $prefix.'_search_url_squiz', '');
@@ -511,7 +511,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else {
 				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
 				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
-				$systemid = '';
+				$suiteid = '';
 			}//end if
 			$asset->setAttrValue('search_type', $type);
 			$asset->setAttrValue('funnelback_url', $url);
