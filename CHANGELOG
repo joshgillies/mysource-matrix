@@ -1,6 +1,112 @@
 MYSOURCE MATRIX CHANGELOG
 
-SION 4.2.0 RC1
+
+VERSION 4.2.0
+
+Featured Changes
+===================================
+
+
+Improvements in Squiz Suite [ Feature Request #4927 ]
+-----------------------------------------------------
+
+Various improvements in the way Squiz Suite will identify products and sync with other products.
+
+Import Assets From XML, Export Assets to XML Tools [ Feature Request #4946 ]
+-----------------------------------------------------
+
+Version 4.0.0 of Squiz Matrix introduced the Import Assets From XML tool, performing actions passed to it from an XML file. This new feature enhances the functionality of this tool and also introduces the Export Assets to XML tool, allowing for the export of assets to XML templates.
+
+These tools can be accessed from Squiz Matrix's System Tools screen.
+
+These new system tools are the equivalent of Matrix's import_from_xml.php and export_to_xml.php scripts and can be used to migrate small numbers of assets from one instance of Matrix to another (e.g. implementation templates etc.).
+
+On the Import Assets from XML Tool screen, select the XML file to use to import assets into Matrix (an example XML file structure is provided at /__data/asset_types/tool_import_assets_from_xml/files/example.xml). This tool now also supports tar files containing xml and physical files to import assets from.
+
+To export assets to XML, on the Export Assets to XML Tool screen, select the root node to acquire the assets to export. The design, link and permission settings of these assets will be maintained so long as all assets are exported together.
+
+These tools have been added to improve Matrix's functionality of exporting assets from one system and importing them into another.
+
+matrixsqlclient.php, new tool for running commands against Oracle/Postgres DB [ Feature Request #4953 ]
+-----------------------------------------------------
+
+This feature introduces the matrixsqlclient.php script, a new tool to run commands against Oracle databases as an alternative to SQL*Plus. The script provides a simple and easy-to-use framework for simulating and formatting the results of database queries, as shown in the image below (click to enlarge).
+
+Features of this tool include:
+
+    * Tab completion (tables/columns)
+    * Persistent command history
+    * Straightforward table output
+    * Full terminal emulation
+    * Paginated output
+    * Timing feature
+
+The matrixsqlclient.php script is found in the /script directory of Squiz Matrix and is simple to use, only requiring the system root when run, as follows:
+
+$ ./matrixsqlclient.php /path/to/system_root
+
+This tool has been added to assist developers and system administrators when dealing with systems on Oracle databases.
+
+New Current User Option for Set Role Trigger Action  [ Feature Request #4977 ]
+-----------------------------------------------------
+
+The Set Role trigger action allows you to apply a role on an asset, specifying the user(s) that is to perform the role. Previously, however, there was no option to specify the user who fired the trigger. This feature adds a new option to select the current user to perform the newly set role via a new Use Current User (one who fires the trigger) field.
+
+This feature also introduces a new option to delete all current users on the role before assigning the new user. When the Delete all the Users from the Role before assigning new one field is selected, any existing users will be deleted before the new user is added on the role. This allows you to more accurately configure the users assigned to the role.
+
+This feature has been added to improve the accessibility of the Set Role trigger action and provide users with greater control over setting roles within Squiz Matrix.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+Minor Enhancement #3791: The connectivity.php script can be abused as a port scanner/DoS tool
+Minor Enhancement #4914: Asset Manager: Performance Enhancement on generateGetParentsQuery()
+Minor Enhancement #4938: Search Manager Performance Enhancement when Reindexing Over Contexts 
+Minor Enhancement #4944: Avoid Calling printFrontEnd when Sending 304 Not Modified Headers
+Minor Enhancement #4945: Improved Efficiency for session_cleanup.sh
+Minor Enhancement #4949: purge_trash.php Script Now Cron Friendly 
+Minor Enhancement #4964: generateGetChildrenQuery Performance Enhancements For Shadow Links
+Minor Enhancement #4975: Improved URL Lookup Check for an Existing URL 
+Minor Enhancement #4980: Send Email Trigger Action: allow multiple Recipient Asset IDs and Email Addresses in Recipient Source parameter map
+
+Core
+Fixed Bug #4834: Using DB connector in trigger action 'Execute Database Query' doesnt work for Oracle
+Fixed Bug #4924: DB error when a design asset is notice linked to too many assets
+Fixed Bug #4947: getParents() does not let you sort by all the field in sq_ast table
+Fixed Bug #4951: URL screen on site assets should warn if input includes http(s)://
+Fixed Bug #4957: Make SOAP Call Submission Action does not need to ignore CDATA nor use SoapVar, revert #4794
+Fixed Bug #4967: Sharepoint download file feature breaks when file name contains space
+Fixed Bug #4974: Calculate Average Rating including unrated comments
+
+CMS
+Fixed Bug #4952: "Unsaved changes" JS popup in IE when exporting Form Submissions
+Fixed Bug #4958: Form Submissions Lose UTF-8 settings
+
+Search
+Fixed Bug #4937: Search manager attempting to write into database using "db" connection
+
+Data
+Fixed Bug #4971: XML user bridge throws fatal error when non-xml data url is supplied
+
+Web Services
+Fixed Bug #4933: JS Files for Soap API are out of date
+Fixed Bug #4939: GetAssetTypeAttribute must have name passed in first for it to work properly.
+Fixed Bug #4941: ApplyDesign needs more error checking
+Fixed Bug #4942: http protocol issues in GetAssetFromURL and GetDesignFromURL functions
+Fixed Bug #4943: Cascade param errors on SetWorkflowSchema function
+Fixed Bug #4948: SOAP BasicSearch's ExcludeRootNodes does not always work.
+Fixed Bug #4956: jsonObj string information returned incorrectly when trashing an asset
+Fixed Bug #4979: Keyword replacement in Make SOAP Call Submission Action message will blank out $1
+
+Funnelback Package
+Fixed Bug #4970: Regular expression query type not working on thesaurus screen of Funnelback manager
+
+
+
+
+VERSION 4.2.0 RC1
 
 Featured Changes
 ===================================
