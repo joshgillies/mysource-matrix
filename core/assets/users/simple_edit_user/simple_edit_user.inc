@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_edit_user.inc,v 1.2.4.1 2011/03/07 05:00:33 akarelia Exp $
+* $Id: simple_edit_user.inc,v 1.2.4.2 2011/03/07 21:07:52 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2.4.1 $
+* @version $Revision: 1.2.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,7 @@ class Simple_Edit_User extends User
 		// we also have to consider the EES/JS API. Here the State wouldnt be in SQ_IN_LIMBO
 		// but never the less we are in simple edit.
 		// Lets be a bit chicky here and check the referer to decide if we are indeed in LIMBO
+		$in_limbo = FALSE;
 		if(isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 			$in_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
 		}
