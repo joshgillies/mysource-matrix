@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90 2010/07/26 00:38:36 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.91 2011/03/07 02:23:37 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -674,7 +674,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// Group defines its members
 				$base_dn = $this->attr('root_dn');
 				$base_dn = $this->decodeString($base_dn);
-				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$assetid.')');
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')');
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
