@@ -86,7 +86,11 @@ function send(host_location, soapRequest, callback_fnc)
 	{
 		if (xmlHttpObj.readyState == 4) {
 			var response	= xmlHttpObj.responseXML;
-			eval(callback_fnc+'(response)');
+			if (typeof(callback_fnc) == 'function') {
+				callback_fnc(response);
+			} else {
+				eval(callback_fnc+'(response)');
+			}
 		}
 	}
 
