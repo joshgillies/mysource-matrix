@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_web_path.inc,v 1.2 2009/04/22 06:24:42 ewang Exp $
+* $Id: trigger_action_remove_web_path.inc,v 1.2.8.1 2011/03/07 05:12:10 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 	{
 
 		// check required settings
-		if (empty($settings['path']) && empty($setting['remove_all'])) return FALSE;
+		if (empty($settings['path']) && empty($settings['remove_all'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
