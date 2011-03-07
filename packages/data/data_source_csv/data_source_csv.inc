@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.4 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_csv.inc,v 1.4.6.1 2011/03/07 02:55:55 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -46,7 +46,30 @@ class Data_Source_Csv extends Data_Source
 
 	}//end constructor
 
+	
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	public function _getAllowedLinks()
+	{
+		// any link is allowed
+		$allowed_link['asset']['card'] = 'M';
+		$allowed_link['asset']['exclusive'] = FALSE;
 
+		$links[SQ_LINK_TYPE_1] = $allowed_link;
+		$links[SQ_LINK_TYPE_2] = $allowed_link;
+		$links[SQ_LINK_TYPE_3] = $allowed_link;
+		$links[SQ_LINK_NOTICE] = $allowed_link;
+
+		return $links;
+
+	}//end _getAllowedLinks()
+	
+	
 	/**
 	* Returns an array of the result of parsing either from cache or by parsing the file again
 	*
