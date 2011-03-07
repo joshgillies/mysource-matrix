@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.14 2010/05/05 07:11:14 ewang Exp $
+* $Id: data_source_rss.inc,v 1.14.4.1 2011/03/07 02:55:44 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -47,7 +47,30 @@ class Data_Source_RSS extends Data_Source
 
 	}//end constructor
 
+	
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	public function _getAllowedLinks()
+	{
+		// any link is allowed
+		$allowed_link['asset']['card'] = 'M';
+		$allowed_link['asset']['exclusive'] = FALSE;
 
+		$links[SQ_LINK_TYPE_1] = $allowed_link;
+		$links[SQ_LINK_TYPE_2] = $allowed_link;
+		$links[SQ_LINK_TYPE_3] = $allowed_link;
+		$links[SQ_LINK_NOTICE] = $allowed_link;
+
+		return $links;
+
+	}//end _getAllowedLinks()
+	
+	
 	/**
 	* Returns an array of the result of xml parsing either from cache or by parsing the file again
 	*
