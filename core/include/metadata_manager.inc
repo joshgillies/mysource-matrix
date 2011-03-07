@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.224.2.2 2011/03/02 22:46:10 akarelia Exp $
+* $Id: metadata_manager.inc,v 1.224.2.3 2011/03/07 01:51:47 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.224.2.2 $
+* @version $Revision: 1.224.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -326,13 +326,21 @@ class Metadata_Manager extends MySource_Object
 
 		if ($granted) {
 			//TODO:
-			if (!$asset->shouldFastTrack('metadata_manager_generate_content_file')) {
+			if (!$asset->shouldFastTrack('metadata_manager_generate_content_file', $schemaid)) {
 				$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 				foreach ($all_contexts as $all_contextid => $context_data) {
 					$this->generateContentFile($assetid, FALSE, $all_contextid);
 				}
 
 				$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+				
+				// Needs broadcast this event for all the "FastTracked" schemas
+				$fast_tracked_schemas = $asset->getFaskTrackedTaskAssetids('metadata_manager_generate_content_file');
+				if (!empty($fast_tracked_schemas)) {
+					foreach($fast_tracked_schemas as $ft_schemaid) {
+						$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $ft_schemaid));
+					}
+				}
 				$em->broadcastEvent($asset, 'MetadataUpdate', Array('schemaid' => $schemaid));
 				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
 			}
