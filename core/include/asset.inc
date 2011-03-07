@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.739 2011/02/27 23:57:16 akarelia Exp $
+* $Id: asset.inc,v 1.740 2011/03/07 01:32:19 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.739 $
+* @version $Revision: 1.740 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2122,11 +2122,13 @@ class Asset extends MySource_Object
 					// apply the schemas from the cloner to the clonee
 					// But only if they're set to cascade to new assets
 					$schemas = $mm->getSchemas($this->id, NULL, TRUE);
+					
 					$metadata = Array();
 					foreach ($schemas as $schemaid => $granted) {
 						if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
 							continue;
 						}
+						
 						if (!$mm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2151,7 +2153,7 @@ class Asset extends MySource_Object
 						// (we don't need to change the clone, because saveAttributes()
 						// already works with the current context)
 						$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
-
+						
 						$metadata = $mm->getMetadata($this->id);
 						if (!empty($metadata)) {
 							// apply the metadata from $this to the clone - setMetadata() will ignore any values
@@ -6232,6 +6234,7 @@ class Asset extends MySource_Object
 		
 		foreach($tasks as $task) {
 			$this->_tmp['fast_track'][$task] = TRUE;
+			$this->_tmp['fast_track'][$task.'_assetids'] = Array();
 		}
 		
 	}//end fastTrack()
@@ -6263,20 +6266,45 @@ class Asset extends MySource_Object
 	* Determine if the given task should be fast tracked. Generally called from the
 	* place doing the expensive task.
 	*
+	* @param $task 		string 	Task to fasttrack
+	* @param $assetid	int		Asset associated with the task
+
 	* @see Trigger_Manager
 	* @see Search_Manger
 	* @see Metadata_Manager
 	* @access public
 	*/
-	public function shouldFastTrack($task)
+	public function shouldFastTrack($task, $assetid=NULL)
 	{
-		if (isset($this->_tmp['fast_track'][$task])) return $this->_tmp['fast_track'][$task];
+		if (isset($this->_tmp['fast_track'][$task]) && $this->_tmp['fast_track'][$task]) {
+			// Keep track of assetids associated with the task that has been fast tracked 
+			if (!is_null($assetid)) {
+				$this->_tmp['fast_track'][$task.'_assetids'][] = $assetid;
+			}
+			return TRUE;
+		}
+
 		return FALSE;
 		
 	}//end shouldFastTrack()
 
 
-}//end class
+	/**
+	* Returns a list of assetids associated with the given task 
+	* that has been fast tracked
+	*
+	* @param $task	string Fasktracked task name
+	*
+	* @return Array
+	* @access public
+	*/
+	public function getFaskTrackedTaskAssetids($task)
+	{
+		return !empty($this->_tmp['fast_track'][$task.'_assetids']) ? $this->_tmp['fast_track'][$task.'_assetids'] : Array();
 
+	}//end getFaskTrackedTaskAssetids()
+
+
+}//end class
 
 ?>
