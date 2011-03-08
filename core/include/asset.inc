@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.737.2.4 2011/03/07 01:51:47 cupreti Exp $
+* $Id: asset.inc,v 1.737.2.5 2011/03/08 22:59:22 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.737.2.4 $
+* @version $Revision: 1.737.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2114,9 +2114,6 @@ class Asset extends MySource_Object
 		 /// METADATA ///
 		////////////////
 
-		$ft_tasks = Array('metadata_manager_generate_content_file');
-		$clone->fastTrack($ft_tasks);
-
 		// first up, clone the schemas
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('metadata')) {
@@ -2132,10 +2129,12 @@ class Asset extends MySource_Object
 						if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
 							continue;
 						}
-						
-						// Un-fastTrack at last schema
+
+						// FastTrack the "metadata content file generation" task for all schemas except the last one
 						if (++$schema_count == count($schemas)) {
-							$clone->unFastTrack($ft_tasks);
+							$clone->unFastTrack('metadata_manager_generate_content_file');
+						} else {
+							$clone->fastTrack('metadata_manager_generate_content_file');
 						}
 
 						if (!$mm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
@@ -2149,8 +2148,6 @@ class Asset extends MySource_Object
 				trigger_localised_error('SYS0323', E_USER_WARNING, $clone->name);
 			}//end if access
 		}//end if metadata schemas
-
-		$this->fastTrack($ft_tasks);
 
 		// apply the actual metadata from the cloner to the clonee
 		if (in_array('metadata', $components) || in_array('all', $components)) {
@@ -2166,11 +2163,6 @@ class Asset extends MySource_Object
 						// already works with the current context)
 						$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
 						
-						// Un-fastTrack at last schema
-						if (++$context_count == count($all_contexts)) {
-							$this->unFastTrack($ft_tasks);
-						}
-
 						$metadata = $mm->getMetadata($this->id);
 						if (!empty($metadata)) {
 							// apply the metadata from $this to the clone - setMetadata() will ignore any values
