@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.73 2010/04/12 01:29:59 ewang Exp $
+* $Id: form_email.inc,v 1.73.6.1 2011/03/08 23:24:52 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,7 +302,16 @@ class Form_Email extends Form
 		// Perform submission actions which need to be executed before finish form
 		if (!$this->performSubmissionActions(TRUE)) {
 			// We had problems, print last page again
-			$this->printPageContentsBodycopy();
+			// Print the current page or the Confirmation Page if we're confirming things
+			$current_page = $this->getCurrentPageNumber();
+			$total_pages = $this->getTotalPages();
+			
+			if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
+				echo $this->getConfirmationPageContents();
+			}
+			else {				   	
+				$this->printPageContentsBodycopy();
+			}
 			return FALSE;
 		}
 				
