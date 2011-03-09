@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.32 2010/07/15 05:33:38 csmith Exp $
+* $Id: data_source_graph.inc,v 1.33 2011/03/09 23:58:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Data_Source_Graph extends Image
 		$info = Array(
 					'name'		=> $name.'.png',
 					'type'		=> 'image/png',
-					'path'		=> SQ_DATA_PATH.'/temp',
+					'path'		=> SQ_DATA_PATH.'/temp/'.$name.'.png',
 					'filename'	=> $name.'.png',
 				);
 		$this->_tmp['file_create_data'] = &$info;
@@ -106,9 +106,9 @@ class Data_Source_Graph extends Image
 		$this->setAttrValue('name', $name);
 
 		if (Asset::create($link)) {
-			return unlink($info['path'].'/'.$info['filename']);
+			return unlink($info['path']);
 		} else {
-			unlink($info['path'].'/'.$info['filename']);
+			unlink($info['path']);
 			return FALSE;
 		}
 
@@ -157,7 +157,7 @@ class Data_Source_Graph extends Image
 		create_directory($this->data_path);
 
 		// copy over the new uploaded file
-		if (!copy($info['path'].'/'.$info['name'], $this->data_path.'/'.$name)) {
+		if (!copy($info['path'], $this->data_path.'/'.$name)) {
 			trigger_localised_error('CORE0036', E_USER_WARNING, $info['name'], $this->data_path.'/'.$name);
 			return FALSE;
 		}
@@ -727,10 +727,10 @@ class Data_Source_Graph extends Image
 		// proper header information
 		$old_err_level = error_reporting(0);
 
-		$graph =& $this->getNewGraph();
+		$graph = $this->getNewGraph();
 		$sample_dataset =& Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
-		$plot =& $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
+		$plot = $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
 
 		if ($to_file) {
 			if (empty($this->_tmp['graph_file_name'])) {
