@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.44 2008/11/10 06:29:45 ata Exp $
+* $Id: file_versioning.inc,v 1.45 2011/03/10 05:34:51 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -1335,6 +1335,9 @@ class File_Versioning
 			if ($info == FUDGE_FV_ERROR) {
 				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
 			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $info;
 		}
 
