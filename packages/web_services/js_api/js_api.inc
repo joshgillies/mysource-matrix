@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.71 2011/03/10 00:05:57 akarelia Exp $
+* $Id: js_api.inc,v 1.72 2011/03/10 02:38:24 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1120,6 +1120,7 @@ class JS_Api extends Page
 								} else {
 									// is a image do it differently
 									$img = imagecreate('10','10');
+									$background_color = imagecolorallocate($img, 0, 0, 0);
 									imagepng($img, $destination_file);
 								}
 
