@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.139 2010/07/19 01:52:40 ewang Exp $
+* $Id: user.inc,v 1.139.2.1 2011/03/10 05:39:28 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.139.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,6 +110,8 @@ class User extends Asset
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, TRUE)) {
 			trigger_localised_error('CORE0015', E_USER_WARNING, $this->name);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			
 			return FALSE;
 		}
 
