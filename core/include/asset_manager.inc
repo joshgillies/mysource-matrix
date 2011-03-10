@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.837 2011/02/25 02:42:49 ewang Exp $
+* $Id: asset_manager.inc,v 1.838 2011/03/10 05:36:45 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.837 $
+* @version $Revision: 1.838 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2072,6 +2072,9 @@ class Asset_Manager extends MySource_Object
 				if (!$link['asset']->cloneComponents($clone, $nonlink_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					
 					return $null;
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -2130,6 +2133,9 @@ class Asset_Manager extends MySource_Object
 				if (!empty($link_parent_components) && !$link['asset']->cloneComponents($clone, $link_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					
 					return $null;
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
