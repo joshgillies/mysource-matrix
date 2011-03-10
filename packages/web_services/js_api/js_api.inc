@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.9 2011/02/21 22:56:33 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.10 2011/03/10 00:22:13 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.9 $
+* @version $Revision: 1.61.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1106,15 +1106,22 @@ class JS_Api extends Page
 							if(!in_array(Array($type_code), $valid_type_code)) {
 								//We are going to write to the Matrix Data tmp dir
 								$tmp_file_name  = $this->getRandomFilename($file_name);
-								$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name;
+								$file_ext = $this->get_file_extension($type_code);
+								$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name.'.'.$file_ext;
 
 								while (file_exists($destination_file)) {
 									$tmp_file_name  = $this->getRandomFilename($file_name);
-									$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name;
+									$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name.'.'.$file_ext;
 								}//end while
 
 								//create an file with empty content, coz we are getting rid of it anyways
-								file_put_contents($destination_file, '');
+								if ($type_code != 'image' && $type_code != 'thumbnail') {
+									file_put_contents($destination_file, '');
+								} else {
+									// is a image do it differently
+									$img = imagecreate('10','10');
+									imagepng($img, $destination_file);
+								}
 
 								// construct the link array 
 								$link = Array (
@@ -1124,7 +1131,6 @@ class JS_Api extends Page
 											'sort_order'=> -1,
 										);
 
-								$file_ext = $this->get_file_extension($type_code);
 								$filename_w_extension = $filename.'.'.$file_ext;
 								require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 								$file_type = get_file_type($filename_w_extension);
@@ -1143,6 +1149,7 @@ class JS_Api extends Page
 								$new_asset = new $type_code();
 								//fake it
 								$new_asset->_tmp['uploading_file'] = TRUE;
+								if ($type_code == 'data_source_graph') $new_asset->setAttrValue('title', $filename);
 								$success = $new_asset->create($link, $file_info);
 
 								if (!$success) {
@@ -2684,7 +2691,7 @@ class JS_Api extends Page
 						'js_file'			=> 'js',
 						'word_doc'			=> 'doc',
 						'data_source_graph'	=> 'grf',
-						'thumbnail'			=> 'img',
+						'thumbnail'			=> 'jpg',
 					 );
 
 		return $ext_array[$type_code];
