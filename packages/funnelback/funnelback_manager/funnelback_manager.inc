@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.24.2.6 2011/02/23 23:52:48 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.24.2.7 2011/03/14 02:45:04 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.24.2.6 $
+* @version $Revision: 1.24.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -386,10 +386,14 @@ class Funnelback_Manager extends Asset
 				}//end if
 
 				// The asset is under the root node
-				$excluded_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($excluded_node);
-				if (array_key_exists($asset->id, $excluded_children)) {
-					return $this->_cleanupEntriesByAssetid($asset->id);
+				// but before that lets see if the asset exists and isnt already deleted.
+				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($excluded_node)) {
+					$excluded_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($excluded_node);
+					if (array_key_exists($asset->id, $excluded_children)) {
+						return $this->_cleanupEntriesByAssetid($asset->id);
+					}//end if
 				}//end if
+
 			}//end foreach
 		}//end if
 
