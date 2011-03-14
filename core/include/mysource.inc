@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.360.2.1 2011/03/03 00:19:22 akarelia Exp $
+* $Id: mysource.inc,v 1.360.2.2 2011/03/14 22:03:14 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.360.2.1 $
+* @version $Revision: 1.360.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -542,7 +542,11 @@ class MySource extends MySource_Object
 				//Feature #4759: Asset ID to URL remaps.
 				if (is_null($asset)){
 					$rm = $this->am->getSystemAsset('remap_manager');
-					if ($rm->loadRemapFromURL(current_protocol(), '?a='.$_REQUEST['a'])) exit();
+					$protocol = current_protocol();
+					if ($rm->loadRemapFromURL($protocol, '?a='.$_REQUEST['a'])) exit();
+					//Additionally Enhancement #4991
+					$substr = substr($_REQUEST['a'], 0, strpos($_REQUEST['a'], '?'));
+					if ($substr && $rm->loadRemapFromURL($protocol, '?a='.$substr)) exit();
 				}
 			} else {
 				$asset = $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
