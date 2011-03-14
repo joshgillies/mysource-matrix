@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.728.2.4 2010/12/14 22:56:06 ewang Exp $
+* $Id: asset.inc,v 1.728.2.5 2011/03/14 05:34:02 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.728.2.4 $
+* @version $Revision: 1.728.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -387,7 +387,8 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 					if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
-						return $this->_abortCreate($trigger_level_changed);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							return $this->_abortCreate($trigger_level_changed);						
 					}
 
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
