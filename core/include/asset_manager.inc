@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.838 2011/03/10 05:36:45 cupreti Exp $
+* $Id: asset_manager.inc,v 1.839 2011/03/14 02:29:08 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.838 $
+* @version $Revision: 1.839 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -10066,7 +10066,11 @@ class Asset_Manager extends MySource_Object
 		
 		// get treeids of root nodes
 		$root_node_treeids = $this->getAssetTreeids($root_nodes);
-		
+
+		// if checking for the root nodes that have been deleted by the user
+		// then the treeids wont be populated. best is the bail out from here
+		if(empty($root_node_treeids)) return FALSE;
+
 		// put all the treeids of root nodes into an array of 'where' conditions
 		// i.e.
 		//Array
