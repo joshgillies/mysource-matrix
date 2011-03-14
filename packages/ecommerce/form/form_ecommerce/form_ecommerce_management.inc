@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.17 2010/08/19 10:49:57 ata Exp $
+* $Id: form_ecommerce_management.inc,v 1.17.2.1 2011/03/14 22:25:36 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -90,13 +90,18 @@ class Form_Ecommerce_Management extends Asset_Management
 						'item_format'				=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '<div>%item_name% -- $%item_price%</div>',
+														'default'	=> '<div>%item_name% -- %currency_sign%%item_price%</div>',
 													   ),
 						'item_taxable_string'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
 														'default'	=> '*',
 													   ),
+						'currency_sign'				=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '$',
+													   ),													   
 						'asset_price_source'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
@@ -158,7 +163,7 @@ class Form_Ecommerce_Management extends Asset_Management
 						'form_asset_format'			=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '<div>%item_name% -- $%item_price%</div>',
+														'default'	=> '<div>%item_name% -- %currency_sign%%item_price%</div>',
 													   ),
 						'form_asset_list_format'	=> Array(
 														'added'		=> '0.2',

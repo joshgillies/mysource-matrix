@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.56 2010/09/01 11:16:27 ata Exp $
+* $Id: form_ecommerce.inc,v 1.56.2.1 2011/03/14 22:25:36 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1143,19 +1143,20 @@ class Form_Ecommerce extends Form_Email
 	{
 		$order = $_SESSION[$this->getPrefix()]['order'];
 		if (empty($order)) return FALSE;
-
+		
+		$curr_sign = $this->attr('currency_sign');
 		if ($as_html) {
 			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s%s</table><hr />';
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
 			$divider_row = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">&nbsp;</td><td class="sq_ecomTableItemValue" align="right"><hr /></td></tr>';
-			$total_discount_row_fmt = '<tr class="sq_ecomTableTotalDiscountRow"><td class="sq_ecomTableTotalDiscountName" align="right">%s</td><td class="sq_ecomTableTotalDiscountValue" align="right">$%01.2f</td></tr>';
-			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
+			$total_discount_row_fmt = '<tr class="sq_ecomTableTotalDiscountRow"><td class="sq_ecomTableTotalDiscountName" align="right">%s</td><td class="sq_ecomTableTotalDiscountValue" align="right">'.$curr_sign.'%01.2f</td></tr>';
+			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">'.$curr_sign.'%01.2f</td></tr>';
 		} else {
 			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n%s\n############################";
 			$order_row_fmt = "%s: %01.2f\n";
 			$divider_row = "----------------------------\n";
-			$total_discount_row_fmt = "*** %s $%01.2f ***\n";
-			$total_row_fmt = "*** %s $%01.2f ***\n";
+			$total_discount_row_fmt = "*** %s $curr_sign%01.2f ***\n";
+			$total_row_fmt = "*** %s $curr_sign%01.2f ***\n";
 		}
 
 		$rows = '';
@@ -1786,6 +1787,7 @@ class Form_Ecommerce extends Form_Email
 
 			$replacements['item_name'] = $item_name;
 			$replacements['item_price'] = $this->_formatPriceAmount($item_price);
+			$replacements['currency_sign'] = $this->attr('currency_sign');
 			$replacements['item_taxable_string'] = '';
 			if ($is_taxable) {
 				$replacements['taxable_item_string'] = $this->attr('item_taxable_string');
@@ -1828,6 +1830,7 @@ class Form_Ecommerce extends Form_Email
 
 			$replacements['item_name'] = $name;
 			$replacements['item_price'] = $this->_formatPriceAmount($price);
+			$replacements['currency_sign'] = $this->attr('currency_sign');
 			$replacements['item_taxable_string'] = '';
 			if ($is_taxable) {
 				$replacements['taxable_item_string'] = $this->attr('item_taxable_string');
@@ -1880,7 +1883,20 @@ class Form_Ecommerce extends Form_Email
 
 	}//end getTaxableItemStringKeywordReplacement()
 
+	
+	/**
+	* Currency Sign keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCurrencySignKeywordReplacement()
+	{
+		return $this->attr('currency_sign');
 
+	}//end getTaxableItemStringKeywordReplacement()
+	
+	
 	/**
 	* Transaction Number keyword replacement
 	*
