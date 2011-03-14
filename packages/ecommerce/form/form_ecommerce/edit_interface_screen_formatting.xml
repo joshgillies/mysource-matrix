@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formatting.xml,v 1.5 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screen_formatting.xml,v 1.5.14.1 2011/03/14 22:21:58 mhaidar Exp $
 *
 */
 -->
@@ -24,6 +24,9 @@
 	<section name="Global Strings" write_access="write:attributes" >
 		<field attribute="item_taxable_string">
 			<text width="20" height="1" />
+		</field>
+		<field attribute="currency_sign">
+			<text width="10" height="1" />
 		</field>
 	</section>
 	<section name="Form View" write_access="write:attributes" >
