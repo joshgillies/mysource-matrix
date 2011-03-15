@@ -13,10 +13,13 @@ if ($dbType == 'pgsql') {
 	MatrixDAL::executeSql('DROP INDEX sq_suite_product_type');
 
 	// Create a new sequence.
-	$sequence = MatrixDAL::executeSqlAssoc("SELECT sequence_name FROM information_schema.sequences WHERE sequence_name='sq_suite_seq'");
-	if (empty($sequence)) {
+	// SELECT FROM information_schema.sequences won't work with postgres 8.1, so this is the only way to check
+	try {
+	$sequence = MatrixDAL::executeSqlAssoc("SELECT * from sq_suite_seq");
+	} catch (Exception $e) {
 		MatrixDAL::executeSql('CREATE SEQUENCE sq_suite_seq INCREMENT BY 1');
-	}//end if
+	}
+
 
 	// Add new columns.
 	MatrixDAL::executeSql('ALTER TABLE sq_suite_product ADD COLUMN suiteid INTEGER');
