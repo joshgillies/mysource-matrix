@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.6 2010/05/05 07:15:20 ewang Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.6.4.1 2011/03/16 02:28:22 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -157,7 +157,7 @@ class Tool_Clear_Squid_Cache extends Tool
 
 			// prints the interface for adding a new repeating job
 			$o->openField(translate('squid_tool_repeating_field'), 'new_line');
-				$new_job =& new Cron_Job_Squid_Cache_Purge();
+				$new_job = new Cron_Job_Squid_Cache_Purge();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$new_job->setAttrValue('type', 'repeating');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
