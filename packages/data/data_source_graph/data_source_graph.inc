@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.33 2011/03/09 23:58:55 akarelia Exp $
+* $Id: data_source_graph.inc,v 1.34 2011/03/16 01:47:37 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -344,7 +344,7 @@ class Data_Source_Graph extends Image
 
 		$width	= $this->attr('width');
 		$height	= $this->attr('height');
-		$graph	= &Image_Graph::factory('graph', Array((int) $width, (int) $height));
+		$graph	= Image_Graph::factory('graph', Array((int) $width, (int) $height));
 		$title = $this->attr('show_graph_title') ? $this->attr('title') : '';
 		if ($this->attr('show_legend')) {
 			$graph_ratio = 90;
@@ -471,7 +471,7 @@ class Data_Source_Graph extends Image
 			$result = $data_source_asset->getResultSet('default');
 
 			$tmp = 0;
-			$image_dataset =& Image_Graph::factory('dataset');
+			$image_dataset = Image_Graph::factory('dataset');
 			foreach ($result as $record) {
 				if ($is_accumulative) {
 					$tmp += intval($record[$y_axis_name]);
@@ -493,7 +493,7 @@ class Data_Source_Graph extends Image
 						$multiple_dataset[] = $image_dataset;
 
 						foreach ($dataset['settings']['stacked_data'] as $stack) {
-							$image_dataset =& Image_Graph::factory('dataset');
+							$image_dataset = Image_Graph::factory('dataset');
 							$image_dataset->setName($stack['title']);
 
 							// add each stack dataset
@@ -532,7 +532,7 @@ class Data_Source_Graph extends Image
 				$plot->setTitle($dataset['settings']['plot_name']);
 			}
 
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			if ($dataset['settings']['gradient_type'] != 'none') {
 				// gradient colour
 				$grad_type = $this->getGradType($dataset['settings']['gradient_type']);
@@ -656,18 +656,18 @@ class Data_Source_Graph extends Image
 		$global_settings = $this->attr('global_settings');
 
 		$graph =& $this->getNewGraph();
-		$sample_dataset = &Image_Graph::factory('random', Array(10, 2, 15, TRUE));
+		$sample_dataset = Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
 		// plot settings
 		$plot =& $this->plotarea->addNew($graph_info['settings']['graph_type'], Array(&$sample_dataset));
 		if ($graph_info['settings']['gradient_type'] != 'none') {
 			// gradient colour
 			$grad_type = $this->getGradType($graph_info['settings']['gradient_type']);
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			$fill->addNew('gradient', Array($grad_type, '#'.$graph_info['settings']['gradient_1'], '#'.$graph_info['settings']['gradient_2']));
 		} else {
 			// fill colour
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			$fill->addColor('#'.$graph_info['settings']['fill_colour']);
 		}
 		$plot->setFillStyle($fill);
@@ -728,7 +728,7 @@ class Data_Source_Graph extends Image
 		$old_err_level = error_reporting(0);
 
 		$graph = $this->getNewGraph();
-		$sample_dataset =& Image_Graph::factory('random', Array(10, 2, 15, TRUE));
+		$sample_dataset = Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
 		$plot = $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
 
