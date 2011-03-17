@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_edit_user.inc,v 1.4 2011/03/07 21:06:47 akarelia Exp $
+* $Id: simple_edit_user.inc,v 1.5 2011/03/17 00:55:13 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,12 +65,18 @@ class Simple_Edit_User extends User
 		// we also have to consider the EES/JS API. Here the State wouldnt be in SQ_IN_LIMBO
 		// but never the less we are in simple edit. 
 		// Lets be a bit chicky here and check the referer to decide if we are indeed in LIMBO
-		$in_limbo = FALSE;
+		// We also have to make sure that the user we are currently deling with isnt the user
+		// who initiated the workflow. or else he deserves to be known
+		$in_limbo = $workflow_starter = FALSE;
 		if(isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 			$in_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
 		}
 
-		return (SQ_IN_LIMBO || SQ_IN_CRON || $in_limbo);
+		// we are not in limbo or EES see if the user was a workflow starter and if the workflow has been canceled
+		// see workflow_manager::cancelWorkflow()
+		if(!$in_limbo && (isset($this->_tmp['starter_of_workflow']) && $this->_tmp['starter_of_workflow'])) $workflow_starter = TRUE;
+
+		return (SQ_IN_LIMBO || SQ_IN_CRON || $in_limbo || $workflow_starter);
 
 	}//end canAccessBackend()
 
