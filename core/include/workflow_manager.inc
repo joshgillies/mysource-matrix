@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.159 2010/10/20 02:37:58 ewang Exp $
+* $Id: workflow_manager.inc,v 1.159.4.1 2011/03/17 00:56:16 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.159.4.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1725,8 +1725,16 @@ class Workflow_Manager extends MySource_Object
 		$publishers = $this->whoCanPublish($asset->id);
 		$workflow_values = $this->getSchemaWorkflows($assetid);
 		$workflow = reset($workflow_values);
-		$publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
-		
+		$started_by = $workflow['started_by'];
+		// make sure the asset has not been deleted since the start of the workflow
+		if($GLOBALS['SQ_SYSTEM']->am->assetExists($started_by)) {
+			$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by);
+			// see bug #498	Simple Edit User doesnt get workflow emails initiated via EES
+			// and see simple_edit_user::canAccessBackend()
+			if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+		}
+		$publishers = array_unique(array_merge($publishers, Array($started_by)));
+
 		$current_steps = $this->getWorkflowCurrentSteps($assetid);
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
 
