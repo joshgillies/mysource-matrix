@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.196 2011/02/18 03:13:56 cupreti Exp $
+* $Id: file.inc,v 1.197 2011/03/18 01:08:37 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -542,7 +542,7 @@ class File extends Asset
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || !empty($this->_tmp['IGNORE_UPDATE'])) {
 			return TRUE;
 		}
-
+		
 		return $this->_checkFileState();
 
 	}//end _updated()
@@ -1358,6 +1358,8 @@ class File extends Asset
 
 		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
 		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
+		$keywords['asset_file_contents'] = translate('core_file_keyword_file_contents');
+		
 
 		return $keywords;
 
@@ -1393,7 +1395,20 @@ class File extends Asset
 
 	}//end getAssetFileSizeReadableKeywordReplacement()
 
+	/**
+	* Get %asset_file_contents% keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	public function getAssetFileContentsKeywordReplacement()
+	{
+		$existing = $this->getExistingFile();
+		$file_contents = isset($existing['path']) ? file_get_contents($existing['path']) : '';
+		return $file_contents;
 
+	}//end getAssetFileContentsKeywordReplacement()
+	
 	/**
 	* Delete this asset from the trash
 	*
