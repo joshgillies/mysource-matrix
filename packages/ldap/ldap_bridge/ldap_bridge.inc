@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90.4.1 2011/03/22 06:09:02 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.90.4.2 2011/03/22 06:21:15 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.4.1 $
+* @version $Revision: 1.90.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -189,7 +189,7 @@ class LDAP_Bridge extends Asset implements Bridge
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
-	* @param boolean	$return_null	returns NULL if no user/user data found
+	* @param boolean	$return_null	returns NULL if no user found
 	*
 	* @return mixed object|NULL
 	* @access public
@@ -217,14 +217,26 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		$ldap = @$this->connectToLdap();
-			if (is_null($ldap) || is_null($ldap->ptr)) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
-			$required_attrs = $this->attr('attributes');
+			if (is_null($ldap) || is_null($ldap->ptr)) return $asset;
 
 			$shadowid = $this->decodeString($shadowid);
-			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($required_attrs), Array('objectclass')));
-			if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+			if (!$result) {
+				if ($return_null) {
+					// No user found so return NULL cos I was asked too ;)
+					return NULL;
+				} else {
+					// return 'unknown ldap user' when we cannot find a match
+					$data['objectclass'] = Array();
+					$data['dn'] = $shadowid;
+					$user_type = $this->attr('user_type');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+					$asset = new $user_type($this->id, $data);
+					return $asset; // this should return a dummy
+				}
+			}
 			$data = $ldap->getEntries($result);
-			if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			if (!$data['count']) return $asset;
 
 			$data = $data[0];
 		$ldap->disconnect();
@@ -241,7 +253,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
 				$asset = new Ldap_User_Group($this->id, $data);
-				return $asset;
+				break;
 
 			} else if (isset($this->_user_types[$class])) {
 				// include both assets, in case the type changes
@@ -251,34 +263,13 @@ class LDAP_Bridge extends Asset implements Bridge
 				// depending on the bridge setting
 				$user_type = $this->attr('user_type');
 				$asset = new $user_type($this->id, $data);
-				return $asset;
+				break;
 			}
 		}
 
-		return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+		return $asset;
 
 	}//end getAsset()
-
-	
-	/**
-	* Used by LDAP_Bridge::getAsset() to return a dummy asset when it fails to load the LDAP user.
-	* 
-	* @param string	$shadowid		
-	* 
-	* @return mixed object|NULL
-	* @access protected
-	*/
-	protected function _getDummyAsset($shadowid){
-		
-		// return 'unknown ldap user' when we cannot find a match
-		$data['objectclass'] = Array();
-		$data['dn'] = $shadowid;
-		$user_type = $this->attr('user_type');
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-		$asset = new $user_type($this->id, $data);
-		return $asset; // this should return a dummy
-		
-	}//end _getDummyAsset()
 
 
 	/**
