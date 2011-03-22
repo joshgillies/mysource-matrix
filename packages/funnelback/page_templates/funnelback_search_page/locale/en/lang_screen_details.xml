@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4.2.1 2011/02/21 04:21:56 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.4.2.2 2011/03/22 05:43:16 akarelia Exp $
 *
 */
 -->
@@ -82,7 +82,7 @@
 			<note>If set to yes, and the dynamic query is set, then instead of displaying the initial layout page, it will jump directly to the results page</note>
 		</field>
 	</section>
-	<section name="Formatting Options" write_access="write:attributes">
+	<section name="Display Options" write_access="write:attributes">
 		<field attribute="num_per_page">
 			<display_name>Results per page</display_name>
 			<note />
