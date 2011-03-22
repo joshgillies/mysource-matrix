@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.6 2010/05/05 07:15:20 ewang Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.6.6.1 2011/03/22 03:00:31 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -66,7 +66,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 		$vars = Array(
 					'assetid'		=> $state['assetid'],
 					'cascade'		=> FALSE,
-					'repopulate'	=> TRUE,
+					'repopulate'	=> FALSE,
 				);
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$status_errors = $hh->freestyleHipo('hipo_job_tool_clear_squid_cache', $vars, SQ_PACKAGES_PATH.'/squid/hipo_jobs');
