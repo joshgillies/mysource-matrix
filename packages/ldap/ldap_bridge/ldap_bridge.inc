@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90 2010/07/26 00:38:36 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.90.2.1 2011/03/22 06:01:03 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.90.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -183,93 +183,62 @@ class LDAP_Bridge extends Asset implements Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the entire asset id of the asset to be loaded
+	* @param int		$assetid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
-	* @param boolean	$return_null	returns NULL if no user found
+	* @param boolean	$return_null	returns NULL if no data found
 	*
-	* @return mixed object|NULL
+	* @return object
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
 	{
+		$shadowid = explode(':', $assetid);
+		$shadowid = array_pop($shadowid);
 		$asset = NULL;
-		$id_parts = explode(':', $assetid);
+		if (is_null($shadowid)) return $asset;
+		$result = $this->getResultSet();
 
-		if (isset($id_parts[1])) {
-			$shadowid = $id_parts[1];
+		if (!empty($result)) {
+			if (isset($result[$shadowid])) {
+				$record = $result[$shadowid];
+				$record['shadow_asset_name'] = $this->attr('shadow_name');
+				$record['shadow_asset_id'] = $shadowid;
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
+				$asset = new Data_Source_Record_Set($this->id, $record);
+			}
+		}
+		
+		if(is_null($asset)) {
+			return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 		} else {
 			return $asset;
 		}
 
-		// Setup user's inbox
-		if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-			$inbox_asset = new Inbox();
-			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
-			$inbox_asset->name = 'Inbox';
-			$inbox_asset->status = $this->status;
-			return $inbox_asset;
-		}
-
-		$ldap = @$this->connectToLdap();
-			if (is_null($ldap) || is_null($ldap->ptr)) return $asset;
-
-			$shadowid = $this->decodeString($shadowid);
-			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
-			if (!$result) {
-				if ($return_null) {
-					// No user found so return NULL cos I was asked too ;)
-					return NULL;
-				} else {
-					// return 'unknown ldap user' when we cannot find a match
-					$data['objectclass'] = Array();
-					$data['dn'] = $shadowid;
-					$user_type = $this->attr('user_type');
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-					$asset = new $user_type($this->id, $data);
-					return $asset; // this should return a dummy
-				}
-			}
-			$data = $ldap->getEntries($result);
-			if (!$data['count']) return $asset;
-
-			$data = $data[0];
-		$ldap->disconnect();
-
-		if (!isset($data['dn']) && isset($data['distinguishedname'])) {
-			$data['dn'] = $data['distinguishedname'];
-		}
-
-		unset($data['objectclass']['count']);
-
-		foreach ($data['objectclass'] as $class) {
-			$class = strtolower($class);
-			if (isset($this->_group_types[$class])) {
-				// an LDAP user group
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
-				$asset = new Ldap_User_Group($this->id, $data);
-				break;
-
-			} else if (isset($this->_user_types[$class])) {
-				// include both assets, in case the type changes
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_backend_user');
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				// LDAP user or LDAP backend user,
-				// depending on the bridge setting
-				$user_type = $this->attr('user_type');
-				$asset = new $user_type($this->id, $data);
-				break;
-			}
-		}
-
-		return $asset;
-
 	}//end getAsset()
+
+	
+	/**
+	* Used by Data_Source::getAsset() to return a dummy asset when it fails to load the data record.
+	* 
+	* @param string	$shadowid		
+	* 
+	* @return mixed object|NULL
+	* @access protected
+	*/
+	protected function _getDummyAsset($shadowid){
+		
+		$record['shadow_asset_name'] = 'Unknown Data Source Record';
+		$record['shadow_asset_id'] = $shadowid;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
+		$asset = new Data_Source_Record_Set($this->id, $record);
+		return $asset;
+		
+	}//end _getDummyAsset()
 
 
 	/**
