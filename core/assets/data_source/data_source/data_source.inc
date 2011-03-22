@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.28 2009/11/27 05:37:14 bpearson Exp $
+* $Id: data_source.inc,v 1.28.8.1 2011/03/22 05:49:48 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -631,18 +631,20 @@ class Data_Source extends Asset implements Bridge
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
+	* @param boolean	$return_null	returns NULL if no data found
 	*
 	* @return object
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
 	{
 		$shadowid = explode(':', $assetid);
 		$shadowid = array_pop($shadowid);
 		$asset = NULL;
 		if (is_null($shadowid)) return $asset;
 		$result = $this->getResultSet();
+
 		if (!empty($result)) {
 			if (isset($result[$shadowid])) {
 				$record = $result[$shadowid];
@@ -651,14 +653,36 @@ class Data_Source extends Asset implements Bridge
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
 				$asset = new Data_Source_Record_Set($this->id, $record);
 			}
+		}
+		
+		if(is_null($asset)) {
+			return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 		} else {
 			return $asset;
 		}
-		return $asset;
 
 	}//end getAsset()
 
-
+	
+	/**
+	* Used by Data_Source::getAsset() to return a dummy asset when it fails to load the data record.
+	* 
+	* @param string	$shadowid		
+	* 
+	* @return mixed object|NULL
+	* @access protected
+	*/
+	protected function _getDummyAsset($shadowid){
+		
+		$record['shadow_asset_name'] = 'Unknown Data Source Record';
+		$record['shadow_asset_id'] = $shadowid;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
+		$asset = new Data_Source_Record_Set($this->id, $record);
+		return $asset;
+		
+	}//end _getDummyAsset()
+	
+	
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
@@ -722,7 +746,52 @@ class Data_Source extends Asset implements Bridge
 
 	}//end getLineageFromURL()
 
+	
+	/**
+	* Delete Asset
+	*
+	* @param boolean	$release_lock	TRUE, to release lock
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock)
+	{
+		if (parent::delete($release_lock)) {
+			$this->_deleteStoredContents();
+			return TRUE;
+		}
 
+		return FALSE;
+
+	}//end delete()
+
+
+	/**
+	* Deletes the contents of the database for this LDAP
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _deleteStoredContents()
+	{
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE :minorid';
+
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'minorid', $this->id.':%');
+		$result = MatrixDAL::execPdoQuery($query);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end _deleteStoredContents()
+	
 }//end class
 
 ?>
