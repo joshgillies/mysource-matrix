@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.7 2010/11/23 00:47:32 akarelia Exp $
+* $Id: http_request.inc,v 1.8 2011/03/22 22:10:22 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -781,6 +781,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			$response['headers'] = $this->_headers;
 			$response['info'] = curl_getinfo($this->_urls_to_request[$key]['handle']);
 			$response['source'] = 'remote';
+
+			// Display/log warning message if request failed
+			if ($response['body'] === FALSE) {
+				trigger_error("cURL request failed: '" . $this->_urls_to_request[$key]['url'] . "': " . curl_error($this->_urls_to_request[$key]['handle']), E_USER_WARNING);
+			}
 
 			// Clean up.
 			curl_close($this->_urls_to_request[$key]['handle']);
