@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.29 2011/03/22 03:12:50 mhaidar Exp $
+* $Id: data_source.inc,v 1.30 2011/03/22 05:37:16 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -674,7 +674,7 @@ class Data_Source extends Asset implements Bridge
 	*/
 	protected function _getDummyAsset($shadowid){
 		
-		$record['shadow_asset_name'] = 'Unknown Data Record';
+		$record['shadow_asset_name'] = 'Unknown Data Source Record';
 		$record['shadow_asset_id'] = $shadowid;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
 		$asset = new Data_Source_Record_Set($this->id, $record);
@@ -746,7 +746,52 @@ class Data_Source extends Asset implements Bridge
 
 	}//end getLineageFromURL()
 
+	
+	/**
+	* Delete Asset
+	*
+	* @param boolean	$release_lock	TRUE, to release lock
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock)
+	{
+		if (parent::delete($release_lock)) {
+			$this->_deleteStoredContents();
+			return TRUE;
+		}
 
+		return FALSE;
+
+	}//end delete()
+
+
+	/**
+	* Deletes the contents of the database for this LDAP
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _deleteStoredContents()
+	{
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE :minorid';
+
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'minorid', $this->id.':%');
+		$result = MatrixDAL::execPdoQuery($query);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end _deleteStoredContents()
+	
 }//end class
 
 ?>
