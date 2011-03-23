@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.137 2010/09/23 04:09:35 mhaidar Exp $
+* $Id: system_config.inc,v 1.137.4.1 2011/03/23 06:27:43 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.137.4.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -183,10 +183,12 @@ class System_Config extends Config
 				}
 
 				if (isset($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
-					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", $vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS']);
-				}
-				else {
-					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = '';
+					if(empty($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
+						$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = '';
+					}
+					else {
+						$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", $vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS']);
+					}
 				}
 
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
@@ -1092,6 +1094,10 @@ class System_Config extends Config
 			$this->configureRoleTables($enabled, $enable_global_roles_setting);
 		}
 
+		if(!isset($_POST['system_config']['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
+			// if not set, it means it should be blanked out
+			$_POST['system_config']['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = '';
+		}
 		return parent::processBackend($o);
 
 	}//end processBackend()
