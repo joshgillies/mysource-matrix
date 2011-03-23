@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.1 2011/03/23 07:05:42 cupreti Exp $
+* $Id: data_source_ldap.inc,v 1.2 2011/03/23 21:59:19 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -127,7 +127,7 @@ class Data_Source_Ldap extends Data_Source
 								);
 					
 					if (!$ldap_bridge->create($create_link)) {
-						trigger_localised_error('DATA0003', E_USER_WARNING);
+						trigger_localised_error('DATA0005', E_USER_WARNING);
 						return NULL;
 					}
 					
@@ -165,7 +165,7 @@ class Data_Source_Ldap extends Data_Source
 		$attrs = Array('ldap_options', 'aliases', 'host', 'port', 'root_dn', 'bind_dn', 'password');
 		
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->ldap_bridge->id, 'attributes')) {
-			trigger_localised_error('DATA0004', E_USER_WARNING, $this->ldap_bridge->id);			
+			trigger_localised_error('DATA0006', E_USER_WARNING, $this->ldap_bridge->id);			
 			return FALSE;
 		}
 		
