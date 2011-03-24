@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.34 2011/03/16 01:47:37 mhaidar Exp $
+* $Id: data_source_graph.inc,v 1.35 2011/03/24 22:28:03 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Data_Source_Graph extends Image
 		if ($this->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $this->id);
 				if (!empty($bad_paths)) {
@@ -181,7 +181,7 @@ class Data_Source_Graph extends Image
 			return FALSE;
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'ContentsUpdated');
 
 		// Now we can call getExistingFile() function
@@ -455,7 +455,7 @@ class Data_Source_Graph extends Image
 		// proper header information
 		$old_err_level = error_reporting(0);
 
-		$graph		=& $this->getNewGraph();
+		$graph		= $this->getNewGraph();
 		$datasets	= $this->attr('datasets');
 
 		$plot_order	= $this->attr('plot_order');
@@ -467,7 +467,7 @@ class Data_Source_Graph extends Image
 			$is_accumulative = intval($dataset['settings']['accumulative']);
 
 			// dataset processing
-			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
+			$data_source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
 			$result = $data_source_asset->getResultSet('default');
 
 			$tmp = 0;
@@ -497,7 +497,7 @@ class Data_Source_Graph extends Image
 							$image_dataset->setName($stack['title']);
 
 							// add each stack dataset
-							$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack['datasource']);
+							$data_source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack['datasource']);
 							$result = $data_source_asset->getResultSet('default');
 							foreach ($result as $record) {
 								$image_dataset->addPoint($record[$stack['x_axis']], intval($record[$stack['y_axis']]));
@@ -595,10 +595,10 @@ class Data_Source_Graph extends Image
 			if ($this->attr('variety_count') > 0) {
 				// Update varieties
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$am = $GLOBALS['SQ_SYSTEM']->am;
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
-					$variety =& $am->getAsset($link['minorid'], 'image_variety');
+					$variety = $am->getAsset($link['minorid'], 'image_variety');
 					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE, FALSE)) {
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
@@ -820,7 +820,7 @@ class Data_Source_Graph extends Image
 
 		// check the cache. If there is no cache or it's expired,
 		// re-generate the image file
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		if ($result === FALSE) $this->updateCache();
@@ -859,7 +859,7 @@ class Data_Source_Graph extends Image
 	*/
 	function updateCache()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		// regenerate the image
 		$this->getFinalGraph(TRUE);
@@ -1033,7 +1033,7 @@ class Data_Source_Graph extends Image
 	*/
 	function morph($new_type_code)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$file_types = array_merge($am->getTypeAncestors($this->type(), FALSE), $am->getTypeDescendants($this->type()));
 
@@ -1172,7 +1172,7 @@ class Data_Source_Graph extends Image
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetids' => Array($this->id));
 				$hh->queueHipo('hipo_job_update_lookups', $vars);
 			}
@@ -1195,7 +1195,7 @@ class Data_Source_Graph extends Image
 	*/
 	function _renameFile($data_path, $old_filename, $new_filename)
 	{
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
