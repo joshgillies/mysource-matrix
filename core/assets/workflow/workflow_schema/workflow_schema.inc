@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.17 2009/11/27 05:39:53 lwright Exp $
+* $Id: workflow_schema.inc,v 1.17.6.1 2011/03/24 23:08:57 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,6 +180,65 @@ class Workflow_Schema extends Folder
 		return TRUE;
 
 	}//end saveWebPaths()
+
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
+	* @param boolean	$check_locked	Check if the link is locked or not
+	*
+	* @return boolean
+	* @access public
+	* @see asset:delete()
+	*/
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
+	{
+		// lets have with us all the assets the schema we are deleteing is applied to
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schema_treeids_sql = 'SELECT
+								assetid, granted, wflow
+								FROM (sq_ast_lnk_tree ta
+									JOIN sq_ast_lnk la ON ta.linkid = la.linkid
+										JOIN sq_ast_wflow wa ON la.minorid = wa.assetid)
+								WHERE wa.schemaid = :schemaid
+								AND NOT EXISTS (
+									SELECT * FROM (sq_ast_lnk_tree tb
+													JOIN sq_ast_lnk lb ON tb.linkid = lb.linkid
+														JOIN sq_ast_wflow wb ON lb.minorid = wb.assetid)
+									WHERE wb.schemaid = wa.schemaid
+									AND length(ta.treeid) - LENGTH(tb.treeid) = :tree_size 
+									AND SUBSTR(ta.treeid, 1, LENGTH(ta.treeid) - :tree_size_1) = tb.treeid
+									AND wa.granted = wb.granted
+									AND wa.cascades = wb.cascades
+								) ORDER BY assetid';
+
+		$query = MatrixDAL::preparePdoQuery($schema_treeids_sql);
+		MatrixDAL::bindValueToPdo($query, 'schemaid', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'tree_size', SQ_CONF_ASSET_TREE_SIZE);
+		MatrixDAL::bindValueToPdo($query, 'tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
+		$results = MatrixDAL::executePdoAssoc($query);
+
+		// guess what? someone is deleting schema even when it might be applied to assets.
+		// lets be smart and remove from the assets where schema is NOT running
+		foreach ($results as $index => $info) {
+			if(empty($info['wflow'])) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$wfm->deleteSchema($info['assetid'], $this->id);
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
+		}
+
+		// we have now removed the db entries removed...all set to delete the schema
+		if(!parent::delete($release_lock, $check_locked)) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end delete()
 
 
 }//end class
