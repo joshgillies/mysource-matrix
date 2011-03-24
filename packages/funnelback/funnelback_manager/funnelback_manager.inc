@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.32.2.2 2011/02/23 23:52:26 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.32.2.3 2011/03/24 02:32:52 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.32.2.2 $
+* @version $Revision: 1.32.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -661,8 +661,8 @@ class Funnelback_Manager extends Asset
 			return FALSE;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
