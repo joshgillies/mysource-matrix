@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: context_config.inc,v 1.9 2010/10/05 05:52:56 mhaidar Exp $
+* $Id: context_config.inc,v 1.9.4.1 2011/03/24 22:41:39 akarelia Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    should be open to it too.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix
 */
 class Context_Config extends Config
@@ -1590,7 +1590,13 @@ class Context_Config extends Config
 					unset($standards_lists_locales[$locale_code]);
 				}			
 			}
+			$overlap = array_intersect($standards_lists_languages, $standards_lists_locales);
 
+			foreach ($overlap as $code => $language) {
+				if(isset($standards_lists_languages[$code])) {
+					$standards_lists_languages[$code] = translate('non_localised_variation', $language);
+				}
+			}
 			$options = $standards_lists_locales + $standards_lists_languages;
 			ksort($options);
 
