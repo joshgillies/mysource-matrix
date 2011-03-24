@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.381.2.3 2011/03/10 23:28:03 akarelia Exp $
+* $Id: lang_strings.xml,v 1.381.2.4 2011/03/24 22:42:31 akarelia Exp $
 *
 */
 
@@ -590,6 +590,7 @@
 	<string source="published_date">Published Date</string>
 	<string source="force_secure">Force Secure</string>
 	<string source="languages">Languages</string>
+	<string source="non_localised_variation">%s (Non-Localised variation)</string>
 	<string source="character_set">Character Set</string>
 	<string source="no_language_set">&lt;i&gt;No languages are currently set for "%s"&lt;/i&gt;</string>
 	<string source="no_character_set">&lt;i&gt;No character set is currently set for "%s"&lt;/i&gt;</string>
