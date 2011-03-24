@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.30.6.1 2011/03/16 05:28:34 cupreti Exp $
+* $Id: parameter_map.inc,v 1.30.6.2 2011/03/24 22:50:06 akarelia Exp $
 *
 */
 
@@ -48,7 +48,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *		*GLOBALS:	Any Super Global variable like GET, POST, SESSION
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30.6.1 $
+* @version $Revision: 1.30.6.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -485,7 +485,13 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if (SQ_IN_LIMBO) {
 					return $_REQUEST['limbo_assetid'];
 				} else {
-					return $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
+					if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset->id) && !empty($GLOBALS['SQ_SYSTEM']->frontend_asset->id)) {
+						return $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
+					} else {
+						$curr_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+						if (!is_null($curr_asset)) return $curr_asset->id;
+						return $default;
+					}
 				}
 			break;
 
