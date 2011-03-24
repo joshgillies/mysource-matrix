@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.10 2010/09/29 23:46:11 cupreti Exp $
+* $Id: export_to_xml.php,v 1.10.2.1 2011/03/24 23:58:08 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix
 */
 
@@ -250,13 +250,33 @@ echo "</actions>\n\n";
 			$assets_done[$asset->id] = TRUE;
 
 			if (!empty($value)) {
+				// if default character set is utf-8 we dont wanna mess around the characters
+				// we are for now just checking for it not to be utf-8 but can append other encoding
+				// we might want to skip later on
+				if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+					$result = '';
+					// escape everything else (chars > 126)
+					for ($i = 0; $i < strlen($value); ++$i) {
+						$ord = ord($value[$i]);
+						if ($ord > 126) {
+							$result .= '&#'.$ord.';';
+						} else {
+							$result .= $value[$i];
+						}
+					}// end for
+
+					if ($result !== '') $value = $result;
+					$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$asset_id_map[$asset_id].'_'.$attr_name."</action_id>\n";
 				echo "   <action_type>set_attribute_value</action_type>\n";
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
 				if ($attr_name == 'html') { $value = _parseValue($value); }
-				echo "   <value><![CDATA[".$value."]]></value>\n";
+
+				echo "   <value><![CDATA["._escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
@@ -554,12 +574,32 @@ echo "</actions>\n\n";
 
 			$metadata = $mm->getMetadata($asset_id, $schema_id);
 			foreach ($metadata as $field_id => $field_info) {
+				$field_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($mm->getFieldAssetIdFromName($asset_id, $field_info[0]['name']));
+				if($field_asset->type() == 'metadata_field_text') {
+					$value = $field_info[0]['value'];
+					if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+						$result = '';
+						// escape everything else (chars > 126)
+						for ($i = 0; $i < strlen($value); ++$i) {
+							$ord = ord($value[$i]);
+							if ($ord > 126) {
+								$result .= '&#'.$ord.';';
+							} else {
+								$result .= $value[$i];
+							}
+						}// end for
+						if ($result !== '') $value = $result;
+						$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+					}
+					$field_info[0]['value']= $value;
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$asset_id_map[$asset_id]."_metadata_field_".$field_id."</action_id>\n";
 				echo "   <action_type>set_metadata_value</action_type>\n";				
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <fieldid>".(isset($asset_id_map[$field_id]) ? "[[output://create_".$asset_id_map[$field_id].".assetid]]" : $field_id)."</fieldid>\n";
-				echo "   <value><![CDATA[".$field_info[0]['value']."]]></value>\n";
+				echo "   <value><![CDATA["._escapeCDATA($field_info[0]['value'])."]]></value>\n";
 				echo "</action>\n\n";
 			} // end foreach metadata
 		} // end foreach schema
@@ -661,5 +701,20 @@ echo "</actions>\n\n";
 	function isSerialized($str) {
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
 	}
+
+
+	/**
+	* If the value string contains CDATA section, escape it
+	*
+	* @param string		$value
+	*
+	* @return string
+	* @access public
+	*/
+	function _escapeCDATA($value)
+	{
+		return preg_replace('|(<\!\[CDATA\[.*?)\]\]\>|ms', '$1]]]]><![CDATA[>', $value);
+	}
+
 
 ?>

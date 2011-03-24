@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.20.12.1 2010/11/22 06:18:14 akarelia Exp $
+* $Id: import.inc,v 1.20.12.2 2011/03/24 23:54:49 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.12.1 $
+* @version $Revision: 1.20.12.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -171,6 +171,27 @@ function execute_import_action($action, &$outputs, $input_values=array())
 		if ($key == 'action_type') continue;
 
 		$value = get_import_action_input_value($action, $key, $outputs, $input_values);
+
+   		if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+			$pattern = '/((&#[0-9]*;))/';
+			preg_match_all($pattern, $value, $matches);
+
+			$matches = $matches[0];
+			$replacement = Array();
+
+			foreach ($matches as $match) {
+				$str = str_replace('&#', '', $match);
+				$str= intval(str_replace(';', '', $str));
+				if ($str > 126) {
+					$new_value = chr($str);
+				} else {
+					$new_value = $match;
+				}
+				$replacement[] = $new_value;
+			}
+			$value = str_replace($matches, $replacement, $value);
+			$value = preg_replace('|<br/>|', chr(13), $value);
+		}
 
 		if ($key == 'asset') {
 			// this is a special case where the value populates
