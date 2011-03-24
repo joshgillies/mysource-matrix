@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.5 2010/09/28 04:59:03 mhaidar Exp $
+* $Id: data_source_ical.inc,v 1.6 2011/03/24 22:26:33 mhaidar Exp $
 *
 */
 
@@ -19,6 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 
 /**
 * Data_Source_iCal
@@ -27,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
