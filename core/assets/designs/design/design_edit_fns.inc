@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.135 2010/03/11 05:16:05 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.135.6.1 2011/03/24 02:57:54 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.135.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -215,7 +215,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-line; width: 99%; height: 480px"');
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-wrap; width: 99%; height: 480px"');
 			return TRUE;
 		} else {
 			// FR #2381 - Colour coding the parse file

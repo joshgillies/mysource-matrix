@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: xsl_file_edit_fns.inc,v 1.1 2010/03/30 03:35:41 bpearson Exp $
+* $Id: xsl_file_edit_fns.inc,v 1.1.6.1 2011/03/24 02:57:55 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 * XSL_File_Edit_Fns
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Xsl_File_Edit_Fns extends File_Edit_Fns
 		}
 
 		if ($asset->writeAccess('attributes')) {
-			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre; width: 99%; height: 480px"');
+			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-wrap; width: 99%; height: 480px"');
 			return TRUE;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';
