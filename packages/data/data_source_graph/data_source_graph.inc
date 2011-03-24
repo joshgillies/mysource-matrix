@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.32 2010/07/15 05:33:38 csmith Exp $
+* $Id: data_source_graph.inc,v 1.32.4.1 2011/03/24 22:29:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Data_Source_Graph extends Image
 		$info = Array(
 					'name'		=> $name.'.png',
 					'type'		=> 'image/png',
-					'path'		=> SQ_DATA_PATH.'/temp',
+					'path'		=> SQ_DATA_PATH.'/temp/'.$name.'.png',
 					'filename'	=> $name.'.png',
 				);
 		$this->_tmp['file_create_data'] = &$info;
@@ -106,9 +106,9 @@ class Data_Source_Graph extends Image
 		$this->setAttrValue('name', $name);
 
 		if (Asset::create($link)) {
-			return unlink($info['path'].'/'.$info['filename']);
+			return unlink($info['path']);
 		} else {
-			unlink($info['path'].'/'.$info['filename']);
+			unlink($info['path']);
 			return FALSE;
 		}
 
@@ -143,7 +143,7 @@ class Data_Source_Graph extends Image
 		if ($this->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $this->id);
 				if (!empty($bad_paths)) {
@@ -157,7 +157,7 @@ class Data_Source_Graph extends Image
 		create_directory($this->data_path);
 
 		// copy over the new uploaded file
-		if (!copy($info['path'].'/'.$info['name'], $this->data_path.'/'.$name)) {
+		if (!copy($info['path'], $this->data_path.'/'.$name)) {
 			trigger_localised_error('CORE0036', E_USER_WARNING, $info['name'], $this->data_path.'/'.$name);
 			return FALSE;
 		}
@@ -181,7 +181,7 @@ class Data_Source_Graph extends Image
 			return FALSE;
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'ContentsUpdated');
 
 		// Now we can call getExistingFile() function
@@ -344,7 +344,7 @@ class Data_Source_Graph extends Image
 
 		$width	= $this->attr('width');
 		$height	= $this->attr('height');
-		$graph	= &Image_Graph::factory('graph', Array((int) $width, (int) $height));
+		$graph	= Image_Graph::factory('graph', Array((int) $width, (int) $height));
 		$title = $this->attr('show_graph_title') ? $this->attr('title') : '';
 		if ($this->attr('show_legend')) {
 			$graph_ratio = 90;
@@ -455,7 +455,7 @@ class Data_Source_Graph extends Image
 		// proper header information
 		$old_err_level = error_reporting(0);
 
-		$graph		=& $this->getNewGraph();
+		$graph		= $this->getNewGraph();
 		$datasets	= $this->attr('datasets');
 
 		$plot_order	= $this->attr('plot_order');
@@ -467,11 +467,11 @@ class Data_Source_Graph extends Image
 			$is_accumulative = intval($dataset['settings']['accumulative']);
 
 			// dataset processing
-			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
+			$data_source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
 			$result = $data_source_asset->getResultSet('default');
 
 			$tmp = 0;
-			$image_dataset =& Image_Graph::factory('dataset');
+			$image_dataset = Image_Graph::factory('dataset');
 			foreach ($result as $record) {
 				if ($is_accumulative) {
 					$tmp += intval($record[$y_axis_name]);
@@ -493,11 +493,11 @@ class Data_Source_Graph extends Image
 						$multiple_dataset[] = $image_dataset;
 
 						foreach ($dataset['settings']['stacked_data'] as $stack) {
-							$image_dataset =& Image_Graph::factory('dataset');
+							$image_dataset = Image_Graph::factory('dataset');
 							$image_dataset->setName($stack['title']);
 
 							// add each stack dataset
-							$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack['datasource']);
+							$data_source_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack['datasource']);
 							$result = $data_source_asset->getResultSet('default');
 							foreach ($result as $record) {
 								$image_dataset->addPoint($record[$stack['x_axis']], intval($record[$stack['y_axis']]));
@@ -532,7 +532,7 @@ class Data_Source_Graph extends Image
 				$plot->setTitle($dataset['settings']['plot_name']);
 			}
 
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			if ($dataset['settings']['gradient_type'] != 'none') {
 				// gradient colour
 				$grad_type = $this->getGradType($dataset['settings']['gradient_type']);
@@ -595,10 +595,10 @@ class Data_Source_Graph extends Image
 			if ($this->attr('variety_count') > 0) {
 				// Update varieties
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$am = $GLOBALS['SQ_SYSTEM']->am;
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
-					$variety =& $am->getAsset($link['minorid'], 'image_variety');
+					$variety = $am->getAsset($link['minorid'], 'image_variety');
 					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE, FALSE)) {
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
@@ -655,19 +655,19 @@ class Data_Source_Graph extends Image
 		require_once 'Image/Graph.php';
 		$global_settings = $this->attr('global_settings');
 
-		$graph =& $this->getNewGraph();
-		$sample_dataset = &Image_Graph::factory('random', Array(10, 2, 15, TRUE));
+		$graph = $this->getNewGraph();
+		$sample_dataset = Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
 		// plot settings
 		$plot =& $this->plotarea->addNew($graph_info['settings']['graph_type'], Array(&$sample_dataset));
 		if ($graph_info['settings']['gradient_type'] != 'none') {
 			// gradient colour
 			$grad_type = $this->getGradType($graph_info['settings']['gradient_type']);
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			$fill->addNew('gradient', Array($grad_type, '#'.$graph_info['settings']['gradient_1'], '#'.$graph_info['settings']['gradient_2']));
 		} else {
 			// fill colour
-			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			$fill = Image_Graph::factory('Image_Graph_Fill_Array');
 			$fill->addColor('#'.$graph_info['settings']['fill_colour']);
 		}
 		$plot->setFillStyle($fill);
@@ -727,10 +727,10 @@ class Data_Source_Graph extends Image
 		// proper header information
 		$old_err_level = error_reporting(0);
 
-		$graph =& $this->getNewGraph();
-		$sample_dataset =& Image_Graph::factory('random', Array(10, 2, 15, TRUE));
+		$graph = $this->getNewGraph();
+		$sample_dataset = Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
-		$plot =& $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
+		$plot = $this->plotarea->addNew('Image_Graph_Plot_Bar', Array(&$sample_dataset));
 
 		if ($to_file) {
 			if (empty($this->_tmp['graph_file_name'])) {
@@ -820,7 +820,7 @@ class Data_Source_Graph extends Image
 
 		// check the cache. If there is no cache or it's expired,
 		// re-generate the image file
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		if ($result === FALSE) $this->updateCache();
@@ -859,7 +859,7 @@ class Data_Source_Graph extends Image
 	*/
 	function updateCache()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		// regenerate the image
 		$this->getFinalGraph(TRUE);
@@ -1033,7 +1033,7 @@ class Data_Source_Graph extends Image
 	*/
 	function morph($new_type_code)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$file_types = array_merge($am->getTypeAncestors($this->type(), FALSE), $am->getTypeDescendants($this->type()));
 
@@ -1172,7 +1172,7 @@ class Data_Source_Graph extends Image
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetids' => Array($this->id));
 				$hh->queueHipo('hipo_job_update_lookups', $vars);
 			}
@@ -1195,7 +1195,7 @@ class Data_Source_Graph extends Image
 	*/
 	function _renameFile($data_path, $old_filename, $new_filename)
 	{
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
