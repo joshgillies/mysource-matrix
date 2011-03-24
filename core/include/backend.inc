@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.198.2.1 2010/11/26 03:14:28 akarelia Exp $
+* $Id: backend.inc,v 1.198.2.2 2011/03/24 22:03:58 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.198.2.1 $
+* @version $Revision: 1.198.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1428,15 +1428,27 @@ class Backend extends MySource_Object
 		if (empty($_REQUEST['ignore_frames'])) {
 			// if hide_frames and limbo_assetid are set, pass the parameter
 			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&' : '';
-			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&' : '';
+			if(SQ_IN_LIMBO) {
+				$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&' : '';
+			} else if (SQ_IN_BACKEND) {
+				$limbo_assetid = (isset($_GET['assetid'])) ? 'assetid='.$_GET['assetid'].'&' : '';
+			}
+
 			// if the user enter the ei screen manually, we need to print the frames as well
 			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'] : '';
 			if (SQ_IN_LIMBO) {
 				$asset_ei_screen .= '&SQ_BACKEND_PAGE=frames';
 			}
 			$extra = '/?'.$hide_frames.$limbo_assetid.$asset_ei_screen;
+
+			if(isset($_GET['backend_section'])) $extra .= '&backend_section='.$_GET['backend_section'];
+
+			if(isset($_GET['am_section'])) $extra .= '&am_section='.$_GET['am_section'];
+
+			if(isset($_GET['backend_section'])) $extra .= '&backend_section='.$_GET['backend_section'];
+
 			$redirect_url = strip_url(current_url()).$extra;
-			// bug fix : #4831 	While in Rollback mode Asset Map is hidden 
+			// bug fix : #4831  While in Rollback mode Asset Map is hidden
 			// if we are in backend we dont need to worry about hiding frames
 			if (!SQ_DESIGN_NO_FRAME || strpos($redirect_url ,SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
 				$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
