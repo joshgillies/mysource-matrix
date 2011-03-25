@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.160 2011/03/17 00:54:31 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.161 2011/03/25 05:35:39 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1998,6 +1998,7 @@ class Workflow_Manager extends MySource_Object
 
 
 		if ($workflow['current_step'] == Array()) {
+			if ($this->silentWorkflowParty($asset->id)) return TRUE;
 			// We can't complete workflow by escalating
 			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
 			$href = str_replace('./', '', current($hrefs));
