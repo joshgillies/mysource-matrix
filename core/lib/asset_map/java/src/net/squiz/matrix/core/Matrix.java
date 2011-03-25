@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.6 2006/12/05 05:26:36 bcaldwell Exp $
+* $Id: Matrix.java,v 1.6.20.1 2011/03/25 05:55:02 ewang Exp $
 *
 */
 
@@ -119,43 +119,49 @@ public class Matrix {
 	 */
 	public static Document doRequest(String xml) throws IOException {
 
-		URLConnection conn = null;
-		URL execURL = null;
-		try {
-			String basePath = getProperty("parameter.url.baseurl");
-			String execPath = basePath + getProperty("parameter.backendsuffix")
-			+ "/?SQ_ACTION=asset_map_request&SESSION_ID="
-			+ getProperty("parameter.sessionid") + "&SESSION_KEY=" + getProperty("parameter.sessionkey");
-			execURL = new URL(execPath);
-		} catch (MalformedURLException mue) {
-			mue.printStackTrace();
-		}
+		final String myxml = xml;
+		// Use provileged mode when making request to asset_map.inc because jsToJavaCall() fails on default security policy
+		URLConnection conn =  AccessController.doPrivileged(
+				new PrivilegedAction<URLConnection>() {
+					public URLConnection run() {
+						URL execURL = null;
+						URLConnection conn = null;
+						try {
+								String basePath = getProperty("parameter.url.baseurl");
+								String execPath = basePath + getProperty("parameter.backendsuffix")
+								+ "/?SQ_ACTION=asset_map_request&SESSION_ID="
+								+ getProperty("parameter.sessionid") + "&SESSION_KEY=" + getProperty("parameter.sessionkey");
+								execURL = new URL(execPath);
+						} catch (MalformedURLException mue) {
+								mue.printStackTrace(); 
+						}       
+		                
+						try {
+								conn = execURL.openConnection();
+								conn.setUseCaches(false);
+								conn.setDoOutput(true);
 
-		try {
-			conn = execURL.openConnection();
-			conn.setUseCaches(false);
-			conn.setDoOutput(true);
+								ByteArrayOutputStream byteStream = new ByteArrayOutputStream(512);
+								PrintWriter out = new PrintWriter(byteStream, true);
+								out.print(myxml);
+								out.flush();
 
-			ByteArrayOutputStream byteStream = new ByteArrayOutputStream(512);
-			PrintWriter out = new PrintWriter(byteStream, true);
-			out.print(xml);
-			out.flush();
+								conn.setRequestProperty("Content-Length", String.valueOf(byteStream.size()));
+								conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+								conn.setRequestProperty("Cache-Control", "no-store, no-cache, " +
+												"must-revalidate, post-check=0, pre-check=0");
 
-			conn.setRequestProperty("Content-Length", String.valueOf(byteStream.size()));
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Cache-Control", "no-store, no-cache, " +
-					"must-revalidate, post-check=0, pre-check=0");
+								byteStream.writeTo(conn.getOutputStream());
 
-			byteStream.writeTo(conn.getOutputStream());
-		} catch (IOException ioe) {
-			throw new IOException("error while getting request connection : " + ioe.getMessage());
-		} catch (AccessControlException ace) {
-			Permission perm = ace.getPermission();
-			throw new AccessControlException("Permission Exception while " +
-					"connecting to '" + perm.getName() + "' " + perm.toString()
-					+ ". The Following Actions could not Performed: " + perm.getActions());
-		}
-
+						} catch (IOException ioe) {
+		                		//throw new IOException("error while getting request connection : " + ioe.getMessage());
+		                		ioe.printStackTrace();
+						}
+						return conn;
+					
+					}}
+		);
+		
 		Document document = null;
 		DocumentBuilder builder = null;
 
