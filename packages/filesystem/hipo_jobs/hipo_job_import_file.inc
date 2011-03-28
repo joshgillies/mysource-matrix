@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_file.inc,v 1.2 2010/03/30 00:44:14 bpearson Exp $
+* $Id: hipo_job_import_file.inc,v 1.3 2011/03/28 07:51:43 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage file
 */
@@ -233,6 +233,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 			}//end if
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_assetids'] = Array();
+			
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
 			unset($asset);
 		}//end foreach
@@ -274,10 +275,9 @@ class HIPO_Job_Import_File extends HIPO_Job
 
 		}//end if
 
-		$allowable_file_types = Array('physical_file', 'physical_folder');
+		$allowable_file_types = Array('physical_file', 'physical_folder', 'file_bridge');
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
-
+			
 			// get next asset to import
 			$array_keys = array_keys($this->_running_vars['todo_assetids']);
 			$assetid = array_shift($array_keys);
@@ -285,20 +285,24 @@ class HIPO_Job_Import_File extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['parent_assetid']);
 
-			if (!is_null($parent) && !is_null($asset) && in_array(strtolower($asset->type()), $allowable_file_types)) {
+			if (!is_null($parent) && !is_null($asset) && in_array(strtolower($asset->type()), $allowable_file_types) && (!$this->_running_vars['index_file'] || $asset->name != 'index.html')) {
 				if (strtolower($asset->type()) == 'physical_file') {
 					$step_data['message'] = translate('file_importing_file', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+					$file_path = $asset->getFilePath();
+					$file_asset_type = $this->_getFileAssetType($file_path);
+
 					// Import file
 					$temp_info = Array(
 									'name'				=> $asset->name,
-									'tmp_name'			=> $asset->getFilePath(),
+									'tmp_name'			=> $file_path,
 									'non_uploaded_file' => TRUE,
 								 );
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-					$new = new File();
+
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($file_asset_type);
+					$new = new $file_asset_type();
 					$new->_tmp['uploading_file'] = TRUE;
 					$new->setAttrValue('name', $asset->name);
 					$new->setAttrValue('allow_unrestricted', FALSE);
@@ -319,19 +323,73 @@ class HIPO_Job_Import_File extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-					// Import folder
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-					$new = new Folder();
-					$new->setAttrValue('name', $asset->name);
-					$link = Array(
-								'asset'			=> &$parent,
-								'link_type'		=> SQ_LINK_TYPE_1,
-								'link_value'	=> '',
-								'sort_order'	=> 0,
-								'is_exclusive'	=> FALSE,
-								'is_dependant'	=> FALSE,
-							);
-					$created = $new->create($link);
+					// If the folder has "index.html" file,
+					// all other files in the folder should be listed underneath the file
+					$index_file = FALSE;
+					if ($this->_running_vars['index_file']) {
+						$folders_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+						$index_file_id = isset($folders_children[$asset->id.'/index.html']) ? $asset->id.'/index.html' : FALSE;
+						if ($index_file_id) {
+							$index_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($index_file_id);
+						}
+					}
+					if ($index_file && $index_file->type() == 'physical_file') {
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_standard');
+						$new = new Page_Standard();
+						$new->setAttrValue('name', $index_file->name);
+						$link = Array(
+									'asset'			=> &$parent,
+									'link_type'		=> SQ_LINK_TYPE_1,
+									'link_value'	=> '',
+									'sort_order'	=> 0,
+									'is_exclusive'	=> FALSE,
+									'is_dependant'	=> FALSE,
+								);
+						$created = $new->create($link);
+						// Save file's contnet into standard page
+						$file_path = $index_file->getFilePath();
+						$file_contents = file_get_contents($file_path);
+						if (!empty($file_contents)) {
+							
+							$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($new->id+2);
+							$wysiwyg_content = $GLOBALS['SQ_SYSTEM']->am->getAsset($new->id+3);
+
+							if (!is_null($bodycopy_div) && !is_null($wysiwyg_content)) {
+								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+									$wysiwyg_content->setContent($file_contents);
+									$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
+									$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
+									$new->saveAttributes();
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_div, TRUE);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg_content, TRUE);
+								unset($bodycopy_div);
+								unset($wysiwyg_contnet);
+								unset($bodycopy_div_edit_fns);
+								unset($file_contents);
+							}//end if
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy, TRUE);
+							unset($bodycopy);
+						}//end if
+
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($index_file, TRUE);
+						unset($index_file);
+					} else {
+						// Import folder
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+						$new = new Folder();
+						$new->setAttrValue('name', $asset->name);
+						$link = Array(
+									'asset'			=> &$parent,
+									'link_type'		=> SQ_LINK_TYPE_1,
+									'link_value'	=> '',
+									'sort_order'	=> 0,
+									'is_exclusive'	=> FALSE,
+									'is_dependant'	=> FALSE,
+								);
+						$created = $new->create($link);
+					}
 
 					if ($created && $this->_running_vars['recursive']) {
 						if ($code_name = $this->spawnDependantImportFileHipo($asset->id, $new->id)) {
@@ -387,6 +445,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 							'parent_assetid'		=> $parentid,
 							'process_dependants'	=> $assetid.'-'.$parentid,
 							'recursive'				=> TRUE,
+							'index_file'			=> $this->_running_vars['index_file'],
 						);
 
 		$init_hipo->setRunningVars($running_vars);
@@ -401,6 +460,117 @@ class HIPO_Job_Import_File extends HIPO_Job
 		return FALSE;
 
 	}//end spawnDependantImportFileHipo()
+
+
+	/**
+	* Returns the file asset type name based on given file's extension
+	*
+	* @param string $filename
+	*
+	* @return string
+	* @access private
+	*/
+	function _getFileAssetType($filename)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$extension = get_file_type($filename);
+		
+		switch($extension) {
+			case 'css':
+				$type = 'CSS_File';
+			break;
+
+			case 'xls':
+			case 'xlt':
+			case 'xlsx':
+			case 'xlsm':
+			case 'xltx':
+			case 'xltm':
+				$type = 'Excel_Doc';
+			break;
+
+			case 'flv':
+				$type = 'FLV_File';
+			break;
+
+			case 'mp3':
+				$type = 'MP3_File';
+			break;
+
+			case 'ppt':
+			case 'pot':
+			case 'pps':
+			case 'pptx':
+			case 'potx':
+			case 'ppsx':
+			case 'pptm':
+			case 'potm':
+			case 'ppsm':
+				$type = 'Powerpoint_Doc';
+			break;
+
+			case 'txt':
+				$type ='Text_file';
+			break;
+
+			case 'mov':
+			case 'avi':
+			case 'wmv':
+			case 'asf':
+			case 'flv':
+			case 'mp4':
+			case 'm4v':
+			case 'mpg':
+			case 'mpeg':
+			case 'ogv':
+			case 'ogg':
+				$type = 'Video_File';
+			break;
+
+			case 'xml':
+				$type = 'Xml_File';
+			break;
+
+			case 'gif':
+			case 'jpg':
+			case 'jpeg':
+			case 'png':
+				$type = 'Image';
+			break;
+
+			case 'js':
+				$type = 'JS_File';
+			break;
+
+			case 'pdf':
+				$type = 'PDF_File';
+			break;
+
+			case 'rtf':
+				$type =' Rtf_File';
+			break;
+
+			case 'doc':
+			case 'dot':
+			case 'docx':
+			case 'docm':
+			case 'dotx':
+			case 'dotm':
+				$type = 'Word_Doc';
+			break;
+
+			case 'xsl':
+				$type = 'Xsl_File';
+			break;
+
+			default:
+				$type = 'File';
+			break;
+
+		}//end switch
+
+		return $type;
+	}//end _getFileAssetType
 
 
 }//end class

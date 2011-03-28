@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files_from_bridge.php,v 1.2 2011/03/24 03:47:00 ewang Exp $
+* $Id: import_files_from_bridge.php,v 1.3 2011/03/28 07:51:43 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * Usage: php import_files_from_bridge.php matrix_root bridge_id parent_id recursive [y/n]
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package file
 */
 error_reporting(E_ALL);
@@ -54,6 +54,9 @@ if (empty($parent_id) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($parent_id)) {
 
 $recursive = (isset($_SERVER['argv'][4]) && strtolower($_SERVER['argv'][4]) == 'y') ? TRUE : FALSE;
 
+// Whether to import "index.html" file as a Standard Page asset
+$index_file = (isset($_SERVER['argv'][5]) && strtolower($_SERVER['argv'][5]) == 'y') ? TRUE : FALSE;
+
 echo 'START IMPORTING'."\n";
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -62,6 +65,7 @@ $vars = Array (
 				'root_assetid'      => Array($root_node),
 				'parent_assetid'	=> $parent_id,
 				'recursive'			=> $recursive,
+				'index_file'		=> $index_file,
 			);
 $errors = $hh->freestyleHipo('hipo_job_import_file', $vars, SQ_PACKAGES_PATH.'/filesystem/hipo_jobs');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -70,7 +74,7 @@ echo 'FINISHED';
 if (!empty($errors)) {
 	echo '... with errors'."\n";
 	foreach ($errors as $error) {
-		echo $error."\n";
+		echo is_array($error) ? implode($error,"\n")."\n" : $error."\n";
 	}//end foreach
 }//end if
 echo "\n";
