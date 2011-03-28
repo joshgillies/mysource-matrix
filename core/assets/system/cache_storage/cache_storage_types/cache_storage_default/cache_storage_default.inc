@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.5 2010/03/29 03:37:38 lwright Exp $
+ * $Id: cache_storage_default.inc,v 1.6 2011/03/28 23:59:39 akarelia Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -274,6 +274,7 @@ class Cache_Storage_Default extends Cache_Storage
 		$paths = MatrixDAL::executeAssoc('cache_storage_default', 'selectExpiredEntryPaths', 0, $bind_vars);
 
 		$paths_removed = Array();
+		unset($bind_vars);
 
 		foreach ($paths as $path) {
 			$cache_file = SQ_CACHE_PATH.'/'.$path;
@@ -285,6 +286,7 @@ class Cache_Storage_Default extends Cache_Storage
 					trigger_error('Unable to remove expired cache file "'.$cache_file.'"', E_USER_WARNING);
 				}
 			}
+			unset($cache_file);
 		}
 
 		// Delete the paths that we were able to remove
@@ -293,6 +295,8 @@ class Cache_Storage_Default extends Cache_Storage
 		foreach (array_chunk($paths_removed, 999) as $chunk) {
 			$bind_vars = Array('paths'	=> $chunk);
 			MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
+			$paths_removed = array_diff($paths_removed, $chunk);
+			unset($chunk);
 		}
 		return TRUE;
 
