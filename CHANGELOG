@@ -1,5 +1,93 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.2.1
+
+Featured Changes
+===================================
+
+
+Currency Sign Option on the Ecommerce Form Page [ Feature Request #4997 ]
+-----------------------------------------------------
+
+This feature introduces a new Currency Sign option for the Ecommerce Form Page, allowing you to set the currency sign used on the ecom form. This option is set via a new field on the Display Formatting screen of the asset.
+
+Previously, to change the currency type of an Ecommerce Form (for example, from Dollars to Pounds), users would be required to modify the sign on each individual format where it was used. This feature makes changing the currency type of the ecom form much more accessible, by reducing this process to a single step.
+
+The value entered into the Currency Sign field is referenced through a new %currency_sign% keyword replacement, which is used on the format of keyword replacements like %form_summary%. This new keyword replacement is also used on the default Individual Asset Format and Item Format attributes on the Display Formatting screen. Modifying the value in the Currency Sign field will amend all instances of the currency sign on the Ecommerce Form Page. 
+
+New Trigger Action to Delete an Image Variety [ Feature Request #5011 ]
+-----------------------------------------------------
+
+A new trigger action has been added to Squiz Matrix, allowing you to delete either a single image variety or all varieties under a specified image asset. This image asset can be configured via the interface of the trigger action or specified as the asset that fired the trigger.
+
+The Delete Image Variety trigger action allows you to enter the name of the variety to delete or select to delete all varieties. The trigger action also provides parameter configuration to dynamically source the variety to delete.
+
+New Data Source Asset for LDAP Search [ Feature Request #5021 ]
+-----------------------------------------------------
+
+The new LDAP Datasource asset allows user to search the LDAP entry based on the given attributes.
+
+For a given search filter query, the result is outputted as the datasource's record sets.
+
+Also, the asset has dynamic parameters functionality, which means user will be able to supply the values to the serach filter query via dyanamic variables, for example in search filter query "(&(uid=%%var1%%)(ou=%%var2%%))", "var1" and "var2" are dynamic variables.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #4976: SOAP JS API's Send Function Now Supports Function Declared Variable
+Minor Enhancement #4991: Asset ID Remaps Allows Appended Query Strings
+Minor Enhancement #5009: New Keyword to Print the Binary Contents of a File Asset
+Minor Enhancement #5010: Automatic Upgrade Script Enhancement: Fix Permissions Runs Just Once
+Minor Enhancement #5017: Rest Assets: Curl Error Logging on http_request Attribute
+
+
+Core
+
+Fixed Bug #4972: Languages appearing twice in the Accept-Language request header condition.
+Fixed Bug #4978: Perf: Specific cache management settings using getParents.
+Fixed Bug #4982: Old shadow links break asset map.
+Fixed Bug #4983: Remove Web Path trigger action failure.
+Fixed Bug #4985: Metadata field in schema with %metadata_field_X% as default value can throw PHP notices when cascaded to newly created asset.
+Fixed Bug #4986: Simple Edit User doesn't get Workflow emails initiated via EES.
+Fixed Bug #4987: Send Email trigger action does not preserve current asset attribute when rendering an asset to send.
+Fixed Bug #4992: Display duplicate page contents when error occurred in SOAP Submission Action and Confirmation Page is enabled.
+Fixed Bug #4993: JS API createFileAsset for Image file type fails due to new security patch.
+Fixed Bug #4999: Insert DIV pop-up cosmetic problem in IE6/8.
+Fixed Bug #5001: Asset Map binoculars seem to sometimes break with latest Java update(s).
+Fixed Bug #5005: Parameter map value for parameter source for asset and current_user is returned by reference.
+Fixed Bug #5007: Matrix text area css value white-space: pre-line causes issues in web kit browsers.
+Fixed Bug #5013: Opening links from the admin area in a new tab redirects to the wrong location.
+Fixed Bug #5015: Clear Squiz Cache trigger action should not repopulate.
+Fixed Bug #5016: Runlevel not restored in a few places in Matrix.
+Fixed Bug #5022: Run step3 resets the SQ_CONF_FORCE_SECURE_LOGIN_URLS to blank.
+Fixed Bug #5027: Import/Export script breaks on non utf-8 characters.
+Fixed Bug #5028: Stale Workflow Step emails sent to dependant assets with no workflow screen.
+
+
+LDAP
+
+Fixed Bug #4981: Group Members setting does not work for an LDAP User with parentheses in DN.
+
+Data
+
+Fixed Bug #4984: Cannot attach a Thumbnail to a Data Source asset.
+Fixed Bug #4995: Cannot create a Data Source Graph.
+
+Squid
+
+Fixed Bug #5004: Squid Clear Cache tool has a PHP4 reference in it.
+
+TRIM
+
+Fixed Bug #4988: TRIM Saved Search serves old versions of file attachment.
+
+Funnelback Package
+
+Fixed Bug #5019: Language string in Display Options appears blank on a Funnelback Search Page.
+
 
 VERSION 4.2.0
 
