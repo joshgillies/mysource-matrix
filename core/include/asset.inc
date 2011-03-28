@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.744 2011/03/27 23:28:55 akarelia Exp $
+* $Id: asset.inc,v 1.745 2011/03/28 00:14:10 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.744 $
+* @version $Revision: 1.745 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3708,15 +3708,15 @@ class Asset extends MySource_Object
 	protected function _getKeywordReplacement($keyword)
 	{	
 		if (empty($keyword)) return '';
-		
-		if (0 === strpos($keyword, 'globals_')) {
+
+		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
 			return "%$keyword%";
 		}
-		
+
 		// Remove any modifiers from keyword, and keep them for later.
 		$keyword = parse_keyword($keyword, $modifiers);
 		$contextid = extract_context_modifier($modifiers);
-		
+
 		if ($contextid !== NULL) {
 			// If we were able to extract a context ID to change to, and it's
 			// different to our current one, then change and then reload a copy
@@ -3965,72 +3965,6 @@ class Asset extends MySource_Object
 				$replacement = implode(', ', $asset_names);
 			}
 			
-		} else if (0 === strpos($keyword, 'asset_contents')) {
-			// allowed keywords are
-			// %globals_asset_contents:xx%					<= paint asset with current paint layout if there is any
-			// %globals_asset_contents_raw:xx%				<= paint asset without layout
-			// %globals_asset_contents_paint_ASSETID:xx%	<= paint asset with a specified layout id
-			// %globals_asset_contents_paint_NAME:xx%		<= paint asset with a specified layout name
-			$this_url = preg_replace('/htt[p|ps]:\/\//', '', $this->getURL());
-			if (0 === strpos($keyword, 'asset_contents_raw')) {
-
-				ob_start();
-					// get the pront end of the asset but dont worry abt any errors here
-					$this->printBody();
-					$content = ob_get_contents();
-				ob_end_clean();
-				$replacement = $content;
-
-			} else if ($keyword == 'asset_contents') {
-
-				// get the front end of the asset
-				$this_paint_layout = $this->getCurrentPaintLayoutName();
-				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
-				ob_start();
-					if (!$layout_id) {
-						$this->printBodyWithPaintLayout();
-					} else {
-						$this->printBodyWithPaintLayout($layout_id);
-					}
-					$content = ob_get_contents();
-				ob_end_clean();
-				$replacement = $content;
-
-			} else if (0 === strpos ($keyword, 'asset_contents_paint_layout_id')) {
-
-				$layout_id = str_replace('asset_contents_paint_layout_id_', '', $keyword);
-				ob_start();
-					if (!$layout_id) {
-						$this->printBodyWithPaintLayout();
-					} else {
-						$this->printBodyWithPaintLayout($layout_id);
-					}
-					$content = ob_get_contents();
-				ob_end_clean();
-				$replacement = $content;
-
-			} else if (0 === strpos ($keyword, 'asset_contents_paint_layout_name')) {
-
-				$layout_name = str_replace('asset_contents_paint_layout_name_', '', $keyword);
-
-				// if user has not mentioned if it is a user defined or default frontend
-				// assume it is user defined
-				if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
-					$layout_name = 'paint_layout::user::'.$layout_name;
-				}
-				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
-				ob_start();
-					if (!$layout_id) {
-						$this->printBodyWithPaintLayout();
-					} else {
-						$this->printBodyWithPaintLayout($layout_id);
-					}
-					$content = ob_get_contents();
-				ob_end_clean();
-				$replacement = $content;
-
-			}
-
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
