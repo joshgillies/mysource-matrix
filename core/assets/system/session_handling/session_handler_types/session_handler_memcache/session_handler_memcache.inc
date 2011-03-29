@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.5 2010/12/07 03:41:02 mhaidar Exp $
+* $Id: session_handler_memcache.inc,v 1.6 2011/03/29 05:33:36 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.5 $
+* @version    $Revision: 1.6 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -111,11 +111,13 @@ class Session_Handler_Memcache extends Session_Handler
 		// Session cookies cannot have a port in the domain.
 		$domain = preg_replace('|:\d+$|', '', $domain);
 
+		$secure = FALSE;
+		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
 		// Now, set to the 'memcache' module and set the
 		// appropriate save path (ie. the connection string to thee
 		// memcached server).
 		session_name('SQ_SYSTEM_SESSION');
-		session_set_cookie_params(0, $path, $domain);
+		session_set_cookie_params(0, $path, $domain, $secure, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
 		session_module_name('memcache');
 
 		session_save_path($host_str);
