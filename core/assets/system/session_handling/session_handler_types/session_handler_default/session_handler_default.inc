@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.5 2011/03/29 05:33:36 akarelia Exp $
+* $Id: session_handler_default.inc,v 1.6 2011/03/29 21:53:10 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.5 $
+* @version    $Revision: 1.6 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -74,10 +74,13 @@ class Session_Handler_Default extends Session_Handler
 
 		$secure = FALSE;
 		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
+
+		$http_only = FALSE;
+		if (version_compare(PHP_VERSION, '5.2.0') >= 0 && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
 		// Now, set to the default 'files' module and set the
 		// appropriate cookie parameters.
 		session_module_name('files');
-		session_set_cookie_params(0, $path, $domain, $secure, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
+		session_set_cookie_params(0, $path, $domain, $secure, $http_only);
 		session_name('SQ_SYSTEM_SESSION');
 
 		// If this config setting is ON, then we use the save path
