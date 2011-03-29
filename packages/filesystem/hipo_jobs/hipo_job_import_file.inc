@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_file.inc,v 1.3 2011/03/28 07:51:43 cupreti Exp $
+* $Id: hipo_job_import_file.inc,v 1.4 2011/03/29 06:41:58 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage file
 */
@@ -118,11 +118,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		$running_dependants = '';
-		if (!empty($this->_running_vars['process_dependants'])) {
-			$running_dependants = $this->_running_vars['process_dependants'];
-		}
-		return parent::getCodeName().'-'.implode(',', $this->_running_vars['root_assetid']).$running_dependants;
+		return parent::getCodeName().'-'.uniqid();
 
 	}//end getCodeName()
 
