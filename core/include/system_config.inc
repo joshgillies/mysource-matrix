@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.138 2011/03/23 06:26:53 ewang Exp $
+* $Id: system_config.inc,v 1.139 2011/03/29 05:31:08 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -108,6 +108,8 @@ class System_Config extends Config
 						'SQ_CONF_FORCE_LOWERCASE_USERNAME'		=> Array('editable' => 0, 'default' => FALSE),
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 	/**
@@ -974,8 +976,30 @@ class System_Config extends Config
 					}
 				}
 			$o->closeField();
+
+			$o->openField(translate('http_header_cookie_http_only_field_name'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_COOKIE_OPTION_HTTP_ONLY]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_COOKIE_OPTION_HTTP_ONLY);
+				} else {	
+					echo (SQ_CONF_COOKIE_OPTION_HTTP_ONLY) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_cookie_http_only_note'));
 			
+			$o->closeField();
+
+			$o->openField(translate('http_header_cookie_secure_option_field_name'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_COOKIE_OPTION_SECURE]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_COOKIE_OPTION_SECURE);
+				} else {	
+					echo (SQ_CONF_COOKIE_OPTION_SECURE) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_cookie_secure_option_note'));
+			
+			$o->closeField();
+
+		
 		$o->closeSection();
+
 
 		$o->openSection(translate('roles_configuration_section_name'));
 
