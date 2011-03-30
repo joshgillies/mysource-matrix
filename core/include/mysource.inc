@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.362 2011/03/11 00:19:14 mhaidar Exp $
+* $Id: mysource.inc,v 1.363 2011/03/30 00:56:18 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.362 $
+* @version $Revision: 1.363 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2256,6 +2256,14 @@ class MySource extends MySource_Object
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
+		}
+
+		if (isset($session_params['httponly']) && $session_params['httponly']) {
+			$header .= "HttpOnly; ";
+		}
+
+		if (isset($session_params['secure']) && $session_params['secure']) {
+			$header .= "secure; ";
 		}
 
 		header($header);
