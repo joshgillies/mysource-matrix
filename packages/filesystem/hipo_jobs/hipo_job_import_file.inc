@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_file.inc,v 1.4 2011/03/29 06:41:58 cupreti Exp $
+* $Id: hipo_job_import_file.inc,v 1.5 2011/03/30 00:09:27 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage file
 */
@@ -332,7 +332,7 @@ class HIPO_Job_Import_File extends HIPO_Job
 					if ($index_file && $index_file->type() == 'physical_file') {
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_standard');
 						$new = new Page_Standard();
-						$new->setAttrValue('name', $index_file->name);
+						$new->setAttrValue('name', $asset->name);
 						$link = Array(
 									'asset'			=> &$parent,
 									'link_type'		=> SQ_LINK_TYPE_1,
