@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_file.inc,v 1.5 2011/03/30 00:09:27 cupreti Exp $
+* $Id: hipo_job_import_file.inc,v 1.6 2011/03/30 03:53:31 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be imported
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage file
 */
@@ -319,11 +319,12 @@ class HIPO_Job_Import_File extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+					$folders_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+
 					// If the folder has "index.html" file,
 					// all other files in the folder should be listed underneath the file
 					$index_file = FALSE;
 					if ($this->_running_vars['index_file']) {
-						$folders_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
 						$index_file_id = isset($folders_children[$asset->id.'/index.html']) ? $asset->id.'/index.html' : FALSE;
 						if ($index_file_id) {
 							$index_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($index_file_id);
@@ -386,8 +387,9 @@ class HIPO_Job_Import_File extends HIPO_Job
 								);
 						$created = $new->create($link);
 					}
-
-					if ($created && $this->_running_vars['recursive']) {
+					
+					// If folder is empty we needn't and shouldn't spawn new hipo job for it
+					if (!empty($folders_children) && $created && $this->_running_vars['recursive']) {
 						if ($code_name = $this->spawnDependantImportFileHipo($asset->id, $new->id)) {
 							$this->_running_vars['dependant_hipo_job'] = $code_name;
 						}
