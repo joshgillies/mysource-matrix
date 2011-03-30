@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.254 2010/12/02 23:43:53 ewang Exp $
+* $Id: form.inc,v 1.255 2011/03/30 03:09:59 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4091,6 +4091,7 @@ class Form extends Asset implements Bridge
 	public function getDisplayKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
+		$keyword = parse_keyword($keyword, $modifiers);
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
 		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
@@ -4200,6 +4201,7 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 		}
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 
@@ -4690,6 +4692,7 @@ class Form extends Asset implements Bridge
 
 		$replacement = '%'.$keyword.'%';
 		$prefix = $this->getPrefix();
+		$keyword = parse_keyword($keyword, $modifiers);
 
 		// Easier to use if-else if rather than switch, because some of these
 		// will be regex matches
@@ -4872,6 +4875,7 @@ class Form extends Asset implements Bridge
 		if ($replacement == '%'.$keyword.'%') {
 			$replacement = $this->getKeywordReplacement($keyword);
 		}
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 
