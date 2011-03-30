@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.7 2011/03/30 00:25:07 akarelia Exp $
+* $Id: session_handler_default.inc,v 1.8 2011/03/30 00:26:02 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.7 $
+* @version    $Revision: 1.8 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Session_Handler_Default extends Session_Handler
 		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
 
 		$http_only = FALSE;
-		$php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);log_dump(var_export($php_version_suits,1));
+		$php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);
 		if ($php_version_suits && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
 		// Now, set to the default 'files' module and set the
 		// appropriate cookie parameters.
