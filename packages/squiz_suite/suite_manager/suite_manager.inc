@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.11 2011/02/11 13:45:57 bpearson Exp $
+* $Id: suite_manager.inc,v 1.12 2011/03/30 03:44:00 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -1170,7 +1170,7 @@ class Suite_Manager extends Page
 			// Send the connection token together.
 			$current_prod_info['token'] = $product['token'];
 
-			// Excluse the target product from the connected list.
+			// Exclude the target product from the connected list.
 			$target_excluded = array();
 			foreach ($current_prod_info['connected'] as $p) {
 				if ($p['suiteid'] !== $product['suiteid']) {
@@ -1178,14 +1178,14 @@ class Suite_Manager extends Page
 				}
 			}
 
-			$current_prod_info['connected'] = $targetExcluded;
+			$current_prod_info['connected'] = $target_excluded;
 
 			$response = $this->sendMessage($product['suiteid'], 'suiteSyncProduct', $current_prod_info);
 			$response = $this->getSuiteMessageResult($response);
 
 			if ($response === FALSE) {
 				$connection_failed = TRUE;
-				$this->updateProduct($product['systemid'], 'status', 'failed');
+				$this->updateProduct($product['suiteid'], 'status', 'failed');
 				continue;
 			}
 
