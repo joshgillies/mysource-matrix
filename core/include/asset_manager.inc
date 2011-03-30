@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.839 2011/03/14 02:29:08 akarelia Exp $
+* $Id: asset_manager.inc,v 1.840 2011/03/30 22:13:18 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.839 $
+* @version $Revision: 1.840 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7923,6 +7923,8 @@ class Asset_Manager extends MySource_Object
 			}//end if
 		}//end if
 
+		
+		
 		// Check whether the asset is in Safe edit. If it is, load the save version of asset.
 		// for name and short_name attribute
 		foreach ($result as $key => $entry) {
@@ -7938,6 +7940,7 @@ class Asset_Manager extends MySource_Object
 						return;
 					}
 
+					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
 					$result[$key]['name']			= $data_object['name'];
 					$result[$key]['short_name']	= $data_object['short_name'];
