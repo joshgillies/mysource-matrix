@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.161 2011/03/25 05:35:39 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.162 2011/03/31 06:19:45 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1052,7 +1052,7 @@ class Workflow_Manager extends MySource_Object
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
-						'asset_url'		=> $asset->getURL(),
+						'asset_url'		=> $asset->getDependantParentsURL(),
 						'asset_version'	=> $asset->version,
 						'log_message'	=> $log_message,
 					);
@@ -1150,7 +1150,7 @@ class Workflow_Manager extends MySource_Object
 									'workflow_url'			=> current_url().$workflow_backend_href,
 									'accept_url'			=> current_url().$accept_url,
 									'reject_url'			=> current_url().$reject_url,
-									'asset_url'				=> $asset->getURL(),
+									'asset_url'				=> $asset->getDependantParentsURL(),
 									'asset_version'			=> $asset->version,
 									'log_message'			=> $log_message,
 								);
@@ -1594,7 +1594,7 @@ class Workflow_Manager extends MySource_Object
 									'current_step_id'		=> implode('.', $schema_workflow['current_step']),
 									'current_step_name'		=> $current_step['step_name'],
 									'stream'				=> $schema_workflow['stream_name'],
-									'asset_url'				=> $asset->getURL(),
+									'asset_url'				=> $asset->getDependantParentsURL(),
 									'asset_version'			=> $asset->version,
 									'log_message'			=> '',
 								);
@@ -1783,7 +1783,7 @@ class Workflow_Manager extends MySource_Object
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'	=> $asset->name,
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
-									'asset_url'		=> $asset->getURL(),
+									'asset_url'		=> $asset->getDependantParentsURL(),
 									'asset_version'	=> $asset->version,
 									'log_message'	=> $log_message,
 								);
@@ -1995,8 +1995,6 @@ class Workflow_Manager extends MySource_Object
 		// load the current step into the workflow
 		$this->_loadCurrentStep($workflow);
 
-
-
 		if ($workflow['current_step'] == Array()) {
 			if ($this->silentWorkflowParty($asset->id)) return TRUE;
 			// We can't complete workflow by escalating
@@ -2019,7 +2017,7 @@ class Workflow_Manager extends MySource_Object
 							'started_time'	=> easy_datetime($current_step['started']),
 							'expiry_time'	=> easy_time_total($current_step['expiry_time']),
 							'workflow_url'	=> $url,
-							'asset_url'		=> $asset->getURL(),
+							'asset_url'		=> $asset->getDependantParentsURL(),
 							'asset_version'	=> $asset->version,
 							'log_message'	=> $log_message,
 						);
@@ -2040,7 +2038,7 @@ class Workflow_Manager extends MySource_Object
 				$subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 			}//end if
 
-			$msg->send();
+			$ms->enqueueMessage($msg);
 
 			return TRUE;
 		}
@@ -2107,7 +2105,7 @@ class Workflow_Manager extends MySource_Object
 						'stream'				=> $workflow['stream_name'],
 						'started_time'			=> easy_datetime($step_before['started']),
 						'expiry_time'			=> easy_time_total($step_before['expiry_time']),
-						'asset_url'				=> $asset->getURL(),
+						'asset_url'				=> $asset->getDependantParentsURL(),
 						'asset_version'			=> $asset->version,
 						'log_message'			=> $log_message,
 					);
@@ -2176,7 +2174,7 @@ class Workflow_Manager extends MySource_Object
 							'workflow_url'			=> $root_url.'/'.$workflow_backend_href,
 							'accept_url'			=> $root_url.'/'.$accept_url,
 							'reject_url'			=> $root_url.'/'.$reject_url,
-							'asset_url'				=> $asset->getURL(),
+							'asset_url'				=> $asset->getDependantParentsURL(),
 							'asset_version'			=> $asset->version,
 							'log_message'			=> $log_message,
 						);
@@ -2206,12 +2204,10 @@ class Workflow_Manager extends MySource_Object
 			$ms->enqueueMessage($msg);
 		}//end if
 
-		$ms->sendQueuedEmails();
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-	return TRUE;
+		return TRUE;
 
 	}//end escalateWorkflow()
 

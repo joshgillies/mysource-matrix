@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.745 2011/03/28 00:14:10 akarelia Exp $
+* $Id: asset.inc,v 1.746 2011/03/31 06:19:45 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.745 $
+* @version $Revision: 1.746 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6313,7 +6313,30 @@ class Asset extends MySource_Object
 		return !empty($this->_tmp['fast_track'][$task.'_assetids']) ? $this->_tmp['fast_track'][$task.'_assetids'] : Array();
 
 	}//end getFaskTrackedTaskAssetids()
+	
+	
+	/**
+	* If the asset doesn't has URL, get it from the dependant parent, if any
+	*
+	* @return string
+	* @access public
+	*/
+	public function getDependantParentsURL()	
+	{
+		$asset_url = $this->getURL();		
+		if (empty($asset_url)) {
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, '', TRUE, FALSE);
 
+			$dependant_parent = isset($dependant_parents[0]) ? $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_parents[0]) : NULL;
+			if (!is_null($dependant_parent)) {
+				$asset_url = $dependant_parent->getURL();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dependant_parent);
+			}
+		}//end if
+		
+		return $asset_url;
+	
+	}//end getDependantParentURL()
 
 }//end class
 
