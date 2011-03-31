@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_search.inc,v 1.4 2011/02/01 05:51:24 bpearson Exp $
+* $Id: squiz_suite_system_search.inc,v 1.5 2011/03/31 23:23:20 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -149,6 +149,14 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 		$base_url = str_replace($protocol.'://', '', $url);
 		$suite = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromUrl($protocol, $base_url);
+		$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($base_url);
+
+		// flag to see if the context is changed to anything but default
+		$context_changed = FALSE;
+		if (isset($root_url['base_contextid']) && $root_url['base_contextid'] != '0') {
+			$GLOBALS['SQ_SYSTEM']->changeContext($root_url['base_contextid']);
+			$context_changed = TRUE;
+		}
 
 		// Fudge Server Var so designs etc. work
 		$old_server_host = $_SERVER['HTTP_HOST'];
@@ -195,6 +203,8 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
 				ob_end_clean();
 			}//end if
 		}//end if
+
+		if ($context_changed) $GLOBALS['SQ_SYSTEM']->restoreContext();
 
 		$_SERVER['HTTP_HOST'] = $old_server_host;
 		$_SERVER['PHP_SELF']  = $old_server_self;
