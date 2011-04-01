@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_update_trim_record_edit_fns.inc,v 1.2 2010/12/21 21:22:12 hlliauw Exp $
+* $Id: cron_job_update_trim_record_edit_fns.inc,v 1.3 2011/04/01 06:12:07 csmith Exp $
 *
 */
 
@@ -18,13 +18,13 @@
 require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 
 /**
-* Cron_Job_Update_Trim_Record_Edit_Fns 
+* Cron_Job_Update_Trim_Record_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,7 +96,7 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 		$when = $asset->attr('when');
 
 		$when_array = split('=', $when);
-		
+
 		if(is_array($when_array) && count($when_array)==2) {
 			if($when_array[0]=='HR') {
 				$hr_check = true;
@@ -110,24 +110,24 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 				}
 			}
 		}
-			
+
         if ($asset->writeAccess('attributes')) {
 			?>
 			<div>
 				<table style="width:auto;border-spacing:0px;" border="0">
 					<tr>
 						<td><span style="font-weight:bold;">Hourly</span></td>
-						<td><? radio_button($prefix.'_schedule','HR', $hr_check); ?></td>
-						<td><? combo_box($prefix.'_h_mins',$mins, false, $hr_mins); ?> min of every hour</td>
+						<td><?php radio_button($prefix.'_schedule','HR', $hr_check); ?></td>
+						<td><?php combo_box($prefix.'_h_mins',$mins, false, $hr_mins); ?> min of every hour</td>
 					<tr>
 					<tr>
 						<td><span style="font-weight:bold;">Daily</span></td>
-						<td><? radio_button($prefix.'_schedule', 'DL', $dl_check); ?></td>
-						<td><? combo_box($prefix.'_d_hours',$hours, false, $dl_hours); ?>:<? combo_box($prefix.'_d_mins',$mins, false, $dl_mins); ?> on every day</td>
+						<td><?php radio_button($prefix.'_schedule', 'DL', $dl_check); ?></td>
+						<td><?php combo_box($prefix.'_d_hours',$hours, false, $dl_hours); ?>:<?php combo_box($prefix.'_d_mins',$mins, false, $dl_mins); ?> on every day</td>
 					<tr>
 				</table?
 			</div>
-			<?	
+            <?php
 		} else {
 			if($hr_check) {
 			?>
@@ -135,27 +135,27 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 				<table style="width:auto;border-spacing:0px;" border="0">
 					<tr>
 						<td>TRIM Records Will be Updated Hourly at </td>
-						<td><?=$hr_mins;?> min</td>
+						<td><?php echo $hr_mins;?> min</td>
 					<tr>
 				</table?
 			</div>
-			<?
+			<?php
 			} else {
 			?>
 			<div>
 				<table style="width:auto;border-spacing:0px;" border="0">
 					<tr>
 						<td>TRIM Records Will be Updated Daily at </td>
-						<td><?=$dl_hours;?>:<?=$dl_mins;?></td>
+						<td><?php echo $dl_hours;?>:<?php echo $dl_mins;?></td>
 					<tr>
 				</table?
 			</div>
-			<?
+			<?php
 			}
 		}
 		return TRUE;
 	}
-	
+
 	function processScheduleInterface(&$asset, &$o, $prefix)
 	{
 		if(isset($_POST[$prefix.'_schedule'])) {
