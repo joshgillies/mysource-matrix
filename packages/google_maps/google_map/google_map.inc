@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.22 2010/07/14 23:16:48 csmith Exp $
+* $Id: google_map.inc,v 1.23 2011/04/01 03:56:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -391,7 +391,7 @@ class Google_Map extends Page_Asset_Listing
 				<?php if (!empty($popup_html)) {
 						$popup_html = preg_replace('/(\r\n|\r|\n)/s','', $popup_html);
 				?>
-				var popup_html		= '<?php echo addslashes($popup_html); ?>';
+				var popup_html		= '<?php echo preg_replace("/'/", "\'", $popup_html); ?>';
 				<?php } ?>
 				var centerLatitude	= <?php echo (float) $lat; ?>;
 				var centerLongitude	= <?php echo (float) $lng; ?>;
