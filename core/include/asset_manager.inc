@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.840 2011/03/30 22:13:18 ewang Exp $
+* $Id: asset_manager.inc,v 1.841 2011/04/01 06:26:42 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.840 $
+* @version $Revision: 1.841 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9409,27 +9409,32 @@ class Asset_Manager extends MySource_Object
 				$temp_max_height = (strlen($treeid) - ($max_height - 1) * SQ_CONF_ASSET_TREE_SIZE);
 				$treeid_counter = 1;
 
-				// Treeids outside the minimum height criteria needn't be looked into, hence strip them off
-				$temp_treeid = ($min_height > 1) ? substr($treeid, 0, -1 * ($min_height - 1) * SQ_CONF_ASSET_TREE_SIZE) : $treeid;
+				if ($temp_max_height <= strlen($treeid)) {
+					// Treeids outside the minimum height criteria needn't be looked into, hence strip them off
+					$temp_treeid = ($min_height > 1) ? substr($treeid, 0, -1 * ($min_height - 1) * SQ_CONF_ASSET_TREE_SIZE) : $treeid;
 
-				$where_comp = 't.treeid IN (';
+					$where_comp = 't.treeid IN (';
 
-				/**
-				* Get exact treeid's by taking off SQ_CONF_ASSET_TREE_SIZE chunks from the end
-				* until we end up with the length we're looking for (i.e. between temp_min_height and temp_max_height)
-				*/
-				while (strlen($temp_treeid) && strlen($temp_treeid) <= $temp_min_height && strlen($temp_treeid) >= $temp_max_height) {
-					$tree_var_name = $bind_prefix . 'treeid_' . $i . '_' . $treeid_counter;
-					$bind_vars[$tree_var_name] = $temp_treeid;
-					$where_comp .= ':' . $tree_var_name.',';
-					$treeid_counter++;
-					$temp_treeid = substr($temp_treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					/**
+					* Get exact treeid's by taking off SQ_CONF_ASSET_TREE_SIZE chunks from the end
+					* until we end up with the length we're looking for (i.e. between temp_min_height and temp_max_height)
+					*/
+					while (strlen($temp_treeid) && strlen($temp_treeid) <= $temp_min_height && strlen($temp_treeid) >= $temp_max_height) {
+						$tree_var_name = $bind_prefix . 'treeid_' . $i . '_' . $treeid_counter;
+						$bind_vars[$tree_var_name] = $temp_treeid;
+						$where_comp .= ':' . $tree_var_name.',';
+						$treeid_counter++;
+						$temp_treeid = substr($temp_treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					}
+
+					$where_comp = rtrim($where_comp, ',');
+					$where_comp .= ')';
+
+					$where_comps[] = $where_comp;
+				} else {
+					// If max treeid length is less the asset's treeid, we're not going get any result
+					$where_comps[] ='FALSE';
 				}
-
-				$where_comp = rtrim($where_comp, ',');
-				$where_comp .= ')';
-
-				$where_comps[] = $where_comp;
 			}
 
 			$where = '(('.implode(') OR (', $where_comps).'))';
