@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.317 2010/10/27 23:37:23 ewang Exp $
+* $Id: listing_engine.inc,v 1.318 2011/04/01 06:27:05 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.317 $
+* @version $Revision: 1.318 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -436,7 +436,7 @@ class Listing_Engine extends Page
 	* @access public
 	*/
 	function printBody()
-	{
+	{	
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
@@ -3326,11 +3326,11 @@ class Listing_Engine extends Page
 		foreach ($assetids as $assetid => $group_datas) {
 			$asset_groups[] = Array('assetid' => $assetid);
 		}
-
+		
 		// keep track of the last time we encountered a parent asset group
 		$last_parent_asset = FALSE;
 		$limit_array = Array();
-
+		
 		foreach ($group_levels as $group_key => $group_level) {
 			array_unshift($limit_array, array_get_index($group_level, 'max_children', NULL));
 			$new_asset_groups = Array();
@@ -3351,7 +3351,6 @@ class Listing_Engine extends Page
 				} else {
 					$current_parent = $group_data['group'][$last_parent_asset];
 				}
-
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
 						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
@@ -3386,15 +3385,15 @@ class Listing_Engine extends Page
 								*/
 								if (!isset($this->_tmp['grouping_treeids'][$parent_assetid])) {
 									if ($this->attr('direction') == 'down') {
+
 										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, TRUE, $min_depth, $max_depth);
 									} else {
 										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
 									}
 								}
 								$parents = $this->_tmp['grouping_treeids'][$parent_assetid];
-
 								$intersection = array_intersect(array_keys($parents), $root_nodes);
-								if (empty($intersection)) unset($value[$key]);
+								if (empty($intersection) && !in_array($parent_assetid, $root_nodes)) unset($value[$key]);
 
 							}
 						}
