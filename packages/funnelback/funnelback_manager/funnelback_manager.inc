@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.34 2011/02/23 23:51:53 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.35 2011/04/01 02:11:48 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -514,28 +514,31 @@ class Funnelback_Manager extends Asset
 		 *	- Public permission and live status, give a "public" lock
 		 *  - Specific permission, add the lock
 		 */
-		$permissions    = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
-		$public_user_id = $am->getSystemAssetId('public_user');
-		$root_user_id   = $am->getSystemAssetId('root_user');
-		if (empty($permissions)) {
-			// No permissions found, therefore return nothing, so the asset does NOT get indexed
-			return '';
-		} else {
-			// Public user found AND page is live, place in the public lock
-			if (in_array($public_user_id, $permissions) && !($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
-				$permissions[] = 'public';
-			}//end if
-			$all_permissions = Array();
-			foreach ($permissions as $permission) {
-				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
-			}//end foreach
+		$permissions			= $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
+		$public_user_id			= $am->getSystemAssetId('public_user');
+		$root_user_id			= $am->getSystemAssetId('root_user');
+		$sys_admin_folder_id	= $am->getSystemAssetId('system_user_group');
 
-			// Give the root user, "GOD" access
-			if (!in_array("'".$root_user_id."'", $all_permissions)) {
-				$all_permissions[] = "'".$this->encodeText(htmlspecialchars($root_user_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
-			}//end if
-			$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
+		// Public user found AND page is live, place in the public lock
+		if (in_array($public_user_id, $permissions) && !($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
+			$permissions[] = 'public';
 		}//end if
+		$all_permissions = Array();
+		foreach ($permissions as $permission) {
+			$all_permissions[] = "'".$this->encodeText(htmlspecialchars($permission, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end foreach
+
+		// Give the root user, "GOD" access
+		if (!in_array("'".$root_user_id."'", $all_permissions)) {
+			$all_permissions[] = "'".$this->encodeText(htmlspecialchars($root_user_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end if
+
+		// also give the system_admin_folder the access
+		if (!in_array("'".$sys_admin_folder_id."'", $all_permissions)) {
+			$all_permissions[] = "'".$this->encodeText(htmlspecialchars($sys_admin_folder_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
+		}//end if
+
+		$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
 
 		// Add in the metadata
 		// get schemas first using just getMetadata() but it wont get us the default value on the asset
