@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.23 2011/04/01 03:56:40 ewang Exp $
+* $Id: google_map.inc,v 1.24 2011/04/03 22:52:35 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -434,7 +434,7 @@ class Google_Map extends Page_Asset_Listing
 			?>
 
 			</script>
-			<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
+			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
 			<link href="<?php echo sq_web_path('data').'/asset_types/google_map/css/style.css';?>" rel="stylesheet" type="text/css" />
 
 		<?php
