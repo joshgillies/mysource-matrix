@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2011/03/23 07:05:42 cupreti Exp $
+* $Id: lang_strings.xml,v 1.2 2011/04/04 02:11:41 cupreti Exp $
 *
 *
 * DB XML Localised Strings File
@@ -21,7 +21,7 @@
 <string source="tag">Tag</string>
 <string source="attributes">Attributes</string>
 
-<string source="db_data_source_variable_section_note"><![CDATA[Variables added in this section can be used in XML Feed URL in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
+<string source="db_data_source_variable_section_note"><![CDATA[Variables added in this section can be used in LDAP Search Filter query string in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
 <string source="db_data_source_mappings_section_note">Use this section to setup dynamic assignment of values to variables.</string>
 <string source="xsl_transformation">XSL Transformation</string>
 
