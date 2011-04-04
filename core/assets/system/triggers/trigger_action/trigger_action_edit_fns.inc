@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_edit_fns.inc,v 1.3 2006/12/06 00:10:10 bcaldwell Exp $
+* $Id: trigger_action_edit_fns.inc,v 1.3.22.1 2011/04/04 05:45:43 ewang Exp $
 *
 */
-
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Trigger_Action_Edit_Fns
@@ -23,7 +23,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.22.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
