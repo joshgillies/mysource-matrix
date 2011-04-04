@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.93 2011/03/21 22:10:13 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.94 2011/04/04 02:00:25 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -190,12 +190,14 @@ class LDAP_Bridge extends Asset implements Bridge
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	* @param boolean	$return_null	returns NULL if no user/user data found
+	* @param boolean	$get_all_attr	if we being called from paintUserSetup() make sure we get all the attributes
+	*									for the ldap users so that we can paint option for sys admin to show/hide them
 	*
 	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE, $get_all_attr = FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
@@ -221,7 +223,19 @@ class LDAP_Bridge extends Asset implements Bridge
 			$required_attrs = $this->attr('attributes');
 
 			$shadowid = $this->decodeString($shadowid);
-			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($required_attrs), Array('objectclass')));
+
+			if (!$get_all_attr) {
+				$attr_req = array_merge(
+										array_values(array_get_index($this->attr('user_attributes'), 'show', Array())),
+										array_values($required_attrs),
+										Array('objectclass')
+							);
+
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, $attr_req);
+			} else {
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+			}
+
 			if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 			$data = $ldap->getEntries($result);
 			if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
