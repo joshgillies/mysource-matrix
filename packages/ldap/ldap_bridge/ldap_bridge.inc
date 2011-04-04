@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.94 2011/04/04 02:00:25 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.95 2011/04/04 06:11:43 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -495,7 +495,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					}
 
 					$user_attrs = $this->attr('user_attributes');
-					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
+					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
 
 					$base_dn = $this->decodeString($base_dn);
 					$required_attrs = $this->attr('attributes');
