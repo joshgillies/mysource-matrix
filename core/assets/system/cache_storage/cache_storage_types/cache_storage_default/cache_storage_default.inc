@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.6 2011/03/28 23:59:39 akarelia Exp $
+ * $Id: cache_storage_default.inc,v 1.7 2011/04/04 00:55:57 ewang Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -292,7 +292,7 @@ class Cache_Storage_Default extends Cache_Storage
 		// Delete the paths that we were able to remove
 		// (do less than 1,000 a time, since Oracle does not like more than
 		// 1,000 in an IN clause).
-		foreach (array_chunk($paths_removed, 999) as $chunk) {
+		foreach (array_chunk($paths_removed, 599) as $chunk) {
 			$bind_vars = Array('paths'	=> $chunk);
 			MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
 			$paths_removed = array_diff($paths_removed, $chunk);
