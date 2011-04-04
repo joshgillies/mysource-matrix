@@ -10,10 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rebuild_cache.php,v 1.5 2010/12/14 02:59:15 akarelia Exp $
+* $Id: funnelback_rebuild_cache.php,v 1.6 2011/04/04 01:41:24 cupreti Exp $
 *
 */
 
+
+ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
