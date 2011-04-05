@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.24 2009/08/17 06:04:48 ewang Exp $
+* $Id: design_area_asset_lineage.inc,v 1.25 2011/04/05 13:18:49 jhurst Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,6 +70,10 @@ class Design_Area_Asset_Lineage extends Design_Area
 			case 'asset_short_name' :
 			case 'asset_name' :
 				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), TRUE).'])'.$value_suffix, $args), '; ?', '>';
+			break;
+
+			case 'lineage_level' :
+				echo '<', '?php echo ', '$'.$this->attr('id_name').'_i; ?', '>';
 			break;
 
 			case (preg_match('/^asset_/i', $var) ? $var : !$var):
