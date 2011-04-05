@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.95 2011/04/04 06:11:43 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.96 2011/04/05 04:20:11 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -665,6 +665,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		// Bug Fix #4487 - allowing 'ldap_user_group' as a valid type code to return data
 		$valid_types = Array('user_group', 'ldap_user_group');
 		$found_type = array_intersect($valid_types, $type_code);
+
 		if (empty($found_type)) {
 			return Array();
 		}
@@ -733,7 +734,8 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$ou_value.'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
