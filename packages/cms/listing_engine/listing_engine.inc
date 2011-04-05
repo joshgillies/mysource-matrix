@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.317 2010/10/27 23:37:23 ewang Exp $
+* $Id: listing_engine.inc,v 1.317.4.1 2011/04/05 06:54:31 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.317 $
+* @version $Revision: 1.317.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3394,7 +3394,7 @@ class Listing_Engine extends Page
 								$parents = $this->_tmp['grouping_treeids'][$parent_assetid];
 
 								$intersection = array_intersect(array_keys($parents), $root_nodes);
-								if (empty($intersection)) unset($value[$key]);
+								if (empty($intersection) && !in_array($parent_assetid, $root_nodes)) unset($value[$key]);
 
 							}
 						}
