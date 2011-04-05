@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.389 2011/04/05 01:21:10 csmith Exp $
+* $Id: lang_strings.xml,v 1.390 2011/04/05 04:19:31 ewang Exp $
 *
 */
 
@@ -45,9 +45,9 @@
 
 	<string source="php_config_settings">PHP Configuration</string>
 	<string source="php_config_web_memory_limit">Web Memory Limit</string>
-	<string source="php_config_web_memory_limit_note">The maximum amount of system memory allocated to each instance of MySource Matrix web system.</string>
+	<string source="php_config_web_memory_limit_note">The maximum amount of system memory allocated to each instance of Squiz Matrix web system.</string>
 	<string source="php_config_cron_memory_limit">Cron Memory Limit</string>
-	<string source="php_config_cron_memory_limit_note">The maximum amount of system memory allocated to each instance of the MySource Matrix cron system.</string>
+	<string source="php_config_cron_memory_limit_note">The maximum amount of system memory allocated to each instance of the Squiz Matrix cron system.</string>
 
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
 	<string source="allow_single_sign_in_note">If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
@@ -57,7 +57,7 @@
 	<string source="http_login_var_list_header">Server Variables</string>
 
 	<string source="enable_http_authentication">Enable HTTP Authentication</string>
-	<string source="enable_http_authentication_note">If this option is enabled, MySource Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to MySource Matrix by appending USE_HTTP_LOGIN=1 to the URL..</string>
+	<string source="enable_http_authentication_note">If this option is enabled, Squiz Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to Squiz Matrix by appending USE_HTTP_LOGIN=1 to the URL..</string>
 
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
@@ -297,7 +297,7 @@
 	<string source="proxy_configuration_problem">Proxy Configuration Problem</string>
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
-	<string source="proxy_url_strip_port_note">Useful if you access MySource Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by MySource Matrix will not contain the port number by which the system is being accessed.</string>
+	<string source="proxy_url_strip_port_note">Useful if you access Squiz Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by Squiz Matrix will not contain the port number by which the system is being accessed.</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regex_match">RegEx Match</string>
 	<string source="regular_expression">Regular Expression</string>
@@ -355,7 +355,7 @@
 	<string source="lock_length_time">The length of time after which a lock is considered to have expired. In seconds - Min: 60</string>
 	<string source="no_active_locks">There are no active locks in the system</string>
 	<string source="thesaurus">Thesaurus</string>
-	<string source="rename_commit_button">This setting renames the button used to commit edited information into the MySource Matrix system - default is 'Commit'</string>
+	<string source="rename_commit_button">This setting renames the button used to commit edited information into the Squiz Matrix system - default is 'Commit'</string>
 	<string source="confirm_save_changes">Confirm Save Changes</string>
 	<string source="confirm_save_changes_msg">This setting, if set, warns a user when changes are made but not committed.</string>
 	<string source="time_running">Time Running</string>
@@ -515,7 +515,7 @@
 	<string source="last_updated">Last updated by %1$s on %2$s</string>
 	<string source="last_published">Last published by %1$s on %2$s</string>
 	<string source="never_published">This asset has never been published</string>
-	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
+	<string source="disable_popup_blocking">Squiz Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
 	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%s</strong>]]></string>
 	<string source="logged_in">Logged in</string>
@@ -2379,7 +2379,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="apache_request_notes">Request Notes</string>
 	<string source="apache_note_name">Request Note</string>
 	<string source="apache_example_usage">Example Usage</string>
-	<string source="apache_note_example">Request notes can be configured to make certain values in MySource Matrix (i.e. the name of the currently logged in user) available to Apache and/or its modules.<![CDATA[<br /><br /><b>]]>Example:<![CDATA[</b>]]> Using the LogFormat directive, details of the currently logged in MySource Matrix user could be recorded in Apache the log.<![CDATA[<br /><br /><em>LogFormat "&#37;h &#37;l &#37;u &#37;{sq-user-id}n - &#37;{sq-user-name}n"</em>]]></string>
+	<string source="apache_note_example">Request notes can be configured to make certain values in Squiz Matrix (i.e. the name of the currently logged in user) available to Apache and/or its modules.<![CDATA[<br /><br /><b>]]>Example:<![CDATA[</b>]]> Using the LogFormat directive, details of the currently logged in Squiz Matrix user could be recorded in Apache the log.<![CDATA[<br /><br /><em>LogFormat "&#37;h &#37;l &#37;u &#37;{sq-user-id}n - &#37;{sq-user-name}n"</em>]]></string>
 
 	<string source="apache_asset_type_user">Logged in User</string>
 	<string source="apache_asset_type_asset">Current Asset</string>
@@ -2612,22 +2612,22 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<!-- Proxy Auth Config - SSL Accelerator strings -->
 	<string source="ssl_accelerator_section_name">SSL Accelerator Configuration</string>
-	<string source="ssl_accelerator_section_note">An SSL accelerator is a hardware or software proxy whose primary function is to handle the decoding of secure (HTTPS) requests. If MySource Matrix is located behind one of these, the SSL acclerator will handle the SSL layer of the request, and then send a plain (HTTP) request to the MySource Matrix system. This would normally mean that the system would use HTTP urls back, rather than the expected HTTPS. MySource Matrix is able to detect the presence of the SSL accelerator through the above settings, and send links using HTTPS protocol as expected.</string>
+	<string source="ssl_accelerator_section_note">An SSL accelerator is a hardware or software proxy whose primary function is to handle the decoding of secure (HTTPS) requests. If Squiz Matrix is located behind one of these, the SSL acclerator will handle the SSL layer of the request, and then send a plain (HTTP) request to the Squiz Matrix system. This would normally mean that the system would use HTTP urls back, rather than the expected HTTPS. Squiz Matrix is able to detect the presence of the SSL accelerator through the above settings, and send links using HTTPS protocol as expected.</string>
 	<string source="ssl_accelerator_handling_enabled">Handling Enabled ?</string>
 	<string source="ssl_accelerator_handling_enabled_note">The following settings will only apply if this setting is set to "Yes".</string>
 	<string source="ssl_accelerator_match_method">Match Method</string>
-	<string source="ssl_accelerator_match_method_note">MySource Matrix can use two methods to determine whether a request has been made through an SSL accelerator: by matching the IP address of the proxy, or through a header injected by the proxy into the request made to the MySource Matrix system. Either or both match methods can be used. If "Both" is selected, the system is not considered behind an accelerator unless both methods match.</string>
+	<string source="ssl_accelerator_match_method_note">Squiz Matrix can use two methods to determine whether a request has been made through an SSL accelerator: by matching the IP address of the proxy, or through a header injected by the proxy into the request made to the Squiz Matrix system. Either or both match methods can be used. If "Both" is selected, the system is not considered behind an accelerator unless both methods match.</string>
 	<string source="ssl_accelerator_match_method_ip">IP Address</string>
 	<string source="ssl_accelerator_match_method_header">Header</string>
 	<string source="ssl_accelerator_match_method_both">Both</string>
 	<string source="ssl_accelerator_ip_address">IP Address</string>
-	<string source="ssl_accelerator_ip_address_note">If IP address matching is turned on, MySource Matrix will only consider itself behind an SSL accelerator if the request (from the accelerator proxy) is made from the entered IP address. Remember that this the IP address that this system sees the accelerator as. This may be an internal network address, rather than any public-facing IP address.</string>
+	<string source="ssl_accelerator_ip_address_note">If IP address matching is turned on, Squiz Matrix will only consider itself behind an SSL accelerator if the request (from the accelerator proxy) is made from the entered IP address. Remember that this the IP address that this system sees the accelerator as. This may be an internal network address, rather than any public-facing IP address.</string>
 	<string source="ssl_accelerator_header_name">Header Name</string>
 	<string source="ssl_accelerator_header_name_note"><![CDATA[ ]]></string>
 	<string source="ssl_accelerator_header_value">Header Value</string>
 	<string source="ssl_accelerator_header_value_note"><![CDATA[ ]]></string>
 	<string source="ssl_accelerator_force_secure">Force Secure ?</string>
-	<string source="ssl_accelerator_force_secure_note">When this is set to "Yes", and MySource Matrix detects that it is running behind an SSL accelerator, it will always produce secure (https://) URLs, except where an asset has been set to force standard http:// URLs.</string>
+	<string source="ssl_accelerator_force_secure_note">When this is set to "Yes", and Squiz Matrix detects that it is running behind an SSL accelerator, it will always produce secure (https://) URLs, except where an asset has been set to force standard http:// URLs.</string>
 
 	<!-- Context configuration -->
 	<string source="config_context_context_has_no_conditions">This context has no conditions defined.</string>
@@ -2688,19 +2688,19 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_type_url_option_begins">begin with:</string>
 	<string source="config_context_type_url_option_ends">end with:</string>
 	<string source="config_context_type_url_option_contains">contain:</string>
-	<string source="config_context_type_url_param_explanation"><![CDATA[This condition will match if the URL used to access an asset matches (or does not match) the condition specified. Note that this is the URL used by MySource Matrix and will not include protocol, query strings or port numbers.]]></string>
+	<string source="config_context_type_url_param_explanation"><![CDATA[This condition will match if the URL used to access an asset matches (or does not match) the condition specified. Note that this is the URL used by Squiz Matrix and will not include protocol, query strings or port numbers.]]></string>
 	<string source="config_context_type_port">Destination port</string>
 	<string source="config_context_type_port_param">Match if the connection %1$s made on port: %2$s</string>
 	<string source="config_context_type_port_option_0">is not</string>
 	<string source="config_context_type_port_option_1">is</string>
-	<string source="config_context_type_port_param_explanation"><![CDATA[This condition will match if the port used to access MySource Matrix matches (or does not match) the port specified. This is generally specified in the entered URL; where not specified, the default port for HTTP requests is 80; for HTTPS (secure) requests it is port 443.]]></string>
+	<string source="config_context_type_port_param_explanation"><![CDATA[This condition will match if the port used to access Squiz Matrix matches (or does not match) the port specified. This is generally specified in the entered URL; where not specified, the default port for HTTP requests is 80; for HTTPS (secure) requests it is port 443.]]></string>
 	<string source="config_context_type_secure">Secure/insecure connection</string>
 	<string source="config_context_type_secure_param">Match if the connection is: %s</string>
 	<string source="config_context_type_secure_option_0">Not secure (HTTP)</string>
 	<string source="config_context_type_secure_option_1">Secure (HTTPS)</string>
 	<string source="case_sensitive">Case sensitive</string>
 	<string source="not_case_sensitive">Not case sensitive</string>
-	<string source="config_context_type_secure_param_explanation"><![CDATA[This condition will match if a secure connection is (or is not) being used to access MySource Matrix.<br/>Please note that this may be affected by proxies such as SSL accelerators, unless configured properly on the Proxy Configuration page. The system can only use what protocol is presented to it.]]></string>
+	<string source="config_context_type_secure_param_explanation"><![CDATA[This condition will match if a secure connection is (or is not) being used to access Squiz Matrix.<br/>Please note that this may be affected by proxies such as SSL accelerators, unless configured properly on the Proxy Configuration page. The system can only use what protocol is presented to it.]]></string>
 	<string source="config_context_table_all_description">All of the following %s condition(s) must be met:</string>
 	<string source="config_context_table_at_least_description">At least %1$s of the following %2$s condition(s) must be met:</string>
 	<string source="config_context_summary_cond_accept-language"><![CDATA[An "Accept-language" header exists with the language <strong>%1$s</strong>, and a minimum quality value of <strong>%2$s</strong>]]></string>
@@ -2744,8 +2744,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="config_context_summary_cond_url_!contains"><![CDATA[The requested URL <strong>does not contain &quot;%s&quot;</strong>]]></string>
 	<string source="config_context_summary_cond_port_!"><![CDATA[The request is <strong>not</strong> being made to <strong>port %s</strong>]]></string>
 	<string source="config_context_summary_cond_port"><![CDATA[The request is being made to <strong>port %s</strong>]]></string>
-	<string source="config_context_summary_cond_secure_!"><![CDATA[The connection to MySource Matrix is <strong>not secure (using HTTP protocol)</strong>]]></string>
-	<string source="config_context_summary_cond_secure"><![CDATA[The connection to MySource Matrix is <strong>secure (using HTTPS protocol</strong>)]]></string>
+	<string source="config_context_summary_cond_secure_!"><![CDATA[The connection to Squiz Matrix is <strong>not secure (using HTTP protocol)</strong>]]></string>
+	<string source="config_context_summary_cond_secure"><![CDATA[The connection to Squiz Matrix is <strong>secure (using HTTPS protocol</strong>)]]></string>
 	<string source="config_context_error_cond_url_no_match_value">This condition has no URL fragment to match with.</string>
 	<string source="config_context_error_cond_header_no_header_name">This condition has no header name set.</string>
 	<string source="config_context_error_cond_header_no_match_value">This condition has no comparison value with which to match the header contents.</string>
@@ -2761,7 +2761,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="log_errors_to_syslog">Log Errors to Syslog ?</string>
 	<string source="log_errors_to_syslog_note">If enabled, errors will be sent to the *nix Syslog. Please contact your system administrator for appropriate settings if you are to use this feature.</string>
 	<string source="log_errors_syslog_facility">Syslog Facility</string>
-	<string source="log_errors_syslog_facility_note">Syslog defines a number of &quot;facilities&quot;, which can be used to perform different actions on different types of messages. You can send syslog messages to the default &quot;user&quot; facility, or one of eight user-defined &quot;local&quot; facilities. Changing this may be useful if you are planning to send all MySource Matrix system messages into a separate syslog facility.</string>
+	<string source="log_errors_syslog_facility_note">Syslog defines a number of &quot;facilities&quot;, which can be used to perform different actions on different types of messages. You can send syslog messages to the default &quot;user&quot; facility, or one of eight user-defined &quot;local&quot; facilities. Changing this may be useful if you are planning to send all Squiz Matrix system messages into a separate syslog facility.</string>
 	<string source="log_errors_syslog_ident">Syslog Ident</string>
 	<string source="log_errors_syslog_ident_note">If entered, this string will be used to identify the system within the syslog. If not entered, the long name of the system (&quot;%s&quot;) will be used.</string>
 	<string source="syslog_facility_user">User</string>
