@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.831.2.7 2011/03/14 02:40:00 akarelia Exp $
+* $Id: asset_manager.inc,v 1.831.2.8 2011/04/05 03:25:57 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.831.2.7 $
+* @version $Revision: 1.831.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7936,7 +7936,7 @@ class Asset_Manager extends MySource_Object
 						$this->forgetAsset($asset);
 						return;
 					}
-
+					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
 					$result[$key]['name']			= $data_object['name'];
 					$result[$key]['short_name']	= $data_object['short_name'];
