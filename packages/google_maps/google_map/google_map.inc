@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.22.2.1 2011/04/05 01:15:00 ewang Exp $
+* $Id: google_map.inc,v 1.22.2.2 2011/04/05 07:27:39 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22.2.1 $
+* @version $Revision: 1.22.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -489,7 +489,7 @@ class Google_Map extends Page_Asset_Listing
 					} else {
 
 						$popup_content	= isset($location_info['html']) && !empty($location_info['html']) ? $location_info['html'] : $location_info['desc'];
-						$html = str_replace('', '', addslashes($popup_content));
+						$html = str_replace('', '', preg_replace("/'/", "\'", $popup_content));
 						$html = preg_replace('/(\r\n|\r|\n)/s','<br />', $html);
 						$title = preg_replace('/\s/', '_', $location_info['title']);
 						$title = preg_replace('/(\'|\.)/', '_', $title);
