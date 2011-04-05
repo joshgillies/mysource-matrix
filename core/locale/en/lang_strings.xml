@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.388 2011/03/30 02:14:21 akarelia Exp $
+* $Id: lang_strings.xml,v 1.389 2011/04/05 01:21:10 csmith Exp $
 *
 */
 
@@ -288,12 +288,12 @@
 	<string source="port">Port</string>
 	<string source="preview_options">Preview Options</string>
 	<string source="preview">Preview</string>
-	<string source="proxy_authentication_config">Proxy Authentication Configuration</string>
-	<string source="proxy_authentication_enable">Enable Proxy Authentication</string>
+	<string source="proxy_authentication_config">Proxy Configuration</string>
+	<string source="proxy_authentication_enable">Enable Proxy</string>
 	<string source="proxy_authentication_failed">Failed (Proxy Authentication Failed)</string>
 	<string source="proxy_authentication_passed">Passed</string>
 	<string source="proxy_authentication_disabled">Disabled</string>
-	<string source="proxy_authentication_status">Proxy Authentication Status</string>
+	<string source="proxy_authentication_status">Proxy Status</string>
 	<string source="proxy_configuration_problem">Proxy Configuration Problem</string>
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
