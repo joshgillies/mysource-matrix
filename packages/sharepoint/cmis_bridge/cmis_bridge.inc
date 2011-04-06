@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.1 2011/04/06 06:12:29 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -408,23 +408,6 @@ class CMIS_Bridge extends Asset
 		return $binary_data;
 
 	}//end getObjectContents()
-	
-	
-	/**
-	* Get a list of services this CMIS Bridge makes use of.
-	*
-	* @return array
-	* @access public
-	*/
-	public function getServices()
-	{
-		return Array(
-			'ObjectService',
-			'NavigationService',
-			'RepositoryService'
-		);
-		
-	}//end getServices()
 	
 	
 }//end class

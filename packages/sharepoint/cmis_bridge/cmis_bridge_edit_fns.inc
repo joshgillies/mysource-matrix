@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.1 2011/04/06 06:12:29 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -51,12 +51,7 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 	function paintWsdlUrl(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$current_wsdl = $asset->attr('wsdl');
-		$services = $asset->getServices();
-		$wsdl = Array();
-		foreach ($services as $service_name){
-			$wsdl[$service_name] = array_get_index($current_wsdl, $service_name, '');
-		}
+		$wsdl = $asset->attr('wsdl');
 		
 		?>
 				<table class="sq-backend-table">

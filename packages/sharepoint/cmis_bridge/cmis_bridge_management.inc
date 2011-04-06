@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_management.inc,v 1.1 2011/04/06 06:12:29 mhaidar Exp $
+* $Id: cmis_bridge_management.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -57,18 +57,22 @@ class CMIS_Bridge_Management extends Asset_Management
 						'wsdl'					=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
-													'default'		=> Array()
+													'default'		=> Array(
+																			'ObjectService' => '',
+																			'NavigationService' => '',
+																			'RepositoryService' => ''
+																		)
 												   ),
 						'metadata_fields'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
 													'default'		=> Array(
-												   							'lastModificationDate' => Array ( 
-												   														'type' 	=> 'date',
-												   														'field' => ''
-												   													),
 												   							'objectId' 			   => Array ( 
 												   														'type' 	=> 'text',
+												   														'field' => ''
+												   													),
+												   							'lastModificationDate' => Array ( 
+												   														'type' 	=> 'date',
 												   														'field' => ''
 												   													),
 												   							'createdBy'			   => Array ( 
