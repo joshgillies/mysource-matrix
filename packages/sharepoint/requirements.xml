@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.2 2010/05/05 07:15:02 ewang Exp $
+* $Id: requirements.xml,v 1.3 2011/04/06 06:04:32 mhaidar Exp $
 *
 */
 -->
@@ -20,4 +20,11 @@
 	<requirement>
 		<php_extension>soap</php_extension>
 	</requirement>
+	<requirement>
+        <php_extension>SimpleXML</php_extension>
+    </requirement>
+	<requirement>
+  	    <pear_package>Mail_mimeDecode</pear_package>
+  	    <version>1.5.5</version>
+  	</requirement>
 </requirement_info>

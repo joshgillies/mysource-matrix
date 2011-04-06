@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_sharepoint.inc,v 1.3 2010/05/05 07:15:02 ewang Exp $
+* $Id: package_manager_sharepoint.inc,v 1.4 2011/04/06 06:04:32 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -43,7 +43,7 @@ class Package_Manager_Sharepoint extends Package_Manager
 
 	}//end constructor
 
-
+	
 	/**
 	* Returns an array of all the asset types in the package that are to be treated as system assets
 	* NOTE: Assets will be installed in the order they appear in this list
@@ -54,11 +54,19 @@ class Package_Manager_Sharepoint extends Package_Manager
 	*/
 	function getSystemAssetTypes()
 	{
-		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_update_sharepoint_record')) {
-			return Array('cron_job_update_sharepoint_record');
-		} else {
-			return Array();
+		$system_assets = Array(
+							'cron_job_update_sharepoint_record',
+							'cron_job_sync_cmis_bridges',
+						 );
+		$installed_assets = Array();
+
+		foreach ($system_assets as $type_code) {
+			if ($GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+				$installed_assets[] = $type_code;
+			}
 		}
+
+		return $installed_assets;
 
 	}//end getSystemAssetTypes()
 
@@ -92,7 +100,37 @@ class Package_Manager_Sharepoint extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobUpdateSharepointRecord()	
+	
+	
+	/**
+	* Create the Sync CMIS Bridges Cron Job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobSyncCMISBridges()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Sync CMIS Bridges Cron Job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
 
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_sync_cmis_bridges');
+
+		$cron_job = new Cron_Job_Sync_CMIS_Bridges();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Sync CMIS Bridges Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Sync CMIS Bridges Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_sync_cmis_bridges', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobSyncCMISBridges()
 
 }//end class
 ?>
