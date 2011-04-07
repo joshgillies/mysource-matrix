@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2011/04/07 06:01:08 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.4 2011/04/07 06:08:31 mhaidar Exp $
 *
 */
 -->
@@ -43,9 +43,9 @@
 			<note>If set to 'Yes', a Web Services Security Header will be sent on each SOAP Request. This is needed when Basic HTTP Authentication is not sufficient.</note>
 		</field>
     </section>
-    <section name="Synchronize Options" write_access="write:attributes">
+    <section name="Synchronise Options" write_access="write:attributes">
     	<field>
-    		<display_name>Synchronize Now?</display_name>
+    		<display_name>Synchronise Now?</display_name>
 			<note> This will trash old files (including their links elsewhere), update modified files and create new files.</note>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
@@ -58,7 +58,7 @@
 		</field>
     	<field>
 			<display_name>Metadata Fields</display_name>
-			<note>'objectId' and 'lastModificationDate' properties are required for synchronization. Selected metadata fields must belong to a schema applied to this bridge with cascades turned on. Metadata date fields must use the default 'Display Format' (d/m/Y H:i:s).</note>
+			<note>'objectId' and 'lastModificationDate' properties are required for synchronisation. Selected metadata fields must belong to a schema applied to this bridge with cascades turned on. Metadata date fields must use the default 'Display Format' (d/m/Y H:i:s).</note>
 			<function_call>
 				<paint_function   name="paintMetadataOptions"   />
 				<process_function name="processMetadataOptions" />

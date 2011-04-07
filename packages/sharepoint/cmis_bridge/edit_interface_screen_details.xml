@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2011/04/06 06:12:29 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2011/04/07 06:11:26 mhaidar Exp $
 *
 */
 -->
@@ -38,7 +38,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
     </section>
-    <section name="Synchronize Options" write_access="write:attributes">
+    <section name="Synchronise Options" write_access="write:attributes">
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
