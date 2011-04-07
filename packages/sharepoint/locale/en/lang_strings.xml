@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2011/04/06 06:10:07 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.2 2011/04/07 03:50:18 mhaidar Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -24,5 +24,6 @@
 <string source="snyc_cmis_bridge_hipo_can_not_create_file_no_content_stream">Create Files failed to create "%s". No content stream from CMIS server.</string>
 <string source="snyc_cmis_bridge_hipo_can_not_update_file">Update Files failed to update "%1$s" (Id: #%2$s). No asset write access.</string>
 <string source="snyc_cmis_bridge_hipo_can_not_update_file_no_content_stream">Update Files failed to update "%s". No content stream from CMIS Server.</string>
+<string source="snyc_cmis_bridge_hipo_skip_doc">Skipping CMIS document "%s".</string>
 
 </strings>
