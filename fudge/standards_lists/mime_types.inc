@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.18.4.1 2011/04/06 01:15:23 ewang Exp $
+* $Id: mime_types.inc,v 1.18.4.2 2011/04/07 05:41:31 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.4.1 $
+* @version $Revision: 1.18.4.2 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -182,6 +182,7 @@ $standards_lists_mime_types = Array(
 									'ogv'		=> 'video/ogg',
 									'mp4'		=> 'video/mp4',
 									'webm'		=> 'video/webm',
+									'flv'       => 'video/x-flv',
 									'wmz'		=> 'application/x-ms-wmz',
 									'wmd'		=> 'application/x-ms-wmd',
 									'ico'		=> 'image/x-icon',
