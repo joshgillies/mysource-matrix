@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.134.2.1 2011/02/03 05:46:09 cupreti Exp $
+* $Id: page_asset_listing.inc,v 1.134.2.2 2011/04/07 05:06:39 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134.2.1 $
+* @version $Revision: 1.134.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -137,8 +137,9 @@ class Page_Asset_Listing extends Listing_Engine
 			if (!is_array($raw_assets_to_list)) {
 				// If passed as an array, treat it similar to replacement
 				// root nodes. In other words, asset IDs separated by commas.
-				$list_keys = explode(',', $raw_assets_to_list);
-				$raw_assets_to_list = Array();
+				// root nodes. In other words, asset IDs (including that of LDAP user) separated by commas.
+				preg_match_all('|[0-9]+(:([0-9a-z_\-\s\(\)\\\]+=[0-9a-z_\-\s\(\)\\\]+,)+)?|i', $raw_assets_to_list, $matches);
+				$list_keys = $matches[0];
 				foreach ($list_keys as $raw_assetid) {
 					if ($raw_assetid) {
 						$raw_assets_to_list[$raw_assetid] = 1;
