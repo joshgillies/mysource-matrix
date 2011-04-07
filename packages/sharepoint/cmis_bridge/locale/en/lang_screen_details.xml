@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2011/04/06 06:10:07 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.2 2011/04/07 00:56:04 mhaidar Exp $
 *
 */
 -->
@@ -46,7 +46,7 @@
     <section name="Synchronize Options" write_access="write:attributes">
     	<field>
     		<display_name>Synchronize Now?</display_name>
-			<note> This will trash old files (deletes all file links), update modified files and create new files.</note>
+			<note> This will trash old files(including their links elsewhere), update modified files and create new files.</note>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
     			<process_function name="processSynchCheck"	/>

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.3 2011/04/07 00:56:03 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -204,13 +204,14 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td>
 						<?php
-							echo ucfirst($info['type']);
+							$type = substr(strrchr($info['type_code'], "_"), 1);
+							echo ucwords($type);
 						?>
 					</td>
 					<td>
 						<?php
 						if ($wa) {
-							asset_finder($prefix.'_'.$property, $info['field'],Array('metadata_field_'.$info['type'] => 'I'));
+							asset_finder($prefix.'_'.$property, $info['field'], Array($info['type_code'] => 'I'));
 						} else {
 							if ($info['field']) echo get_asset_tag_line($info['field']);
 						}
@@ -244,24 +245,7 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$applied_schemas = $mm->getSchemas($asset->id, TRUE, TRUE);
 		$fields = $mm->getMetadataFields($applied_schemas);
 		
-        $metadata_fields = Array(
-	   							'lastModificationDate' => Array ( 
-	   														'type' 	=> 'date',
-	   														'field' => ''
-	   													),
-	   							'objectId' 			   => Array ( 
-	   														'type' 	=> 'text',
-	   														'field' => ''
-	   													),
-	   							'createdBy'			   => Array ( 
-	   														'type' 	=> 'text',
-	   														'field' => ''
-	   													),
-	   							'creationDate'		   => Array ( 
-	   														'type' 	=> 'date',
-	   														'field' => ''
-	   													)
-	   						);	
+        $metadata_fields = $asset->attr('metadata_fields');	
 		
         foreach ($metadata_fields as $property => $info){
         	 $field_id = (isset($_POST[$prefix.'_'.$property]['assetid'])) ? $_POST[$prefix.'_'.$property]['assetid'] : '';
