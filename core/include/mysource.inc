@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.364 2011/04/07 07:37:16 cupreti Exp $
+* $Id: mysource.inc,v 1.365 2011/04/07 07:39:29 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.364 $
+* @version $Revision: 1.365 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -710,9 +710,8 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& empty($_POST) && current_protocol() != 'https' && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() 
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
-					//$this->_sendHTTPHeaders($asset);
-
-					$asset->printFrontend();
+					$this->_sendHTTPHeaders($asset);
+				
 				} else {
 					$asset->printFrontend();
 				}
