@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.22.2.2 2011/04/05 07:27:39 ewang Exp $
+* $Id: google_map.inc,v 1.22.2.3 2011/04/07 03:24:12 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -387,7 +387,7 @@ class Google_Map extends Page_Asset_Listing
 		?>
 			<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?php echo $api_key; ?>" type="text/javascript"></script>
 			<script type="text/javascript">
-
+			//<![CDATA[
 				<?php if (!empty($popup_html)) {
 						$popup_html = preg_replace('/(\r\n|\r|\n)/s','', $popup_html);
 				?>
@@ -432,10 +432,9 @@ class Google_Map extends Page_Asset_Listing
 
 
 			?>
-
+			 //]]>
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
-			<link href="<?php echo sq_web_path('data').'/asset_types/google_map/css/style.css';?>" rel="stylesheet" type="text/css" />
 
 		<?php
 
@@ -445,7 +444,7 @@ class Google_Map extends Page_Asset_Listing
 		if (!empty($locations_info)) {
 			?>
 				<script type="text/javascript">
-
+				//<![CDATA[
 					var lat;
 					var lng;
 
@@ -531,6 +530,7 @@ class Google_Map extends Page_Asset_Listing
 					<?php
 				}//end if
 			?>
+				 //]]>
 				</script>
 			<?php
 			if ($create_location) {
@@ -954,6 +954,7 @@ class Google_Map extends Page_Asset_Listing
 		if (!empty($result)) {
 			?>
 				<script type="text/javascript">
+				 //<![CDATA[
 					var FormEle	= {};
 					<?php
 						foreach ($result as $attr_name	=> $attr_id_info) {
@@ -963,6 +964,7 @@ class Google_Map extends Page_Asset_Listing
 							<?php
 						}//end foreach
 					?>
+				 //]]>
 				</script>
 			<?php
 
@@ -981,6 +983,7 @@ class Google_Map extends Page_Asset_Listing
 	{
 		?>
 		<script type="text/javascript">
+		 //<![CDATA[
 			var center = new GLatLng(0, 0);
 			panoramaOptions = { latlng:center };
 			myPano = new GStreetviewPanorama(document.getElementById("street_view"), panoramaOptions);
@@ -993,7 +996,7 @@ class Google_Map extends Page_Asset_Listing
 				//	return;
 				//}
 			}
-
+		//]]>
 		</script>
 		<?php
 	}//end enableStreetView()
