@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.363 2011/03/30 00:56:18 akarelia Exp $
+* $Id: mysource.inc,v 1.364 2011/04/07 07:37:16 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.363 $
+* @version $Revision: 1.364 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -710,7 +710,9 @@ class MySource extends MySource_Object
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& empty($_POST) && current_protocol() != 'https' && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() 
 					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
-					$this->_sendHTTPHeaders($asset);
+					//$this->_sendHTTPHeaders($asset);
+
+					$asset->printFrontend();
 				} else {
 					$asset->printFrontend();
 				}
@@ -4097,7 +4099,7 @@ class MySource extends MySource_Object
 	function _translateMatrixURL(&$content)
 	{	
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+'.')(?:"|\')'.'[^>]*?'.'>!msi', $content, $matches);
+		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+)'.'[^"\']*'.'[^>]*>!msi', $content, $matches);
 		if (empty($matches[1])) return;
 		
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
