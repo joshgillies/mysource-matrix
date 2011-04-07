@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_sync_cmis_bridges.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
+* $Id: cron_job_sync_cmis_bridges.inc,v 1.3 2011/04/07 03:52:09 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
 * @package MySource_Matrix
 * @subpackage sharepoint
@@ -163,12 +163,13 @@ class Cron_Job_Sync_CMIS_Bridges extends Cron_Job
 	{
 		$bridge_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('cmis_bridge', TRUE, TRUE);
 		foreach ($bridge_ids as $bridge_id => $type) {
+			if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($bridge_id, TRUE)) continue;
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id, $type['type_code']);
 			foreach ($bridge->attr('wsdl') as $service_name => $url){
 				$connected = $bridge->connect($service_name, TRUE);
 				if (!$connected) break;
 			}
-			if (!$connected) continue;
+			if (empty($connected)) continue;
 			
 			$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$running_vars	= Array (
