@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.2 2011/04/06 07:20:25 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.3 2011/04/07 03:43:57 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -114,16 +114,12 @@ class CMIS_Bridge extends Asset
 	*/
 	public function _getAllowedLinks()
 	{
-		// any link is allowed
-		$allowed_link['file']['card'] = 'M';
-		$allowed_link['file']['exclusive'] = FALSE;
-
-		$links[SQ_LINK_TYPE_1] = $allowed_link;
-		$links[SQ_LINK_TYPE_2] = $allowed_link;
-		$links[SQ_LINK_TYPE_3] = $allowed_link;
-		$links[SQ_LINK_NOTICE] = $allowed_link;
-
-		return $links;
+		
+		$allowed = parent::_getAllowedLinks();
+		$allowed[SQ_LINK_TYPE_1]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
+		
+		return $allowed;
 
 	}//end _getAllowedLinks()
 
