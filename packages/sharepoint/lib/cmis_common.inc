@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.1 2011/04/06 06:04:32 mhaidar Exp $
+* $Id: cmis_common.inc,v 1.2 2011/04/07 00:55:02 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -262,7 +262,12 @@ class CMIS_Common
 		}
 
 		$data = $this->processSoapRequest();
-		if (isset($data['binary'])) $contentStream = $data['binary'];
+		if (isset($data['binary'])) {
+			$contentStream = $data['binary'];
+		} else if (isset($data['xml']->getContentStreamResponse->contentStream->stream)){
+			$contentStream = (string)$data['xml']->getContentStreamResponse->contentStream->stream;
+			$contentStream = base64_decode($contentStream);
+		}
 
 		return $contentStream;
 	}
@@ -289,7 +294,10 @@ class CMIS_Common
 		$decoder = new Mail_mimeDecode($soap_header."\r\n".$soap_response);
 		$structure = $decoder->decode($decode_params);
 
-		if (isset($structure->parts[1]->body)) $data['binary'] = $structure->parts[1]->body;
+		if (isset($structure->parts[1]->body)) {
+			$data['binary'] = $structure->parts[1]->body;
+			$data['binary'] = preg_replace('|\r\n$|', '', $data['binary']); //decoding seems to add extra line to end
+		}
 		
 		$soap_env = (isset($structure->parts[0]->body)) ? $structure->parts[0]->body : '';
 		
