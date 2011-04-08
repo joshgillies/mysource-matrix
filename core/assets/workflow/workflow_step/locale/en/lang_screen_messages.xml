@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.6 2010/10/20 02:39:31 ewang Exp $
+* $Id: lang_screen_messages.xml,v 1.7 2011/04/08 05:10:46 mhaidar Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 			<note><![CDATA[<p>This message invites users to approve or reject changes to a workflow. It is sent when workflow is started on an asset, or when the workflow progresses one or more steps, and will be sent to all users able to approve the new workflow step. If this is empty, a generic message will be used.</p>
 			<p>Keywords available to this message include:</p>
 			<ul>
-				<li><strong>%asset_name%, %type_code%</strong> - The name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
 				<li><strong>%user_name%</strong> - The name of the message recipient</li>
 				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
 				<li><strong>%previous_step_id%, %previous_step_name%</strong> - The step number and name of the previous workflow step. Blank if this is the first step.</li>
@@ -55,7 +55,7 @@
 			<strong>Note:</strong> If an asset has more than one workflow running, it will be sent to all invited users on all current steps. If the approving user was also in another workflow, a custom message will be sent to that workflow's currently invited users, if such a message exists. Those users who were not in the same workflow in the approving user will receive a generic message. Only one generic message will be sent to each user, per asset.</p>
 			<p>Keywords available to this message include:</p>
 			<ul>
-				<li><strong>%asset_name%, %type_code%</strong> - The ID and name of the affected asset.</li>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the affected asset.</li>
 				<li><strong>%user_name%</strong> - The name of the message recipient</li>
 				<li><strong>%workflow_user%</strong> - The name of the user that approved the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
@@ -79,7 +79,7 @@
 			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom rejection message. A generic message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
 			<p>Keywords available to this message include:</p>
 			<ul>
-				<li><strong>%asset_name%, %type_code%</strong> - The ID and name of the affected asset.</li>
+				<li><strong>%asset_name%, %type_code%</strong> - The name and type code of the affected asset.</li>
 				<li><strong>%user_name%</strong> - The name of the message recipient</li>
 				<li><strong>%workflow_user%</strong> - The name of the user that rejected the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.162 2011/03/31 06:19:45 cupreti Exp $
+* $Id: workflow_manager.inc,v 1.163 2011/04/08 05:10:46 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1051,6 +1051,7 @@ class Workflow_Manager extends MySource_Object
 						'workflow_user'	=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
+						'assetid'		=> $asset->id,
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 						'asset_url'		=> $asset->getDependantParentsURL(),
 						'asset_version'	=> $asset->version,
@@ -1143,6 +1144,7 @@ class Workflow_Manager extends MySource_Object
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
+									'assetid'				=> $asset->id,
 									'previous_step_id'		=> implode('.', $steps_before[$schemaid]),
 									'previous_step_name'	=> $previous_step_name,
 									'current_step_id'		=> implode('.', $step),
@@ -1586,6 +1588,7 @@ class Workflow_Manager extends MySource_Object
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
+									'assetid'				=> $asset->id,
 									'workflow_url'			=> current_url().$workflow_backend_href,
 									'accept_url'			=> current_url().$accept_url,
 									'reject_url'			=> current_url().$reject_url,
@@ -2166,6 +2169,7 @@ class Workflow_Manager extends MySource_Object
 							'workflow_user'			=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 							'asset_name'			=> $asset->name,
+							'assetid'				=> $asset->id,
 							'previous_step_id'		=> implode('.',$step_before_id),
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
