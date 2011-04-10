@@ -1,16 +1,16 @@
 <?php
 /**
-* +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
-* | ACN 084 670 600													|
-* +--------------------------------------------------------------------+
-* | IMPORTANT: Your use of this Software is subject to the terms of	|
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.														|
-* +--------------------------------------------------------------------+
+* +---------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	  	|
+* | ACN 084 670 600														|
+* +---------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of		|
+* | the Licence provided in the file licence.txt. If you cannot find	|
+* | this file please contact Squiz (www.squiz.net) so we may provide	|
+* | you a copy.															|
+* +---------------------------------------------------------------------+
 *
-* $Id: test_dead_file_revisions.inc,v 1.3 2011/03/28 03:47:18 akarelia Exp $
+* $Id: test_dead_file_revisions.inc,v 1.4 2011/04/10 23:16:22 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * but aren't assets any more.
 *
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Test_Dead_File_Revisions
@@ -252,19 +252,22 @@ class Test_Dead_File_Revisions
 			$db = MatrixDAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$query = "SELECT fileid FROM sq_file_vers_file WHERE path IN (";
-			foreach ($fullPaths as $path) {
-				$query .= MatrixDAL::quote(ltrim($path, '/')) . ",";
-			}
-			$query = rtrim($query, ',') . ')';
-	
 			$fileIds = Array();
-			$fileInfo = MatrixDAL::executeSqlAll($query);
-	
-			foreach ($fileInfo as $row => $details) {
-				$fileIds[] = MatrixDAL::quote($details['fileid']);
+
+			foreach (array_chunk($fullPaths, 999) as $chunk) {
+				$query = "SELECT fileid FROM sq_file_vers_file WHERE path IN (";
+				foreach ($chunk as $path) {
+					$query .= MatrixDAL::quote(ltrim($path, '/')) . ",";
+				}
+				$query = rtrim($query, ',') . ')';
+
+				$fileInfo = MatrixDAL::executeSqlAll($query);
+
+				foreach ($fileInfo as $row => $details) {
+					$fileIds[] = MatrixDAL::quote($details['fileid']);
+				}
 			}
-	
+
 			foreach (array_chunk($fileIds, 999) as $chunk) {
 				$query = "DELETE FROM sq_file_vers_file WHERE fileid IN (" . implode(',', $chunk) . ")";
 				$result = MatrixDAL::executeSql($query);
