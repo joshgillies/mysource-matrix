@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.48 2010/05/11 01:55:41 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.49 2011/04/11 06:26:21 akarelia Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -523,6 +523,19 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		}//end if
 
 	}//end getKeywordsDescription()
+
+
+	/**
+	* This function mainly exists to update the paint layout bodycopy
+	*
+	* @return void
+	* @access public
+	*/
+	public function linksUpdated()
+	{
+		$this->_updated();
+		
+	}
 
 
 }//end class
