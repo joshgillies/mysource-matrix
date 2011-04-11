@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.97 2011/04/10 22:41:21 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.98 2011/04/11 10:54:18 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -231,7 +231,7 @@ class LDAP_Bridge extends Asset implements Bridge
 										Array('objectclass')
 							);
 
-				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_unique($attr_req));
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
 			} else {
 				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
 			}
