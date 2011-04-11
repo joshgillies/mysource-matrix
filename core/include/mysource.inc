@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.356.2.6 2011/03/14 22:03:00 mhaidar Exp $
+* $Id: mysource.inc,v 1.356.2.7 2011/04/11 05:41:50 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356.2.6 $
+* @version $Revision: 1.356.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4089,7 +4089,7 @@ class MySource extends MySource_Object
 	function _translateMatrixURL(&$content)
 	{	
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+'.')(?:"|\')'.'[^>]*?'.'>!msi', $content, $matches);
+		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+)'.'[^"\']*'.'[^>]*>!msi', $content, $matches);
 		if (empty($matches[1])) return;
 		
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
