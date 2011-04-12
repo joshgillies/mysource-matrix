@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.20.12.2 2011/03/24 23:54:49 akarelia Exp $
+* $Id: import.inc,v 1.20.12.3 2011/04/12 00:53:09 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.12.2 $
+* @version $Revision: 1.20.12.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -216,6 +216,18 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
+	
+	if ($action_class == 'trigger_action_set_attribute_value' && isset($output['attribute']) && $output['attribute'] == 'varieties'){
+		if (isset($output['assetid'])) {
+			$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['assetid']);
+			if ($image && $image->type() == 'image'){
+				$edit_fns = $image->getEditFns();
+				$edit_fns->_recreateVarietyImages($image);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($image);
+			}
+		}
+	}
+	
 	return TRUE;
 
 }//end execute_import_action()
