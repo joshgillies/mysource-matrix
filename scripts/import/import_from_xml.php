@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.15 2011/04/11 04:38:34 mhaidar Exp $
+* $Id: import_from_xml.php,v 1.16 2011/04/12 00:37:51 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -78,8 +78,6 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 
 	$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
 
-} else {
-	$root_node_id = $import_actions['actions'][0]['action'][0]['parentid'][0];
 }
 
 
@@ -102,16 +100,6 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-echo "Recreating Image Varieties\n";
-$images = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_node_id, 'image', TRUE);
-foreach(array_keys($images) as $imageid){
-	$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($imageid);
-	if (!isset($edit_fns)) $edit_fns = $image->getEditFns();
-	$edit_fns->_recreateVarietyImages($image);
-	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($image);
-}
-
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
