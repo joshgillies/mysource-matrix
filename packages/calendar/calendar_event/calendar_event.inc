@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.91 2010/06/17 23:50:19 cupreti Exp $
+* $Id: calendar_event.inc,v 1.91.2.1 2011/04/12 01:04:55 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.91.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -840,19 +840,19 @@ class Calendar_Event extends Asset
 	*/
 	function getKeywordReplacement($keyword)
 	{
-		$end_date_not_set = FALSE;
-		if (strcmp($this->attr('end_date'), '---------- --:--:--') == 0 ) {
-			$end_date_not_set = TRUE;
-		}
+		$end_date_not_set = ($this->getEndDate() === FALSE);
+		$start_time_not_set = ($this->getStartTime() === FALSE);
+		$end_time_not_set = ($this->getEndTime() === FALSE);
+		
 		switch ($keyword) {
 			case 'event_name':
 				return $this->name;
 			case 'event_start_date':
 				return date('jS M Y', iso8601_ts($this->attr('start_date')));
 			case 'event_start_time_12h':
-				return date('h:i a', iso8601_ts($this->attr('start_date')));
+				return $start_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('start_date')));
 			case 'event_start_time_24h':
-				return date('H:i', iso8601_ts($this->attr('start_date')));
+				return $start_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('start_date')));
 			case 'event_start_time_ical':
 				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
 				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
@@ -863,10 +863,11 @@ class Calendar_Event extends Asset
 				// In the case of 'end_date' of the first instance is not set
 				return $end_date_not_set ? '' : date('jS M Y', iso8601_ts($this->attr('end_date')));
 			case 'event_end_time_12h':
-				return $end_date_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date')));
+				return $end_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date')));
 			case 'event_end_time_24h':
-				return $end_date_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date')));
+				return $end_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date')));
 			case 'event_short_start_time':
+				if ($start_time_not_set) return '';
 				$mins = date('i', iso8601_ts($this->attr('start_date')));
 				if ($mins == '00') {
 					return date('ga', iso8601_ts($this->attr('start_date')));
@@ -874,6 +875,7 @@ class Calendar_Event extends Asset
 					return date('g:ia', iso8601_ts($this->attr('start_date')));
 				}
 			case 'event_short_end_time':
+				if ($end_time_not_set) return '';
 				$mins = date('i', iso8601_ts($this->attr('end_date')));
 				if ($mins == '00') {
 					return date('ga', iso8601_ts($this->attr('end_date')));
