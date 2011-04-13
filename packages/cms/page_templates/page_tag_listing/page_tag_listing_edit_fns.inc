@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_tag_listing_edit_fns.inc,v 1.3 2009/09/16 01:44:50 cupreti Exp $
+* $Id: page_tag_listing_edit_fns.inc,v 1.4 2011/04/13 23:27:50 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,6 +97,10 @@ class Page_Tag_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
+		if (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version']) {
+			return FALSE;
+		}
+
 		return $this->processNoticeLinkedAsset($asset, 'root');
 
 	}//end paintRootNode()

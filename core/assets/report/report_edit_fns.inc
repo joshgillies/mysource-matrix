@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.18 2007/12/03 05:18:55 lwright Exp $
+* $Id: report_edit_fns.inc,v 1.19 2011/04/13 23:26:18 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	public function processRootNode(Report $asset, Backend_Outputter $o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
+		if (!isset($_POST[$prefix.'_rootid']['assetid']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version']) ) {
 			return FALSE;
 		}
 		if (!$asset->writeAccess('links')) return FALSE;
