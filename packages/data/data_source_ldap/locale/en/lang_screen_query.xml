@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.1 2011/03/23 07:05:42 cupreti Exp $
+* $Id: lang_screen_query.xml,v 1.2 2011/04/13 07:01:06 cupreti Exp $
 *
 */
 -->
@@ -24,9 +24,14 @@
 				<process_function name="processLdapSearchFilter"/>
 			</function_call>
 <note>Use search query "(objectClass=*)" to list all the entries</note>			
-		</field>		
+		</field>
+		<field attribute="attributes">
+			<display_name>Attributes To Extract</display_name>
+			<note>Enter a comma-separated list of attributes to extract from the LDAP directory</note>
+		</field>
 		<field attribute="sort_by">
 			<display_name>Sort By</display_name>
+			<note>Enter a attribute name to sort by</note>
 		</field>
 	</section>
 	<section name ="Record Set Asset Names">

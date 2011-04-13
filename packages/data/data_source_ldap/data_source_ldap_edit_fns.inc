@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap_edit_fns.inc,v 1.2 2011/04/12 03:07:27 cupreti Exp $
+* $Id: data_source_ldap_edit_fns.inc,v 1.3 2011/04/13 07:01:06 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -205,12 +205,6 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processLdapBridgeAsset(&$asset, &$o, $prefix)
 	{	
-		// This one is last edit process function for attribute available in details screen
-		// hence make call to connectToLdap() to sync the asset's LDAP bridge's attributes
-		if ($asset->writeAccess('attributes')) {
-			@$asset->connectToLdap(TRUE);
-		}
-
 		$new_ldap_bridge_id = @$_REQUEST[$prefix.'_ldap_bridge']['assetid'];
 
 		if (!$asset->writeAccess('links')) {			
