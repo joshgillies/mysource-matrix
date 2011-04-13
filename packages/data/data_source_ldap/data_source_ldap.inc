@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.5 2011/04/13 16:26:51 ata Exp $
+* $Id: data_source_ldap.inc,v 1.6 2011/04/13 18:20:37 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -218,10 +218,8 @@ class Data_Source_Ldap extends Data_Source
 				$entries = $ldap->getEntries($search_result);						
 				
 				if (!empty($entries)) {					
+					unset($entries['count']);
 					foreach($entries as $data) {							
-						if (!$data['count']) {
-							continue;
-						}
 						unset($data['count']);
 						
 						foreach($data as $ldap_key => $ldap_val) {								
