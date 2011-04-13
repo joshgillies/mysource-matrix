@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.4 2011/04/13 07:01:06 cupreti Exp $
+* $Id: data_source_ldap.inc,v 1.5 2011/04/13 16:26:51 ata Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -199,48 +199,46 @@ class Data_Source_Ldap extends Data_Source
 		$ldap = @$this->connectToLdap();		
 		if (!is_null($ldap)) {		
 			$base_dn = $this->_ldap_dir['root_dn'];			
-			if (!empty($base_dn)) {
-				$sort_by = trim($this->attr('sort_by'));
+			$sort_by = trim($this->attr('sort_by'));
+			
+			$required_attributes = explode(",", $this->attr('attributes'));
+			foreach($required_attributes as $index => $required_attribute) {
+				$required_attribute = trim($required_attribute);
+				if (!empty($required_attribute)) {
+					$required_attributes[$index] = trim($required_attribute);
+				} else {
+					unset($required_attributes[$index]);
+				}
+			}//end foreach
+			$required_attributes = array_values($required_attributes);
+			
+			$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes);
+			
+			if (!empty($search_result)) {
+				$entries = $ldap->getEntries($search_result);						
 				
-				$required_attributes = explode(",", $this->attr('attributes'));
-				foreach($required_attributes as $index => $required_attribute) {
-					$required_attribute = trim($required_attribute);
-					if (!empty($required_attribute)) {
-						$required_attributes[$index] = trim($required_attribute);
-					} else {
-						unset($required_attributes[$index]);
-					}
-				}//end foreach
-				$required_attributes = array_values($required_attributes);
-				
-				$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes);
-				
-				if (!empty($search_result)) {
-					$entries = $ldap->getEntries($search_result);						
-					
-					if (!empty($entries)) {					
-						foreach($entries as $data) {							
-							if (!$data['count']) {
-								continue;
-							}
-							unset($data['count']);
-							
-							foreach($data as $ldap_key => $ldap_val) {								
-								if (!is_int($ldap_key)) {
-									if (is_array($ldap_val)) {
-										unset($ldap_val['count']);										
-										$ds_record[$ldap_key] = implode(";", $ldap_val);
-									} else {
-										$ds_record[$ldap_key] = $ldap_val;
-									}
-								}//end if
-							}//end foreach
-							
-							$result[] = $ds_record;
-							
+				if (!empty($entries)) {					
+					foreach($entries as $data) {							
+						if (!$data['count']) {
+							continue;
+						}
+						unset($data['count']);
+						
+						foreach($data as $ldap_key => $ldap_val) {								
+							if (!is_int($ldap_key)) {
+								if (is_array($ldap_val)) {
+									unset($ldap_val['count']);										
+									$ds_record[$ldap_key] = implode(";", $ldap_val);
+								} else {
+									$ds_record[$ldap_key] = $ldap_val;
+								}
+							}//end if
 						}//end foreach
-					}//end if					
-				} //end if
+						
+						$result[] = $ds_record;
+						
+					}//end foreach
+				}//end if					
 			}//end if
 		}//end if
 	
