@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.99 2011/04/12 05:52:09 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.100 2011/04/14 01:00:36 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -717,10 +717,16 @@ class LDAP_Bridge extends Asset implements Bridge
 			$reg_expression = '|ou=([^,]+),(.*)|i';
 			$reg_string = substr($assetid, strpos($assetid, ',') + 1);
 
-			preg_match_all($reg_expression, $reg_string, $matches);
-			if (!empty($matches[1])) {
-				$reg_string = array_shift($matches[2]);
-				$ou_groups[array_shift($matches[1])] = $reg_string;
+			$matching = TRUE;
+			while ($matching){
+				$matches = Array();
+				preg_match_all($reg_expression, $reg_string, $matches);
+				if (!empty($matches[1])) {
+					$reg_string = array_shift($matches[2]);
+					$ou_groups[array_shift($matches[1])] = $reg_string;
+				} else {
+					$matching = FALSE;
+				}
 			}
 
 			foreach ($mo_groups as $group_name) {
