@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.3 2011/04/07 03:43:57 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.4 2011/04/14 23:49:55 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -208,7 +208,7 @@ class CMIS_Bridge extends Asset
 		if (empty($folderId)) return $sync_info;
 		
 		$children_data = $this->getFolderChildren($repositoryId, $folderId);
-		if (empty($children_data)) return $sync_info;
+		if ($children_data === FALSE) return $sync_info;
 		
 		foreach ($children_data as $object_data){
 			
@@ -351,10 +351,13 @@ class CMIS_Bridge extends Asset
 	public function getFolderChildren($repositoryId, $folderId)
 	{
 		$children_data = Array();
-		if (!$this->connect('NavigationService')) return $children_data;
+		if (!$this->connect('NavigationService')) return FALSE;
 		
 		$children =  $this->soap['NavigationService']->getChildren($repositoryId, $folderId);
-		if (!isset($children->objects->objects)) return $children_data;
+		if (isset($children->objects->numItems)){
+			if ((int)$children->objects->numItems == 0) return $children_data;
+		} 
+		if (!isset($children->objects->objects)) return FALSE;
 		
 		$key = 0;
 		foreach ($children->objects->objects as $object){
