@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.69.2.3 2011/03/10 02:39:05 akarelia Exp $
+* $Id: js_api.inc,v 1.69.2.4 2011/04/14 05:48:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.69.2.3 $
+* @version $Revision: 1.69.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1414,7 +1414,7 @@ class JS_Api extends Page
 		if($add_more_attributes) {
 			foreach($am->getAssetTypeAttributes($asset->type()) as $name => $type) {
 				$value = $asset->attr($name);
-				if(!empty($value) && !is_null($value) && !isset($data[$name])) {
+				if(!isset($data[$name]) && $name != 'api_key') {
 					$data[$name] = $value;
 				}
 			}
