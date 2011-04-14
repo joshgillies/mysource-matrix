@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_management.inc,v 1.4 2009/10/12 05:13:38 lwright Exp $
+* $Id: metadata_field_hierarchy_management.inc,v 1.5 2011/04/14 06:48:45 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,20 @@ class Metadata_Field_Hierarchy_Management extends Asset_Management
 												'type'		=> 'serialise',
 												'default'	=> Array(),
 												'is_contextable'	=> TRUE,
+											   ),
+						'visible_part'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'key',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'key'	=> 'Key',
+																						'value'	=> 'Value',
+																					   ),
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																   ),
+												'description'	=> 'This will determine which part of the options will be printed on the frontend (Key by default).',
 											   ),
 					  );
 

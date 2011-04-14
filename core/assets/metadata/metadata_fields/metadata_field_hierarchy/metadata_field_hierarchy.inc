@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.10 2009/11/25 04:41:16 akarelia Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.11 2011/04/14 06:48:45 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,7 +118,12 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 	*/
 	public function getMetadataValue(Asset $asset, $value_str)
 	{
-		return str_replace('\\;', ';', parent::getMetadataValue($asset, $this->getValueFromKey($value_str)));
+		
+		// If we are showing the value, then pass it up
+		if ($this->attr('visible_part') === 'value') {
+			$value_str = $this->getValueFromKey($value_str);
+		}
+		return str_replace('\\;', ';', parent::getMetadataValue($asset, $value_str));
 
 	}//end getMetadataValue()
 
@@ -283,7 +288,112 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 
 		return $value_str;
 
-	}//end getValueFromKey()
+	}//end getKeyFromValue()
+	
+	
+	/**
+	* Return any additional keyword that may be provided by the field
+	*
+	* This is mainly used in situations such as returning the current key and
+	* value for Select fields. Where a keyword is not supported, the function
+	* should return NULL.
+	*
+	* Note that if asset_metadata keywords conflict due to additional keywords,
+	* the one with the longest field name will prevail. For instance, a keyword
+	* 'asset_metadata_field_value' will select a field named 'field_value' over
+	* a field named 'field' with an additional keyword 'value'.
+	*
+	* @param string	$host_assetid		The ID of the asset that metadata details
+	*                                   were requested from
+	* @param string	$additional_keyword	The additional keyword requested
+	* @param int	$contextid			Use the stored metadata value for this
+	*                                   context. If omitted, use the current
+	*                                   context.
+	*
+	* @return mixed string|NULL
+	*/
+	public function getAdditionalKeywordReplacement($host_assetid, $additional_keyword, $contextid=NULL)
+	{
+		$replacement = NULL;
+
+		if ($contextid === NULL) {
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
+		switch ($additional_keyword) {
+			case 'key':
+			case 'value':
+				// Go directly to the database, and get what it has (which
+				// will be the key)
+				// We need to narrow the host asset ID where it is because
+				// if a default value needs to be used, the custom values table
+				// will be all nulls - so we can't narrow by host asset ID by then
+
+				// We need to get custom values from the metadata value table,
+				// then default values from the default value table where they
+				// don't exist in the custom value table.
+				$sql = 'SELECT value FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';
+				$where = 'assetid = :host_assetid AND fieldid = :fieldid AND contextid = :contextid';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+				$sql .= $where;
+
+				// Now build the default values query (and sub-query).
+				$sub_sql = 'SELECT fieldid, contextid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'ast_mdata_val');
+
+				$union_sql = 'SELECT default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val';
+				$union_where = '%tuple_keyword%(assetid, contextid) NOT IN ('.$sub_sql.$sub_where.') AND assetid = :fieldid_1 AND contextid = :contextid_1';
+				$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'ast_mdata_dflt_val');
+
+				// Oracle uses '(field, field)' for tuples, PgSQL uses 'ROW(field, field)'.
+				if (MatrixDAL::getDbType() === 'oci') {
+					$union_where = str_replace('%tuple_keyword%', '', $union_where);
+				} else {
+					$union_where = str_replace('%tuple_keyword%', 'ROW', $union_where);
+				}
+				$union_sql .= $union_where;
+				$sql = '('.$sql.') UNION ALL ('.$union_sql.')';
+
+				// Go go go!
+				$bind_vars = Array(
+								'host_assetid'	=> (string)$host_assetid,
+								'fieldid'		=> (string)$this->id,
+								'contextid'		=> (int)$contextid,
+								'fieldid_1'		=> (string)$this->id,
+								'contextid_1'	=> (int)$contextid,
+							 );
+
+				$query = MatrixDAL::preparePdoQuery($sql);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+
+				$key = MatrixDAL::executePdoOne($query);
+
+				// Does the metadata field value (or a default value) exist?
+				if ($key !== FALSE) {
+					if ($additional_keyword === 'key') {
+						$replacement = $key;
+					} else if ($additional_keyword === 'value') {
+						// Turn it into a value
+						$replacement = $this->getValueFromKey($key);
+					}
+				}
+
+			break;
+
+		}//end switch
+		
+		if (is_null($replacement)){
+			return $replacement;
+		} else {
+			$value='';
+			$value_components = $this->attr('value_components');
+			$this->decodeValueString($replacement, $value, $value_components);
+			return $value;
+		}
+
+	}//end getAdditionalKeywordReplacement()
 
 
 }//end class

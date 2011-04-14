@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2009/10/16 01:39:28 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.6 2011/04/14 06:48:45 mhaidar Exp $
 *
 */
 -->
@@ -68,6 +68,10 @@
 		<field attribute="allow_empty">
 			<display_name>Allow Empty</display_name>
 			<note />
+		</field>
+		<field attribute="visible_part">
+			<display_name>Frontend Part</display_name>
+			<note>%description%</note>
 		</field>
 	</section>
 	<section name="Flat View Options" show_if="isFlatView">

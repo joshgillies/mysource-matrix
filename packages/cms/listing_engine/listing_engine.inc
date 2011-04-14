@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.318 2011/04/01 06:27:05 cupreti Exp $
+* $Id: listing_engine.inc,v 1.319 2011/04/14 06:48:26 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.318 $
+* @version $Revision: 1.319 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3842,7 +3842,7 @@ class Listing_Engine extends Page
 						foreach ($results as $key => $arrayInfo) {
 							// if the metadata field types are of Metadata_Field_Hierarchy OR Metadata_Field_Select
 							// for other metadata fields the key is the value
-							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && ( $metadata_field instanceof Metadata_Field_Hierarchy || $metadata_field->attr('visible_part') === 'key' )) {
+							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && $metadata_field->attr('visible_part') === 'key') {
 								//we are sure its a metadata select field lets see whats been printed on frontend key OR value
 								$raw_value = $metadata_field->getKeyFromValue($key);
 								$group_order[$raw_value] = $arrayInfo;

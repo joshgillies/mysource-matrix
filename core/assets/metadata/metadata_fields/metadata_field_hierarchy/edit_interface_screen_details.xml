@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2009/10/16 01:39:28 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2011/04/14 06:48:45 mhaidar Exp $
 *
 */
 -->
@@ -56,6 +56,9 @@
 		</field>
 		<field attribute="allow_empty">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="visible_part">
+			<selection style="boxes" columns="1" extras="" />
 		</field>
 	</section>
 	<section name="Flat View Options" show_if="isFlatView" write_access="write:attributes">
