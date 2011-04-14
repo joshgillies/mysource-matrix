@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.255 2010/08/06 04:46:55 mhaidar Exp $
+* $Id: general.inc,v 1.255.4.1 2011/04/14 05:55:59 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.255.4.1 $
 * @package MySource_Matrix
 */
 
@@ -1924,6 +1924,71 @@ function replace_global_keywords(&$text)
 							if ($asset_exist === TRUE) {
 								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 								if ($asset->readAccess()) {
+									// if the keywords is %globals_asset_contents*% replace them here
+									// dont outsource it to asset.inc
+									if (0 === strpos($asset_keyword, 'asset_contents')) {
+										$asset_keyword = preg_replace( '|:([0-9]+)$|', '', $asset_keyword);
+										$this_url = preg_replace('/htt[p|ps]:\/\//', '', $asset->getURL());
+										if (0 === strpos($asset_keyword, 'asset_contents_raw')) {
+
+											ob_start();
+												// get the pront end of the asset but dont worry abt any errors here
+												$asset->printBody();
+												$content = ob_get_contents();
+											ob_end_clean();
+											$replacements[$full_keyword] = $content;
+
+										} else if ($asset_keyword == 'asset_contents') {
+
+											// get the front end of the asset
+											$this_paint_layout = $asset->getCurrentPaintLayoutName();
+											$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
+											ob_start();
+												if (!$layout_id) {
+													$asset->printBodyWithPaintLayout();
+												} else {
+													$asset->printBodyWithPaintLayout($layout_id);
+												}
+												$content = ob_get_contents();
+											ob_end_clean();
+											$replacements[$full_keyword] = $content;
+
+										} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_id')) {
+
+											$layout_id = str_replace('asset_contents_paint_layout_id_', '', $asset_keyword);
+											ob_start();
+												if (!$layout_id) {
+													$asset->printBodyWithPaintLayout();
+												} else {
+													$asset->printBodyWithPaintLayout($layout_id);
+												}
+												$content = ob_get_contents();
+											ob_end_clean();
+											$replacements[$full_keyword] = $content;
+
+										} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_name')) {
+
+											$layout_name = str_replace('asset_contents_paint_layout_name_', '', $asset_keyword);
+
+											// if user has not mentioned if it is a user defined or default frontend
+											// assume it is user defined
+											if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
+												$layout_name = 'paint_layout::user::'.$layout_name;
+											}
+											$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
+											ob_start();
+												if (!$layout_id) {
+													$asset->printBodyWithPaintLayout();
+												} else {
+													$asset->printBodyWithPaintLayout($layout_id);
+												}
+												$content = ob_get_contents();
+											ob_end_clean();
+											$replacements[$full_keyword] = $content;
+
+										}
+
+									}
 									$asset_replacement = $asset->getKeywordReplacement($matches[1]);
 									if ((string)$asset_replacement != "%$matches[1]%") {
 										$replacements[$full_keyword] = $asset_replacement;
