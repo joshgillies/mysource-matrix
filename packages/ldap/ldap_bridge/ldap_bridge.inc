@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90.2.4 2011/03/24 23:02:34 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.90.2.5 2011/04/14 01:37:21 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.2.4 $
+* @version $Revision: 1.90.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -444,13 +444,14 @@ class LDAP_Bridge extends Asset implements Bridge
 						$members = $asset->vars[$attr['gm']];
 						$entries = Array();
 						foreach ($members as $dn) {
-							$user = $this->getAsset($this->id.':'.$dn);
+							$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
 							// dn of user group was stripped out in construction, but we need it this time
-							$user->vars['dn'] = $dn;
-							$entries[$dn] = $user->vars;
+							if (!is_null($user)){
+								$user->vars['dn'] = $dn;
+								$entries[$dn] = $user->vars;
+							}
 						}
 					}
-					// }
 				}
 
 				if (is_null($entries)) {
