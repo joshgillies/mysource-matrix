@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utransact_processor.inc,v 1.1 2010/05/07 03:34:43 cupreti Exp $
+* $Id: utransact_processor.inc,v 1.2 2011/04/14 00:31:56 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/transaction_dataset.inc';
 * UTransact payment processing object 
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -353,7 +353,9 @@ class Utransact_Processor
 				$this->_reference_no, 
 				empty($this->_credit_card_cv2) ? $this->_credit_card : $this->_credit_card.','.$this->_credit_card_cv2, 
 				$this->_expiry_year.'/'.$this->_expiry_month, 
-				$this->_card_holder_name
+				$this->_card_holder_name,
+				$this->_merchant_id, 
+				$this->_payment_model
 			);
         
         // Populate purchaser row
@@ -365,9 +367,7 @@ class Utransact_Processor
 				$this->_address_line_2, 
 				$this->_suburb, 
 				$this->_city, 
-				$this->_postcode, 
-				$this->_merchant_id, 
-				$this->_payment_model
+				$this->_postcode
 			);
 		
         // Populate line_item row        
@@ -392,7 +392,7 @@ class Utransact_Processor
 		
 		// New transaction dataset
 		$new_transaction_dataset = $transaction_table->getTransactionDatasetXML();
-		
+
 		// Get the authentication header for soap request to payment gateway
 		$transaction_auth_header = $this->_getAuthSoapHeader($this->_auth_transactions_header_ns);
 		
@@ -517,7 +517,6 @@ class Utransact_Processor
                 // Transaction completed, but couldn't obtained the details
                   $this->_log("ERROR: Transaction ref ".$this->_reference_no." completed, but couldn't obtain details: ".$e->getMessage());
             }
-            
             
             if (isset($transaction_details_response->GetDetailsResult->any)) {
             
@@ -1636,8 +1635,7 @@ class Utransact_Processor
 		$message .= 'Time: '.date('r')."\n";
 		$message .= 'Card holder name: '.$this->_card_holder_name."\n";
 		$message .= 'Card number: ****-****-****-'.substr($this->_credit_card, -4)."\n";
-		$message .= 'Amount (without GST): '.array_get_index($this->_response, 'AMOUNT', '')."\n";
-		$message .= 'GST Amount: '.array_get_index($this->_response, 'GST', '')."\n";
+		$message .= 'Amount: '.array_get_index($this->_response, 'AMOUNT', '')."\n";
 		$this->_log($message);
 		
 	}//end _logRequest()

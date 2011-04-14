@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_dataset.inc,v 1.1 2010/05/07 03:34:43 cupreti Exp $
+* $Id: transaction_dataset.inc,v 1.2 2011/04/14 00:31:56 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This class represents a new transaction dataset
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -215,11 +215,12 @@ class Transaction_Dataset
 	* @param string	$card_holder_name
 	* @param int	$merchant_id
     * @param string	$payment_model
+	* @param string $gst_rate
 	*
 	* @return boolean
 	* @access public
 	*/	
-	function addTransactionRow($reference_id, $credit_card, $expiry_date, $card_holder_name, $merchant_id='', $payment_model='')
+	function addTransactionRow($reference_id, $credit_card, $expiry_date, $card_holder_name, $merchant_id='', $payment_model='', $gst_rate=0)
 	{   
         $this->_transaction = Array(
                             0 => Array(
@@ -227,6 +228,7 @@ class Transaction_Dataset
                             "CreditCard"        => $credit_card,
                             "ExpiryDate"        => $expiry_date,
                             "CardHolderName"    => $card_holder_name,
+							"GstRate"			=> $gst_rate,
                             ),
                         );
        
@@ -343,6 +345,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-
 <xs:element name="CardHolderName" type="xs:string" />
 <xs:element name="MerchantId" type="xs:int" minOccurs="0" />
 <xs:element name="PaymentModel" type="xs:string" minOccurs="0" />
+<xs:element name="GstRate" type="xs:decimal" minOccurs="0" />
 </xs:sequence>
 </xs:complexType>
 </xs:element>

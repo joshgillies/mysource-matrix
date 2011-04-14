@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_utransact.inc,v 1.2 2010/06/02 17:37:07 ata Exp $
+* $Id: payment_gateway_utransact.inc,v 1.3 2011/04/14 00:31:56 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/utransact_processor.inc';
 * Interface for online credit card processing using Utransact payment gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -160,8 +160,8 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		$keywords['credit_card_ccv'] = 'Credit Card CCV field';
 		$keywords['credit_card_type_selector'] = 'Credit Card selector';
 		
-		$keywords['transaction_amount'] = 'Total transaction amount (withGST)';
-		$keywords['transaction_gst'] = 'GST percent set for a transaction';
+		$keywords['transaction_amount'] = 'Total transaction amount';
+		$keywords['transaction_gst'] = 'GST percent set at gateway (Not set for transaction)';
 		
 		$keywords['submit_button'] = 'Submit Button';
 		$keywords['cancel_button'] = 'Cancel Button';
