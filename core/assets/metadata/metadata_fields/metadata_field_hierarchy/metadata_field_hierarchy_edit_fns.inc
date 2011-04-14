@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.19 2009/11/25 07:24:40 akarelia Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.19.6.1 2011/04/14 05:39:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -516,7 +516,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$add_on_click = 'addToReceptacle_for_'.$prefix.'(\''.$field_name.'\')';
 			// new column for 'add' buttons
 			echo '</td><td valign="top">';
-			echo normal_button($prefix.'_drill_down_button', translate('add'), $add_on_click).'</td></tr>';
+			echo normal_button($prefix.'_drill_down_button', translate('add'), $add_on_click);
 
 			echo '</td></tr>';
 		}
@@ -535,6 +535,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// close the receptacle row
 		echo '</td></tr>';
+		echo '</table>';
 
 		echo $this->_printJSObjects($options, $prefix);
 
