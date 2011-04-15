@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap_management.inc,v 1.1.2.2 2011/03/24 23:21:21 akarelia Exp $
+* $Id: data_source_ldap_management.inc,v 1.1.2.3 2011/04/15 05:53:12 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -116,6 +116,12 @@ class Data_Source_Ldap_Management extends Asset_Management
 																'parameters'	=> Array(),
 															),
 												),
+						'attributes'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'Comma seperated list of required attributes to extract from LDAP',
+												),												
 					  );
 
 	}//end constructor

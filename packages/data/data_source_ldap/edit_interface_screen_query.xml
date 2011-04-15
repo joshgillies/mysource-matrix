@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.1.2.2 2011/03/24 23:21:21 akarelia Exp $
+* $Id: edit_interface_screen_query.xml,v 1.1.2.3 2011/04/15 05:53:12 cupreti Exp $
 *
 */
 -->
@@ -25,6 +25,9 @@
 		</field>
 		<field attribute="sort_by">
 			<text width="40" height="1" />
+		</field>
+		<field attribute="attributes">
+			<text width="100" height="1" />
 		</field>
 	</section>
 	<section name="Record Set Asset Names" write_access="write:attributes">
