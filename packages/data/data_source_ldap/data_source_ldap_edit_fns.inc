@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap_edit_fns.inc,v 1.1.2.2 2011/03/24 23:21:21 akarelia Exp $
+* $Id: data_source_ldap_edit_fns.inc,v 1.1.2.3 2011/04/15 05:44:01 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -393,7 +393,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 
 		$o->closeRaw();
 
-		$o->sectionNote(translate('db_data_source_variable_section_note'));
+		$o->sectionNote(translate('ldap_data_source_variable_section_note'));
 
 		$o->closeSection();
 
@@ -410,7 +410,7 @@ class Data_Source_Ldap_Edit_Fns extends Data_Source_Edit_Fns
 		$map->paint($prefix.'_parameter_map', !$write_access);
 		$o->closeRaw();
 
-		$o->sectionNote(translate('db_data_source_mappings_section_note'));
+		$o->sectionNote(translate('ldap_data_source_mappings_section_note'));
 
 		return $write_access;
 

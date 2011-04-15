@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.2.2.2 2011/03/24 23:21:21 akarelia Exp $
+* $Id: data_source_ldap.inc,v 1.2.2.3 2011/04/15 05:44:01 cupreti Exp $
 *
 */
 
@@ -27,19 +27,29 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
 class Data_Source_Ldap extends Data_Source
 {
-	
+
 	/*
-	* LDAP bridge asset
+	* Array having details to connect to an LDAP directory 
 	*
-	* @var object
-	*/
-	var $ldap_bridge;
+	*	Array(
+	*		'host',
+	*		'port',
+	*		'root_dn',
+	*		'bind_dn',
+	*		'password',
+	*		'ldap_options',
+	*		'aliases'
+	*	)
+	*
+	* @var array
+	*/	
+	var $_ldap_dir;
 	
 
 	/**
@@ -50,7 +60,8 @@ class Data_Source_Ldap extends Data_Source
 	*/
 	function __construct($assetid=0)
 	{	
-		$this->ldap_bridge = NULL;
+		$this->_ldap_dir = Array();
+		
 		parent::__construct($assetid);
 
 	}//end constructor
@@ -90,98 +101,83 @@ class Data_Source_Ldap extends Data_Source
 	
 
 	/**
-	* Connect and bind to the LDAP directory that this asset bridges to
+	* Load LDAP connection details from external LDAP Bridge
+	* or from its own LDAP settings
 	*
-	* @param boolean $reload_ldap_bridge
+	* @return void
+	* @access private
+	*/
+	function _loadLdapVars()
+	{
+		// If using an existing LDAP bridge
+		$ldap_bridge_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ldap_bridge', FALSE, 'ldap_bridge');		
+		$ldap_bridge_assetid = isset($ldap_bridge_link['minorid']) ? $ldap_bridge_link['minorid'] : FALSE;
+		if ($ldap_bridge_assetid) {
+			$ldap_bridge_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($ldap_bridge_assetid);
+		}
+			
+		if (!empty($ldap_bridge_info) && $ldap_bridge_info[$ldap_bridge_assetid]['type_code'] == 'ldap_bridge') {
+			$ldap_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($ldap_bridge_assetid);
+			
+			$this->_ldap_dir['host'] = $ldap_bridge->attr('host');
+			$this->_ldap_dir['port'] = $ldap_bridge->attr('port');
+			$this->_ldap_dir['root_dn'] = $ldap_bridge->attr('root_dn');
+			$this->_ldap_dir['bind_dn'] = $ldap_bridge->attr('bind_dn');
+			$this->_ldap_dir['password'] = $ldap_bridge->attr('password');
+			$this->_ldap_dir['ldap_options'] = $ldap_bridge->attr('ldap_options');
+			$this->_ldap_dir['aliases'] = $ldap_bridge->attr('aliases');
+			
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ldap_bridge_asset);			
+		} else {
+			$this->_ldap_dir['host'] = $this->attr('host');
+			$this->_ldap_dir['port'] = $this->attr('port');
+			$this->_ldap_dir['root_dn'] = $this->attr('root_dn');
+			$this->_ldap_dir['bind_dn'] = $this->attr('bind_dn');
+			$this->_ldap_dir['password'] = $this->attr('password');
+			$this->_ldap_dir['ldap_options'] = $this->attr('ldap_options');
+			$this->_ldap_dir['aliases'] = $this->attr('aliases');			
+		}	
+	
+	}//end _loadLDAPVars()
+	
+	/**
+	* Connect and bind to the LDAP directory that this asset bridges to
 	*
 	* @return object
 	* @access public
 	*/
-	function connectToLdap($reload_ldap_bridge=FALSE)
+	function connectToLdap()
 	{	
-		if (is_null($this->ldap_bridge) || $reload_ldap_bridge) {
-			// If using an existing LDAP bridge
-			$ldap_bridge_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ldap_bridge', FALSE, 'ldap_bridge');		
-			$ldap_bridge_assetid = isset($ldap_bridge_link['minorid']) ? $ldap_bridge_link['minorid'] : FALSE;
-			$ldap_bridge_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($ldap_bridge_assetid);
-			
-			if (!empty($ldap_bridge_info) && $ldap_bridge_info[$ldap_bridge_assetid]['type_code'] == 'ldap_bridge') {
-				$this->ldap_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($ldap_bridge_assetid);
-			} else {
-				//If using private and exclusive LDAP bridge
-				$ldap_bridge_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'ldap_bridge', FALSE, 'ldap_bridge_exclusive');
-				$ldap_bridge_assetid = isset($ldap_bridge_link['minorid']) ? $ldap_bridge_link['minorid'] : FALSE;
-				$ldap_bridge_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($ldap_bridge_assetid);
-				
-				if (!empty($ldap_bridge_info) && $ldap_bridge_info[$ldap_bridge_assetid]['type_code'] == 'ldap_bridge') {
-					$this->ldap_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($ldap_bridge_assetid);
-				} else {
-					
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_bridge');					
-					$ldap_bridge = new Ldap_Bridge();					
-					$ldap_bridge->setAttrValue('name', 'ldap_ds_ldap_bridge');
-					$create_link = Array(
-									'asset'		=> $this,
-									'value'		=> 'ldap_bridge_exclusive',
-									'link_type'	=> SQ_LINK_TYPE_3,
-								);
-					
-					if (!$ldap_bridge->create($create_link)) {
-						trigger_localised_error('DATA0005', E_USER_WARNING);
-						return NULL;
-					}
-					
-					$this->ldap_bridge = $ldap_bridge;
-				}
-				
-				if ($reload_ldap_bridge) {				
-					$this->_syncLdapBridgeAttrs();
-				}				
-			}//end else
-		}//end if
+		// Load the LDAP connection details
+		$this->_loadLdapVars();
 		
-		if (is_null($this->ldap_bridge)) {
+		if (empty($this->_ldap_dir['host'])) return NULL;
+
+		$ldap = new Ldap();
+		if (!$ldap->connect($this->_ldap_dir['host'], $this->_ldap_dir['port'])) {
 			return NULL;
 		}
-		
-		return $this->ldap_bridge->connectToLdap();
 
+		// Any non-default ldap connection settings set here
+		foreach ($this->_ldap_dir['ldap_options'] as $option => $value) {
+			ldap_set_option($ldap->ptr, constant($option), $value);
+		}
+
+		// Alias dereferencing setting here
+		ldap_set_option($ldap->ptr, LDAP_OPT_DEREF, constant($this->_ldap_dir['aliases']));
+
+		// If the bind DN is empty, anonymous access is assumed
+		if (!empty($this->_ldap_dir['bind_dn'])) {
+			if (!$ldap->bind($this->_ldap_dir['bind_dn'], $this->_ldap_dir['password'])) {
+				return NULL;
+			}
+		}
+		
+		return $ldap;		
+	
 	}//end connectToLdap()
 
 
-	/**
-	* Updates all the attributes of LDAP bridge using the attributes set on
-	* this asset for LDAP connection
-	*
-	* @return boolean
-	* @access private
-	*/	
-	function _syncLdapBridgeAttrs()
-	{
-		if (is_null($this->ldap_bridge)) {
-			return FALSE;
-		}
-						
-		$attrs = Array('ldap_options', 'aliases', 'host', 'port', 'root_dn', 'bind_dn', 'password');
-		
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->ldap_bridge->id, 'attributes')) {
-			trigger_localised_error('DATA0006', E_USER_WARNING, $this->ldap_bridge->id);			
-			return FALSE;
-		}
-		
-		foreach($attrs as $attr) {		
-			$new_value = $this->attr($attr);			
-			$this->ldap_bridge->setAttrValue($attr, $new_value);
-		}
-		
-		$success = $this->ldap_bridge->saveAttributes();		
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->ldap_bridge->id, 'attributes');
-		
-		return $success;
-		
-	}// end _syncLdapBridgeAttrs()
-
-	
 	/**
 	* Function that executes the LDAP query using the given search filter
 	*
@@ -192,76 +188,53 @@ class Data_Source_Ldap extends Data_Source
 	*/
 	function _executeQuery($search_filter)
 	{	
-		$base_dn = $this->attr('root_dn');
-		if (empty($base_dn)) {			
+		$search_filter = trim($search_filter);
+		if (empty($search_filter)) {
 			return Array();
 		}
 		
-		$result = Array();		
+		$result = Array();
 		
 		$ldap = @$this->connectToLdap();		
-		if (!is_null($ldap)) {			
-			$sort_by = $this->attr('sort_by');
-			
-			if (!empty($search_filter)) {
-				$search_result = $ldap->search($base_dn, $search_filter, $sort_by);
+		if (!is_null($ldap)) {		
+			$base_dn = $this->_ldap_dir['root_dn'];			
+			if (!empty($base_dn)) {
+				$sort_by = trim($this->attr('sort_by'));
+				
+				$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by);
 				
 				if (!empty($search_result)) {
-					$entries = $ldap->getEntries($search_result);
-					$ldap->disconnect();
+					$entries = $ldap->getEntries($search_result);						
 					
-					if (!empty($entries)) {
-						$shadow_assetids = Array();
-						$ldap_results = Array();
-						foreach($entries as $data) {
+					if (!empty($entries)) {					
+						foreach($entries as $data) {							
 							if (!$data['count']) {
 								continue;
-							}						
-							unset($data['count']);							
-							unset($data['objectclass']['count']);
-							foreach ($data['objectclass'] as $class) {
-								$class = strtolower($class);
-								if (isset($this->ldap_bridge->_group_types[$class]) || isset($this->ldap_bridge->_user_types[$class])) {
-									$shadow_assetids[] = $this->id.':'.$data['dn'];
-									$ldap_results[$this->id.':'.$data['dn']] = $data;
+							}
+							unset($data['count']);
+							
+							foreach($data as $ldap_key => $ldap_val) {								
+								if (!is_int($ldap_key)) {
+									if (is_array($ldap_val)) {
+										unset($ldap_val['count']);										
+										$ds_record[$ldap_key] = implode(", ", $ldap_val);
+									} else {
+										$ds_record[$ldap_key] = $ldap_val;
+									}
 								}//end if
 							}//end foreach
+							
+							$result[] = $ds_record;
+							
 						}//end foreach
-						
-						$shadow_assetids = array_unique($shadow_assetids);
-						$shadow_assets_info = $this->ldap_bridge->getAssetInfo($shadow_assetids);
-						
-						foreach($shadow_assets_info as $assetid => $asset_info) {							
-							if (is_array($asset_info)) {
-								$ds_record = Array();
-
-								//Populate ldap info
-								if (isset($ldap_results[$assetid])) {
-									foreach($ldap_results[$assetid] as $ldap_key => $ldap_val) {
-										if (!is_int($ldap_key)) {											
-											$ds_record[$ldap_key] = is_array($ldap_val) ? (isset($ldap_val[0]) ? $ldap_val[0] : '') : $ldap_val;
-										}
-									}//end foreach
-								}//end if
-								
-								//Populate shadow asset info as well
-								foreach($asset_info as $data_key => $data_val) {
-									$ds_record[$data_key] = $data_val;
-								}//end foreach
-								$result[] = $ds_record;								
-							}//end if						
-						}//end foreach						
-						
-					}//end if
-					
-				} else {
-					$ldap->disconnect();
-				}
+					}//end if					
+				} //end if
 			}//end if
-			
-			
-			
-		}//end if		
+		}//end if
+	
+		if (!is_null($ldap)) {
+			$ldap->disconnect();
+		}
 		
 		return $result;
 
