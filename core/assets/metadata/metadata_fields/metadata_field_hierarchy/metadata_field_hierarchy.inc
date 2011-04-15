@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.11 2011/04/14 06:48:45 mhaidar Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.12 2011/04/15 04:58:57 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,13 +139,14 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 	*/
 	public function getValueFromKey($option_str)
 	{
-		$option_keys = explode('\\; ', $option_str);
+		$option_keys = explode('; ', $option_str);
 		if (empty($option_keys)) return $option_str;
 
 		$value_str = '';
 		$options = $this->getContextedHierarchyOptions();
 
 		foreach ($option_keys as $key) {
+			$key = str_replace('\\', '', $key);
 			if (isset($options[$key])) {
 				$value_str .= $options[$key].'\\; ';
 			}
@@ -265,13 +266,14 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 	*/
 	public function getKeyFromValue($option_str)
 	{
-		$option_keys = explode('\\; ', $option_str);
+		$option_keys = explode('; ', $option_str);
 		if (empty($option_keys)) return $option_keys;
 
 		$value_str = '';
 		$options = $this->attr('hierarchy_options');
 
 		foreach ($option_keys as $key) {
+			$key = str_replace('\\', '', $key);
 			foreach($options as $index => $element) {
 				if ($index === $key) {
 					$value_str .= $element.'\\; ';

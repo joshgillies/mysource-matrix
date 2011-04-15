@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.21 2011/04/14 06:48:45 mhaidar Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.22 2011/04/15 04:58:57 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -225,7 +225,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
 			if (is_array($value)) $value = implode('; ', $value);
-
+			$value = Metadata_Field::encodeValueString(trim($value), Array());
 			$hoptions = $hierarchy->_params['options'];
 
 			$hierarchy->value = $value;
