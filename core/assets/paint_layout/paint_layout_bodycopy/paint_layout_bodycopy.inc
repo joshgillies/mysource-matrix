@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.48.4.1 2011/04/14 06:16:54 akarelia Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.48.4.2 2011/04/15 05:19:00 cupreti Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.48.4.1 $
+* @version $Revision: 1.48.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -412,7 +412,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		// asset lineage
 		if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+			preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
+			$url = !empty($matches[1]) ? $matches[1] : NULL;
+			$protocol = !empty($matches[2]) ? $matches[2] : NULL;
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
+
 
 			$ret['asset_lineage'] = '';
 			$ret['asset_lineage_linked'] = '';
