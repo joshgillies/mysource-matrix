@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2011/04/14 06:48:45 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.7 2011/04/15 07:10:54 mhaidar Exp $
 *
 */
 -->
@@ -69,6 +69,10 @@
 			<display_name>Allow Empty</display_name>
 			<note />
 		</field>
+		<field attribute="multiple">
+			<display_name>Allow Multiple</display_name>
+			<note> You should select 'Yes' when using Drill-Down View </note>
+		</field>
 		<field attribute="visible_part">
 			<display_name>Frontend Part</display_name>
 			<note>%description%</note>
@@ -77,10 +81,6 @@
 	<section name="Flat View Options" show_if="isFlatView">
 		<field attribute="hier_structure">
 			<display_name>Show structure</display_name>
-		</field>
-		<field attribute="multiple">
-			<display_name>Allow Multiple</display_name>
-			<note />
 		</field>
 		<field attribute="hier_sort">
 			<display_name>Sort Hierarchy</display_name>
