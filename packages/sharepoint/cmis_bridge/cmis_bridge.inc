@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.4 2011/04/14 23:49:55 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.5 2011/04/15 00:01:07 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -341,11 +341,12 @@ class CMIS_Bridge extends Asset
 	
 	/**
 	* Grabs all the documents located under the specified folder and returns all available information
+	* Return FALSE on error.
 	*
 	* @param string		$repositoryId
 	* @param string		$folderId
 	*
-	* @return array
+	* @return boolean|array
 	* @access public
 	*/
 	public function getFolderChildren($repositoryId, $folderId)
