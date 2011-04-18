@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.25 2008/01/09 23:57:59 colivar Exp $
+* $Id: asset_map.js,v 1.26 2011/04/18 01:28:28 mhaidar Exp $
 *
 */
 
@@ -62,8 +62,10 @@ function init_asset_map()
 */
 function open_hipo(url)
 {
-	window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
-
+	window.focus();
+	var popup = window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
+	popup.focus();
+	
 }//end open_hipo()
 
 
