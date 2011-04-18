@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_update_trim_record_edit_fns.inc,v 1.3 2011/04/01 06:12:07 csmith Exp $
+* $Id: cron_job_update_trim_record_edit_fns.inc,v 1.4 2011/04/18 06:25:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 						<td><?php radio_button($prefix.'_schedule', 'DL', $dl_check); ?></td>
 						<td><?php combo_box($prefix.'_d_hours',$hours, false, $dl_hours); ?>:<?php combo_box($prefix.'_d_mins',$mins, false, $dl_mins); ?> on every day</td>
 					<tr>
-				</table?
+				</table>
 			</div>
             <?php
 		} else {
@@ -137,7 +137,7 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 						<td>TRIM Records Will be Updated Hourly at </td>
 						<td><?php echo $hr_mins;?> min</td>
 					<tr>
-				</table?
+				</table>
 			</div>
 			<?php
 			} else {
@@ -148,7 +148,7 @@ class Cron_Job_Update_Trim_Record_Edit_Fns extends Cron_Job_Edit_Fns
 						<td>TRIM Records Will be Updated Daily at </td>
 						<td><?php echo $dl_hours;?>:<?php echo $dl_mins;?></td>
 					<tr>
-				</table?
+				</table>
 			</div>
 			<?php
 			}
