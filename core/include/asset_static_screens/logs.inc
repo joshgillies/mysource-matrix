@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.30 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: logs.inc,v 1.31 2011/04/18 06:34:46 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 	$db = MatrixDAL::getDb();
 	try {
-		$log_types = MatrixDAL::executeAssoc('core', 'getLogs', 0);
+		$sql = "SELECT DISTINCT 
+				    type
+				FROM
+				    ".SQ_TABLE_RUNNING_PREFIX."internal_msg
+				WHERE
+				    userto = '0'
+				    AND type LIKE 'asset%'
+				";
+		$log_types = MatrixDAL::executeSqlAssoc($sql, 0);
 	} catch (Exception $e) {
 		throw new Exception('Failed to get log messages due to database error: '.$e->getMessage());
 	}
