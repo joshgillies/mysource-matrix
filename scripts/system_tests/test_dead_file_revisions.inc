@@ -10,7 +10,7 @@
 * | you a copy.														|
 * +--------------------------------------------------------------------+
 *
-* $Id: test_dead_file_revisions.inc,v 1.2 2010/08/03 04:36:14 csmith Exp $
+* $Id: test_dead_file_revisions.inc,v 1.2.2.1 2011/04/19 06:15:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * but aren't assets any more.
 *
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 class Test_Dead_File_Revisions
@@ -142,6 +142,10 @@ class Test_Dead_File_Revisions
 			if (!is_dir($private_dir . $dir)) {
 				$dir_parts = explode('/', $dir);
 				$assetid = array_pop($dir_parts);
+				if ($assetid == 'varieties') {
+					$dir = implode('/', $dir_parts);
+					$assetid = array_pop($dir_parts);
+				}
 				$assetsToDelete[$assetid] = $assetid;
 				$fullPaths[$assetid] = $dir;
 			}
@@ -193,7 +197,13 @@ class Test_Dead_File_Revisions
 		$fullPaths = self::findAssetsToDelete(FALSE);
 
 		foreach ($assetsToDelete as $assetid) {
-			$exists = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+			try {
+				$exists = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+			}
+			catch (Exception $e) {
+				$exists = true;
+			}
+
 			if ($exists) {
 				$msg  = "There is a problem with the data directories for asset $assetid\n";
 				$msg .= "\tThis asset still exists. Skipping.";
@@ -204,16 +214,22 @@ class Test_Dead_File_Revisions
 			}
 			$filedir = $fullPaths[$assetid];
 			$path = SQ_DATA_PATH . '/file_repository' . $filedir;
-			$file_list = list_files($path);
+			$file_list = list_files($path, TRUE);
+			// see if the 'varieties' exists for this asset
+			if (is_dir($path.'/varieties')) {
+				$file_list = array_merge($file_list, list_files($path.'/varieties', TRUE));
+			}
 			$bad_files = Array();
 			foreach ($file_list as $file) {
-				$full_file = $path . '/' . $file;
-				$ok = unlink($full_file);
+				$ok = unlink($file);
 				if (!$ok) {
-					$bad_files[] = $full_file;
+					$bad_files[] = $file;
 				}
 			}
 			if (empty($bad_files)) {
+				if (is_dir($path.'/varieties')) {
+					rmdir($path.'/varieties');
+				}
 				rmdir($path);
 				$assetsCleanedUp[] = $assetid;
 			} else {
@@ -226,40 +242,46 @@ class Test_Dead_File_Revisions
 			}
 		}
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		/**
 		 * get file id's to delete
 		 * so we can delete from sq_file_vers_file and _history at the same time.
 		 */
-		$query = "SELECT fileid FROM sq_file_vers_file WHERE path IN (";
-		foreach ($fullPaths as $path) {
-			$query .= MatrixDAL::quote(ltrim($path, '/')) . ",";
-		}
-		$query = rtrim($query, ',') . ')';
+		if (!empty($fullPaths)) {
 
-		$fileIds = Array();
-		$fileInfo = MatrixDAL::executeSqlAll($query);
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db = MatrixDAL::getDb();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		foreach ($fileInfo as $row => $details) {
-			$fileIds[] = MatrixDAL::quote($details['fileid']);
-		}
+			$fileIds = Array();
 
-		foreach (array_chunk($fileIds, 999) as $chunk) {
-			$query = "DELETE FROM sq_file_vers_file WHERE fileid IN (" . implode(',', $chunk) . ")";
-			$result = MatrixDAL::executeSql($query);
-			$query = "DELETE FROM sq_file_vers_history WHERE fileid IN (" . implode(',', $chunk) . ")";
-			$result = MatrixDAL::executeSql($query);
+			foreach (array_chunk($fullPaths, 999) as $chunk) {
+				$query = "SELECT fileid FROM sq_file_vers_file WHERE path IN (";
+				foreach ($chunk as $path) {
+					$query .= MatrixDAL::quote(ltrim($path, '/')) . ",";
+				}
+				$query = rtrim($query, ',') . ')';
+
+				$fileInfo = MatrixDAL::executeSqlAll($query);
+
+				foreach ($fileInfo as $row => $details) {
+					$fileIds[] = MatrixDAL::quote($details['fileid']);
+				}
+			}
+
+			foreach (array_chunk($fileIds, 999) as $chunk) {
+				$query = "DELETE FROM sq_file_vers_file WHERE fileid IN (" . implode(',', $chunk) . ")";
+				$result = MatrixDAL::executeSql($query);
+				$query = "DELETE FROM sq_file_vers_history WHERE fileid IN (" . implode(',', $chunk) . ")";
+				$result = MatrixDAL::executeSql($query);
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 		$msg  = "The following assets were cleaned up successfully:\n";
 		$msg .= "\t" . implode(',', $assetsCleanedUp);
 		$messages[] = $msg;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $status;
 	}
