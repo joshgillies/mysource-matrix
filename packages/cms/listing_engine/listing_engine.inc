@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.317.2.1 2011/04/05 06:55:53 cupreti Exp $
+* $Id: listing_engine.inc,v 1.317.2.2 2011/04/19 22:59:14 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.317.2.1 $
+* @version $Revision: 1.317.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -747,8 +747,9 @@ class Listing_Engine extends Page
 		$generic_result_page_var = 'result_page';
 
 		// Include any GET variables passed (for instance, from the nesting asset)
+		// However, make sure that existing values in _REQUEST are not overwritten
 		if (!empty($_GET)) {
-			$_REQUEST = array_merge($_REQUEST, $_GET);
+			$_REQUEST = array_merge($_GET, $_REQUEST);
 		}
 
 		// have [assetid]_result_page take precedence over result_page
