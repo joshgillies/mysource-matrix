@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2010/11/10 04:50:29 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2011/04/19 00:15:17 akarelia Exp $
 *
 */
 -->
@@ -114,6 +114,10 @@
 		<field attribute="import_assets">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="execute_html_tidy">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+
 	</section>
 
     <section name="Linking" write_access="write:attributes">
