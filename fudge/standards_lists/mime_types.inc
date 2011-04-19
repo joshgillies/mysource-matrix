@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.20 2011/04/07 05:40:45 cupreti Exp $
+* $Id: mime_types.inc,v 1.21 2011/04/19 05:19:30 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -113,6 +113,8 @@ $standards_lists_mime_types = Array(
 									'ustar'		=> 'application/x-ustar',
 									'src'		=> 'application/x-wais-source',
 									'zip'		=> 'application/zip',
+									'xml'		=> 'application/xml',
+									'xslt'		=> 'application/xslt+xml',
 									'au'		=> 'audio/basic',
 									'snd'		=> 'audio/basic',
 									'mid'		=> 'audio/midi',
@@ -160,6 +162,7 @@ $standards_lists_mime_types = Array(
 									'etx'		=> 'text/x-setext',
 									'sgml'		=> 'text/x-sgml',
 									'sgm'		=> 'text/x-sgml',
+									'xsl'		=> 'text/xsl',
 									'mpeg'		=> 'video/mpeg',
 									'mpg'		=> 'video/mpeg',
 									'mpe'		=> 'video/mpeg',
