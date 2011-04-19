@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.45 2010/09/17 01:15:17 cupreti Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.45.4.1 2011/04/19 06:42:07 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -124,7 +124,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNodes(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_root_nodes'])) {
+		if (isset($_POST[$prefix.'_root_nodes']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
 			$locations = Array();
 			foreach ($_POST[$prefix.'_root_nodes'] as $index => $loc) {
 				if ($locid = $loc['assetid']) {

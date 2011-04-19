@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_edit_fns.inc,v 1.4 2010/07/07 00:46:20 akarelia Exp $
+* $Id: js_api_edit_fns.inc,v 1.4.4.1 2011/04/19 06:42:09 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -168,6 +168,9 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
+		if (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version']) {
+			return FALSE;
+		}
 		$roots = array_get_index($_POST, $prefix.'_roots', Array());
 		$root_nodes   = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', TRUE, 'major', 'root');
 		$curr_list    = Array();

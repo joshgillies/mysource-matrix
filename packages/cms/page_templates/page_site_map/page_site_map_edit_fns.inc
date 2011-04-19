@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.23 2007/12/03 23:17:31 bshkara Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.23.16.1 2011/04/19 06:42:05 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -88,7 +88,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
+		if (!isset($_POST[$prefix.'_rootid']['assetid']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
 			return FALSE;
 		}
 		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
