@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.728.2.6 2011/04/04 23:35:21 cupreti Exp $
+* $Id: asset.inc,v 1.728.2.7 2011/04/19 06:54:37 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.728.2.6 $
+* @version $Revision: 1.728.2.7 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1116,6 +1116,23 @@ class Asset extends MySource_Object
 			}
 		}
 
+		//  we need to save the current notice links
+		$replace_assetids = Array();
+		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+
+		// preserve the nest content related notice links so that we can recreate the links when reverting to system version
+		foreach ($notice_links as $link) {
+			if ($link['value'] == 'nested_asset' || $link['value'] == 'paint_with_layout' || $link['value'] == 'root') {
+				$replace_assetids[] = $link;
+			}
+		}
+
+		// save the notice links we currently have in .notice_links file
+		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
+			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
 		return TRUE;
 
 	}//end saveSystemVersion()
@@ -1214,6 +1231,8 @@ class Asset extends MySource_Object
 				}
 			}
 
+			if (!$this->revertNoticeLinksToSystemVersion()) return FALSE;
+
 			if (!$contexted_asset->saveAttributes()) {
 				trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
@@ -1260,6 +1279,10 @@ class Asset extends MySource_Object
 			$this->$key = $value;
 		}
 
+		// also keep the data in asset to notify other parts of matrix
+		// that we are reverting back to system version
+		$this->_tmp['reverting_to_system_version'] = TRUE;
+
 		// save this old version to the db
 		$this->_updated();
 
@@ -1267,6 +1290,100 @@ class Asset extends MySource_Object
 		return TRUE;
 
 	}//end revertToSystemVersion()
+
+
+	/**
+	* Replaces the  notice links in editing version with the system (live) version
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function revertNoticeLinksToSystemVersion()
+	{
+		// we need to reconstruct the notice links (for nested contents) before the parent function removes the files in .sq_system!
+		// so, read the notice links information from the system version file
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$notice_links_file = file_to_string($this->data_path.'/.sq_system/.notice_links');
+
+		// if we have any notice links preserved in the system version file, remove the current notice links
+		// and create new ones based on the information from the system version file 
+		if (!empty($notice_links_file)) {
+			$system_ver_notice_links = unserialize($notice_links_file);
+			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+
+			foreach ($notice_links as $index => $info) {
+				foreach($system_ver_notice_links as $prev_index => $prev_info) {
+					if (array_diff($info, $prev_info) == Array()) {
+						unset($system_ver_notice_links[$prev_index]);
+						unset($notice_links[$index]);
+					}
+				}
+			}
+			if (empty($system_ver_notice_links) && empty($notice_links)) return TRUE;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$run_level_changed = FALSE;
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_LOCKING);
+				$run_level_changed = TRUE;
+			}
+
+			// delete existing notice links that are no longer being used. 
+			// the system version file contains only nest content related notice links with a link value, 'nested_asset' or 'paint_with_layout'
+			// so, what we are deleting here is just nest content related notice links
+			foreach ($notice_links as $link_data) {
+				if (!$this->deleteLink($link_data['linkid'])) {
+					if ($run_level_changed) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+
+			// now re-create new nest content related notice links based on the information preserved in the system version file
+			foreach ($system_ver_notice_links as $link_info) {
+				// the first element of link info array needs to be an assetid (the minorid)
+				if (!isset($link_info['minorid']) || !assert_valid_assetid($link_info['minorid'], '', FALSE, FALSE)) {
+					continue;
+				}
+				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
+				if (is_null($minor_asset)) continue;
+
+				// notice link the minor asset to this asset with a link value kept in the 2nd element of link info array
+				$link_val = '';
+				if (isset($link_info['value'])) {
+					$link_val = $link_info['value'];
+				}
+				$this->createLink($minor_asset, SQ_LINK_NOTICE, $link_val);
+
+				// save attributes to fill in any missing information
+				if (!$this->saveAttributes()) {
+					if ($run_level_changed) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+
+			}//end foreach
+
+			if ($run_level_changed) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		}//end if
+
+		return TRUE;
+
+	}//end revertNoticeLinksToSystemVersion()
 
 
 	/**
