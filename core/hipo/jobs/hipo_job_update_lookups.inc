@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.52 2009/09/24 06:38:25 bpearson Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.52.8.1 2011/04/19 23:02:21 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.8.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -281,7 +281,12 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			}
 		}
 
+		// Whether to add auto remap
+		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
+
 		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
+		$this->_running_vars['auto_add_remaps'] = $auto_add_remaps;
 		$this->_running_vars['done_assetids'] = Array();
 		return parent::prepare();
 
@@ -304,7 +309,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$asset->updateLookups()) return FALSE;
+				if (!$asset->updateLookups($this->_running_vars['auto_add_remaps'])) return FALSE;
 				$step_data['message'] = translate('hipo_updating_lookups_for', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
