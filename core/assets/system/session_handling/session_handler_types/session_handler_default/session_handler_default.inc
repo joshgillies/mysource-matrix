@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.4 2008/12/29 01:13:18 lwright Exp $
+* $Id: session_handler_default.inc,v 1.4.12.1 2011/04/20 06:56:13 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.4 $
+* @version    $Revision: 1.4.12.1 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -72,10 +72,20 @@ class Session_Handler_Default extends Session_Handler
 		// Session cookies cannot have a port in the domain.
 		$domain = preg_replace('|:\d+$|', '', $domain);
 
+		$secure = FALSE;
+		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
+
+		$http_only = FALSE;
+		$php_version_suits = (version_compare(PHP_VERSION, '5.2.0') >= 0);
+		if ($php_version_suits && (defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') && SQ_CONF_COOKIE_OPTION_HTTP_ONLY)) $http_only = TRUE;
 		// Now, set to the default 'files' module and set the
 		// appropriate cookie parameters.
 		session_module_name('files');
-		session_set_cookie_params(0, $path, $domain);
+		if ($php_version_suits) {
+			session_set_cookie_params(0, $path, $domain, $secure, $http_only);
+		} else {
+			session_set_cookie_params(0, $path, $domain, $secure);
+		}
 		session_name('SQ_SYSTEM_SESSION');
 
 		// If this config setting is ON, then we use the save path
