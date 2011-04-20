@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.831.2.9 2011/04/05 06:54:15 cupreti Exp $
+* $Id: asset_manager.inc,v 1.831.2.10 2011/04/20 04:52:49 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.831.2.9 $
+* @version $Revision: 1.831.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3301,13 +3301,28 @@ class Asset_Manager extends MySource_Object
 					}
 					if ($type_code) {
 						if ($strict_type_code) {
-							$where .= ' AND a.type_code = '.MatrixDAL::quote($type_code);
+							$where .= ' AND a.type_code IN (';
+							if (is_array($type_code)) {
+								foreach ($type_code as $index => $typ_cd) {
+									$type_code[$index] = MatrixDAL::quote($typ_cd);
+								}
+								$where .= implode(', ', $type_code);
+							} else {
+								$where .=  MatrixDAL::quote($type_code);
+							}
+							$where .= ') ';
 						} else {
 							$type_ancestors = $this->getTypeDescendants($type_code);
 							foreach ($type_ancestors as $i => $v) {
 								$type_ancestors[$i] = MatrixDAL::quote($v);
 							}
-							$type_ancestors[] = MatrixDAL::quote($type_code);
+							if (is_array($type_code)) {
+								foreach ($type_code as $index => $typ_cd) {
+									$type_ancestors[] = MatrixDAL::quote($typ_cd);
+								}
+							} else {
+								$type_ancestors[] =  MatrixDAL::quote($type_code);
+							}
 							$where .= ' AND a.type_code IN ('.implode(', ', $type_ancestors).')';
 						}
 					}
@@ -9266,7 +9281,7 @@ class Asset_Manager extends MySource_Object
 
 		$from = 'FROM
 					(
-					 SELECT a.assetid, l.majorid, t.treeid, a.type_code, a.name, a.short_name, a.version, a.status, a.languages, a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid, a.published, a.published_userid, a.status_changed, a.status_changed_userid ';
+					SELECT a.assetid, l.majorid, t.treeid, a.type_code, a.name, a.short_name, a.version, a.status, a.languages, a.charset, a.force_secure, a.created, a.created_userid, a.updated, a.updated_userid, a.published, a.published_userid, a.status_changed, a.status_changed_userid ';
 
 		$perm_join = '';
 		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
