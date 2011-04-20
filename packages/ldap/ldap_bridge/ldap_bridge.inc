@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90.2.6 2011/04/20 03:19:48 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.90.2.7 2011/04/20 05:05:34 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.2.6 $
+* @version $Revision: 1.90.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -495,7 +495,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					}
 
 					$user_attrs = $this->attr('user_attributes');
-					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
+					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
 
 					$base_dn = $this->decodeString($base_dn);
 					$required_attrs = $this->attr('attributes');
@@ -733,7 +733,8 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$ou_value.'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
