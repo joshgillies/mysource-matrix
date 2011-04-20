@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.12.2.1 2011/04/20 00:40:45 akarelia Exp $
+* $Id: ldap.inc,v 1.12.2.2 2011/04/20 04:56:42 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -200,11 +200,10 @@ class Ldap
 			else $sr = @ldap_read($this->ptr, $startdn, $filter);
 		}
 
-		if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
-
 		if (!$sr) {
 			return 0;
 		} else {
+			if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
 			return $sr;
 		}
 
