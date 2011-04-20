@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.12 2010/12/13 04:56:21 mhaidar Exp $
+* $Id: ldap.inc,v 1.12.2.1 2011/04/20 00:40:45 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -181,17 +181,24 @@ class Ldap
 	* @param string		$filter			search filter
 	* @param boolean	$multi_level	search multiple levels
 	* @param boolean	$multi_result	search for multiple entries
+	* @param array		$attributes		array of the attributes we want to return for the returned objects
 	*
 	* @return resource (search result identifier) | zero (on error)
 	* @access public
 	*/
-	function search($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true)
+	function search($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true, $attributes=Array())
 	{
 		if (!$this->ptr) return 0;
 
-		if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter);
-		else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter);
-		else $sr = @ldap_read($this->ptr, $startdn, $filter);
+		if(!empty($attributes)) {
+			if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter, $attributes);
+			else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter, $attributes);
+			else $sr = @ldap_read($this->ptr, $startdn, $filter, $attributes);
+		} else {
+			if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter);
+			else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter);
+			else $sr = @ldap_read($this->ptr, $startdn, $filter);
+		}
 
 		if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
 

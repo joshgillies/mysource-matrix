@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90.4.5 2011/04/14 01:37:58 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.90.4.6 2011/04/20 00:40:31 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.4.5 $
+* @version $Revision: 1.90.4.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -180,104 +180,119 @@ class LDAP_Bridge extends Asset implements Bridge
 	}//end getConnectionOptions()
 
 
-    /**
-    * Returns a reference to the asset represented by the passed assetid
-    *
-    * @param int        $assetid        the entire asset id of the asset to be loaded
-    * @param string        $type_code        if this exists then this object is used to
-    *                                    load the asset, if not then the DB is queried
-    *                                    to find out the asset type
-    * @param boolean    $mute_errors    stops the outputting of errors in this fn, needed because
-    *                                    you can't use the '@' operator when returning by reference
-    * @param boolean    $return_null    returns NULL if no user/user data found
-    *
-    * @return mixed object|NULL
-    * @access public
-    * @see Asset_Manager::getAsset()
-    */
-    function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
-    {
-        $asset = NULL;
-        $id_parts = explode(':', $assetid);
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$assetid		the entire asset id of the asset to be loaded
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	* @param boolean	$return_null	returns NULL if no user/user data found
+	* @param boolean	$get_all_attr	if we being called from paintUserSetup() make sure we get all the attributes
+	*									for the ldap users so that we can paint option for sys admin to show/hide them
+	*
+	* @return mixed object|NULL
+	* @access public
+	* @see Asset_Manager::getAsset()
+	*/
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE, $get_all_attr = FALSE)
+	{
+		$asset = NULL;
+		$id_parts = explode(':', $assetid);
 
-        if (isset($id_parts[1])) {
-            $shadowid = $id_parts[1];
-        } else {
-            return $asset;
-        }
+		if (isset($id_parts[1])) {
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
 
-        // Setup user's inbox
-        if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
-            $GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-            $inbox_asset = new Inbox();
-            $inbox_asset->id = $this->id.':'.$shadowid.':inbox';
-            $inbox_asset->name = 'Inbox';
-            $inbox_asset->status = $this->status;
-            return $inbox_asset;
-        }
+		// Setup user's inbox
+		if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
+			$inbox_asset = new Inbox();
+			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
+			$inbox_asset->name = 'Inbox';
+			$inbox_asset->status = $this->status;
+			return $inbox_asset;
+		}
 
-        $ldap = @$this->connectToLdap();
-            if (is_null($ldap) || is_null($ldap->ptr)) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+		$ldap = @$this->connectToLdap();
+			if (is_null($ldap) || is_null($ldap->ptr)) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$required_attrs = $this->attr('attributes');
 
-            $shadowid = $this->decodeString($shadowid);
-            $result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
-            if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
-            $data = $ldap->getEntries($result);
-            if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$shadowid = $this->decodeString($shadowid);
 
-            $data = $data[0];
-        $ldap->disconnect();
+			if (!$get_all_attr) {
+				$attr_req = array_merge(
+										array_values(array_get_index($this->attr('user_attributes'), 'show', Array())),
+										array_values($required_attrs),
+										Array('objectclass')
+							);
 
-        if (!isset($data['dn']) && isset($data['distinguishedname'])) {
-            $data['dn'] = $data['distinguishedname'];
-        }
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
+			} else {
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+			}
 
-        unset($data['objectclass']['count']);
+			if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$data = $ldap->getEntries($result);
+			if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 
-        foreach ($data['objectclass'] as $class) {
-            $class = strtolower($class);
-            if (isset($this->_group_types[$class])) {
-                // an LDAP user group
-                $GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
-                $asset = new Ldap_User_Group($this->id, $data);
-                return $asset;
+			$data = $data[0];
+		$ldap->disconnect();
 
-            } else if (isset($this->_user_types[$class])) {
-                // include both assets, in case the type changes
-                $GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_backend_user');
-                $GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-                // LDAP user or LDAP backend user,
-                // depending on the bridge setting
-                $user_type = $this->attr('user_type');
-                $asset = new $user_type($this->id, $data);
-                return $asset;
-            }
-        }
+		if (!isset($data['dn']) && isset($data['distinguishedname'])) {
+			$data['dn'] = $data['distinguishedname'];
+		}
 
-        return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+		unset($data['objectclass']['count']);
 
-    }//end getAsset()
+		foreach ($data['objectclass'] as $class) {
+			$class = strtolower($class);
+			if (isset($this->_group_types[$class])) {
+				// an LDAP user group
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
+				$asset = new Ldap_User_Group($this->id, $data);
+				return $asset;
+
+			} else if (isset($this->_user_types[$class])) {
+				// include both assets, in case the type changes
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_backend_user');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
+				// LDAP user or LDAP backend user,
+				// depending on the bridge setting
+				$user_type = $this->attr('user_type');
+				$asset = new $user_type($this->id, $data);
+				return $asset;
+			}
+		}
+
+		return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+
+	}//end getAsset()
 
     
-    /**
-    * Used by LDAP_Bridge::getAsset() to return a dummy asset when it fails to load the LDAP user.
-    * 
-    * @param string    $shadowid        
-    * 
-    * @return mixed object|NULL
-    * @access protected
-    */
-    protected function _getDummyAsset($shadowid){
-        
-        // return 'unknown ldap user' when we cannot find a match
-        $data['objectclass'] = Array();
-        $data['dn'] = $shadowid;
-        $user_type = $this->attr('user_type');
-        $GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-        $asset = new $user_type($this->id, $data);
-        return $asset; // this should return a dummy
-        
-    }//end _getDummyAsset()
+	/**
+	* Used by LDAP_Bridge::getAsset() to return a dummy asset when it fails to load the LDAP user.
+	*
+	* @param string	$shadowid        
+	* 
+	* @return mixed object|NULL
+	* @access protected
+	*/
+	protected function _getDummyAsset($shadowid){
+
+		// return 'unknown ldap user' when we cannot find a match
+		$data['objectclass'] = Array();
+		$data['dn'] = $shadowid;
+		$user_type = $this->attr('user_type');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+		$asset = new $user_type($this->id, $data);
+		return $asset; // this should return a dummy
+
+	}//end _getDummyAsset()
 
 
 	/**
@@ -484,7 +499,8 @@ class LDAP_Bridge extends Asset implements Bridge
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
 
 					$base_dn = $this->decodeString($base_dn);
-					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE);
+					$required_attrs = $this->attr('attributes');
+					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, array_merge(array_values($required_attrs), Array('objectclass')));
 
 					if (!$result) {
 						$ldap->disconnect();
@@ -658,8 +674,11 @@ class LDAP_Bridge extends Asset implements Bridge
 			$ldap = @$this->connectToLdap();
 			if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
+			// the attribute mappings to the LDAP schemas
+			$attrs = $this->attr('attributes');
 			$assetid = $this->decodeString($assetid);
-			$result = $ldap->search($assetid,'(objectClass=*)');
+
+			$result = $ldap->search($assetid,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 			if (!$result) return Array();
 
 			$data = $ldap->getEntries($result);
@@ -668,9 +687,6 @@ class LDAP_Bridge extends Asset implements Bridge
 				return Array();
 			}
 			$data = $data[0];
-
-			// the attribute mappings to the LDAP schemas
-			$attrs = $this->attr('attributes');
 
 			$mo_groups = Array();
 
@@ -683,7 +699,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// Group defines its members
 				$base_dn = $this->attr('root_dn');
 				$base_dn = $this->decodeString($base_dn);
-				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')');
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
@@ -708,7 +724,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($group_name, '(objectClass=*)');
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) {
@@ -718,7 +734,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
+				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
@@ -805,7 +821,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		$attrs = $this->attr('attributes');
 
 		$base_dn = $this->decodeString($base_dn);
-		$result = $ldap->search($base_dn,'(objectClass=*)');
+		$result = $ldap->search($base_dn,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 		if (!$result) {
 			$ldap->disconnect();
 			return Array();
