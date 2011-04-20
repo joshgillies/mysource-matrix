@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.51 2010/05/11 02:08:04 lwright Exp $
+* $Id: image_variety.inc,v 1.52 2011/04/20 02:04:57 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -490,6 +490,7 @@ class Image_Variety extends Asset
 		if (!empty($image)) {
 			$public = $image->usePublicPath();
 		}
+		$this->checkFileState($public);
 		if (!$public) return parent::updateLookups();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

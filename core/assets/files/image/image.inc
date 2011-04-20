@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.83 2011/02/23 04:47:48 ewang Exp $
+* $Id: image.inc,v 1.84 2011/04/20 02:04:56 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -436,7 +436,7 @@ class Image extends File implements Bridge
 	* @return boolean
 	* @access private
 	*/
-	function _checkFileState()
+	function _checkFileState($update_lookups = TRUE)
 	{
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
@@ -450,7 +450,7 @@ class Image extends File implements Bridge
 			}
 		}
 
-		return parent::_checkFileState();
+		return parent::_checkFileState($update_lookups);
 
 	}//end _checkFileState()
 
