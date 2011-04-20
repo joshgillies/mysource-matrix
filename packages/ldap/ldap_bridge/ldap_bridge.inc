@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.90.2.5 2011/04/14 01:37:21 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.90.2.6 2011/04/20 03:19:48 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.2.5 $
+* @version $Revision: 1.90.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -190,12 +190,14 @@ class LDAP_Bridge extends Asset implements Bridge
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	* @param boolean	$return_null	returns NULL if no user/user data found
+	* @param boolean		$get_all_attr	if we being called from paintUserSetup() make sure we get all the attributes
+	*									for the ldap users so that we can paint option for sys admin to show/hide them
 	*
 	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE, $get_all_attr = FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
@@ -218,9 +220,21 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		$ldap = @$this->connectToLdap();
 			if (is_null($ldap) || is_null($ldap->ptr)) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$required_attrs = $this->attr('attributes');
 			
 			$shadowid = $this->decodeString($shadowid);
-			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+
+			if (!$get_all_attr) {
+				$attr_req = array_merge(
+										array_values(array_get_index($this->attr('user_attributes'), 'show', Array())),
+										array_values($required_attrs),
+										Array('objectclass')
+							);
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
+			} else {
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+			}
+
 			if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 			$data = $ldap->getEntries($result);
 			if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
@@ -484,7 +498,8 @@ class LDAP_Bridge extends Asset implements Bridge
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
 
 					$base_dn = $this->decodeString($base_dn);
-					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE);
+					$required_attrs = $this->attr('attributes');
+					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, array_merge(array_values($required_attrs), Array('objectclass')));
 
 					if (!$result) {
 						$ldap->disconnect();
@@ -658,8 +673,11 @@ class LDAP_Bridge extends Asset implements Bridge
 			$ldap = @$this->connectToLdap();
 			if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
+			// the attribute mappings to the LDAP schemas
+			$attrs = $this->attr('attributes');
 			$assetid = $this->decodeString($assetid);
-			$result = $ldap->search($assetid,'(objectClass=*)');
+
+			$result = $ldap->search($assetid,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 			if (!$result) return Array();
 
 			$data = $ldap->getEntries($result);
@@ -668,9 +686,6 @@ class LDAP_Bridge extends Asset implements Bridge
 				return Array();
 			}
 			$data = $data[0];
-
-			// the attribute mappings to the LDAP schemas
-			$attrs = $this->attr('attributes');
 
 			$mo_groups = Array();
 
@@ -683,7 +698,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// Group defines its members
 				$base_dn = $this->attr('root_dn');
 				$base_dn = $this->decodeString($base_dn);
-				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')');
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
@@ -708,7 +723,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($group_name, '(objectClass=*)');
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) {
@@ -718,7 +733,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
+				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
@@ -805,7 +820,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		$attrs = $this->attr('attributes');
 
 		$base_dn = $this->decodeString($base_dn);
-		$result = $ldap->search($base_dn,'(objectClass=*)');
+		$result = $ldap->search($base_dn,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 		if (!$result) {
 			$ldap->disconnect();
 			return Array();

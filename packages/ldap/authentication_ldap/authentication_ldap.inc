@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.25.2.1 2010/12/16 02:23:18 mhaidar Exp $
+* $Id: authentication_ldap.inc,v 1.25.2.2 2011/04/20 03:19:48 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -290,7 +290,8 @@ class Authentication_LDAP extends Authentication
 			$auth_base_dn = $bridge->attr('root_dn');
 		}
 		
-		$username = $ldap->escape_filter_value($username); //See #4860 Can't authenticate LDAP username with brackets
+		// See #4860 Can't authenticate LDAP username with brackets
+		$username = $ldap->escape_filter_value($username);
 		// Check for extra LDAP filtering
 		$auth_filter = trim($bridge->attr('auth_filter'));
 		if (!empty($auth_filter)) {
@@ -299,11 +300,13 @@ class Authentication_LDAP extends Authentication
 			$filter = '('.$attrs['uid'].'='.$username.')';
 		}//end if
 
-		$result = $ldap->search($auth_base_dn, $filter);
-		if (!$result) return $null;
+		$result = $ldap->search($auth_base_dn, $filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 
+		if (!$result) return $null;
 		$entry = $ldap->getEntries($result);
+
 		return $entry;
+
 	}//end _getLdapEntries()
 
 
