@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.78 2010/12/13 02:13:38 csmith Exp $
+* $Id: step_02.php,v 1.78.2.1 2011/04/20 06:27:19 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.78.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -158,7 +158,15 @@ if (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROL
 	$enabled = ((SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1' ) || (SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '1'));
 }
 
-
+if (!defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') || !defined('SQ_CONF_COOKIE_OPTION_SECURE')) {
+	if (!defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY')) {
+		$vars['SQ_CONF_COOKIE_OPTION_HTTP_ONLY'] = FALSE;
+	}
+	if (!defined('SQ_CONF_COOKIE_OPTION_SECURE')) {
+		$vars['SQ_CONF_COOKIE_OPTION_SECURE'] = FALSE;
+	}
+	$cfg->save($vars);
+}
 // Install the applicable views from the common_views_roles.xml file
 echo "\n".'Configuring Roles Views... ';
 $roles_configured = $cfg->configureRoleTables($enabled, SQ_CONF_ENABLE_GLOBAL_ROLES);
