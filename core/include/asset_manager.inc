@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.820.2.12 2011/04/05 06:55:38 cupreti Exp $
+* $Id: asset_manager.inc,v 1.820.2.13 2011/04/20 05:03:45 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.820.2.12 $
+* @version $Revision: 1.820.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3227,13 +3227,28 @@ class Asset_Manager extends MySource_Object
 					}
 					if ($type_code) {
 						if ($strict_type_code) {
-							$where .= ' AND a.type_code = '.MatrixDAL::quote($type_code);
+							$where .= ' AND a.type_code IN (';
+							if (is_array($type_code)) {
+								foreach ($type_code as $index => $typ_cd) {
+									$type_code[$index] = MatrixDAL::quote($typ_cd);
+								}
+								$where .= implode(', ', $type_code);
+							} else {
+								$where .=  MatrixDAL::quote($type_code);
+							}
+							$where .= ') ';
 						} else {
 							$type_ancestors = $this->getTypeDescendants($type_code);
 							foreach ($type_ancestors as $i => $v) {
 								$type_ancestors[$i] = MatrixDAL::quote($v);
 							}
-							$type_ancestors[] = MatrixDAL::quote($type_code);
+							if (is_array($type_code)) {
+								foreach ($type_code as $index => $typ_cd) {
+									$type_ancestors[] = MatrixDAL::quote($typ_cd);
+								}
+							} else {
+								$type_ancestors[] = MatrixDAL::quote($type_code);
+							}
 							$where .= ' AND a.type_code IN ('.implode(', ', $type_ancestors).')';
 						}
 					}
