@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.14 2011/04/04 05:58:56 akarelia Exp $
+* $Id: ldap.inc,v 1.15 2011/04/20 00:43:05 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -181,6 +181,7 @@ class Ldap
 	* @param string		$filter			search filter
 	* @param boolean	$multi_level	search multiple levels
 	* @param boolean	$multi_result	search for multiple entries
+	* @param array		$attributes		array of the attributes we want to return for the returned objects
 	*
 	* @return resource (search result identifier) | zero (on error)
 	* @access public
