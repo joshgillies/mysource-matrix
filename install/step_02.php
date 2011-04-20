@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.77.2.1 2010/12/13 02:22:15 csmith Exp $
+* $Id: step_02.php,v 1.77.2.2 2011/04/20 06:53:11 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77.2.1 $
+* @version $Revision: 1.77.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -124,6 +124,15 @@ foreach ($packages as $package) {
 	}
 }
 
+if (!defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY') || !defined('SQ_CONF_COOKIE_OPTION_SECURE')) {
+	if (!defined('SQ_CONF_COOKIE_OPTION_HTTP_ONLY')) {
+		$vars['SQ_CONF_COOKIE_OPTION_HTTP_ONLY'] = FALSE;
+	}
+	if (!defined('SQ_CONF_COOKIE_OPTION_SECURE')) {
+		$vars['SQ_CONF_COOKIE_OPTION_SECURE'] = FALSE;
+	}
+	$cfg->save($vars);
+}
 // Install all views except for Roles-related views which are handled further below
 install_stored_relations('views');
 
