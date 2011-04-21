@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2010/11/10 04:50:29 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14.2.1 2011/04/21 01:33:48 akarelia Exp $
 *
 */
 -->
@@ -112,6 +112,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="import_assets">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="execute_html_tidy">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.15 2010/11/10 04:50:29 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.15.2.1 2011/04/21 01:33:48 akarelia Exp $
 *
 */
 -->
@@ -144,6 +144,10 @@
             <display_name>Import Assets from XML</display_name>
             <note>Allows user to import assets under a particular root node from a structured XML file</note>
         </field>
+		<field attribute="execute_html_tidy">
+			<display_name>Execute HTML Tidy</display_name>
+			<note>Allows user to execute HTML Tidy on passed string.</note>
+		</field>
     </section>
     <section name="Linking" write_access="write:attributes">
         <field attribute="create_link">

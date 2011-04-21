@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.69.2.4 2011/04/14 05:48:33 akarelia Exp $
+* $Id: js_api.inc,v 1.69.2.5 2011/04/21 01:33:48 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.69.2.4 $
+* @version $Revision: 1.69.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -418,7 +418,42 @@ class JS_Api extends Page
 				}//end else
 
 			break;
-			
+
+			case	'executeHTMLTidy':
+				if ($this->attr('execute_html_tidy')) {
+					$str_to_process = isset($_REQUEST['content']) && $_REQUEST['content'] != '' ? $_REQUEST['content'] : NULL;
+					if (!is_null($str_to_process)) {
+						global $ROOT_PATH;
+						$ROOT_PATH = SQ_FUDGE_PATH.'/wysiwyg/';
+						require_once SQ_FUDGE_PATH.'/wysiwyg/plugins/html_tidy/html_tidy.inc';
+
+						$tidy = new HTML_Tidy();
+						$tidy->process($str_to_process);
+
+						if ($tidy->htmltidy_status == 'pass') {
+							$data[] = $str_to_process;
+
+						} else if ($tidy->htmltidy_status == 'fail') {
+							$data['error'] = 'HTML Tidy failed to process the given content';
+
+						} else if ($tidy->htmltidy_status == 'wait') {
+							$data['error'] = 'HTML Tidy wasn\'t ready to process content. Try again';
+
+						} else if ($tidy->htmltidy_status == 'disabled') {
+							$data['error'] = 'HTML Tidy is disabled on the System';
+						}
+
+					} else {
+						$data['error'] = 'No string passes to process HTMLTidy on';
+					}
+
+				} else {
+					$this->returnError('The execute_html_tidy function must be activated');
+				}
+
+			break;
+
+
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
@@ -4203,6 +4238,31 @@ function getRoles(assetid, roleid, userid, include_assetid, include_globals, exp
 	makeRequest(url, true, dataCallback);
 
 }//end getRoles
+
+
+/**
+* Performs HTMLTidy on the passed content and returns cleaned up code
+*
+* @param string		content			the string content that needs to be cleaned up
+* @param function	dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function executeHTMLTidy(content, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var content = isset(content) ? content : '';
+
+	// Build our string
+	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=executeHTMLTidy&content=' + content.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end executeHTMLTidy()
+
 
 <?php
 
