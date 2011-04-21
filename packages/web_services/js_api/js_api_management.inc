@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.17 2011/04/19 00:15:17 akarelia Exp $
+* $Id: js_api_management.inc,v 1.18 2011/04/21 00:47:58 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -340,7 +340,7 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 														),
 						'execute_html_tidy'		=> Array(
-														'added'			=> '0.7',
+														'added'			=> '0.6',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
 														'parameters'	=> Array(
@@ -540,37 +540,6 @@ class JS_Api_Management extends Asset_Management
 			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 
 		}//end if - upgrade to version 0.6
-
-
-		if (version_compare($current_version, '0.7', '<')) {
-			
-			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.7');
-				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
-
-				pre_echo('Upgrading '.count($children).' assets...');
-				foreach ($children as $assetid => $type) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->getAssetType());
-					if (is_null($asset)) continue;
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-						trigger_localised_error('CMS0025', E_USER_WARNING, '0.7', $asset->name, $asset->id);
-						return FALSE;
-					}
-
-					$asset->setAttrValue('execute_html_tidy', FALSE);
-
-					if (!$asset->saveAttributes()) {
-						trigger_localised_error('CMS0026', E_USER_WARNING, '0.6');
-						return FALSE;
-					}
-
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-				}
-			pre_echo('UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.7');
-
-		}//end if - upgrade to version 0.6
-
 
 		return TRUE;
 
