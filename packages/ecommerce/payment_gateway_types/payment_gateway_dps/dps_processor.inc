@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.2 2010/06/20 23:35:26 ewang Exp $
+* $Id: dps_processor.inc,v 1.3 2011/04/26 23:50:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -165,7 +165,7 @@ class Dps_Processor
 	 * @var array
 	 */
 	private static $_TEST_CARD_NUMBERS = Array(
-						'4111111111111111'		=> 'VISA',
+						'4111111111111119'		=> 'VISA',
 						'5431111111111111'		=> 'MasterCard',
 						'371111111111114'		=> 'Amex',
 						'36000000000008'		=> 'Diners',
