@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.4 2011/04/27 05:36:29 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.5 2011/04/27 23:50:12 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -262,7 +262,8 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
         	 	if (!array_key_exists($field_id, $fields)){
         	 		trigger_localised_error('SHAR0001', E_USER_WARNING, $field_id);
         	 		//revert to original value
-        	 		$field_id = $current_field_id;
+        	 		$metadata_fields[$property]['field'] = $current_field_id;
+        	 		continue;
         	 	}
         	 	if ($property == 'cmis:objectId'){
         	 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($field_id, Array('metadata_field_text'));
