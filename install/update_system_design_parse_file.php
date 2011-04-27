@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_system_design_parse_file.php,v 1.1 2011/04/05 06:38:45 cupreti Exp $
+* $Id: update_system_design_parse_file.php,v 1.2 2011/04/27 00:27:26 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Usage:  php install/update_ees_login_parse_file.php [PATH_TO_ROOT]
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -63,7 +63,7 @@ require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once $SYSTEM_ROOT.'/core/include/general_occasional.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-echo 'Updating parse file for EES login design ...'."\n";
+echo 'Updating parse files of login designs for #5038'."\n";
 echo "\n";	
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -117,7 +117,7 @@ foreach ($children as $id => $content) {
 		
 		// update the parse file
 		if(!_updateFile($new_parse_file, 'parse.txt', $design->data_path, $design->data_path_suffix)) {
-			trigger_error('failed to update ees parse file');
+			trigger_error('failed to update parse file '.$new_parse_file);
 			exit();
 		}
 
