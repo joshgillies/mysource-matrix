@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_sync_cmis_bridges_management.inc,v 1.1 2011/04/06 06:10:07 mhaidar Exp $
+* $Id: cron_job_sync_cmis_bridges_management.inc,v 1.2 2011/04/27 07:35:17 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
@@ -47,6 +47,9 @@ class Cron_Job_Sync_CMIS_Bridges_Management extends Asset_Management
 												   ),
 						'when'					=> Array(
 														'default'	=> 'DL=00:00',
+												   ),
+						'long'					=> Array(
+												   		'default'	=> TRUE
 												   ),											   					   
 					  );
 
