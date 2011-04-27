@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_sync_cmis_bridge.inc,v 1.4 2011/04/27 06:06:06 mhaidar Exp $
+* $Id: hipo_job_sync_cmis_bridge.inc,v 1.5 2011/04/27 23:55:34 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for Synchronizing CMIS Bridge files.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com/au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage sharepoint
 */
@@ -143,11 +143,10 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['bridge_id']);
 		foreach ($bridge->attr('wsdl') as $service_name => $url){
 			$connected = $bridge->connect($service_name, TRUE);
-			if (!$connected) break;
-		}
-		if (empty($connected)) {
-			trigger_localised_error('SHAR0005', E_USER_WARNING, $bridge->id);
-			return FALSE;
+			if (!$connected) {
+				trigger_localised_error('SHAR0005', E_USER_WARNING, $bridge->id);
+				return FALSE;
+			}
 		}
 		
 		$repositoryId = $bridge->getRepositoryId();
