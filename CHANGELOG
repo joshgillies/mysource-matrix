@@ -1,5 +1,124 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.0.6
+
+Featured Changes
+===================================
+
+
+New Global Keyword Replacement: %globals_asset_contents:<assetID>% [ Feature Request #5029 ]
+-----------------------------------------------------
+
+Previously, Squiz Matrix did not support global keywords for the content of assets. This feature introduces the %globals_asset_contents:<assetID>% global keyword, printing the contents of an asset, specified by its asset ID.
+
+An example usage of this global keyword replacement is as follows:
+
+%globals_asset_contents:165%
+
+In this example, the asset contents of asset #165 (including any paint layout applied to the asset) will be printed.
+
+Additional contents keywords can also now be used as global keywords, including:
+
+	* %globals_asset_contents_raw:<assetID>%: the raw contents of the specified asset, without any applied layouts.
+	* %globals_asset_contents_paint_layout_id_<layoutID>:<assetID>: the contents of the specified asset, using a paint layout specified by its asset ID.
+	* %globals_asset_contents_paint_layout_name_<layoutname>:<assetID>: the contents of the specified asset, using a paint layout specified by its name.
+
+This feature enhances the functionality of global keywords within Squiz Matrix, allowing greater control over the content of your assets.
+
+Additional Cookie Options for HttpOnly and Secure [ Feature Request #5032 ]
+-----------------------------------------------------
+
+Previously, HttpOnly and Secure cookie types could not be defined as cookies set by Matrix. This feature adds options to the System Configuration, allowing you to enable HttpOnly and Secure cookies within Squiz Matrix.
+
+These options are set via new fields on the System Configuration screen.
+
+The HTTP only for cookie field allows you to set the HttpOnly option for cookies. When a cookie is HttpOnly, the web browser will not allow client side scripts (such as JavaScript) access to the cookie. This can help mitigate the effects of cross site scripting attacks.
+
+The Enable 'Secure' Cookie option field allow you to specify whether or not cookies should be transmitted only over secure HTTPS connections. If this field is enabled, cookies will only be set if a secure connection exists.
+
+Safe Edit Respects Notice Link Changes on an Asset [ Feature Request #5060 ]
+-----------------------------------------------------
+
+Previously, if a page asset was in Safe Edit mode and a Nest Content Div of that page was altered to point to a different nested asset, this alteration would not be respected as a Safe Edit change. If you choose to cancel Safe Edit, this change will not be reverted back to its previous value.
+
+This function ensures that any such changes are respected as Safe Edit changes and will be reverted if Safe Edit is cancelled.
+
+JS API: New Function to Execute HTML Tidy [ Feature Request #5074 ]
+-----------------------------------------------------
+
+A new function has been added to the Javascript API to execute HTML Tidy on the content of a passed string.
+
+The executeHTMLTidy() function is enabled through a new field on the Details screen of the Javascript API.
+
+This function takes two parameters:
+
+	* content: the string content to be cleaned.
+	* dataCallback: the custom callback function (optional).
+
+The format of the executeHTMLTidy() function is shown below:
+
+function executeHTMLTidy (content, dataCallback)
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5000: Performance improvement to LDAP's search() function.
+Minor Enhancement #5012: Keyword modifiers available on Custom Form keyword replacements.
+Minor Enhancement #5042: Minor LDAP Bridge enhancements.
+Minor Enhancement #5046: New MIME type added for FLV file types.
+Minor Enhancement #5047: New MIME types added for OGV, MP4 and WebM video file types.
+Minor Enhancement #5052: Asset ID keyword now available on Invitation/Approval Workflow messages.
+Minor Enhancement #5054: New option on the What's New Page to exclude root nodes.
+Minor Enhancement #5073: Auto add remaps option respected when moving assets.
+Minor Enhancement #5075: New MIME types added for XML, XSLT and XSL file asset types.
+
+
+Core
+
+Fixed Bug #5023: The Clear Matrix Cache cron job has memory leak.
+Fixed Bug #5024: Asset Listing's mindepth/maxdepth values don't work properly with Custom Grouping.
+Fixed Bug #5025: System check test_dead_file_revisions fails on Thumbnail varieties.
+Fixed Bug #5034: In certain cases, workflow escalation emails should not be sent for dependant assets.
+Fixed Bug #5036: The Asset Manager needs to include fudge/general/file_system.inc.
+Fixed Bug #5037: In rare situations, step3 fails with error Class Asset_Edit_Fns not found in trigger_action_edit_fns.inc.
+Fixed Bug #5038: All system login designs,  especially EES, have html comments before doctype, which could force browser to quirk mode.
+Fixed Bug #5040: LDAP user ID breaks dynamic parameter in the listing page, when array of asset IDs is passed to paramater map.
+Fixed Bug #5048: Matrix ./?a=ASSETID hrefs with extra query and/or fragment appended at end not getting translated.
+Fixed Bug #5049: Import script corrupts image varieties.
+Fixed Bug #5053: Deleting div from Paint Layout using Asset Map causes fatal error.
+Fixed Bug #5057: asset_lineage keyword returning incorrectly when in Paint Layout applied via type format of listing assets.
+Fixed Bug #5066: Hierarchy metadata field is missing closing </table> tag in Simple Edit Layouts.
+
+CMS
+
+Fixed Bug #5071: Password Reset Page not working properly with Listing Page in the same screen.
+
+LDAP
+
+Fixed Bug #5014: LDAP User Group SQL issues.
+Fixed Bug #5059: LDAP Bridge needs to filter invalid entries. 
+
+Calendar
+
+Fixed Bug #4389: Calendar event start_time keyword returns 12am for non-timed events.
+
+Google Maps
+
+Fixed Bug #5039: Google Map asset adds unnecessary slashes for double quotes in the content of pop-up window div.
+
+Web Services
+
+Fixed Bug #5031: JS API getGeneral function argument for attributes doesn't return all attributes.
+
+Funnelback Package
+
+Fixed Bug #5020: funnelback_rebuild_cache.php running out of memory.
+
+
+
 VERSION 4.0.5
 
 Featured Changes
