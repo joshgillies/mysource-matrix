@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.14 2008/11/25 06:06:00 bshkara Exp $
+* $Id: esec_processor.inc,v 1.15 2011/04/27 00:42:16 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -321,13 +321,13 @@ class Esec_Processor
 	*/
 	function getResponse()
 	{
-		$response['REFERENCE']      = $this->response['ref-id'];
-		$response['AUTHORISATION']  = $this->response['auth-id'];
-		$response['MESSAGE_CODE']   = substr($this->response['message'], 0, 3);
-		$response['MESSAGE']        = substr($this->response['message'], 4);
-		$response['STATUS']         = $this->response['eft-response'];
-		$response['TRANSACTION']    = $this->response['txn-id'];
-		$response['DATE']           = $this->response['settlement-date'];
+		$response['REFERENCE']      = isset($this->response['ref-id']) ? $this->response['ref-id'] : '';
+		$response['AUTHORISATION']  = isset($this->response['auth-id']) ? $this->response['auth-id'] : '';
+		$response['MESSAGE_CODE']   = isset($this->response['message']) ? substr($this->response['message'], 0, 3) : '';
+		$response['MESSAGE']        = isset($this->response['message']) ? substr($this->response['message'], 4) : '';
+		$response['STATUS']         = isset($this->response['eft-response']) ? $this->response['eft-response'] : '';
+		$response['TRANSACTION']    = isset($this->response['txn-id']) ? $this->response['txn-id'] : '';
+		$response['DATE']           = isset($this->response['settlement-date']) ? $this->response['settlement-date'] : '';
 
 		return $response;
 

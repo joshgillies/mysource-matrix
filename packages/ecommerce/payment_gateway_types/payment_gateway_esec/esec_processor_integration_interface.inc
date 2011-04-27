@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.7 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.8 2011/04/27 00:42:16 cupreti Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -71,6 +71,17 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
 		if (!$result || is_object($result) || $is_errror) {
+			
+			// Log the error
+			$this->response['message'] = '0000 Transaction not successful. Unable to connect to the service';
+			log_write($this->response['message'], SQ_CONF_LOG_FILE_ERROR);
+			
+			// If its PEAR error object, log the error message
+			if (is_object($result) && isset($result->message)) {
+				$message_code = isset($message->code) ? $message->code : '0000';
+				log_write($message_code.' '.$result->message, SQ_CONF_LOG_FILE_ERROR);
+			}
+
 			return $success;
 		}
 
