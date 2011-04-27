@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.6 2011/04/27 05:36:29 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.7 2011/04/27 07:22:30 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -263,15 +263,20 @@ class CMIS_Bridge extends Asset
 		
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$metadata_fields = $this->attr('metadata_fields');
-		if (empty($metadata_fields['cmis:objectId']['field'])) return $file_info;
+		if (!empty($metadata_fields['cmis:objectId']['field'])) $sync_fields['objectId'] = $metadata_fields['cmis:objectId']['field'];
+		if (!empty($metadata_fields['cmis:lastModificationDate']['field'])) $sync_fields['lastModificationDate'] = $metadata_fields['cmis:lastModificationDate']['field'];
+		
+		if (!isset($sync_fields['objectId'])) return $file_info;
+		$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($sync_fields), 'metadata_field', FALSE, 'name');
 		
 		$files = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'file', FALSE);
 		foreach (array_keys($files) as $file_id){
-			$objectId = $mm->getMetadataValueByAssetid($file_id, $metadata_fields['cmis:objectId']['field'], TRUE, TRUE);
+			$metadata_values = $mm->getMetadataFieldValues($file_id, array_values($field_names));
+			$objectId = $metadata_values[$field_names[$sync_fields['objectId']]];
 			if (!empty($objectId)) {
 				$file_info[$objectId]['assetid'] = $file_id;
-				if (!empty($metadata_fields['cmis:lastModificationDate']['field'])){
-					$lastModificationDate = $mm->getMetadataValueByAssetid($file_id, $metadata_fields['cmis:lastModificationDate']['field'], TRUE, TRUE);
+				if (isset($sync_fields['lastModificationDate'])){
+					$lastModificationDate = $metadata_values[$field_names[$sync_fields['lastModificationDate']]];
 					if (!empty($lastModificationDate)) $file_info[$objectId]['lastModificationDate'] = $lastModificationDate;
 				}
 			}
