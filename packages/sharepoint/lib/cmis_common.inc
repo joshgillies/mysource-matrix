@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.2 2011/04/07 00:55:02 mhaidar Exp $
+* $Id: cmis_common.inc,v 1.3 2011/04/27 05:36:30 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -205,6 +205,38 @@ class CMIS_Common
 		return $repositoryInfo;
 	}
 
+	
+	/**
+	* Get Type Definition using CMIS Repository Service
+	*
+	* @param string		$repositoryId
+	* @param string		$typeId
+	*
+	* @return object
+	* @access public
+	*/
+	public function getTypeDefinition($repositoryId, $typeId)
+	{
+		$type_def = NULL;
+		if (!$this->ptr) return $type_def;
+		
+		try {
+			$response = $this->ptr->__soapCall('getTypeDefinition', Array('paramaters' => Array ('repositoryId' => $repositoryId, 'typeId' => $typeId)), Array('uri'=>''), $this->security_header);
+		} catch (SoapFault $e) {
+			if (strpos($e->getMessage(), 'looks like we got no XML document') === FALSE) {
+				trigger_error("Failed to getTypeDefinition: ".$e->getMessage()."\n", E_USER_WARNING);
+				return $type_def;
+			}
+		}
+
+		$data = $this->processSoapRequest();
+		if (isset($data['xml']->getTypeDefinitionResponse)){
+			$type_def = $data['xml']->getTypeDefinitionResponse;
+		}
+
+		return $type_def;
+	}
+	
 	
 	/**
 	* Get Children using CMIS Navigation Service

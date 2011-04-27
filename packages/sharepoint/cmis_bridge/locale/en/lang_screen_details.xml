@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2011/04/07 06:08:31 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.5 2011/04/27 05:36:29 mhaidar Exp $
 *
 */
 -->
@@ -44,6 +44,7 @@
 		</field>
     </section>
     <section name="Synchronise Options" write_access="write:attributes">
+    	<note> Metadata Fields setup will only appear here if a valid Repository Name or ID is supplied.</note>
     	<field>
     		<display_name>Synchronise Now?</display_name>
 			<note> This will trash old files (including their links elsewhere), update modified files and create new files.</note>
@@ -56,9 +57,13 @@
 			<display_name>Repository Name</display_name>
 			<note>The root folder name. E.g. the Document Library name (case sensitive). All files must be located under this root folder and not under any sub-folders.</note>
 		</field>
-    	<field>
+		<field attribute="repository_id">
+			<display_name>Repository ID</display_name>
+			<note>Enter the unique ID of the Repository as an alternative to the 'Repository Name' above. Needed when e.g. using Sharepoint Subsite Document Libraries.</note>
+		</field>
+    	<field show_if="isConnected">
 			<display_name>Metadata Fields</display_name>
-			<note>'objectId' and 'lastModificationDate' properties are required for synchronisation. Selected metadata fields must belong to a schema applied to this bridge with cascades turned on. Metadata date fields must use the default 'Display Format' (d/m/Y H:i:s).</note>
+			<note>'Modified' and 'cmis:objectId' fields are required for synchronisation. 'Modified' field must use a Metadata Date Field with the default 'Display Format' (d/m/Y H:i:s). 'cmis:objectId' must use a Metadata Text Field. Selected metadata fields must belong to a schema applied to this bridge with cascades turned on.</note>
 			<function_call>
 				<paint_function   name="paintMetadataOptions"   />
 				<process_function name="processMetadataOptions" />

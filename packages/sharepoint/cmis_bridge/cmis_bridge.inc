@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge.inc,v 1.5 2011/04/15 00:01:07 mhaidar Exp $
+* $Id: cmis_bridge.inc,v 1.6 2011/04/27 05:36:29 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/cmis_common.inc';
 *	Creates file assets under itself in synchronization with a repository having a CMIS Connector such as MS Sharepoint.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -158,7 +158,7 @@ class CMIS_Bridge extends Asset
 	public function connect($service_name, $verify = FALSE)
 	{
 		
-		if (isset($this->soap[$service_name])) return TRUE;
+		if (!$verify && isset($this->soap[$service_name])) return TRUE;
 		
 		$cmis = new CMIS_Common();
 		$wsdl = $this->attr('wsdl');
@@ -212,8 +212,8 @@ class CMIS_Bridge extends Asset
 		
 		foreach ($children_data as $object_data){
 			
-			//if there is no contentStreamFileName this object is not applicable.
-			if (!isset($object_data['cmis:contentStreamFileName'])) continue;
+			//if not document type or there is no contentStreamFileName this object is not applicable.
+			if ($object_data['cmis:objectTypeId'] != 'cmis:document' || !isset($object_data['cmis:contentStreamFileName'])) continue;
 			
 			$objectId = $object_data['cmis:objectId'];
 			if (array_key_exists($objectId, $current_files)) {
@@ -227,24 +227,14 @@ class CMIS_Bridge extends Asset
 					$lastModifiedMetadata = strtotime($lastModifiedMetadata);
 					
 					if ($lastModifiedCMIS > $lastModifiedMetadata){
-						$sync_info['update_assetids'][] = Array(		
-																	'objectId'				=> $objectId,
-																	'contentStreamFileName' => $object_data['cmis:contentStreamFileName'],
-																	'lastModificationDate'	=> $object_data['cmis:lastModificationDate'],
-																	'createdBy'				=> $object_data['cmis:createdBy'],
-																	'creationDate'			=> $object_data['cmis:creationDate'],
+						$sync_info['update_assetids'][] = Array(
+																	'object_data' 			=> $object_data,
 																	'assetid'				=> $assetid
 																);
 					}
 				}
 			} else {//mark for creation
-				$sync_info['create_objectIds'][] = Array(		
-														'objectId'				=> $objectId,
-														'contentStreamFileName' => $object_data['cmis:contentStreamFileName'], //TO DO: fall back to cmis:name ?
-														'lastModificationDate'	=> $object_data['cmis:lastModificationDate'],
-														'createdBy'				=> $object_data['cmis:createdBy'],
-														'creationDate'			=> $object_data['cmis:creationDate']
-													);
+				$sync_info['create_objectIds'][] = $object_data;
 			}
 		}
 		
@@ -261,7 +251,7 @@ class CMIS_Bridge extends Asset
 	
 	
 	/**
-	* Searches for all file assets located under the bridge and returns a mapping of the metadata values to the assetid.
+	* Searches for all file assets located under the bridge and returns a mapping of the metadata sync values to the assetid.
 	* Used for synchronization purposes. If no metadata value is present for the unique 'objectId', the file will be ignored.
 	*
 	* @return array
@@ -273,25 +263,75 @@ class CMIS_Bridge extends Asset
 		
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$metadata_fields = $this->attr('metadata_fields');
-		if (empty($metadata_fields['objectId']['field'])) return $file_info;
+		if (empty($metadata_fields['cmis:objectId']['field'])) return $file_info;
 		
 		$files = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'file', FALSE);
 		foreach (array_keys($files) as $file_id){
-				$objectId = $mm->getMetadataValueByAssetid($file_id, $metadata_fields['objectId']['field'], TRUE, TRUE);
-				if (!empty($objectId)) {
-					$file_info[$objectId]['assetid'] = $file_id;
-					foreach($metadata_fields as $property => $info) {
-						if (empty($info['field']) || $property == 'objectId') continue;
-						$metadata_value = $mm->getMetadataValueByAssetid($file_id, $info['field'], TRUE, TRUE);
-						if (!empty($metadata_value)) {
-							$file_info[$objectId][$property] = $metadata_value;
-						}
-					}
+			$objectId = $mm->getMetadataValueByAssetid($file_id, $metadata_fields['cmis:objectId']['field'], TRUE, TRUE);
+			if (!empty($objectId)) {
+				$file_info[$objectId]['assetid'] = $file_id;
+				if (!empty($metadata_fields['cmis:lastModificationDate']['field'])){
+					$lastModificationDate = $mm->getMetadataValueByAssetid($file_id, $metadata_fields['cmis:lastModificationDate']['field'], TRUE, TRUE);
+					if (!empty($lastModificationDate)) $file_info[$objectId]['lastModificationDate'] = $lastModificationDate;
 				}
+			}
 		}
 		
 		return $file_info;
 	}//end getCurrentFileInfo()
+	
+	
+	/**
+	* Gets the available document fields of our document library that we can store in our metadata fields.
+	* Mostly interested in custom fields but additionally a few CMIS fields used for synchronization.
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAvailableDocumentFields()
+	{
+		$fields = Array();
+		if (!$this->connect('RepositoryService')) return $fields;
+		
+		$repositoryId = $this->getRepositoryId();
+		if (empty($repositoryId)) return $fields;
+		
+		$type_def = $this->soap['RepositoryService']->getTypeDefinition($repositoryId, 'cmis:document');
+		if(!isset($type_def->type->q1id) || (string)$type_def->type->q1id != 'cmis:document') return $fields;
+		
+		$properties = Array (	
+								'q1propertyBooleanDefinition',
+								'q1propertyDateTimeDefinition',
+								'q1propertyDecimalDefinition',
+								'q1propertyIdDefinition',
+								'q1propertyIntegerDefinition',
+								'q1propertyStringDefinition'
+							);
+
+		$cmis_fields = Array (
+								'cmis:objectId',
+								'cmis:lastModificationDate',
+								'cmis:createdBy',
+								'cmis:creationDate'
+							);
+		foreach($properties as $propertyType) {
+			if (isset($type_def->type->$propertyType)){ 
+				$type = str_replace('Definition', '', substr($propertyType, 10));
+				foreach($type_def->type->$propertyType as $property){
+					$propertyId = (string)$property->q1id;
+					if (strpos($propertyId, 'cmis:') !== FALSE && !in_array($propertyId, $cmis_fields)) continue;
+					$fields[$propertyId] = Array ( 
+															'display_name' => (string)$property->q1displayName,
+															'type'		   => $type,
+															'field'		   => ''
+														);
+				}
+			}
+		}
+		
+		return $fields;
+		
+	}//end getAvailableDocumentFields()
 	
 	
 	/**
@@ -302,7 +342,9 @@ class CMIS_Bridge extends Asset
 	*/
 	public function getRepositoryId()
 	{
-		$repositoryId = '';
+		$repositoryId = $this->attr('repository_id');
+		if (!empty($repositoryId)) return $repositoryId;
+		
 		if (!$this->connect('RepositoryService')) return $repositoryId;
 		
 		$repositories = $this->soap['RepositoryService']->getRepositories();
@@ -361,26 +403,22 @@ class CMIS_Bridge extends Asset
 		if (!isset($children->objects->objects)) return FALSE;
 		
 		$key = 0;
+		$properties = Array (	
+								'propertyBoolean',
+								'propertyDateTime',
+								'propertyDecimal',
+								'propertyId',
+								'propertyInteger',
+								'propertyString'
+							);
 		foreach ($children->objects->objects as $object){
-			foreach($object->object->properties->propertyId as $propertyId){
-				$attributes = $propertyId->attributes();
-				$children_data[$key][(string)$attributes['propertyDefinitionId']] = (string)$propertyId->value;
-			}
-			
-			foreach($object->object->properties->propertyString as $propertyString){
-				$attributes = $propertyString->attributes();
-				$children_data[$key][(string)$attributes['propertyDefinitionId']] = (string)$propertyString->value;
-			}
-			
-			
-			foreach($object->object->properties->propertyDateTime as $propertyDateTime){
-				$attributes = $propertyDateTime->attributes();
-				$children_data[$key][(string)$attributes['propertyDefinitionId']] = (string)$propertyDateTime->value;
-			}
-			
-			foreach($object->object->properties->propertyInteger as $propertyInteger){
-				$attributes = $propertyInteger->attributes();
-				$children_data[$key][(string)$attributes['propertyDefinitionId']] = (string)$propertyInteger->value;
+			foreach($properties as $propertyType) {
+				if (isset($object->object->properties->$propertyType)){
+					foreach($object->object->properties->$propertyType as $property){
+						$attributes = $property->attributes();
+						$children_data[$key][(string)$attributes['propertyDefinitionId']] = (string)$property->value;
+					}
+				}
 			}
 			$key++;
 		}

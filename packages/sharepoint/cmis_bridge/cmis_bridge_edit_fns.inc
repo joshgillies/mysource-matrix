@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.3 2011/04/07 00:56:03 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.4 2011/04/27 05:36:29 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -185,12 +185,15 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 	function paintMetadataOptions(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
-		$metadata_fields = $asset->attr('metadata_fields');
+		$current_metadata_fields = $asset->attr('metadata_fields');
+		$metadata_fields = $asset->getAvailableDocumentFields();
+		if (empty($metadata_fields)) return FALSE; //should never be empty unless !$this->isConnected()
+		
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th><?php echo "CMIS Property"; ?></th>
-					<th><?php echo "Metadata Field Type"; ?></th>
+					<th><?php echo "Field"; ?></th>
+					<th><?php echo "Field Type"; ?></th>
 					<th><?php echo "Metadata Field ID" ?></th>
 				</tr>
 			<?php
@@ -199,21 +202,24 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<td>
 						<?php
-							echo $property;
+							echo $info['display_name'];
 						?>
 					</td>
 					<td>
 						<?php
-							$type = substr(strrchr($info['type_code'], "_"), 1);
-							echo ucwords($type);
+							echo $info['type'];
 						?>
 					</td>
 					<td>
 						<?php
+						$field_id = isset($current_metadata_fields[$property]['field']) ? $current_metadata_fields[$property]['field'] : '';
 						if ($wa) {
-							asset_finder($prefix.'_'.$property, $info['field'], Array($info['type_code'] => 'I'));
+							$type_codes = Array('metadata_field' => 'D');
+							if ($property == 'cmis:objectId') $type_codes = Array('metadata_field_text' => 'I');
+							if ($property == 'cmis:lastModificationDate') $type_codes = Array('metadata_field_date' => 'I');
+							asset_finder($prefix.'_'.$property, $field_id, $type_codes);
 						} else {
-							if ($info['field']) echo get_asset_tag_line($info['field']);
+							if ($field_id) echo get_asset_tag_line($field_id);
 						}
 						?>
 					</td>
@@ -245,23 +251,71 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$applied_schemas = $mm->getSchemas($asset->id, TRUE, TRUE);
 		$fields = $mm->getMetadataFields($applied_schemas);
 		
-        $metadata_fields = $asset->attr('metadata_fields');	
+		$current_metadata_fields = $asset->attr('metadata_fields');
+        $metadata_fields = $asset->getAvailableDocumentFields();
+        if (empty($metadata_fields)) return FALSE; //should never be empty unless !$this->isConnected()
 		
         foreach ($metadata_fields as $property => $info){
-        	 $field_id = (isset($_POST[$prefix.'_'.$property]['assetid'])) ? $_POST[$prefix.'_'.$property]['assetid'] : '';
-        	 if (!empty($field_id) && !array_key_exists($field_id, $fields)){
-        	 	trigger_localised_error('SHAR0001', E_USER_WARNING, $field_id);
-        	 	continue;	
+        	 $current_field_id = isset($current_metadata_fields[$property]['field']) ? $current_metadata_fields[$property]['field'] : '';
+        	 $field_id = (isset($_POST[$prefix.'_'.$property]['assetid'])) ? $_POST[$prefix.'_'.$property]['assetid'] : $current_field_id;
+        	 if (!empty($field_id)){
+        	 	if (!array_key_exists($field_id, $fields)){
+        	 		trigger_localised_error('SHAR0001', E_USER_WARNING, $field_id);
+        	 		//revert to original value
+        	 		$field_id = $current_field_id;
+        	 	}
+        	 	if ($property == 'cmis:objectId'){
+        	 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($field_id, Array('metadata_field_text'));
+        	 		if (empty($type_info)) {
+        	 			trigger_localised_error('SHAR0004', E_USER_WARNING, $info['display_name'], 'Metadata Text Field');
+        	 			//revert to original value
+        	 			$field_id = $current_field_id;
+        	 		}
+        	 	} else if ($property == 'cmis:lastModificationDate'){
+        	 		 $type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($field_id, Array('metadata_field_date'));
+        	 		 if (empty($type_info)) {
+        	 		 	trigger_localised_error('SHAR0004', E_USER_WARNING, $info['display_name'], 'Metadata Date Field');
+        	 		 	//revert to original value
+        	 			$field_id = $current_field_id;
+        	 		 }
+        	 	}
         	 }
+        	 
         	 $metadata_fields[$property]['field'] = $field_id;
         }
-
+		
 		$asset->setAttrValue('metadata_fields', $metadata_fields);
 		$asset->saveAttributes();
 		
 		return TRUE;
 
 	}//end processMetadataOptions()
+	
+	
+	/**
+	* Show-if conditional: display metadata options if connected and doc library found.
+	*
+	* @param object &$asset asset being painted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isConnected(&$asset)
+	{
+		foreach ($asset->attr('wsdl') as $service_name => $url){
+			$connected = $asset->connect($service_name, TRUE);
+			if (!$connected) break;
+		}
+		if (empty($connected)) return FALSE;
+		
+		$repositoryId = $asset->getRepositoryId();
+		if (empty($repositoryId)) return FALSE;
+		$folderId = $asset->getRootFolderId($repositoryId);
+		if (empty($folderId)) return FALSE; 
+
+		return TRUE;
+
+	}//end isConnected()
 	
 	
 	
