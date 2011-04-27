@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_sync_cmis_bridge.inc,v 1.3 2011/04/27 05:36:29 mhaidar Exp $
+* $Id: hipo_job_sync_cmis_bridge.inc,v 1.4 2011/04/27 06:06:06 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for Synchronizing CMIS Bridge files.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com/au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage sharepoint
 */
@@ -295,7 +295,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 					
 					$metadata = Array();
 					foreach ($bridge->attr('metadata_fields') as $property => $info){
-						if ($info['field']) $metadata[$info['field']][0]['value'] = $todo['object_data'][$property];
+						if ($info['field'] && isset($todo['object_data'][$property])) $metadata[$info['field']][0]['value'] = $todo['object_data'][$property];
 					}
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$mm->setMetadata($asset->id, $metadata);
@@ -449,7 +449,7 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 					
 					$metadata = Array();
 					foreach ($bridge->attr('metadata_fields') as $property => $info){
-						if ($info['field']) $metadata[$info['field']][0]['value'] = $todo[$property];
+						if ($info['field'] && isset($todo[$property])) $metadata[$info['field']][0]['value'] = $todo[$property];
 					}
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$mm->setMetadata($new_file->id, $metadata);
