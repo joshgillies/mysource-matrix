@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2011/04/27 05:36:29 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.6 2011/04/28 00:14:00 mhaidar Exp $
 *
 */
 -->
@@ -44,7 +44,7 @@
 		</field>
     </section>
     <section name="Synchronise Options" write_access="write:attributes">
-    	<note> Metadata Fields setup will only appear here if a valid Repository Name or ID is supplied.</note>
+    	<note> Metadata Fields setup will only appear here if the bridge is connected and a valid Repository Name or ID is supplied.</note>
     	<field>
     		<display_name>Synchronise Now?</display_name>
 			<note> This will trash old files (including their links elsewhere), update modified files and create new files.</note>
