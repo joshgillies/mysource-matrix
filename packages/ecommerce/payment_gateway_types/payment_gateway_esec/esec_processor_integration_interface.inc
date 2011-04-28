@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.8 2011/04/27 00:42:16 cupreti Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.9 2011/04/28 01:41:07 cupreti Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -62,6 +62,21 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 		$HTTP_Request->setMethod(HTTP_REQUEST_METHOD_POST);
 		foreach ($this->parameters as $name => $value) {
 			$HTTP_Request->addPostData($name, $value);
+		}
+
+		// Set proxy parameters, if enabled
+		$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+		if (file_exists($proxy_conf_file)) {
+			require_once($proxy_conf_file);
+
+			if (SQ_PA_ENABLED) {
+				$proxy_host = trim(SQ_PA_HOSTNAME) ? SQ_PA_HOSTNAME : null;
+				$proxy_port = trim(SQ_PA_PORT) ? SQ_PA_PORT : 8080;
+				$proxy_user = trim(SQ_PA_USERNAME) ? SQ_PA_USERNAME : null;
+				$proxy_pass = trim(SQ_PA_PASSWORD) ? SQ_PA_PASSWORD : null;
+
+				$HTTP_Request->setProxy($proxy_host, $proxy_port, $proxy_user, $proxy_pass);	
+			}
 		}
 
 		$result = @$HTTP_Request->sendRequest();
