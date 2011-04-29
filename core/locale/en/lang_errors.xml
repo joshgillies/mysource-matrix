@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.131 2011/02/18 03:22:28 cupreti Exp $
+* $Id: lang_errors.xml,v 1.132 2011/04/29 05:07:14 mhaidar Exp $
 *
 */
 
@@ -1808,6 +1808,8 @@ Full Node Contents :
 	
 	<!-- Image file -->
 	<error code="CORE0304">Uploaded file is not an image file</error>
+	
+	<error code="CORE0305">Could not clear old files from public data directory for asset "%s" after exiting Safe Edit.</error>
 	
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

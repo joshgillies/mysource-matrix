@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.199 2011/04/29 02:46:11 mhaidar Exp $
+* $Id: file.inc,v 1.200 2011/04/29 05:04:39 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -394,7 +394,7 @@ class File extends Asset
 		}
 
 		// create a new versioning entry for the old version
-		$file_info = $fv->_checkOutCheck($rep_path);
+		$file_info = $fv->_checkOutCheck($rep_path, $file_version);
 		$fv->_updateFile($file_info['fileid'], $this->data_path_suffix, $this->data_path.'/'.$this->name);
 
 		// check out the new version
@@ -410,6 +410,34 @@ class File extends Asset
 		return TRUE;
 
 	}//end revertToSystemVersion()
+	
+	
+	/**
+	* Clear the directory for saving the system version
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function clearSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		
+		// Bug #5084: After safe edit, old files remain in public data directory.
+		// So clean it out, latest version will be checked out from _checkFileState() function.
+		// make sure our data directory exists
+		if (!create_directory($this->data_path_public)) {
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
+		if (!clear_directory($this->data_path_public)) {
+			trigger_localised_error('CORE0305', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+		
+		return parent::clearSystemVersion();
+
+	}//end clearSystemVersion()
 
 
 	/**
@@ -556,7 +584,8 @@ class File extends Asset
 	* @access public
 	*/
 	public function permissionsUpdated()
-	{
+	{	
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
 		return $this->_checkFileState();
 
 	}//end permissionsUpdated()
@@ -570,6 +599,9 @@ class File extends Asset
 	*/
 	protected function _checkFileState()
 	{
+		
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();
