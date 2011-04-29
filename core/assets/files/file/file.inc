@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.198 2011/04/20 02:04:56 mhaidar Exp $
+* $Id: file.inc,v 1.199 2011/04/29 02:46:11 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -568,7 +568,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	protected function _checkFileState($update_lookups = TRUE)
+	protected function _checkFileState()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -581,7 +581,7 @@ class File extends Asset
 
 		// if we should be storing our file in the public
 		// data directory for all the world to see
-		if ($this->effectiveUnrestricted() && $this->attr('allow_unrestricted') && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
+		if ($this->effectiveUnrestricted() && $this->attr('allow_unrestricted')) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
 				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
@@ -618,7 +618,7 @@ class File extends Asset
 			}
 		}//end if effectiveUnrestricted
 
-		if ($changed && $update_lookups) {
+		if ($changed) {
 			return $this->updateLookups();
 		} else {
 			return TRUE;
@@ -636,7 +636,7 @@ class File extends Asset
 	*/
 	public function usePublicPath()
 	{
-		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE));
+		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
 
 	}//end usePublicPath()
 
@@ -655,13 +655,10 @@ class File extends Asset
 		if (!isset($this->_tmp['deleting_file'])) {
 			$this->_tmp['deleting_file'] = FALSE;
 		}
-		if (!$this->_tmp['deleting_file']){
-			$this->_checkFileState(FALSE);
-			if (!$this->usePublicPath()) {
-				// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
-				// so we dont worry about __data paths
-				return parent::updateLookups();
-			}
+		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
+			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
+			// so we dont worry about __data paths
+			return parent::updateLookups();
 		}
 
 		// Remove all the old URLs
