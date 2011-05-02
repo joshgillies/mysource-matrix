@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.747 2011/04/13 22:53:17 akarelia Exp $
+* $Id: asset.inc,v 1.748 2011/05/02 02:02:57 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.747 $
+* @version $Revision: 1.748 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3824,7 +3824,7 @@ class Asset extends MySource_Object
 	* @access private
 	*/
 	protected function _getKeywordReplacement($keyword)
-	{	
+	{
 		if (empty($keyword)) return '';
 
 		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
@@ -3917,7 +3917,15 @@ class Asset extends MySource_Object
 			$metadata_keyword = substr($keyword, 15);
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-			// Get "metadata feild related asset" field names
+			// check to see if the above $metadata_keyword is actually a field name
+			// for this asset before trying to perform "related asset" op on it
+			// for more info check out bug #5083 Metadata Fields Inaccessible
+			$is_field_name = FALSE;
+			if ($mm->getFieldAssetIdFromName($this->id, $metadata_keyword)) {
+				$is_field_name = TRUE;
+			}
+
+			// Get "metadata field related asset" field names
 		   	if (!isset($this->_tmp['mm_related_asset_fields'])) {
 				$related_assetids = $mm->getMetadataFieldTypeValues($this->id, 'metadata_field_related_asset');
 				array_sort_by_length($related_assetids, FALSE, FALSE);
@@ -3926,28 +3934,29 @@ class Asset extends MySource_Object
 				$related_assetids = $this->_tmp['mm_related_asset_fields'];
 			}
 
-			$related_asset_keyword = FALSE;			
-			foreach($related_assetids as $field_name => $related_assetid) {
-				
-				if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {					
-					if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
-						$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
-						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
-						$replacement = $related_asset->getKeywordReplacement($asset_keyword);
+			$related_asset_keyword = FALSE;
+			if (!$is_field_name) {
+				foreach($related_assetids as $field_name => $related_assetid) {
+					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
+						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
+							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
+							$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
+							$replacement = $related_asset->getKeywordReplacement($asset_keyword);
+						}
+						$related_asset_keyword = TRUE;
+						break;
 					}
-					$related_asset_keyword = TRUE;
-					break;					
-				}			
-			} //end foreach
+				} //end foreach
+			}
 			
-			if (!$related_asset_keyword) {			
+			if (!$related_asset_keyword) {
 				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 				if ($current_context === NULL) {
 					$current_context = 0;
 				}
 
 				if (!isset($this->_tmp['mm_replacements'][$current_context])) {
-					// generate all metadata keywords in one go				
+					// generate all metadata keywords in one go
 					$this->_tmp['mm_replacements'][$current_context] = $mm->getMetadataFieldValues($this->id);
 				}
 				$additional_keyword = '';
