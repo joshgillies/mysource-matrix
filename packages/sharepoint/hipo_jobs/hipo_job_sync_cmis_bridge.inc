@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_sync_cmis_bridge.inc,v 1.5 2011/04/27 23:55:34 mhaidar Exp $
+* $Id: hipo_job_sync_cmis_bridge.inc,v 1.6 2011/05/03 07:07:45 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for Synchronizing CMIS Bridge files.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com/au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage sharepoint
 */
@@ -153,11 +153,6 @@ class HIPO_Job_Sync_CMIS_Bridge extends HIPO_Job
 		if (empty($repositoryId)){
 			trigger_localised_error('SHAR0003', E_USER_WARNING, $bridge->id);
 			return FALSE;
-		}
-		$folderId = $bridge->getRootFolderId($repositoryId);
-		if (empty($folderId)) {
-			trigger_localised_error('SHAR0003', E_USER_WARNING, $bridge->id);
-			return FALSE; 
 		}
 		
 		$this->_running_vars['repositoryId'] = $repositoryId;

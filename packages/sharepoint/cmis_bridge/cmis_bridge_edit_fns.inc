@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.6 2011/05/03 06:23:16 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.7 2011/05/03 07:07:45 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -311,8 +311,6 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 		
 		$repositoryId = $asset->getRepositoryId();
 		if (empty($repositoryId)) return FALSE;
-		$folderId = $asset->getRootFolderId($repositoryId);
-		if (empty($folderId)) return FALSE; 
 
 		return TRUE;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.2 2011/04/27 05:36:30 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.3 2011/05/03 07:07:45 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 <errors>
 	<error code="SHAR0001">Metadata field (Id: #%s) must belong to a schema applied to the bridge with cascades on.</error>
 	<error code="SHAR0002">Unable to initialise Sync CMIS Bridge HIPO, no start CMIS Bridge asset ID specified.</error>
-	<error code="SHAR0003">Unable to initialise Sync CMIS Bridge HIPO, invalid Repository Name or ID supplied for CMIS Bridge (Id: #%s).</error>
+	<error code="SHAR0003">Unable to initialise Sync CMIS Bridge HIPO, invalid Repository Name supplied for CMIS Bridge (Id: #%s).</error>
 	<error code="SHAR0004">Field '%1$s' must be a '%2$s'.</error>
 	<error code="SHAR0005">Unable to initialise Sync CMIS Bridge HIPO, CMIS Bridge (Id: #%s) is disconnected.</error>
 </errors>
