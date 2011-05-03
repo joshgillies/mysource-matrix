@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent.inc,v 1.8 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_user_agent.inc,v 1.9 2011/05/03 06:37:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,10 @@ class Condition_User_Agent extends Condition
 		if (!isset($_SERVER['HTTP_USER_AGENT'])) {
 			return FALSE;
 		}
-		$matches = preg_match('|'.$condition_data['user_agent'].'|i', $_SERVER['HTTP_USER_AGENT']);
+
+		// escape any '/' that are thrown oru way
+		$condition_data['user_agent'] = str_replace('/', '\/', $condition_data['user_agent']);
+		$matches = preg_match('/'.$condition_data['user_agent'].'/i', $_SERVER['HTTP_USER_AGENT']);
 		return ($matches > 0);
 
 	}//end evaluate()
