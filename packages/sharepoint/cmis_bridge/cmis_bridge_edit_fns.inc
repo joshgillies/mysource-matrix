@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.7 2011/05/03 07:07:45 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.8 2011/05/03 23:07:46 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -60,7 +60,7 @@ class CMIS_Bridge_Edit_Fns extends Asset_Edit_Fns
 							<?php echo 'Service Name'; ?>
 						</td>
 						<td class="sq-backend-table-header">
-							<?php echo 'Service URL'; ?>
+							<?php echo 'WSDL URL'; ?>
 						</td>
 						<td class="sq-backend-table-header">
 							<?php echo 'Connection Status'; ?>

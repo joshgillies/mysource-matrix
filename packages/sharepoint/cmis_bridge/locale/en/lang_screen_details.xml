@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2011/05/03 07:07:45 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.9 2011/05/03 23:07:46 mhaidar Exp $
 *
 */
 -->
@@ -24,12 +24,12 @@
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
         <field>
-       		 <display_name>Service URLs</display_name>
+       		 <display_name>WSDL URLs</display_name>
             <function_call>
                 <paint_function     name="paintWsdlUrl" />
                 <process_function   name="processWsdlUrl" />
             </function_call>
-            <note>Example: http://webURL/_vti_bin/cmis/soap/ObjectService.svc </note>
+            <note>Example: http://webURL/_vti_bin/cmis/soap/ObjectService.svc?wsdl </note>
         </field>
         <field attribute="username">
 			<display_name>Username</display_name>
