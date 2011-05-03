@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.3 2011/04/27 05:36:30 mhaidar Exp $
+* $Id: cmis_common.inc,v 1.4 2011/05/03 06:23:16 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -102,13 +102,15 @@ class CMIS_Common
 		$params['soap_version'] = SOAP_1_1;
 		$params['login'] = $conn_info['username'];
 		$params['password'] = $conn_info['password'];
+		$params['location'] = $wsdl.'/basic';
+		$params['uri'] = $wsdl.'?wsdl';
 		
 		// Make sure the pointer is open
 		if ($this->ptr) $this->ptr=NULL;
 		
 		if ($conn_info['verify']){
 			$curl = curl_init();
-			curl_setopt($curl, CURLOPT_URL, $wsdl);
+			curl_setopt($curl, CURLOPT_URL, $params['uri']);
 			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($curl, CURLAUTH_BASIC, 1);
@@ -118,7 +120,7 @@ class CMIS_Common
 			if (strpos($contents, '?xml') === FALSE) return FALSE;
 			
 			try {
-				$this->ptr = new SoapClient($wsdl, $params);
+				$this->ptr = new SoapClient($params['uri'], $params);
 				$fns = $this->ptr->__getFunctions();
 		        if (empty($fns)) return FALSE; 
 
@@ -137,7 +139,7 @@ class CMIS_Common
 			}//end if
 		        
 		} else {
-			$this->ptr = new SoapClient($wsdl, $params);
+			$this->ptr = new SoapClient($params['uri'], $params);
 		}
 		
 		return TRUE;

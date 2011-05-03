@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_management.inc,v 1.4 2011/04/27 05:36:29 mhaidar Exp $
+* $Id: cmis_bridge_management.inc,v 1.5 2011/05/03 06:23:16 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -53,12 +53,6 @@ class CMIS_Bridge_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'Root document library name to synchronize with'
-												   ),
-						'repository_id'		=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> '',
-													'description'	=> 'Root document library ID to synchronize with'
 												   ),
 						'wsdl'					=> Array (
 													'added'			=> '0.1',
