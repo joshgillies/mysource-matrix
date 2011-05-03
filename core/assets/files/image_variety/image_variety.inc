@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.54 2011/05/03 00:35:43 mhaidar Exp $
+* $Id: image_variety.inc,v 1.55 2011/05/03 00:40:58 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -504,6 +504,7 @@ class Image_Variety extends Asset
 	
 	/**
 	* Look's after the updating of files in the public directory
+	* Only call if File::usePublicPath() returns TRUE;
 	*
 	* @return boolean
 	* @access private
