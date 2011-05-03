@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.53 2011/04/29 02:46:11 mhaidar Exp $
+* $Id: image_variety.inc,v 1.54 2011/05/03 00:35:43 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -475,6 +475,66 @@ class Image_Variety extends Asset
 
 	}//end checkFileState()
 
+	
+	/**
+	* Look's after the removing of files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _removePublicFile()
+	{
+		
+		$filename = $this->attr('filename');
+		if (!$filename) return TRUE;
+		
+		$unrestricted = $this->data_path_public.'/'.$filename;
+		if (is_file($unrestricted)) {
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
+				trigger_localised_error('COR0104', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _removePublicFile()
+
+	
+	/**
+	* Look's after the updating of files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _updatePublicFile()
+	{	
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$filename = $this->attr('filename');
+		if (!$filename) return TRUE;
+		
+		$unrestricted = $this->data_path_public.'/'.$filename;
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path_public)) {
+			return FALSE;
+		}
+
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		// if there is no current file or if the current file is out of date, check out a fresh copy
+		if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
+			if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
+				trigger_localised_error('COR0103', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _updatePublicFile()
+	
 
 	/**
 	* Called to force an update of this assets lookup information
@@ -591,6 +651,16 @@ class Image_Variety extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		//Bug #5072: Trashed file assets still accessible via public data URL
+		//We only reached here because we are supposed to have a public web path but
+		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
+		if (empty($save_urls)){
+			$this->_removePublicFile();
+		} else {
+			$this->_updatePublicFile();
+		}
+		
 		return TRUE;
 
 	}//end updateLookups()

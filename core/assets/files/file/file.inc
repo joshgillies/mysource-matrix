@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.200 2011/04/29 05:04:39 mhaidar Exp $
+* $Id: file.inc,v 1.201 2011/05/03 00:35:43 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -657,7 +657,76 @@ class File extends Asset
 		}
 
 	}//end _checkFileState()
+	
+	
+	/**
+	* Look's after the removing of files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _removePublicFile()
+	{	
+		$existing = $this->getExistingFile();
+		if (empty($existing)) return TRUE;
 
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+		if (is_file($unrestricted)) {
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
+				return TRUE;
+			} else {
+				trigger_localised_error('CORE0104', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _removePublicFile()
+
+	
+	/**
+	* Look's after the updating of files in the public directory.
+	* Only call if File::usePublicPath() returns TRUE;
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _updatePublicFile()
+	{	
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$existing = $this->getExistingFile();
+		if (empty($existing)) return TRUE;
+
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path_public)) {
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		// if there is no current file or if the current file is out of date, check out a fresh copy
+		if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
+			if (file_exists($unrestricted)) {
+				unlink($this->data_path_public.'/'.$existing['filename']);
+			}
+
+			if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				return TRUE;
+			} else {
+				trigger_localised_error('CORE0032', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _updatePublicFile()
+	
 
 	/**
 	* Returns whether to use the public path or not for this file
@@ -681,7 +750,7 @@ class File extends Asset
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
 	public function updateLookups()
-	{
+	{	
 		$old_urls = $this->getURLs();
 
 		if (!isset($this->_tmp['deleting_file'])) {
@@ -767,7 +836,7 @@ class File extends Asset
 			}//end foreach
 
 		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
-
+		
 		foreach ($save_urls as $url => $url_data) {
 			try {
 				$bind_vars	= Array (
@@ -792,6 +861,15 @@ class File extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		//Bug #5072: Trashed file assets still accessible via public data URL
+		//We only reached here because we are supposed to have a public web path but
+		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
+		if (empty($save_urls)){
+			$this->_removePublicFile();
+		} else {
+			$this->_updatePublicFile();
+		}
+		
 		// broadcast the lookup updated trigger event, passing old status as event data
 		$parameter = Array();
 		if (isset($this->_tmp['old_status'])) {
