@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.23 2009/11/27 05:42:14 bpearson Exp $
+* $Id: form_section_management.inc,v 1.24 2011/05/04 06:58:59 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,11 @@ class Form_Section_Management extends Asset_Management
 													'type'		=> 'int',
 													'default'	=> 0,
 												   ),
+						'actions'				=> Array(
+														'added'		=> '0.3',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													),												   
 					  );
 
 		}//end constructor

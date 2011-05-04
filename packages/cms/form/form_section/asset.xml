@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.17 2007/06/21 06:35:10 rong Exp $
+* $Id: asset.xml,v 1.18 2011/05/04 06:58:59 cupreti Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>form</code>
-			<version>0.3</version>
+			<version>0.1</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

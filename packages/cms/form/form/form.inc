@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.255 2011/03/30 03:09:59 akarelia Exp $
+* $Id: form.inc,v 1.256 2011/05/04 06:58:18 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1731,7 +1731,11 @@ class Form extends Asset implements Bridge
 				if (is_null($current_page)) $current_page = 1;
 				$success = $this->processPage($current_page, $validate_page, $mute_errors);
 
+				// Run the step submission actions for current page, if any
+				$success = $success && $this->performFormSectionActions($current_page) && empty($this->submission_errors);
+
 				if ($success) {
+
 					// If the submission has not yet been created, create the submission
 					// in the "Incomplete Submissions" folder - but if there was only
 					// one page, we can fudge it
@@ -1824,6 +1828,10 @@ class Form extends Asset implements Bridge
 			}
 
 			echo $this->getFormFooter();
+		}
+		
+		if ($finished) {
+			$this->_finaliseStepsActions();
 		}
 
 	}//end printBody()
@@ -3417,7 +3425,7 @@ class Form extends Asset implements Bridge
 					  );
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
+		
 		if (!$submission_asset->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3425,6 +3433,7 @@ class Form extends Asset implements Bridge
 			return FALSE;
 		}
 
+		
 		$submission_asset->setAttrValue('complete', FALSE);
 		// initially created submission asset should have current page set to first page.
 		$submission_asset->setAttrValue('current_page', 1);
@@ -4880,6 +4889,76 @@ class Form extends Asset implements Bridge
 		return $replacement;
 
 	}//end _getThankYouKeywordReplacement()
+
+
+	/**
+	* Perform any section submission actions that are valid and active
+	* for current page in the form
+	*
+	* @param int	$page_number  	Current page number
+	*
+	* @access public
+	* @return boolean
+	*/
+	function performFormSectionActions($page_number)
+	{	
+		$success = TRUE;
+		if ($this->attr('multi_page')) {
+
+			$section_links = $this->getSectionLinks();
+			// Get current section
+			$section_link = reset(array_slice($section_links, $page_number - 1, 1));
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+			
+			$actions = $section->attr('actions');
+			foreach ($actions as $action) {
+				$action_type = $action['type_code'];
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
+
+				if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $section, $action['settings'])) {
+					$success = call_user_func(Array($action_type, 'execute'), $section, $this, $action['settings']);
+					if (!$success) {
+						break;
+					}
+				}//end if
+			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
+		}
+
+		return $success;
+
+	}//end performFormSectionActions()
+	
+	
+	/**
+	* Perform any operations that needs to be done for selected section 
+	* submission actions, after all the individual form step actions are 
+	* executed and the form is submitted
+	*
+	* @access public
+	* @return void
+	*/
+	function _finaliseStepsActions()
+	{	
+		if ($this->attr('multi_page')) {
+		
+			$section_links = $this->getSectionLinks();
+			foreach($section_links as $section_link) {			
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+				$actions = $section->attr('actions');
+				
+				foreach ($actions as $action) {			
+					$action_type = $action['type_code'];
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);				
+					call_user_func(Array($action_type, 'finalise'), $this);
+				}//end foreach
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
+			}//end foreach
+		}//end if		
+
+	}//end _finaliseStepsActions()
 
 
 }//end class
