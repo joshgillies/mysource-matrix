@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.5 2011/05/03 23:07:46 mhaidar Exp $
+* $Id: cmis_common.inc,v 1.6 2011/05/04 01:16:46 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -102,7 +102,8 @@ class CMIS_Common
 		$params['soap_version'] = SOAP_1_1;
 		$params['login'] = $conn_info['username'];
 		$params['password'] = $conn_info['password'];
-		$params['location'] = substr($wsdl, 0, strpos($wsdl, '?')).'/basic';
+		//This is Sharepoint 2010 specific, using basic authentication.
+		if (!$conn_info['ws_security']) $params['location'] = substr($wsdl, 0, strpos($wsdl, '?')).'/basic';
 
 		// Make sure the pointer is open
 		if ($this->ptr) $this->ptr=NULL;
