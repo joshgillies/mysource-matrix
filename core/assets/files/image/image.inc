@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.81.4.2 2011/02/23 04:49:51 ewang Exp $
+* $Id: image.inc,v 1.81.4.3 2011/05/04 06:02:05 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81.4.2 $
+* @version $Revision: 1.81.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -436,15 +436,17 @@ class Image extends File implements Bridge
 	* @return boolean
 	* @access private
 	*/
-	function _checkFileState()
+	protected function _checkFileState()
 	{
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
-				if (!$variety->checkFileState($this->effectiveUnrestricted())) {
+				if (!$variety->checkFileState($this->effectiveUnrestricted() && $this->attr('allow_unrestricted'))) {
 					return FALSE;
 				}
 			}
