@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.10 2009/11/25 04:41:16 akarelia Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.10.6.1 2011/05/04 04:49:15 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,32 +76,6 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		return $selection;
 
 	}//end getHierarchyAttribute()
-
-
-	/**
-	* Get the default values for this field
-	*
-	* @return array
-	* @access public
-	*/
-	public function getDefaultValue()
-	{
-		// return the correct default key/value depending on the 'Visible Part'
-		$default_key = parent::getDefaultValue();
-
-		// using semi-colons to delimit so remove any escaping done by DAL
-		$default_key = str_replace('\\', '', $default_key);
-
-		$options = $this->getContextedHierarchyOptions();
-
-		if (is_array($options)) {
-			$edit_fns = $this->getEditFns();
-			$default_key = $edit_fns->getHierarchyTree($default_key, $options);
-		}
-
-		return $default_key;
-
-	}//end getDefaultValue()
 
 
 	/**

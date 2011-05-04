@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.19.6.1 2011/04/14 05:39:43 akarelia Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.19.6.2 2011/05/04 04:49:15 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.19.6.1 $
+* @version $Revision: 1.19.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -352,25 +352,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// displaying default value if any values were actually saved in the array
 			$o->openField(translate('default_value'));
 				$default_hier = $asset->getHierarchyAttribute();
-				if (($write_access  === TRUE) && (($is_default_context === TRUE) || ($is_contextable === FALSE))) {
-					if ($sort > 0) {
-						$default_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
-						if (isset($default_options) && !is_null($default_options)) {
-							foreach ($default_options as $key => $value) {
-								$default_options[$key] = substr($value, 0, 100);
-							}
-							$default_hier->_params['options'] = $default_options;
-						}
-
-					}
-					$default_hier->paint($prefix.'_default', FALSE);
-				} else {
-					if (isset($default_hier->_params['options'][$default_hier->value])) {
-						echo $default_hier->_params['options'][$default_hier->value];
-					} else {
-						echo translate('hierarchy_no_default');
-					}
-				}
+				$default_hier->paint($prefix.'_default', !$write_access);
 			$o->closeField();
 		}
 
@@ -1154,6 +1136,61 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 	}//end processLevelTitles()
 
+	
+	/**
+	* Paint the interface for setting Display Type
+	*
+	* @param Metadata_Field_Hierarchy	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDisplayType(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$display_type = $asset->attr('display_type');
+		$options = Array(
+					'0'	=> 'Flat View',
+					'1'	=> 'Drill-Down View',
+				   );
+		if ($wa) {
+			echo combo_box($prefix.'_display_type', $options, FALSE, $display_type);
+		} else {
+			echo $options[$display_type];
+		}
+
+		return $wa;
+
+	}//end paintDisplayType()
+
+
+	/**
+	* Processes the interface for setting Display Type
+	*
+	* @param Metadata_Field_Hierarchy	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processDisplayType(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			if (isset($_POST[$prefix.'_display_type'])) {
+				$asset->setAttrValue('display_type', $_POST[$prefix.'_display_type']);
+				if ($_POST[$prefix.'_display_type'] == '1') $asset->setAttrValue('multiple', TRUE);
+				$asset->saveAttributes();
+			}
+		}
+
+		return $wa;
+
+	}//end processDisplayType()
+	
 
 }//end class
 
