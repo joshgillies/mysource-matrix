@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.55 2011/05/03 00:40:58 mhaidar Exp $
+* $Id: image_variety.inc,v 1.56 2011/05/04 02:21:01 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -586,10 +586,11 @@ class Image_Variety extends Asset
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
 		if (!SQ_CONF_STATIC_ROOT_URL == '') {
-			// use the static root URL data
-			$web_path = str_replace(sq_web_path('data').'/', '', $web_path);
-			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
-
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
+				// use the static root URL data
+				$web_path = str_replace(sq_web_path('data').'/', '', $web_path);
+				$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
+			}
 		} else {
 
 			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.201 2011/05/03 00:35:43 mhaidar Exp $
+* $Id: file.inc,v 1.202 2011/05/04 02:21:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -793,10 +793,11 @@ class File extends Asset
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
 		if (!SQ_CONF_STATIC_ROOT_URL == '') {
-			// use the static root URL data
-			$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
-			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
-
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
+				// use the static root URL data
+				$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
+				$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
+			}
 		} else {
 
 			$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
