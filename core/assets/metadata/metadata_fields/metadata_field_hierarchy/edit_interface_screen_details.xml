@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2011/04/15 07:10:54 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2011/05/04 04:28:08 mhaidar Exp $
 *
 */
 -->
@@ -48,16 +48,16 @@
 		</field>
 	</section>
 	<section name="View Options" write_access="write:attributes">
-		<field attribute="display_type">
-			<selection style="list" columns="1" extras="" />
+		<field>
+			<function_call>
+				<paint_function   name="paintDisplayType"   />
+				<process_function name="processDisplayType" />
+			</function_call>
 		</field>
 		<field attribute="is_contextable">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="multiple">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="visible_part">
@@ -67,6 +67,9 @@
 	<section name="Flat View Options" show_if="isFlatView" write_access="write:attributes">
 		<field attribute="hier_structure">
 			<selection style="list" columns="1" extras="" />
+		</field>
+		<field attribute="multiple">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="hier_sort">
 			<selection style="list" columns="1" extras="" />

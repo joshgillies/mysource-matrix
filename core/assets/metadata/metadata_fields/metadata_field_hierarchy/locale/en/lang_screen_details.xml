@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2011/04/15 07:10:54 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.8 2011/05/04 04:28:08 mhaidar Exp $
 *
 */
 -->
@@ -57,8 +57,12 @@
 		</field>
 	</section>
 	<section name="View Options">
-		<field attribute="display_type">
+		<field>
 			<display_name>Display Type</display_name>
+			<function_call>
+				<paint_function   name="paintDisplayType"   />
+				<process_function name="processDisplayType" />
+			</function_call>
 			<note />
 		</field>
 		<field attribute="is_contextable">
@@ -69,10 +73,6 @@
 			<display_name>Allow Empty</display_name>
 			<note />
 		</field>
-		<field attribute="multiple">
-			<display_name>Allow Multiple</display_name>
-			<note> You should select 'Yes' when using Drill-Down View </note>
-		</field>
 		<field attribute="visible_part">
 			<display_name>Frontend Part</display_name>
 			<note>%description%</note>
@@ -81,6 +81,10 @@
 	<section name="Flat View Options" show_if="isFlatView">
 		<field attribute="hier_structure">
 			<display_name>Show structure</display_name>
+		</field>
+		<field attribute="multiple">
+			<display_name>Allow Multiple</display_name>
+			<note />
 		</field>
 		<field attribute="hier_sort">
 			<display_name>Sort Hierarchy</display_name>
