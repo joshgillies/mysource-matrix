@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.32.4.1 2011/03/24 22:29:43 akarelia Exp $
+* $Id: data_source_graph.inc,v 1.32.4.2 2011/05/04 06:01:28 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.32.4.1 $
+* @version $Revision: 1.32.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1066,6 +1066,8 @@ class Data_Source_Graph extends Image
 	*/
 	function _checkFileState()
 	{
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();

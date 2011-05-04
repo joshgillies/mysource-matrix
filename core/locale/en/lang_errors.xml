@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.128.2.2 2011/02/18 03:32:24 cupreti Exp $
+* $Id: lang_errors.xml,v 1.128.2.3 2011/05/04 06:01:13 mhaidar Exp $
 *
 */
 
@@ -1807,7 +1807,9 @@ Full Node Contents :
 	<error code="CORE0302">Cannot use 'Empty Text Key' provided. It is duplicate to one of the keys in provided Options</error>
 
 	<!-- Image file -->
-	<error code="CORE0304">Uploaded file is not an image file</error>	
+	<error code="CORE0304">Uploaded file is not an image file</error>
+		
+	<error code="CORE0305">Could not clear old files from public data directory for asset "%s" after exiting Safe Edit.</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
