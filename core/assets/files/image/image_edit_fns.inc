@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.62.4.1 2011/05/04 06:01:13 mhaidar Exp $
+* $Id: image_edit_fns.inc,v 1.62.4.2 2011/05/04 06:11:10 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.62.4.1 $
+* @version $Revision: 1.62.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,8 +362,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 				// processNewVariety should already taken care of it
 				if (!isset($_FILES[$prefix.'_'.$variety->id]) && !isset($_POST[$prefix.'_'.$variety->id.'_variety_type_posted'])) continue;
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id) && !($asset->status & SQ_SC_STATUS_SAFE_EDITING)) {
-					// update the public version with the new file
-					if ($variety->checkFileState($asset->effectiveUnrestricted())) {
+					// update the public version with the new file if not in safe edit
+					if ($variety->checkFileState($asset->effectiveUnrestricted() && $asset->attr('allow_unrestricted'))) {
 						$changes_made = TRUE;
 					}
 				}
