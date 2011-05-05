@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.256 2011/05/04 06:58:18 cupreti Exp $
+* $Id: form.inc,v 1.257 2011/05/05 01:19:51 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4906,24 +4906,27 @@ class Form extends Asset implements Bridge
 		if ($this->attr('multi_page')) {
 
 			$section_links = $this->getSectionLinks();
+
 			// Get current section
 			$section_link = reset(array_slice($section_links, $page_number - 1, 1));
-			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+			if (isset($section_link['minorid'])) {
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
 			
-			$actions = $section->attr('actions');
-			foreach ($actions as $action) {
-				$action_type = $action['type_code'];
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
+				$actions = $section->attr('actions');
+				foreach ($actions as $action) {
+					$action_type = $action['type_code'];
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 
-				if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $section, $action['settings'])) {
-					$success = call_user_func(Array($action_type, 'execute'), $section, $this, $action['settings']);
-					if (!$success) {
-						break;
-					}
-				}//end if
-			}//end foreach
+					if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $section, $action['settings'])) {
+						$success = call_user_func(Array($action_type, 'execute'), $section, $this, $action['settings']);
+						if (!$success) {
+							break;
+						}
+					}//end if
+				}//end foreach
 
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
+			}
 		}
 
 		return $success;
@@ -4944,7 +4947,8 @@ class Form extends Asset implements Bridge
 		if ($this->attr('multi_page')) {
 		
 			$section_links = $this->getSectionLinks();
-			foreach($section_links as $section_link) {			
+			foreach($section_links as $section_link) {
+				if (!isset($section_link['minorid'])) continue;
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
 				$actions = $section->attr('actions');
 				
