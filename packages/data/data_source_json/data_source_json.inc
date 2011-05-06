@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.2 2011/05/06 02:56:05 mhaidar Exp $
+* $Id: data_source_json.inc,v 1.3 2011/05/06 04:18:31 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -430,11 +430,19 @@ class Data_Source_Json extends Data_Source
 			trigger_error('No read permission for asset (Id: #'.$assetid.')', E_USER_WARNING);
 			return NULL;
 		}
-
-		ob_start();
-		$asset->printBody();
-		$asset_contents = ob_get_contents();
-		ob_end_clean();
+		
+		if ($asset instanceOf File){
+			$existing = $asset->getExistingFile();
+			if (empty($existing) || !is_file($existing['path'])) return $asset_contents;
+			$asset_contents = file_get_contents($existing['path']);
+		} else {
+			ob_start();
+			$asset->printBody();
+			$asset_contents = ob_get_contents();
+			ob_end_clean();
+			
+			$asset_contents = strip_tags($asset_contents);
+		}
 
 		return $asset_contents;
 
