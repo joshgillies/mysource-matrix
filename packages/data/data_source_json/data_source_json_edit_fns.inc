@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json_edit_fns.inc,v 1.1 2011/05/06 02:09:33 mhaidar Exp $
+* $Id: data_source_json_edit_fns.inc,v 1.2 2011/05/06 02:24:28 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -73,8 +73,8 @@ class Data_Source_Json_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	public function paintJsonUserDefinedNodes(Data_Source_Json $asset, Backend_Outputter $o, $prefix)
 	{
-		$json_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-		$nodes = $json_asset->getUserDefinedJsNodes();
+		
+		$nodes = $asset->getUserDefinedJsNodes();
 		if (!empty($nodes)) {
 			echo '<pre>';
 			foreach ($nodes as $node) {
@@ -98,9 +98,9 @@ class Data_Source_Json_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	public function paintJsonData(Data_Source_Json $asset, Backend_Outputter $o, $prefix)
 	{
-		$json_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+
 		echo "<pre>";
-		print_r($json_asset->getItems());
+		print_r($asset->getItems());
 		echo "</pre>";
 
 	}//end paintJsonData()
@@ -118,9 +118,9 @@ class Data_Source_Json_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	public function paintJsonDataSource(Data_Source_Json $asset, Backend_Outputter $o, $prefix)
 	{
-		$json_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+
 		echo "<pre>";
-		print_r($json_asset->getRawSourceData());
+		print_r($asset->getRawSourceData());
 		echo "</pre>";
 
 	}//end paintJsonData()

@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2011/05/06 02:09:33 mhaidar Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2011/05/06 02:24:28 mhaidar Exp $
 *
 */
 -->
 
 <screens>
-	<!--<screen code_name="json_data" display_name="View JSON Data" lock_type="json_data_source" />-->
+	<screen code_name="json_data" display_name="View JSON Data" lock_type="json_data_source" />
 	<screen code_name="paths" display_name="Web Paths" lock_type="lookups" icon="web" />
 </screens>
