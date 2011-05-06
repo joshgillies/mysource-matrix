@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.1 2011/05/06 02:09:33 mhaidar Exp $
+* $Id: data_source_json.inc,v 1.2 2011/05/06 02:56:05 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -131,7 +131,7 @@ class Data_Source_Json extends Data_Source
 	*
 	* @param string	$path	the path to the Json feed
 	*
-	* @return array
+	* @return string
 	* @access public
 	*/
 	public function getRawSourceData()
@@ -214,12 +214,15 @@ class Data_Source_Json extends Data_Source
 	{
 		// Get the source data
 		$original_json_data = $this->getRawSourceData();
-
+		if (empty($original_json_data)) return;
+		
 		// Run data through the parser
 		$results = $this->_parse($original_json_data);
-
+		if (empty($results)) return;
+		
 		// Re-encode data into JSON
 		$output_json = self::_encodeJson($results);
+		if (empty($output_json)) return;
 
 		// For security, JSON output must have the correct content-type header (to
 		// prevent XSS attacks)
@@ -262,7 +265,7 @@ class Data_Source_Json extends Data_Source
 		}
 
 		if ($result === NULL) {
-			trigger_error($this->_getJsonParseError() . ": " . $json_data, E_USER_WARNING);
+			trigger_error($this->_getJsonParseError() . ': ' .$this->name. ' (Id: #'.$this->id.')', E_USER_WARNING);
 		}
 
 		return $result;
@@ -352,9 +355,11 @@ class Data_Source_Json extends Data_Source
 	{
 		foreach (array_keys($a) as $key) {
 			if (is_string($key)) {
-				return true;
+				return TRUE;
 			}
 		}
+		
+		return FALSE;
 
 	}//end _isAssociativeArray()
 
@@ -415,14 +420,14 @@ class Data_Source_Json extends Data_Source
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 
 		if ($asset == NULL) {
-			trigger_error('Unable to load asset: ' . $assetid, E_USER_WARNING);
+			trigger_error('Unable to load asset (Id: #'.$assetid.')', E_USER_WARNING);
 			return NULL;
 		}
 
 		// Important to require current user to have read permission on the source
 		// asset, because it can be dynamically changed if using parameter map
 		if (!$asset->readAccess()) {
-			trigger_error('No read permission for asset: ' . $assetid, E_USER_WARNING);
+			trigger_error('No read permission for asset (Id: #'.$assetid.')', E_USER_WARNING);
 			return NULL;
 		}
 
@@ -527,7 +532,7 @@ class Data_Source_Json extends Data_Source
 	{
 		// Decode the JSON
 		$results = self::_decodeJson($json_data);
-		if (empty($results)) {
+		if (empty($results) || !is_array($results)){
 			return Array();
 		}
 
@@ -536,6 +541,7 @@ class Data_Source_Json extends Data_Source
 		replace_global_keywords($root_object);
 		if (!empty($root_object)) {
 			$results = self::_getArrayValueByJsPath($results, $root_object);
+			if ($results == FALSE || !is_array($results)) return Array();
 		}
 
 		// If the parsed JSON is just a single object, wrap it in an array
@@ -566,7 +572,7 @@ class Data_Source_Json extends Data_Source
 
 		return $results;
 
-	}//end _getParsedSourceData()
+	}//end _parse()
 
 
 }//end class
