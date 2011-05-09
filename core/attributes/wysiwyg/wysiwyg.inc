@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.34 2010/09/06 07:15:43 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.34.2.1 2011/05/09 22:52:04 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -99,8 +99,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$wysiwyg->set_width($this->_edit_params['width']);
 		$wysiwyg->set_height($this->_edit_params['height']);
 
+		// Bug fix #5092 Asset Builder insert link via WYSIWYG removing the dot (.) before the /?a=
+		// remove ANY suffix from our URL or ele the regex working on it will result in malformed output
 		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
 		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
+		$base_php_self = str_replace('/'.SQ_CONF_NOCACHE_SUFFIX, '', $base_php_self);
+		$base_php_self = str_replace('/'.SQ_CONF_RECACHE_SUFFIX, '', $base_php_self);
 		$base_php_self = rtrim($base_php_self, '/ ');
 
 		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
