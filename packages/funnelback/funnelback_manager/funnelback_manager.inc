@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.35 2011/04/01 02:11:48 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.36 2011/05/09 03:38:08 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -146,27 +146,6 @@ class Funnelback_Manager extends Asset
 		return TRUE;
 
 	}//end onAssetUpdate()
-
-
-	/**
-	* Event fired when an asset is created
-	*
-	* @param object	&$broadcaster	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								Component is set as $vars['component']
-	*
-	* @return boolean
-	* @access public
-	*/
-	function onAssetCreate(&$broadcaster, $vars=Array())
-	{
-		if (!$this->attr('indexing')) return FALSE;
-		$vars['action'] = 'create';
-		$this->updateAsset($broadcaster, $vars);
-
-		return TRUE;
-
-	}//end onAssetCreate()
 
 
 	/**
@@ -353,6 +332,11 @@ class Funnelback_Manager extends Asset
 		// if funnelback manager is updated then there is infinite recursion!!!
 		if ($asset->id == $this->id) return FALSE;
 
+		// We don't need to update the xml while we are creating a new asset.
+		// This will stop the xml getting regenerated while
+		// permissions, metadata, workflow are being applied.
+		if (isset($asset->_tmp['__creating__']) && $asset->_tmp['__creating__'] === TRUE) return FALSE;
+
 		// We need the URL, if the asset has no url, bail early.
 		$urls = $asset->getURLs();
 		if (empty($urls)) {
@@ -404,38 +388,49 @@ class Funnelback_Manager extends Asset
 		$live = (!($asset_status & SQ_SC_STATUS_NOT_LIVE) && $asset->readAccess(Array($public_user)));
 		$lookups = $asset->getLookups();
 
-		// The work code, we need URL, assetid and root_urlid for the table (primary key)
-		$urls = $asset->getURLs();
-
 		// Delete first, ask questions later...
-		if ($this->_cleanupEntriesByAssetid($asset->id)) {
+        if ($this->_cleanupEntriesByAssetid($asset->id)) {
+            // get a placeholder for the url.
+            // it'll be filled in down the line.
+            $url_template = $this->_generateXML('%%sq_temp_fb_url%%', $asset);
+
+			// Create a list of urls per root url id.
+			// We do this once to save having to loop over it below.
+			// Should save some time if a system has a lot of urls applied
+			// to a site.
+			$root_urls = array();
+			foreach ($lookups as $lookup) {
+				$lookup_url = array_get_index($lookup, 'url', '');
+				$root_urlid = array_get_index($lookup, 'root_urlid', FALSE);
+				if ($root_urlid === FALSE) continue;
+				if (empty($lookup_url)) continue;
+				$root_urls[$lookup_url] = $root_urlid;
+			}//end foreach
+
 			// Now go through each url, adding the correct entries back in, with the correct xml
 			foreach ($urls as $url_info) {
 				// This should *never* happen
 				if (empty($url_info['url'])) continue;
 
 				// Find the root url
-				$root_urlid = FALSE;
-				foreach ($lookups as $lookup) {
-					$lookup_url = array_get_index($lookup, 'url', '');
-					if ($url_info['url'] == $lookup_url) {
-						// This is the correct URL, now for the root url id
-						$root_urlid = array_get_index($lookup, 'root_urlid', FALSE);
-						break;
-					}//end if
-				}//end foreach
-				if ($root_urlid === FALSE) continue;
+				if (array_key_exists($url_info['url'], $root_urls) === TRUE) {
+					$root_urlid = $root_urls[$url_info['url']];
+				} else {
+					continue;
+				}
 
 				// Compile the URLs
 				$http_url  = (($url_info['http']) ? 'http://'.$url_info['url'] : '');
 				$https_url = (($url_info['https']) ? 'https://'.$url_info['url'] : '');
 
+				$all_site_urls = $this->_getSiteURL($root_urlid, $asset, $url_info['url']);
+
 				// HTTP Url found, add entry
-				if (!empty($http_url)) {
-					$sitemap_xml = $this->_generateXML($http_url, $asset);
+                if (!empty($http_url)) {
+                    $sitemap_url = str_replace('&#039;', '&apos;', htmlspecialchars($http_url, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
+                    $sitemap_xml = str_replace('%%sq_temp_fb_url%%', $sitemap_url, $url_template);
 					if (!empty($sitemap_xml)) {
-						$site_urls = $this->_getSiteURL($root_urlid, 'http', $asset, $url_info['url']);
-						foreach ($site_urls as $site_url) {
+						foreach ($all_site_urls as $site_url) {
 							if(strpos($http_url,'__data') !== FALSE) {
 								$original_urls = $asset->getOriginalURL($http_url, $site_url);
 							} else {
@@ -452,12 +447,12 @@ class Funnelback_Manager extends Asset
 
 				// HTTPS Url found, add entry
 				if (!empty($https_url)) {
-					$sitemap_xml = $this->_generateXML($https_url, $asset);
+                    $sitemap_url = str_replace('&#039;', '&apos;', htmlspecialchars($https_url, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
+                    $sitemap_xml = str_replace('%%sq_temp_fb_url%%', $sitemap_url, $url_template);
 					if (!empty($sitemap_xml)) {
-						$site_urls = $this->_getSiteURL($root_urlid, 'https', $asset, $url_info['url']);
-						foreach ($site_urls as $site_url) {
-							if(strpos($http_url,'__data') !== FALSE) {
-								$original_urls = $asset->getOriginalURL($http_url, $site_url);
+						foreach ($all_site_urls as $site_url) {
+							if(strpos($https_url,'__data') !== FALSE) {
+								$original_urls = $asset->getOriginalURL($https_url, $site_url);
 							} else {
 								$original_urls = Array($https_url);
 							}
@@ -486,16 +481,19 @@ class Funnelback_Manager extends Asset
 	/**
 	 * Generate the Sitemap XML for this asset based on the info provided
 	 *
-	 * @param string	$url		The url of the broadcasting asset
-	 * @param object	$asset		The broadcasting asset
+	 * @param string	$url    The url of the broadcasting asset. This is just
+	 *                          a placeholder url to make it easier to fill in later.
+	 *                          It also saves calling the same function multiple times
+	 *                          and only change the one attribute.
+	 * @param object	$asset  The broadcasting asset
 	 *
 	 * @return string
 	 * @access public
 	 */
 	public function _generateXML($url, $asset)
 	{
-		// No URL or Asset? Why even bother?
-		if (empty($url) || is_null($asset)) {
+		// No asset? Why even bother?
+		if (is_null($asset)) {
 			return '';
 		}//end if
 
@@ -503,7 +501,6 @@ class Funnelback_Manager extends Asset
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		$url = str_replace('&#039;', '&apos;', htmlspecialchars($url, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
 		$xml  = '<url>';
 		$xml .= '<loc>'.$url.'</loc>';
 		$xml .= '<lastmod>'.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated).'</lastmod>';
@@ -845,7 +842,7 @@ class Funnelback_Manager extends Asset
 			}
 			unset($unique_results);
 		}
-		
+
 		return $results;
 
 	}//end getXMLCache()
@@ -855,21 +852,13 @@ class Funnelback_Manager extends Asset
 	 *  Get the site URL based on the root_urlid
 	 *
 	 * @param string	$root_urlid	The root urlid
-	 * @param string	$protocol	The protocol of the site url
 	 * @param object	&$asset		The current asset, only used when the $root_urlid=0
 	 *
 	 * @return string
 	 * @access protected
 	 */
-	protected function _getSiteURL($root_urlid='0', $protocol='https', &$asset, $asset_url)
+	protected function _getSiteURL($root_urlid='0', &$asset, $asset_url)
 	{
-		// Sanity check ;)
-		if ($protocol == 'https') {
-			$protocol = 'https';
-		} else {
-			$protocol = 'http';
-		}//end if
-
 		$site_url = Array();
 
 		if (empty($root_urlid)) {
@@ -894,7 +883,7 @@ class Funnelback_Manager extends Asset
 
 					// Make sure we only accept site urls which has the same root domain as __data file url
 					$system_root_url = sq_root_url($asset_url, FALSE);
-                    if(strpos($url, $system_root_url) !== 0) continue;
+					if(strpos($url, $system_root_url) !== 0) continue;
 
 					// Create the site url
 					if ($http) {
@@ -921,7 +910,7 @@ class Funnelback_Manager extends Asset
 			if (!empty($results)) {
 				// Only care about the first result (it should be the only result)
 				$result = $results[0];
-				$http 	= array_get_index($result, 'http', 0);
+				$http	= array_get_index($result, 'http', 0);
 				$https  = array_get_index($result, 'https', 0);
 				$url    = array_get_index($result, 'url', '');
 

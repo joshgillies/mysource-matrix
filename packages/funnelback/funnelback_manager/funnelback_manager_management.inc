@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_management.inc,v 1.2 2010/06/17 06:07:46 bpearson Exp $
+* $Id: funnelback_manager_management.inc,v 1.3 2011/05/09 03:38:08 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -179,14 +179,6 @@ class Funnelback_Manager_Management extends Asset_Management
 				),
 				Array(
 					'event_name'					=> 'AssetUpdate',
-					'broadcast_type_code'			=> 'global',
-					'broadcast_strict_type_code'	=> TRUE,
-					'options'						=> Array(
-														'global'	=> TRUE,
-													   ),
-				),
-				Array(
-					'event_name'					=> 'AssetCreate',
 					'broadcast_type_code'			=> 'global',
 					'broadcast_strict_type_code'	=> TRUE,
 					'options'						=> Array(
