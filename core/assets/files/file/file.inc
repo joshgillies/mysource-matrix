@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.191.2.7 2011/05/04 06:02:05 mhaidar Exp $
+* $Id: file.inc,v 1.191.2.8 2011/05/09 03:41:56 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.191.2.7 $
+* @version $Revision: 1.191.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -657,7 +657,76 @@ class File extends Asset
 
 	}//end _checkFileState()
 
+	
+	/**
+	* Look's after the removing of files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _removePublicFile()
+	{	
+		$existing = $this->getExistingFile();
+		if (empty($existing)) return TRUE;
 
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+		if (is_file($unrestricted)) {
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
+				return TRUE;
+			} else {
+				trigger_localised_error('CORE0104', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _removePublicFile()
+
+	
+	/**
+	* Look's after the updating of files in the public directory.
+	* Only call if File::usePublicPath() returns TRUE;
+	*
+	* @return boolean
+	* @access private
+	*/
+	protected function _updatePublicFile()
+	{	
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$existing = $this->getExistingFile();
+		if (empty($existing)) return TRUE;
+
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path_public)) {
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		// if there is no current file or if the current file is out of date, check out a fresh copy
+		if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
+			if (file_exists($unrestricted)) {
+				unlink($this->data_path_public.'/'.$existing['filename']);
+			}
+
+			if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				return TRUE;
+			} else {
+				trigger_localised_error('CORE0032', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+
+	}//end _updatePublicFile()
+	
+	
 	/**
 	* Returns whether to use the public path or not for this file
 	*
@@ -723,10 +792,11 @@ class File extends Asset
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
 		if (!SQ_CONF_STATIC_ROOT_URL == '') {
-			// use the static root URL data
-			$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
-			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
-
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
+				// use the static root URL data
+				$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
+				$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
+			}
 		} else {
 
 			$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
@@ -791,6 +861,15 @@ class File extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		//Bug #5072: Trashed file assets still accessible via public data URL
+		//We only reached here because we are supposed to have a public web path but
+		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
+		if (empty($save_urls)){
+			$this->_removePublicFile();
+		} else {
+			$this->_updatePublicFile();
+		}
+		
 		// broadcast the lookup updated trigger event, passing old status as event data
 		$parameter = Array();
 		if (isset($this->_tmp['old_status'])) {
