@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.83 2010/04/14 00:11:01 mhaidar Exp $
+* $Id: search_page_edit_fns.inc,v 1.84 2011/05/09 23:05:36 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -157,6 +157,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('all');
 		$fields = $asset->attr('fields');
+
 		$query_types = Array(
 						'none'			=> '-- '.ucfirst(translate('sch_page_add_data_source').' --'),
 						'include_all'	=> ucfirst(translate('include_all')),
@@ -191,7 +192,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				?>
 			</tr>
 			<?php
+			
 			foreach ($fields as $field_name => $field_data) {
+				if ($field_data['exclude_field']) continue;
+				
 				$field_datasources = $field_data['data_sources'];
 				if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
 					continue;
@@ -453,7 +457,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processFields(&$asset, &$o, $prefix)
 	{
 		$old_fields = $asset->attr('fields');
-		$new_fields = Array();
+		
+		$new_fields = Array();		
+
 		if (isset($_POST[$prefix.'_fields'])) {
 			foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
 				if (!isset($field['delete'])) {
@@ -461,6 +467,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$new_fields[$field_name]['word_logic'] = $field['word_logic'];
 					$field_datasources = array_get_index($field, 'data_sources', Array());
 					$new_fields[$field_name]['data_sources'] = Array();
+					$new_fields[$field_name]['exclude_field'] = FALSE;
 					foreach ($field_datasources as $i => $field_datasource) {
 						if (!isset($field_datasource['delete'])) {
 							$new_datasource = Array();
@@ -483,17 +490,23 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 		}
 
-		if (!empty($_POST[$prefix.'_new_field_name'])) {
+		if (!empty($_POST[$prefix.'_new_field_name'])) {			
 			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_field_name']));
-			$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];
-			$new_fields[$safe_name]['data_sources'] = Array();
+			
+			// If field already, don't overwrite it
+			if (!isset($old_fields[$safe_name])) {			
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];				
+				$new_fields[$safe_name]['data_sources'] = Array();
+				$new_fields[$safe_name]['exclude_field'] = FALSE;
+			}
 		}
 
 		foreach ($old_fields as $field_name => $field) {
-			if ((!empty($field['data_sources'])) && ($field['data_sources'][0]['type'] == 'exclude')) {
+			if ($field['exclude_field']) {
 				$new_fields[$field_name] = $field;
 			}
-		}
+		}//end foreach
+		
 		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processFields()
@@ -509,53 +522,291 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintExcludeFields(&$asset, &$o, $prefix)
-	{
-		$fields = $asset->attr('fields');
+	function paintExcludeFields(&$asset, &$o, $prefix)	{
+		
 		$write_access = $asset->writeAccess('all');
+		$fields = $asset->attr('fields');
+		$query_types = Array(
+						'none'			=> '-- '.ucfirst(translate('sch_page_add_data_source').' --'),
+						'include_all'	=> ucfirst(translate('include_all')),
+						'standard'		=> ucfirst(translate('sch_page_datatype_standard')),
+						'asset_attrib'	=> ucfirst(translate('sch_page_datatype_attribute')),
+						'metadata'		=> ucfirst(translate('sch_page_datatype_metadata')),
+					   );
+
 		?>
-		<table class="sq-backend-table" style="margin-bottom: 7px">
+		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 			<tr>
-				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('name');?></th>
+				<th rowspan="2"><?php echo translate('name'); ?></th>
+				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('sch_page_data_sources'); ?></th>
+				<th rowspan="2"><?php echo translate('sch_page_word_logic'); ?></th>
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete');?></th>
+					<th rowspan="2"><?php echo translate('delete'); ?></th>
 					<?php
 				}
 				?>
 			</tr>
+			<tr>
+				<th><?php echo translate('type');?></th>
+				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('details');?> </th>
 				<?php
-				foreach ($fields as $field_name => $field_data) {
-					$field_datasources = $field_data['data_sources'];
-					if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
-						?>
-						<tr>
-							<td><?php echo $field_data['name'];?></td>
-							<?php
-							if ($write_access) {
-								?>
-								<td class="sq-backend-data">
-									<?php
-									check_box($prefix.'_delete_exclude_fields['.$field_name.']');
-									?>
-								</td>
-								<?php
-							}
-							?>
-						</tr>
-
-						<?php
-					}
+				if ($write_access) {
+					?>
+					<th><?php echo translate('delete'); ?></th>
+					<?php
 				}
 				?>
-		</table>
+			</tr>
+			<?php
+			foreach ($fields as $field_name => $field_data) {
+				if (!$field_data['exclude_field']) continue;
+				$field_datasources = $field_data['data_sources'];
+				if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
+					continue;
+				}
+				if ($write_access) $field_datasources[] = 'new';
+				foreach ($field_datasources as $index => $field_datasource) {
+					?>
+					<tr>
+						<?php
+						if ($index == 0) {
+							?>
+							<td rowspan="<?php echo count($field_datasources);?>"> <?php echo $field_data['name'] ?></td>
+							<?php
+						}
+						?>
+						<td class="sq-backend-data" style="padding: 4px;">
+							<?php
+							if ($field_datasource == 'new') {
+								if ($write_access) {
+									combo_box($prefix.'_exclude_fields['.$field_name.'][new_data_source_type]', $query_types, FALSE,'none');
+								}
+							} else {
+								$type = array_get_index($field_datasource, 'type');
+								echo $query_types[$type];
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($field_datasource != 'new') {
+								switch ($type) {
+
+									case 'asset_attrib':									
+										if (!isset($field_datasource['params'])) {
+											$field_datasources[$index]['params'] = Array();
+										}
+										$search_types = $asset->attr('types');
+										$search_type = array_get_index($field_datasources[$index]['params'], 'asset_type', '0');
+										$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($search_types), 'name');
+										if ($write_access) {
+											$options = Array('' => '-- '.translate('select_asset_type').' --');
+											foreach (array_keys($search_types) as $this_type) {
+												$options[$this_type] = $type_names[$this_type];
+											}
+											combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, FALSE, $search_type);
+										} else {
+											echo '<strong>'.translate('asset_type').':</strong> ';
+											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
+											echo $type_names[$search_type];
+										}
+										// printing out attribute selection combo box
+										if (!isset($field_datasource['params']['attrid']) || empty($search_type)) {
+											$selected_attr = '';
+										} else {
+											$selected_attr = $field_datasource['params']['attrid'];
+										}
+										if (!empty($search_type)) {
+											$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
+											if ($write_access) {
+												$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+												foreach ($asset_type_attrs as $attr_id => $attr_name) {
+													$type_attrs[$attr_id] = $attr_name['name'];
+												}
+												combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
+											} else if ($selected_attr != '') {
+												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr]['name'];
+											}
+										}
+
+										if (!empty($selected_attr)) {
+				
+											$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($selected_attr));
+											$attr_info = $attr_info[$selected_attr];
+
+											if (($attr_info['type'] == 'int') || ($attr_info['type'] == 'float')) {
+												$current_search = array_get_index($field_datasource['params'], 'numeric_search', 'exact');
+												?><br/><?php
+												if ($write_access) {
+													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'exact', ($current_search == 'exact'));
+													echo translate('sch_page_numeric_search_exact');
+													?><br/><?php
+
+													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'range', ($current_search == 'range'));
+													echo translate('sch_page_numeric_search_range');
+													?><br/><?php
+
+													radio_button($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][numeric_search]', 'custom', ($current_search == 'custom'));
+													echo translate('sch_page_numeric_search_custom');
+													?><br/><?php
+												} else {
+													?><strong><?php echo translate('sch_page_numeric_search_style'); ?></strong> <?php
+													echo translate('sch_page_numeric_search_'.$current_search);
+												}
+
+												if ($current_search == 'custom') {
+													$custom_ranges = array_get_index($field_datasource['params'], 'custom_num_search', Array());
+													$custom_ranges[] = Array();
+													?><table class="sq-backend-table" style="width:90%">
+													<thead>
+													<tr>
+														<th class="sq-backend-table-header">Range Name</th>
+														<th class="sq-backend-table-header">Minimum</th>
+														<th class="sq-backend-table-header">Maximum</th>
+													</tr>
+													</thead>
+													<tbody>
+													<?php
+													foreach ($custom_ranges as $key => $custom_range) {
+														if ($key != max(array_keys($custom_ranges)) && (empty($custom_range) || (empty($custom_range['name']) && empty($custom_range['min']) && empty($custom_range['max'])))) {
+															continue;
+														}
+
+														?><tr><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][name]', array_get_index($custom_range, 'name', ''), 20);
+														} else {
+															echo array_get_index($custom_range, 'name', '');
+														}
+														?></td><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][min]', array_get_index($custom_range, 'min', ''), 7);
+														} else {
+															echo array_get_index($custom_range, 'min', '');
+														}
+														?></td><td class="sq-backend-table-cell"><?php
+														if ($write_access) {
+															echo text_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][custom_num_search]['.$key.'][max]', array_get_index($custom_range, 'max', ''), 7);
+														} else {
+															echo array_get_index($custom_range, 'max', '');
+														}
+														?></td></tr><?php
+													}
+													?></tbody></table><?php
+												}//end if
+
+											}//end if
+										}//end if
+										?>
+										<?php
+									break;
+
+									case 'metadata':
+										if (!isset($field_datasource['params'])) {
+											$field_datasource['params'] = Array();
+										}
+										$metadata_field = array_get_index($field_datasource['params'], 'assetid', '0');
+										if ($write_access) {
+											asset_finder($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
+										} else {
+											if ($metadata_field > 0) {
+												$field_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+												if (!is_null($metadata_field)) {
+													echo get_asset_tag_line($field_asset->id);
+												} else {
+													echo translate('sch_page_no_metadata_field_specified');
+												}
+											} else {
+												echo translate('sch_page_no_metadata_field_specified');
+											}
+										}
+									break;
+
+									case 'standard':
+										if (!isset($field_datasource['params'])) {
+											$field_datasources[$index]['params'] = Array();
+										}
+										if (isset($field_datasource['params']['field'])) {
+											$selected_attr_name = $field_datasource['params']['field'];
+										} else {
+											$selected_attr_name = '';
+										}
+										if ($write_access) {
+											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+											$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+											$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
+											combo_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, FALSE, $selected_attr_name);
+										} else if ($selected_attr_name != '') {
+											echo translate('sch_page_field').':  '.$selected_attr_name;
+										}
+									break;
+
+									case 'include_all':
+										echo '&nbsp;';
+										hidden_field($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][params]', '');
+									break;
+
+								}//end switch
+							}//end if
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							// Delete Data Source Cell
+							?>
+							<td class="sq-backend-data">
+								<?php
+								if ($field_datasource != 'new') {
+									check_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][delete]');
+								}
+								?>
+							</td>
+							<?php
+						}
+						if ($index == 0) {
+							// Word Logic Cell
+							?>
+							<td rowspan="<?php echo count($field_datasources);?>">
+								<?php
+								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
+								if ($write_access) {
+									combo_box($prefix.'_exclude_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('sch_page_word_logic_exp').'"');
+								} else {
+									echo array_get_index($field_data, 'word_logic', 'AND');
+								}
+								?>
+							</td>
+							<?php
+						}
+
+						if (($index == 0) && $write_access) {
+							// Delete field overall cell
+							?>
+							<td rowspan="<?php echo count($field_datasources);?>">
+								<?php
+								check_box($prefix.'_exclude_fields['.$field_name.'][delete]');
+								?>
+							</td>
+							<?php
+						}
+						?>
+						<?php
+					}//end foreach
+				}//end foreach
+				?>
+			</tr>
+
+		</table>		
 		<?php
 		if ($write_access) {
-			label(translate('sch_page_new_exclude_field'), $prefix.'_new_exclude_field');
+			label(translate('sch_page_new_exclude_field'), $prefix.'_new_exclude_field_name');
 			echo '&nbsp;';
-			text_box($prefix.'_new_exclude_field', '', 15);
+			text_box($prefix.'_new_exclude_field_name', '', 15);
 		}
+		
+		return TRUE;
 
 	}//end paintExcludeFields()
 
@@ -571,19 +822,60 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @access public
 	*/
 	function processExcludeFields(&$asset, &$o, $prefix)
-	{
-		$fields = $asset->attr('fields');
-		if (isset($_POST[$prefix.'_delete_exclude_fields'])) {
-			foreach ($_POST[$prefix.'_delete_exclude_fields'] as $field_name => $field) {
-				unset($fields[$field_name]);
+	{	
+		//return true;
+		$old_fields = $asset->attr('fields');
+		
+		$new_fields = Array();
+		if (isset($_POST[$prefix.'_exclude_fields'])) {
+			foreach ($_POST[$prefix.'_exclude_fields'] as $field_name => $field) {
+				if (!isset($field['delete'])) {
+					$new_fields[$field_name]['name'] = $old_fields[$field_name]['name'];
+					$new_fields[$field_name]['word_logic'] = $field['word_logic'];
+					$field_datasources = array_get_index($field, 'data_sources', Array());
+					$new_fields[$field_name]['data_sources'] = Array();
+					$new_fields[$field_name]['exclude_field'] = TRUE;
+					foreach ($field_datasources as $i => $field_datasource) {
+						if (!isset($field_datasource['delete'])) {
+							$new_datasource = Array();
+							$new_datasource['type'] = $old_fields[$field_name]['data_sources'][$i]['type'];
+							if ($new_datasource['type'] != 'metadata') {
+								$new_datasource['params'] = $field_datasource['params'];
+							} else {
+								$new_datasource['params']['assetid'] = $field_datasource['params']['metadata_field']['assetid'];
+							}
+							$new_fields[$field_name]['data_sources'][] = $new_datasource;
+						}
+					}
+					if (!empty($field['new_data_source_type']) && $field['new_data_source_type'] != 'none') {
+						$new_datasource = Array();
+						$new_datasource['type'] = $field['new_data_source_type'];
+						$new_datasource['params'] = Array();
+						$new_fields[$field_name]['data_sources'][] = $new_datasource;
+					}
+				}
 			}
 		}
-		if (!empty($_POST[$prefix.'_new_exclude_field'])) {
-			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field']));
-			$fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field'];
-			$fields[$safe_name]['data_sources'][0]['type'] = 'exclude';
+		
+		
+
+		if (!empty($_POST[$prefix.'_new_exclude_field_name'])) {						
+			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field_name']));
+			// If field already, don't overwrite it
+			if (!isset($old_fields[$safe_name])) {
+				$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field_name'];				
+				$new_fields[$safe_name]['data_sources'] = Array();
+				$new_fields[$safe_name]['exclude_field'] = TRUE;
+			}
 		}
-		return $asset->setAttrValue('fields', $fields);
+
+		foreach ($old_fields as $field_name => $field) {
+			if (!$field['exclude_field']) {
+				$new_fields[$field_name] = $field;
+			}
+		}//end foreach
+		
+		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processExcludeFields()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.69 2011/02/21 04:15:55 cupreti Exp $
+* $Id: search_page_management.inc,v 1.70 2011/05/09 23:05:36 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -358,6 +358,89 @@ class Search_Page_Management extends Asset_Management
 	}//end getEventList()
 
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.26', '<')) {
+			echo('UPGRADING SEARCH PAGE FROM '.$current_version."\n");
+			// Version 0.26 ownwards the "exclude" search field is stored
+			// as regular search field having its own set of datasoruce settings.
+			// A flag in search field "exclude_field" tells if the search
+			// field is "exclude" or regular one.
+
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating Search Pages...');
+			
+			// Get all Search Page assets
+			$search_pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('search_page', FALSE, TRUE);
+
+			// Update assets
+			foreach ($search_pages as $id => $type) {
+				$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);				
+				
+				$old_fields = $search_page->attr('fields');
+				$new_fields = Array();
+				foreach($old_fields as $field_name => $field_data) {
+					// Update "exclude" fields
+					if (isset($field_data['data_sources'][0]['type']) && $field_data['data_sources'][0]['type'] == 'exclude') {
+						$new_fields[$field_name]['name'] = $field_name;
+						$new_fields[$field_name]['word_logic'] = 'OR';
+						$new_fields[$field_name]['exclude_field'] = TRUE;
+						$new_fields[$field_name]['data_sources'] = Array(
+																		0 => Array(
+																			'type'		=> 'include_all',
+																			'params'		=> Array(),
+																			),
+																	);
+					} else {
+						$new_fields[$field_name] = $field_data;
+						$new_fields[$field_name]['exclude_field'] = FALSE;
+					}	
+				}//end foreach old_fields
+				
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$search_page->setAttrValue('fields', $new_fields);
+					
+					if (!$search_page->saveAttributes()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						
+						pre_echo('UPGRADE FAILED - Could not save attributes');
+						return FALSE;
+					}//end if					
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($search_pages, TRUE);
+				unset($search_pages);
+				
+				$count++;
+			}//end foreach search pages
+
+			pre_echo('Updated - '.$count.' search page(s)...');
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			pre_echo('SEARCH PAGES SUCCESSFULLY UPGRADED TO VERSION 0.26');
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
+	
+	
 }//end class
 
 ?>
