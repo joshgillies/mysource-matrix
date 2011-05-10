@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.5 2011/05/10 07:13:52 mhaidar Exp $
+* $Id: data_source_json.inc,v 1.6 2011/05/10 07:16:28 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -440,8 +440,6 @@ class Data_Source_Json extends Data_Source
 			$asset->printBody();
 			$asset_contents = ob_get_contents();
 			ob_end_clean();
-			
-			$asset_contents = strip_tags($asset_contents);
 		}
 
 		return $asset_contents;
