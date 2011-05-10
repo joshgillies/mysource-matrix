@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.4 2011/05/10 01:13:47 mhaidar Exp $
+* $Id: data_source_json.inc,v 1.5 2011/05/10 07:13:52 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -440,6 +440,8 @@ class Data_Source_Json extends Data_Source
 			$asset->printBody();
 			$asset_contents = ob_get_contents();
 			ob_end_clean();
+			
+			$asset_contents = strip_tags($asset_contents);
 		}
 
 		return $asset_contents;
@@ -549,9 +551,9 @@ class Data_Source_Json extends Data_Source
 			$results = self::_getArrayValueByJsPath($results, $root_object);
 			if ($results == FALSE || !is_array($results)) return Array();
 		}
-
+		
 		// If the parsed JSON is just a single object, wrap it in an array
-		if (self::_isAssociativeArray($results)) {
+		if (self::_isAssociativeArray($results) || !is_array($results[0])) {
 			$results = Array($results);
 		}
 
