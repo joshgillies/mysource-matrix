@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.34 2011/01/18 05:42:47 akarelia Exp $
+* $Id: event_manager.inc,v 1.35 2011/05/10 06:36:04 akarelia Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -510,6 +510,7 @@ class Event_Manager extends MySource_Object
 			$this->_loadCachedEventListeners();
 		}
 
+		$listener_name = Array();
 		foreach ($listeners as $index => $info) {
 			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']])) {
 				$this->_tmp['event_listeners'][$info['broadcast_type_code']] = Array();
@@ -532,7 +533,6 @@ class Event_Manager extends MySource_Object
 
 			// if the broadcast type code can be of multiple types, then we have to add some more
 			// entries for these in the array
-
 			if (!$info['broadcast_strict_type_code'] && !$recursive_call) {
 				// only broadcast if the listener is installed, fail silently
 				if ($GLOBALS['SQ_SYSTEM']->am->installed($info['broadcast_type_code'])) {
@@ -544,7 +544,21 @@ class Event_Manager extends MySource_Object
 					}
 				}
 			}
+			$listener_name[] = $info['event_name'];
 		}
+
+		// done with everything ?
+		// remove any of the listeners that might have been deleted from our asset
+		foreach ($this->_tmp['event_listeners'] as $broadcast_type_code => $listener_info) {
+			foreach ($listener_info as $name => $asset_array) {
+				foreach ($asset_array as $asset_type => $info) {
+					if ($asset_type == $listener_type_code && !in_array($name, $listener_name)) {
+						unset($this->_tmp['event_listeners'][$broadcast_type_code][$name][$asset_type]);
+					}
+				}
+			}
+		}
+
 		return true;
 
 	}//end installStaticEvents()
