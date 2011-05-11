@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.12 2010/11/19 04:43:01 mhaidar Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.12.2.1 2011/05/11 23:34:28 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -222,7 +222,8 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 								ON a.assetid = l.minorid
 							WHERE
 								l.majorid = :majorid AND
-								a.created < '.$date_sql;
+								a.created < '.$date_sql.' AND 
+								l.link_type < '.SQ_SC_LINK_SIGNIFICANT;
 
 					$query = MatrixDAL::preparePdoQuery($sql);
 					MatrixDAL::bindValueToPdo($query, 'majorid', $pending_group->id);
