@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.242 2011/05/09 23:06:22 cupreti Exp $
+* $Id: search_manager.inc,v 1.243 2011/05/11 01:16:43 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2332,9 +2332,9 @@ class Search_Manager extends Asset
 		$search_results = Array();
 		foreach($search_field_types as $search_field_type => $search_fields) {
 			$final_search_type_results = NULL;
-			$field_results = NULL;
 
 			foreach ($search_fields as $field_name => $field_details) {
+				$field_results = NULL;
 				$word_logic = array_get_index($field_details, 'word_logic', 'AND');
 				$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
 
