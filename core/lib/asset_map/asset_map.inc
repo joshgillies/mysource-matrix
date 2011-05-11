@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.298.2.3 2011/03/03 03:21:31 ewang Exp $
+* $Id: asset_map.inc,v 1.298.2.4 2011/05/11 05:28:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.298.2.3 $
+* @version $Revision: 1.298.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1336,6 +1336,7 @@ class Asset_Map
 				}
 				$asset['status']     = $bridge->status;
 				$asset['num_kids']	 = -1;
+				$asset['accessible'] = $bridge->readAccess();
 			}
 
 			$attrs = Array(
