@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.111 2010/07/14 00:58:46 csmith Exp $
+* $Id: init.inc,v 1.111.2.1 2011/05/11 01:39:06 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.111.2.1 $
 * @package MySource_Matrix
 */
 
@@ -100,6 +100,9 @@ if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
 if (strrpos($_SERVER['PHP_SELF'], 'index.php/')) {
 	$_SERVER['PHP_SELF'] = str_replace('index.php/','', $_SERVER['PHP_SELF']);
 }
+
+// sanitize PHP_SELF against XSS attack <script> should never gets to PHP_SELF
+$_SERVER['PHP_SELF'] = htmlspecialchars($_SERVER['PHP_SELF']);
 
 // Load general everyday handy functions for developers
 require_once SQ_FUDGE_PATH.'/dev/dev.inc';
