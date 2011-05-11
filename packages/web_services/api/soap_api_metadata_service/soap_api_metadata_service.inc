@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.6 2010/08/31 03:47:15 akarelia Exp $
+* $Id: soap_api_metadata_service.inc,v 1.6.4.1 2011/05/11 04:13:16 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -120,7 +120,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 						'SetSchemaResult'	=> TRUE,
 					   );
 			} else {
-				throw new SoapFault('Server', 'Unable to set Workflow Schema on Asset');
+				throw new SoapFault('Server', 'Unable to set Metadata Schema on Asset');
 			}//end else
 		} else {
 			throw new SoapFault('Server', 'Asset ID or Schema ID is not valid. Please provide a valid AssetID and SchemaID');
