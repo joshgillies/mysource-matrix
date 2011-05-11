@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.7 2010/10/13 06:11:25 mhaidar Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.7.2.1 2011/05/11 23:12:18 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,6 +244,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 			foreach ($result as $asset_info) {
 				// fire the trigger for that mdata field and asset
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
+				if (is_null($asset)) continue;
 				$parameters = Array('trigger_metadata_date_fieldid' => $asset_info['fieldid']);
 				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_time', $asset, $parameters);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
