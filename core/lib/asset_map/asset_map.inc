@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.300 2011/03/03 03:19:51 ewang Exp $
+* $Id: asset_map.inc,v 1.301 2011/05/11 05:26:12 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.300 $
+* @version $Revision: 1.301 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1245,7 +1245,7 @@ class Asset_Map
 						$chunk = NULL;
 					}
 
-				} else {
+				} else {	
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 					$skipped = 0;
 					$added = 0;
@@ -1337,6 +1337,7 @@ class Asset_Map
 				}
 				$asset['status']     = $bridge->status;
 				$asset['num_kids']	 = -1;
+				$asset['accessible'] = $bridge->readAccess();
 			}
 
 			$attrs = Array(
