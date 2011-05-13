@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.7 2008/11/25 00:48:06 mbrydon Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.7.12.1 2011/05/13 00:28:11 cupreti Exp $
 *
 */
 
@@ -33,13 +33,15 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Esec_Processor_Integration_Interface extends Esec_Processor
 {
+
 	var $_url = "https://sec.aba.net.au/cgi-bin/service/authint";
+
 
 	function Esec_Processor_Integration_Interface()
 	{
@@ -48,6 +50,7 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 		$this->set('EPS_REDIRECT',  'false');
 	}//end constructor
 
+	
 	/**
 	* Try to make bank transaction using setted parameters
 	*
@@ -56,50 +59,100 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 	*/
 	function process()
 	{
-		$success = false;
+		$success = FALSE;
+		
+		
+		$response = $this->_sendRequest($errno);
+		if (!$response) {			
+			// Log the error
+			$this->response['message'] = '0000 Transaction not successful. Unable get response from the service';
+			log_write($this->response['message'].'. CURL error #'.$errno , SQ_CONF_LOG_FILE_ERROR);			
 
-		$HTTP_Request = new HTTP_Request($this->_url);
-		$HTTP_Request->setMethod(HTTP_REQUEST_METHOD_POST);
-		foreach ($this->parameters as $name => $value) {
-			$HTTP_Request->addPostData($name, $value);
-		}
-
-		$result = @$HTTP_Request->sendRequest();
-
-		$is_errror = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
-
-		// exit on error, checking for object because if it is true, than it is
-		// a PEAR error object
-		if (!$result || is_object($result) || $is_errror) {
 			return $success;
-		}
+		}		
 
-		// everything is good. get the page body.
-		$response_body	= $HTTP_Request->getResponseBody();
-
-		// parsing contents
-		/*
-			ref-id = referenceID
-			auth-id = authorisationID
-			message = message
-			signature = signature
-			eft-response = eftResponse
-			txn-id = bank transaction ID
-			settlement-date = bank settlement date
-		*/
-		$lines = explode("\n", $response_body);
+		// Expected contents in the response
+		//
+		//	ref-id = referenceID
+		//	auth-id = authorisationID
+		//	message = message
+		//	signature = signature
+		//	eft-response = eftResponse
+		//	txn-id = bank transaction ID
+		//	settlement-date = bank settlement date
+		
+		// Parse the response string
+		$lines = explode("\n", $response);
 		foreach ($lines as $line) {
-			list($name, $value) = explode("=", $line);
+			list($name, $value) = explode("=", $line);			
 			$this->response[$name] = $value;
-		}
+		}		
 
-		// return success status
+		// Return success for "200 success" status
 		if (substr($this->response['message'], 0, 3) == '200') {
-			$success = true;
-		}
+			$success = TRUE;
+		}		
+
 		return $success;
 
 	}//end process()
+	
+	
+	/**
+	* Make CURL request to the eSec gateway
+	*
+	* @param int $errno		CURL error number
+	*
+	* @access private
+	* @return boolean|string
+	*/	
+	function _sendRequest(&$errno)
+	{
+		$post_params = '';
+		foreach ($this->parameters as $name => $value) {
+			$post_params .= '&'.$name.'='.$value;
+		}
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->_url);
+		curl_setopt($ch, CURLOPT_POST, TRUE);
+		curl_setopt($ch, CURLOPT_HEADER, FALSE); 
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+		
+		// Set proxy parameters, if enabled
+		$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+		if (file_exists($proxy_conf_file)) {
+			require_once($proxy_conf_file);
+
+			if (SQ_PA_ENABLED) {
+				$proxy_host = trim(SQ_PA_HOSTNAME) ? SQ_PA_HOSTNAME : FALSE;
+				$proxy_port = trim(SQ_PA_PORT) ? SQ_PA_PORT : FALSE;
+				$proxy_user = trim(SQ_PA_USERNAME) ? SQ_PA_USERNAME : FALSE;
+				$proxy_pass = trim(SQ_PA_PASSWORD) ? SQ_PA_PASSWORD : FALSE;				
+				
+				curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, TRUE);
+				curl_setopt($ch, CURLOPT_PROXY, $proxy_host);
+				if ($proxy_port) {
+					curl_setopt($ch, CURLOPT_PROXYPORT, $proxy_port);
+				}				
+				
+				if ($proxy_user && $proxy_pass) {
+					curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_user.':'.$proxy_pass);
+				}				
+			}//end if
+		}//end if	
+
+		$response = curl_exec($ch);
+		
+		// Get the CURL error, if any. Returns 0 for no errors		
+		$errno = curl_errno($ch);		
+
+		return $response;
+	
+	}//end function _sendRequest()	
 
 }//end class
 ?>
