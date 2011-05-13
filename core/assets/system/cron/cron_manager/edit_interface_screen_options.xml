@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.13 2009/04/20 03:15:57 bpearson Exp $
+* $Id: edit_interface_screen_options.xml,v 1.13.10.1 2011/05/13 01:54:13 akarelia Exp $
 *
 */
 -->
@@ -45,4 +45,13 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Emailing Options" write_access="root:all" read_access="write:">
+		<field>
+			<function_call>
+				<paint_function   name="paintEmailSelection"   />
+				<process_function name="processEmailSelection" />
+			</function_call>
+		</field>
+	</section>
+
 </contents>

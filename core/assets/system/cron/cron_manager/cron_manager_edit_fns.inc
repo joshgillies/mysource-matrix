@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.46 2009/04/20 03:15:57 bpearson Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.46.10.1 2011/05/13 01:54:13 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -906,6 +906,72 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processLogRotateTime()
+
+
+	/**
+	* Paints the interface for user to select the users to send deadlock mail to
+	*
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	public function paintEmailSelection(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+
+		// get all the user already defined to send the dead lock emails to
+		$users = $asset->attr('dead_lock_email_to');
+
+		/// and we have to be root
+		$write_access = $asset->writeAccess('all') && $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		if ($write_access) {
+			multiple_asset_finder($prefix.'_dead_lock_emails_to', $users, Array('user' => 'D', 'user_group' => 'D'));
+		} else {
+			?><ul><?php
+			
+				foreach ($users as $assetid) {
+					if ($assetid == '0') continue;
+					echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+			?></ul><?php
+		}
+
+		return TRUE;
+
+	}// end paintEmailSelection()
+
+
+	/**
+	* Processes the interface for user to select the users to send deadlock mail to
+	*
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	public function processEmailSelection(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_dead_lock_emails_to'])) return FALSE;
+
+		$new_users = $_POST[$prefix.'_dead_lock_emails_to'];
+		$users_to_mail = Array();
+		foreach ($new_users as $index => $new_user) {
+			// skip if the assetid is not set or if it is root user
+			if ($new_user['assetid'] == '0' || $new_user['assetid'] == '12') continue;
+			$users_to_mail[] = $new_user['assetid'];
+		}
+
+		// process new stuff here
+		$new_value = serialize($users_to_mail);
+		$asset->setAttrValue('dead_lock_email_to', $new_value);
+		return $asset->saveAttributes();
+
+	}// end processEmailSelection()
 
 
 }//end class
