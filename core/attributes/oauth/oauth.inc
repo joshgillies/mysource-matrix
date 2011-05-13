@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.3 2010/09/29 23:57:41 mhaidar Exp $
+* $Id: oauth.inc,v 1.4 2011/05/13 01:51:19 mhaidar Exp $
 *
 */
 
@@ -248,6 +248,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$prefix = str_replace(':', '_', $prefix);
 
 		$value = Array();
+		
+		if (!isset($_REQUEST[$prefix.'_method'])) return FALSE;
 		
 		// Assign values
 		$value['consumer_key'] 		= (isset($_REQUEST[$prefix.'_consumer_key'])) ? trim($_REQUEST[$prefix.'_consumer_key']) : '';

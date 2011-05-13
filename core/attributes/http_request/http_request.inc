@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.8 2011/03/22 22:10:22 akarelia Exp $
+* $Id: http_request.inc,v 1.9 2011/05/13 01:51:19 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -397,6 +397,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$prefix = str_replace(':', '_', $prefix);
 
 		$value = Array();
+		
+		if (!isset($_REQUEST[$prefix.'_method'])) return FALSE;
 		
 		// Assign values
 		$value['method'] = (isset($_REQUEST[$prefix.'_method'])) ? $_REQUEST[$prefix.'_method'] : '';
