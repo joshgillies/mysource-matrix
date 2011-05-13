@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.20 2007/11/22 23:28:55 lwright Exp $
+* $Id: cron_manager_management.inc,v 1.21 2011/05/13 01:05:32 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,6 +105,13 @@ class Cron_Manager_Management extends Asset_Management
 														'default'		=> NULL,
 														'description'	=> 'Currently Executing Job',
 													   ),
+						'dead_lock_email_to'		=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+														'description'	=> 'Users to send the cron deadlock email to',
+													   ),
+
 					  );
 
 	}//end constructor

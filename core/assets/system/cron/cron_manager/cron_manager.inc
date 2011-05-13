@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.81 2011/01/05 00:24:16 mhaidar Exp $
+* $Id: cron_manager.inc,v 1.82 2011/05/13 01:05:32 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -497,8 +497,12 @@ class Cron_Manager extends Asset
 								'root_urls'			=> str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS),
 							);
 
+				// SQ_CONF_DEFAULT_EMAIL, SQ_CONF_TECH_EMAIL, and root user as default we send the email to
+				// get the other users configured to send the email to
+				$config_user 	   = $this->attr('dead_lock_email_to');
+
 				// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
-				$msg->to           = Array(0, $root_user->id, $sys_admins->id);
+				$msg->to           = array_merge(Array(0, $root_user->id), $config_user);
 				$msg->from         = 0; // a system message
 				$msg->type         = 'cron.deadlock';
 				$msg->replacements = $msg_reps;
