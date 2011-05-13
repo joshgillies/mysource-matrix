@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.248.4.1 2011/02/16 23:34:45 akarelia Exp $
+* $Id: search_page.inc,v 1.248.4.2 2011/05/13 01:01:05 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.248.4.1 $
+* @version $Revision: 1.248.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2360,11 +2360,10 @@ class Search_Page extends Listing_Engine
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
-
 		$queries = $this->_getSearchedQueries();
-
+		
 		// Add date range restriction as a search field and query.
-		$this->_addDateRangeRestriction($fields,$queries);
+		$this->_addDateRangeRestriction($fields, $queries);
 
 		// If the search params were passed, get them and use them, if the search queries are empty
 		if (!empty($search) || count($search)>0) {
@@ -2415,34 +2414,31 @@ class Search_Page extends Listing_Engine
 				continue;
 			}
 
-			if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'exclude') {
-				$search_info['exclude'][] = $value;
-			} else {
-				if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
-					$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
-					if (!is_null($attribute) && $attribute->type() == 'boolean') {
-						// we need to convert the value into a word representation,
-						// since indexing service will not operate just 0 or 1
-						// do not localise this!!
-						if ($value == '0') {
-							$value = 'false';
-						} else if ($value == '1') {
-							$value = 'true';
-						}
+			if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
+				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+				if (!is_null($attribute) && $attribute->type() == 'boolean') {
+					// we need to convert the value into a word representation,
+					// since indexing service will not operate just 0 or 1
+					// do not localise this!!
+					if ($value == '0') {
+						$value = 'false';
+					} else if ($value == '1') {
+						$value = 'true';
 					}
-				}
-				$search_info['fields'][$field_name] = $fields[$field_name];
-				$search_info['fields'][$field_name]['words'] = $value;
-				$query_fields_exist = TRUE;
+				}//end if
+			}//end if
+			$search_info['fields'][$field_name] = $fields[$field_name];
+			$search_info['fields'][$field_name]['words'] = $value;
+			$search_info['fields'][$field_name]['exclude_field'] = array_get_index($fields[$field_name], 'exclude_field', FALSE);
+			$query_fields_exist = TRUE;
 
-				$submitted_word_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', ''));
-				if (in_array($submitted_word_logic, Array('AND', 'OR'))) {
-					$search_info['fields'][$field_name]['word_logic'] = $submitted_word_logic;
-				}
+			$submitted_word_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', ''));
+			if (in_array($submitted_word_logic, Array('AND', 'OR'))) {
+				$search_info['fields'][$field_name]['word_logic'] = $submitted_word_logic;
 			}
 
 		}//end foreach fields
-
+		
 		// spell-check suggestions
 		if (!empty($search_info['fields'])) {
 			foreach ($search_info['fields'] as $field_name => $field_content) {
@@ -2538,6 +2534,13 @@ class Search_Page extends Listing_Engine
 						}//end if
 					}//end if
 				}//end foreach()
+				
+				// Seperate "exclude" fields from regular "search" fields
+				if ($field['exclude_field']) {
+					$search_info['exclude'][$fieldname] = $search_info['fields'][$fieldname];
+					unset($search_info['fields'][$fieldname]);
+				}//end if
+
 			}//end foreach()
 		}//end if
 
@@ -2548,9 +2551,8 @@ class Search_Page extends Listing_Engine
 			if(!$this->attr('allow_empty_search') && count($search_info['fields']) == 1 && isset($search_info['fields']['matrix_search_page_date_range'])){
 				return Array();
 			}
-
+			
 			$auto_ss_field = $this->attr('auto_synonym_search_field');
-
 			$search_results = $sm->processSearch($search_info);
 
 			if (($this->attr('enable_multi_word_synonym_lookups')) && (!empty($auto_ss_field))) {
@@ -2682,8 +2684,7 @@ class Search_Page extends Listing_Engine
 			if (!empty($field_details['data_sources']) && !$this->_hasMixedFieldTypes($field_details)) {
 				$data_source = $field_details['data_sources'][0];
 				switch ($data_source['type']) {
-					case 'include_all' :
-					case 'exclude' :
+					case 'include_all' :					
 						$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
 					break;
 

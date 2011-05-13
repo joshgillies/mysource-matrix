@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.238.2.2 2011/02/28 00:16:14 akarelia Exp $
+* $Id: search_manager.inc,v 1.238.2.3 2011/05/13 01:01:05 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.238.2.2 $
+* @version $Revision: 1.238.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2226,7 +2226,7 @@ class Search_Manager extends Asset
 	* @access public
 	*/
 	function processSearch($search_info, $include_context=FALSE)
-	{
+	{	
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -2262,10 +2262,16 @@ class Search_Manager extends Asset
 
 		  //////////////////////
 		 //  PREPARE FIELDS  //
-		//////////////////////
+		//////////////////////		
 		foreach ($search_info['fields'] as $field_name => $field_details) {
 			$this->_prepareSearchField($search_info['fields'][$field_name]);
 		}
+		
+		if (isset($search_info['exclude'])) {
+			foreach ($search_info['exclude'] as $field_name => $field_details) {
+				$this->_prepareSearchField($search_info['exclude'][$field_name]);
+			}//end foreach
+		}//end if
 
 		  ////////////////////////////////////////////////////
 		 //  HANDLE ANY SHADOW ASSET OR BRIDGE ROOT NODES  //
@@ -2313,86 +2319,101 @@ class Search_Manager extends Asset
 		  //////////////////////////
 		 //  PROCESS EACH FIELD  //
 		//////////////////////////
-		$field_logic = array_get_index($search_info, 'field_logic', 'OR');
-		$final_results = NULL;
+		$field_logic = array_get_index($search_info, 'field_logic', 'OR');		
 		$term_totals = Array();
+		
+		// Search fields types		
+		$search_field_types = Array('search' => $search_info['fields']);
+		if (isset($search_info['exclude'])) {
+			$search_field_types['exclude'] = $search_info['exclude'];
+		}		
+		
+		// Search result for 'search' and 'exclude' fields
+		$search_results = Array();
+		foreach($search_field_types as $search_field_type => $search_fields) {
+			$final_search_type_results = NULL;
 
-		foreach ($search_info['fields'] as $field_name => $field_details) {
-			$field_results = NULL;
-			$word_logic = array_get_index($field_details, 'word_logic', 'AND');
-			$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
+			foreach ($search_fields as $field_name => $field_details) {
+				$field_results = NULL;
+				$word_logic = array_get_index($field_details, 'word_logic', 'AND');
+				$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
 
-			if (empty($field_details['words'])) continue;
+				if (empty($field_details['words'])) continue;
 
-			if (isset($field_details['words']['from']) && isset($field_details['words']['to'])) {
-				$search_type = 'date';
-			} else if (array_key_exists('lower', $field_details['words']) && array_key_exists('upper', $field_details['words'])) {
-				// need to use array_key_exists()
-				$search_type = 'numeric';
-			} else {
-				$search_type = 'word';
-			}
-
-			$all_source_results = Array();
-			$all_source_assetids = Array();
-
-			foreach ($field_details['data_sources'] as $data_source) {
-				if ($search_type == 'numeric') {
-					$data_source_results = $this->_processNumericSearch($field_details['words'], $data_source, $base_query);
-				} else if ($search_type == 'date') {
-					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
+				if (isset($field_details['words']['from']) && isset($field_details['words']['to'])) {
+					$search_type = 'date';
+				} else if (array_key_exists('lower', $field_details['words']) && array_key_exists('upper', $field_details['words'])) {
+					// need to use array_key_exists()
+					$search_type = 'numeric';
 				} else {
-					$data_source_results = NULL;
-					foreach ($field_details['words'] as $search_term) {
-//THE SILENT CHARACTERS WERE REMOVED BEFORE IN _prepareSearchField() FUNCTION
-//						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
-						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
+					$search_type = 'word';
+				}
 
-						if (!is_null($term_results)) {
-							if (!isset($all_source_results[$search_term])) {
-								$all_source_results[$search_term] = Array();
+				$all_source_results = Array();
+				$all_source_assetids = Array();
+
+				foreach ($field_details['data_sources'] as $data_source) {
+					if ($search_type == 'numeric') {
+						$data_source_results = $this->_processNumericSearch($field_details['words'], $data_source, $base_query);
+					} else if ($search_type == 'date') {
+						$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
+					} else {
+						$data_source_results = NULL;
+						foreach ($field_details['words'] as $search_term) {
+	//THE SILENT CHARACTERS WERE REMOVED BEFORE IN _prepareSearchField() FUNCTION
+	//						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
+							$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
+
+							if (!is_null($term_results)) {
+								if (!isset($all_source_results[$search_term])) {
+									$all_source_results[$search_term] = Array();
+								}
+								$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
+
+								// Records all the assets in which we find the term.
+								$all_source_assetids = $all_source_assetids + $term_results;
+
+								$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
+								$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 							}
-							$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
-
-							// Records all the assets in which we find the term.
-							$all_source_assetids = $all_source_assetids + $term_results;
-
-							$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
-							$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 						}
 					}
+					$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
 				}
-				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
-			}
 
-			$cross_source_results = $all_source_assetids;
-			foreach ($all_source_results as $term => $results) {
-				$cross_source_results = array_intersect_assoc($cross_source_results, $results);
-			}
+				$cross_source_results = $all_source_assetids;
+				foreach ($all_source_results as $term => $results) {
+					$cross_source_results = array_intersect_assoc($cross_source_results, $results);
+				}
 
-			if (is_null($field_results)) {
-				$field_results = $cross_source_results;
-			} else {
-				$field_results = $field_results + $cross_source_results;
-			}
-
-			// if this search field has its own logic, use it first
-			if(isset($field_details['specific_field_logic'])) {
-				$final_results = $this->_combineResults($final_results, $field_results, $field_details['specific_field_logic']);
-			}
-			else {
-				$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
-			}
-		}//end foreach $search_info['fields']
-
+				if (is_null($field_results)) {
+					$field_results = $cross_source_results;
+				} else {
+					$field_results = $field_results + $cross_source_results;
+				}
+				// if this search field has its own logic, use it first
+				if(isset($field_details['specific_field_logic'])) {
+					$final_search_type_results = $this->_combineResults($final_search_type_results, $field_results, $field_details['specific_field_logic']);
+				}
+				else {
+					$final_search_type_results = $this->_combineResults($final_search_type_results, $field_results, $field_logic);
+				}
+				
+			}//end foreach
+			
+			$search_results[$search_field_type] = $final_search_type_results;
+			
+		}//end foreach
+		
+		// Final search results for 'search' terms
+		$final_results = array_get_index($search_results, 'search', NULL);
+		
 		  //////////////////////////////
 		 //  PROCESS EXCLUDED TERMS  //
 		//////////////////////////////
-		if (!empty($search_info['exclude'])) {
-			$plugin =& $this->_getDBPlugin();
-			$result = $plugin->processExcludeQuery($this, $search_info['exclude'], $base_query);
+		if (!empty($search_results['exclude'])) {			
 
-			foreach (array_keys($result) as $exclude_assetid) {
+			foreach (array_keys($search_results['exclude']) as $exclude_assetid) {
 				if (isset($final_results[$exclude_assetid])) {
 					unset($final_results[$exclude_assetid]);
 				}
