@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.31.8.1 2011/02/28 05:56:59 mhaidar Exp $
+* $Id: form_submission_edit_fns.inc,v 1.31.8.2 2011/05/13 00:15:01 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31.8.1 $
+* @version $Revision: 1.31.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -160,48 +160,55 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 
 		unset($section_questions[$form_id]);
 		foreach ($section_questions as $section_id => $section_qs) {
-			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
-			$o->openSection(translate('cms_form_submission_answers_for_section',$section->name));
-			foreach ($section->attr('sort_order') as $q_id) {
-				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
-				if ($q->isEditable() && !$is_editable_q) {
-					$is_editable_q = TRUE;
-				}
-
-				if (isset($section_questions[$section_id][$q_id])) {
-					$q->setValue(array_get_index($section_questions[$section_id][$q_id], 'answer', ''));
-					$q->setExtraData(array_get_index($section_questions[$section_id][$q_id], 'extra_data', Array()));
-				}
-
-				$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
-
-				$o->openField($q->getVal('title'), '', $note);
-				if ($q->isEditable() && $wa) {
-					echo $q->getHtmlField();
-					$is_editable_q = TRUE;
-				} else {
-					$summary = $q->getSummary();
-
-					if ($q instanceof Form_Question_Type_File_Upload) {
-						$filepath = $q->getExtraData('filesystem_path');
-
-						// Bug fix #4018 Download link On submission logs screen doesnt work. When we have create location specified
-						// on the upload question, we can directly get the assetid of file asset created from $filepath and create a working link
-						if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (!isset($filepath['existing_file_assetid']) && !isset($filepath['new_file_assetid'])) ) ) {
-							$summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
-						}  else if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (isset($filepath['existing_file_assetid']) || isset($filepath['new_file_assetid']) ) ) ) {
-							$uploade_file_id = array_key_exists('existing_file_assetid', $filepath) ? $filepath['existing_file_assetid'] : $filepath['new_file_assetid'];
-							$summary .= ' [ <a href="./?a='.$uploade_file_id.'" target="_blank" >'.'Click to download'.'</a> ]';
-						}
+			$section_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($section_id);
+			if (!empty($section_info)) {
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+				$o->openSection(translate('cms_form_submission_answers_for_section',$section->name));
+				foreach ($section->attr('sort_order') as $q_id) {
+					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+					if ($q->isEditable() && !$is_editable_q) {
+						$is_editable_q = TRUE;
+					}
+	
+					if (isset($section_questions[$section_id][$q_id])) {
+						$q->setValue(array_get_index($section_questions[$section_id][$q_id], 'answer', ''));
+						$q->setExtraData(array_get_index($section_questions[$section_id][$q_id], 'extra_data', Array()));
 					}
 
-					$summary .= '&nbsp;';
-					echo $summary;
+					$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
+	
+					$o->openField($q->getVal('title'), '', $note);
+					if ($q->isEditable() && $wa) {
+						echo $q->getHtmlField();
+						$is_editable_q = TRUE;
+					} else {
+						$summary = $q->getSummary();
+	
+						if ($q instanceof Form_Question_Type_File_Upload) {
+							$filepath = $q->getExtraData('filesystem_path');
+	
+							// Bug fix #4018 Download link On submission logs screen doesnt work. When we have create location specified
+							// on the upload question, we can directly get the assetid of file asset created from $filepath and create a working link
+							if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (!isset($filepath['existing_file_assetid']) && !isset($filepath['new_file_assetid'])) ) ) {
+								$summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
+							}  else if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && (!empty($filepath) && (isset($filepath['existing_file_assetid']) || isset($filepath['new_file_assetid']) ) ) ) {
+								$uploade_file_id = array_key_exists('existing_file_assetid', $filepath) ? $filepath['existing_file_assetid'] : $filepath['new_file_assetid'];
+								$summary .= ' [ <a href="./?a='.$uploade_file_id.'" target="_blank" >'.'Click to download'.'</a> ]';
+							}
+						}
+	
+						$summary .= '&nbsp;';
+						echo $summary;
+					}
+					$section_questions[$section_id][$q_id]['printed'] = TRUE;
+					$o->closeField();
 				}
-				$section_questions[$section_id][$q_id]['printed'] = TRUE;
+			} else {
+				$o->openSection(translate('cms_form_submission_answers_for_deleted_section'));
 				$o->closeField();
 			}
 			foreach ($section_questions[$section_id] as $q_id => $q_details) {
+
 				if (!$q_details['printed']) {
 					$note = '<i>'.translate('cms_form_submission_question_deleted_cannot_be_edited').'</i>';
 					$o->openField($answers['summary'][$q_id]['name'], '', $note);
@@ -212,6 +219,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$o->closeSection();
 
 		}//end foreach
+
 		return $wa && $is_editable_q;
 
 	}//end paintSubmissionAnswers()
