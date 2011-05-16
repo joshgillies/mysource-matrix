@@ -8,13 +8,16 @@ if ((php_sapi_name() != 'cli')) {
     echo $_SERVER['argv'][0]." - Import a CSV File to a csv data source";
     echo "Usage:\n";
     echo "\n";
-    echo $_SERVER['argv'][0]." <SYSTEM_ROOT> <ASSETID> <CSV_PATH>\n";
+    echo $_SERVER['argv'][0]." <SYSTEM_ROOT> <ASSETID> <CSV_PATH> <FORCE_UPDATE_TIME>\n";
     echo "\n";
     echo "SYSTEM_ROOT: Path to the Squiz Matrix system.\n";
     echo "ASSETID: Assetid of a CSV Data Source asset.\n";
     echo "CSV_PATH: Path to the CSV file to import\n";
+	echo "FORCE_UPDATE_TIME: Forcibly refresh the asset's updated time, otherwise asset will not refresh updated time for setting same content.(y/n)\n";
   }
 
+
+  
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
   print_usage();
@@ -50,6 +53,12 @@ $asset->setResultSet(Array(), $asset->name);
 $asset->getResultSet($asset->name);
 
 $asset->saveAttributes();
+
+// set last update time if forcibly required
+$FORCE_UPDATE = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : 'n';
+if(strtolower($FORCE_UPDATE) == 'y') {
+	$asset->_updated();
+} 
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 ?>
