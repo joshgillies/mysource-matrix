@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.83 2010/04/14 00:11:01 mhaidar Exp $
+* $Id: search_page_edit_fns.inc,v 1.83.4.1 2011/05/16 06:42:42 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.83.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -239,8 +239,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, FALSE, $search_type);
 										} else {
 											echo '<strong>'.translate('asset_type').':</strong> ';
-											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
-											echo $type_names[$search_type];
+
+											// check to see if any of the assets have been selected
+											// else dont bother about printing its details
+											if ($search_type !== '0') {
+												echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
+												echo $type_names[$search_type];
+											} else {
+												echo translate('no_asset_selected');
+											}
 										}
 										// printing out attribute selection combo box
 										if (!isset($field_datasource['params']['attrid']) || empty($search_type)) {
