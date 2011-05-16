@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.61.2.13 2011/04/21 01:16:21 akarelia Exp $
+* $Id: js_api.inc,v 1.61.2.14 2011/05/16 23:51:26 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.61.2.13 $
+* @version $Revision: 1.61.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2470,6 +2470,10 @@ class JS_Api extends Page
 			// get asset_edit_interface
 			require_once SQ_SYSTEM_ROOT.'/core/include/asset_edit_interface.inc';
 			$ei = new Asset_Edit_Interface($asset->type());
+
+			// determine and set the preview url
+			// we don't care about the returned value, it's not used here
+			$ei->_determinePreviewUrl($asset, $limbo_outputter);
 
 			foreach ($se_level_keywords as $index => $se_keyword) {
 				$se_keyword = trim($se_keyword,  '%');
