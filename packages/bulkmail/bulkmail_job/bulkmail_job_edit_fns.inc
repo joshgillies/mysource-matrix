@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.34 2008/11/24 22:28:19 mbrydon Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.35 2011/05/17 00:39:30 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -292,8 +292,13 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 				$o->openField('');
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id));
-			$logs = array_slice($logs, 0, 5);
+			if (isset($asset->_tmp['bulkmail.job.*'])){ //try using result from showProgressSection()
+				$logs = $asset->_tmp['bulkmail.job.*'];
+				unset($asset->_tmp['bulkmail.job.*']);
+			} else {
+				$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id));
+				$logs = array_slice($logs, 0, 5);
+			}
 
 			if (!empty($logs)) {
 				?>
@@ -364,6 +369,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$logs = $ms->getMessages(0, 'bulkmail.job.*', Array(), Array(), NULL, NULL, 'name', Array('assetid' => $asset->id));
 		$logs = array_slice($logs, 0, 5);
+		$asset->_tmp['bulkmail.job.*'] = $logs;
 
 		return ((empty($job) && empty($logs)) ? FALSE : TRUE);
 
