@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.51.6.1 2011/05/09 03:42:09 mhaidar Exp $
+* $Id: image_variety.inc,v 1.51.6.2 2011/05/17 05:21:51 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.51.6.1 $
+* @version $Revision: 1.51.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -786,8 +786,8 @@ class Image_Variety extends Asset
 			}
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_user)
-					&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
+				&& empty($_POST) && current_protocol() != 'https' && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 					header('Cache-Control: public');
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
