@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.57 2011/05/17 05:06:54 mhaidar Exp $
+* $Id: image_variety.inc,v 1.58 2011/05/17 05:09:30 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -768,9 +768,23 @@ class Image_Variety extends Asset
 		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
-		$ext = get_file_type($image->name);
-		$filename = $this->name.'.'.$ext;
-		$file = $this->data_path.'/'.$filename;
+		if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
+			if (is_file($image->data_path.'/varieties/sq_system_version_no')) {
+				include ($image->data_path.'/varieties/sq_system_version_no');
+				$file_version = isset($versions[$this->attr('filename')]) ? $versions[$this->attr('filename')] : NULL;
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$rep_file = $this->data_path_suffix.'/'.$this->attr('filename');
+				$info = $fv->_checkOutCheck($rep_file, $file_version);
+				
+				$filename = $info['filename'];
+				$ext = get_file_type($filename);
+				$file = $info['source_file'];				
+			}
+		} else {
+			$ext = get_file_type($image->name);
+			$filename = $this->name.'.'.$ext;
+			$file = $this->data_path.'/'.$filename;
+		}
 
 		if (file_exists($file)) {
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
