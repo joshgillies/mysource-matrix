@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.26 2008/06/30 01:31:27 lwright Exp $
+* $Id: content_type_nest_content.inc,v 1.27 2011/05/18 06:36:35 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -123,6 +123,33 @@ class Content_Type_Nest_Content extends Content_Type
 		return FALSE;
 
 	}//end setContent()
+
+
+	/**
+	* Allow any required processesing to occur when any link is updated for the asset
+	* Called whenever any type of link is changed
+	*
+	* @return void
+	* @access protected
+	*/
+	public function linksUpdated()
+	{
+		// this function is called, which mean the asset we are
+		// nesting is modified (deleted) update our content file
+		$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bodycopy_div', TRUE));
+		$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id[0]);
+		$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
+		$all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		foreach ($all_context as $context_id => $info) {
+			$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
+				$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+		}
+
+		return parent::linksUpdated();
+
+
+	}//end linksUpdated()
 
 
 }//end class
