@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.195.2.4 2011/05/09 03:42:09 mhaidar Exp $
+* $Id: file.inc,v 1.195.2.5 2011/05/19 01:12:54 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.195.2.4 $
+* @version $Revision: 1.195.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,13 @@ class File extends Asset
 	*/
 	public $allowed_extensions = Array();
 
+	
+	/**
+	 * Flag used in processStatusChange() to delay file system updates in _updated()
+	 * @var boolean
+	 */
+	public $ignore_update = FALSE;
+	
 
 	/**
 	* Constructor
@@ -403,10 +410,6 @@ class File extends Asset
 			return FALSE;
 		}
 
-		// this will ensure that the lookups are updated and that the
-		// public file is properly checked out
-		$this->_checkFileState();
-
 		return TRUE;
 
 	}//end revertToSystemVersion()
@@ -491,7 +494,7 @@ class File extends Asset
 	public function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
 	{
 		// let ourselves know not to do any extra updating
-		$this->_tmp['IGNORE_UPDATE'] = TRUE;
+		$this->ignore_update = TRUE;
 
 		// event data to be passed to the trigger action
 		$old_status = $this->status;
@@ -511,7 +514,7 @@ class File extends Asset
 		// NOTE : no need to update the files states or the lookups here because they are done in _updated() if a file exists
 
 		// update manually
-		unset($this->_tmp['IGNORE_UPDATE']);
+		$this->ignore_update = FALSE;
 		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -567,7 +570,7 @@ class File extends Asset
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
 
-		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || !empty($this->_tmp['IGNORE_UPDATE'])) {
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || $this->ignore_update == TRUE) {
 			return TRUE;
 		}
 
