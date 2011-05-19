@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_options.xml,v 1.5 2011/05/13 01:05:32 akarelia Exp $
+* $Id: lang_screen_options.xml,v 1.6 2011/05/19 04:45:16 akarelia Exp $
 *
 */
 -->
@@ -57,7 +57,7 @@
 	<section name="Emailing Options">
 		<field>
 			<display_name>Cron Deadlock email receivers</display_name>
-			<note>Configurable option for User who should receiver Cron Deadlock emails. &lt;br&gt;&lt;b&gt;NOTE :&lt;/b&gt; By default Root User and the emails configured in the main.inc will receive this email.</note>
+			<note>Configurable option for User who should receive Cron Deadlock emails. &lt;br&gt;&lt;b&gt;NOTE :&lt;/b&gt; By default Root User and the emails configured in the main.inc will receive this email.</note>
 			<function_call>
 				<paint_function   name="paintEmailSelection"   />
 				<process_function name="processEmailSelection" />
