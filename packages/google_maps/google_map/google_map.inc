@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.22.4.3 2011/04/07 03:21:31 ewang Exp $
+* $Id: google_map.inc,v 1.22.4.4 2011/05/19 04:26:15 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22.4.3 $
+* @version $Revision: 1.22.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -435,7 +435,7 @@ class Google_Map extends Page_Asset_Listing
 			 //]]>
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
-			 //<![CDATA[
+			
 		<?php
 
 		// Need to print here so we can have the "map" div, and add stuff to it.
@@ -444,7 +444,7 @@ class Google_Map extends Page_Asset_Listing
 		if (!empty($locations_info)) {
 			?>
 				<script type="text/javascript">
-
+				//<![CDATA[
 					var lat;
 					var lng;
 
