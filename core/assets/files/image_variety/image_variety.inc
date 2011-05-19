@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.58 2011/05/17 05:09:30 mhaidar Exp $
+* $Id: image_variety.inc,v 1.59 2011/05/19 01:10:40 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -786,7 +786,7 @@ class Image_Variety extends Asset
 			$file = $this->data_path.'/'.$filename;
 		}
 
-		if (file_exists($file)) {
+		if (isset($file) && file_exists($file)) {
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
