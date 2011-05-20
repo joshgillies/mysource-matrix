@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.250 2011/05/09 23:05:36 cupreti Exp $
+* $Id: search_page.inc,v 1.251 2011/05/20 05:25:22 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2430,7 +2430,11 @@ class Search_Page extends Listing_Engine
 			$search_info['fields'][$field_name] = $fields[$field_name];
 			$search_info['fields'][$field_name]['words'] = $value;
 			$search_info['fields'][$field_name]['exclude_field'] = array_get_index($fields[$field_name], 'exclude_field', FALSE);
-			$query_fields_exist = TRUE;
+			
+			// If there is aleast one "regular" search field, we have the query fields
+			if (!$search_info['fields'][$field_name]['exclude_field']) {
+				$query_fields_exist = TRUE;
+			}
 
 			$submitted_word_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', ''));
 			if (in_array($submitted_word_logic, Array('AND', 'OR'))) {
