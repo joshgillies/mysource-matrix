@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.243 2011/05/11 01:16:43 cupreti Exp $
+* $Id: search_manager.inc,v 1.244 2011/05/20 05:26:25 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2319,7 +2319,6 @@ class Search_Manager extends Asset
 		  //////////////////////////
 		 //  PROCESS EACH FIELD  //
 		//////////////////////////
-		$field_logic = array_get_index($search_info, 'field_logic', 'OR');		
 		$term_totals = Array();
 		
 		// Search fields types		
@@ -2332,6 +2331,9 @@ class Search_Manager extends Asset
 		$search_results = Array();
 		foreach($search_field_types as $search_field_type => $search_fields) {
 			$final_search_type_results = NULL;
+			
+			// As per existing behaviour, differnet exclude fields are always combined using "OR"
+			$field_logic = $search_field_type == 'exclude' ? 'OR' : array_get_index($search_info, 'field_logic', 'OR');
 
 			foreach ($search_fields as $field_name => $field_details) {
 				$field_results = NULL;
