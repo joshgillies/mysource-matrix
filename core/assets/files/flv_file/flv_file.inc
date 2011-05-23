@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.6 2010/08/12 23:17:05 akarelia Exp $
+* $Id: flv_file.inc,v 1.6.2.1 2011/05/23 00:55:53 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -258,31 +258,31 @@ class FLV_File extends File
 		if (!SQ_TOOL_GETID3_ENABLED || !is_file(SQ_TOOL_GETID3_PATH.'/getid3.php')) {
 			return FALSE;
 		}
-		
+
 		require_once SQ_TOOL_GETID3_PATH.'/getid3.php';
-		
+
 		//get file info
 		$file_info = $this->getExistingFile();
 		if (empty($file_info)) {
 			return FALSE;
 		}
-		
+
 		$getID3 = new getID3();
 		$file_info = $getID3->analyze($file_info['path']);
-		
+
 		$metadata = Array();
-		
-		if (isset($file_info['meta']['onMetaData'])) {
-			foreach ($file_info['meta']['onMetaData'] as $key => $value) {
+
+		if (isset($file_info['flv']['meta']['onMetaData'])) {
+			foreach ($file_info['flv']['meta']['onMetaData'] as $key => $value) {
 				$metadata[$key] = $value;
 			}
 		}
-		
+
 		//if duration metadata does not exist, use playtime_seconds instead
 		if (!array_key_exists('duration', $metadata) && isset($file_info['playtime_seconds'])) {
 			$metadata['duration'] = $file_info['playtime_seconds'];
 		}
-		
+
 		//if there are no width or height metadata, try to use video resolution instead
 		if (!array_key_exists('width', $metadata) && isset($file_info['video']['resolution_x'])) {
 			$metadata['width'] = $file_info['video']['resolution_x'];
@@ -290,14 +290,14 @@ class FLV_File extends File
 		if (!array_key_exists('height', $metadata) && isset($file_info['video']['resolution_y'])) {
 			$metadata['height'] = $file_info['video']['resolution_y'];
 		}
-		
+
 		//if framerate metadata does not exist, use video frame rate instead
 		if (!array_key_exists('framerate', $metadata) && isset($file_info['video']['frame_rate'])) {
 			$metadata['framerate'] = $file_info['video']['frame_rate'];
 		}
-		
+
 		return $metadata;
-		
+
 	}//end extractMetadata()
 	
 	
