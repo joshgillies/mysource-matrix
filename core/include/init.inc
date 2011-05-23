@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.112 2011/05/11 01:37:54 ewang Exp $
+* $Id: init.inc,v 1.113 2011/05/23 03:48:22 ewang Exp $
 *
 */
 
@@ -20,13 +20,11 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 
-// set the level of PHP reported errors and some other
-// PHP thingies we want done OUR way
-error_reporting(E_ALL);
+
 
 /**
  * This code block came from http://www.php.net/phpversion
@@ -34,6 +32,17 @@ error_reporting(E_ALL);
 if (!defined('PHP_VERSION_ID')) {
 	$version = explode('.', PHP_VERSION);
 	define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
+
+// set the level of PHP reported errors and some other
+// PHP thingies we want done OUR way
+if (PHP_VERSION_ID < 50300) {
+	// pear http/client module contains deprecated syntax which will cause trouble
+	// E_DEPRECATED is introduced in PHP 5.3 and included in E_ALL, so has to remove E_DEPRECATED for php 5.3 and above
+	error_reporting(E_ALL);
+}
+else {
+	error_reporting(E_ALL ^ E_DEPRECATED);
 }
 
 # Before 5.3.0 we have to set magic quotes runtime off
