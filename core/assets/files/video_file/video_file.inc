@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.6 2010/06/25 03:11:32 cupreti Exp $
+* $Id: video_file.inc,v 1.6.2.1 2011/05/23 00:56:49 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.6 $
+* @version    $Revision: 1.6.2.1 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Video_File extends File
 {
 
 
-	public $allowed_extensions = Array('mov', 'avi', 'wmv', 'asf', 'flv', 'mp4', 'm4v', 'mpg', 'mpeg', 'ogv', 'ogg');
+	public $allowed_extensions = Array('mov', 'avi', 'wmv', 'asf', 'flv', 'mp4', 'm4v', 'mpg', 'mpeg', 'ogv', 'ogg', 'webm');
 
 
 	/**
