@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.365 2011/04/07 07:39:29 cupreti Exp $
+* $Id: mysource.inc,v 1.366 2011/05/23 05:10:21 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.365 $
+* @version $Revision: 1.366 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1184,7 +1184,10 @@ class MySource extends MySource_Object
 			if (!SQ_SOAP_AUTH) {
 				if (isset($_SESSION['activated']) === FALSE || $_SESSION['activated'] != 1) {
 					// IP Address has changed, and we are not authenticating via SOAP.
+					$this->_logSecurityMsg('system.security.logout.ip_change', Array('old_ip' => $_SESSION['remote_addr'], 'new_ip' => $_SERVER['REMOTE_ADDR']));
+					$this->_clearSession();
 					$this->loginPublicUser();
+					$this->generateLoginKey(TRUE);
 					return;
 				}//end if
 			}//end if
