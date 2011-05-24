@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.29 2010/01/06 02:37:29 lwright Exp $
+* $Id: lang_messages.xml,v 1.29.6.1 2011/05/24 03:33:38 mhaidar Exp $
 *
 * Core Internal Messages File
 */
@@ -143,6 +143,10 @@
 	<message type="system.security.logout.staleauth">
 		<subject>User Automatically Logged Out</subject>
 		<body>User "%user_name%" was logged out since they hadn't authenticated for %timeout% seconds</body><!-- user-name -->
+	</message>
+	<message type="system.security.logout.ip_change">
+		<subject>User Automatically Logged Out</subject>
+		<body>User "%user_name%" was logged out since their IP address changed from %old_ip% to %new_ip%</body><!-- user-name -->
 	</message>
 	<message type="system.security.alert">
 		<subject>Security Alert</subject>
