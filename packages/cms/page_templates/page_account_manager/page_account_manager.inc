@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.72.8.2 2010/11/23 04:15:22 mhaidar Exp $
+* $Id: page_account_manager.inc,v 1.72.8.3 2011/05/24 04:07:38 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.72.8.2 $
+* @version $Revision: 1.72.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,7 +451,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 									} else {
 										// if it's valid, add it to the list
 										if (in_array($_POST[$code_name], array_keys($details['locations']))) {
-											$selected_create_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+											$selected_create_locations[(int)$_POST[$code_name]] = Array(
+																						'set_name'	=> $set_name,
+																						'link_type'	=> (int)$details['link_type'],
+																					   );
 										}
 									}
 								} else if (!$details['allow_empty']) {
@@ -490,7 +493,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$replacements = Array();
 							$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 							foreach ($attrs as $attr => $type) {
-								if (($attr == 'password') || ($type == 'serialise')) {
+								if (($attr == 'password') || ($type['type'] == 'serialise')) {
 									continue;
 								}
 								$replacements[$attr] = $new_asset->attr($attr);
@@ -688,7 +691,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($userid, SQ_LINK_NOTICE, Array('user_group'), FALSE, 'minor');
 		foreach ($links as $link) {
 			// check that the link is actually a selectable create location link
-			// the link value should be in the format: 'PREFIX_selected_create_location-LINK_VALUE'
+			// the link value should be in the format: 'PREFIX_selected_create_location-LINK_TYPE'
 			preg_match('/^'.$this->getPrefix().'_selected_create_location-([\d]*)$/', $link['value'], $matches);
 			if (!empty($matches)) {
 				$create_locations[$link['majorid']] = $matches[1];
@@ -753,7 +756,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			// remove the selectable create location notice links, if they exist
 			foreach ($selected_create_locations as $link_parentid => $link_type) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($link_parentid, $user->id, SQ_LINK_NOTICE);
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($link_parentid, $user->id, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type);
 				if (!empty($link)) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -943,7 +946,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						list($create_type) = array_keys($this->attr('create_type'));
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 						foreach ($attrs as $attr => $type) {
-							if (($attr == 'password') || ($type == 'serialise')) {
+							if (($attr == 'password') || ($type['type'] == 'serialise')) {
 								continue;
 							}
 							$replacements[$attr] = $user->attr($attr);
