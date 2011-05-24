@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.75 2011/05/22 23:15:49 mhaidar Exp $
+* $Id: page_account_manager.inc,v 1.76 2011/05/24 04:03:53 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -946,7 +946,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						list($create_type) = array_keys($this->attr('create_type'));
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 						foreach ($attrs as $attr => $type) {
-							if (($attr == 'password') || ($type == 'serialise')) {
+							if (($attr == 'password') || ($type['type'] == 'serialise')) {
 								continue;
 							}
 							$replacements[$attr] = $user->attr($attr);
