@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.16 2011/05/24 22:52:47 akarelia Exp $
+* $Id: export_to_xml.php,v 1.17 2011/05/25 04:22:21 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -175,7 +175,7 @@ echo "</actions>\n\n";
 			$parse_file = $asset->data_path.'/parse.txt';
 			if (is_file($parse_file)) _updateParseFileForDesign($asset_id_map[$asset_id], $parse_file);
 
-			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, 'design_customisation', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
@@ -307,7 +307,7 @@ echo "</actions>\n\n";
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design') {
-			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, 'design_customisation', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
 			// the design areas that are customised rest of the design areas
@@ -368,7 +368,7 @@ echo "</actions>\n\n";
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design') {
-			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, 'design_customisation', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
 			// the design areas that are customised rest of the design areas
@@ -520,7 +520,7 @@ echo "</actions>\n\n";
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design') {
-			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, 'design_customisation', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
 			// the design areas that are customised rest of the design areas
@@ -757,7 +757,7 @@ echo "</actions>\n\n";
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design') {
-			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, 'design_customisation', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
 			// the design areas that are customised rest of the design areas
