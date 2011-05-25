@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.133 2011/05/25 03:59:27 cupreti Exp $
+* $Id: lang_errors.xml,v 1.134 2011/05/25 06:30:04 cupreti Exp $
 *
 */
 
@@ -1809,11 +1809,12 @@ Full Node Contents :
 	<!-- Image file -->
 	<error code="CORE0304">Uploaded file is not an image file</error>
 
-	<!-- Roles -->
-	<error code="CORE0305">Cannot set roles. #%1$s is not a valid Role asset</error>
-	<error code="CORE0306">Cannot set roles. #%1$s is not a valid User/User Group asset</error>
-	
 	<error code="CORE0305">Could not clear old files from public data directory for asset "%s" after exiting Safe Edit.</error>
+
+	<!-- Roles -->
+	<error code="CORE0306">Cannot set roles. #%1$s is not a valid Role asset</error>
+	<error code="CORE0307">Cannot set roles. #%1$s is not a valid User/User Group asset</error>
+	
 	
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
