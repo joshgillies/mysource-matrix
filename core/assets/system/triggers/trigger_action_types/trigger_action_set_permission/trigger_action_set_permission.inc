@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.26 2010/07/14 05:11:49 csmith Exp $
+* $Id: trigger_action_set_permission.inc,v 1.27 2011/05/25 03:38:00 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		if (empty($state['assetid'])) return FALSE;
 		$granted = array_get_index($settings, 'granted', TRUE);
-		$dependant_only = array_get_index($settings, 'dependant_only', FALSE);
+		$dependant_only = array_get_index($settings, 'dependants_only', FALSE);
 		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
 		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
@@ -147,7 +147,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$granted               = array_get_index($settings, 'granted', 1);
 		$permission            = array_get_index($settings, 'permission', SQ_PERMISSION_READ);
 		$userid                = array_get_index($settings, 'userid', 0);
-		$dependants_only       = array_get_index($settings, 'dependant_only', FALSE);
+		$dependants_only       = array_get_index($settings, 'dependants_only', FALSE);
 		$dependant_parents     = array_get_index($settings, 'dependant_parents', FALSE);
 		$cascade_to_new        = array_get_index($settings, 'cascade_to_new', TRUE);
 
