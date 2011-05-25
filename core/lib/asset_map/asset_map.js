@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.25.14.1 2011/05/03 02:17:50 mhaidar Exp $
+* $Id: asset_map.js,v 1.25.14.2 2011/05/25 22:57:26 akarelia Exp $
 *
 */
 
@@ -384,4 +384,45 @@ function asset_finder_onunload()
 
 ASSET_FINDER_OTHER_ONUNLOAD = (window.onunload) ? window.onunload : new Function;
 window.onunload = asset_finder_onunload;
+
+
+/**
+* resize the asset map based on the current size of the containing window
+* 
+* @access public
+*/
+function resizeAssetMap() {
+	var frameWidth = document.body.clientWidth;
+	var frameHeight = document.body.clientHeight;
+	var assetMap = document.getElementById('sq_asset_map');
+	var newWidth = frameWidth - 5;
+	var newHeight = frameHeight - 70;
+
+	// no point throwing a js error if the assetMap isn't defined (maybe java isn't installed)
+	if (assetMap) {
+		// negative size = badness
+		if (newWidth > 0 && newHeight > 0) {
+			assetMap.style.width = newWidth;
+			assetMap.style.height = newHeight;
+		}
+	}
+}//end resizeAssetMap()
+
+var resizeAssetMapTimeout = null;
+
+
+/**
+* Used as an intermediary to resizeAssetMap() to ensure
+* we don't resize the java applet too often
+*
+* @access public
+*/
+function resizeAssetMapTrigger() {
+	// clear any old resize events
+	clearTimeout(resizeAssetMapTimeout);
+	// set a new one in the near future
+	resizeAssetMapTimeout = setTimeout("resizeAssetMap()", 50);
+}//end resizeAssetMapTrigger()
+
+window.onresize = resizeAssetMapTrigger;
 
