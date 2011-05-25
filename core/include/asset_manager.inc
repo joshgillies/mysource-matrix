@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.842 2011/04/05 06:14:09 akarelia Exp $
+* $Id: asset_manager.inc,v 1.843 2011/05/25 03:57:03 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.842 $
+* @version $Revision: 1.843 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7459,6 +7459,22 @@ class Asset_Manager extends MySource_Object
 		if (!$asset->adminAccess('roles')) {
 			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
 			return FALSE;
+		}
+		
+		// Validate role and user assets
+		if (!empty($roleid)) {
+			$role_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($roleid, Array('role'));
+			if (empty($role_info)) {
+				trigger_localised_error('CORE0305', E_USER_WARNING, $roleid);
+				return FALSE;
+			}
+		}
+		if (!empty($userid)) {
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) {
+				trigger_localised_error('CORE0306', E_USER_WARNING, $userid);
+				return FALSE;
+			}
 		}
 
 		// check if this role is already set
