@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.113 2011/05/23 03:48:22 ewang Exp $
+* $Id: init.inc,v 1.114 2011/05/25 04:41:10 csmith Exp $
 *
 */
 
@@ -20,11 +20,9 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
-
-
 
 /**
  * This code block came from http://www.php.net/phpversion
