@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.737.2.8 2011/04/19 06:39:33 akarelia Exp $
+* $Id: asset.inc,v 1.737.2.9 2011/05/25 23:37:36 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.737.2.8 $
+* @version $Revision: 1.737.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3823,22 +3823,22 @@ class Asset extends MySource_Object
 	* @access private
 	*/
 	protected function _getKeywordReplacement($keyword)
-	{	
+	{
 		if (empty($keyword)) return '';
-		
+
 		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
 			return "%$keyword%";
 		}
-		
+
 		// Remove any modifiers from keyword, and keep them for later.
 		$keyword = parse_keyword($keyword, $modifiers);
 		$contextid = extract_context_modifier($modifiers);
-		
+
 		if ($contextid !== NULL) {
 			// If we were able to extract a context ID to change to, and it's
 			// different to our current one, then change and then reload a copy
 			// of the asset in that context (as we would need to do anyway)
-			
+
 			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
 				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
 				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
@@ -3861,7 +3861,7 @@ class Asset extends MySource_Object
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-		
+
 		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this
 		//method through the replace_global_keywords() function (general.inc) with the keyword starts with asset_
 		$possible_func_name = '';
@@ -3916,7 +3916,15 @@ class Asset extends MySource_Object
 			$metadata_keyword = substr($keyword, 15);
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-			// Get "metadata feild related asset" field names
+			// check to see if the above $metadata_keyword is actually a field name
+			// for this asset before trying to perform "related asset" op on it
+			// for more info check out bug #5083 Metadata Fields Inaccessible
+			$is_field_name = FALSE;
+			if ($mm->getFieldAssetIdFromName($this->id, $metadata_keyword)) {
+				$is_field_name = TRUE;
+			}
+
+			// Get "metadata field related asset" field names
 		   	if (!isset($this->_tmp['mm_related_asset_fields'])) {
 				$related_assetids = $mm->getMetadataFieldTypeValues($this->id, 'metadata_field_related_asset');
 				array_sort_by_length($related_assetids, FALSE, FALSE);
@@ -3925,33 +3933,34 @@ class Asset extends MySource_Object
 				$related_assetids = $this->_tmp['mm_related_asset_fields'];
 			}
 
-			$related_asset_keyword = FALSE;			
-			foreach($related_assetids as $field_name => $related_assetid) {
-				
-				if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {					
-					if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
-						$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
-						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
-						$replacement = $related_asset->getKeywordReplacement($asset_keyword);
+			$related_asset_keyword = FALSE;
+			if (!$is_field_name) {
+				foreach($related_assetids as $field_name => $related_assetid) {
+					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
+						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
+							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
+							$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
+							$replacement = $related_asset->getKeywordReplacement($asset_keyword);
+						}
+						$related_asset_keyword = TRUE;
+						break;
 					}
-					$related_asset_keyword = TRUE;
-					break;					
-				}			
-			} //end foreach
-			
-			if (!$related_asset_keyword) {			
+				} //end foreach
+			}
+
+			if (!$related_asset_keyword) {
 				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
 				if ($current_context === NULL) {
 					$current_context = 0;
 				}
 
 				if (!isset($this->_tmp['mm_replacements'][$current_context])) {
-					// generate all metadata keywords in one go				
+					// generate all metadata keywords in one go
 					$this->_tmp['mm_replacements'][$current_context] = $mm->getMetadataFieldValues($this->id);
 				}
 				$additional_keyword = '';
 				$replacement = NULL;
-		
+
 				// With "additional" keywords, we don't know where our metadata
 				// field name ends and the additional keyword begins...so we will
 				// try and split it up by underscores
@@ -3962,7 +3971,7 @@ class Asset extends MySource_Object
 						if ($additional_keyword !== '') {
 							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
-							
+
 							if ($field_assetid !== FALSE) {
 								$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 								$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
@@ -3974,7 +3983,7 @@ class Asset extends MySource_Object
 						}
 
 					} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
-						
+
 						// Try it with metadata keyword underscores replaced with spaces
 						// (additional keyword never has its spaces removed when
 						// sent to the metadata field)
