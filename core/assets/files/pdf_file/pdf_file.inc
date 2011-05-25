@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.32 2010/07/14 05:11:49 csmith Exp $
+* $Id: pdf_file.inc,v 1.32.2.1 2011/05/25 23:19:39 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,15 +77,27 @@ class PDF_File extends File
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -i -nomerge -noframes -stdout $pwd $file";
 			$cmd = escapeshellcmd($cmd);
-			$content = shell_exec($cmd);
+			// Run the command
+			exec($cmd, $content, $return);
+
+			// check to see if the command was executed correctly
+			// return value is 0, all good or else log a warning
+			if ($return != '0') {
+				trigger_error('Error occured while getting contents for pdf File Asset #'.$this->id, E_USER_WARNING);
+				return '';
+			}
 		}
 
 		$file = str_replace('"','\\\"',$file);
+		if (empty($content)) return '';
 
-		if (!$content) return '';
+		// the content we are spat out by exec() is in array form
+		// convert it to string so that we can process it further
+		$content = implode(PHP_EOL, $content);
+
 		// strip out the tags
 		$content = trim(strip_tags($content));
-		if (!$content) return '';
+		if (empty($content)) return '';
 
 		// in some cases file path ends up as the first string in the file
 		// this is the way pdftohtml treats files without the title, it puts filename into html title
