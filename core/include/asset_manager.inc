@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.831.2.10 2011/04/20 04:52:49 akarelia Exp $
+* $Id: asset_manager.inc,v 1.831.2.11 2011/05/26 05:36:29 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.831.2.10 $
+* @version $Revision: 1.831.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7459,6 +7459,22 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
 			return FALSE;
 		}
+
+		// Validate role and user assets
+		if (!empty($roleid)) {
+			$role_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($roleid, Array('role'));
+			if (empty($role_info)) {
+				trigger_localised_error('CORE0306', E_USER_WARNING, $roleid);
+				return FALSE;
+			}
+		}
+		if (!empty($userid)) {
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) {
+				trigger_localised_error('CORE0307', E_USER_WARNING, $userid);
+				return FALSE;
+			}
+		}		
 
 		// check if this role is already set
 		$current = $this->getRole($assetid, $roleid, $userid);
