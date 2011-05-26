@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.381.2.6 2011/04/20 06:26:21 akarelia Exp $
+* $Id: lang_strings.xml,v 1.381.2.7 2011/05/26 05:37:28 ewang Exp $
 *
 */
 
@@ -57,7 +57,7 @@
 	<string source="http_login_var_list_header">Server Variables</string>
 
 	<string source="enable_http_authentication">Enable HTTP Authentication</string>
-	<string source="enable_http_authentication_note">If this option is enabled, Squiz Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to Squiz Matrix by appending USE_HTTP_LOGIN=1 to the URL..</string>
+	<string source="enable_http_authentication_note">If this option is enabled, Squiz Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to Squiz Matrix by appending USE_HTTP_LOGIN=1 to the URL. Process PHP Credentials option has to be also enabled for HTTP Authentication to work.</string>
 
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
