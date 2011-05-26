@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.256 2011/03/28 00:16:33 akarelia Exp $
+* $Id: general.inc,v 1.257 2011/05/26 05:15:54 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix
 */
 
@@ -2395,5 +2395,38 @@ function recursive_content_filter(&$item){
 		}
 	}
 }
+
+
+/**
+* Returns mime type of the given file
+*
+* @param string $filename	Name of the file get mime type of
+*
+* @return string
+* @access public
+*/
+function file_mime_type($filename)
+{	
+	$mime_type = '';
+
+	if (class_exists('finfo')) {
+		$finfo = new finfo(FILEINFO_MIME);
+		$mime_info = explode(';', $finfo->file($filename));
+		$mime_type = $mime_info[0];
+		
+	} else if (function_exists('mime_content_type')) {
+		$mime_type = mime_content_type($filename);
+
+	} else {
+		$ext_pos = strrpos($filename, '.');
+		if ($ext_pos !== FALSE) {
+			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+			$mime_type = array_get_index($standards_lists_mime_types, substr($filename, $ext_pos + 1), '');
+		}
+	}
+	
+	return $mime_type;
+	
+}//end file_mime_type()
 
 ?>
