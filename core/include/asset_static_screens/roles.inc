@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.14 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: roles.inc,v 1.15 2011/05/26 01:36:57 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -187,14 +187,15 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 							foreach ($roles as $roleid => $ids) {
 								$userids = Array();
 								foreach ($ids as $row => $userid) {
-									$userids[] = $userid;
+									if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE)) {
+										$userids[] = $userid;
+									}
 								}
 								$global_role = FALSE;
 								if (in_array(0, $userids)) {
 									$userids = array_diff($userids, Array(0));
 									$global_role = TRUE;
 								}
-
 								if ($admin_access) {
 									?>
 									<tr>
