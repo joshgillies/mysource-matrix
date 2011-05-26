@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.320 2011/04/18 03:49:15 cupreti Exp $
+* $Id: listing_engine.inc,v 1.321 2011/05/26 02:00:14 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.320 $
+* @version $Revision: 1.321 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2035,7 +2035,11 @@ class Listing_Engine extends Page
 						case 'parent_asset':
 							// we need to get info from the parent asset
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
-							$group_name = htmlspecialchars($asset->attr('name'));
+							if (isset($asset->var['name'])) {
+								$group_name = htmlspecialchars($asset->attr('name'));
+							} else {
+								$group_name = htmlspecialchars($asset->name);
+							}
 							foreach ($format_keywords as $format_keyword) {
 								$pos = strpos($format_keyword, 'parent');
 								if ($pos === 0) {
