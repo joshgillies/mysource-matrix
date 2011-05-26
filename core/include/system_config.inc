@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.137.2.2 2011/04/20 06:54:03 akarelia Exp $
+* $Id: system_config.inc,v 1.137.2.3 2011/05/26 02:09:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137.2.2 $
+* @version $Revision: 1.137.2.3 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -589,7 +589,7 @@ class System_Config extends Config
 
 			$o->openField(translate('enable_http_authentication'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
+				combo_box($class.'[SQ_CONF_ENABLE_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_HTTP_LOGIN);
 			} else {
 				echo (SQ_CONF_ENABLE_HTTP_LOGIN) ? translate('yes') : translate('no');
 			}
