@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.104 2010/06/01 03:28:41 mhaidar Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.105 2011/05/27 06:22:04 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -474,7 +474,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			<tr>
 				<td <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td>
-					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->am->getAssetIconURL($type_code); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
+					<?php sq_print_icon($this->am->getAssetIconURL($type_code), "16", "16", ""); ?>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
 				</td>
 			</tr>
 		<?php
