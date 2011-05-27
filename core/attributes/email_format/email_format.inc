@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.49 2010/10/20 05:35:59 akarelia Exp $
+* $Id: email_format.inc,v 1.49.4.1 2011/05/27 00:39:10 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -546,7 +546,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			foreach ($attachments as $file_path) {
 				if (file_exists($file_path)) {
-					$mime_type = mime_content_type($file_path);
+					$mime_type = file_mime_type($file_path);
 					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning (Non-static method PEAR::isError should not be called statically)
 				}
 			}
@@ -554,7 +554,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			// ADditional attachments.
 			foreach ($additional_attachments as $file_path) {
 				if (file_exists($file_path) && (strpos(realpath($file_path), SQ_DATA_PATH) === 0)) {
-					$mime_type = mime_content_type($file_path);
+					$mime_type = file_mime_type($file_path);
 					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 				}
 			}
