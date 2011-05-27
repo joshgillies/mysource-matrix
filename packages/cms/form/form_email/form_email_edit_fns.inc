@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.105 2010/04/14 06:31:29 akarelia Exp $
+* $Id: form_email_edit_fns.inc,v 1.105.4.1 2011/05/27 00:25:38 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.105.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -471,7 +471,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 										$i++;
 										?>
 										<th width="10%"><?php echo $element['name']; if (!empty($element['name'])) echo ':'; ?></th>
-										<td width="40%"><?php echo htmlspecialchars($element['answer']); ?></td>
+										<td width="40%"><?php echo $element['answer']; ?></td>
 										<?php
 										if (($i < count($elements)) && ($i % 2 == 0)) {
 											?>
@@ -792,7 +792,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					$headers[$id] = $element['name'];
 				}
 
-				$logs[$assetid][$id] = $element['answer'];
+				$logs[$assetid][$id] = html_entity_decode($element['answer'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 			$logs[$assetid]['__assetid__'] = $assetid;
 
