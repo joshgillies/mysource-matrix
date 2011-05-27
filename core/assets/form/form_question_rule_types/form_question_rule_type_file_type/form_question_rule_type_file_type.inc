@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.14 2010/08/31 06:30:17 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.14.2.1 2011/05/27 00:37:00 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		//check MIME type conistency for the temp uploaded file
 		//file MIME, extension MIME should be consistent, we can't rely on browser MIME type
 		if ($check_mime){
-			$MIME_type = mime_content_type($temp_file);
+			$MIME_type = file_mime_type($temp_file);
 			$MIME_type_extension = isset($standards_lists_mime_types[strtolower($extension)]) ? $standards_lists_mime_types[strtolower($extension)] : '';
 
 			//only check MIME type consistency if it has a valid MIME type
