@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.1 2011/05/04 06:56:22 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.2 2011/05/30 02:04:40 cupreti Exp $
 *
 */
 
@@ -31,12 +31,10 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
-
-
 class Form_Section_Action_SOAP_Call extends Form_Section_Action
 {
 
@@ -106,6 +104,44 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				</tr>
 			</table>
 		</div>
+
+		<p class="sq-backend-section-subheading">Test Response</p>		
+		<div id="<?php echo $prefix ?>_test_request_response" style="padding: 0.5em 0px 2em 30px;">
+			<table class="sq-backend-table" >
+				<tr>
+					<td width="120">Run Test</td>
+					<td><p>
+					<?php 
+						$run_test = array_get_index($settings, 'run_test', 0);
+						check_box($prefix.'_run_test', 1, $run_test);
+					?>
+					</p></td>
+				</tr>
+				<tr>
+					<td colspan="2">The test will be based on the request content in the "SOAP Request Message" below</td>
+				</tr>				
+			</table>
+		</div>
+
+		<div width="120">
+			<?php
+				if ($run_test && !empty($settings['test_results'])) {
+					foreach($settings['test_results'] as $soap_func => $info) {
+						echo "<b><u>$soap_func</u></b><br /><br />";
+						echo "<b>Request:</b><br />";
+						echo (nl2br(str_replace(' ', '&nbsp;&nbsp;', htmlentities($info['request']))));
+						echo "<br />";
+						echo "<b>Response:</b><br />";
+						echo (nl2br(str_replace(' ', '&nbsp;&nbsp;', htmlentities($info['response']))));
+						echo "<br />";
+
+					}
+					echo "<br />";
+				}
+			?>
+		</div>
+
+
 	<?php if(!isset($settings['actions']) || empty($settings['actions'])) return;?>
 
 		<p class="sq-backend-section-subheading"><?php echo translate('request_message'); ?></p>
@@ -159,7 +195,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 						<?php
 							if(isset($settings['responses'][$settings['action']])) {
 								// echo the response xml, with style
-								echo (nl2br(str_replace(' ', '&nbsp;&nbsp;', htmlentities($settings['responses'][$settings['action']]))));
+								echo (nl2br(str_replace(' ', '&nbsp;&nbsp;', htmlentities(str_replace('[ARRAY_ELEMENT]', '', $settings['responses'][$settings['action']])))));
 							}
 						?>
 						<br />
@@ -217,13 +253,13 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 						<br />
 						New field to check ?&nbsp;
 						<?php
-
 							$response_fields = Array('' => '-- Select Field --');
 							if (isset($settings['response_keywords'][$settings['action']])) {
 								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
 								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
-									$val = ltrim($val, 'globals_session_'.$form_section->id.'_soap_');
+									$val = substr_replace($val, '', 0,  strlen('globals_session_'.$form_section->id.'_soap_'));
+							
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -260,6 +296,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 						<br />
 					</td>
 				</tr>
+					<td>Note: This list only shows the keywords for the first set of data for the array elements in the soap response, if any
+					</td>
 				<tr>
 				</tr>
 			</table>
@@ -283,6 +321,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		$settings['login'] = array_get_index($_POST, $prefix.'_login', NULL);
 		$settings['password'] = array_get_index($_POST, $prefix.'_password', NULL);
 		$settings['mute_exceptions'] = array_get_index($_POST, $prefix.'_mute_exceptions', NULL);
+		$settings['run_test'] = array_get_index($_POST, $prefix.'_run_test', NULL);
 		$settings['passphrase']	= array_get_index($_POST, $prefix.'_passphrase', NULL);
 		$settings['action']	= array_get_index($_POST, $prefix.'_action', NULL);
 
@@ -301,7 +340,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				trigger_error($e->getMessage());
 				return TRUE;
 			}
-
+			
 			if(!empty($functions)) {
 				foreach ($functions as $function) {
 					$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
@@ -325,14 +364,16 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
 
 					// parse response keywords
-					$keywords_list[$function_name] = self::_parse_response_keywords ($xml_response, 'globals_session_'.$form_section->id.'_soap_');
-				}
+					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', self::_parse_response_keywords ($xml_response, 'globals_session_'.$form_section->id.'_soap_'));
+					
+				}//end foreach
+				
 				$settings['actions'] = $function_list;
 				$settings['responses'] = $response_list;
 				$settings['response_keywords'] = $keywords_list;
 			}//end if
 		}//end foreach
-
+		
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_error_msgs = Array();
@@ -371,6 +412,16 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			}
 		}
 
+		// Run test request
+		$test_results = Array();
+		if ($settings['run_test']) {
+			foreach($functions as $function) {
+				$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
+				$test_results[$function_name] = self::testSoapRequest($client, $settings, $function_name);
+			}
+		}//end if
+		$settings['test_results'] = $test_results;
+		
 		return TRUE;
 
 	}//end processInlineInterface()
@@ -422,10 +473,11 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	{
 		$success = TRUE;
 		
+		
 		if(!isset($form->submission_errors)) {
 			$form->submission_errors = Array();
 		}
-
+	
 		if(!isset($settings['actions'][$settings['action']])) {
 			$form->submission_errors = array_merge($form->submission_errors, Array(translate('no_soap_action')));
 			return FALSE;
@@ -434,6 +486,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			$form->submission_errors = array_merge($form->submission_errors, Array(translate('no_wsdl')));
 			return FALSE;
 		}
+		
 
 		$function = $settings['action'];
 		$wsdl = $settings['wsdl'];
@@ -484,7 +537,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			$form->submission_errors = array_merge($form->submission_errors, Array($e->getMessage()));
 			return FALSE;
 		}
-
+		
+		
 		if ($settings['mute_exceptions'] && get_class($data) == 'SoapFault') {
 			$soap_response = $client->__getLastResponse();
 			$data = NULL;
@@ -507,10 +561,9 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		
 		// Remove prefix from response keywords
 		foreach($soap_response_keywords as $key => $val) {
-			$soap_response_keywords[trim($key, $form_section->id.'_soap_')] = trim($val);
+			$soap_response_keywords[substr_replace($key, '', 0,  strlen($form_section->id.'_soap_'))] = $val;
 			unset($soap_response_keywords[$key]);
 		}
-		
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
 			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $error_msg) {				
@@ -519,7 +572,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					$success = FALSE;
 				}
 			}//end foreach
-		}//end if
+		}//end if		
 
 		return $success;
 
@@ -536,11 +589,11 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	{
 		if (empty($object)) return;
 
-		$vars = get_object_vars($object);
+		$vars = is_object($object) ? get_object_vars($object) : $object;
 		if (empty($vars)) return;
 
 		foreach ($vars as $index => $value) {
-			if (is_object($value)) {
+			if (is_object($value) || is_array($value)) {
 				self::_store_results ($value, $prefix.$index, $soap_response_keywords);
 			}
 			else {
@@ -595,15 +648,17 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 
 		$param_type = preg_replace('/ .*/', '', $param);
 		$param_name = preg_replace('/.* (.*);/', '$1', $param);
-
+		
+		$is_param_array = FALSE;
 		$sub_types = self::_is_complex_type($param_type, $types);
 		if(!$sub_types) return;
 
 		// It's a complext type, let's parse its children
 		foreach ($sub_types as $type) {
+			$is_type_array = FALSE;
 			$sub_type_type = preg_replace('/ .*/', '', $type);
 			$sub_type_name = preg_replace('/.* (.*);/', '$1', $type);
-			$sub_sub_types = self::_is_complex_type($sub_type_type, $types);
+			$sub_sub_types = self::_is_complex_type($sub_type_type, $types, $is_type_array);
 
 			if (!$sub_sub_types || ($sub_type_type == $param_type)) {
 				// it's a simple type
@@ -611,7 +666,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			}
 			else {
 				// it's complex type, so step into its children
-				$new_node = $node->addChild($sub_type_name);
+				$new_node = $node->addChild($sub_type_name.($is_type_array ? '[ARRAY_ELEMENT]' : ''));
 				self::_parse_type_recursive($type, $types, $new_node);
 
 			}
@@ -625,8 +680,23 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	* @return false | array
 	* @access private
 	*/
-	private static function _is_complex_type($param, $types)
+	private static function _is_complex_type($param, $types, &$is_array=FALSE)
 	{
+		// Get array types
+		$array_types = Array();
+		foreach($types as $type) {
+			if (substr($type, -2) == '[]') {
+				$array_type = explode(' ', $type);
+				if (count($array_type) > 1) {
+					$array_types[rtrim($array_type[1], '[]')] = $array_type[0];
+				}
+			}
+		}
+		if (isset($array_types[$param])) {
+			$param = $array_types[$param];
+			$is_array = TRUE;
+		}
+
 		foreach ($types as $type) {
 			if (preg_match ('/struct '.$param.'/', $type)) {
 				// find and return sub types
@@ -634,7 +704,9 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				return $matches[0];
 			}
 		}
+		
 		return FALSE;
+		
 	}//end _parse_param()
 
 
@@ -835,6 +907,10 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		if(isset($settings['passphrase'])) {
 			$options['passphrase'] = $settings['passphrase'];
 		}
+		
+		if ($settings['run_test']) {
+			$options['trace'] = 1;
+		}
 
 		return $options;
 
@@ -866,6 +942,50 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	  }
 	}//end _toArray
 
+	
+	/**
+	* Get sample SOAP request/response
+	*
+	* @return array
+	* @access public
+	*/
+	public static function testSoapRequest($client, $settings, $function)
+	{
+		// Work out the parameters of that soap function
+		for($i = 0, $param = Array(); $i < count($settings['actions'][$settings['action']]); $i++) {
+			if(isset($settings[$settings['action'].'parameters'.$i])) {
+
+				$soap_message = $settings[$settings['action'].'parameters'.$i];
+				$object = @simplexml_load_string($soap_message);
+				
+				$param[] = $object;
+			}
+		}
+
+		// Get an array of parameters
+		
+		$eval_string = '';
+		foreach ($param as $index => $object) {
+			$eval_string .= $index == 0 ? '' : ', ';
+			$eval_string .= '$param['.$index.']';
+		}
+
+		// Make SOAP call
+		try {
+			eval('$data = $client->$function('.$eval_string.');');
+			$soap_request = $client->__getLastRequest();
+			$soap_response = $client->__getLastResponse();
+			
+		}
+		catch (Exception $e) {			
+			trigger_error($e->getMessage());
+			return FALSE;
+		}
+		
+		return Array('request' => $soap_request, 'response' => $soap_response);
+
+	}//end testSoapResponse()
+	
 
 	/**
 	* Check if the form section action is configured correctly
