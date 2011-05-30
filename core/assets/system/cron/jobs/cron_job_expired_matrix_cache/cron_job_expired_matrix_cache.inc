@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_matrix_cache.inc,v 1.3 2010/10/13 06:11:25 mhaidar Exp $
+* $Id: cron_job_expired_matrix_cache.inc,v 1.3.2.1 2011/05/30 01:24:48 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Cron_Job_Expired_Matrix_Cache extends Cron_Job
 	{
 		$cache_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$storage = $cache_mgr->getCacheStorage();
-		$storage->cleanExpiredEntries();
+		if (!$storage->cleanExpiredEntries()) return SQ_CRON_JOB_ERROR;
 
 		return SQ_CRON_JOB_COMPLETED;
 

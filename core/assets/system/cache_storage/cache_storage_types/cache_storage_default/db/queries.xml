@@ -20,7 +20,7 @@
 		<primary>
 			<delete>
 				<where>
-					<in table="sq_cache" column="path">:paths</in>
+					<equal-or-less table="sq_cache" column="expires">:now</equal-or-less>
 				</where>
 			</delete>
 		</primary>
