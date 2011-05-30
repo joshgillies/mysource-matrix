@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.223.2.1 2010/12/14 22:56:06 ewang Exp $
+* $Id: metadata_manager.inc,v 1.223.2.2 2011/05/30 00:45:03 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.223.2.1 $
+* @version $Revision: 1.223.2.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -2111,13 +2111,30 @@ class Metadata_Manager extends MySource_Object
 			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 		}
 
-		// If this is not a contextable metadata field, then grab the default
-		// value from context zero
-		$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
-		$is_contextable = (boolean)$is_contextable[$field_assetid];
+		// If the current context is the default context, this has to get the default value in
+		// the default context, so, it doesn't matter if the field is contextable or not.
+		// If this is not a contextable metadata field, then grab the default value from context zero.
+		if ($contextid != 0) {
+			// If the asset is already in asset cache, get the attribute from the cached asset - it's quicker than connecting to the db
+			$asset = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->get($contextid.'\\'.$field_assetid);
+			if (empty($asset)) {
+				// Try Deja vu
+				$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+				if ($deja_vu) {
+					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
+				}
+			} 
+			
+			if (!empty($asset)) {
+				$is_contextable = (boolean)$asset->attr('is_contextable');
+			} else {
+				$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
+				$is_contextable = (boolean)$is_contextable[$field_assetid];
+			}
 
-		if ($is_contextable === FALSE) {
-			$contextid = 0;
+			if ($is_contextable === FALSE) {
+				$contextid = 0;
+			}
 		}
 
 		static $cached_defaults = Array();
@@ -2176,13 +2193,30 @@ class Metadata_Manager extends MySource_Object
 			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 		}
 
-		// If this is not a contextable metadata field, then set the saved
-		// context ID to zero
-		$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
-		$is_contextable = (boolean)$is_contextable[$field_assetid];
+		// If the current context is the default context, this has to get the default value in
+		// the default context, so, it doesn't matter if the field is contextable or not.
+		// If this is not a contextable metadata field, then grab the default value from context zero.
+		if ($contextid != 0) {
+			// If the asset is already in asset cache, get the attribute from the cached asset - it's quicker than connecting to the db
+			$asset = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->get($contextid.'\\'.$field_assetid);
+			if (empty($asset)) {
+				// Try Deja vu
+				$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+				if ($deja_vu) {
+					$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $field_assetid);
+				}
+			} 
+			
+			if (!empty($asset)) {
+				$is_contextable = (boolean)$asset->attr('is_contextable');
+			} else {
+				$is_contextable = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('is_contextable', 'metadata_field', Array($field_assetid));
+				$is_contextable = (boolean)$is_contextable[$field_assetid];
+			}
 
-		if ($is_contextable === FALSE) {
-			$contextid = 0;
+			if ($is_contextable === FALSE) {
+				$contextid = 0;
+			}
 		}
 
 		$sql = 'SELECT
