@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.5.6.1 2011/04/19 05:51:44 akarelia Exp $
+ * $Id: cache_storage_default.inc,v 1.5.6.2 2011/05/30 01:22:47 mhaidar Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.5.6.1 $
+ * @version $Revision: 1.5.6.2 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -258,9 +258,8 @@ class Cache_Storage_Default extends Cache_Storage
 	* Cleans up expired entries.
 	*
 	* Delete any cache files on the filesystem that have expired, then remove
-	* the cache entries from the table that it was able to delete.
-	* Also clean up cache entries from the database that no longer exist on
-	* the filesystem. This should not normally happen but we'll handle it.
+    * the cache entries from the table if we managed to clear all cache files.
+    * We abort if a file can't be deleted so all the expired DB entries will remain until the next successful run.
 	*
 	* For this to work, the Cron run script needs to run as the Apache user.
 	* It normally creates cache bucket directories with write access only to
@@ -273,54 +272,32 @@ class Cache_Storage_Default extends Cache_Storage
 	function cleanExpiredEntries()
 	{
 		$bind_vars = Array('now' => ts_iso8601(time()));
-		$paths     = MatrixDAL::executeAssoc('cache_storage_default', 'selectExpiredEntryPaths', 0, $bind_vars);
-
-		$removed       = 0;
-		$paths_removed = Array();
-
+		
+		try {
+			$paths  = MatrixDAL::executeAssoc('cache_storage_default', 'selectExpiredEntryPaths', 0, $bind_vars);
+		} catch (Exception $e) {
+			trigger_error('Unable to select expired cache entry paths due to database error: '.$e->getMessage(), E_USER_WARNING);
+			return FALSE;
+		}
+		
 		foreach ($paths as $k => $path) {
 			$cache_file = SQ_CACHE_PATH.'/'.$path;
 			if (is_file($cache_file) === TRUE) {
 				$result = unlink($cache_file);
-				if ($result === TRUE) {
-					$paths_removed[] = $path;
-					$removed++;
-				} else {
+				if ($result !== TRUE) {
 					trigger_error('Unable to remove expired cache file "'.$cache_file.'"', E_USER_WARNING);
+					return FALSE;
 				}
-			} else {
-				// Even though there is no cache file, we still need
-				// to clean up the database entry - otherwise we end up
-				// with orphaned entries in the db that will never
-				// get cleaned up.
-				$paths_removed[] = $path;
-				$removed++;
 			}
-
-			if ($removed > 500) {
-				$bind_vars = Array('paths' => $paths_removed);
-				MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
-
-				// Reset our variables for next time.
-				$removed       = 0;
-				$bind_vars     = array();
-				$paths_removed = array();
-			}
-
-			// I did try to unset($paths[$k]) or set $paths[$k] to nothing
-			// here but that caused memory errors (as weird as that sounds).
-			// Yes, I'm trying to save memory by reducing the size of
-			// $paths, but it caused out of mem errors.
 		}
-
-		// Get the remaining paths that weren't cleaned up before
-		// eg there are 502 entries, we need to clean up the last couple that
-		// aren't picked up above.
-		if ($removed > 0) {
-			$bind_vars = Array('paths' => $paths_removed);
+		
+		try {
 			MatrixDAL::executeQuery('cache_storage_default', 'deleteExpiredEntries', $bind_vars);
-			$bind_vars = array();
+		} catch (Exception $e) {
+			trigger_error('Unable to delete expired cache entries due to database error: '.$e->getMessage(), E_USER_WARNING);
+			return FALSE;
 		}
+
 		return TRUE;
 
 	}//end cleanExpiredEntries()
