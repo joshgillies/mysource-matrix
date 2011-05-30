@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.6.2.4 2011/05/30 05:03:41 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.6.2.5 2011/05/30 05:06:41 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6.2.4 $
+* @version $Revision: 1.6.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -571,12 +571,6 @@ class Form_Action_SOAP_Call extends Form_Action
 	}//end execute()
 
 
-	/**
-	* This function recursively checks an object properties and store them in session
-	*
-	* @return void
-	* @access private
-	*/
 	/**
 	* This function recursively checks an object properties and store them in session
 	*
