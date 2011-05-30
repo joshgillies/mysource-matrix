@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.43.2.1 2011/02/09 22:20:24 akarelia Exp $
+* $Id: design_css.inc,v 1.43.2.2 2011/05/30 00:58:13 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.43.2.1 $
+* @version $Revision: 1.43.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -710,7 +710,7 @@ echo '/*
 
 		// Now we just include the design file to get it to print
 		if (file_exists($file_path)) {
-			require_once $file_path;
+			require $file_path;
 		} else {
 			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
 		}
