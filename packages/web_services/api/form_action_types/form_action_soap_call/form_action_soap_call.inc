@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.10 2011/05/30 02:10:53 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.11 2011/05/30 05:02:16 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -209,6 +209,74 @@ class Form_Action_SOAP_Call extends Form_Action
 			</table>
 		</div>
 
+		<p class="sq-backend-section-subheading">Check Response</p>
+
+		<div id="<?php echo $prefix ?>_response_error" style="padding: 0.5em 0px 2em 30px;">
+			<table class="sq-backend-table" >
+				<tr width="120">
+					<td>
+						<?php
+						$selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
+						if (empty($selected_fields)) {
+							echo "No SOAP response fields selected";
+						} else {
+							?>
+							<table class="sq-backend-table">
+								<tr>
+									<td class="sq-backend-table-header">Field Name</td>
+									<td class="sq-backend-table-header">Error Message</td>
+									<td class="sq-backend-table-header">Delete ?</td>
+								</tr>
+								<?php
+								foreach ($selected_fields as $selected_field => $error_msg) {
+									$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
+									?>
+									<tr>
+										<td class="sq-backend-table-cell"><?php echo $selected_field; ?></td>
+										<td class="sq-backend-table-cell">
+											<?php text_box($sf_prefix.'_error_msg', $error_msg, 110); ?>
+										</td>
+
+										<td class="sq-backend-table-cell">
+											<?php check_box($sf_prefix.'_delete_field['.$selected_field.']'); ?>
+										</td>
+									</tr>
+									<?php
+								}//end foreach
+								?>
+							</table>
+							<?php
+						}//end else
+						?>
+						<br />
+						New field to check ?&nbsp;
+						<?php
+							$response_fields = Array('' => '-- Select Field --');
+							if (isset($settings['response_keywords'][$settings['action']])) {
+								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
+								foreach($response_keywords as $val) {								
+									$val = trim($val, '%');
+									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
+								
+									if ($val) {
+										$response_fields[$val] = $val;
+									}
+								}//end foreach
+							}
+							combo_box($prefix.'_'.$settings['action'].'_response_error_field', $response_fields, FALSE);
+						?>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						If the specified field is non-empty in the SOAP respose, the step action will treat it as a regular form error.
+					</td>
+				</tr>
+				<tr>
+				</tr>
+			</table>
+		</div>
 
 			<p class="sq-backend-section-subheading"><?php echo translate('response_keywords'); ?></p>
 
@@ -304,8 +372,38 @@ class Form_Action_SOAP_Call extends Form_Action
 			}
 		}
 
+		// Currently selected "Check response" fields
+		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
+		$field_error_msgs = Array();
+		
+		// String containg all the SOAP response keywords
+		$keywords_string = '';
+		if (isset($settings['response_keywords'])) {
+			$keywords_string = implode(';',$settings['response_keywords']);
+		}
+		
+		foreach ($current_selected_fields as $selected_field => $error_msg) {
+			$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
+			
+			// If the field is deleted or dosen't exists in SOAP response anymore
+			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {			
+				if (isset($_POST[$sf_prefix.'_error_msg'])) {
+					$field_error_msgs[$selected_field] = trim($_POST[$sf_prefix.'_error_msg']);
+				} else {
+					$field_error_msgs[$selected_field] = $error_msg;
+				}//end else				
+			}//end if
+		}//end foreach
+
+		// Add new "Check response" field
+		if (isset($_POST[$prefix.'_'.$settings['action'].'_response_error_field']) && !empty($_POST[$prefix.'_'.$settings['action'].'_response_error_field'])) {
+			$new_field = $_POST[$prefix.'_'.$settings['action'].'_response_error_field'];
+			$field_error_msgs[$new_field] = '';
+		}
+
 		// Set up current params for current action
 		if(isset($settings['actions'][$settings['action']])) {
+			$settings[$settings['action'].'_response_error_fields'] = $field_error_msgs;
 			for($i = 0; $i < count($settings['actions'][$settings['action']]); $i++) {
 				if(isset($_POST[$prefix.'_'.$settings['action'].'parameters'.$i]))
 					$settings[$settings['action'].'parameters'.$i] = $_POST[$prefix.'_'.$settings['action'].'parameters'.$i];
@@ -374,7 +472,8 @@ class Form_Action_SOAP_Call extends Form_Action
 	*/
 	public static function execute(Form $form, $settings)
 	{
-
+		$success = TRUE;
+		
 		if(!isset($form->submission_errors)) {
 			$form->submission_errors = Array();
 		}
@@ -450,9 +549,24 @@ class Form_Action_SOAP_Call extends Form_Action
 		}
 
 		// Store results in session
-		self::_store_results ($data);
+		self::_store_results($data, 'soap_', $soap_response_keywords);
+		
+		// Remove prefix from response keywords
+		foreach($soap_response_keywords as $key => $val) {
+			$soap_response_keywords[substr_replace($key, '', 0,  5)] = $val;
+			unset($soap_response_keywords[$key]);
+		}
+		// If the SOAP response has one of the non-empty "Check Response" fields, return error
+		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
+			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $error_msg) {				
+				if (!empty($soap_response_keywords[$check_field])) {
+					$form->submission_errors = array_merge($form->submission_errors, Array($error_msg));
+					$success = FALSE;
+				}
+			}//end foreach
+		}//end if		
 
-		return TRUE;
+		return $success;
 
 	}//end execute()
 
@@ -463,7 +577,7 @@ class Form_Action_SOAP_Call extends Form_Action
 	* @return void
 	* @access private
 	*/
-	private static function _store_results($object, $prefix = 'soap_') {
+	private static function _store_results($object, $prefix = 'soap_', &$soap_response_keywords=Array()) {
 
 		if (empty($object)) return;
 
@@ -472,10 +586,11 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		foreach ($vars as $index => $value) {
 			if (is_object($value) || is_array($value)) {
-				self::_store_results ($value, $prefix.$index);
+				self::_store_results ($value, $prefix.$index, $soap_response_keywords);
 			}
 			else {
 				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.$index] = $value;
+				$soap_response_keywords[$prefix.$index] = $value;
 			}
 		}
 	}//end _store_results()
