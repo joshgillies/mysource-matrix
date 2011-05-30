@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.153.2.2 2011/02/09 22:11:54 akarelia Exp $
+* $Id: design.inc,v 1.153.2.3 2011/05/30 00:57:37 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153.2.2 $
+* @version $Revision: 1.153.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1006,7 +1006,7 @@ echo '/*
 
 		// Now we just include the design file to get it to print
 		// else
-		require_once $file_path;
+		require $file_path;
 
 	}//end paint()
 
