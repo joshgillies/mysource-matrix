@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.9 2011/05/30 02:08:04 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.10 2011/05/30 02:10:53 cupreti Exp $
 *
 */
 
@@ -21,7 +21,6 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 // WSDL sometime defines a complex type in a loop, we need to get out of this loop if it repeats too many times while parsing
 define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
-ini_set("soap.wsdl_cache_enabled", "0");
 
 /**
 * Form_Action_SOAP_Call
@@ -30,7 +29,7 @@ ini_set("soap.wsdl_cache_enabled", "0");
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
