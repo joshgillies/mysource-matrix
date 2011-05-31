@@ -1,5 +1,91 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.0.7
+
+Featured Changes
+===================================
+
+
+Logout Due to IP Change Logged in System Logs [ Feature Request #4604 ]
+-----------------------------------------------------
+
+Previously, when a user was logged out of Squiz Matrix because their IP changed and SQ_CONF_ALLOW_IP_CHANGE was set to true, neither an error or a system.security.* message would be sent. This meant that the only way to figure out why users were intermittently losing their session was to have prior knowledge of this setting.
+
+This feature had been added so that Matrix will log logouts due to IP changing in the system logs. For example:
+
+[2011-05-23 15:11:23][12:Root User][1024:mysource notice][ ] [system.security.logout.ip_change - remote_addr:192.168.1.1;sessionid:;] (User Automatically Logged Out) - User "Root User" was logged out since their IP address changed from 192.168.2.1 to 192.168.1.1.
+
+A-Z Listing: Defining the Layout of Individual Letters on the Navigation List [ Feature Request #5124 ]
+-----------------------------------------------------
+
+On a multiple page A-Z asset listing, the navigation character list displays links to the different alphabetised pages on the listing. This feature adds the ability to format the individual letters on this list.
+
+This feature utilises the asset listing's existing Page Link and Current Link formats, which were not previously used on an A-Z asset listing.
+
+On an A-Z listing, the Page Link Format will now define the layout of each individual letter on the linked character list, while the Current Page Format will define the layout of letters that contain no results.
+
+These formats use the existing %page_link% and %page_number% keyword replacements. For example, you could format the letters on the list so that letters with results will be in bold, while letters with no results will be struck out.
+
+The feature gives users greater control over the layout of their A-Z listings, in line with the options available on a regular asset listing.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5078: Error message on eSec Payment Gateway when Matrix is unable to connect to the service.
+Minor Enhancement #5079: Support vertical resizing for the asset map.  
+Minor Enhancement #5082: eSec Payment Gateway respects the proxy settings in Matrix's system configuration.
+Minor Enhancement #5087: Add logging for pdftohtml failures.
+Minor Enhancement #5109: Video File Asset: Add webm format.
+Minor Enhancement #5116: Clear cache cron job enhancement (default storage).
+Minor Enhancement #5122: Issue with PHP function mime_type_content().
+Minor Enhancement #5123: Metadata Manager default value functions performance enhancement.
+
+Core
+
+Fixed Bug #5050: LDAP Users not getting correct permissions if the user is under a subgroup.
+Fixed Bug #5055: Nested content DIVs don't save properly across contexts.
+Fixed Bug #5061: Fatal error when viewing the Details screen of a form submission when a section of the form has been deleted.
+Fixed Bug #5064: HIPO pop-up windows lose focus in Internet Explorer.
+Fixed Bug #5069: Hierarchy metadata field default value displays incorrectly.
+Fixed Bug #5072: Trashed file assets still accessible via public data URL.
+Fixed Bug #5080: condition user agent can not use regular expression operator '|'.
+Fixed Bug #5083: Metadata Fields Inaccessible.
+Fixed Bug #5084: Changed file name in Safe Edit causes multiple issues.
+Fixed Bug #5085: IE 8 and IE 9 wont let user commit changes on WYSIWYG screen.
+Fixed Bug #5086: Error when editing image varieties after cancelling Safe Edit.
+Fixed Bug #5092: Asset Builder's insert link via WYSIWYG tool removes the dot (.) before  /?a= .
+Fixed Bug #5093: Customised classes not appearing in EES WYSIWYG.
+Fixed Bug #5097: Shadow links (shadow assets linked under a real asset) always appear red-crossed in Asset Map for non-admin users.
+Fixed Bug #5099: [cron_job] Metadata triggers causing Cron deadlock.
+Fixed Bug #5104: Triggering asset intermittently getting lost when using the send email trigger action.
+Fixed Bug #5106: Contains keyword modifier fails on string with a slash (/).
+Fixed Bug #5108: Selectable create location link type bug with account manager page.
+Fixed Bug #5114: PHP 5.3 remote content page complaining "Assigning the return value of new by reference is deprecated".
+Fixed Bug #5117: Dependants only will not check in Set permission trigger action.
+Fixed Bug #5118: Role screen doesn't not validates role and user asset IDs.
+Fixed Bug #5119: Asset listing grouping by parent results in mysource warnings when the parent asset is a user asset.
+Fixed Bug #5120: System config screen, Enable HTTP Authentication option has cosmetic problem when lock is acquired.
+
+CMS
+
+Fixed Bug #5098: [cron_job] manage_pending_accounts causing Cron deadlock.
+Fixed Bug #5102: Matrix will throw warnings is the nested asset is deleted.
+Fixed Bug #5125: Forms answers getting unnecessarily encoded in Submission Logs screen. 
+
+Search
+
+Fixed Bug #5105: PHP Notices on Search Fields screen (Undefined Asset Type).
+
+Web Services
+
+Fixed Bug #4934: Committing from "approved to go live" causes attributes on REST assets to be cleared.
+
+
+
 VERSION 4.0.6
 
 Featured Changes
