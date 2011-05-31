@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.25 2011/05/31 23:43:48 mhaidar Exp $
+* $Id: trim_saved_search.inc,v 1.26 2011/05/31 23:52:58 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -638,7 +638,7 @@ class TRIM_Saved_Search extends Data_Source
 
 				$hash_key			= $GLOBALS['SQ_SYSTEM']->user->attr('username').time();
 				$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
-				require_once SQ_FUDGE_PATH.'a/general/file_system.inc';
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				create_directory($final_file_path);
 
 				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
