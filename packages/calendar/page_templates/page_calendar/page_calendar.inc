@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.242 2011/02/15 02:21:08 cupreti Exp $
+* $Id: page_calendar.inc,v 1.243 2011/05/31 05:51:18 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -598,7 +598,7 @@ class Page_Calendar extends Page
 		}
 
 		$enabled_views = $this->attr('enabled_views');
-		$replacements['today_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink calendarTodayLink" href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'">'.htmlentities($this->attr('today_link_text')).'</a>';
+		$replacements['today_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink calendarTodayLink" href="'.$this->getURL().'?SQ_CALENDAR_VIEW='.$cal_view.'" rel="nofollow">'.htmlentities($this->attr('today_link_text')).'</a>';
 
 		if ($cal_view == 'week') {
 			$cal_date = date('Y-m-01', iso8601_ts($cal_date));
@@ -616,7 +616,7 @@ class Page_Calendar extends Page
 			$eventview = '&amp;SQ_CALENDAR_EVENT_ID='.$event_id;
 		}
 
-		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.$eventview.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
+		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.$eventview.'&amp;SQ_CALENDAR_DATE='.$cal_date.'" rel="nofollow">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
 		return $replacements;
 
