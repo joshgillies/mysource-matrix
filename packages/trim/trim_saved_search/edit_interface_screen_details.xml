@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2010/05/05 07:15:42 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2011/05/31 23:43:48 mhaidar Exp $
 *
 */
 -->
@@ -47,6 +47,9 @@
     	<field attribute="download_files">
     		<boolean true_text="yes" false_text="no" />
     	</field>
+    	<field attribute="download_limit">
+			<int width="15" />
+		</field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
