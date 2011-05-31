@@ -1,6 +1,205 @@
 MYSOURCE MATRIX CHANGELOG
 
-SION 4.2.0 RC1
+VERSION 4.4.0 RC1
+
+Featured Changes
+===================================
+
+
+Logout Due to IP Change Logged in System Logs [ Feature Request #4604 ]
+-----------------------------------------------------
+
+Previously, when a user was logged out of Squiz Matrix because their IP changed and SQ_CONF_ALLOW_IP_CHANGE was set to true, neither an error or a system.security.* message would be sent. This meant that the only way to figure out why users were intermittently losing their session was to have prior knowledge of this setting.
+
+This feature had been added so that Matrix will log logouts due to IP changing in the system logs. For example:
+
+[2011-05-23 15:11:23][12:Root User][1024:mysource notice][ ] [system.security.logout.ip_change - remote_addr:192.168.1.1;sessionid:;] (User Automatically Logged Out) - User "Root User" was logged out since their IP address changed from 192.168.2.1 to 192.168.1.1.
+
+Enhancements to the import_files_from_bridge.php Script [ Feature Request #5033 ]
+-----------------------------------------------------
+
+Squiz Matrix's import_files_from_bridge.php script imports files exposed through a File Bridge asset into Matrix. Previously, this script would import these files as File type assets; however, files will now be imported as corresponding Matrix file assets, when available. For example, an image will now be imported as an Image type asset. 
+
+This feature also introduces the option of importing folders containing an index.html file as a Standard Page asset with the content of the index file. This option can be enabled by setting a parameter on the script.
+
+The new usage of the import_files_from_bridge.php script is as follows:
+
+php import_files_from_bridge.php <MATRIX_ROOT> <BRIDGE_ROOT_NODE_ASSETID> <PARENT_ASSETID> <RECURSIVE> <HANDLE_INDEX_FILE>
+ 
+php import_files_from_bridge.php path/to/matrix 100 150 y y
+
+Make SOAP Call Step Action For Multi-Page Forms [ Feature Request #5089 ]
+-----------------------------------------------------
+
+Currently, Squiz Matrix's Custom Form asset allows you to make a SOAP call on submission. This new feature extends the functionality of submission actions to the individual steps (or pages) of a multi-page Custom Form, allowing your form to make a SOAP call on each page submission.
+
+Step actions can be configured on the new Step Actions screen for form sections.
+
+The set up of the Make SOAP Call step action is similar to the Make SOAP Call submission action, allowing you to specify the connection to the SOAP server and specify the request message.
+
+On the front end of the form, when a user clicks the Next Page button, Squiz Matrix will make the SOAP call, as configured on the Step Actions screen for that step.
+
+The Make SOAP Call step action also utilises the new Check Response function. This function will check specified fields on the SOAP response, printing an error message if a value is returned (non-empty). Field keywords are also available for use, allowing you to print any error messages returned on the SOAP response.
+
+Returned errors are displayed to a user via the %form_errors% keyword replacement and the user will not progress to the next page of the form. If no errors are retrieved, the user will be able to continue their form submission. 
+
+SharePoint CMIS Bridge [ Feature Request #5090 ]
+-----------------------------------------------------
+
+This new feature introduces the CMIS Bridge asset, a connection bridge for retrieving files from a CMIS enabled SharePoint repository (currently supports Microsoft SharePoint 2010).
+
+This asset retrieves SharePoint documents in a similar manner to the SharePoint Saved Search; however, files imported over the CMIS Bridge will be imported as fully functional system assets within Squiz Matrix (such as Images, Text Files etc.). These assets can be edited, linked and moved around the system just like any other asset, allowing you greater control over your SharePoint repositories within Matrix. 
+
+Files are stored under the CMIS Bridge asset in the asset map when initially synchronised with the connected CMIS enabled SharePoint repository. Further synchronisation will update these files, trashing any old files, modifying files that have been altered and creating new assets for new files on the repository.
+
+Synchronisation is also controlled via a new Sync CMIS Bridges Cron Job. This cron job is set to run daily - its run time and frequency can be configured on its Details screen.
+
+CMIS properties (e.g. Author, Objectid, Modified, Created) can be mapped to the metadata fields of a schema applied to the CMIS Bridge. Additional custom fields created for the document library will dynamically be made available for metadata mapping.
+
+The addition of this asset enhances the SharePoint package within Squiz Matrix, allowing you to manage your SharePoint documents within Matrix with more control than ever before.
+
+Search Page: Specify Data Sources on Exclude Fields [ Feature Request #5094 ]
+-----------------------------------------------------
+
+Previously, Matrix's Search Page only allowed you to configure data sources for search fields. The data sources allowed you to specify which fields on an asset to search. This feature extends this functionality to exclude fields, allowing you to specify which fields to exclude on.
+
+Like a search field, exclude fields allow the following data source types:
+
+Include All: searches all standard fields, attribute fields and metadata fields of assets.
+Standard Asset Field: searches a specified standard asset field (e.g. the name of a page or its asset ID).
+Asset Attribute: searches a specified attribute field (e.g. the title of a file of a MS Word Document asset).
+Asset Metadata Field: searches a specified metadata field.
+
+You can select multiple data sources to search for each exclude field that you add, specifying the word logic to use for your data sources (all words or any word).
+
+Please note that existing exclude fields will default to the Include All data source type, returning the same results as they would previously had.
+
+On the Search Page, the exclude field will only search the fields specified in its data sources. For example, say you configure the exclude field to search the Keywords metadata field of assets - if a user searches for the query News in the exclude field, the Search Page will exclude assets contain the query News in their Keywords metadata from the search results.
+
+This enhancement to the Search Page's exclude fields allows you to tweak your Search Page, allowing your users to return more accurate results, specific to their searching queries.
+
+Specifiying the Cron Deadlock Email Notification Receivers [ Feature Request #5103 ]
+-----------------------------------------------------
+
+Squiz Matrix's Cron Manager handles the cron process within a system, managing and running the cron jobs that have been scheduled. Occasionally, a cron job may stall, causing the Cron Manager to deadlock. When this occurs, Matrix will send out email notifications, informing users of these errors.
+
+Previously, Matrix would send these deadlock email notifications to all users under the System Administrators Folder, as well as the email addresses configured in the system's main.inc file. These automated email notifications would be resent to these users each subsequent run of the Cron Manager, until the issue was resolved. This could cause large numbers of emails sent to many users, potentially causing inconvenience and even spam filtering issues with users' mail clients.
+
+This feature adds a new option to the Cron Manager, allowing you to specify the users that will receive cron deadlock emails. This option is configured via a new Emailing Options section on the Options screen of the Cron Manager.
+
+The Cron Deadlock Email Receivers field allows you to select users, user groups and roles to specify which users should receive email notifications from the Cron Manager. By default, the system's Root User and the email addresses configured in the system's main.inc file will automatically also receive these emails.
+
+By allowing you to specify the users to receive cron deadlock emails, this feature allows you to more efficiently identify and manage any potential issues with the Cron Manager in your system.
+
+A-Z Listing: Defining the Layout of Individual Letters on the Navigation List [ Feature Request #5124 ]
+-----------------------------------------------------
+
+On a multiple page A-Z asset listing, the navigation character list displays links to the different alphabetised pages on the listing. This feature adds the ability to format the individual letters on this list.
+
+This feature utilises the asset listing's existing Page Link and Current Link formats, which were not previously used on an A-Z asset listing.
+
+On an A-Z listing, the Page Link Format will now define the layout of each individual letter on the linked character list, while the Current Page Format will define the layout of letters that contain no results.
+
+These formats use the existing %page_link% and %page_number% keyword replacements. For example, you could format the letters on the list so that letters with results will be in bold, while letters with no results will be struck out.
+
+The feature gives users greater control over the layout of their A-Z listings, in line with the options available on a regular asset listing.
+
+Make SOAP Call on Submit Submission Action: Array Data in SOAP Response [ Feature Request #5127 ]
+-----------------------------------------------------
+
+Previously, the Custom Form's Make SOAP Call on Submit form submission action could not handle array data in the SOAP response. This feature adds support for array data in the SOAP response, populating array data into global keywords using index numbers.
+
+For example:
+
+%globals_session_[FOMR_ASSETID]_array_field0_value%, %globals_session_[FOMR_ASSETID]_array_field2_value%, %globals_session_[FOMR_ASSETID]_array_field3_value%
+
+This feature also adds a TEST SOAP option to printout the sample SOAP request and response in the backend, for testing purposes.
+
+Make SOAP Call on Submit Submission Action: Check SOAP Response [ Feature Request #5128 ]
+-----------------------------------------------------
+
+This features introduces data validation on the SOAP request of the Make SOAP Call on Submit form submission action of a Custom Form. If incorrect data is found in the request, Matrix will respond with a suggestion of specific error message, while if no incorrect data is found, will process the request, as normal.  
+
+This feature is implemented through a new Check Response function. This function will check specified fields on the SOAP response, printing an error message if a value is returned (non-empty). Field keywords are also available for use, allowing you to print any error messages returned on the SOAP response.
+
+Returned errors are displayed to a user via the %form_errors% keyword replacement and the user will not progress to the next page of the form. If no errors are retrieved, the user will be able to continue their form submission. 
+
+JSON Data Source
+-----------------------------------------------------
+
+This new JSON Data Source asset is an alternative to the existing XML Data Source, facilitating server-side data exchange with web applications.
+
+Clean Old Shadow Links Script
+-----------------------------------------------------
+
+A new script has been added to the Matrix database to clean links to shadow assets that are no longer valid. This is usually because the assets have since been removed from the data source, e.g. An LDAP backend user is linked under the System Administrators folder but is later removed from the LDAP Directory.
+
+Additional reasons a shadow link may no longer be valid is if the connection between Matrix and the data source goes down or if the configuration of the connection bridge is altered for testing purposes. Because of these reasons, when the clean_old_shadow_links.php script is first run, it will only return a list of shadow links for review. You can then decided whether or not to delete the shadow links in the system.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5041: Enhancement: Matrix clear expired cache query sometime is too large for oracle
+Minor Enhancement #5044: Performance Enhancement: When Send Cacheable header, and Matrix responds 304 Not Modified, there is a useless call to printFrontEnd() 
+Minor Enhancement #5045: Add a favicon to the Admin interface.
+Minor Enhancement #5078: Error message on eSec Payment Gateway when Matrix is unable to connect to the service.
+Minor Enhancement #5079: Support vertical resizing for the asset map.  
+Minor Enhancement #5082: eSec Payment Gateway respects the proxy settings in Matrix's system configuration.
+Minor Enhancement #5087: Add logging for pdftohtml failures.
+Minor Enhancement #5096: Improved performance when dealing with large sq_internal_messages table.
+Minor Enhancement #5109: Video File Asset: Add webm format.
+Minor Enhancement #5116: Clear cache cron job enhancement (default storage).
+Minor Enhancement #5122: Issue with PHP function mime_type_content().
+Minor Enhancement #5123: Metadata Manager default value functions performance enhancement.
+
+Core
+
+Fixed Bug #5050: LDAP Users not getting correct permissions if the user is under a subgroup.
+Fixed Bug #5055: Nested content DIVs don't save properly across contexts.
+Fixed Bug #5061: Fatal error when viewing the Details screen of a form submission when a section of the form has been deleted.
+Fixed Bug #5064: HIPO pop-up windows lose focus in Internet Explorer.
+Fixed Bug #5069: Hierarchy metadata field default value displays incorrectly.
+Fixed Bug #5072: Trashed file assets still accessible via public data URL.
+Fixed Bug #5080: condition user agent can not use regular expression operator '|'.
+Fixed Bug #5083: Metadata Fields Inaccessible.
+Fixed Bug #5084: Changed file name in Safe Edit causes multiple issues.
+Fixed Bug #5085: IE 8 and IE 9 wont let user commit changes on WYSIWYG screen.
+Fixed Bug #5086: Error when editing image varieties after cancelling Safe Edit.
+Fixed Bug #5092: Asset Builder's insert link via WYSIWYG tool removes the dot (.) before  /?a= .
+Fixed Bug #5093: Customised classes not appearing in EES WYSIWYG.
+Fixed Bug #5097: Shadow links (shadow assets linked under a real asset) always appear red-crossed in Asset Map for non-admin users.
+Fixed Bug #5099: [cron_job] Metadata triggers causing Cron deadlock.
+Fixed Bug #5104: Triggering asset intermittently getting lost when using the send email trigger action.
+Fixed Bug #5106: Contains keyword modifier fails on string with a slash (/).
+Fixed Bug #5108: Selectable create location link type bug with account manager page.
+Fixed Bug #5114: PHP 5.3 remote content page complaining "Assigning the return value of new by reference is deprecated".
+Fixed Bug #5117: Dependants only will not check in Set permission trigger action.
+Fixed Bug #5118: Role screen doesn't not validates role and user asset IDs.
+Fixed Bug #5119: Asset listing grouping by parent results in mysource warnings when the parent asset is a user asset.
+Fixed Bug #5120: System config screen, Enable HTTP Authentication option has cosmetic problem when lock is acquired.
+
+CMS
+
+Fixed Bug #5098: [cron_job] manage_pending_accounts causing Cron deadlock.
+Fixed Bug #5102: Matrix will throw warnings is the nested asset is deleted.
+Fixed Bug #5125: Forms answers getting unnecessarily encoded in Submission Logs screen. 
+
+Search
+
+Fixed Bug #5105: PHP Notices on Search Fields screen (Undefined Asset Type).
+
+Web Services
+
+Fixed Bug #4934: Committing from "approved to go live" causes attributes on REST assets to be cleared.
+
+
+
+
+VERSION 4.2.0 RC1
 
 Featured Changes
 ===================================
