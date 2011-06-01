@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.7.2.2 2009/03/12 05:43:57 mbrydon Exp $
+* $Id: MatrixDALBaker.inc,v 1.7.2.3 2009/04/22 02:17:59 mbrydon Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.7.2.2 $
+* @version $Revision: 1.7.2.3 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -242,8 +242,15 @@ class MatrixDALBaker extends DALBaker
         if (self::_queryRequiresRollback($systemName, $queryName)) {
             $contents  .= 'if (SQ_ROLLBACK_VIEW) {'."\n";
             $queryBody  = self::mergeQuery($systemName, $queryName.'.rb');
+			$allBindVars = self::findRollbackBindVars($queryBody);
             $contents  .= $queryBody;
-            $contents  .= '$query->bind(\':rbtime\', $_SESSION[\'sq_rollback_view\'][\'rollback_time\']);'."\n";
+			if (!empty($allBindVars)) {
+				foreach ($allBindVars as $bindVar) {
+	            	$contents  .= '$query->bind(\''.$bindVar.'\', $_SESSION[\'sq_rollback_view\'][\'rollback_time\']);'."\n";
+				}//end foreach
+			} else {
+	            $contents  .= '$query->bind(\':rbtime\', $_SESSION[\'sq_rollback_view\'][\'rollback_time\']);'."\n";
+			}//end if
             $contents  .= '} else {'."\n";
             $queryBody  = self::mergeQuery($systemName, $queryName);
             $contents  .= $queryBody;
@@ -261,6 +268,30 @@ class MatrixDALBaker extends DALBaker
         return $contents;
 
     }//end bakeQueryMethod()
+
+
+    /**
+     * Find and returns the bind vars for rollback ie. "rbtime" 
+     *
+     * @param string $queryBody  The return from mergeQuery which contains the query information
+     *
+     * @return array
+     */
+     public static function findRollbackBindVars($queryBody)
+     {
+       $sqlQuery = preg_match("/\('(.*)'\)/", $queryBody, $matches);
+
+       if (isset($matches[1]) && !empty($matches[1])) {
+          $query = DAL::getQueryObject($matches[1]);
+          $rollbackBinds = preg_match_all('/(:rbtime[0-9]*)\b/i', $query->getSql(), $foundBindVars);
+          if (isset($foundBindVars[1]) && !empty($foundBindVars[1])) {
+               return $foundBindVars[1];
+          }//end if
+       }//end if
+
+       return Array();
+
+     }//end findRollbackBindVars()
 
 
     /**
@@ -721,6 +752,7 @@ class MatrixDALBaker extends DALBaker
 
         // Add rollback where queries, no matter where they are found
         $fromNodes = $xpath->query('//query/primary//select/from/table');
+		$count = 0;
         foreach ($fromNodes as $fromNode) {
             $table = trim($fromNode->nodeValue);
             $rollbackTable = substr_replace($table, 'sq_rb_', 0, 3);
@@ -744,7 +776,8 @@ class MatrixDALBaker extends DALBaker
                     $selectNode->appendChild($whereNode);
                 }
 
-                $lessNode    = $doc->createElement('equal-or-less', ':rbtime');
+                $lessNode    = $doc->createElement('equal-or-less', ':rbtime'.$count);
+				$count++;
                 $lessNode->setAttribute('table', $rollbackTable);
                 $lessNode->setAttribute('column', 'sq_eff_from');
                 $whereNode->appendChild($lessNode);
@@ -752,7 +785,8 @@ class MatrixDALBaker extends DALBaker
                 $orNode      = $doc->createElement('or');
                 $whereNode->appendChild($orNode);
 
-                $greaterNode = $doc->createElement('equal-or-greater', ':rbtime');
+                $greaterNode = $doc->createElement('equal-or-greater', ':rbtime'.$count);
+				$count++;
                 $greaterNode->setAttribute('table', $rollbackTable);
                 $greaterNode->setAttribute('column', 'sq_eff_to');
                 $orNode->appendChild($greaterNode);
