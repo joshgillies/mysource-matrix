@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_management.inc,v 1.2.2.1 2009/01/09 05:00:50 hnguyen Exp $
+* $Id: sharepoint_saved_search_management.inc,v 1.3 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */

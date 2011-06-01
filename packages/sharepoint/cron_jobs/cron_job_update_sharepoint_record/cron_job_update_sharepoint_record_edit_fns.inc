@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_update_sharepoint_record_edit_fns.inc,v 1.1.2.1 2009/07/09 07:22:32 hnguyen Exp $
+* $Id: cron_job_update_sharepoint_record_edit_fns.inc,v 1.2 2009/07/09 07:27:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
