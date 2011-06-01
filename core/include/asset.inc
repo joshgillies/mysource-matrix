@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.696.2.13 2009/11/29 22:21:00 bpearson Exp $
+* $Id: asset.inc,v 1.696.2.16 2009/12/16 03:23:38 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696.2.13 $
+* @version $Revision: 1.696.2.16 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1365,7 +1365,7 @@ class Asset extends MySource_Object
 	* values for this asset when updating.
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	* @param int		$contextid	what context to get the name in (override in kiddies)
+	* @param int            $contextid      what context to get the name in (override in kiddies)
 	*
 	* @return string
 	* @access private
@@ -5266,21 +5266,6 @@ class Asset extends MySource_Object
 	{
 		$paths = $this->getWebPaths();
 
-		// Get root site and its url info
-		$root_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', TRUE));
-		
-		// If asset is not linked to site then perhaps its one of the system folder
-		if (empty($root_sites)) {
-			$parent_folders = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'folder', FALSE));
-			// Get top parent folder (just below the Root Folder) which if is a system folder, can be treated as root Site for this asset
-			$site_assetid = !empty($parent_folders) && count($parent_folders) > 1 ? $parent_folders[count($parent_folders) - 2] : 0;
-		} else {
-			// First entry in the array is the asset's immediate parent site
-			$site_assetid = isset($root_sites[0]) ? $root_sites[0] : 0;
-		}
-		
-		$site_urls_info = ($site_assetid > 0) ? $GLOBALS['SQ_SYSTEM']->am->getURLs($site_assetid) : Array();
-
 		// get ready to log what happens
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
@@ -5470,28 +5455,21 @@ class Asset extends MySource_Object
 				$parent_urls = $parent->getLookups();
 
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					$valid_protocol_change = TRUE;
 
 					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
-						$site_https = '0';
-						$site_http = '0';
-
-						// Get the protocol info for this url
-						foreach($site_urls_info as $site_url_info) {
-							if (strpos($new_url, $site_url_info['url']) !== FALSE) {
-								$site_https = $site_url_info['https'];
-								$site_http = $site_url_info['http'];
-								break;
-							}
-						}
-						$https = ($this->force_secure === '-') ? '0' : $site_https;
-						$http  = ($this->force_secure === '1') ? '0' : $site_http;
+						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
+						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
 
 						if (!$http && !$https) {
-							$https = $site_https;
-							$http = $site_http;
+							$https = $parent_urls[$j]['https'];
+							$http = $parent_urls[$j]['http'];
+
+							// Being here means protocol different from the asset's parent is being forced
+							$valid_protocol_change = FALSE;
 						}
 
 						// if we have no protocol then we can just ignore this URL
@@ -5711,6 +5689,11 @@ class Asset extends MySource_Object
 						}//end foreach
 
 					}//end for paths
+
+					// Issue warning if the asset's protocol update (via force secure/insecure option) with regards to parent's URL is not valid 	 
+					if (!$valid_protocol_change) { 	 
+						trigger_localised_error('CORE0301', E_USER_WARNING, $this->id); 	 
+					}
 
 				}//end for parent_urls
 
