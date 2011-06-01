@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.211.2.10 2009/11/04 23:29:31 lwright Exp $
+* $Id: general.inc,v 1.211.2.9 2009/07/26 23:41:49 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.211.2.10 $
+* @version $Revision: 1.211.2.9 $
 * @package MySource_Matrix
 */
 
@@ -747,7 +747,7 @@ function is_ssl_accelerated()
 		if ($match_method !== 'ip') {
 			if (isset($_SERVER[SQ_SSLA_HEADER_NAME])) {
 				$header_value = $_SERVER[SQ_SSLA_HEADER_NAME];
-				if (trim($header_value) !== trim(SQ_SSLA_HEADER_VALUE)) {
+				if (trim($header_value) === trim(SQ_SSLA_HEADER_VALUE)) {
 					$enabled = FALSE;
 				}
 			} else {

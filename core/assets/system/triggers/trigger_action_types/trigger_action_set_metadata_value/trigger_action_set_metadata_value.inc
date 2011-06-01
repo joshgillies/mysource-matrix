@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.27.4.3 2009/11/03 22:58:24 akarelia Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.27.4.2 2009/09/08 05:03:59 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.27.4.3 $
+* @version $Revision: 1.27.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -223,13 +223,9 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		}
 
 		if ($fieldid) {
-			$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			$settings['fieldid'] = $fieldid;
 
-			// Bug fix #4014 Set Metadata Value trigger action saves asset ID that is not Metadata Field ID
-			// Once we have the field check if the asset is a metadata field
-			if (!($metadata_field instanceof Metadata_Field)) {
-				return 'The input ID is not a Metadata Field ID';
-			}
+			$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 
 			// Can we edit the destination field? If we can't then what's the point;
 			// we can't even change it through a trigger
@@ -237,9 +233,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				trigger_localised_error('CORE0246', E_USER_WARNING, $metadata_field->name, $metadata_field->id);
 				return FALSE;
 			}
-
-			// got this far?? the field seems to be good for us
-			$settings['fieldid'] = $fieldid;
 
 			$edit_fns = $metadata_field->getEditFns();
 

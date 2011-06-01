@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.13.12.2 2009/11/03 03:13:03 akarelia Exp $
+* $Id: system_move_update.php,v 1.13 2006/12/06 05:39:51 bcaldwell Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13.12.2 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -122,56 +122,5 @@ pre_echo("OLD : $old_rep_path\nNEW : $new_rep_path");
 
 recurse_find_ffv_files(SQ_DATA_PATH.'/private', $old_rep_path, $new_rep_path);
 recurse_find_ffv_files(SQ_DATA_PATH.'/public', $old_rep_path, $new_rep_path);
-
-$old_data_private_path = preg_replace('|/+$|', '', $old_system_root).'/data/';
-$new_data_private_path = preg_replace('|/+$|', '', $new_system_root).'/data/';
-
-recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/private', $old_data_private_path, $new_data_private_path);
-recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $old_data_private_path, $new_data_private_path);
-
-
-function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root)
-{
-    $d = dir($dir);
-	$index_to_look = Array ('data_path', 'data_path_public');
-    while (false !== ($entry = $d->read())) {
-        if ($entry == '.' || $entry == '..') continue;
-        // if this is a directory
-        if (is_dir($dir.'/'.$entry)) {
-            // we have found a .sq_system dir
-            if ($entry == '.sq_system') {
-                $sq_system_dir = $dir.'/'.$entry;
-                $sq_system_d = dir($sq_system_dir);
-                while (false !== ($sq_system_entry = $sq_system_d->read())) {
-                    if ($sq_system_entry == '.' || $sq_system_entry == '..' || $sq_system_entry != ".object_data") continue;
-                    // if this is a directory
-                    if (is_file($sq_system_dir.'/'.$sq_system_entry)) {
-                        $sq_system_file = $sq_system_dir.'/'.$sq_system_entry;
-                        $str = file_to_string($sq_system_file);
-                        if ($str) {
-							echo "File : $sq_system_file\n";
-							preg_match ("/\"[A-Za-z_]+\"/" ,$str , $asset_type);
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset(str_replace('"', '', $asset_type[0]));
-							$content_array = unserialize($str);
-							foreach ($index_to_look as $value) {
-								$content_array->$value = str_replace($old_rep_root, $new_rep_root, $content_array->$value);
-							}
-							$str = serialize($content_array);
-							string_to_file($str, $sq_system_file);
-                        }
-                    }
-                }//end while
-                $sq_system_d->close();
-            // just a normal dir, recurse
-            } else {
-                recurse_data_dir_for_safe_edit_files($dir.'/'.$entry, $old_rep_root, $new_rep_root);
-
-            }//end if
-        }//end if
-    }//end while
-    $d->close();
-
-}// end recurse_data_dir_for_safe_edit_files()
-
 
 ?>

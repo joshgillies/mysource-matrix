@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.1.4.4 2009/11/03 05:15:26 bpearson Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.1.4.2 2009/10/30 05:33:14 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.4.4 $
+* @version $Revision: 1.1.4.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -47,44 +47,32 @@ if ($ACTION == 'fix') {
 }//end if
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-ini_set('memory_limit', '-1');
 
-$count = 0;
-$count_rm = 0;
 $form_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds('form', FALSE);
+
 foreach ($form_assetids as $assetid) {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	$path  = $asset->data_path;
 	$path .= '/incomplete_attachments';
 	$files = list_dirs($path);
 	foreach ($files as $file) {
-		if (strpos($file, 's') === 0) {
+		if (strpos($file, 's') === 0 && preg_match('/s[0-9]+/', $file)) {
 			// This is an incomplete submission, so check if the submission is still valid
 			$incomplete_submission_assetid = substr($file, 1);
 			$incomplete_submission = $GLOBALS['SQ_SYSTEM']->am->getAsset($incomplete_submission_assetid, '', TRUE);
 			if (is_null($incomplete_submission)) {
 				// Report only
 				echo 'Form #'.$assetid.' still has some incomplete attachments for Submission #'.$incomplete_submission_assetid.'.';
-				$count++;
 				if ($CORRECT) {
 					// Remove the dir, not needed
 					echo ' Removing.';
 					delete_directory($path.'/'.$file);
-					$count_rm++;
 					echo ' Done.';
 				}//end if
 				echo "\n";
-			} else {
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($incomplete_submission_asset, TRUE);
 			}//end if
-			unset($incomplete_submission);
 		}//end if
 	}//end foreach
-	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
-	unset($asset);
 }//end foreach
 
-echo "Incomplete attachments found:    ".$count."\n";
-echo "Incomplete attachments deleted:  ".$count_rm."\n";
-echo "All done!\n";
 ?>
