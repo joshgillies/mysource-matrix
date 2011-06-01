@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_management.inc,v 1.4.2.1 2008/03/12 04:04:21 lwright Exp $
+* $Id: content_type_image_management.inc,v 1.4.2.2 2008/06/18 00:59:16 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,15 +83,17 @@ class Content_Type_Image_Management extends Asset_Management
 			$preferences = Array();
 			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 				include SQ_DATA_PATH.'/private/conf/preferences.inc';
-				
+
 				$preferences['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default']['html_layout'] = 'table';
 				$preferences['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default']['html_layout'] = TRUE;
 				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['image_div'] = 'image_div';
 				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['caption_div'] = 'caption_div';
 				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['image_div'] = 'preview_image_div';
 				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['close_preview_div'] = 'close_preview_div';
+
 				// save the updated preferences file
-				if (!@string_to_file($preferences, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+				$str = '<'.'?php $preferences = '.var_export($preferences, TRUE).'; ?'.'>';
+				if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 					return FALSE;
 				}
 			}
