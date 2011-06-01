@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.202.2.4 2007/06/29 04:11:33 mbrydon Exp $
+* $Id: search_page.inc,v 1.202.2.5 2007/10/19 04:57:50 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.202.2.4 $
+* @version $Revision: 1.202.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -309,9 +309,9 @@ class Search_Page extends Listing_Engine
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$current_result_page = array_get_index($_REQUEST, 'current_result_page', 0);
-		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
-		$submitted_category  = array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category'));
+		$current_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 0);
+		$results_per_page    = (int) array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
+		$submitted_category  = htmlentities(array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category')));
 
 		if (empty($_REQUEST['search_category']) && !empty($submitted_category)) {
 			$_REQUEST['search_category'] = $submitted_category;
