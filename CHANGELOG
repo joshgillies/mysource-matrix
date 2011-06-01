@@ -1,5 +1,73 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.22.7
+
+Featured Changes
+-----------------------------------
+
+Reporting added to Incomplete Attachments System Integrity script
+	A list of Incomplete Attachments found and/or deleted is shown at the end of this script.
+
+
+Check Indexes System Integrity Script: Oracle Parallel Index Rebuild notification
+	Additional checking has been added to this script to notify whether any database indexes have been built in parallel in Oracle environments.
+As rebuilding in this manner can cause performance issues, further information is provided to rebuild these index entries if this state is detected.
+
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3273: Unable to find lineage error on webpaths screen
+Fixed Bug #3675: Tagging screen for Multiple Page Pages
+Fixed Bug #3776: New Divs cant create
+Fixed Bug #3860: htmlentities without character encoding
+Fixed Bug #4002: data_path problems after upgrade
+Fixed Bug #4023: No webpath set when cloning a MP3 asset
+Fixed Bug #4024: Delete funtionality of import_asset_csv_to_matrix.php script doesn't deletes dependent assets 
+Fixed Bug #4029: Form Question Select sometimes omit the keys
+Fixed Bug #4030: Remote Content nested into Account Manager
+Fixed Bug #4034: getParents() for a shadow asset returns non-significantly linked assets
+Fixed Bug #4035: Thesaurus->getParents always returns an empty array
+Fixed Bug #4038: Visual Aid in WYSIWYG toolbar does not turn off in IE
+Fixed Bug #4039: Issue with sorting Asset Metadata group
+Fixed Bug #4041: Custom Form emails a file that has been cleared
+Fixed Bug #4048: Hierarchy metadata applies incorrectly if more than 1
+Fixed Bug #4050: getParents() not returning expected result when min_height and/or max_height parameters supplied
+Fixed Bug #4051: Customise Form: Client-Side Validation is always Case sensitive 
+Fixed Bug #4052: Incorrect %asset_metadata_*% keyword causes segfault
+Fixed Bug #4054: Video File Asset: Upload without audio gives errors
+Fixed Bug #4055: Inbox produces a PHP Fatal Error
+Fixed Bug #4057: Form validation rules are ignored when form is saved
+Fixed Bug #4061: Cancelling Safe Edit on a Backend User breaks their password
+Fixed Bug #4062: Function export in csv.inc does not close file stream 
+Fixed Bug #4066: Metadata date field formated 'c' not displaying with keywords
+Fixed Bug #4077: Squiz server + oracle will freeze on hipo jobs with warning messages
+
+CMS
+Fixed Bug #3937: Form Submission's keywords "question_name_qY" and "question_answer_qY" fail to work
+Fixed Bug #4017: Submission logs doesnt show link to download uploaded file
+Fixed Bug #4018: Download link On submission logs screen doesnt work
+Fixed Bug #4028: Online poll asset vote button has same element id as form itself
+Fixed Bug #4031: Youtube video embed inserts invalid HTML
+Fixed Bug #4033: Form Action Save As XML throws an isset notice
+Fixed Bug #4036: Custom form with no question will display errors when trying to download submissions
+Fixed Bug #4043: Form Save XML Action Type doesn't escape the name properly
+Fixed Bug #4045: Exporting Submission Logs produces a Database error
+
+Data
+Fixed Bug #4063: Asset status change fails after db query trigger executed
+Fixed Bug #4065: Commit XML data source gives error "Fatal error: Argument 1 passed to Data_Source::setResultSet() must be an array..."
+
+E-Commerce
+Fixed Bug #4068: Form validation does not work completely on Delivery Method forms for E-Comm
+
+Search
+Fixed Bug #4047: Oracle search fails multiple word keys search with select/multiselect
+
+
+
 VERSION 3.22.6
 
 Complete changelog
