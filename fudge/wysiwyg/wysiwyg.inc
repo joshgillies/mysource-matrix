@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.84 2010/02/11 06:16:15 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.84.2.1 2010/05/19 04:59:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -164,7 +164,7 @@ class wysiwyg
 	* @see paint()
 	*/
 	var $init = FALSE;
-	
+
 	/**
 	* Dir attribute to be added while in wysiwyg mode
 	*
@@ -438,9 +438,6 @@ class wysiwyg
 						}
 						return el;
 					};
-
-					// preload the disabled button image
-					document.write("<img src=\"" + editor.imgURL("toolbar_disabled.png") + "\" id=\"toolbar_disabled\" style=\"visibility: hidden;\" width=\"1\" height=\"1\">");
 
 					for (var i in this.config.toolbar) {
 						var group = this.config.toolbar[i];
@@ -758,7 +755,7 @@ HTMLArea.prototype.inArray = function(val, arr) {
 	return false;
 };
 
-// Sets dir attribute value 
+// Sets dir attribute value
 HTMLArea.prototype.set_dir_attr = function(val) {
 	this._dir_attr = val;
 };
@@ -819,31 +816,31 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							// Set the start and end points such that they're going /forward/ through the document
 							var leftRange = this._doc.createRange();
 							var rightRange = this._doc.createRange();
-							
-							// While getting anchorNode and focusNode, for some reason Firefox is getting parent node of the 
+
+							// While getting anchorNode and focusNode, for some reason Firefox is getting parent node of the
 							// selected node instead of selected node itself when non-text node is selected
 							// See bug #3826
 							var sAnchorNode = sel.anchorNode;
-							var sFocusNode = sel.focusNode;						
+							var sFocusNode = sel.focusNode;
 							var sAnchorOffset = sel.anchorOffset;
 							var sFocusOffset = sel.focusOffset;
 
 							if (sAnchorNode.nodeName == 'BODY' && sAnchorNode.childNodes[sAnchorOffset]) {
-								sAnchorNode = sAnchorNode.childNodes[sAnchorOffset];									
+								sAnchorNode = sAnchorNode.childNodes[sAnchorOffset];
 								sAnchorOffset = 0;
-								
-								while(sAnchorNode.childNodes[0] && sAnchorNode.nodeName != '#text') 
+
+								while(sAnchorNode.childNodes[0] && sAnchorNode.nodeName != '#text')
 									sAnchorNode = sAnchorNode.childNodes[0];
 							}
-							
-							if (sFocusNode.nodeName == 'BODY' && sFocusNode.childNodes[sFocusOffset]) {								
+
+							if (sFocusNode.nodeName == 'BODY' && sFocusNode.childNodes[sFocusOffset]) {
 								sFocusNode = sFocusNode.childNodes[sFocusOffset];
 								sFocusOffset = 0;
-									
-								while(sFocusNode.childNodes[0] && sFocusNode.nodeName != '#text') 
+
+								while(sFocusNode.childNodes[0] && sFocusNode.nodeName != '#text')
 									sFocusNode = sFocusNode.childNodes[0];
 							}
-							
+
 							if (sFocusNode.nodeName != '#text') {
 								empty_node = document.createTextNode('');
 								sAnchorNode.appendChild(empty_node);
@@ -864,25 +861,25 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							rightRange.collapse(true);
 
 							var direct = leftRange.compareBoundaryPoints(leftRange.START_TO_END,rightRange);
-						
+
 							var startNode = (direct<0) ? sAnchorNode : sFocusNode;
 							var startOffset = (direct<0) ? sAnchorOffset : sFocusOffset;
 							var endNode = (direct<0) ? sFocusNode : sAnchorNode;
 							var endOffset = (direct<0) ? sFocusOffset : sAnchorOffset;
-								
+
 							// When Focus node and Anchor node are same point and foucs node is at end of an anchor node, add an extra blank node
-							// This is to make sure that paragraphs are created outside the node. See bug #3978							
+							// This is to make sure that paragraphs are created outside the node. See bug #3978
 							if (startOffset == endOffset && startNode == endNode && endNode.nodeValue && endNode.nodeValue.length == endOffset && endNode.parentNode && this.isElem(endNode.parentNode,'a') && endNode.parentNode.parentNode) {
-								
+
 								blank_node = document.createTextNode('');
 								endNode.parentNode.parentNode.appendChild(blank_node);
-								
+
 								startNode = blank_node;
 								startOffset = 0;
 								endNode = blank_node;
 								endOffset = 0;
 							}
-							
+
 							// Find the parent blocks of nodes at either end, and get paragraph attributes
 							var startBlock = this.parentBlock(startNode);
 							var endBlock = this.parentBlock(endNode);
@@ -891,7 +888,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 							// Inside a list Item, let the browser handle it.
 							if ( this.isElem(startBlock,'li') || this.isElem(endBlock,'li') ) return;
-						
+
 							// if line starts with a header
 							var isInsideHeader = this.isElem(startBlock, 'h1') || this.isElem(startBlock, 'h2') || this.isElem(startBlock, 'h3') || this.isElem(startBlock, 'h4') || this.isElem(startBlock, 'h5') || this.isElem(startBlock, 'h6');
 							var headerType = null;
@@ -957,24 +954,24 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								rightParagraph.setAttributeNode(thisAttr);
 							}
 
-							// Split the data into left and right paragraphs							
-							
+							// Split the data into left and right paragraphs
+
 							//For Left paragraph
 							leftRange.setStartBefore(choppingStart);
 							leftRange.setEnd(startNode,startOffset);
 							leftParagraph.appendChild(leftRange.cloneContents());
-							
+
 							//For Right Paragraph
 							rightRange.setEndAfter(choppingEnd);
 							rightRange.setStart(endNode,endOffset);
 							rightParagraph.appendChild(rightRange.cloneContents());
-							
+
 							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
 							var isLeftParagraphEmpty = false;
 							var containsData = false;
 							containsData = this.traverseChildrenNodes(leftParagraph, this.containsText);
-							
+
 							if ( containsData != true ) {
 								this.insertDeepLeft(leftParagraph, '&nbsp;');
 								isLeftParagraphEmpty = true;
@@ -1117,7 +1114,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 <?php
 // Don't replace entities on UTF8 systems
 if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
-    echo 'retVal = this.replace_entities(retVal);';
+	echo 'retVal = this.replace_entities(retVal);';
 }
 ?>
 
@@ -1416,19 +1413,19 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						9827 : '&clubs;',	// black club suit, shamrock
 						9829 : '&hearts;',	// black heart suit, valentine
 						9830 : '&diams;'	// black diamond suit
-					};					
-					
+					};
+
 					// Carry out replacement for each entities (see bug #4182)
 					for(var code in entities_array) {
 						entity = entities_array[code];
-						
+
 						reg = new RegExp("&#" + code + ";", "ig");
-						html_code = html_code.replace(reg, entity);						
-						
+						html_code = html_code.replace(reg, entity);
+
 						reg = new RegExp(String.fromCharCode(code), "ig");
-						html_code = html_code.replace(reg, entity);				
+						html_code = html_code.replace(reg, entity);
 					}
-					
+
 					return html_code;
 				};
 
@@ -2074,8 +2071,8 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 		$this->stylesheet = $stylesheet;
 
 	}//end set_stylesheet()
-	
-	
+
+
 	/**
 	* Sets the dir attribute for the body in WYSIWYG editor
 	*
