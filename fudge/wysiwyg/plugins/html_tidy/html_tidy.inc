@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.45.2.4 2007/09/10 22:43:49 rong Exp $
+* $Id: html_tidy.inc,v 1.45.2.3 2007/08/14 00:05:44 lmarchese Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.45.2.4 $
+* @version $Revision: 1.45.2.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -153,7 +153,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 						$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
-						$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --preserve-entities yes --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding ".$tidy_char_set;
+						$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq -preserve-entities yes --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding ".$tidy_char_set;
 						// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
 						// so HTMLTidy doesnt strip them out
 						if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
@@ -307,13 +307,13 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 
 	/**
-	* Check whether this plugin is ready to be used.
-	*
-	* Return a TRUE if ok or a error message.
-	*
+ 	* Check whether this plugin is ready to be used.
+ 	*
+ 	* Return a TRUE if ok or a error message.
+ 	*
 	* @return mixed boolean|string
 	* @access public
-	* @static
+ 	* @static
 	*/
 	function check_usable()
 	{
