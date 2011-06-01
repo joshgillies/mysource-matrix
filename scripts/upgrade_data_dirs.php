@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.6.2.1 2006/12/18 06:13:27 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.6.2.2 2007/01/23 06:25:45 lwright Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -318,13 +318,15 @@ function process_file_versioning($base_dir, $curr_dir)
 						$varieties = FALSE;
 						if (substr($file_path, -10) == '/varieties') {
 							$varieties = TRUE;
-							$new_file_vers_path = 'assets/'.$curr_dir.'/'.$hash.'/'.$assetid.'/varieties';
+							$this_file_vers_path = $new_file_vers_path.'/varieties';
+						} else {
+							$this_file_vers_path = $new_file_vers_path;
 						}
 
 						$sql = 'UPDATE
 									sq_file_vers_file
 								SET
-									path = '.$db->quoteSmart($new_file_vers_path).'
+									path = '.$db->quoteSmart($this_file_vers_path).'
 								WHERE
 									fileid = '.$db->quoteSmart($fileid);
 						$result =& $db->query($sql);
