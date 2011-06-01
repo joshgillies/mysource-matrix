@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.366 2011/05/23 05:10:21 mhaidar Exp $
+* $Id: mysource.inc,v 1.367 2011/06/01 06:57:33 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.366 $
+* @version $Revision: 1.367 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -529,7 +529,22 @@ class MySource extends MySource_Object
 
 		} else {
 			// we are on the frontend
-
+			if (!(SQ_IN_CRON || SQ_PHP_CLI) && defined('SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH') && SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH){
+				$host = (isset($_SERVER['HTTP_HOST'])) ? $_SERVER['HTTP_HOST'] : FALSE;
+				$uri = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : FALSE;
+				if ($host && $uri && substr($uri, -1) == '/') {
+					$uri = rtrim($uri, '/');
+					$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+					//do not redirect root URLs because apache may append a trailing slash
+					if ($root_urls && !in_array($host.$uri, $root_urls) && !in_array($host.$uri.'/', $root_urls)){
+						$protocol = current_protocol().'://';
+						header('HTTP/1.1 301 Moved Permanently');
+						header('Location: '.$protocol.$host.$uri);
+						exit;
+					}
+				}
+			}
+			
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) {
 				// requested asset is exclusively in the trash - don't display

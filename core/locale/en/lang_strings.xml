@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391 2011/05/26 05:29:34 ewang Exp $
+* $Id: lang_strings.xml,v 1.392 2011/06/01 06:57:33 mhaidar Exp $
 *
 */
 
@@ -349,6 +349,8 @@
 	<string source="system_timezone">System Timezone</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_web_path_separator">System Web Path Separator</string>
+	<string source="system_redirect_url_with_trailing_slash">Redirect URL with Trailing Slash</string>
+	<string source="system_redirect_url_with_trailing_slash_note">This will redirect front-end URL requests (excluding System Root URLs) to a URL with no trailing slashes.</string>
 	<string source="system_wide">System Wide</string>
 	<string source="target_node">Target Node</string>
 	<string source="tech_email">Tech Email</string>

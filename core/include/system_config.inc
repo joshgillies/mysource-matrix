@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.140 2011/05/26 02:03:29 ewang Exp $
+* $Id: system_config.inc,v 1.141 2011/06/01 06:57:33 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -55,6 +55,7 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_PARENT_DOMAINS'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_STATIC_ROOT_URL'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '-'),
+						'SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH'	=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_STATIC_ROOT_HTTP'				=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_STATIC_ROOT_HTTPS'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_EMAIL'					=> Array('editable' => 1, 'default' => ''),
@@ -492,6 +493,15 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_WEB_PATH_SEPARATOR);
 			}
+			$o->closeField();
+			
+			$o->openField(translate('system_redirect_url_with_trailing_slash'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH);
+				} else {
+					echo (SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH) ? translate('yes') : translate('no');
+				}
+			$o->note(translate('system_redirect_url_with_trailing_slash_note'));
 			$o->closeField();
 
 		$o->closeSection();
