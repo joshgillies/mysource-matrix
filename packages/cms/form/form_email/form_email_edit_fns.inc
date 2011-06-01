@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.83.2.1 2007/05/07 04:45:19 skim Exp $
+* $Id: form_email_edit_fns.inc,v 1.84 2007/05/07 04:44:11 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83.2.1 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

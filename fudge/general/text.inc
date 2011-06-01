@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.31.2.2 2007/05/07 05:53:58 rhoward Exp $
+* $Id: text.inc,v 1.31.2.1 2007/05/04 06:01:48 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31.2.2 $
+* @version $Revision: 1.31.2.1 $
 * @package Fudge
 * @subpackage Text
 */
@@ -203,29 +203,17 @@ function escape_double_quotes(&$subject)
 
 /**
 * Escape dangerous content (eg. <?php, <?, <script language="php">) by reference
-* Intended to be used on cache files that are eval()'d or include()'d
 *
 * @param string	&$subject	subject
 *
-* @return string
+* @return void
 * @access public
 */
 function escape_php(&$subject)
 {
 	// not necessary to escape the php end tag when outside of a PHP block
 	$subject = str_replace('<?', "<?php echo '<'.'?'; ?>", $subject);
-	$subject = str_replace('<%', "<?php echo '<'.'%'; ?>", $subject);
-	$subject = preg_replace(
-				'/
-					<script[\s]*
-					language[\s]*=[\s]*
-					["\']?php["\']?
-					[^>]*>
-				/xi',
-				"<?php echo '<'.'script language=\"php\">'; ?>",
-				$subject
-			   );
-	return $subject;
+	$subject = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', "<?php echo '<'.'script language=\"php\">\'; ?>", $subject);
 
 }//end escape_php()
 
