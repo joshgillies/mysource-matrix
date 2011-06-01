@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.27.2.2 2009/10/06 21:53:47 bpearson Exp $
+* $Id: parameter_map.inc,v 1.27.2.1 2009/08/17 06:55:00 bpearson Exp $
 *
 */
 
@@ -48,7 +48,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *		*GLOBALS:	Any Super Global variable like GET, POST, SESSION
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27.2.2 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -478,7 +478,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function &_getRelevantAssetid($source)
 	{
-		$default = NULL;
 		switch ($source) {
 			case 'ASSET':
 				// current asset
@@ -495,27 +494,23 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 			case 'CURRENT_SITE':
 				$current_site_id = NULL;
-				if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
-					$current_site_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE')->id;
+				if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+					$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
+					$protocol_pos = strpos($asset_url, '://');
+					if ($protocol_pos !== FALSE) {
+						$asset_url = substr($asset_url, $protocol_pos + 3);
+					}//end if
 				} else {
-					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
-						$asset_url = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET')->getURL();
-						$protocol_pos = strpos($asset_url, '://');
-						if ($protocol_pos !== FALSE) {
-							$asset_url = substr($asset_url, $protocol_pos + 3);
-						}//end if
-					} else {
-						$asset_url = current_url(FALSE, TRUE);
-					}//end if
-					$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
-					if (isset($asset_lineage[0])) {
-						$current_site_id = $asset_lineage[0]['assetid'];
-					}//end if
+					$asset_url = current_url(FALSE, TRUE);
+				}//end if
+				$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+				if (isset($asset_lineage[0])) {
+					$current_site_id = $asset_lineage[0]['assetid'];
 				}//end if
 				return $current_site_id;
 			break;
 		}
-		return $default;
+		return NULL;
 
 	}//end _getRelevantAssetid()
 
