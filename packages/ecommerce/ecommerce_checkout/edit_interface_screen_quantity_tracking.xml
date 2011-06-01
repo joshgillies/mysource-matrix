@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_quantity_tracking.xml,v 1.2.2.2 2008/02/27 04:26:20 bshkara Exp $
+*
+*/
+-->
+<contents>
+	<section name="Product Quantities" write_access="write:attributes">
+		<field attribute="enforce_quantities">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="quantity_attribute">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="quantity_field">
+			<assetid type_codes="metadata_field:D" />
+		</field>
+		<field attribute="quantity_message_cart">
+			<text width="50" height="2" />
+		</field>
+		<field attribute="quantity_message_checkout">
+			<text width="50" height="2" />
+		</field>
+	</section>
+</contents>
