@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.23.2.1 2008/05/29 02:13:39 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.23.2.2 2008/08/21 01:46:54 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -876,6 +876,7 @@ class Search_Manager_Plugin_OCI8
 	{
 		$phrase_placeholder      = '@';
 		$preg_phrase_placeholder = preg_quote($phrase_placeholder, '/');
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$exact_terms = $terms;
 		$terms = strtolower($terms);
