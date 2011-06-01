@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.38.2.1 2009/10/07 05:10:49 akarelia Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.38 2009/06/17 00:58:57 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,18 +91,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default_string = str_replace("'", "\'", $asset->attr('default'));
 				// get rid of javascript error 'unterminated string literal'. (bug 2386)
 				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
-
-				$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
-
-				if (!empty($value_components)) {
-					foreach ($value_components as $vc_name => $vc_value) {
-						$default_value_comp = $asset->attr('value_components');
-						$default_vc_value = $default_value_comp[$vc_name];
-						$checkbox_extra .= 'with(this.form.elements[\''.$prefix.'_vc_value['.$vc_name.']\']) { disabled = this.checked; if (this.checked) { value = \''.$default_vc_value.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
-					}
-				}
-
-				check_box($prefix.'_default', '1', $is_default, $checkbox_extra);
+				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}}');
 				label(translate('use_default'), $prefix.'_default');
 			}
 
@@ -145,8 +134,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 						echo '<b>'.$vc_name.'</b>';
 						echo '<br />';
 						if ($write_access) {
-							$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
-							text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4, 0, $extras);
+							text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
 						} else {
 							echo $vc_value;
 						}

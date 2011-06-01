@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.286.2.3 2009/10/07 04:58:04 ewang Exp $
+* $Id: asset_map.inc,v 1.286.2.2 2009/09/18 04:30:46 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286.2.3 $
+* @version $Revision: 1.286.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1381,9 +1381,6 @@ class Asset_Map
 		foreach ($this->_tmp['display_name_keywords'] as $keyword) {
 			$replacement_value = array_get_index($asset, $keyword);
 			switch ($keyword) {
-				case 'assetid':
-					$replacement_value = urldecode(array_get_index($asset, $keyword));
-				break;
 				case 'type_code':
 					$replacement_value = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($replacement_value, 'name');
 				break;

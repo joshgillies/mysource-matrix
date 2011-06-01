@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.35.4.3 2009/10/07 23:15:06 ewang Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.35.4.2 2009/09/24 07:00:31 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35.4.3 $
+* @version $Revision: 1.35.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -573,14 +573,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		// Rename the cloned asset if specified
 		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
-			if (isset($clone->vars['name'])) {
-				$clone->setAttrValue('name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
-			}
+			$clone->setAttrValue('name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
 			if (isset($clone->vars['short_name'])) {
 				$clone->setAttrValue('short_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
-			}
-			if (isset($clone->vars['id_name'])) {
-				$clone->setAttrValue('id_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
 			}
 			if (!$clone->saveAttributes()) {
 				trigger_localised_error('HIPO0028', E_USER_WARNING);
@@ -593,12 +588,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		// of the path before using it
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
-			if(isset($clone->vars['id_name'])){
-				$valid_paths = make_valid_web_paths(Array(strtolower($clone->attr('id_name'))));
-			}
-			else {
-				$valid_paths = make_valid_web_paths(Array(strtolower($clone->attr('name'))));
-			}
+			$valid_paths = make_valid_web_paths(Array(strtolower($clone->attr('name'))));
 			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
 		} else {
 			$valid_paths = make_valid_web_paths($orig->getWebPaths());

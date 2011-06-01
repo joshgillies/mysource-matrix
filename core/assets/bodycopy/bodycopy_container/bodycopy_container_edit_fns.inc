@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.65.2.3 2009/10/06 21:47:43 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.65.2.1 2009/09/16 01:58:09 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65.2.3 $
+* @version $Revision: 1.65.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,11 +154,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$container_content = ob_get_clean();
 
 				if (preg_match($conflict_tag_search_string, $container_content)) {
-					// Aww damn, the content conflicts...
-					// So regenerate the content without the editing interface
-					ob_start();
-						$this->paint($asset, FALSE);
-					$container_content = ob_get_clean();
 					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content).'</pre></div>';
 				}
 
@@ -292,13 +287,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {
 			foreach ($keywords as $keyword) {
-				// If theres any keyword modifier in the keyword, escape it
-				$keyword = str_replace('^', '\^', $keyword);
-
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
-			// Once replacement is finished, undo the '^' escaping
-			$output = str_replace('\^', '^', $output);
 		} else {
 			// if 'Disable Keywords' is checked, change '%' sign to '&#37;'
 			// so that keywords get printed out correctly on the frontend, and replacements at higher level are not affected

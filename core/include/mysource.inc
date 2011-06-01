@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.313.2.10 2009/10/07 03:55:29 cupreti Exp $
+* $Id: mysource.inc,v 1.313.2.6 2009/09/30 00:16:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313.2.10 $
+* @version $Revision: 1.313.2.6 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -515,57 +515,30 @@ class MySource extends MySource_Object
 
 			}//end if is_null(asset)
 
-			// Try and find the current site
-			$site = NULL;
-			$asset_url = current_url(FALSE, TRUE);
-			// Muting errors by passing in the third parameter
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url, TRUE);
-			foreach ($asset_lineage as $asset_link) {
-				$asset_type = $asset_link['type_code'];
-				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-					$site_assetid = $asset_link['assetid'];
-					if (!empty($site_assetid)) {
-						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
-						break;
-					}//end if
-				}
-			}
-			if (!is_null($site)) {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
-			}//end if
-
 			// Are we an archived asset and we don't have the correct permission?
 			// (We need read permission, which in Archived mode actually means
 			// WRITE permission is required)
 			if (($asset->status == SQ_STATUS_ARCHIVED) && !$asset->readAccess()) {
 				// Don't get in the way of backend operations
 				if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
-					if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_SITE')) {
-						$site = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_SITE');
-					} else {
-						$url      = strip_url(current_url(FALSE, TRUE));
-						$root_url = $this->am->getRootURL($url);
-						if (!empty($root_url)) {
-							$site = $this->am->getAsset($root_url['assetid']);
-						}//end if
-					}//end if
-
-					if (!is_null($site)) {
-						$page = $site->getSpecialPage('archive');
-						if (!is_null($page)) {
-							$this->_paintNotFoundAsset($page, $site);
-							exit(1);
+					$url      = strip_url(current_url(FALSE, TRUE));
+					$root_url = $this->am->getRootURL($url);
+					if (!empty($root_url)) {
+						$site = $this->am->getAsset($root_url['assetid']);
+						if (!is_null($site)) {
+							$page = $site->getSpecialPage('archive');
+							if (!is_null($page)) {
+								$this->_paintNotFoundAsset($page, $site);
+								exit(1);
+							}
 						}
 					}
-				}//end if
-			}//end if
+				}
+			}
 
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
-			// See if caching is enabled for the asset
-			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
 
 			// buffer the content and do keyword replacement
 			ob_start();
@@ -621,6 +594,10 @@ class MySource extends MySource_Object
 
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
+					// See if caching is enabled for the asset
+					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+					$cache_enabled = $cm->cacheEnabled($asset->type(), $asset->id);
+
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cache_enabled) {
 						$this->_sendHTTPHeaders($asset);
@@ -632,8 +609,11 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https'
-					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cache_enabled) {
-					
+					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out'])) {
+
+					if (isset($_REQUEST['just_logged_out'])) {
+						unset($_REQUEST['just_logged_out']);
+					}
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
@@ -659,7 +639,6 @@ class MySource extends MySource_Object
 		}
 
 		$this->_setApacheNotes();
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
 	}//end start()
 
@@ -704,12 +683,7 @@ class MySource extends MySource_Object
 	*/
 	protected function _sendHTTPHeaders(&$asset)
 	{
-		$recache = basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX;
-
-		// Don't send cacheable headers when recacheing (see bug #3947)
-		if (!$recache) {
-			header('Pragma: cache');
-		}
+		header('Pragma: cache');
 		$contextid = $this->getContextId();
 		$cache_key = 'cache_info';
 		if ($contextid !== 0) {
@@ -725,9 +699,8 @@ class MySource extends MySource_Object
 		if (empty($browser_cache_expiry)) {
 			$browser_cache_expiry = $cache_expiry;
 		}
-		if (!$recache) {
-			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
-		}
+
+		header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -753,11 +726,9 @@ class MySource extends MySource_Object
 			// Calculate the "Browser Cache Expiry" value for use in HTTP headers
 			$expiry_time = $cache_status ? (time() + $browser_cache_expiry) : time();
 
-			if (!$recache) {
-				header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
-				if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
-					header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
-				}
+			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
+			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
+				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
 			}
 			echo $content;
 
