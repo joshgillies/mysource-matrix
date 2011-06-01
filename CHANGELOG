@@ -11,13 +11,11 @@ Core
 * Fixed bug #2092: %metadata_field_XXX% keyword doesn't work when set to "Never" display
 * Fixed bug #2099: Remapping URLs does not work when moving to trash
 * Fixed bug #2101: Table Properties window not working in Internet Explorer
-* Fixed bug #2138: Error:Undefined variable: metadata_run_level_changed
 * Fixed bug #2144: Metadata - Select option issues
 * Fixed bug #2154: Nested/multiple frames/interfaces when viewing workflow from inbox
 * Fixed bug #2157: Metadata date field keywords dropdown functions incorrectly inside asset builder create form
 * Fixed bug #2163: Quick Search box accepts empty search submissions
 * Fixed bug #2167: Matrix breaks URLs with encoded special chars
-* Fixed bug #2174: HTML Content without new line character generates problems when importing
 * Fixed bug #2178: remove_internal_messages.php deletes wrong messages
 * Fixed bug #2189: Messages don't stay marked "Read" as LDAP user
 * Fixed bug #2198: Image Editor and Internet Explorer
@@ -27,6 +25,7 @@ CMS
 * Fixed bug #2039: Custom Form - default values for datetime (Custom Form)
 * Fixed bug #2110: Error when trying to export the link report to csv (Links Report)
 * Fixed bug #2124: Links Report throws PHP warnings (Links Report)
+* Fixed bug #2138: Error:Undefined variable: metadata_run_level_changed (Asset Builder Page)
 * Fixed bug #2149: Custom Form - Tickbox List Complex Validation Not Working (Custom Form)
 * Fixed bug #2175: Sitemap -> unordered list not valid XHTML (Site Map)
 * Fixed bug #2193: null asset problem in filterAssetStatuses (Listing Engine)
@@ -36,6 +35,10 @@ Search
 * Fixed bug #2127: Backend search on Oracle - multiple errors (Search Manager)
 * Fixed bug #2201: Global search and replace shows the number of occurrences doubled (Global Search and Replace Tool)
 * Fixed bug #2203: Global search and replace tool dies on oracle system (Global Search and Replace Tool)
+
+Import Tools
+
+* Fixed bug #2174: HTML Content without new line character generates problems when importing (Structured File Import Tool)
 
 Bulkmail
 
