@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.3.2.1 2009/01/09 04:42:59 hnguyen Exp $
+* $Id: sharepoint_common.inc,v 1.4 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
