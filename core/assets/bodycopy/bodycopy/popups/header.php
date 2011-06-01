@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.8.14.2 2011/02/21 05:04:37 ewang Exp $
+* $Id: header.php,v 1.8.14.3 2011/03/13 23:40:03 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8.14.2 $
+* @version $Revision: 1.8.14.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,16 +118,16 @@
 
 <?php
 	if ($_GET['page_width']) {
-		$table_width  = 'width="'.$_GET['page_width'].'"';
+		$table_width  = 'width="'.htmlspecialchars($_GET['page_width']).'"';
 	}
 
 	if ($_GET['page_height']) {
-		$table_height = 'height="'.$_GET['page_height'].'"';
+		$table_height = 'height="'.htmlspecialchars($_GET['page_height']).'"';
 	}
 ?>
 
-<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" <?php echo htmlspecialchars($_GET['body_extra']) ?>>  	 
+<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" <?php echo htmlspecialchars($_GET['body_extra']) ?>>
 
-<table <?php echo htmlspecialchars($table_width);?> <?php echo htmlspecialchars($table_height);?> cellspacing="1" cellpadding="0" border="0" bgcolor="#402F48">
+<table <?php echo $table_width; ?> <?php echo $table_height; ?> cellspacing="1" cellpadding="0" border="0" bgcolor="#402F48">
 	<tr>
 		<td valign="top" align="center" bgcolor="#FCFCFC">
