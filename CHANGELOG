@@ -105,7 +105,7 @@ Additional Changes and Bug Fixes
 
 Core
 
-+ Experimental PHP 5 support for Oracle databases (we believe this currently requires PHP >= 5.2.6RC1)
++ Experimental PHP 5 support for Oracle databases
 * Fixed bug #2801: Insert Div window positioning in IE
 * Fixed bug #2825: Mandatory metadata link does not work on newly created assets
 * Fixed bug #2837: Fatal Error Step03 get_class_lower()

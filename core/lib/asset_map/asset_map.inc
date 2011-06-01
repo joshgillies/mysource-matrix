@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.2 2008/03/12 04:04:02 lwright Exp $
+* $Id: asset_map.inc,v 1.265.2.3 2008/03/13 00:37:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.2 $
+* @version $Revision: 1.265.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -825,7 +825,7 @@ class Asset_Map
 											FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid';
 
-			
+
 					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
 						$sql .= '				LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
 					}
@@ -861,13 +861,14 @@ class Asset_Map
 						$bind_vars['r_userid'] = $public_userid;
 						$bind_vars['r_userid_1'] = $public_userid;
 					}
+
+					$bind_vars['assetid_1'] = $assetid;
 				}
 
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 				$where = ' l.assetid = :assetid_2';
-				$bind_vars['assetid_1'] = $assetid;
 				$bind_vars['assetid_2'] = $assetid;
 
 				if ($linkid && is_numeric($linkid)) {
@@ -1078,8 +1079,10 @@ class Asset_Map
 					$bind_vars['r_userid'] = $public_userid;
 					$bind_vars['r_userid_1'] = $public_userid;
 				}
+
+				$bind_vars['assetid_1'] = $assetid;
 			}
-log_dump($sql);
+
 			$u_where = 'l.assetid = u.assetid';
 			$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where;
@@ -1089,7 +1092,6 @@ log_dump($sql);
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
 			$where = 'l.majorid = :assetid_2';
-			$bind_vars['assetid_1'] = $assetid;
 			$bind_vars['assetid_2'] = $assetid;
 
 			if ($dependants_only) {
