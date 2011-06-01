@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2007/05/23 00:44:36 arailean Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>data</package>
+	<type_code>db_connector</type_code>
+	<version>0.1</version>
+	<name>DB Connector</name>
+	<description>Used by DB data sources to store DB connection settings and construct the DB object</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>asset</parent_type>
+	<requirements />
+	<flash_menu_path>Data Sources</flash_menu_path>
+</asset_info>

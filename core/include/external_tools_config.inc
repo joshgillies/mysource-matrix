@@ -1,0 +1,426 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: external_tools_config.inc,v 1.31.2.1 2009/04/28 06:42:33 mbrydon Exp $
+*
+*/
+
+
+require_once SQ_LIB_PATH.'/config/config.inc';
+
+/**
+* System_Config
+*
+* Purpose
+*
+*    Looks after the creation and editing of the location of external tools
+*    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
+*
+* @author  Avi Miller <avi.miller@squiz.net>
+* @version $Revision: 1.31.2.1 $
+* @package MySource_Matrix
+*/
+class External_Tools_Config extends Config
+{
+
+
+	/**
+	* Holds all the vars for this that config vars for this config
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var Array()
+	*/
+	var $config_vars = Array(
+						'SQ_TOOL_HTML_TIDY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
+						'SQ_TOOL_HTML_TIDY_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL'	=> Array('editable' => 1, 'default' => 0),
+						'SQ_TOOL_PDFTOHTML_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
+						'SQ_TOOL_PDFTOHTML_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_ANTIWORD_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
+						'SQ_TOOL_ANTIWORD_MAPPING_PATH'			=> Array('editable' => 1, 'default' => '/usr/share/antiword'),
+						'SQ_TOOL_ANTIWORD_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_JPEG_TOOLKIT_PATH'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_SPELL_CHECKER_LANG'			=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_TOOL_MARKDOWN_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/markdown.php'),
+						'SQ_TOOL_MARKDOWN_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_MARKDOWNIFY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/markdownify.php'),
+						'SQ_TOOL_MARKDOWNIFY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_GETID3_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/getid3'),
+						'SQ_TOOL_GETID3_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_VIRUS_CHECKER_PATH'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_VIRUS_CHECKER_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_VIRUS_CHECKER_TYPE'			=> Array('editable' => 1, 'default' => 'clam'),
+					   );
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/tools.inc';
+
+	}//end constructor
+
+
+	/**
+	* Rewrites the conf file with current variables
+	*
+	* return value indicates whether the file was written
+	*
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
+	*										Array('[config_var_name]' => [scalar value])
+	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	* @param boolean	$send_message		whether to send a message using the messaging system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
+	{
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+			// if we dont have access, go away
+			if (!$is_admin) {
+				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
+				return FALSE;
+			}
+		}
+
+		return parent::save($vars, $backup_existing, $send_message);
+
+	}//end save()
+
+
+	/**
+	* Whether the current user can acquire the lock
+	*
+	* @return boolean
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function canAcquireLock()
+	{
+		// need to be root or a sys admin
+		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+	}//end canAcquireLock()
+
+
+	/**
+	* Does the current user have writeAccess() to this config ?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess()
+	{
+		if (!parent::writeAccess()) return FALSE;
+
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return TRUE;
+		}
+
+		// need to be root or a sys admin
+		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+	}//end writeAccess()
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object	&$o	reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		parent::paintBackend($o);
+
+		$write_access = $this->writeAccess();
+
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		$class = get_class_lower($this);
+
+		$o->openSection(translate('active_external_tools'));
+
+			$o->openField(translate('enable_html_tidy'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_HTML_TIDY_ENABLED);
+			} else {
+				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField(translate('html_tidy_accessibility_level'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL]', Array('0', '1', '2', '3'), FALSE, SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL);
+			} else {
+				echo (SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL) ? SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL : 0;
+			}
+
+			require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+			$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+			if (empty($tidy_char_set)) {
+				$o->note('<span style="color: red;">'.translate('tidy_unsupported_char_set_warning').'</span>');
+			}
+
+			$o->openField(translate('enable_pdftohtml'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_PDFTOHTML_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_PDFTOHTML_ENABLED);
+			} else {
+				echo (SQ_TOOL_PDFTOHTML_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField(translate('enable_antiword'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_ANTIWORD_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_ANTIWORD_ENABLED);
+			} else {
+				echo (SQ_TOOL_ANTIWORD_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField('Enable Photoshop Metadata Extraction');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_JPEG_TOOLKIT_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_JPEG_TOOLKIT_ENABLED);
+			} else {
+				echo (SQ_TOOL_JPEG_TOOLKIT_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField(translate('enable_markdown'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_MARKDOWN_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MARKDOWN_ENABLED);
+			} else {
+				echo (SQ_TOOL_MARKDOWN_ENABLED) ? translate('yes') : translate('no');
+			}
+			
+			$o->openField(translate('enable_markdownify'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_MARKDOWNIFY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MARKDOWNIFY_ENABLED);
+			} else {
+				echo (SQ_TOOL_MARKDOWNIFY_ENABLED) ? translate('yes') : translate('no');
+			}
+			
+			$o->openField(translate('enable_getid3_extraction'));
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_GETID3_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_GETID3_ENABLED);
+			} else {
+				echo (SQ_TOOL_GETID3_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField(translate('enable_virus_checker'));
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_VIRUS_CHECKER_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_VIRUS_CHECKER_ENABLED);
+			} else {
+				echo (SQ_TOOL_VIRUS_CHECKER_ENABLED) ? translate('yes') : translate('no');
+			}
+			
+		$o->closeSection();
+
+		$o->openSection(translate('wysiwyg_editor_tools'));
+
+			$o->openField(translate('path_to_html_tidy'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_HTML_TIDY_PATH]', SQ_TOOL_HTML_TIDY_PATH, 30);
+				} else {
+					echo SQ_TOOL_HTML_TIDY_PATH;
+				}//end if
+
+				if (!is_file(SQ_TOOL_HTML_TIDY_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'HTML Tidy'); ?></span><?php
+				} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'HTML Tidy'); ?></span><?php
+				}//end if
+
+			$o->openField(translate('wysiwyg_spell_checker_pref_field'));
+			if ($write_access) {
+				// if spell checker is not installed, disable this pref
+				text_box($class.'[SQ_TOOL_SPELL_CHECKER_LANG]', SQ_TOOL_SPELL_CHECKER_LANG, 6, 6);
+				$o->note(translate('wysiwyg_spell_checker_pref_note'));
+			} else {
+				echo SQ_TOOL_SPELL_CHECKER_LANG;
+			}
+
+			if (!function_exists('pspell_suggest')) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('wysiwyg_pspell_not_installed'); ?></span><?php
+			} else {
+				$old_reporting = error_reporting(0);
+					$status = pspell_new(SQ_TOOL_SPELL_CHECKER_LANG);
+				error_reporting($old_reporting);
+				if ($status === FALSE) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('wysiwyg_spell_checker_pref_error', SQ_TOOL_SPELL_CHECKER_LANG); ?></span><?php
+				}
+			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('keyword_extraction_tools'));
+
+			$o->openField(translate('path_to_pdftohtml'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_PDFTOHTML_PATH]', SQ_TOOL_PDFTOHTML_PATH, 30);
+			} else {
+				echo SQ_TOOL_PDFTOHTML_PATH;
+			}
+
+			if (!is_file(SQ_TOOL_PDFTOHTML_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'PDFTOHTML'); ?></span><?php
+			} else if (!is_executable(SQ_TOOL_PDFTOHTML_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'PDFTOHTML'); ?></span><?php
+			}
+
+			$o->openField(translate('path_to_antiword'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_ANTIWORD_PATH]', SQ_TOOL_ANTIWORD_PATH, 30);
+			} else {
+				echo SQ_TOOL_ANTIWORD_PATH;
+			}
+
+			if (!is_file(SQ_TOOL_ANTIWORD_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Antiword');?></span><?php
+			} else if (!is_executable(SQ_TOOL_ANTIWORD_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'Antiword'); ?></span><?php
+			}
+
+			$o->openField('Path to Antiword Mappings');
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_ANTIWORD_MAPPING_PATH]', SQ_TOOL_ANTIWORD_MAPPING_PATH, 30);
+			} else {
+				echo SQ_TOOL_ANTIWORD_MAPPING_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_ANTIWORD_MAPPING_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to Antiword Mappings is not valid</span><?php
+			}
+
+		$o->closeSection();
+
+
+		$o->openSection('Photoshop Image Metadata Extraction');
+
+			$o->openField('Path to PHP JPEG Metadata Toolkit');
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_JPEG_TOOLKIT_PATH]', SQ_TOOL_JPEG_TOOLKIT_PATH, 60);
+			} else {
+				echo SQ_TOOL_JPEG_TOOLKIT_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
+				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('markdown_tools'));
+		
+			$o->openField(translate('path_to_markdown'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_MARKDOWN_PATH]', SQ_TOOL_MARKDOWN_PATH, 60);
+			} else {
+				echo SQ_TOOL_MARKDOWN_PATH;
+			}//end if
+
+			if (!is_file(SQ_TOOL_MARKDOWN_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdown'); ?></span><?php
+			} else {
+				include_once SQ_TOOL_MARKDOWN_PATH;
+				if (!function_exists('Markdown')) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_markdown_no_required_function'); ?></span><?php
+				}
+			}//end if
+
+			$o->openField(translate('path_to_markdownify'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_MARKDOWNIFY_PATH]', SQ_TOOL_MARKDOWNIFY_PATH, 60);
+			} else {
+				echo SQ_TOOL_MARKDOWNIFY_PATH;
+			}//end if
+
+			if (!is_file(SQ_TOOL_MARKDOWNIFY_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdownify'); ?></span><?php
+			} else {
+				include_once SQ_TOOL_MARKDOWNIFY_PATH;
+				$class_name = basename(SQ_TOOL_MARKDOWNIFY_PATH, '.php');
+				if (!method_exists($class_name, 'parseString')) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_markdownify_no_required_method', $class_name); ?></span><?php
+				}
+			}//end if
+			
+		$o->closeSection();
+		
+		$o->openSection(translate('getid3_extraction'));
+
+			$o->openField(translate('path_to_getid3'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_GETID3_PATH]', SQ_TOOL_GETID3_PATH, 60);
+			} else {
+				echo SQ_TOOL_GETID3_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_GETID3_PATH)) {
+				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('virus_checker'));
+
+			$o->openField(translate('virus_checker_type'));
+				$av_types = Array(
+								'clam'		=> translate('virus_checker_type_clam'),
+								'f-prot'	=> translate('virus_checker_type_fprot'),
+							);
+				if ($write_access) {
+					combo_box($class.'[SQ_TOOL_VIRUS_CHECKER_TYPE]', $av_types, FALSE, SQ_TOOL_VIRUS_CHECKER_TYPE);
+				} else {
+					switch (SQ_TOOL_VIRUS_CHECKER_TYPE) {
+						case 'f-prot':
+							echo translate('virus_checker_type_fprot');
+							break;
+						default:
+							echo translate('virus_checker_type_clam');
+					}//end switch
+				}//end if
+
+			$o->openField(translate('path_to_virus_checker'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_VIRUS_CHECKER_PATH]', SQ_TOOL_VIRUS_CHECKER_PATH, 30);
+				} else {
+					echo SQ_TOOL_VIRUS_CHECKER_PATH;
+				}//end if
+
+				if (!is_file(SQ_TOOL_VIRUS_CHECKER_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Virus Checker'); ?></span><?php
+				} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'Virus Checker'); ?></span><?php
+				}//end if
+
+		$o->closeSection();
+		
+		if ($write_access) $o->commitButton('', TRUE);
+
+	}//end paintBackend()
+
+
+}//end class
+
+?>

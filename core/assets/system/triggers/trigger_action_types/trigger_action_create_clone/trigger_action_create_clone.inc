@@ -1,0 +1,314 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_create_clone.inc,v 1.21 2007/12/17 22:18:15 mwegermann Exp $
+*
+*/
+
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+/**
+* Trigger Action Create Clone
+*
+* A trigger action that creates a clone of the firing asset
+*
+*
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.21 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Create_Clone extends Trigger_Action
+{
+
+
+	/**
+	* Execute this action
+	* Returns an array of data about what it did, or false on error
+	*
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	*       'assetid'             => int,    // the assetid to link to
+	*       'link_type'           => int,    // the type of link, eg. type_1, type_2, type_3 or notice
+	*       'value'               => string, // optional, the value associated with a link
+	*       'is_dependant'        => int,    // optional, whether the link is dependant
+	*       'is_exclusive'        => int,    // optional, whether the link is exclusive
+	*       'disallow_duplicates' => int,    // if '1', then clone will not be created if an asset
+	*                                        // with the same name and link_type to the target exists.
+	*       );
+	* </PRE>
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	public static function execute($settings, &$state)
+	{
+		// if no settings, fail
+		if (empty($settings['assetid']) || empty($settings['link_type'])) {
+			return FALSE;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
+			return FALSE;
+		}
+
+		// check the optional settings, assign defaults
+		$is_dependant        = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive        = array_get_index($settings, 'is_exclusive', 0);
+		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
+
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return FALSE;
+			} else {
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$major = $am->getAsset($settings['assetid']);
+		$minor =& $state['asset'];
+
+		if ($disallow_duplicates) {
+			// get all the children of the target asset, check whether an asset
+			// with the same name, short_name and type_code already exists
+			$children = $am->getChildren($settings['assetid']);
+			foreach ($children as $childid => $child_type) {
+				$name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'name');
+				$short_name = $am->getAssetInfo(Array($childid), Array(), TRUE, 'short_name');
+				$type_code = $am->getAssetInfo(Array($childid), Array(), TRUE, 'type_code');
+				if ($name[$childid] == $minor->name && $short_name[$childid] == $minor->short_name && $type_code[$childid] == $minor->type()) {
+					// a copy of the clone already exists
+					return Array(
+							'assetid'		=> $childid,
+							'parentid'		=> $major->id,
+							'link_type'		=> $settings['link_type'],
+							'value'			=> $settings['value'],
+							'is_dependant'	=> $is_dependant,
+							'is_exclusive'	=> $is_exclusive,
+						   );
+				}
+			}
+		}
+
+		// the new link
+		$link = Array(
+					'asset'			=> &$major,
+					'link_type'		=> $settings['link_type'],
+					'value'			=> $settings['value'],
+					'sort_order'	=> NULL,
+					'is_dependant'	=> $is_dependant,
+					'is_exclusive'	=> $is_exclusive,
+				);
+
+		// old -> new asset id mapping
+		$clone_map = Array();
+
+		// Clone only the following atrributes. (tagging will be cloned by cloneLinks)
+		$components = Array(
+						'attributes',
+                        'metadata_schemas',
+                        'metadata',
+                        'workflow',
+                        'permissions',
+                        'roles',
+                      );
+
+		$clone = $am->cloneAsset($minor, $link, $clone_map, $components);
+
+		if (is_null($clone)) {
+			trigger_localised_error('CORE0138', E_USER_WARNING);
+			return FALSE;
+		}
+
+		$valid_paths = make_valid_web_paths($minor->getWebPaths());
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
+
+		$clone->saveWebPaths($good_paths);
+		$clone->remapAssetids($clone_map);
+
+		return Array(
+				'assetid'		=> $clone->id,
+				'parentid'		=> $major->id,
+				'link_type'		=> $settings['link_type'],
+				'value'			=> $settings['value'],
+				'is_dependant'	=> $is_dependant,
+				'is_exclusive'	=> $is_exclusive,
+			   );
+
+	}//end execute()
+
+
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
+	{
+		// check settings, set defaults if necessary
+		$selected_assetid    = array_get_index($settings, 'assetid', 0);
+		$selected_link_type  = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
+		$value               = array_get_index($settings, 'value', '');
+		$is_dependant        = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive        = array_get_index($settings, 'is_exclusive', 0);
+		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
+
+		// check if the selected asset is valid
+		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
+			$selected_assetid = 0;
+		}
+
+		$link_type_list = get_link_type_names();
+		unset($link_type_list[SQ_LINK_NOTICE]);
+
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
+		// begin buffering basic options
+		ob_start();
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid);
+			} else {
+				if ($selected_assetid) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+				} else {
+					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
+				}
+			}
+
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			combo_box($prefix.'[link_type]', $link_type_list, FALSE, $selected_link_type, NULL, $form_element_extras);
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		// begin buffering advanced options
+		ob_start();
+			text_box($prefix.'[value]', $value, '', '', FALSE, $form_element_extras);
+			$advanced_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_dependant_list = Array(
+									0	=> translate('non_dependently'),
+									1	=> translate('dependently'),
+								 );
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
+			$advanced_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_exclusive_list = Array(
+									0	=> translate('non_exclusively'),
+									1	=> translate('exclusivly'),
+								 );
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, FALSE, $is_exclusive, NULL, $form_element_extras);
+			$advanced_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, NULL, $form_element_extras);
+			label(translate('do_not_create_clone_if_same_name_exists'), $prefix.'[disallow_duplicates]');
+			$advanced_part_4 = ob_get_contents();
+		ob_end_clean();
+
+
+		// now patch together the output
+		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2).
+					'<br /><br />'.
+					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
+					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
+
+		return $contents;
+
+	}//end getInterface()
+
+
+	/**
+	* Handle the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	&$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	*								by the $prefix in getInterface.
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function processInterface(&$settings, $request_data)
+	{
+		$link_type_list = get_link_type_names();
+
+		// make sure the assetid isn't blank
+		if (empty($request_data['assetid']['assetid'])) {
+			return translate('trigger_clone_parent_missing');
+		}
+
+		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
+			return translate('trigger_link_type_missing');
+		}
+
+		$settings['assetid']   = $request_data['assetid']['assetid'];
+		$settings['link_type'] = $request_data['link_type'];
+
+		// optional fields
+		$settings['value']               = array_get_index($request_data, 'value', '');
+		$settings['is_dependant']        = array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive']        = array_get_index($request_data, 'is_exclusive', 0);
+		$settings['disallow_duplicates'] = array_get_index($request_data, 'disallow_duplicates', 0);
+
+		return FALSE;
+
+	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	*
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getLocks($settings, &$state)
+	{
+		return Array(
+				$state['assetid']	=> Array('all'),
+			   );
+
+	}//end getLocks()
+
+
+}//end class
+
+?>

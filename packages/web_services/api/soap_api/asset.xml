@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600													   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source	   |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this	   |
+* | Module if you have the written consent of Squiz.				   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.2 2008/05/21 00:23:09 bshkara Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+    <package>web_services</package>
+    <type_code>soap_api</type_code>
+    <version>0.1</version>
+    <name>SOAP Server API</name>
+    <description>The API contains a number of functions which is exposed to allow external system to do operations in Matrix</description>
+    <instantiable>no</instantiable>
+    <allowed_access>backend_user</allowed_access>
+    <parent_type>asset</parent_type>
+	<flash_menu_path>Web Services</flash_menu_path>
+</asset_info>

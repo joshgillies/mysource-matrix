@@ -1,0 +1,76 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.10 2008/01/11 00:07:06 colivar Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintKeywordInstructions"   />
+				<process_function name="processKeywordInstructions" />
+			</function_call>
+		</field>
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="friendly_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="description">
+			<text width="30" height="5" />
+		</field>
+		<field attribute="default">
+			<text width="30" height="5" />
+		</field>
+		<field attribute="scheme">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="language">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Value Components" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintValueComponents"   />
+				<process_function name="processValueComponents" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Options" write_access="write:attributes">
+		<field attribute="editable">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="multi_line">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="required">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="frontend">
+			<selection style="list" />
+		</field>
+		<field attribute="char_limit">
+			<int width="5" allow_negative="FALSE"/>
+		</field>
+		<field attribute="box_width">
+			<int width="5" allow_negative="FALSE"/>
+		</field>
+		<field attribute="box_height">
+			<int width="5" allow_negative="FALSE"/>
+		</field>
+	</section>
+</contents>

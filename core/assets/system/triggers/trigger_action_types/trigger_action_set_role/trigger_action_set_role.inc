@@ -1,0 +1,306 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_set_role.inc,v 1.12 2007/12/24 01:11:25 hnguyen Exp $
+*
+*/
+
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+/**
+* Trigger Action Set Role
+*
+* A trigger action that creates a clone of the firing asset
+*
+*
+* @author   Huan Nguyen <hnguyen@squiz.net>
+* @version $Revision: 1.12 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Set_Role extends Trigger_Action
+{
+
+
+	/**
+	* Execute this action
+	* Returns an array of data about what it did, or false on error
+	*
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	*       'roleid'				=> int,		// the assetid of the role
+	* 		'role_action'			=> string	// whether to add or delete
+	*		'userids'
+	*		);
+	* </PRE>
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	public static function execute($settings, &$state)
+	{
+		$result = TRUE;
+		// if no settings, fail
+		if (empty($settings['roleid'])) return FALSE;
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['roleid'])) {
+			return FALSE;
+		}
+
+		// check the optional settings, assign defaults
+		$roleid		        	= array_get_index($settings, 'roleid', 0);
+		$role_action			= array_get_index($settings, 'role_action', 'add');
+		$userids				= array_get_index($settings, 'userid', Array());
+		$cascade				= array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_dependents  = array_get_index($settings, 'cascade_to_dependents', FALSE);
+
+		if (!is_array($userids)) $userids = Array ($userids);
+
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return FALSE;
+			} else {
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$major = $am->getAsset($settings['roleid']);
+		$minor =& $state['asset'];
+
+		$role_vars = Array();
+		switch ($role_action) {
+			case 'add':
+				$role_vars['add'][$roleid] = $userids;
+			break;
+
+			case 'delete':
+				$role_vars['delete'][$roleid] = 0;
+			break;
+		}
+
+		if (!empty($role_vars)) {
+			if ($cascade || $cascade_to_dependents) {
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array(
+							'assets'		=> Array(
+												$state['asset']->id	=> Array(
+																		'type_code'	=> $state['asset']->type(),
+																	   ),
+											   ),
+							'role_changes'	=> $role_vars,
+						);
+
+				if (!$cascade) $vars['dependants_only'] = 1;
+				$errors = $hh->freestyleHIPO('hipo_job_edit_roles', $vars);
+				$result = empty($errors);
+			} else {
+				if (!empty($role_vars['add'])) {
+					foreach ($role_vars['add'] as $roleid => $userids) {
+						foreach ($userids as $userid) {
+							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid)) {
+								$result = FALSE;
+								break;
+							}
+						}
+					}
+				}
+
+				if ($result && !empty($role_vars['delete'])) {
+					foreach ($role_vars as $roleid => $null) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->deleteRole($state['assetid'], $roleid)) {
+							$result = FALSE;
+							break;
+						}
+					}
+				}
+
+			}//end if ($cascade || $cascade_to_dependents)
+		}//end if (!empty($role_vars))
+
+		if (!$result) {
+			return FALSE;
+		} else {
+			return Array(
+					'assetid'				=> $state['asset']->id,
+					'roleid'				=> $roleid,
+					'userids'				=> $userids,
+					'cascade'				=> $cascade,
+					'cascade_to_dependents'	=> $cascade_to_dependents,
+				   );
+		}
+
+	}//end execute()
+
+
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
+	{
+		// check settings, set defaults if necessary
+		$selected_roleid       = array_get_index($settings, 'roleid', 0);
+		$role_action           = array_get_index($settings, 'role_action', 'add');
+		$selected_userids      = array_get_index($settings, 'userid', Array());
+		$cascade               = array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
+
+		// check if the selected asset is valid
+		if ($selected_roleid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_roleid)) {
+			$selected_roleid = 0;
+		}
+
+		ob_start();
+			if ($write_access) {
+				asset_finder($prefix.'[role]', $selected_roleid, Array('role' => 'I'));
+			} else {
+				if ($selected_roleid) {
+					$selected_role_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($selected_roleid, Array(), TRUE, 'name');
+					echo '<b>'.$selected_role_info[$selected_roleid].' (#'.$selected_roleid.')</b>';
+				} else {
+					echo '<b>['.translate('trigger_set_role_no_role_selected').']</b>';
+				}
+			}
+			$role_select_role_part = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			if ($write_access) {
+				multiple_asset_finder($prefix.'[user_assetid]', $selected_userids, Array('user' => 'D', 'user_group' => 'D'));
+			} else {
+				if ($selected_userids) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($selected_userids, Array(), TRUE, 'name');
+					echo '<ul>';
+					foreach ($selected_assetname as $assetid => $asset_name) {
+						echo '<li><b>'.$asset_name.' (#'.$assetid.')</b></li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<b>['.translate('trigger_set_role_no_users_selected').']</b>';
+				}
+			}
+			$role_select_user_part = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			if ($write_access) {
+				check_box($prefix.'[cascade]', '1', $cascade);
+				label(translate('cascade_roles_option'), $prefix.'[cascade]');
+				echo '<br />';
+				check_box($prefix.'[cascade_to_dependents]', '1', $cascade_to_dependents);
+				label(translate('cascade_roles_to_dependents'), $prefix.'[cascade_to_dependents]');
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_roles_option');
+
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_roles_to_dependents');
+			}
+			$role_cascade_part = ob_get_contents();
+		ob_end_clean();
+
+		$contents = ''.translate('select_a_role').'<br />'.
+					$role_select_role_part.'<br />'.
+					'<br />'.translate('select_users_for_role').'<br />'.
+					$role_select_user_part.'<br />'.
+					$role_cascade_part;
+
+		return $contents;
+
+	}//end getInterface()
+
+
+	/**
+	* Handle the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	&$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	*								by the $prefix in getInterface.
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function processInterface(&$settings, $request_data)
+	{
+		$link_type_list = get_link_type_names();
+
+		// make sure the assetid isn't blank
+		if (!empty($request_data['role']['assetid'])) {
+			$selected_roleid = $request_data['role']['assetid'];
+		} else {
+			return translate('no_roles_set');
+		}
+
+		if (empty($request_data['user_assetid'])) {
+			return translate('select_users_for_role');
+		}
+
+		$raw_userids = $request_data['user_assetid'];
+		$userids     = Array();
+		foreach ($raw_userids as $user) {
+			if (!empty($user['assetid'])) {
+				$userids[] = $user['assetid'];
+			}
+		}
+
+		// optional fields
+		$settings['role_action'] = array_get_index($request_data, 'role_action', 'add');
+		$settings['roleid']      = $selected_roleid;
+		$settings['userid']      = $userids;
+		$settings['cascade']     = array_get_index($request_data, 'cascade', FALSE);
+		if ($settings['cascade']) {
+			$settings['cascade_to_dependents'] = TRUE;
+		} else {
+			$settings['cascade_to_dependents'] = array_get_index($request_data, 'cascade_to_dependents', FALSE);
+		}
+
+		return FALSE;
+
+	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	*
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getLocks($settings, &$state)
+	{
+		return Array(
+				$state['assetid']	=> Array('all'),
+			   );
+
+	}//end getLocks()
+
+
+}//end class
+?>

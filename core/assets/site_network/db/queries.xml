@@ -1,0 +1,24 @@
+<queries system="site_network">
+	<query id="getPrimaryURL">
+		<!-- Get the primary URL for this network, with the protocol. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_url" column="url" />
+					<field table="sq_ast_url" column="http" />
+					<field table="sq_ast_url" column="https" />
+				</fields>
+				<from>
+					<table>sq_ast_url</table>
+				</from>
+				<where>
+					<equal table="sq_ast_url" column="assetid">:assetid</equal>
+				</where>
+				<order-by>
+					<field table="sq_ast_url" column="urlid" />
+				</order-by>
+				<limit offset="0">1</limit>
+			</select>
+		</primary>
+	</query>
+</queries>

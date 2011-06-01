@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="width: 730px; height: 530px;"><head><!--
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: help.html,v 1.7 2006/12/06 05:11:08 bcaldwell Exp $
+*  content updated to be in line with Matrix 3.4 30/6/05 nbell
+*
+*/
+--><title>WYSIWYG Help</title>
+
+		<style>
+			body {margin:0px}
+			h1 {font:bold 14pt "Lucida Grande", Tahoma; background: #402F48; color: #FFFFFF; height:30px; text-align:center}
+			h2 {font:bold 13pt "Lucida Grande", Tahoma}
+			h3 {font:bold 11pt "Lucida Grande", Tahoma}
+			div.tip {font:bold 10pt "Lucida Grande", Tahoma; background: #FFFFCC; color:#003366; border:solid 1px #003366; padding-left:5px;  padding-right:5px;  padding-top:5px;  padding-bottom:5px; text-align:justify; margin-top:.5cm; margin-bottom:.5cm}
+			td {font:10pt "Lucida Grande", Tahoma; color:#000000; background:#FFFFFF;}
+			th {font:bold 10pt "Lucida Grande", Tahoma; color:#000000; background:#C0C0C0;}
+			table.visible {border:solid 1px #000000;border-collapse:collapse; width:100%}
+			table.visible td {border:solid 1px #000000;border-collapse:collapse; height: 40px; text-align:justify}
+			table.visible th {border:solid 1px #000000;border-collapse:collapse; height: 30px; text-align:center}
+			table.visible td.icon {text-align:center}
+			img {border:solid 1px #CCCCCC}
+			li {text-align:justify; padding-top: 5px;}
+		</style></head>
+
+
+	<body onload="window.focus(); window.scroll(0,0);">
+		<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+			<tbody><tr>
+				<td>
+					<h1>Welcome to&nbsp;MySource Matrix WYSIWYG Editor Help</h1>
+					If&nbsp;you set the content type for a&nbsp;division to&nbsp;WYSIWYG,
+					the Edit Contents icon <img alt="Edit contents Icon" src="../../images/help/Edit-Content-icon.PNG">&nbsp;is displayed. Click this icon
+					to&nbsp;switch into the WYSIWYG editor.<br>
+					You can now enter your content.<br>
+					<div class="tip">TIP:
+					Many of&nbsp;the icons are the same as&nbsp;those used
+					in&nbsp;Microsoft Office applications. Hold your mouse over the icon
+					to&nbsp;show help on&nbsp;the function of&nbsp;that icon.</div>
+					<p>The non-standard buttons have the following functions: (Click on the links for more detailed information)</p>
+					<table class="visible" title="WYSIWYG Non-Standard Buttons" cellpadding="5" cellspacing="0">
+						<tbody><tr>
+							<th>Icon</th>
+							<th>Function</th>
+							<th>Description</th>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Table" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -140px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#insert_table">Insert Table</a></td>
+							<td>Allows you to insert a new table.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Table Properties" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -140px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#table_properties">Table Properties</a></td>
+							<td>Allows you to edit table properties or remove the cell borders.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Font Colour" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -80px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Font Colour</td>
+							<td>Allows you to change the font colour.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Background Colour" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -80px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;" /></td>
+							<td nowrap="nowrap">Background Colour</td>
+							<td>Allows you to change the background colour.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Link" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -36px -120px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#insert_link">Insert Link</a></td>
+							<td>Allows you to insert a link to an external site or any asset.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Remove Link" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -120px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Remove Link</td>
+							<td>Removes a link.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Anchor" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -120px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Insert Anchor</td>
+							<td>Allows you to insert or remove an anchor.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Image" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -120px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#insert_image">Insert Image</a></td>
+							<td>Allows you to embed an image file.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Embed Movie" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -200px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap"><a href="#embed_movie">Embed Movie</a></td>
+							<td>Allows you to embed a movie file.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Abbreviation" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Insert Abbreviation</td>
+							<td>Allows you to insert an abbreviation. Please note that Internet Explorer does not support the automatic insertion of an abbreviation tag, and you may enter this tag manually in the HTML source view.
+							<div class="tip">TIP:
+							For accessibility reasons,&nbsp;it is&nbsp;recommended&nbsp;that you insert&nbsp;an&nbsp;abbreviation for the first occurrence of the abbreviation on each page.
+							</div></td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Acronym" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -260px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Insert Acronym</td>
+							<td>Allows you to insert an acronym. Enter an acronym and definition, and the acronym is displayed on your page, with the definition displayed when the user rolls their mouse over the acronym.
+							<div class="tip">TIP:
+							For accessibility reasons,&nbsp;it is&nbsp;recommended&nbsp;that you insert&nbsp;an&nbsp;acronym for the first occurrence of the acronym on each page.
+							</div></td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Check Spelling" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -200px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Check Spelling</td>
+							<td>Check the spelling of the text on the page.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Current Style" src="../../images/help/Current-Style-icon.PNG"  width: 18px; height: 20px;></td>
+							<td nowrap="nowrap">Current Style</td>
+							<td>Shows the current style.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Toggle HTML Source" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px 0px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Toggle HTML Source</td>
+							<td>Toggles between the HTML source view and the WYSIWYG view.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Replace Text" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -40px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Replace Text</td>
+							<td>Allows you to remove font, style, class, table and span tags, non-HTML, double spaces, empty paragraphs, all tag attributes, and to change Word bullets.
+							<div class="tip">TIP:
+							This is useful if&nbsp;you are cutting and pasting test from external applications such as Microsoft Word,&nbsp;which include certain tags which you may wish&nbsp;to remove from your HTML.
+							<br><br>In addition,&nbsp;when you click <i>Commit</i>,&nbsp;your text is automatically run through HTMLTidy,&nbsp;which checks the validity of your HTML.
+							</div></td>
+						</tr>
+						<tr>
+							<td class="icon"></td>
+							<td nowrap="nowrap">Choose Language</td>
+							<td>Allows you to define the language attribute for the selected content using the Choose Language dropdown. You may remove existing language attribute by selecting the 'None' option from the drop down.
+							<div class="tip">TIP:
+							You may click on the Visual Aid icon <img alt="Visual Aid" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"> button to turn on the visual aid for language attribute.
+							</td>
+						</tr>
+						<tr>
+							<td class="icon">
+								<img alt="Definition Term" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -36px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;">
+								<img alt="Definition Description" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;">
+							</td>
+							<td nowrap="nowrap">Definition List</td>
+							<td>Allows you to enter a definition term or a definition description, encapsulated by a definition list tag.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Cite" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -54px -220px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Citation</td>
+							<td>Allows you to add cite tags to the selected html content.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Definition" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -72px -220px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Definition</td>
+							<td>Allows you to add dfn tags with title attribute to the selected html content.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Blockquote" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Blockquote</td>
+							<td>Allows you to add blockquote tags to the selected html content. The nesting of multiple blockquote is not allowed.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Visual Aid" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"></td>
+							<td nowrap="nowrap">Visual Aid</td>
+							<td>Turns on the visual aid for Table Border, Table Header, Anchor Tag and Language Attribute.</td>
+						</tr>
+						</tbody></table>
+
+						<div class="tip">TIP:
+							If your system administrator has configured the <i>Expand Keywords</i> tool,&nbsp;when you type one of the pre-set abbreviations,&nbsp;you will be prompted to accept the expanded versions.
+							<br><br>For example, if your <i>Expand Keywords</i> tool has the abbreviation "10d" configured to expand to "10 days",&nbsp;
+							when you type "10d" into your bodycopy,&nbsp;you will be prompted to confirm that you wish it to be expanded to "10 days".
+						</div>
+					<p>We will now discuss <em>Insert Table</em>, <em>Table Properties</em>, <em>Insert Link</em>, <em>Embed Movie</em> and <em>Insert Image</em> in more detail.</p>
+					<h2><a name="insert_table"></a>Insert Table</h2>
+					<p>Click on the <em>Table Functions</em> icon <img alt="Table Functions" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll 0px -140px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;">, followed by <em>Insert Table</em> on the drop down menu.  The following pop-up window is displayed:</p>
+					<div align="center"><img alt="Insert Table Window" src="../../images/help/insert-table.png"></div>
+					<p></p>
+						<ul>
+							<li><b>Dimensions</b>
+								<ul>
+									<li><b>Rows:</b> enter the number of&nbsp;rows for your new table.</li>
+									<li><b>Cols:</b> enter the number of&nbsp;columns for your new table.</li>
+								</ul>
+							</li>
+							<li><b>Table Headers</b>
+								<ul>
+									<li><b>First Row:</b>Check this option to make all cells on the first row a table header.</li>
+									<li><b>First Col:</b> Check this option to make all cells on the first column a table header.
+									<div class="tip">TIP:
+										You may click on the Visual Aid icon <img alt="Visual Aid" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -240px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;"> button to turn on the visual aid for table cells.
+										Header cells will be given a TH tag rather than a TD tag in your HTML. This is required if you wish your content to be accessible.
+									</div></li>
+								</ul>
+							</li>
+							<li><b>Style Attributes</b>
+								<ul>
+									<li><b>Class Name:</b>CSS class name to be used for this table.</li>
+									<li><b>Width:</b> enter the width of the table on the page. You can enter the following units: </li>
+										<ul>
+										<li><b>%:</b> specifies the width of the table as a percentage of the current screen width.</li>
+										<li><b>px:</b> specifies the exact width of the table in pixels.</li>
+										</ul>
+										<div class="tip">TIP:
+										If&nbsp;you enter a&nbsp;percentage of&nbsp;the current screen width,
+										the width of&nbsp;the table will change if&nbsp;the window
+										is&nbsp;resized.</div>
+									<li><b>Borders:</b> this attribute
+										indicates the width of&nbsp;the table border in&nbsp;pixels. You can
+										set the value to&nbsp;0&nbsp;to&nbsp;display the table with
+										no&nbsp;border.<div class="tip">TIP: If&nbsp;no&nbsp;border setting is&nbsp;entered, newer browsers will display a&nbsp;one-pixel border by&nbsp;default.</div></li>
+									<li><b>Cell Spacing:</b> enter the amount of&nbsp;space between the cells in the table in pixels.</li>
+									<li><b>Cell Padding:</b> enter the amount of&nbsp;space between the edges of the cells and the contents of the cell in pixels.</li>
+								</ul>
+							</li>
+							<li><b>Optional Attributes</b>
+								<ul>
+									<li><b>Summary:</b> enter the summary to be used for your table into the text box.  This does not appear in your page content, and is required for accessibility purposes.</li>
+								</ul>
+							</li>
+						</ul>
+
+					<h2><a name="table_properties"></a>Table Properties</h2>
+					<p>Click on the Table Functions icon <img alt="Table Functions" src="../../images/blank.gif" style="background: transparent url(../../images/toolbar.png) repeat scroll -18px -140px; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 18px; height: 20px;">, to display the <em>Table Properties</em> pop-up window:</p>
+					<div align="center"><img alt="Table Properties Window" src="../../images/help/table.png"></div>
+					<p>You can use this window to select table, cells, rows or columns, and apply your chosen formatting. The resulting table will be shown on the left hand side of the screen.
+					</p>
+					<h3>Selectors</h3>
+					<ul>
+							<li><b>Table:</b> this icon is selected by default, it will select the table.</li>
+							<li><b>Cell:</b> if this icon is selected, when you click in the table on the left hand side of the screen, it will select an individual cell.</li>
+							<li><b>Row:</b> if this icon is selected, when you click in the table on the left hand side of the screen, it will select a row.</li>
+							<li><b>Col:</b> if this icon is selected, when you click in the table on the left hand side of the screen, it will select a column.</li>
+					</ul>
+							<div class="tip">TIP: When you move the mouse pointer over to the table on the left hand side of the screen,&nbsp;
+							it will show an additional icon to indicate which mode you in:
+							<ul style="list-style:none;">
+							<li><img alt="cell-selected-mouse-icon" src="../../images/help/cell-selected-mouse-icon.PNG">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cell selected</li>
+							<li><img alt="row-selected-mouse-icon" src="../../images/help/row-selected-mouse-icon.PNG">&nbsp;&nbsp;&nbsp;Row selected</li>
+							<li><img alt="col-selected-mouse-icon" src="../../images/help/col-selected-mouse-icon.PNG">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Col selected</li></ul></div>
+					<h3>Cell</h3>
+					<ul>
+							<li><b>Add Colspan:</b> click this button to span the cell you currently have selected over the next column.</li>
+							<li><b>Delete Colspan:</b> click this button to remove the colspan of the currently selected cell. </li>
+							<li><b>Add Rowspan:</b> click this button to span the cell you currently have selected over the next row.</li>
+							<li><b>Delete Rowspan:</b> click this button to remove the rowspan of the currently selected cell.</li>
+							<li><b>Abbrev:</b> enter an abbreviation to be used for the table.</li>
+							<li><b>Axis:</b> enter an axis to be used for the table.</li>
+							<li><b>Scope:</b> enter the scope to be used for the table.</li>
+							<li><b>Headings:</b> click on this button to select cells to be used as heading cells.
+							They will be given a TH tag rather than a TD tag in your HTML.
+							This is required if you wish your content to be accessible.</li>
+					</ul>
+					<h3>Align</h3>
+					Click on an icon to set the alignment of the currently selected cell or row. You can choose from:<ul style="list-style:none;">
+					<li><img alt="left-align-icon" src="../../images/help/left-align-icon.PNG">&nbsp;&nbsp;&nbsp;Vertically align left </li>
+					<li><img alt="align-centre-icon" src="../../images/help/align-centre-icon.PNG">&nbsp;&nbsp;&nbsp;Vertically align centre </li>
+					<li><img alt="right-align-icon" src="../../images/help/right-align-icon.PNG">&nbsp;&nbsp;&nbsp;Vertically align right </li>
+					<li><img alt="align-top-icon" src="../../images/help/align-top-icon.PNG">&nbsp;&nbsp;&nbsp;Horizontally align top </li>
+					<li><img alt="align-middle-icon" src="../../images/help/align-middle-icon.PNG">&nbsp;&nbsp;&nbsp;Horizontally align middle </li>
+					<li><img alt="align-bottom-icon" src="../../images/help/align-bottom-icon.PNG">&nbsp;&nbsp;&nbsp;Horizontally align bottom</li> </ul>
+					<h3>Table</h3>
+					<ul>
+						<li><b>Add Row:</b><img alt="Add-row-icon" src="../../images/help/Add-row-icon.PNG">&nbsp;&nbsp;&nbsp; click on this icon to add a row below the selected row, or below the row of the selected cell.</li>
+						<li><b>Delete Row:</b><img alt="Delete-row-icon" src="../../images/help/Delete-row-icon.PNG">&nbsp;&nbsp;&nbsp; click on this icon to delete the selected row, or below the row of the selected cell.</li>
+						<li><b>Insert Column:</b><img alt="Add-column-icon" src="../../images/help/Add-column-icon.PNG">&nbsp;&nbsp;&nbsp; click on this icon to insert a column to the right of the column that the currently selected cell is in.  If you currently have a row selected, you cannot select this option.</li>
+						<li><b>Delete Column:</b><img alt="Delete-column-icon" src="../../images/help/Delete-column-icon.PNG">&nbsp;&nbsp;&nbsp; click on this icon to delete the column that the currently selected cell is in.  If you currently have a row selected, you cannot select this option.</li>
+						<li><b>ID:</b> enter the unique ID to be used for your table into the text box.  This enables the table to be identified in a stylesheet.</li>
+						<li><b>Caption:</b> enter the caption to be used for your table into the text box.  This is a caption that appears at the top of your table, and is suggested for accessibility purposes.</li>
+						<li><b>Class Name:</b> enter the class name to be used for your table into the text box. This can be a pre-defined CSS class name.</li>
+						<li><b>Width:</b> enter the width of the table on the page. You can choose to use CSS or HTML width, the following units can be used: </li>
+							<ul><li><b>%:</b> specifies the width of the table as a percentage of the current screen width.</li>
+							<li><b>px:</b> specifies the exact width of the table in pixels.</li>
+						</ul>
+						<li><b>Border:</b> enter the border of the table on the page. You can choose to use CSS or HTML border. </li>
+						<li><b>Cell Spacing:</b>  enter the amount of space between the cells in the table in pixels.</li>
+						<li><b>Cell Padding:</b> enter the amount of space between the edges of the cells and the contents of the cell in pixels.</li>
+						<li><b>Summary:</b> enter the summary to be used for your table into the text box.  This does not appear in your page content, and is required for accessibility purposes.</li>
+
+						<li><b>Frame:</b>  select which sides of your table cells should have a border.  You can select from:
+						<em>Empty, No sides, The top side only,  The bottom side only,  The top and bottom sides only, The right and left sides only,
+						The left-hand side only, The right-hand side only,</em> and <em>All four sides</em>.</ul>
+						<div class="tip">TIP:
+							If&nbsp;you select <em>Empty</em>, your table will inherit any definition for this table with relation to borders.
+							If&nbsp;you select <em>No&nbsp;sides</em>, your table will have no borders, regardless of any stylesheet definitions.</div>
+					<h3>Colour</h3>
+					You can use the colour picker to set the background colour of the cell or rows that you select, or their borders.
+					The icons at the top left hand side of the colour picker determine whether you set the background colour or the border:
+					<ul><li><img alt="Set Background Colour" src="../../images/help/set-background-colour-icon.PNG">: click this icon to set the background colour of the cell or row that you select.</li>
+					<li><img alt="Set Border Colour" src="../../images/help/set-border-colour-icon.PNG">: click on this icon to set the border colour of the cell or row that you select.</li></ul>
+					Select a colour from the palette and move your mouse over to the tables and select the cell or row whose colour you wish to change.
+					The background or border colour is changed when you click on the cell or row.
+					<h2><a name="insert_link"></a>Insert Link</h2>
+					<p>To&nbsp;add
+					a&nbsp;hyperlink, select a&nbsp;piece of&nbsp;text and then the Insert
+					Link icon. The following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Insert Link Window" src="../../images/help/link.png"></div>
+					<p>You can insert a&nbsp;link to&nbsp;any external URL, or&nbsp;any internal asset. The options are as&nbsp;follows:</p>
+					<h3>General</h3>
+					<p>
+						</p><ul>
+							<li><b>Protocol:</b> select the protocol from the following options:
+								<ul type="circle">
+									<li><b>http://</b> Used to&nbsp;create a&nbsp;link to&nbsp;a&nbsp;web page with a&nbsp;normal connection</li>
+									<li><b>https://</b> Used to&nbsp;create a&nbsp;link to&nbsp;a&nbsp;web page with a&nbsp;secure connection using SSL</li>
+									<li><b>ftp://</b> Used to&nbsp;create a&nbsp;link to&nbsp;an&nbsp;ftp server</li>
+									<li><b>mailto:</b> Used to&nbsp;create a&nbsp;link to&nbsp;an&nbsp;email address</li>
+								</ul>
+							</li>
+							<li><b>Link:</b>
+							enter the address of&nbsp;the link as&nbsp;appropriate for the protocol
+							you select. E. g. if&nbsp;the protocol is&nbsp;http:// the link might
+							be&nbsp;<a href="http://www.squiz.net/">http://www.squiz.net</a>. If&nbsp;the protocol you select is&nbsp;mailto: the link might be&nbsp;<a href="mailto:person@yoursite.com">person@yoursite.com</a></li>
+							<li><b>Select Asset:</b>
+							you can select a&nbsp;MySource Matrix asset to&nbsp;which to&nbsp;link.
+							Move your cursor over to&nbsp;the asset tree to&nbsp;select the
+							appropriate asset&nbsp;&#8212; only relevant asset types are now selectable
+							(for example, you cannot link to&nbsp;a&nbsp;user). Hold the right
+							mouse button down on&nbsp;the name of&nbsp;the asset you wish
+							to&nbsp;select, and right click on&nbsp;the Use Me&nbsp;menu option.
+							The Name and Asset ID&nbsp;of&nbsp;this asset now appear in&nbsp;the
+							text box.</li>
+							<li><b>Anchor Name:</b> type the name of&nbsp;an&nbsp;anchor on&nbsp;the linked external page, or&nbsp;MySource Matrix page asset.</li>
+						</ul>
+
+					<h3>Options</h3>
+					<p>
+						</p><ul>
+							<li><b>Status Bar Text:</b> enter optional text to&nbsp;be&nbsp;displayed in&nbsp;the status bar at&nbsp;the bottom of&nbsp;the window.</li>
+						</ul>
+
+					<h3>New Window Options</h3>
+					<p>Select
+					whether to&nbsp;show the linked asset or&nbsp;URL in&nbsp;a&nbsp;new
+					window or&nbsp;the current one. If&nbsp;you select Yes to&nbsp;show
+					a&nbsp;new window, you can select whether or&nbsp;not to&nbsp;show the
+					tool bar, menu bars, location bar, status bar or&nbsp;scroll bars and
+					whether the window is&nbsp;resizable or&nbsp;not. You can determine the
+					exact size of&nbsp;the new browser window by&nbsp;specifying the height
+					and width in&nbsp;pixels.</p>
+					<div class="tip">TIP:
+						It&nbsp;is&nbsp;good practice to&nbsp;open your file in&nbsp;a&nbsp;new
+						window rather than in&nbsp;the same browser window as&nbsp;the one
+						displaying the web page. This allows users to&nbsp;resize and
+						in&nbsp;particular print the document separately.</div>
+					<h2><a name="insert_image"></a>Insert Image</h2>
+					<p>If&nbsp;you select the <em>Insert Image</em> icon, the following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Insert Image Window" src="../../images/help/image.png"></div>
+					<div class="tip">TIP:
+						In&nbsp;order to&nbsp;insert an&nbsp;image into your page content, you
+						must firstly add the image to&nbsp;MySource Matrix. You do&nbsp;this
+						by&nbsp;selecting <em>Add &#8594; Files &#8594; Image</em>.</div>
+					<p>The options when inserting an&nbsp;image are as&nbsp;follows:</p>
+					<h3>General</h3>
+						<ul>
+							<li><b>Image URL:</b>
+							to&nbsp;select an&nbsp;image file to&nbsp;embed, move your cursor over
+							to&nbsp;the asset tree to&nbsp;select the appropriate image&nbsp;&#8212; only
+							images are selectable. Hold the right mouse button down on&nbsp;the
+							name of&nbsp;the image you wish to&nbsp;insert, and right click
+							on&nbsp;the /<em>Use Me</em>&nbsp;menu option. The Name and Asset
+							ID&nbsp;of&nbsp;this image asset now appear in&nbsp;the text box.</li>
+							<li><b>Alternate Text:</b> the alternate text is set by default to the name of the file you have just selected.
+							You can type into the box to alter the alternate text, if required</li>
+						</ul>
+					<h3>Optional Attributes</h3>
+						<ul>
+							<li><b>Long Description:</b> You may enter the link manually or use the asset finder to choose a Standard Page asset to specify the value of the 'longdesc' attribute.</li>
+						</ul>
+					<h3>Layout</h3>
+						<ul>
+							<li><b>Alignment:</b> controls the alignment of the image within the div.</li>
+							<li><b>Border Thickness:</b> enter the width in pixels of the image border.</li>
+							<li><b>Horizontal:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the left and right of&nbsp;the image.</li>
+							<li><b>Vertical:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the top and bottom of&nbsp;the image.</li>
+						</ul>
+					<h3>Size</h3>
+						<ul>
+							<li><b>Width:</b> enter the width of&nbsp;the image in&nbsp;pixels.</li>
+							<li><b>Height:</b> enter the height of&nbsp;the image in&nbsp;pixels.</li>
+						</ul>
+					<h2><a name="embed_movie"></a>Embed Movie</h2>
+					<p>If&nbsp;you select the <em>Embed Movie</em> icon, the following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Embed Movie Window" src="../../images/help/Embed-Movie.PNG"></div>
+					<div class="tip">TIP:
+						In&nbsp;order to&nbsp;insert a&nbsp;movie into your page content, you
+						must firstly add the file to&nbsp;MySource Matrix. You do&nbsp;this
+						by&nbsp;selecting <em>Add &#8594; Files&#8594; Files</em>. Movies are files of the following types:<br>
+						.mov,&nbsp;.swf,&nbsp;.wmv,&nbsp;.asf,&nbsp;.asx,&nbsp;.mpg</div>
+					<p>The options when inserting a&nbsp;movie are as&nbsp;follows:</p>
+					<h3>General</h3>
+						<ul>
+							<li><b>Movie URL:</b>
+							to&nbsp;select an&nbsp;movie file to&nbsp;embed, move your cursor over
+							to&nbsp;the asset tree to&nbsp;select the appropriate movie&nbsp;&#8212; only
+							movies are selectable. Hold the right mouse button down on&nbsp;the
+							name of&nbsp;the movie you wish to&nbsp;insert, and right click
+							on&nbsp;the /<em>Use Me</em>&nbsp;menu option. The Name and Asset
+							ID&nbsp;of&nbsp;this movie asset now appear in&nbsp;the text box.</li>
+						</ul>
+					<h3>Control</h3>
+					<p>For wmv, asf and asx files you can set the following options:
+						<ul>
+							<li><b>Autostart:</b> check this box to autostart the movie.</li>
+							<li><b>Loop:</b> check this box to loop the movie.</li>
+							For mov, wmv, asf and asx files you can set the following option:
+							<li><b>Show Controls:</b> Check this box to show the movie controls.</li>
+						</ul>
+					<h3>Size</h3>
+						<ul>
+							<li><b>Width:</b> enter the width of&nbsp;the movie in&nbsp;pixels.</li>
+							<li><b>Height:</b> enter the height of&nbsp;the movie in&nbsp;pixels.</li>
+						</ul>
+
+				</td>
+			</tr>
+		</tbody></table>
+	</body></html>

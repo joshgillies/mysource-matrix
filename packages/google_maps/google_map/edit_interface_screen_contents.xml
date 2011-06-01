@@ -1,0 +1,10 @@
+<contents>
+    <section name="Contents">
+        <field>
+            <function_call>
+                <paint_function   name="redirectToBodycopy"  />
+                <process_function name="redirectToBodycopy"  />
+            </function_call>
+        </field>
+    </section>
+</contents>

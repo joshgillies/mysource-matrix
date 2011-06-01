@@ -1,0 +1,23 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screens.xml,v 1.4 2006/12/08 00:52:00 emcdonald Exp $
+*
+*/
+-->
+
+<screens>
+	<screen code_name="global_settings"	display_name="Global Settings"	icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="plots"			display_name="Plots"			icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="varieties"		display_name="Varieties"  		icon="create"	force_unlock="0"	lock_type="attributes" />
+	<screen code_name="paths"			display_name="Web Paths"		icon="web"		force_unlock="0"	lock_type="lookups"/>
+</screens>

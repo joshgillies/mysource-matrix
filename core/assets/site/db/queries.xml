@@ -1,0 +1,73 @@
+<queries system="site">
+
+	<query id="getUrlsFromAssetId">
+	<!-- Get URLs for specified asset id -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_url" column="urlid" />
+					<field table="sq_ast_url" column="url" />
+					<field table="sq_ast_url" column="auth_urlid" />
+				</fields>
+				<from>
+					<table>sq_ast_url</table>
+				</from>
+				<where>
+					<equal table="sq_ast_url" column="assetid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+	<query id="updateAuthUrlId">
+	<!-- Updates auth_urlid for specified urlid -->
+		<primary>
+			<update>
+				<fields table="sq_ast_url">
+					<field>auth_urlid</field>
+				</fields>
+				<values>
+					<value column="auth_urlid">:auth_urlid</value>
+				</values>
+				<where>
+					<equal table="sq_ast_url" column="urlid">:urlid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+	<query id="changeAuthUrlId">
+	<!-- Changes auth_urlid across the whole system -->
+		<primary>
+			<update>
+				<fields table="sq_ast_url">
+					<field>auth_urlid</field>
+				</fields>
+				<values>
+					<value column="auth_urlid">:new_auth_urlid</value>
+				</values>
+				<where>
+					<equal table="sq_ast_url" column="auth_urlid">:old_auth_urlid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+	<query id="updateUrl">
+	<!-- Updates URL for specified urlid -->
+		<primary>
+			<update>
+				<fields table="sq_ast_url">
+					<field>url</field>
+				</fields>
+				<values>
+					<value column="url">:url</value>
+				</values>
+				<where>
+					<equal table="sq_ast_url" column="urlid">:urlid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+</queries>

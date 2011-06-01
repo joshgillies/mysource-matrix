@@ -1,0 +1,43 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_query.xml,v 1.10 2007/12/22 01:47:19 gsherwood Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="SQL To Execute" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function name="paintQuerySoFar"/>
+				<process_function name="processQuerySoFar"/>
+			</function_call>
+		</field>
+	</section>
+	<section name="Record Set Asset Names" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintShadow"   />
+				<process_function name="processShadow" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Available Keywords" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintKeywords"   />
+				<process_function name="processKeywords" />
+			</function_call>
+		</field>
+	</section>
+</contents>

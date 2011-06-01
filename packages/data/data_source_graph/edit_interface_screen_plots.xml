@@ -1,0 +1,80 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_plots.xml,v 1.4 2007/04/05 00:13:19 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Change Mode" write_access="write:attributes" limbo_access="1">
+		<field attribute="mode">
+			<selection style="list" height="1" empty_text="none" extras="" />
+		</field>
+	</section>
+	<section name="Add a new plot" write_access="write:attributes" limbo_access="1" show_if="isAddMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintAddPlots"   />
+				<process_function name="processAddPlots" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Choose a plot" write_access="write:attributes" limbo_access="1" show_if="isEditMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintChoosePlots"   />
+				<process_function name="processChoosePlots" />
+			</function_call>
+		</field>
+	</section>
+	<section name="General Plot Settings" write_access="write:attributes" limbo_access="1" show_if="isEditMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintGeneralPlotSettings"   />
+				<process_function name="processGeneralPlotSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Plot Specific Settings" write_access="write:attributes" limbo_access="1" show_if="isEditMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintPlotSpecificSettings"   />
+				<process_function name="processPlotSpecificSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Marker Settings" write_access="write:attributes" limbo_access="1" show_if="isEditMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintMarkerSettings"   />
+				<process_function name="processMarkerSettings" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Single Preview" write_access="write:attributes" limbo_access="1" show_if="isEditMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintSinglePreview"   />
+				<process_function name="processSinglePreview" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Final Preview" write_access="write:attributes" limbo_access="1" show_if="moreThanOnePlot">
+		<field>
+			<function_call>
+				<paint_function   name="paintFinalPreview"   />
+				<process_function name="processFinalPreview" />
+			</function_call>
+		</field>
+	</section>
+</contents>

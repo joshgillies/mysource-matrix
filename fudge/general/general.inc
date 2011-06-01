@@ -1,0 +1,848 @@
+<?php
+/**
+*
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: general.inc,v 1.43 2009/03/05 22:47:40 mbrydon Exp $
+*
+*/
+
+
+/**
+* General Functions
+*
+* Purpose
+*     Generic functions that are useful, but don't fall into any other category
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Revision: 1.43 $
+* @package Fudge
+* @subpackage General
+*/
+
+
+/**
+* Strips the slashes from a variable if magic quotes is set for GPC
+* Handle normal variables and arrays
+*
+* @param mixed	$var	the var to cleanup
+*
+* @return mixed array|string
+* @access public
+*/
+function gpc_stripslashes($var)
+{
+	if (get_magic_quotes_gpc()) {
+		if (is_array($var)) {
+			stripslashes_array($var, TRUE);
+		} else {
+			$var = stripslashes($var);
+		}
+	}
+	return $var;
+
+}//end gpc_stripslashes()
+
+
+/**
+* Strips the slashes from an entire associative array
+*
+* @param array		&$array		the array to stripslash
+* @param boolean	$strip_keys	whether or not to stripslash the keys as well
+*
+* @return array
+* @access public
+*/
+function stripslashes_array(&$array, $strip_keys=FALSE)
+{
+	if (is_string($array)) return stripslashes($array);
+	$keys_to_replace = Array();
+	foreach ($array as $key => $value) {
+		if (is_string($value)) {
+			$array[$key] = stripslashes($value);
+		} else if (is_array($value)) {
+			stripslashes_array($array[$key], $strip_keys);
+		}
+
+		if ($strip_keys && $key != ($stripped_key = stripslashes($key))) {
+			$keys_to_replace[$key] = $stripped_key;
+		}
+	}
+	// now replace any of the keys that needed strip slashing
+	foreach ($keys_to_replace as $from => $to) {
+		$array[$to]   = &$array[$from];
+		unset($array[$from]);
+	}
+	return $array;
+
+}//end stripslashes_array()
+
+
+/**
+* Convert html entities from an entire associative array
+*
+* @param mixed		&$array			the array or the string to htmlentities
+* @param boolean	$encode_keys	whether or not to htmlentities the keys as well
+*
+* @return mixed array|string
+* @access public
+*/
+function htmlentities_array(&$array, $encode_keys=FALSE)
+{
+	// type verification
+	if ((!is_array($array) && !is_string($array)) || !is_bool($encode_keys)) {
+		return Array();
+	}
+
+	if (is_string($array)) return htmlentities($array);
+	$keys_to_replace = Array();
+	foreach ($array as $key => $value) {
+		if (is_string($value)) {
+			$array[$key] = htmlentities($value);
+		} else if (is_array($value)) {
+			htmlentities_array($array[$key], $encode_keys);
+		}
+
+		if ($encode_keys && $key != ($encoded_key = htmlentities($key))) {
+			$keys_to_replace[$key] = $encoded_key;
+		}
+	}
+	// now replace any of the keys that needed encoding
+	foreach ($keys_to_replace as $from => $to) {
+		$array[$to] = &$array[$from];
+		unset($array[$from]);
+	}
+	return $array;
+
+}//end htmlentities_array()
+
+
+/**
+* Searches an array for a value and removes one instance of it if found
+*
+* It returns TRUE if instance removed, FALSE if not found
+*
+* @param mixed	$v	the value to remove
+* @param array	&$a	the array to search and remove from
+*
+* @return boolean
+* @access public
+*/
+function array_remove_element($v, &$a)
+{
+	if (!is_array($a) || empty($a)) {
+		return FALSE;
+	}
+	if (in_array($v,$a)) {
+		unset($a[array_search($v,$a)]);
+		return TRUE;
+	}
+
+}//end array_remove_element()
+
+
+/**
+* Merges two multi-dimensional arrays
+*
+* This function performs argument type verification
+* before it calls recursive function to merge two arrays
+* Note that the second given array will override elements of the first
+*
+* @param array	$array1	the original array
+* @param array	$array2	the array that will override the first
+*
+* @return array
+* @access public
+*/
+function array_merge_multi($array1, $array2)
+{
+	// type verification
+	if (!is_array($array1) || !is_array($array2)) {
+		return Array();
+	}
+
+	if (empty($array2)) return $array1;
+
+	return _array_merge_multi_recursive($array1, $array2);
+
+}//end array_merge_multi()
+
+
+/**
+* Helper function for array_merge_multi()
+*
+* This function is being called my array_merge_multi() function and
+* merges two arrays
+*
+* @param array	$array1	the original array
+* @param array	$array2	the array that will override the first
+*
+* @return array
+* @access private
+*/
+function _array_merge_multi_recursive($array1, $array2)
+{
+	foreach ($array2 as $key => $value) {
+		if (is_array($value)) {
+			if (!array_key_exists($key, $array1)) {
+				$array1[$key] = Array();
+			}
+			$array1[$key] = _array_merge_multi_recursive($array1[$key], $value);
+		} else {
+			if (!is_array($array1)) $array1 = Array();
+			$array1[$key] = $value;
+		}
+	}
+
+	return $array1;
+
+}//end _array_merge_multi_recursive()
+
+
+/**
+* Returns a flattened version of a passed in array
+*
+* For example, the following array:
+* <pre>
+* Array(
+*	'10'	=> Array(
+*				'11'	=> 'Value',
+*			   ),
+*	'12'	=> 'Value',
+* )
+* </pre>
+*
+* ... Is returned in the following format:
+* <pre>
+* Array(
+*	'10'	=> Array(),
+*	'11'	=> 'Value',
+*	'12'	=> 'Value',
+* )
+* </pre>
+*
+* If $return_unique_keys is FALSE, instead return:
+* <pre>
+* Array(
+*	0	=> '10',
+*	1	=> '11',
+*	2	=> '12',
+* )
+*
+* If $array isn't an array, an empty array is returned.
+*
+* @param array		$array				the array to flatten
+* @param boolean	$prune_parents		if TRUE, any parents (denoted by having a value of Array()) will be pruned from the list
+* @param boolean	$return_unique_keys	if TRUE, return Array(key => value/array), otherwise return an array containing the array keys instead
+*
+* @return array
+* @access public
+*/
+function array_flatten($array, $prune_parents=FALSE, $return_unique_keys=TRUE)
+{
+	if (!is_array($array) || empty($array)) {
+		return Array();
+	}
+
+	$flattened_array = Array();
+
+	foreach ($array as $key => $value) {
+		if (is_array($value)) {
+			if (!$prune_parents) {
+				if ($return_unique_keys) {
+					$flattened_array[$key] = Array();
+				} else {
+					$flattened_array[] = $key;
+				}
+			}
+
+			if ($return_unique_keys) {
+				$flattened_array += array_flatten($value, $prune_parents, $return_unique_keys);
+			} else {
+				foreach (array_flatten($value, $prune_parents, $return_unique_keys) as $flattened_value) {
+					$flattened_array[] = $flattened_value;
+				}
+			}
+		} else {
+			if ($return_unique_keys) {
+				$flattened_array[$key] = $value;
+			} else {
+				$flattened_array[] = $key;
+			}
+		}
+	}
+
+	return $flattened_array;
+
+}//end array_flatten()
+
+
+/**
+* A less generic function to return a flattened array of the form:
+* <pre>
+* Array(
+*	'10'	=> Array(
+*				'0'		=> Array(
+*							'type_code'	=> 'Value',
+*			   ),
+*	'12'	=> Array(
+*				'0'		=> Array(
+*							'type_code'	=> 'Value',
+*			   ),
+* )
+* </pre>
+*
+* This function drills down until it finds a 0 index which indicates a result row if DAL has been used
+* to retrieve the results.
+* The flattest array possible is always returned.
+* You can provide the function with a column name which holds the value you would like returned.  E.g.
+* in the array above, a valid column name would be 'type_code'.
+*
+* If $array isn't an array, an empty array is returned.
+*
+* @param array	$array	the array to flatten
+* @param int	$column	the key to search for in the array and return
+*
+* @return array
+* @access public
+*/
+function dal_array_flatten($array, $column='')
+{
+	if (!is_array($array) || empty($array)) {
+		return Array();
+	}
+
+	$flattened_array = Array();
+	// drill down until we find a 0 index which means we may have have found a valid row
+	while (is_array($array) && !empty($array)) {
+		foreach ($array as $id => $data) {
+			if (is_array($data) && $id !== 0) {
+				// 1 level lookahead to see if we are about to find a valid row
+				// if we do then start iterating to capture all other rows
+				if (empty($column)) {
+					// if the column name is not specified return the array found there instead
+					if (isset($array[$id][0])) {
+						foreach ($array as $question_id => $type_data) {
+							$flattened_array[$question_id] = $type_data[0];
+						}
+						break(2);
+					}
+				} else {
+					if (isset($array[$id][0]) && isset($array[$id][0][$column])) {
+						foreach ($array as $question_id => $type_data) {
+							$flattened_array[$question_id] = $type_data[0][$column];
+						}
+						break(2);
+					}
+				}
+			}
+			$array = $data;
+		}
+	}
+
+	return $flattened_array;
+
+}//end dal_array_flatten()
+
+
+/**
+* Generates a random password from letters/digits
+*
+* @param int		$length				the length of the password
+* @param boolean	$include_uppercase	include uppercase characters in the generated password
+* @param boolean	$include_numbers	include numbers in the generated password
+*
+* @return array
+* @access public
+*/
+function random_password($length, $include_uppercase=FALSE, $include_numbers=FALSE)
+{
+	if (!$length) $length = 8;
+	$consonants			= 'bcdfghjklmnpqrstvwyz';
+	$vowels				= 'aeiou';
+
+	// Please note that certain letters and numbers are missing due to being represented in a similar manner to lowercase chars in some fonts
+	$numbers			= '2346789';
+	$upper_consonants	= 'DFGHLMNQRT';
+	$upper_vowels		= 'AEU';
+
+	$password   = '';
+	global $RANDOM_PASSWORD_SEED;
+
+	// If we are including uppercase characters, ensure at least one is present
+	$uppercase_indexes = Array();
+	$chosen_default_uppercase_index = -1;
+	$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+	if (($include_uppercase) && ($length > 1)) {
+		srand($seed);
+
+		$uppercase_indexes[$chosen_default_uppercase_index] = 1;
+		$num_added = 1;
+
+		// Make between 1 character and 1/2 of the string an uppercase letter
+		for ($n=0; $n<$length; $n++) {
+			if ((rand(0,3) == 0) && ($num_added < ($length/2))) {
+				$uppercase_indexes[$n] = 1;
+				$num_added++;
+			}
+		}
+	}
+
+	// If we are including numbers, ensure at least one is present
+	$number_indexes = Array();
+	if (($include_numbers) && ($length > 2)) {
+		srand($seed);
+
+		// Ensure that we don't place our initial inserted number over the top of an uppercase letter
+		$chosen_default_number_index = rand(0, $length-1);
+		while (isset($uppercase_indexes[$chosen_default_number_index])) {
+			$chosen_default_number_index = rand(0, $length-1);
+		}
+
+		$number_indexes[$chosen_default_number_index] = 1;
+		$num_added = 1;
+
+		// Make between 1 character and 1/3 of the string a number
+		for ($n=0; $n<$length; $n++) {
+			if ((rand(0,4) == 0) && ($num_added < ($length/3))) {
+				$number_indexes[$n] = 1;
+				$num_added++;
+			}
+		}
+	}
+
+	$current_index = 0;
+	while ($length > 0) {
+		$RANDOM_PASSWORD_SEED += $length;
+		$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+		srand($seed);
+		$appended_characters = $consonants[rand(0,strlen($consonants)-1)];
+
+		// Assign either an uppercase consonant or a number if we are destined to do so
+		if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
+			$appended_characters = $upper_consonants[rand(0,strlen($upper_consonants)-1)];
+		} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
+			$appended_characters = $numbers[rand(0,strlen($numbers)-1)];
+		}
+		$current_index++;
+
+		if ($length > 1) {
+			srand($seed);
+			$appended_character = $vowels[rand(0,strlen($vowels)-1)];
+
+			// Assign either an uppercase vowel or a number if we are destined to do so
+			if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
+				$appended_character = $upper_vowels[rand(0,strlen($upper_vowels)-1)];
+			} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
+				$appended_character = $numbers[rand(0,strlen($numbers)-1)];
+			}
+
+			$appended_characters .= $appended_character;
+			$current_index++;
+		}
+
+		$password .= $appended_characters;
+		$length -= 2;
+	}//end while
+	$RANDOM_PASSWORD_SEED++;
+	return $password;
+
+}//end random_password()
+
+
+/**
+* Chops a string at a certain maximum length and appends an ellipsis
+* ignores HTML tags
+*
+* @param string	$string	the string to manipulate
+* @param int	$length	the length of the password
+*
+* @return string
+* @access public
+*/
+function ellipsisize($string, $length)
+{
+	// type verification
+	if (!is_string($string) || !is_int($length) ) {
+		return '';
+	}
+
+	// boundary check #1 - length needs to be at least zero
+	if ($length < 0) return '';
+
+	// boundary check #2 - if the string isn't long enough to contract, return
+	// it unedited
+	if (strlen($string) <= $length) return $string;
+
+	$full_length = strlen((string) $string);
+	$length += 2; // add 2 because an elipsis is 3 chars long
+	$on = TRUE;
+	$j = 0;
+	for ($i = 0; $i < $full_length; $i++) {
+		if ($j == $length - 2)	$chophere = $i;
+		if ($on) {
+			if ($string[$i] == '<') {
+				$on = FALSE;
+			} else {
+				$j++;
+			}
+		} else {
+			if ($string[$i] == '>') $on = TRUE;
+		}
+	}
+	if ($length < $j) {
+		$string = substr($string, 0, $chophere).'...';
+	}
+	return $string;
+
+}//end ellipsisize()
+
+
+/**
+* Takes a string and looks for an integer at the end of it
+*
+* If it can't find an integer at the end, it appends "2"
+* If the name only consists of digits, it simply increases one, eg. '1' => '2'. '99' => '100'
+* If the name ends with digits with preceeding zeros, it only treats non-zero
+* digits as integer, eg. 'hello_0001' => 'hello_0002', 'hello_009' => 'hello_010'.
+* Also, the option spacer still only works if no int is already present - good for starting a trend
+*
+* @param string	$name	the original name of the file
+* @param string	$spacer	the char(s) to put between the end of the name and the $numeral
+*
+* @return string
+* @access public
+*/
+function increment_name($name='', $spacer='')
+{
+	// type verification
+	if (!is_string($name) || !is_string($spacer)) {
+		return '';
+	}
+
+	$last_character = substr($name, -1);
+
+	if (preg_match('/[^0-9]/', $last_character)) {
+		// name ends with character
+		return $name.$spacer.'2';
+
+	} else if (preg_match('/^[0-9]+$/', $name)) {
+		// name with only digits
+		$next_number = intval($name) + 1;
+		return strval($next_number);
+
+	} else {
+		// name ends with non-digit character
+		if (preg_match('/(.*[^0-9]{1})(0+[0-9]+)$/', $name, $number)) {
+			// name ends with digits with preceeding zeros, like 001, 0002
+
+			if (preg_match('/^0+$/', $number[2])) {
+				// all zeros, eg. hello_00000
+				return $number[1].substr($number[2], 0, -1).strval(1);
+
+			} else if (preg_match('/^(0+)([1-9]{1}[0-9]*)$/', $number[2], $number2)) {
+				// some zeros and number eg. hello_01, hello_0003429
+				$last_character = substr($number2[2], -1);
+				$next_number = intval($number2[2]) + 1;
+
+				if ($last_character == '9') {
+					return $number[1].substr($number2[1], 0, -1).strval($next_number);
+				} else {
+					return $number[1].$number2[1].strval($next_number);
+				}
+			}
+
+		} else if (preg_match('/(.*[^0-9]{1})([0-9]{1,})$/', $name, $number)) {
+			// name ends with digits without preceeding zeros, like 100, 223
+			$next_number = intval($number[2]) + 1;
+			return $number[1].strval($next_number);
+		}
+	}
+
+}//end increment_name()
+
+
+/**
+* Generates a string to be used for a security key
+*
+* @param int		$key_len			the length of the random string to display in the image
+* @param boolean	$include_uppercase	include uppercase characters in the generated password
+* @param boolean	$include_numbers	include numbers in the generated password
+*
+* @return string
+* @access public
+*/
+function generate_security_key($key_len, $include_uppercase=FALSE, $include_numbers=FALSE)
+{
+	$k = random_password($key_len, $include_uppercase, $include_numbers);
+	if ($key_len>10) {
+		$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
+		$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
+		$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));
+	}
+	return $k;
+
+}//end generate_security_key()
+
+
+/**
+* Outputs a PNG image, of the text string entered, to be used as a security key
+* The letters are each displayed in a random font and are zoomed to a random size
+* based on the zoom factor entered
+*
+* @param int		$key_len		the length of the CAPTCHA key
+* @param string		$word			the word to display in the image
+* @param int		$w				the width of the image (final width will be $w * $zoom)
+* @param int		$h				the height of the image (final height will be $h * $zoom)
+* @param string		$bg				the background colour of the image (eg FFFFFF)
+* @param string		$text			the colour of the text in the image (eg 000000)
+* @param string		$border			the colour of the border image (eg 000000)
+*									for no border, set to the same colour as the background
+* @param int		$zoom			each character will be randomly zoomed between x1 and this figure
+* @param boolean    $use_colours	whether to use the supplied CAPTCHA background, text and border colours
+* @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font			the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size		the font point size to use
+* @param int		$min_angle		the minimum rotation angle for characters
+* @param int		$max_angle		the maximum rotation angle for characters
+* @param int		$x_start		the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist		the minimum pixel distance between characters
+* @param int		$max_dist		the maximum pixel distance between characters
+* @param int		$ttf_width		the pixel width of the TrueType Font image
+* @param int		$ttf_height		the pixel height of the TrueType Font image
+* @param boolean	$use_arc		whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour		the RGB colour of the arc elements
+*
+* @return void
+* @access public
+*/
+function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
+{
+	if (!empty($word)) {
+		// Reset colours to defaults if we are not using them
+		if (!$use_colours) {
+			$bg		= 'FFFFFF'; // White background
+			$text	= '000000'; // Black text
+			$border	= '000000'; // Black border
+		}
+
+		// cache control for this image
+		header('Cache-Control:');
+		header('Pragma: cache');
+		header('Expires: '.gmdate('D, d M Y H:i:s',time() -1000).' GMT');
+		header('Content-type: image/png');
+
+		// create an image we will use to print the characters on and then
+		// another image $zoom times bigger where we will print the larger
+		// zoomed text for easier reading
+		if (!($test_im = @imagecreate($w, $h))) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return FALSE;
+		}
+
+		if (!$final_im = @imagecreate(($w * $zoom), ($h * $zoom))) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return FALSE;
+		}
+
+		if (!$ttf_im = @imagecreate($ttf_width, $ttf_height)) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return FALSE;
+		}
+
+		// create some colours we will use in the image
+		// NOTE: The first colour allocated is used for the background
+		$r = hexdec(substr($bg, 0, 2));
+		$g = hexdec(substr($bg, 2, 2));
+		$b = hexdec(substr($bg, 4, 2));
+		$bg_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$bg_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$bg_colour = imagecolorallocate($ttf_im, $r, $g, $b);
+
+		$r = hexdec(substr($text, 0, 2));
+		$g = hexdec(substr($text, 2, 2));
+		$b = hexdec(substr($text, 4, 2));
+		$text_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$text_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$text_colour = imagecolorallocate($ttf_im, $r, $g, $b);
+
+		$r = hexdec(substr($border, 0, 2));
+		$g = hexdec(substr($border, 2, 2));
+		$b = hexdec(substr($border, 4, 2));
+		$border_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$border_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$border_colour = imagecolorallocate($ttf_im, $r, $g, $b);
+
+		$r = hexdec(substr($arc_color, 0, 2));
+		$g = hexdec(substr($arc_color, 2, 2));
+		$b = hexdec(substr($arc_color, 4, 2));
+		$arc_color_final = imagecolorallocate($ttf_im, $r, $g, $b);
+
+		$x_pos = 5;
+		$y_pos = 5;
+		$chars = preg_split('//', $word, -1, PREG_SPLIT_NO_EMPTY);
+
+		foreach ($chars as $char) {
+			// print the character in either type 3, 4 or 5 inbuilt font
+			imagestring ($test_im, rand(3, 5), $x_pos, $y_pos, $char, $text_colour);
+
+			// work out the new dimensions of the character after zooming
+			$new_w = rand(10, (10 * $zoom));
+			$new_h = rand(15, (10 * $zoom));
+
+			// copy the character we printed above and resize it onto the final
+			// image to zoom the characet randomly in width and height based on $zoom
+			if ($use_font) {
+
+				// Trigger an error if no font file is set
+				if ($font == '') {
+					trigger_error('You must select a true type font file to use', E_USER_WARNING);
+					return FALSE;
+				}
+
+				// Set some vars for our TTF image
+				$angle = rand($min_angle, $max_angle);
+
+				// Create the image
+				imagettftext($ttf_im, $font_size, $angle, $x_start, $font_size + 10, $text_colour, $font, $char);
+				// increase the x position
+				$x_start += rand($min_dist, $max_dist);
+			} else {
+				imagecopyresized($final_im, $test_im, ($x_pos * $zoom), ($y_pos * $zoom), $x_pos, $y_pos, $new_w, $new_h, 10, 15);
+				// increase the x position
+				$x_pos += 10;
+			}
+
+		}//end foreach
+
+		// Check to see if we are using arcs
+		if ($use_arc && $use_font) {
+			imagesetthickness($ttf_im, 3);
+
+			// Create the first arc on our image
+			$xpos   = 5 + ($font_size * 2) + rand(-5, 5);
+			$arc_width  = $ttf_width / 4.66 + rand(3, 10);
+			$arc_height = $font_size * 2.14 - rand(3, 10);
+
+			if ( rand(0,100) % 2 == 0 ) {
+			  $start = rand(0,66);
+			  $ypos  = $ttf_height / 2 - rand(5, 15);
+			  $xpos += rand(5, 10);
+			} else {
+			  $start = rand(180, 246);
+			  $ypos  = $ttf_height / 2 + rand(5, 15);
+			}
+
+			$end = $start + rand(75, 110);
+			imagearc($ttf_im, $xpos, $ypos, $arc_width, $arc_height, $start, $end, $arc_color_final);
+			//end first arc
+
+			// Create the second arc on our image
+			$arc_color = imagecolorallocate($ttf_im,   0,   0, 255);
+			$xpos   = 5 + ($font_size * 2) + rand(-5, 5);
+			$arc_width  = $ttf_width / 4.66 + rand(3, 10);
+			$arc_height = $font_size * 2.14 - rand(3, 10);
+
+			if ( rand(1,75) % 2 == 0 ) {
+			  $start = rand(45,110);
+			  $ypos  = $ttf_height / 2 - rand(5, 15);
+			  $xpos += rand(5, 15);
+			} else {
+			  $start = rand(200, 250);
+			  $ypos  = $ttf_height / 2 + rand(5, 15);
+			}
+
+			$end = $start + rand(75, 100);
+			imagearc($ttf_im, $ttf_width * .75, $ypos, $arc_width, $arc_height, $start, $end, $arc_color_final);
+			//end second arc
+
+		}//end if
+
+
+		if ($use_font) {
+			imagerectangle($ttf_im, 0, 0, imagesx($ttf_im) -1, imagesy($ttf_im) -1, $border_colour);
+			// Create our image as a png then destroy
+			imagepng($ttf_im);
+			imagedestroy($ttf_im);
+		} else {
+			// draw a border around the outside
+			imagerectangle($final_im, 0, 0, ($w * $zoom) -1, ($h * $zoom) -1, $border_colour);
+
+			// output the image
+			imagepng($final_im);
+
+			// cleanup
+			imagedestroy($test_im);
+			imagedestroy($final_im);
+		}
+
+	}//end if empty($word)
+
+}//end security_key_image()
+
+
+/**
+* Return the supplied number with ordinal suffix added
+*
+* @param int	$num	the number to add the suffix to
+*
+* @return string
+* @access public
+*/
+function add_ordinal_suffix($num)
+{
+	// type verification
+	if (!is_int($num)) return '';
+
+	// boundary check
+	if ($num <= 0) return '';
+
+
+	if ((10 < ($num % 100)) && (($num % 100) < 20)) {
+		return $num.'th';
+	} else {
+		switch ($num % 10) {
+			case 1:
+				return $num.'st';
+
+			case 2:
+				return $num.'nd';
+
+			case 3:
+				return $num.'rd';
+
+			default:
+				return $num.'th';
+		}
+	}
+
+}//end add_ordinal_suffix()
+
+
+/**
+* Return the supplied number with ordinal suffix as it would be used in a backwards count
+*
+* If the number is 1, an empty string is returned because you don't want to print
+* "the 1st last day of the month" for example.
+*
+* @param int	$num	the number to add the suffix to
+*
+* @return string
+* @access public
+*/
+function add_reverse_ordinal_suffix($num)
+{
+	return ($num == 1) ? '' : add_ordinal_suffix($num);
+
+}//end add_reverse_ordinal_suffix()
+
+
+?>

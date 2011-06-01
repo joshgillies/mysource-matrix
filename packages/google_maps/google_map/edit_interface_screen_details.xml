@@ -1,0 +1,86 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.3 2008/10/30 02:31:52 bpearson Exp $
+*
+*/
+-->
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Map Settings" write_access="write:attributes" limbo_access="1">
+		<field attribute="api_key">
+			<text width="110" height="1"/>
+		</field>
+        <field attribute="map_control">
+            <selection />
+        </field>
+		<field attribute="scale_control">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="map_type_control">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="toggle_root_nodes">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="enable_create_location">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="enable_geocoder">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="enable_street_view">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="enable_google_earth">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Default Settings" write_access="write:attributes" limbo_access="1">
+		<field>
+	        <function_call>
+	            <paint_function name="paintDefaultLatLng" />
+	            <process_function name="processDefaultLatLng" />
+	        </function_call>
+		</field>
+        <field attribute="default_map_type">
+            <selection />
+        </field>
+		<field>
+	        <function_call>
+	            <paint_function name="paintDefaultMarkerIcon" />
+	            <process_function name="processDefaultMarkerIcon" />
+	        </function_call>
+		</field>
+		<field>
+	        <function_call>
+	            <paint_function name="paintDefaultIconSize" />
+	            <process_function name="processDefaultIconSize" />
+	        </function_call>
+		</field>
+	</section>
+	<section name="Map Initialisation" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+	            <paint_function name="paintMapInitialisation" />
+	            <process_function name="processMapInitialisation" />
+			</function_call>
+		</field>
+	</section>
+</contents>

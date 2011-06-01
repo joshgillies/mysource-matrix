@@ -1,0 +1,71 @@
+<MySource_AREA id_name="left_menu" design_area="menu_normal">
+	<MySource_SET name="show_subs" value="on_current"/>
+	<MySource_SET name="level" value="children"/>
+	<MySource_SET name="settings.class.normal"    value="menu-normal"/>
+	<MySource_SET name="settings.class.hierarchy" value="menu-hierarchy"/>
+	<MySource_SET name="settings.class.current"   value="menu-current"/>
+	<ul class="menus">
+		<MySource_ASSET>
+			<li class="<MySource_PRINT var="settings.class" />">
+				<a href="<MySource_PRINT var="asset_link" />"><MySource_PRINT var="asset_name"/></a>
+				<MySource_SUB design_area="menu_normal">
+					<MySource_SET name="settings.class.normal"    value="menu-normal"/>
+					<MySource_SET name="settings.class.hierarchy" value="menu-hierarchy"/>
+					<MySource_SET name="settings.class.current"   value="menu-current"/>
+					<ul>
+						<MySource_ASSET>
+							<li class="<MySource_PRINT var="settings.class" />">
+							<a href="<MySource_PRINT var="asset_link" />"><MySource_PRINT var="asset_name"/></a>
+							</li>
+						</MySource_ASSET>
+					</ul>
+			</li>
+			</MySource_SUB>
+		</MySource_ASSET>
+	</ul>
+	<style type="text/css">
+		ul.menus {
+			width: auto;
+			float: left;
+			margin: 10px;
+			padding: 0px;
+			border: 2px solid blue;
+		}
+		ul.menus * {
+			border: 0px;
+		}
+		ul.menus li a {
+			text-decoration: none;
+			font-weight: bold;
+		}
+		ul.menus li a:hover {
+			text-decoration: underline;
+		}
+		ul.menus li {
+			list-style-type: none;
+			margin: 0px;
+			padding: 2px 4px;
+		}
+		ul.menus li ul li {
+			list-style-type: disc;
+		}
+		li.menu-normal {
+			background-color: yellow;
+		}
+		li.menu-normal a, li.menu-normal a:hover, li.menu-normal a:visited {
+			color: blue;
+		}
+		li.menu-hierarchy {
+			background-color: orange;
+		}
+		li.menu-hierarchy a, li.menu-hierarchy a:hover, li.menu-hierarchy a:visited {
+			color: blue;
+		}
+		li.menu-current {
+			background-color: red;
+		}
+		li.menu-current a, li.menu-current a:hover, li.menu-current a:visited {
+			color: white;
+		}
+	</style>
+</MySource_AREA>

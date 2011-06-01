@@ -1,0 +1,114 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.4 2008/10/30 05:09:09 bpearson Exp $
+*
+*/
+-->
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Map Settings">
+		<field attribute="api_key">
+			<display_name>API Key</display_name>
+			<note>The API Key provided by Google</note>
+		</field>
+		<field attribute="map_control">
+			<display_name>Map Control</display_name>
+			<note>Select one of the available control types.</note>
+		</field>
+		<field attribute="scale_control">
+			<display_name>Scale Control</display_name>
+			<note>Enable or Disable the Zoom Control of the map.</note>
+		</field>
+
+		<field attribute="map_type_control">
+			<display_name>Map Type Control</display_name>
+			<note>Enable or Disable the Map Type Control of the map</note>
+		</field>
+		<field attribute="enable_listing">
+			<display_name>Enable Listing</display_name>
+			<note>Enable or Disable the Listing Capability.</note>
+		</field>
+		<field attribute="use_custom_popup_html">
+			<display_name>Custom HTML popup</display_name>
+			<note>Enable or Disable custom HTML popup</note>
+		</field>
+		<field attribute="toggle_root_nodes">
+			<display_name>Enable root nodes toggling</display_name>
+			<note>Allow toggling markers belongs to different root nodes. Enabling this will cause performance overhead.</note>
+		</field>enable_street_view
+		<field attribute="enable_create_location">
+			<display_name>Enable Create Location</display_name>
+			<note>Allow using an asset builder to add a Google Map Location Asset using this Map.</note>
+		</field>
+		<field attribute="enable_geocoder">
+			<display_name>Enable Geocoding Service</display_name>
+			<note>Allow using the Geocoding Service of Google.</note>
+		</field>
+		<field attribute="enable_street_view">
+			<display_name>Enable Street View</display_name>
+			<note>Allow using the Street View capability of Google.</note>
+		</field>
+		<field attribute="enable_google_earth">
+			<display_name>Enable Google Earth</display_name>
+			<note>Allow using the Google Earth capability. This option requires the installation of the Google Earth plugin</note>
+		</field>
+	</section>
+	<section name="Default Settings">
+		<field>
+			<display_name></display_name>
+			<note></note>
+	        <function_call>
+	            <paint_function name="paintDefaultLatLng" />
+	            <process_function name="processDefaultLatLng" />
+	        </function_call>
+		</field>
+        <field attribute="default_map_type">
+            <display_name>Default Map Type</display_name>
+        </field>
+		<field>
+			<display_name></display_name>
+			<note></note>
+	        <function_call>
+	            <paint_function name="paintDefaultMarkerIcon" />
+	            <process_function name="processDefaultMarkerIcon" />
+	        </function_call>
+		</field>
+		<field>
+			<display_name></display_name>
+			<note></note>
+	        <function_call>
+	            <paint_function name="paintDefaultIconSize" />
+	            <process_function name="processDefaultIconSize" />
+	        </function_call>
+		</field>
+	</section>
+	<section name="Map Initialisation">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+	            <paint_function name="paintMapInitialisation" />
+	            <process_function name="processMapInitialisation" />
+			</function_call>
+		</field>
+	</section>
+</contents>

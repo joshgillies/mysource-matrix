@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.2 2006/12/07 00:04:22 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Request Validation">
+		<field attribute="request_email_format">
+			<display_name>Email Format</display_name>
+			<note>Note that the password reset request email will always be sent to the user who has requested to have their password reset. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use any of the user keywords in  any of the above fields. You may also specify: fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%password_reset_url% - the URL the user must click on to reset their password&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+		</field>
+	</section>
+</contents>

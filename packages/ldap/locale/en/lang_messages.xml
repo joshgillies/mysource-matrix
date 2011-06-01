@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_messages.xml,v 1.5 2006/12/07 01:00:46 bcaldwell Exp $
+*
+*/
+
+LDAP Localised Internal Message File
+-->
+
+<messages>
+	<message type="system.security.login.ldap">
+		<subject>User Account Access Warning</subject>
+		<body>LDAP User "%asset_name%" (username: %user_name%) has had their account accessed unsuccessfully %num_attempts% times in a session</body><!-- asset-name, user-name, #-attempts -->
+	</message>
+</messages>

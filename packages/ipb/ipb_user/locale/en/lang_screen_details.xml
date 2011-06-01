@@ -1,0 +1,65 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.2 2006/12/07 03:13:05 bcaldwell Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="User Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="email">
+			<display_name>Email</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="date_of_birth">
+			<display_name>Date Of Birth</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="aim_name">
+			<display_name>AOL Identity</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="icq_number">
+			<display_name>ICQ Number</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="yahoo">
+			<display_name>Yahoo Identity</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="msnname">
+			<display_name>MSN Messenger Identity</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="location">
+			<display_name>Location</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="website">
+			<display_name>Website</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="signature">
+			<display_name>Signature</display_name>
+			<note>%description%</note>
+		</field>
+		<field attribute="interests">
+			<display_name>Interests</display_name>
+			<note>%description%</note>
+		</field>
+	</section>
+</contents>

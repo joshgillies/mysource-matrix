@@ -1,0 +1,32 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_plots.xml,v 1.4 2007/04/05 00:13:21 skim Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Change Mode">
+		<field attribute="mode">
+			<display_name>Change Editing Mode</display_name>
+			<note>Choose 'Add Plot' to add a new plot to the graph. You can set the details of each plot by choosing 'Edit Plot' mode.</note>
+		</field>
+	</section>
+	<section name="Add a new plot" />
+	<section name="Choose a plot" />
+	<section name="General Plot Settings" />
+	<section name="Plot Specific Settings" />
+	<section name="Marker Settings" />
+	<section name="Single Preview" />
+	<section name="Final Preview" />
+</contents>

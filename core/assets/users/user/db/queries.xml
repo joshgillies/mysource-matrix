@@ -1,0 +1,24 @@
+<queries id="user">
+
+	<query id="getUserCurrentLocks">
+                <!-- Return all the locks for specified user -->
+                <primary>
+                        <select>
+                                <fields>
+                                        <field table="sq_lock" column="lockid" />
+                                        <field table="sq_lock" column="source_lockid" />
+                                        <field table="sq_lock" column="userid" />
+                                        <field table="sq_lock" column="expires" />
+                                </fields>
+                                <from>
+                                        <table>sq_lock</table>
+                                </from>
+                                <where>
+                                        <equal table="sq_lock" column="userid">:userid</equal>
+                                </where>
+                        </select>
+                </primary>
+	
+	</query>
+
+</queries>

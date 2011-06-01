@@ -1,0 +1,750 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: limbo.css,v 1.2 2008/01/11 05:02:10 colivar Exp $
+*
+*/
+
+/* MAIN BODY STYLES */
+
+body {
+	background-color:	#FFFFFF;
+	margin: 0px;
+}
+
+body, p, td, ul, li, input, select, textarea {
+	color:				#000000;
+	font-family:		Arial, Verdana Helvetica, sans-serif;
+	font-size:			11px;
+}
+
+a {
+	color:				black;
+	text-decoration:	underline;
+}
+
+a.hover {
+	color:				#4A3852;
+}
+
+p {
+	margin-bottom: 1ex;
+	margin-top: 1px;
+}
+
+
+/* HEADING STYLES */
+
+table.sq-backend-main-headings {
+	width:				100%;
+	border-collapse:	collapse;
+}
+
+table.sq-backend-main-headings td {
+	background-color:	#594165;
+	color:				#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			4px 2px;
+	vertical-align:		top;
+	white-space:		nowrap;
+	border:				0px;
+}
+table.sq-backend-main-headings td.sq-backend-main-heading {
+	padding-top:		6px;
+}
+table.sq-backend-main-headings td.sq-backend-heading-icon {
+	padding-top:		6px;
+	padding-left:		5px;
+	width:				1%;
+}
+.sq-backend-sub-heading {
+	background-color:	#594165;
+	color:				#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			9px;
+	padding:			0px;
+	border-bottom:		1px solid #342939;
+}
+
+table.sq-backend-nav-history-container {
+	width:				100%;
+	border-collapse:	collapse;
+	margin-bottom:		1px;
+}
+table.sq-backend-nav-history-container td {
+	line-height:		20px;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	background-color:	#C8BDCB;
+	color:				#000000;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		middle;
+	border-bottom:		1px solid #342939;
+	padding:			4px 4px 2px 4px;
+	height:				auto;
+
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history a {
+	line-height:		20px;
+	text-decoration:	none;
+	margin:				0px;
+	white-space:		nowrap;
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history a span {
+	font-size:			8px;
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history span.divider {
+	color:				#FFFFFF;
+	height:				20px; /* this is to make the line-height work in IE http://www.brunildo.org/test/IElineheight.html */
+}
+td.sq-backend-nav-history a img {
+	padding-bottom:		2px;
+	border:				0px;
+}
+table.sq-backend-nav-history-container td img {
+	padding:			0px;
+	vertical-align:		middle;
+	border:				0px;
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history-title  {
+	color:				#342939;
+	width:				12ex;
+	white-space:		nowrap;
+	padding-top:		6px;
+	vertical-align:		top;
+}
+
+table.sq-backend-main-headings .sq-backend-asset-info {
+	border:				1px solid #FFFFFF;
+	padding:			3px;
+	margin-top:			3px;
+	background-color:	#725B7D;
+	color:				#FFFFFF;
+	font-size:			10px;
+	white-space:		nowrap;
+}
+
+.sq_asset_info_toggle {
+	color:				#FFFFFF;
+	text-decoration:	none;
+	font-size:			10px;
+	cursor:				pointer;
+}
+
+
+
+/* GENERAL STYLES */
+
+.sq-backend-data, .sq-backend-data p, td.sq-backend-data, .sq-form-field {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+}
+td.sq-backend-data {
+	vertical-align:		top;
+	padding:			0px 0px 10px 0px;
+}
+td.sq-backend-data-newline {
+	padding-left:		10px;
+}
+td.sq-backend-field-newline {
+	padding-bottom:		2px;
+	width:				100%;
+}
+td.sq-backend-commit {
+	text-align:			right;
+	padding:			2px;
+}
+
+.sq-backend-smallprint {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		normal;
+	margin-top:			2px;
+	margin-bottom:		8px;
+}
+
+.sq-backend-section-note {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		normal;
+	padding:			5px;
+	background:			#f5f5f5;
+	border:				1px dotted black;
+}
+
+.sq-backend-fineprint {
+	color:				green;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+}
+
+.sq-backend-smallprint ul {
+	margin-top:			0px;
+}
+
+.sq-backend-warning {
+	color:				#FF0000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+}
+
+.sq-backend-notice {
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	letter-spacing:		1px;
+}
+
+
+
+/* TOPNAV STYLES - also used in sidenav */
+
+.sq-backend-header-item {
+	background-color:	#342939;
+	color:				white;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	text-decoration:	none;
+	padding-left:		3px;
+	padding-right:		3px;
+}
+
+.sq-backend-header-search-box {
+	background-color:	#FFFFFF;
+	border:				1px #000000 solid;
+	padding-left:		3px;
+	padding-right:		3px;
+	margin-right:		5px;
+}
+
+
+
+/* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
+
+td.sq-backend-screen-menu {
+	text-align:			right;
+	width:				100%;
+}
+table.sq-backend-section-table {
+	margin:				0px 0px 3px 0px;
+	width:				100%;
+	border-collapse:	collapse;
+}
+table.sq-backend-section-table td table.sq-backend-section-table-inner {
+	width:				98%;
+	margin:				10px 10px;
+	border-collapse:	collapse;
+}
+
+.sq-backend-section-heading-container td {
+	padding:			0px;
+	border-bottom:		1px solid #B3B3B3;
+}
+.sq-backend-section-heading-container td table {
+	border-bottom:		1px solid white;
+	width:				100%;
+	margin: 0px;
+}
+.sq-backend-section-heading-container td table td {
+	border:				0px;
+}
+
+.sq-backend-section-heading-container td table td.sq-backend-section-heading {
+	background-color:	#F4F4EB;
+	color:				#848479;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			3px 5px;
+	border:				0px;
+	width:				100%;
+}
+
+.sq-backend-section-subheading {
+	background-color:	#FFFFFF;
+	color:				#33B9E6;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			11px;
+	padding:			0px;
+}
+
+.sq-backend-field {
+	color:				#000000;
+	background-color:	#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		top;
+	white-space:		nowrap;
+	padding:			0px 10px 10px 0px;
+	width:				5%;
+}
+
+
+/* LIMBO OUTPUTTER - SECTIONS AND FIELDS */
+
+.sq-limbo-section-heading {
+	color:				#848479;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			0px 2px;
+	border-bottom:		1px solid black;
+}
+
+.sq-limbo-section-subheading {
+	color:				#33B9E6;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			11px;
+	padding:			0px 2px;
+}
+
+.sq-limbo-field {
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		top;
+	white-space:		nowrap;
+	padding:			0px 10px 0px 0px;
+}
+
+#sq_backend_sections table tr td.sq-backend-data {
+	padding-bottom: 2px;
+}
+
+/* BACKEND TABLE STYLES */
+
+.sq-backend-table {
+	width:				100%;
+	border:				1px solid #CCCCCC;
+	border-collapse:	collapse;
+	margin: 3px;
+}
+
+.sq-backend-table-header, .sq-backend-table-header-header, .sq-backend-table-cell, .sq-backend-table-cell-alt, .sq-backend-table th, .sq-backend-table td {
+	vertical-align:		top;
+	color:				#333333;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	padding:			4px;
+	border-bottom:		1px dotted #CCCCCC;
+}
+
+.sq-backend-table-header, .sq-backend-table th {
+	font-size:			11px;
+	font-weight:		bold;
+	background-color:	#EEEEEE;
+	text-align:			left;
+}
+
+.sq-backend-table-header-header, table tr td.sq-backend-table-header-header, .sq-backend-table-header th {
+	background-color:	#666666;
+	color:				#FFFFFF;
+	font-size:			11px;
+	font-weight:		bold;
+	text-align:			left;
+}
+
+.sq-backend-table-cell, .sq-backend-table tr td {
+	background-color:	#F5F5F5;
+}
+
+.sq-backend-table-cell-alt, .sq-backend-table tr.alt td {
+	background-color:	#D1E6FC;
+}
+
+.sq-backend-table-cell a:link, .sq-backend-table-cell a:hover, .sq-backend-table-cell a:visited,
+.sq-backend-table-cell-alt a:link, .sq-backend-table-cell-alt a:hover, .sq-backend-table-cell-alt a:visited,
+.sq-backend-table td a:link, .sq-backend-table td a:hover, .sq-backend-table td a:visited {
+	color:				#333333;
+	text-decoration:	underline;
+}
+
+td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover, .sq-backend-table td a:hover {
+	text-decoration:	underline;
+}
+
+table.no-borders td, table.no-borders th {
+	border:				0px;
+	padding:			0px;
+	vertical-align:		middle;
+}
+
+
+/* BACKEND FIELDSET STYLES */
+
+legend, .sq-backend-legend {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight: 		bold;
+	color:				#333333;
+	font-size:			11px;
+}
+
+fieldset {
+	background-color:	#EEEEEE;
+	border:				1px solid #CCCCCC;
+}
+
+
+
+/* LOCKING STYLES */
+
+p.sq-lock-message {
+	margin-top:			0px;
+	margin-bottom:		2px;
+}
+
+.sq-backend-lock-table {
+	width:				100%;
+	border:				1px solid #003C79;
+	border-collapse:	collapse;
+}
+
+td.sq-backend-lock-table-header, td.sq-backend-lock-table-cell, td.sq-backend-lock-table-cell-alt {
+	background-color:	#FFFFFF;
+	vertical-align:		top;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	padding:			2px;
+}
+
+td.sq-backend-lock-table-header {
+	font-size:			11px;
+	font-weight:		bold;
+	background-color:	#7FBCE9;
+	border-bottom:		1px solid #003C79;
+}
+
+td.sq-backend-lock-table-cell-alt {
+	background-color:	#BFD3E6;
+}
+
+
+/* ASSET FINDER */
+
+.sq-form-asset-finder {
+	border:				1px dashed #D0D0D0;
+        border-right:none;
+ }
+
+   .sq-asset-finder-id-label {
+           border-left:none;
+           margin-right:0.3em;
+           border-right:1px dashed #D0D0D0;
+   }
+
+   .sq-asset-finder-id-label {
+           padding-top:0.2em;
+           position:relative;
+           top:1px;
+   }
+
+   * html .sq-asset-finder-id-label {
+           top:0;
+   }
+
+
+/* NEW MESSAGES POPUP STYLES */
+
+.sq-backend-new-message-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+	width:				100%;
+}
+
+.sq-backend-new-message-cell, .sq-backend-new-message-heading, .sq-backend-new-message-body {
+	color:				#342939;
+	background-color:	#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-new-message-body {
+	color:				#342939;
+	font-weight:		normal;
+}
+
+
+
+/* SEARCH RESULTS POPUP STYLES */
+
+.sq-backend-search-results-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+	width:				100%;
+	z-index: 1;
+}
+
+.sq-backend-search-results-cell, .sq-backend-search-results-heading, .sq-backend-search-results-body {
+	color:				#342939;
+	background-color:	#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-search-results-heading {
+	background-color:	#F0F0E6;
+}
+
+.sq-backend-search-results-highlight {
+	background-color:	yellow;
+}
+
+.sq-backend-search-results-body {
+	color:				#342939;
+	font-weight:		normal;
+}
+
+
+
+/* POPUP BLOCKING MESSGAE */
+
+.sq-backend-popups-blocked-table {
+	border:				2px solid #790E09;
+	border-collapse:	collapse;
+	background-color:	#FFFFFF;
+	width:				100%;
+}
+
+.sq-backend-popups-blocked-cell, .sq-backend-popups-blocked-heading, .sq-backend-popups-blocked-body {
+	color:				#F8320F;
+	background-color:	#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			13px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-popups-blocked-body, .sq-backend-popups-blocked-cell {
+	font-weight:		900;
+	font-size:			10px;
+}
+
+/* SEARCH FAILED POPUP STYLES */
+
+.sq-backend-search-failed-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+	width:				300px;
+}
+
+.sq-backend-search-failed-cell, .sq-backend-search-failed-heading, .sq-backend-search-failed-body {
+	color:				#342939;
+	background-color:	#ececec;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-search-failed-body {
+	color:				#342939;
+	font-weight:		normal;
+}
+
+.delete-button {
+	background-image:	url(../images/icons/delete.png);
+	background-position:	50% 50%;
+	background-repeat:	no-repeat;
+	width:				16px;
+	height:				16px;
+	background-color:	transparent;
+	border:				0px;
+	cursor:				pointer;
+}
+.clickable {
+	cursor:				pointer;
+	text-decoration:	underline;
+}
+
+table.email-format th {
+	text-align:			right;
+	font-weight:		bold;
+	font-size:			11px;
+	padding-right:		1ex;
+}
+table.email-format th, table.email-format td {
+	vertical-align:		top;
+}
+table.email-format td {
+	padding-bottom:		1ex;
+}
+table.email-format td ul {
+	margin:				0px;
+	padding:			0px;
+	list-style-type:	none;
+}
+table.email-format-body {
+	width:				100%;
+	border:				1px dashed #888;
+	border-collapse:	collapse;
+}
+table.email-format-body td {
+	border-top:			1px dashed #888;
+	padding:			2px;
+}
+td.email-format-version {
+	text-align:			right;
+	white-space:		nowrap;
+	vertical-align:		middle;
+	width:				50ex;
+}
+
+a.sq-search-results-expand-link {
+	text-decoration:	none;
+	position:			relative;
+	top:				0px;
+	left:				0px;
+	height:				10px;
+	font-size:			14px;
+	margin-top:			5px;
+	font-weight: 		bold;
+	text-decoration:	none;
+	color:				#33B9E6;
+}
+
+.sq-search-results-expand-div {
+	float:				left;
+	width:				22px;
+	font-weight: 		bold;
+	background-color:	white;
+	white-space:		nowrap;
+}
+
+.sq-search-results-entry {
+	margin-top:		5px;
+	text-indent:	-38px;
+	padding-left:	50px;
+}
+
+.sq-search-results-detail {
+	display:		none;
+	text-indent:	0px;
+}
+
+#sq-search-wait-popup {
+	position: absolute;
+	right: 10px;
+	top: 0;
+	width: 300px;
+	background-color: white;
+	border: 2px solid black;
+	font: normal 10px Arial,Verdana,sans-serif;
+	display: none;
+	z-index: 2000;
+}
+
+#sq-search-wait-popup-titlebar {
+	font-weight: bold;
+	padding: 5px;
+}
+
+#sq-search-wait-popup-close {
+	float: right;
+}
+
+#sq-search-wait-popup-close a {
+	color: black;
+	text-decoration: none;
+}
+
+#sq-search-wait-popup-details {
+	padding: 5px;
+}
+
+/* style for the information and asset finder in asset screen title */
+ul.info_asset_finder {
+  margin:1px 15px;
+  display:inline;
+  padding:0;
+  margin:0;
+}
+
+ul.info_asset_finder li {
+  display:inline;
+  margin:0;
+  padding:0;
+  color:#ffffff;
+  font-size:1.1em;
+}
+
+* html ul.info_asset_finder {
+   margin-left:5px;
+}
+
+/* Lists of radio buttons */
+
+ul.radio-list {
+	list-style-type: none;
+	margin-left: 0px;
+	padding: 4px;
+}
+
+/* Enable-fields radio list */
+
+.enable-field-list li {
+	margin-bottom: 5px;
+	padding: 0px;
+	border: 1px solid white;
+}
+.enable-field-list li input {
+	position: absolute;
+}
+.enable-field-list li div {
+	margin: 0px;
+	margin-left: 20px;
+	padding: 1px 4px;
+}
+.enable-field-list li div input {
+	position: static;
+}
+
+#sq-commit-button-div {
+	border-top: 2px solid #848479;
+	padding: 0px;
+	text-align: right;
+	background-color: #F4F4EB;
+	margin-top: 10px;
+	width: 100%;
+
+	bottom: 0px;
+	position: fixed;
+	z-index: 2000;
+}
+
+#sq-commit-button-div #sq-commit-button-div-inside {
+	padding: 10px;
+}
+
+#sq-commit-button-spacer {
+	height: 10px;
+}

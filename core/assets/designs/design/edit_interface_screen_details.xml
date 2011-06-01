@@ -1,0 +1,48 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.24 2006/12/05 22:41:31 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="id_name">
+			<text width="60" height="1" />
+		</field>
+	</section>
+	<section name="Parse File" write_access="write:parsing" read_access="write:">
+		<field>
+			<function_call>
+				<paint_function   name="paintReparseFile"   />
+				<process_function name="processReparseFile" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintParseFile"   />
+				<process_function name="processParseFile" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Associated Files" write_access="write:parsing" read_access="write:">
+		<field>
+			<display_name>New</display_name>
+			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tar.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
+			<function_call>
+				<paint_function   name="paintNewFiles"   />
+				<process_function name="processNewFiles" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -1,0 +1,24 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.2 2006/12/07 00:04:24 emcdonald Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_whats_new_no_ranges">There are no ranges</string>
+<string source="cms_whats_new_select_range">Please select a date range to customise</string>
+<string source="cms_whats_new_date_range_list">Date Range List</string>
+<string source="cms_whats_new_date_range_list_linked">Date Range List Linked</string>
+</strings>

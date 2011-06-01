@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_inputs.xml,v 1.1 2007/04/27 07:17:50 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Dynamic Variables" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintDynamicData" />
+			<process_function name="processDynamicData" />
+		</function_call>
+	</section>
+</contents>

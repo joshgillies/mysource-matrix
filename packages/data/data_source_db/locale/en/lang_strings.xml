@@ -1,0 +1,73 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.7 2009/01/09 03:23:15 bpearson Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="select">--Select--</string>
+<string source="select_table">Select Table</string>
+<string source="select_aggregate_func">Select Aggregate Function</string>
+<string source="aggregate_function">Aggregate Function</string>
+<string source="aggregate_field">Aggregate Field</string>
+<string source="delete">Delete?</string>
+<string source="keyword">Keyword</string>
+<string source="description">Description</string>
+<string source="select_clause_table">Select Clause Table</string>
+<string source="select_clause_field">Select Clause Field</string>
+<string source="select_clause_type">Select Clause Type</string>
+<string source="order_asc">Ascending</string>
+<string source="order_desc">Descending</string>
+<string source="order_by">ORDER BY</string>
+<string source="group_by">GROUP BY</string>
+<string source="field">Field</string>
+<string source="priority">Priority</string>
+<string source="order">Sort Order</string>
+<string source="none">None</string>
+<string source="and">AND</string>
+<string source="or">OR</string>
+<string source="where">WHERE</string>
+<string source="having">HAVING</string>
+<string source="condition">Condition</string>
+<string source="operator_or_min">Operator/Min Value</string>
+<string source="value_or_max">Value/Max Value</string>
+<string source="multiclause_join_op">Multiclause? Join With Next Clause Using..</string>
+<string source="new">New</string>
+<string source="clause">Clause</string>
+<string source="left_join">LEFT JOIN</string>
+<string source="right_join">RIGHT JOIN</string>
+<string source="inner_join">INNER JOIN</string>
+<string source="outer_join">OUTER JOIN</string>
+<string source="cross_join">CROSS JOIN</string>
+<string source="table">Table</string>
+<string source="column">Column</string>
+<string source="join_type">Join Type</string>
+<string source="no_selected_fields">No Fields Selected</string>
+<string source="no_selected_tables">No Tables Selected</string>
+<string source="no_tables_found">No Tables Found</string>
+<string source="database_type">Database Type</string>
+<string source="database_name">Database Name</string>
+<string source="user_name">User Name</string>
+<string source="host_name">Host Name</string>
+<string source="password">Password</string>
+<string source="alias"> Alias</string>
+
+<string source="data_password_not_displayed">(Password not displayed)</string>
+
+<string source="db_data_source_variable_section_note"><![CDATA[Variables added in this section can be used in queries in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
+<string source="db_data_source_mappings_section_note">Use this section to setup dynamic assignment of values to variables.</string>
+
+</strings>

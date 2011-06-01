@@ -1,0 +1,46 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: report_most_used_asset_types_edit_fns.inc,v 1.1 2008/05/07 05:54:04 mbrydon Exp $
+*
+*/
+
+require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report_edit_fns.inc';
+
+/**
+* Most Used Asset Types Report
+*
+* Purpose
+*	Functions to print and process the backend interface
+*
+* @author Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Report_Most_Used_Asset_Types_Edit_Fns extends Simple_Report_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+}//end class
+?>

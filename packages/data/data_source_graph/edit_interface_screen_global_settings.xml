@@ -1,0 +1,92 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_global_settings.xml,v 1.5 2006/12/08 00:52:00 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Global Settings" write_access="write:attributes" limbo_access="1">
+		<field attribute="width">
+			<int width="5" />
+		</field>
+		<field attribute="height">
+			<int width="5" />
+		</field>
+		<field attribute="show_graph_title">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="x_set_title">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="y_set_title">
+			<text width="25" height="1"/>
+		</field>
+		<field attribute="x_label_interval">
+			<int width="2" />
+		</field>
+		<field attribute="y_label_interval">
+			<int width="2" />
+		</field>
+		<field attribute="graph_angle">
+			<boolean true_text="vertical" false_text="horizontal" />
+		</field>
+		<field attribute="x_font_label_angle">
+			<boolean true_text="vertical" false_text="horizontal" />
+		</field>
+		<field attribute="y_font_label_angle">
+			<boolean true_text="vertical" false_text="horizontal" />
+		</field>
+		<field attribute="show_legend">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="background">
+			<colour />
+		</field>
+		<field attribute="border_colour">
+			<colour />
+		</field>
+		<field attribute="x_axis_colour">
+			<colour />
+		</field>
+		<field attribute="y_axis_colour">
+			<colour />
+		</field>
+		<field attribute="x_font_axis_colour">
+			<colour />
+		</field>
+		<field attribute="y_font_axis_colour">
+			<colour />
+		</field>
+		<field attribute="axis_left_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_right_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_top_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_bottom_padding">
+			<int width="5" />
+		</field>
+	</section>
+	<section name="Preview" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintGlobalSettingPreview"   />
+				<process_function name="processGlobalSettingPreview" />
+			</function_call>
+		</field>
+	</section>
+</contents>

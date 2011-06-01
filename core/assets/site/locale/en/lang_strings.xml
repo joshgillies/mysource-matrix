@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.5 2008/07/03 05:35:21 lwright Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="core_site_add_redirect">Add Redirect</string>
+	<string source="core_site_current_redirects">Current Redirects</string>
+	<string source="core_site_archived_page">Page to act as a "Not Found" page when archived assets are accessed</string>
+</strings>

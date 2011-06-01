@@ -1,0 +1,49 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_query.xml,v 1.8 2007/12/22 01:47:19 gsherwood Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="SQL To Execute">
+		<field>
+			<function_call>
+				<paint_function name="paintQuerySoFar"/>
+				<process_function name="processQuerySoFar"/>
+			</function_call>
+			<display_name>SQL Query</display_name>
+			<note />
+		</field>
+	</section>
+	<section name ="Record Set Asset Names">
+		<field>
+			<function_call>
+				<paint_function name="paintShadow" />
+				<process_function name="processShadow" />
+			</function_call>
+			<display_name>Record Set Asset Names</display_name>
+			<note>Enter the name that should be used for record set assets exposed by this data source.  It can either be a normal string or a combination of string and keywords.  See the Available Keywords section below for the keywords available for use in this field</note>
+		</field>
+	</section>
+	<section name="Available Keywords">
+		<field>
+			<function_call>
+				<paint_function name="paintKeywords" />
+				<process_function name="processKeywords" />
+			</function_call>
+			<display_name>Available Keywords</display_name>
+			<note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+		</field>
+	</section>
+</contents>

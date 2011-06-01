@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.4 2006/12/06 00:35:27 emcdonald Exp $
+*
+* Localised Strings File for Value Comparison Form Question Rule Asset
+*/
+-->
+
+<strings>
+<string source="core_form_rule_comparison_==">Must Be Equal To</string>
+<string source="core_form_rule_comparison_desc_==_q">The response to "%1$s" must be equal to the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_==">The response to "%1$s" must be equal to "%2$s"</string>
+<string source="core_form_rule_comparison_edit_==_q">Response must be equal to the response to %s</string>
+<string source="core_form_rule_comparison_edit_==">Response must be equal to "%s"</string>
+<string source="core_form_rule_comparison_!=">Must NOT Be Equal To</string>
+<string source="core_form_rule_comparison_desc_!=_q">The response to "%1$s" must NOT be equal to the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_!=">The response to "%1$s" must NOT be equal to "%2$s"</string>
+<string source="core_form_rule_comparison_edit_!=_q">Response must NOT be equal to the response to %s</string>
+<string source="core_form_rule_comparison_edit_!=">Response must NOT be equal to "%s"</string>
+<string source="core_form_rule_comparison_&gt;">Must Be Greater Than</string>
+<string source="core_form_rule_comparison_desc_&gt;_q">The response to "%1$s" must be greater than the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_&gt;">The response to "%1$s" must be greater than "%2$s"</string>
+<string source="core_form_rule_comparison_edit_&gt;_q">Response must be greater than the response to %s</string>
+<string source="core_form_rule_comparison_edit_&gt;">Response must be greater than "%s"</string>
+<string source="core_form_rule_comparison_&lt;">Must Be Less Than</string>
+<string source="core_form_rule_comparison_desc_&lt;_q">The response to "%1$s" must be less than the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_&lt;">The response to "%1$s" must be less than "%2$s"</string>
+<string source="core_form_rule_comparison_edit_&lt;_q">Response must be less than the response to %s</string>
+<string source="core_form_rule_comparison_edit_&lt;">Response must be less than "%s"</string>
+<string source="core_form_rule_comparison_&gt;=">Must Be Greater Than Or Equal To</string>
+<string source="core_form_rule_comparison_desc_&gt;=_q">The response to "%1$s" must be greater than or equal to the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_&gt;=">The response to "%1$s" must be greater than or equal to "%2$s"</string>
+<string source="core_form_rule_comparison_edit_&gt;=_q">Response must be greater than or equal to the response to %s</string>
+<string source="core_form_rule_comparison_edit_&gt;=">Response must be greater than or equal to "%s"</string>
+<string source="core_form_rule_comparison_&lt;=">Must Be Less Than Or Equal To</string>
+<string source="core_form_rule_comparison_desc_&lt;=_q">The response to "%1$s" must be less than or equal to the response to question "%2$s"</string>
+<string source="core_form_rule_comparison_desc_&lt;=">The response to "%1$s" must be less than or equal to "%2$s"</string>
+<string source="core_form_rule_comparison_edit_&lt;=_q">Response must be less than or equal to the response to %s</string>
+<string source="core_form_rule_comparison_edit_&lt;=">Response must be less than or equal to "%s"</string>
+<string source="core_form_rule_comparison_required">Question "%s" is a required field; it must be filled in</string>
+</strings>

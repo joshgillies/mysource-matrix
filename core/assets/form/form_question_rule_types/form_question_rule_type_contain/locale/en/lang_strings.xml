@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.4 2006/12/06 00:35:27 emcdonald Exp $
+*
+* Localised Strings File for Contain Form Question Rule Asset
+*/
+-->
+
+<strings>
+<string source="core_form_rule_contain_true">Must contain</string>
+<string source="core_form_rule_contain_false">Must NOT contain</string>
+<string source="core_form_rule_contain_desc_true_q">The response to "%1$s" must contain the response to question "%2$s"</string>
+<string source="core_form_rule_contain_desc_false_q">The response to "%1$s" must NOT contain the response to question "%2$s"</string>
+<string source="core_form_rule_contain_desc_true">The response to "%1$s" must contain "%2$s"</string>
+<string source="core_form_rule_contain_desc_false">The response to "%1$s" must NOT contain "%2$s"</string>
+<string source="core_form_rule_contain_edit_true_q">Response must contain the response to %s</string>
+<string source="core_form_rule_contain_edit_false_q">Response must NOT contain the response to %s</string>
+<string source="core_form_rule_contain_edit_true">Response must contain "%s"</string>
+<string source="core_form_rule_contain_edit_false">Response must NOT contain "%s"</string>
+</strings>

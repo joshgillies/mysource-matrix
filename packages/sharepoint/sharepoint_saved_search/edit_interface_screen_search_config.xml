@@ -1,0 +1,27 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_search_config.xml,v 1.1 2009/01/09 04:07:04 hnguyen Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Search Configuration" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function	  name="paintSearchConfig" />
+				<process_function name="processSearchConfig" />
+			</function_call>
+		</field>
+    </section>
+</contents>

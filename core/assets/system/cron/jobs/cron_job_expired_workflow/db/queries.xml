@@ -1,0 +1,32 @@
+<queries system="cron_job_expired_workflow">
+
+	<query id="getAllRunningWorkflows">
+		<!-- Get all running workflows that have been granted to assets. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_wflow" column="assetid" />
+					<field table="sq_ast_wflow" column="schemaid" />
+					<field table="sq_ast_wflow" column="wflow" />
+					<field table="sq_ast_wflow" column="granted" />
+					<field table="sq_ast" column="name" />
+				</fields>
+				<from>
+					<table>sq_ast_wflow</table>
+					<table>sq_ast</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_ast_wflow" column="assetid" />
+						<field table="sq_ast" column="assetid" />
+					</join>
+				</joins>
+				<where>
+					<not-null><field table="sq_ast_wflow" column="wflow" /></not-null>
+					<equal table="sq_ast_wflow" column="granted">'1'</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+</queries>

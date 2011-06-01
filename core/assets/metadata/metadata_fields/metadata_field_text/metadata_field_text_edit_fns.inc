@@ -1,0 +1,211 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: metadata_field_text_edit_fns.inc,v 1.37 2008/10/20 03:20:26 bshkara Exp $
+*
+*/
+
+
+require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.inc';
+
+/**
+* Metadata_Field_Text_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Dmitri Iarandine <diarandine@squiz.net>
+* @version $Revision: 1.37 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
+	* Paint the interface for filling in metadata values
+	*
+	* Returns true if a submitable interface has been printed
+	*
+	* @param Metadata_Field_Text	$asset			the metadata field asset whose interface we are painting
+	* @param Backend_Outputter		$o				the outputter class
+	* @param string					$value_str		the current value for this field in the owning asset (NOT $asset)
+	*												NULL means that there is no current value set
+	* @param boolean				$write_access	whether to allow editing of this field
+	*												(typically depends on write access to owner and editability of field)
+	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
+	{
+		$prefix = $asset->getPrefix();
+
+		$is_default = FALSE;
+
+		if (is_null($value_str)) {
+			$value_str = $asset->getDefaultValue();
+			$is_default = TRUE;
+		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		if ($write_access) {
+			$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
+			if ($asset->attr('multi_line')) {
+				// if there is no character limit display the original text_area
+				if (!$asset->attr('char_limit')) {
+					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, $extras);
+				} else {
+					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, 'id="'.htmlspecialchars($prefix.'_value').'" onchange="var note=document.getElementById(\''.$prefix.'_value_note\'); note.innerHTML = \'\'; var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); tmp.value = tmp.value.substr(0,'.$asset->attr('char_limit').');"  onkeydown="setTimeout(function() { var note=document.getElementById(\''.$prefix.'_value_note\');  var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); if (tmp.value.length > '.$asset->attr('char_limit').') {note.innerHTML = \'&nbsp;\'+js_translate(\'max_characters_exceeded_by\', (tmp.value.length-'.$asset->attr('char_limit').'));} else {note.innerHTML = \'\'}   }, 50);" '.$extras);
+				}
+			} else {
+				text_box($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('char_limit'), FALSE, $extras);
+			}
+			if ($enable_default) {
+				echo ' &nbsp; &nbsp; &nbsp; ';
+				$default_string = str_replace("'", "\'", $asset->attr('default'));
+				// get rid of javascript error 'unterminated string literal'. (bug 2386)
+				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
+				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } }');
+				label(translate('use_default'), $prefix.'_default');
+			}
+
+			if ($print_cascade_values_option) {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
+
+			// the following text can be used to display the character limit
+			// we suppose that char limit is only a positive attribute
+			if ($asset->attr('char_limit')) {
+				?> <br/>Character Limit: <?php echo $asset->attr('char_limit'); ?> <span style="color:red" id="<?php echo $prefix.'_value'; ?>_note"></span> <?php
+			}
+		} else {
+			// ensure JS is not executed in read only mode
+			echo htmlspecialchars($value);
+			if ($is_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		}
+
+		// now print value components
+		if (!empty($value_components)) {
+			echo '<br /><br />';
+			$num_per_row = 3;
+			$num_done = 0;
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<?php
+					foreach ($value_components as $vc_name => $vc_value) {
+
+						if ($num_done >= $num_per_row) {
+							$num_done = 0;
+							echo '</tr><tr>';
+						}
+
+						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
+						echo '<b>'.$vc_name.'</b>';
+						echo '<br />';
+						if ($write_access) {
+							text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
+						} else {
+							echo $vc_value;
+						}
+						echo '</td>';
+
+						$num_done++;
+					}
+					if ($num_done && $num_done != $num_per_row) {
+						for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
+							echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
+						}
+					}
+					?>
+				</tr>
+			</table>
+			<?php
+		}//end if
+
+		return $write_access;
+
+	}//end paintValueInterface()
+
+
+	/**
+	* Process the interface for filling in metadata values
+	*
+	* @param Metadata_Field_Text	$asset			the asset whose interface we are processing
+	* @param string					&$new_value_str	a string by reference that we can store the new values in
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	*                                       to children
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str, &$field_cascade_value)
+	{
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
+
+		$prefix = $asset->getPrefix();
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
+			$new_value_str = NULL;
+			$processed = TRUE;
+		} else {
+			if (isset($_POST[$prefix.'_value'])) {
+				$value = $_POST[$prefix.'_value'];
+				$keyword = '%asset_metadata_'.$asset->name.'%';
+				$value = trim(str_replace($keyword, '', $value));
+				$value_components = $asset->attr('value_components');
+				for (reset($value_components); NULL !== ($vc_name = key($value_components)); next($value_components)) {
+					if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
+						$clean_vc = trim(str_replace($keyword, '', $_POST[$prefix.'_vc_value'][$vc_name]));
+						$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), $clean_vc);
+					}
+				}
+				$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
+				$processed = TRUE;
+			}
+		}
+
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
+
+	}//end processInlineValueInterface()
+
+
+}//end class
+?>

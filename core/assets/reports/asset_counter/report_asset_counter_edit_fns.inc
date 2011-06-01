@@ -1,0 +1,464 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: report_asset_counter_edit_fns.inc,v 1.15 2007/12/03 05:01:30 lwright Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+
+/**
+* Report_Asset_Counter_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.15 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
+{
+
+	public $report_name = 'report.xml';
+	public $temp_report = 'report.tmp';
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
+	* Generate this report until complete
+	*
+	* @param HIPO_Job	$job		the HIPO job running this report
+	* @param array		&$step_data	a reference to the array of information about
+	*								the current step of the HIPO job that is running this report
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
+	{
+
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$owner = $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
+		$job_vars =& $job->_running_vars;
+
+		$report_contents = '';
+		$report_dir = $owner->data_path;
+
+		$xml_file_name = $report_dir.'/'.$this->report_name;
+		$types = $owner->attr('types');
+
+		if (empty($job_vars['unique_types'])) {
+			// setup initial report parameters
+
+			$step_data['message'] = translate('core_obtaining_asset_list');
+
+			$children = Array();
+			if (!empty($types)) {
+				foreach ($types as $type => $inherit_bool) {
+					$children_one = $am->getChildren($this->getRootAssetid($owner), $type, !$inherit_bool);
+					$children = array_merge($children, $children_one);
+				}
+			} else {
+				// if types are not provided we search for all type codes
+				$children = $am->getChildren($this->getRootAssetid($owner));
+			}
+
+			// check if there is anything to do
+			if (empty($children)) {
+				$step_data['percent_done'] = 100;
+				$step_data['complete']     = TRUE;
+				$job->_addError(translate('report_not_generated'),TRUE);
+				return FALSE;
+			}
+
+			// get count and type code
+			foreach ($children as $i => $info) {
+				if (!isset($job_vars['type_counts'][$info[0]['type_code']])) {
+					$job_vars['type_counts'][$info[0]['type_code']] = 1;
+				} else {
+					$job_vars['type_counts'][$info[0]['type_code']]++;
+				}
+			}
+			$job_vars['unique_types'] = array_keys($job_vars['type_counts']);
+
+			if (!is_dir($report_dir)) {
+				if (!create_directory($report_dir)) {
+					trigger_localised_error('CORE0011', E_USER_WARNING);
+					return FALSE;
+				}
+			}
+
+			$step_data['percent_done'] = 50;
+			$step_data['complete']     = FALSE;
+
+		} else {
+			// provide human descriptions for each type of Asset
+			// and save the report
+
+			$step_data['message'] = translate('core_get_readable_asset_descriptions');
+
+			// generate the report
+			$report_contents .= '<asset_types>';
+
+			foreach ($job_vars['unique_types'] as $asset_id => $type_code) {
+				$name = $am->getTypeInfo($type_code, 'name');
+				$count = $job_vars['type_counts'][$type_code];
+
+				$report_contents .= '<asset_type code="'.$type_code.'">';
+				$report_contents .= '<name>'.$name.'</name>';
+				$report_contents .= '<count>'.$count.'</count>';
+				$report_contents .= '</asset_type>';
+			}
+
+			$report_contents .= '</asset_types>';
+
+			// file manipulation section
+			$file_handler = fopen($xml_file_name, 'w');
+			if ($file_handler === FALSE) {
+				trigger_localised_error('CORE0017', E_USER_WARNING);
+				return FALSE;
+			}
+			fwrite($file_handler, $report_contents);
+			fclose($file_handler);
+
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+
+		}//end else
+
+		return TRUE;
+
+	}//end generateReport()
+
+
+	/**
+	* Paint the interface for viewing a report
+	*
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintReport(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$report_path = $asset->data_path.'/'.$this->report_name;
+		if (!is_file($report_path)) {
+			echo translate('report_not_generated');
+			return;
+		}
+
+		// @see: unit_tests/by_file/core/assets/reports/asset_counter/test_asset_counter_report.test
+		// use simple xml to parse the report file
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			return;
+		}
+
+		// build the info array for printing
+		$asset_types = Array();
+		foreach ($root->asset_type as $node) {
+			$type = (string)$node->attributes()->code;
+			$asset_types[$type] = Array(
+									'name'	=> (string)$node->name,
+									'count'	=> (int)$node->count,
+								  );
+		}
+
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			echo '<b>Note</b> The current asset counter report is shown below. You can regenerate this report on the details screen.';
+		}
+
+		$o->closeSection();
+
+		$o->openSection(translate('asset_type_counts'));
+			$o->openField('');
+				if (empty($asset_types)) {
+					echo 'Report is empty';
+					return;
+				}
+
+				$sort_by_attr = $asset->getAttribute('sort_by');
+				$sort_by = $sort_by_attr->value;
+
+				$row_format =
+				'
+					<tr>
+						<td class="sq-backend-table-cell">
+							<script language="JavaScript" type="text/javascript">sq_print_icon("%s", "16", "16", "");</script>
+						</td>
+						<td class="sq-backend-table-cell" style="width: 10px;">
+							%s
+						</td>
+						<td class="sq-backend-table-cell">
+							%s
+						</td>
+						<td class="sq-backend-table-cell">
+							%s
+						</td>
+					</tr>
+				';
+
+				$rows_string = '';
+				$rows = Array();
+				foreach ($asset_types as $typecode => $data) {
+					$counts[$typecode] = $data['count'];
+					$names[$typecode]  = $data['name'];
+					$types[$typecode]  = $typecode;
+
+					$rows[$typecode]   = sprintf($row_format,$am->getAssetIconURL($typecode),$data['count'],$typecode,$data['name']);
+				}
+
+
+				// sort the table
+				switch ($sort_by) {
+					case('count'):
+						$target_array = $counts;
+					break;
+
+					case('name'):
+						$target_array = $names;
+					break;
+
+					case('type'):
+					default:
+						$sort_by      = 'type';
+						$target_array = $types;
+
+				}
+
+				if ($asset->attr('reverse_sort')) {
+					arsort($target_array);
+				} else {
+					asort($target_array);
+				}
+
+				$sort_by_name = $sort_by_attr->_params['options'][$sort_by];
+
+				$table_format =
+				'
+					<h3>Sorted by: <span style="color: red">'.$sort_by_name.'</span></h3>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header" style="width: 10ex">Icon</td>
+							<td class="sq-backend-table-header" style="width: 10ex">Count</td>
+							<td class="sq-backend-table-header">Code</td>
+							<td class="sq-backend-table-header" width="70%%">Type</td>
+						</tr>
+						%s
+					</table>
+				';
+
+				foreach ($target_array as $typecode => $data) {
+					$rows_string .= $rows[$typecode];
+				}
+				$table = sprintf($table_format,$rows_string);
+
+				echo $table;
+
+	}//end paintReport()
+
+
+	/**
+	* Paint the current asset types that have been added
+	*
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintCurrentAssetTypes(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('content');
+
+		$types = $asset->attr('types');
+		if (empty($types)) {
+			echo translate('core_no_types_defined');
+			return FALSE;
+		}
+
+		?>
+		<table class="sq-backend-table">
+		<tr>
+			<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+			<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
+			<?php
+			if ($write_access) {
+				?>
+				<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
+				<?php
+			}
+			?>
+		</tr>
+			<?php
+			foreach ($types as $type => $inherit) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php
+						echo ucwords(str_replace('_',' ', $type));
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) {
+							check_box($prefix."_inherit_types[$type]", $type, $inherit);
+						} else {
+							echo ($inherit) ? translate('yes') : translate('no');
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix."_remove[$type]", $type, FALSE);
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+			}
+		?>
+		</table>
+		<?php
+
+		return TRUE;
+
+	}//end paintCurrentAssetTypes()
+
+
+	/**
+	* Process the current asset types that have been added
+	*
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processCurrentAssetTypes(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
+	{
+		$types = $asset->attr('types');
+
+		// we are looking to see if any types have been removed
+		if (isset($_POST[$prefix.'_remove'])) {
+
+			foreach ($_POST[$prefix.'_remove'] as $type) {
+				if (isset($types[$type])) unset($types[$type]);
+			}
+		}
+
+		$inherit_types = array_get_index($_POST, $prefix.'_inherit_types', Array());
+		foreach ($types as $key => $val) {
+			$types[$key] = isset($inherit_types[$key]) ? TRUE : FALSE;
+		}
+
+		$asset->setAttrValue('types', $types);
+
+		return TRUE;
+
+	}//end processCurrentAssetTypes()
+
+
+	/**
+	* Paint section to add an asset type
+	*
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintAddAssetType(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('content')) return FALSE;
+
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+		$types = array_diff($types, $asset->attr('types'));
+		asort($types);
+
+		$uc_types = Array('' => '');
+		foreach ($types as $type) {
+			$uc_types[$type] = ucwords(str_replace('_',' ', $type));
+		}
+		combo_box($prefix.'_new_type', $uc_types, FALSE, '');
+
+		return TRUE;
+
+	}//end paintAddAssetType()
+
+
+	/**
+	* Process the section to add a new format for an asset
+	*
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processAddAssetType(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_new_type'])) {
+			$type = trim($_POST[$prefix.'_new_type']);
+
+			if (empty($type)) return FALSE;
+
+			$types = $asset->attr('types');
+
+			if (!isset($types[$type])) {
+				$types[$type] = TRUE;
+				$asset->setAttrValue('types', $types);
+				return TRUE;
+			}
+		}
+		return FALSE;
+
+	}//end processAddAssetType()
+
+
+}//end class
+
+?>

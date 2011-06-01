@@ -1,0 +1,658 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: locale_manager.inc,v 1.18 2006/12/05 05:36:14 bcaldwell Exp $
+*
+*/
+
+
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+
+/**
+* Locale_Manager
+*
+* Purpose
+*    Handles localisation functions such as translations and
+*    number/date formats
+*
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.18 $
+* @package MySource_Matrix
+*/
+class Locale_Manager extends MySource_Object
+{
+
+
+	/**
+	* Holds a stack of locale settings - most current first
+	*
+	* @var Array
+	* @access public
+	*/
+	var $locale_stack = Array();
+
+
+	/**
+	* Holds a stack of strings for each language
+	*
+	* @var Array
+	* @access public
+	*/
+	var $_strings = Array();
+
+
+	/**
+	* Holds a stack of errors for each language
+	*
+	* @var Array
+	* @access public
+	*/
+	var $_errors = Array();
+
+
+	/**
+	* Holds a stack of internal messages for each language
+	*
+	* @var Array
+	* @access public
+	*/
+	var $_internal_messages = Array();
+
+
+	/**
+	* Constructor
+	*
+	* @return void
+	* @access public
+	*/
+	function Locale_Manager()
+	{
+		$this->MySource_Object();
+
+	}//end constructor
+
+
+	/**
+	* Gets the code of the current locale
+	*
+	* Returns the code of the current language, or boolean FALSE if locale stack underflowed
+	*
+	* @return mixed string|boolean
+	* @access public
+	*/
+	function getCurrentLocale()
+	{
+		if (count($this->locale_stack) <= 0) return FALSE; // no locale is current
+		return $this->locale_stack[0];
+
+	}//end getCurrentLocale()
+
+
+	/**
+	* Gets the full name of a locale
+	*
+	* @param string	$locale_code	the locale code to check (if omitted, uses
+	*								the current locale)
+	*
+	* @return string
+	* @access public
+	*/
+	function getLocaleName($locale_code=NULL)
+	{
+		if (is_null($locale_code)) {
+			$locale_code = $this->getCurrentLocale();
+		}
+		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
+		return array_get_index($standards_lists_locales, $locale_code, 'Unknown');
+
+	}//end getLocaleName()
+
+
+	/**
+	* Sets the current locale, loading the language files if that is required
+	*
+	* @param string	$locale	the locale to set
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setCurrentLocale($locale)
+	{
+		array_unshift($this->locale_stack, $locale);
+		$this->includeCoreStrings($locale);
+		return TRUE;
+
+	}//end setCurrentLocale()
+
+
+	/**
+	* Restore the previously set locale from the top of the stack
+	*
+	* @return boolean
+	* @access public
+	*/
+	function restoreCurrentLocale()
+	{
+		if (count($this->locale_stack) <= 0) return FALSE; // stack would underflow if we tried to shift this out
+		array_shift($this->locale_stack);
+		return TRUE;
+
+	}//end restoreCurrentLocale()
+
+
+	/**
+	* Split a full locale into its parts
+	*
+	* Can be called using, eg:
+	* list($country, $language, $variant) =
+	*	$GLOBALS['SQ_SYSTEM']->lm->getLocaleParts('en_AU');
+	*
+	* @param string	$locale	the full locale
+	*
+	* @return array
+	* @access public
+	*/
+	function getLocaleParts($locale)
+	{
+		$locale_parts = Array(NULL, NULL, NULL);
+
+		preg_match('|([A-Za-z]{2})(\_([A-Za-z]{2})(\@([A-Za-z]+))?)?|', $locale, $matches);
+
+		// switch on the number of match expansions we get - if we have all 3
+		// parts we will have 6 matches, if we have language and country we will
+		// have 4, if just the language we will have 2. This means the time can
+		// be ripe for a fall-through switch
+
+		switch (count($matches)) {
+			case 6:
+				$locale_parts[2] = $matches[5];
+			// no break; fall through to case 4
+
+			case 4:
+				$locale_parts[1] = $matches[3];
+			// no break; fall through to case 2
+
+			case 2:
+				$locale_parts[0] = $matches[1];
+			break;
+
+			default:
+				trigger_localised_error('SYS0193', E_USER_WARNING, $locale);
+				return FALSE;
+			break;
+		}//end switch
+
+		return $locale_parts;
+
+	}//end getLocaleParts()
+
+
+	/**
+	* Splits up the locale passed into language, country, and variant and return
+	* an array consisting of all possible partial locales
+	*
+	* This will return an array of between one and three elements, depending on
+	* what parts of the locale are in there. For example, if locale = 'fr_FR@euro',
+	* this will return ['fr', 'fr_FR', 'fr_FR@euro']
+	*
+	* @param string	$locale		the locale that we are going to split
+	* @param string	$lang_sep	language seperator character
+	* @param string	$var_sep	variant seperator character
+	*
+	* @return array
+	* @access public
+	*/
+	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@')
+	{
+		$locale_parts = $this->getLocaleParts($locale);
+
+		$cum_locale_parts = Array();
+		$cum_locale_parts[] = $locale_parts[0];
+
+		if (count($cum_locale_parts) >= 2) {
+			$cum_locale_parts[] = $cum_locale_parts[0].$lang_sep.$locale_parts[1];
+
+			if (count($cum_locale_parts) >= 3) {
+				$cum_locale_parts[] = $cum_locale_parts[1].$var_sep.$locale_parts[2];
+			}
+		}
+
+		return $cum_locale_parts;
+
+	}//end getCumulativeLocaleParts()
+
+
+	/**
+	* gets a string translation
+	*
+	* @param string	$string_code	the string code
+	*
+	* @return string
+	* @access public
+	*/
+	function getString($string_code)
+	{
+		$locale = $this->getCurrentLocale();
+
+		// if second parameter is an array, use that as our list of params
+		if (!is_array($func_args = func_get_arg(1))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,1);
+		}
+
+		if (!isset($this->_strings[$locale])) {
+			return "Source string for $string_code not found";
+		}
+
+		if (!isset($this->_strings[$locale][$string_code])) {
+			return "Source string for $string_code not found for locale $locale";
+		}
+
+		return vsprintf($this->_strings[$locale][$string_code],$func_args);
+
+	}//end getString()
+
+
+	/**
+	* Includes the compiled strings for a specified asset, if they haven't already
+	*
+	* @param string	$type_code	the type code to include strings for
+	* @param string	$locale		the locale to use (default to current)
+	*
+	* @return void
+	* @access public
+	*/
+	function includeAssetStrings($type_code, $locale=NULL)
+	{
+
+		// keep track of which assets have been included so we don't include
+		// a certain set of strings more than once for each locale
+		static $assets_included = Array();
+
+		if (!isset($assets_included[$type_code])) {
+			$assets_included[$type_code] = Array();
+		}
+
+		if (!array_get_index($assets_included[$type_code], $locale, FALSE)) {
+
+			$assets_included[$type_code][$locale] = TRUE;
+			if ($locale == NULL) {
+				$locale = $this->getCurrentLocale();
+			}
+
+			// include packages, changing \ for / so it works on Windows systems
+			if ($type_code != 'asset') {
+				$asset_dir = str_replace('\\', '/', SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir'));
+
+				if (strpos($asset_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== FALSE) {
+					$this->includePackageStrings('__core__', $locale);
+				} else {
+					$asset_dir = str_replace(str_replace('\\', '/', SQ_PACKAGES_PATH).'/', '', $asset_dir);
+					$package = substr($asset_dir, 0, strpos($asset_dir, '/'));
+					$this->includePackageStrings($package, $locale);
+				}
+			}
+
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
+				}
+			}
+
+			foreach ($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$this_locale;
+
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
+			}
+		}//end if
+
+	}//end includeAssetStrings()
+
+
+	/**
+	* Includes the strings from a package, if they haven't already
+	*
+	* @param string	$package_name	the name of the package
+	* @param string	$locale			the locale to use (default = current)
+	*
+	* @return void
+	* @access public
+	*/
+	function includePackageStrings($package_name, $locale=NULL)
+	{
+		// keep track of which packages have been included so we don't include
+		// a certain set of strings more than once for each locale
+		static $packages_included = Array();
+
+		if (!isset($packages_included[$package_name])) {
+			$packages_included[$package_name] = Array();
+		}
+
+		if (!array_get_index($packages_included[$package_name], $locale, FALSE)) {
+			$packages_included[$package_name][$locale] = TRUE;
+
+			if ($locale == NULL) {
+				$locale = $this->getCurrentLocale();
+			}
+
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
+				}
+			}
+
+			foreach ($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_errors[$locale])) {
+						$this->_errors[$locale] = Array();
+					}
+					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_internal_messages[$locale])) {
+						$this->_internal_messages[$locale] = Array();
+					}
+					$this->_internal_messages[$locale] = array_merge($this->_internal_messages[$locale], $strings);
+				}
+			}
+		}//end if
+
+	}//end includePackageStrings()
+
+
+	/**
+	* Include the system-wide core strings, if they haven't already
+	*
+	* @param string	$locale	the locale to include (default to current locale)
+	*
+	* @return void
+	* @access public
+	*/
+	function includeCoreStrings($locale=NULL)
+	{
+		// keep track of whether we've included the core strings already
+		// (for this locale at least)
+		static $core_included = Array();
+
+		if (!array_get_index($core_included, $locale, FALSE)) {
+			$core_included[$locale] = TRUE;
+
+			if ($locale == NULL) {
+				$locale = $this->getCurrentLocale();
+			}
+
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
+				}
+			}
+
+			foreach ($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/system/core/strings.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/system/core/errors.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_errors[$locale])) {
+						$this->_errors[$locale] = Array();
+					}
+					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/system/core/internal_messages.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_internal_messages[$locale])) {
+						$this->_internal_messages[$locale] = Array();
+					}
+					$this->_internal_messages[$locale] = array_merge($this->_internal_messages[$locale], $strings);
+				}
+			}
+		}//end if
+
+	}//end includeCoreStrings()
+
+
+	/**
+	* fetches an error translation for the current locale and triggers the error
+	*
+	* This differs from the getErrorMessage() method in that this actually calls
+	* trigger_error() as well. Use the raw getErrorMessage() where error handling
+	* needs to differ ()
+	* Shortcut defined in general.inc: trigger_localised_error()
+	*
+	* @param string	$code			the error code
+	* @param int	$error_level	the PHP error level (must be one of:
+	*								E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE)
+	*
+	* @return void
+	* @access public
+	*/
+	function raiseError($code, $error_level)
+	{
+		$locale = $this->getCurrentLocale();
+
+		if (($error_level != E_USER_ERROR) && ($error_level != E_USER_WARNING) && ($error_level != E_USER_NOTICE)) {
+			trigger_error('Invalid error level passed when raising error ['.$code.']: '.$error_level, E_USER_WARNING);
+			$error_level = E_USER_ERROR;
+		}
+
+		// if third parameter is an array, use that as our list of params
+		// otherwise, everything after 2nd param is our list of params that we
+		// will pump into the error, sprintf() style
+		if (func_num_args() == 2) {
+			$func_args = Array();
+		} else if (!is_array($func_args = func_get_arg(2))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,2);
+		}
+
+		$error_msg = $this->getErrorMessage($code, $func_args);
+		trigger_error($error_msg, $error_level);
+
+	}//end raiseError()
+
+
+	/**
+	* fetches an error translation for the current locale
+	*
+	* @param string	$code	the error code
+	*
+	* @return void
+	* @access public
+	*/
+	function getErrorMessage($code)
+	{
+		$locale = $this->getCurrentLocale();
+
+		// if second parameter is an array, use that as our list of params
+		// otherwise, everything after 1st param is our list of params that we
+		// will pump into the error, sprintf() style
+		if (func_num_args() == 1) {
+			$func_args = Array();
+		} else if (!is_array($func_args = func_get_arg(1))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,1);
+		}
+
+		$valid_code = TRUE;
+		if (!isset($this->_errors[$locale])) {
+			$valid_code = FALSE;
+		}
+
+		if (!isset($this->_errors[$locale][$code])) {
+			$valid_code = FALSE;
+		}
+
+		if ($valid_code) {
+			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
+		} else {
+			$error_msg = 'Error text not found for this code and locale ['.$code.']';
+			if (!empty($func_args)) {
+				$error_msg .= "\n".var_export($func_args, 1);
+			}
+		}
+
+		return $error_msg;
+
+	}//end getErrorMessage()
+
+
+	/**
+	* fetches an internal message subject translation for the current locale
+	*
+	* @param string	$type		the internal message type
+	* @param array	$keywords	array of keywords
+	* @param string	$locale		name of the locale
+	*
+	* @return void
+	* @access public
+	*/
+	function getInternalMessageSubject($type, $keywords, $locale=NULL)
+	{
+		if (is_null($locale)) {
+			$locale = $this->getCurrentLocale();
+		}
+
+		$valid_code = TRUE;
+		if (!isset($this->_internal_messages[$locale])) {
+			$valid_code = FALSE;
+		}
+
+		if (!isset($this->_internal_messages[$locale][$type])) {
+			$valid_code = FALSE;
+		}
+
+		if ($valid_code) {
+			$subject = $this->_internal_messages[$locale][$type]['subject'];
+			replace_keywords($subject, $keywords);
+		} else {
+			$subject = 'Internal message translation not found for this code and locale ['.$type.']';
+		}
+
+		return $subject;
+
+	}//end getInternalMessageSubject()
+
+
+	/**
+	* fetches an internal message subject translation for the current locale
+	*
+	* @param string	$type		the internal message type
+	* @param array	$keywords	array of keywords
+	* @param string	$locale		name of the locale
+	*
+	* @return void
+	* @access public
+	*/
+	function getInternalMessageBody($type, $keywords, $locale=NULL)
+	{
+		if (is_null($locale)) {
+			$locale = $this->getCurrentLocale();
+		}
+
+		$valid_code = TRUE;
+		if (!isset($this->_internal_messages[$locale])) {
+			$valid_code = FALSE;
+		}
+
+		if (!isset($this->_internal_messages[$locale][$type])) {
+			$valid_code = FALSE;
+		}
+
+		if ($valid_code) {
+			$body = $this->_internal_messages[$locale][$type]['body'];
+			replace_keywords($body, $keywords);
+		} else {
+			$body    = 'Internal message translation not found for this code and locale ['.$type.']';
+		}
+
+		return $body;
+
+	}//end getInternalMessageBody()
+
+
+	/**
+	* returns an array of js includes needed for the current locale
+	*
+	* @return void
+	* @access public
+	*/
+	function getJavascriptIncludes()
+	{
+		$res = Array(sq_web_path('lib').'/js/translation.js'); // we always need this one
+		list($lang, $country, $variant) = $this->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+		if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+			$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
+		}
+		if (!empty($country)) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+				$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
+			}
+
+			if (!empty($variant)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+					$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
+				}
+			}
+		}
+		return $res;
+
+	}//end getJavascriptIncludes()
+
+
+}//end class
+?>

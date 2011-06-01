@@ -1,0 +1,466 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: metadata_field_date_edit_fns.inc,v 1.44 2008/04/10 05:11:52 ncallahan Exp $
+*
+*/
+
+require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.inc';
+
+/**
+* Metadata_Field_Date_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Dmitri Iarandine <diarandine@squiz.net>
+* @version $Revision: 1.44 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end Metadata_Field_Date_Edit_Fns()
+
+
+	/**
+	* Paint the interface for configuring display format
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDateFormat(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$attr = $asset->getAttribute('format');
+		$attr->paint($prefix.'_format', !$asset->writeAccess('attributes'));
+		ob_start();
+			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+			$replacements_link = ob_get_contents();
+		ob_end_clean();
+
+		$o->note(translate('metadata_date_object_keys', $replacements_link));
+
+	}//end paintDateFormat()
+
+
+	/**
+	* Process the interface for configuring display format
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processDateFormat(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$attr = $asset->getAttribute('format');
+		if ($asset->writeAccess('attributes')) {
+			$attr->process($prefix.'_format');
+			if ($attr->processed) {
+				return $asset->setAttrValue('format', $attr->value);
+			}
+		}
+		return FALSE;
+
+	}//end processDateFormat()
+
+
+	/**
+	* Print the interface for editing the time offset
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintOffset(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$offset = $asset->attr('offset');
+		if ($asset->writeAccess('attributes')) {
+			text_box($prefix.'_offset', $offset, 30);
+		} else {
+			 echo $offset;
+		}
+
+	}//end paintOffset()
+
+
+	/**
+	* Processes the interface for editing the time offset
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processOffset(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_offset'])) return FALSE;
+		return $asset->setAttrValue('offset', $_POST[$prefix.'_offset']);
+
+	}//end processOffset()
+
+
+
+	/**
+	* Print the interface for editing the default value
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$default = $asset->attr('default');
+		$wa = $asset->writeAccess('attributes');
+		$this->paintValueInterface($asset, $o, $default, $wa, FALSE);
+		return $wa;
+
+	}//end paintDefaultValue()
+
+
+	/**
+	* Process the interface for editing the default value
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$default = $asset->attr('default');
+			$field_cascade_value=FALSE;
+			$this->processInlineValueInterface($asset, $default, $field_cascade_value);
+			$asset->setAttrValue('default', $default);
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end processDefaultValue()
+
+
+	/**
+	* Print the interface for editing how the editing interface parameters for the date time field that is used
+	* to enter the metadata value for an individual asset
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintSetupParams(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$field = $asset->_getDateTimeField($prefix);
+
+		if ($asset->writeAccess('attributes')) {
+			// custom definition for edit interface
+			$arr = Array('s', 'n', 'c');
+			$field->printEditOptions($arr);
+		} else {
+			echo $field->format();
+		}
+
+		$o->note(translate('metadata_setup_table_explanation'));
+
+	}//end paintSetupParams()
+
+
+	/**
+	* Processes the interface for editing the Setup Params
+	*
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processSetupParams(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
+	{
+		$field = $asset->_getDateTimeField($prefix);
+
+		if ($asset->writeAccess('attributes') && $field->processEditOptions()) {
+			return $asset->setAttrValue('setup_params', $field->parameters);
+		}
+
+		return FALSE;
+
+	}//end processSetupParams()
+
+
+	/**
+	* Paint the interface for filling in metadata values
+	*
+	* Returns true if a submitable interface has been printed
+	*
+	* @param Metadata_Field_Date	$asset			the asset whose interface we are painting
+	* @param Backend_Outputter		$o				the outputter class
+	* @param string					$value_str		the current value for this field in the owning asset (NOT $asset)
+	*												NULL means that there is no current value set
+	* @param boolean				$write_access	whether to allow editing of this field
+	*												(typically depends on write access to owner and editability of field)
+	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
+	{
+
+		$prefix = $asset->getPrefix();
+
+		$is_default = FALSE;
+		$default_val = $asset->attr('default');
+
+		if (is_null($value_str)) {
+			$value_str = $default_val;
+			$is_default = TRUE;
+		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		$select_options = Array(
+							''					=> '-- '.strtolower(translate('keywords')).' --',
+							'asset_created'		=> translate('creation_date'),
+							'asset_updated'		=> translate('last_updated_date'),
+							'asset_published'	=> translate('last_published_date'),
+						  );
+
+		// checking if the value is a keyword replacement
+		$uses_keyword = (substr($value, 0, 1) == '%');
+		if (empty($value)) $value = NULL;
+		$field = $asset->_getDateTimeField($prefix, $value);
+		if ($asset->attr('show_keywords')) {
+			$field->parameters['extras'] = Array(
+											'd'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'y'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'h'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											's'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										   );
+		}
+		if ($write_access) {
+
+			$field->printField();
+			if ($asset->attr('show_keywords')) {
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
+			}
+
+			if ($enable_default) {
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				if ((substr($default_val, 0, 1) == '%') || empty($value)) {
+					$default_date_exp = 'null';
+					$default_kw_exp = "'".trim($default_val, '%')."'";
+				} else {
+					list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
+					$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
+					$default_kw_exp = 'null';
+				}
+
+				check_box($prefix.'_default', '1', $is_default, 'handleMetadataDatetimeDefaultClick(this, \''.$prefix.'\', '.$default_date_exp.', '.$default_kw_exp.')');
+				label(translate('use_default'), $prefix.'_default');
+				?>
+				<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
+				<script type="text/javascript"><!--
+				//<![CDATA[
+				handleMetadataDatetimeDefaultClick(document.getElementById('<?php echo $prefix; ?>_default'), '<?php echo $prefix; ?>', <?php echo $default_date_exp; ?>, <?php echo $default_kw_exp; ?>);
+				// ]]> -->
+				</script>
+				<?php
+			}
+
+			if ($print_cascade_values_option) {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
+
+		} else if ($uses_keyword && isset($select_options[trim($value, '%')])) {
+			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
+			if ($is_default && $enable_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		} else {
+			echo $field->format();
+			if ($is_default && $enable_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		}//end if
+
+		return $write_access;
+
+	}//end paintValueInterface()
+
+
+	/**
+	* Process the interface for filling in metadata values
+	*
+	* Returns true if this field has been processed, false if not and it should be ignored
+	*
+	* @param Metadata_Field_Date	$asset			the asset whose interface we are painting
+	* @param string					&$new_value_str	a string by reference that we can store the new values in
+	*												set to NULL to revert to default
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	*                                       to children
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processInlineValueInterface(Metadata_Field_Date $asset, &$new_value_str, &$field_cascade_value)
+	{
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
+
+		$prefix = $asset->getPrefix();
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
+			$new_value_str = NULL;
+			$processed = TRUE;
+		} else {
+			$value = array_get_index($_POST, $prefix.'_repkeys', '');
+			if (!empty($value)) {
+				$new_value_str = Metadata_Field::encodeValueString('%'.trim($value).'%', Array());
+				$processed = TRUE;
+			} else {
+				$field = $asset->_getDateTimeField($prefix);
+				if ($field->processField()) {
+					$value = $field->value;
+					$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+					$processed = TRUE;
+				}
+			}
+		}
+
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
+
+	}//end processInlineValueInterface()
+
+
+	/**
+	* Output the complete metadata tag for this field
+	*
+	* @param Metadata_Field_Date	$asset		the asset whose interface we are painting
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
+	*											NULL means that there is no current value set
+	* @param array					&$tag_value	the metadata tag value
+	* @param array					&$keywords	an array we can put keywords in that need replacing
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function generateMetadata(Metadata_Field_Date $asset, $value_str, &$tag_value, Array &$keywords)
+	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		$is_default = FALSE;
+
+		if (is_null($value_str)) {
+			$value_str = $asset->getDefaultValue();
+			$is_default = TRUE;
+		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+
+		$original = $value;
+
+		// we create a new array here to pass to our parent so we dont muck up the
+		// referenced timestamp values
+		if (substr($value, 0, 1) != '%') {
+			if (empty($value)) $value = NULL;
+			$field = $asset->_getDateTimeField('', $value);
+			$value = $field->format();
+		}
+
+		ob_start();
+			parent::generateMetadata($asset, Metadata_Field::encodeValueString($value, $value_components), $tag_value, $keywords);
+			$metadata_tag = ob_get_contents();
+		ob_end_clean();
+
+		if (substr($original, 0, 1) == '%') {
+			// strip off the last % sign from the end of $key string
+			$key = substr($original, 0, -1);
+
+			// prepare date format for merging - we will replace all spaces with underscores
+			$format = str_replace(' ', '~', $asset->attr('format'));
+
+			// merge the values with '_', add closing % sign and proceed...
+			$key = $key.'_'.$format;
+			$offset = $asset->attr('offset');
+			if (!empty($offset)) {
+				$offset = str_replace(' ', '', $offset);
+				$key .= '_'.$offset;
+			}
+			$key .= '%';
+
+			// replace the plain keyword with the one that contains the format
+			$tag_value = str_replace($original, $key, $tag_value);
+
+			// replace the plain keyword (or at least it's first occurance in the keywords array)
+			// with the one that contains the format
+			$keyword = substr($original, 1, -1);
+			if (($i = array_search($keyword, $keywords)) !== FALSE) {
+				$keywords[$i] = substr($key, 1, -1);
+			}
+
+		}// end if
+
+		echo $metadata_tag;
+
+		return TRUE;
+
+	}//end generateMetadata()
+
+
+}//end class
+?>

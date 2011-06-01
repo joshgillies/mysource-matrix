@@ -1,0 +1,94 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.13 2008/05/26 22:34:39 bpearson Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<!-- Import Tool Manager -->
+<!--string source="import_tools_manager_"></string-->
+<string source="import_tools_manager_allowed_import_type">Allowed Import Type</string>
+<string source="import_tools_manager_server_import_dir">Server Import Directory</string>
+<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.</string>
+<string source="import_tools_manager_local_file_max_size">Local Max File Size</string>
+<string source="import_tools_manager_local_file_max_size_msg">Maximum File Size of local file upload (In bytes, 0 = no limit)</string>
+
+<!-- Structured File Import Tool -->
+<string source="import_tools_not_ready">Import Tool is not ready to use</string>
+<string source="import_tools_not_ready_msg">Please set the import directory in Import Tool Manager under System Management.</string>
+<string source="import_tools_new_doc">New Document Import</string>
+<string source="import_tools_new_word_select">Select Document to Upload</string>
+<string source="import_tools_overwrite_existing">Overwrite existing document</string>
+<string source="import_tools_new_html_file">New HTML File Import</string>
+<string source="import_tools_new_html_file_select">Select HTML File to Upload</string>
+<string source="import_tools_available_files">Available Files</string>
+<string source="import_tools_import_dir">Import Directory</string>
+<string source="import_tools_select_file">Select a file to import into the system</string>
+<string source="import_tools_select_for_import">Select For Import</string>
+<string source="import_tools_select_for_removal">Delete?</string>
+<string source="import_tools_asset_to_import">Asset to import Under</string>
+<string source="import_tools_new_site">New Site</string>
+<string source="import_tools_create_new_site">Create A New Site</string>
+<string source="import_tools_create_new_site_name">New Site Name</string>
+<string source="import_tools_create_new_site_note">If this option is selected, the new site will be created under the asset selected above. If no 'Asset to import Under' has been selected, the new site will be created under the root. </string>
+<string source="import_tools_heading_style">Heading Style</string>
+<string source="import_tools_use_for_structure">Use for structure?</string>
+<string source="import_tools_create_css">Create CSS</string>
+<string source="import_tools_create_css_note">Creating a separate CSS file for the page. This overrides the default setting in Import Tools Manager.</string>
+<string source="import_tools_leading_text">Include Leading Text</string>
+<string source="import_tools_leading_text_note">Checking this will create a page for any text that is found in the document before the first heading</string>
+<string source="import_tools_leading_page_name">Leading Text Page Name</string>
+<string source="import_tools_leading_page_name_note">If the above option is checked, the page will be named this</string>
+<string source="import_tools_perform_operations">Perform Operations</string>
+<string source="import_tools_files">Files</string>
+<string source="import_tools_tidying_options">HTML Tidying Options</string>
+<string source="import_tools_word_tags">Attempt to remove Microsoft Word Tags</string>
+<string source="import_tools_html_tidy">Run HTML Tidy</string>
+<string source="import_tools_tidy_note">Selecting this option will generate well-formed HTML, but may affect the formatting of the document. It can also slow down the importing process.</string>
+<string source="import_tools_footnotes">Fix Anchor Tags and Footnotes</string>
+<string source="import_tools_javascript_warning">You cannot import a file while deleting a file</string>
+
+<!-- File Import Tool -->
+<string source="file_import_tools_warning">Warning</string>
+<string source="file_import_tools_select_file">Select a directory to import into the system</string>
+<string source="file_import_tools_not_ready">File Import Tool is not ready</string>
+<string source="file_import_tools_not_ready_msg">Please set the file import directory in Import Tool Manager under System Management</string>
+<string source="file_import_tools_allow_unrestricted_note">Set to Yes to allow this file to be be served by the web server if it is Live and publicly readable.</string>
+<string source="file_import_tools_file_link_type_msg">Each asset will be linked to the selected parent using this link type.</string>
+<string source="file_import_tools_file_chunk">These files locate under %s and they will be import at once.</string>
+<string source="file_import_tools_global_options">Global Options</string>
+<string source="file_import_tools_allow_unrestricted">Allow Unrestricted</string>
+<string source="file_import_tools_file_dir_selection">Choose File or Directory</string>
+<string source="file_import_tools_server_import">Server File Import</string>
+<string source="file_import_tools_local_import">Local File Import</string>
+<string source="file_import_tools_root_asset">Root Asset</string>
+<string source="file_import_tools_local_import_permission_warning">Local File Import can not be used since the Web Server does not have write permission on %s. Please contact the server administrator first.</string>
+<string source="file_import_tools_cannot_create_temp_dir">Can not create a temp upload directory.</string>
+<string source="file_import_tools_local_file_import_root">Local File Import Root</string>
+<string source="file_import_tools_local_file_upload_error">Error occurred during the file upload, %s.</string>
+<string source="file_import_tools_local_file_cannot_upload">Can not upload %s.</string>
+<string source="file_import_tools_local_file_cannot_delete_tempdir">Can not delete the temporary upload directory, %s.</string>
+<string source="file_import_tools_local_file_no_root_asset">Root asset for local fime import is not selected.</string>
+
+<!-- File Import Tool Hipo -->
+<string source="file_import_tools_bulk_file_import_hipo_name">Hipo Job Bulk File Import</string>
+<string source="file_import_tools_hipo_can_not_create_file">File Import failed to create "%s" asset under Assetid : %d</string>
+
+<!-- CMS Tool Export Files -->
+<string source="import_tools_manager_server_export_dir">Server Export Directory</string>
+<string source="import_tools_manager_server_export_dir_msg">Directory on the Server to export files to.</string>
+<string source="import_tools_manager_server_export_name">Server Export Name</string>
+<string source="import_tools_manager_server_export_name_msg">The basename of the exported files</string>
+</strings>

@@ -1,0 +1,95 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.4 2009/01/09 04:07:04 hnguyen Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+	</section>
+    <section name="Connection Setup" write_access="write:attributes">
+    	<field>
+    		<function_call>
+                <paint_function     name="paintTestConnection" />
+                <process_function   name="processTestConnection" />
+            </function_call>
+            <display_name>Connection Status</display_name>
+    	</field>
+        <field>
+            <function_call>
+                <paint_function     name="paintSystemUrl" />
+                <process_function   name="processSystemUrl" />
+            </function_call>
+			<display_name>WSDL URL</display_name>
+        </field>
+        <field attribute="username">
+			<display_name>Username</display_name>
+			<note />
+        </field>
+        <field attribute="password">
+			<display_name>Password</display_name>
+			<note />
+        </field>
+    </section>
+    <section name="Use a Connector Asset" write_access="write:attributes">
+        <field>
+            <function_call>
+                <paint_function   name="paintConnectorLink"   />
+                <process_function name="processConnectorLink" />
+            </function_call>
+    		<display_name>Sharepoint Connector Asset</display_name>
+    		<note>If a Sharepoint connector is selected, the settings in the 'Connection Setup' section (above) have no effect. Sharepoint Connector allows the Sharepoint settings to be reused on other Sharepoint assets.</note>
+    	</field>
+    </section>
+    <section name="Synchronize Options" write_access="write:attributes">
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintSynchCheck"	/>
+    			<process_function name="processSynchCheck"	/>
+    		</function_call>
+    	</field>
+    	<field>
+    		<function_call>
+    			<paint_function   name="paintListSelection"	/>
+    			<process_function name="processListSelection"	/>
+    		</function_call>
+    		<display_name>Sharepoint List</display_name>
+    		<note>Select from the available Sharepoint lists to get data from.</note>
+    	</field>
+    </section>
+    <section name ="Record Set Asset Names">
+        <field>
+            <function_call>
+                <paint_function name="paintShadow" />
+                <process_function name="processShadow" />
+            </function_call>
+            <display_name>Record Set Asset Names</display_name>
+            <note>Enter the name that should be used for record set assets exposed by this data source.  It can either be a normal string or a combination of string and keywords.  See the Available Keywords section below for the keywords available for use in this field</note>
+        </field>
+    </section>
+    <section name="Available Keywords">
+        <field>
+            <function_call>
+                <paint_function name="paintKeywords" />
+                <process_function name="processKeywords" />
+            </function_call>
+            <display_name>Available Keywords</display_name>
+            <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+        </field>
+    </section>
+</contents>

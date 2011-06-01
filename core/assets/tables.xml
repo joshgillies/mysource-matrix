@@ -1,0 +1,1891 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.57 2009/01/07 05:41:47 akarelia Exp $
+*
+*/
+-->
+
+<schema>
+	<tables>
+		<table name="pkg" require_rollback="0">
+			<columns>
+				<column name="code_name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>VARCHAR(20)</type>
+					<type_variations />
+					<default>'0.0.1'</default>
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="description" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="code_name" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>VARCHAR(20)</type>
+					<type_variations />
+					<default>'0.0.0'</default>
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="short_name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="status" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default>1</default>
+					<description />
+				</column>
+				<column name="languages" allow_null="1">
+					<type>VARCHAR(50)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="charset" allow_null="1">
+					<type>VARCHAR(50)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="force_secure" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="created" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="created_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="updated_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="published" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="published_userid" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="status_changed" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="status_changed_userid" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="type_code" />
+				</index>
+				<index>
+					<column name="name" />
+				</index>
+				<index>
+					<column name="created" />
+				</index>
+				<index>
+					<column name="updated" />
+				</index>
+				<index>
+					<column name="published" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_lnk" require_rollback="1">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="majorid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="minorid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="link_type" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="sort_order" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="is_dependant" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="is_exclusive" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="updated_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="linkid" />
+				</primary_key>
+				<unique_key>
+					<column name="minorid"   />
+					<column name="majorid"   />
+					<column name="link_type" />
+					<column name="value"     />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="majorid" />
+				</index>
+				<index>
+					<column name="minorid" />
+				</index>
+				<index>
+					<column name="link_type" />
+				</index>
+				<index>
+					<column name="is_dependant" />
+				</index>
+			</indexes>
+		</table>
+		<table name="shdw_ast_lnk" require_rollback="1">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="majorid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="minorid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="link_type" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="updated_userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="linkid" />
+				</primary_key>
+				<unique_key>
+					<column name="minorid"   />
+					<column name="majorid"   />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="majorid" />
+				</index>
+				<index>
+					<column name="minorid" />
+				</index>
+				<index>
+					<column name="link_type" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_lnk_tree" require_rollback="1">
+			<columns>
+				<column name="treeid" allow_null="0">
+					<type>VARCHAR(2000)</type>
+					<type_variations>
+						<pgsql>BYTEA</pgsql>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="linkid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="num_kids" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="treeid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="linkid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_typ" require_rollback="0">
+			<columns>
+				<column name="type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>VARCHAR(20)</type>
+					<type_variations />
+					<default>'0.0.1'</default>
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="description" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="instantiable" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="allowed_access" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>'backend_user'</default>
+					<description />
+				</column>
+				<column name="parent_type" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>'asset'</default>
+					<description />
+				</column>
+				<column name="lvl" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="dir" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'asset'</default>
+					<description />
+				</column>
+				<column name="customisation" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="type_code" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="lvl" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_attr" require_rollback="0">
+			<columns>
+				<column name="attrid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="owning_type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="type" allow_null="0">
+					<type>VARCHAR(50)</type>
+					<type_variations />
+					<default />
+					<description>There are different types of attributes.. classname</description>
+				</column>
+				<column name="uniq" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>0</default>
+					<description>Do the values for this attribute need to be unique across all assets (and derivatives)?</description>
+				</column>
+				<column name="parameters_type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="parameters_val" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="default_type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="default_val" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="description" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="is_admin" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>1</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="attrid" />
+				</primary_key>
+				<unique_key>
+					<column name="type_code" />
+					<column name="name"      />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="type_code" />
+				</index>
+				<index>
+					<column name="name" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_attr_val" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="attrid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="custom_val" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid" />
+					<column name="attrid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="attrid" />
+				</index>
+				<index>
+					<column name="assetid" />
+				</index>
+				<!--
+				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
+						No functionality difference, just performance.
+				-->
+				<index db="pgsql" name="concat">
+					<column name="(assetid || '~' || attrid)" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_attr_uniq_val" require_rollback="1">
+			<columns>
+				<column name="owning_attrid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="custom_val" allow_null="0">
+					<type>VARCHAR(2000)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="owning_attrid" />
+					<column name="custom_val" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_typ_inhd" require_rollback="0">
+			<columns>
+				<column name="inhd_type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="type_code" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="inhd_type_code_lvl" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="type_code_lvl" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="inhd_type_code" />
+					<column name="type_code" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="inhd_type_code" />
+				</index>
+				<index>
+					<column name="type_code" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_url" require_rollback="1">
+			<columns>
+				<column name="urlid" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="http" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="https" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="auth_urlid" allow_null="1">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="urlid" />
+				</primary_key>
+				<unique_key>
+					<column name="url" />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="assetid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_path" require_rollback="1">
+			<columns>
+				<column name="path" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sort_order" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="path" />
+					<column name="assetid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="assetid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_lookup" require_rollback="1">
+			<columns>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="http" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="https" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="root_urlid" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="url" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="assetid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_lookup_value" require_rollback="1">
+			<columns>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(50)</type>
+					<type_variations/>
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="depth" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="url" />
+					<column name="name" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="value" />
+				</index>
+				<index>
+					<column name="depth" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_lookup_remap" require_rollback="1">
+			<columns>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The URL that is remapping to another URL</description>
+				</column>
+				<column name="remap_url" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The (hopefully) valid URL that is being remapped to</description>
+				</column>
+				<column name="expires" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description>The time when this remap expires. Should be cleaned up after this time.</description>
+				</column>
+				<column name="never_delete" allow_null="0">
+                    <type>CHAR(1)</type>
+                    <type_variations />
+                    <default>'1'</default>
+                    <description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
+                </column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="url" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_perm" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="permission" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="granted" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid"    />
+					<column name="userid"     />
+					<column name="permission" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="assetid" />
+				</index>
+				<index>
+					<column name="userid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_edit_access" require_rollback="1">
+			<columns>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="type_code" allow_null="1">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
+				</column>
+				<column name="screen" allow_null="1">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The screen we are restricting access to. Set to NULL to allow access to all screens.</description>
+				</column>
+				<column name="section" allow_null="1">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The section of the screen we are restricting access to. Set to NULL to allow access to all sections.</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="userid"    />
+					<column name="type_code" />
+					<column name="screen"    />
+					<column name="section"   />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_mdata" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="schemaid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="granted" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid"  />
+					<column name="schemaid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_mdata_val" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="fieldid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid"  />
+					<column name="fieldid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_mdata_dflt_val" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="default_val" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_wflow" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="schemaid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="wflow" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>NULL</default>
+					<description />
+				</column>
+				<column name="granted" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid"  />
+					<column name="schemaid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="internal_msg" require_rollback="0">
+			<columns>
+				<column name="msgid" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="userto" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="userfrom" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+				<column name="subject" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="body" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="type" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The type of the message as a path eg. asset.workflow OR asset.permissions</description>
+				</column>
+				<column name="sent" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="priority" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations />
+					<default>3</default>
+					<description />
+				</column>
+				<column name="status" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'U'</default>
+					<description />
+				</column>
+				<column name="parameters" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="msgid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="userto" />
+				</index>
+				<index>
+					<column name="type" />
+				</index>
+				<index name="to_and_type">
+					<column name="userto" />
+					<column name="type" />
+				</index>
+			</indexes>
+		</table>
+		<table name="hipo_job" require_rollback="0">
+			<columns>
+				<column name="code_name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>A unique ID that a HIPO object can use to determine if another HIPO is running</description>
+				</column>
+				<column name="job_type" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+				<column name="running" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description>Flag to indicate if the HIPO Job has started running yet</description>
+				</column>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>ID of the user that this job is being run by</description>
+				</column>
+				<column name="source_code_name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The code_name of hipo job that started a chain of jobs running</description>
+				</column>
+				<column name="hipo_vars" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="options" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="steps" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="running_vars" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+				<column name="last_updated" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="code_name" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="lock" require_rollback="0">
+			<columns>
+				<column name="lockid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="source_lockid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>The Lock ID for the parent of this chain of locks</description>
+				</column>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="expires" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description>NULL indicates no expiry time</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="lockid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="source_lockid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="patches" require_rollback="0">
+			<columns>
+				<column name="patchid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="installed" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="patchid" />
+				</primary_key>
+			</keys>
+		</table>
+		<table name="trig" require_rollback="1">
+			<columns>
+				<column name="id" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>Trigger ID</description>
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>Trigger Name</description>
+				</column>
+				<column name="data" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description>Serialized trigger data</description>
+				</column>
+				<column name="description" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Trigger description</description>
+				</column>
+				<column name="active" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description>A flag denoting whether a trigger is active or not</description>
+				</column>
+				<column name="category" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Trigger category</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="id" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="active" />
+				</index>
+				<index>
+					<column name="category" />
+				</index>
+			</indexes>
+		</table>
+		<table name="trig_hash" require_rollback="0">
+			<columns>
+				<column name="event" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>Event type code (asset type) a trigger in triggerid is interested in.</description>
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Asset ID of the asset broadcasting the event a trigger in triggerid is interested in.</description>
+				</column>
+				<column name="asset_type" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>Asset Type of the asset broadcasting the event</description>
+				</column>
+				<column name="treeid" allow_null="0">
+					<type>VARCHAR(2000)</type>
+					<type_variations />
+					<default />
+					<description>Tree ID. If broadcaster is a child of it (immediate or not) the trigger might want to be executed.</description>
+				</column>
+				<column name="tree_propagate" allow_null="0">
+					<type>CHAR(2)</type>
+					<type_variations />
+					<default />
+					<description>A flag marking whether trigger is interested in immediate or all children of the tree ID (in treeid).</description>
+				</column>
+				<column name="triggerid" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>Trigger ID every hash line corresponds to</description>
+				</column>
+				<column name="parentid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>If the broadcasting asset has a parent with id in this column, trigger might want to be executed</description>
+				</column>
+				<column name="parent_type" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The type of parent asset (purpose is similar to parentid)</description>
+				</column>
+				<column name="childid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>If the broadcasting asset has a child with id in this column, trigger might want to be executed</description>
+				</column>
+				<column name="child_type" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default />
+					<description>The type of child asset (purpose is similar to childid)</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="event" />
+					<column name="assetid" />
+					<column name="asset_type" />
+					<column name="treeid" />
+					<column name="tree_propagate" />
+					<column name="triggerid" />
+					<column name="parentid" />
+					<column name="parent_type" />
+					<column name="childid" />
+					<column name="child_type" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="event" />
+				</index>
+				<index>
+					<column name="assetid" />
+				</index>
+				<index>
+					<column name="asset_type" />
+				</index>
+				<index>
+					<column name="treeid" />
+				</index>
+				<index>
+					<column name="tree_propagate" />
+				</index>
+				<index>
+					<column name="triggerid" />
+				</index>
+				<index>
+					<column name="parentid" />
+				</index>
+				<index>
+					<column name="parent_type" />
+				</index>
+				<index>
+					<column name="childid" />
+				</index>
+				<index>
+					<column name="child_type" />
+				</index>
+			</indexes>
+		</table>
+		<table name="file_vers_file" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="path" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The directory suffix from the repository root that this file is situated in</description>
+				</column>
+				<column name="filename" allow_null="0">
+					<type>VARCHAR(150)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+				<unique_key>
+					<column name="path" />
+					<column name="filename" />
+				</unique_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="file_vers_history" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="from_date" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="to_date" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default>NULL</default>
+					<description />
+				</column>
+				<column name="file_size" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="md5" allow_null="1">
+					<type>CHAR(32)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sha1" allow_null="1">
+					<type>CHAR(40)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="removal" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description>Was this version a removed version ?</description>
+				</column>
+				<column name="extra_info" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+					<column name="version" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="from_date" />
+				</index>
+				<index>
+					<column name="to_date" />
+				</index>
+			</indexes>
+		</table>
+		<table name="file_vers_lock" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />>
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="thes_term" require_rollback="0">
+			<columns>
+				<column name="termid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term ID</description>
+				</column>
+				<column name="term" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="termid" />
+				</primary_key>
+				<unique_key>
+					<column name="thesid" />
+					<column name="term" />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="thes_term_note" require_rollback="0">
+			<columns>
+				<column name="termid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term ID</description>
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Note Name</description>
+				</column>
+				<column name="value" allow_null="0">
+					<type>VARCHAR(4000)</type>
+					<type_variations />
+					<default />
+					<description>Note Value</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus ID</description>
+				</column>
+			</columns>
+			<keys>
+			<primary_key>
+				<column name="termid" />
+				<column name="name" />
+				<column name="thesid" />
+				<column name="value" />
+			</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="termid" />
+				</index>
+				<index>
+					<column name="name" />
+				</index>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="thes_rel" require_rollback="0">
+			<columns>
+				<column name="relid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term ID</description>
+				</column>
+				<column name="relation" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Relation</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="relid" />
+				</primary_key>
+				<unique_key>
+					<column name="thesid" />
+					<column name="relation" />
+				</unique_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="thes_lnk" require_rollback="0">
+			<columns>
+				<column name="linkid" allow_null="0">
+					<type>INTEGER</type>
+					<type_variations />
+					<default />
+					<description>ID of link between two terms</description>
+				</column>
+				<column name="major" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Parent Term</description>
+				</column>
+				<column name="minor" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="relid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Term</description>
+				</column>
+				<column name="thesid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>Thesaurus Asset ID</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="linkid" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="major" />
+				</index>
+				<index>
+					<column name="minor" />
+				</index>
+				<index>
+					<column name="relid" />
+				</index>
+				<index>
+					<column name="thesid" />
+				</index>
+			</indexes>
+		</table>
+		<table name="ast_role" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="roleid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="roleid" />
+					<column name="assetid" />
+					<column name="userid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="cache" require_rollback="0">
+			<columns>
+				<column name="cache_key" allow_null="0">
+					<type>VARCHAR(32)</type>
+					<type_variations />
+					<default />
+					<description>The cache key of this entry</description>
+				</column>
+				<column name="perm_key" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>The permission key of this entry</description>
+				</column>
+				<column name="url" allow_null="0">
+					<type>VARCHAR(4000)</type>
+					<type_variations />
+					<default />
+					<description>The URL of this cache entry</description>
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>The assetid of the cached asset</description>
+				</column>
+				<column name="expires" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<oci>DATE</oci>
+					</type_variations>
+					<default />
+					<description>The time when this cache entry expires</description>
+				</column>
+				<column name="path" allow_null="0">
+					<type>VARCHAR(500)</type>
+					<type_variations />
+					<default />
+					<description>The file path to the cached content</description>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="cache_key" />
+					<column name="perm_key" />
+					<column name="url" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="assetid" />
+				</index>
+				<index>
+					<column name="expires" />
+				</index>
+			</indexes>
+		</table>
+	</tables>
+	<sequences>
+		<sequence name="ast" />
+		<sequence name="ast_lnk" />
+		<sequence name="ast_attr" />
+		<sequence name="ast_url" />
+		<sequence name="internal_msg" />
+		<sequence name="trig_id" />
+		<sequence name="file_vers_file" />
+		<sequence name="thes_term" />
+		<sequence name="thes_lnk" />
+		<sequence name="thes_rel" />
+	</sequences>
+</schema>
+

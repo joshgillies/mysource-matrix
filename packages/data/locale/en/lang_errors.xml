@@ -1,0 +1,26 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1 2008/02/18 04:53:44 lwright Exp $
+*
+*/
+
+	Data Package XML Error File.
+	Use this file to define localisation strings for errors specific to the
+	Data Package. Errors should be of the form "DATA1234", where "DATA" is
+	the prefix for errors in the Data Package, and "1234" is a four-digit
+	number that is incremented with each error that is created.
+-->
+
+<errors>
+	<error code="DATA0001"><![CDATA[SQL Execution Error:<br/>Error: %1$s<br/>SQL: %2$s]]></error>
+</errors>

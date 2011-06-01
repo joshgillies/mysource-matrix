@@ -1,0 +1,85 @@
+<!--
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+ | ACN 084 670 600                                                    |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ | IMPORTANT: Your use of this Software is subject to the terms of    |
+ | the Licence provided in the file licence.txt. If you cannot find   |
+ | this file please contact Squiz (www.squiz.net) so we may provide   |
+ | you a copy.                                                        |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+	Example design code for condition_server_variable,
+	which when used in a design, allows setting conditions
+	based on the value of any $_SERVER variable
+
+	Both server_variable, and server_variable_match must be specified
+
+	Darren McKee <dmckee@squiz.net>
+-->
+
+<!-- Example to determine host of server -->
+
+<mysource_area id_name="Host_Detector" design_area="show_if">
+
+	<mysource_set name="condition" value="server_variable"/>
+	<MySource_SET name="condition_server_variable" value="HTTP_HOST" />
+	<MySource_SET name="condition_server_variable_match" value="squiz" />
+	<mysource_then>
+		SQUIZ
+	</mysource_then>
+	<mysource_else>
+		NOT SQUIZ
+	</mysource_else>
+
+</mysource_area>
+
+<!-- Example of browser test(Can be done with user_agent condition as previous) -->
+
+<mysource_area id_name="IEDetector" design_area="show_if">
+
+	<mysource_set name="condition" value="server_variable"/>
+	<MySource_SET name="condition_server_variable" value="HTTP_USER_AGENT" />
+	<MySource_SET name="condition_server_variable_match" value="MSIE" />
+
+	<mysource_then>
+		Internet Explorer, wear your helmet
+	</mysource_then>
+	<mysource_else>
+		Firefox, or something that works
+	</mysource_else>
+
+</mysource_area>
+
+<!-- Example of language test -->
+
+<mysource_area id_name="LangDetector" design_area="show_if">
+
+	<mysource_set name="condition" value="server_variable"/>
+	<MySource_SET name="condition_server_variable" value="HTTP_ACCEPT_LANGUAGE" />
+	<MySource_SET name="condition_server_variable_match" value="en" />
+
+	<mysource_then>
+		English
+	</mysource_then>
+	<mysource_else>
+		Another language, translate
+	</mysource_else>
+
+</mysource_area>
+
+<!-- Example of query string test -->
+
+<mysource_area id_name="QueryDetector" design_area="show_if">
+
+	<mysource_set name="condition" value="server_variable"/>
+	<MySource_SET name="condition_server_variable" value="QUERY_STRING" />
+	<MySource_SET name="condition_server_variable_match" value="location=" />
+
+	<mysource_then>
+		Location Specified, Print a different logo
+	</mysource_then>
+	<mysource_else>
+		No location, revert to default
+	</mysource_else>
+
+</mysource_area>

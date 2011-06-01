@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.3 2007/01/11 05:37:26 amiller Exp $
+*
+*/
+-->
+
+<errors>
+	<!-- Trigger Related Errors -->
+	<error code="IPB0001">The required IPB Kernel directory cannot be found in "%1$s".</error>
+	<error code="IPB0002">The required IPB file "%1$s" cannot be found.</error>
+</errors>

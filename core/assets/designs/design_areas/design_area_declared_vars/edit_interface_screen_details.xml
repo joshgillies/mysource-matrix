@@ -1,0 +1,33 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.12 2006/12/05 22:42:12 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Declared Variables" write_access="write:attributes">
+		<function_call>
+			<paint_function   name="paintDecVars" />
+			<process_function name="processDecVars" />
+		</function_call>
+	</section>
+</contents>

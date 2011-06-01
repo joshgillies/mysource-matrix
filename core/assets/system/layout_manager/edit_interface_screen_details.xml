@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.6 2007/04/04 05:52:47 amiller Exp $
+*
+*/
+-->
+<contents>
+	<section name="CSS Settings" write_access="write:attributes">
+		<field attribute="edit_css">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Edit Layouts">
+		<field read_access="write:" write_access="write:">
+			<function_call>
+				<paint_function		name="paintEditLayouts" />
+				<process_function	name="processEditLayouts" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Add A Layout">
+		<field read_access="write:" write_access="write:">
+			<function_call>
+				<paint_function		name="paintAddLayout" />
+				<process_function	name="processAddLayout" />
+			</function_call>
+		</field>
+	</section>
+</contents>

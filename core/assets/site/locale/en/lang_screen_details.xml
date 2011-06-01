@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.4 2008/07/03 05:38:27 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Site Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Special Page Links">
+		<field>
+			<display_name>Index</display_name>
+			<note>The Asset that gets printed by default when no additional path is provided</note>
+			<function_call>
+				<paint_function   name="paintIndexPage"   />
+				<process_function name="processIndexPage" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Not Found</display_name>
+			<note>The Asset that gets printed when the URI that the user has entered does not exist</note>
+			<function_call>
+				<paint_function   name="paintNotFoundPage"   />
+				<process_function name="processNotFoundPage" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Archived Asset</display_name>
+			<note>When a user without read access accesses an archived asset within this site on the frontend, the selected asset will be printed instead of showing the login screen.</note>
+			<function_call>
+				<paint_function   name="paintArchivedPage"   />
+				<process_function name="processArchivedPage" />
+			</function_call>
+		</field>
+	</section>
+</contents>

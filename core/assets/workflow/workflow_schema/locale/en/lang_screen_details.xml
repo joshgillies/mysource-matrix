@@ -1,0 +1,57 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.5 2009/03/26 22:36:01 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Schema Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Workflow Summary">
+		<field>
+			<display_name></display_name>
+			<note><![CDATA[When you have the lock for this schema, you can change the order of the workflow by dragging the drag handle (the double-headed arrow button) of a workflow step up and down.<br/>
+			You may only move a step up and down within the same level - ie. you cannot change a top-level workflow step into an escalation step, or vice versa.  Available drop points will be highlighted when you start dragging.<br/>
+			If a drag handle does not appear for a step, there is nothing that can be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
+			<function_call>
+				<paint_function   name="paintWorkflowSummary"   />	
+				<process_function name="processWorkflowSummary" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Steps Defined For This Workflow">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintSteps"   />
+				<process_function name="processSteps" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Create New Step">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNewStep"   />
+				<process_function name="processNewStep" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -1,0 +1,62 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/12/07 03:13:05 bcaldwell Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="User Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="email">
+			<email width="25" />
+		</field>
+		<field attribute="date_of_birth">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="aim_name">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="icq_number">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="yahoo">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="msnname">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="location">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="website">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="signature">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="interests">
+			<text width="40" height="10" />
+		</field>
+	</section>
+	<section name="Custom Field Information" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintCustomField"   />
+				<process_function name="processCustomField" />
+			</function_call>
+		</field>
+	</section>
+</contents>

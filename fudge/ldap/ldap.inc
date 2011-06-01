@@ -1,0 +1,302 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: ldap.inc,v 1.11 2006/12/06 05:13:04 bcaldwell Exp $
+*
+*/
+
+
+/**
+* LDAP
+*
+* Purpose
+*     To provide an interface to an LDAP directory server for basic functionality
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.11 $
+* @package Fudge
+* @subpackage ldap
+*/
+class Ldap
+{
+
+	/**
+	* The host used to connect to the LDAP server
+	* Abreviated to 'h' throughout the member functions
+	*
+	* @var string
+	*/
+	var $host = '';
+
+	/**
+	* The port used to connect to the LDAP server
+	* Abreviated to 'p' throughout the member functions
+	*
+	* @var int
+	*/
+	var $port = 0;
+
+	/**
+	* The current LDAP server pointer
+	*
+	* @var resource
+	*/
+	var $ptr = null;
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$h		the host used to connect to the LDAP server
+	* @param int	$p		the port used to connect to the LDAP server
+	* @param string	$pass	the password used to connect to the LDAP server
+	* @param string	$bdn	the DN used to bind to the LDAP server
+	*
+	*/
+	function Ldap($h=null, $p=null, $pass=null, $bdn='')
+	{
+		// if a host has been specified, connect
+		if (!is_null($h) && !empty($h)) {
+			$this->connect($h, $p, $pass, $bdn);
+			$this->bind($bdn, $pass);
+		}
+
+	}//end constructor
+
+
+	/**
+	* Connect to a certain LDAP server and bind to it
+	*
+	* @param string		$h	the host used to connect to the LDAP server
+	* @param int		$p	the port used to connect to the LDAP server
+	*
+	* @return boolean
+	* @access public
+	*/
+	function connect($h, $p=null)
+	{
+		// bail out safely if we have no ldap functions
+		if (!extension_loaded('ldap')) {
+			$this->ptr = null;
+			return false;
+		}
+
+		if ($h != $this->host || $p != $this->port) {
+			// close old connection
+			if ($this->ptr) ldap_close($this->ptr);
+
+			if (!($this->ptr = ldap_connect($h, $p))) {
+				trigger_error('Unable to connect to LDAP server: '.$h.' on port '.$p, E_USER_WARNING);
+				return false;
+			}
+			$this->host = $h;
+			$this->port = $p;
+		}
+		return true;
+
+	}//end connect()
+
+
+	/**
+	* Bind to a LDAP server
+	*
+	* @param string		$bdn	the DN used to bind to the LDAP server
+	* @param string		$pass	the password used to connect to the LDAP server
+	*
+	* @return boolean
+	* @access public
+	*/
+	function bind($bdn='', $pass=null)
+	{
+		if (!$this->ptr) return false;
+
+		// bind to the server
+		if (is_null($pass)) {
+			// attempting an anonymous bind
+			if (!($r = ldap_bind($this->ptr))) {
+				trigger_error('Unable to Anonomously bind to LDAP server: '.$this->host, E_USER_WARNING);
+				unset($this->ptr);
+				return false;
+			}
+		} else {
+			if (!($r = ldap_bind($this->ptr, $bdn, $pass))) {
+				trigger_error('Unable to bind to LDAP server: '.$this->host.' BDN: '.$bdn.' Using Password: '.(($pass) ? 'YES' : 'NO'), E_USER_WARNING);
+				$this->ptr = null;
+				return false;
+			}
+		}
+
+		return $r;
+
+	}//end bind()
+
+
+	/**
+	* Disconnect from the LDAP server
+	*
+	* @return boolean
+	* @access public
+	*/
+	function disconnect()
+	{
+		if ($this->ptr) {
+			return ldap_close($this->ptr);
+		}
+		return true;
+
+	}//end disconnect()
+
+
+	/**
+	* Connect to a certain LDAP server and bind to it as a particular user
+	*
+	* @param string		$bdn	the root DN used to connect to the LDAP server
+	* @param string		$pass	the password used to connect to the LDAP server
+	*
+	* @return boolean
+	* @access public
+	*/
+	function connectAsUser($bdn, $pass)
+	{
+		$conn_result = $this->connect($this->host, $this->port);
+		if (!$conn_result) return false;
+		return $this->bind($bdn, $pass);
+
+	}//end connectAsUser()
+
+
+	/**
+	* Search the server starting at $startdn using $filter
+	*
+	* @param string		$startdn		the DN to start searching at
+	* @param string		$filter			search filter
+	* @param boolean	$multi_level	search multiple levels
+	* @param boolean	$multi_result	search for multiple entries
+	*
+	* @return resource (search result identifier) | zero (on error)
+	* @access public
+	*/
+	function search($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true)
+	{
+		if (!$this->ptr) return 0;
+
+		if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter);
+		else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter);
+		else $sr = @ldap_read($this->ptr, $startdn, $filter);
+
+		if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
+
+		if (!$sr) {
+			return 0;
+		} else {
+			return $sr;
+		}
+
+	}//end search()
+
+
+	/**
+	* Get the entries in a given search result in a multi-dim array
+	*
+	* @param resource	$result	the search result identifier
+	*
+	* @return array
+	* @access public
+	*/
+	function getEntries($result)
+	{
+		if (!($info = ldap_get_entries($this->ptr, $result))) {
+			trigger_error('Unable to get entries for LDAP search result ['.$result.'] :'.ldap_error($this->ptr), E_USER_WARNING);
+			return Array();
+		} else {
+			return $info;
+		}
+
+	}//end getEntries()
+
+
+	/**
+	* Return the number of entries in a given search result
+	*
+	* @param resource	$result	the search result identifier
+	*
+	* @return int
+	* @access public
+	*/
+	function getNumEntries($result)
+	{
+		if (!$result) return 0;
+		return ldap_count_entries($this->ptr, $result);
+
+	}//end getNumEntries()
+
+
+	/**
+	* Insert an entry into LDAP
+	*
+	* @param string	$dn			the level to add the entry at
+	* @param array	$details	the details for new entry
+	*
+	* @return boolean
+	* @access public
+	*/
+	function addEntry($dn, $details)
+	{
+		if (!ldap_add($this->ptr, $dn, $details)) {
+			trigger_error('Unable to INSERT entry into LDAP at DN: ['.$dn.'] '.ldap_error($this->ptr), E_USER_WARNING);
+			return false;
+		}
+		return true;
+
+	}//end addEntry()
+
+
+	/**
+	* Modify an LDAP entry
+	*
+	* @param string	$dn			the DN of the entry to modify
+	* @param array	$details	the new details for entry
+	*
+	* @return boolean
+	* @access public
+	*/
+	function modifyEntry($dn, $details)
+	{
+		if (!ldap_modify($this->ptr, $dn, $details)) {
+			trigger_error('Unable to MODIFY entry in LDAP at DN: ['.$dn.'] '.ldap_error($this->ptr), E_USER_WARNING);
+		}
+		return true;
+
+	}//end modifyEntry()
+
+
+	/**
+	* Delete an entry from LDAP
+	*
+	* @param string	$dn		the DN of the entry to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteEntry($dn)
+	{
+		if (!ldap_delete($this->ptr, $dn)) {
+			trigger_error('Unable to DELETE entry from LDAP at DN: ['.$dn.'] '.ldap_error($this->ptr), E_USER_WARNING);
+		}
+		return true;
+
+	}//end deleteEntry()
+
+
+}//end class
+
+?>

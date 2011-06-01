@@ -1,0 +1,87 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.3 2009/04/02 23:35:50 mbrydon Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Button details">
+		<field attribute="item_name">
+			<display_name>Item name</display_name>
+			<note />
+		</field>
+		<field attribute="item_id">
+			<display_name>Item ID</display_name>
+			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value is usually an asset ID and can be viewed by customers. Thus, it should not be used if the asset ID is secret to customers.</note>
+		</field>
+		<field attribute="price">
+			<display_name>Price</display_name>
+			<note />
+		</field>
+		<field attribute="currency">
+			<display_name>Currency</display_name>
+			<note />
+		</field>
+		<field attribute="undefined_quantity">
+			<display_name>Undefined quantity?</display_name>
+			<note>Yes, if buyers can update the item quantity in payment process</note>
+		</field>
+		<field attribute="paypal_account_id">
+			<display_name>Paypal Business Account</display_name>
+			<note>The Paypal Business Account asset this button want to make payment to. The Paypal Business Account asset must include the paths to public certificate, private key and Paypal certificate as well as the correct public certificate ID provided by Paypal in order for this button to work because this button supports encrypted Paypal button only. It is for the security reason. If you want to create unencrypted Paypal button, you can use a Standard Page instead.</note>
+		</field>
+		<field attribute="paypal_config_id">
+			<display_name>Paypal Configuration</display_name>
+			<note>The Paypal Configuration asset that keeps information this button needs to encrypt its data. The Paypal Configuration asset must specify the location of the Paypal Encryption Library Path in order for this button to work.</note>
+		</field>
+		<field attribute="custom_var">
+			<display_name>Custom variable</display_name>
+			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value can be any extra information that Paypal will send back after a customer purchases an item. This value is never presented to customers so it can be used to send secret data under the format var1=value1,var2=value2. These values can be extracted by an IPN Receiver asset later. Globals keywords like %globals_user_assetid% can be used.</note>
+		</field>
+		<field attribute="notify_url">
+			<display_name>Notify URL</display_name>
+			<note>This is the URL that Paypal will POST an Instant Payment Notification (IPN) to. It must be the URL of an IPN Receiver asset.</note>
+		</field>
+		<field attribute="return_url">
+			<display_name>Return URL</display_name>
+			<note>The URL of the page that the user will be returned after completing a payment.</note>
+		</field>
+		<field attribute="cancel_return_url">
+			<display_name>Cancel URL</display_name>
+			<note>The URL of the page that the user will be returned if a payment is cancelled.</note>
+		</field>
+		<field attribute="image_url">
+			<display_name>Image URL</display_name>
+			<note />
+		</field>
+		<field>
+			<display_name>Extra variables</display_name>
+			<note>The variables and values of Paypal buttons in the format of variable_name=variable_value.</note>
+			<function_call>
+				<paint_function   name="paintExtraVars"   />
+				<process_function name="processExtraVars" />
+			</function_call>
+		</field>
+	</section>
+</contents>

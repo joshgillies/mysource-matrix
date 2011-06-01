@@ -1,0 +1,116 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: cron_job_future_status_edit_fns.inc,v 1.23 2007/11/28 21:53:59 lwright Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
+
+/**
+* Cron_Job_Future_Status_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Revision: 1.23 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	* @see Asset_Edit_Fns::__construct()
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
+	* Prints the tasks interface in a one line format
+	*
+	* @param Cron_Job_Future_Status	$asset					The owning asset
+	* @param Backend_Outputter		$o						the Backend Outputter object
+	* @param string					$prefix					prefix for form elements
+	* @param string					$when					prepared when string
+	* @param string					$cascade				cascade the status change
+	* @param string					$form_extra_elements	extra form elements
+	* @param array					$exclude_status			exclude these statuses from the list
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', Array $exclude_status=Array())
+	{
+		echo translate('set_status_to');
+
+		$descs = $asset->_getAllStatiiDescs();
+		foreach ($exclude_status as $status) {
+			unset($descs[$status]);
+		}
+
+		if ($asset->writeAccess('attributes')) {
+			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements);
+		} else {
+			echo $descs[$asset->attr('status')];
+		}
+
+		echo '&nbsp;'.strtolower(translate('at')).'&nbsp;';
+		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
+
+		echo '&nbsp;';
+		check_box($prefix.'_change_status_all_children', '1', $cascade);
+		echo translate('cascade_status_change');
+
+		return TRUE;
+
+	}//end paintInLineBackend()
+
+
+	/**
+	* Process the tasks interface
+	*
+	* @param Cron_Job_Future_Status	$asset	The owning asset
+	* @param Backend_Outputter		$o		the Backend Outputter object
+	* @param string					$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
+			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
+			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
+				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
+			} else {
+				trigger_localised_error('CRON0046', E_USER_NOTICE);
+			}
+		}
+
+		return FALSE;
+
+	}//end processInLineBackend()
+
+
+}//end class
+
+?>

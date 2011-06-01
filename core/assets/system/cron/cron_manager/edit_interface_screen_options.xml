@@ -1,0 +1,48 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_options.xml,v 1.12.12.1 2009/04/20 03:14:08 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Options" write_access="root:all" read_access="write:">
+		<field>
+			<function_call>
+				<paint_function   name="paintEpoch" />
+				<process_function name="processEpoch" />
+			</function_call>
+		</field>
+		<field attribute="refresh_time">
+			<duration biggest_units="hours" smallest_units="minutes" />
+		</field>
+		<field attribute="warn_after_num_run_checks">
+			<int width="3" />
+		</field>
+		<field attribute="num_failed_attempts">
+			<int width="3" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintExcludedTime" />
+				<process_function name="processExcludedTime" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLogRotateTime" />
+				<process_function name="processLogRotateTime" />
+			</function_call>
+		</field>
+	</section>
+</contents>

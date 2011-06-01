@@ -1,0 +1,63 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600													   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source	   |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this	   |
+* | Module if you have the written consent of Squiz.				   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.2 2008/12/10 05:47:18 bshkara Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1"/>
+		</field>
+	</section>
+	<section name="XML Feed Details" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintFeed"	 />
+				<process_function name="processFeed" />
+			</function_call>
+		</field>
+		<field attribute="root_tag">
+			<text width="25" height="1"/>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintTags"	 />
+				<process_function name="processTags" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Tag Attributes" write_access="write:attributes" show_if="resultSetExists">
+		<field>
+			<function_call>
+				<paint_function   name="paintTagAttributes"   />
+				<process_function name="processTagAttributes" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Shadow Asset Name" write_access="write:attributes" show_if="resultSetExists">
+		<field>
+			<function_call>
+				<paint_function   name="paintShadow"   />
+				<process_function name="processShadow" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintKeywords"	 />
+				<process_function name="processKeywords" />
+			</function_call>
+		</field>
+	</section>
+</contents>

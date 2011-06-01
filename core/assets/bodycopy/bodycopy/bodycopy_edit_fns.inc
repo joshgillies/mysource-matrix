@@ -1,0 +1,570 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+s
+*
+* $Id: bodycopy_edit_fns.inc,v 1.65 2008/12/23 23:48:51 akarelia Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+
+/**
+* Bodycopy_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.65 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Bodycopy_Edit_Fns extends Asset_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['tagging']);
+
+	}//end constructor
+
+
+	/**
+	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
+	*
+	* @param Backend_Outputter	$o	the Backend_Outputter class
+	* @param Boolean  $mute_errors 	mutes error reported , default is false hence will report all the errors
+	*
+	* @return void
+	* @access private
+	*/
+	protected function _saveCssIds(Backend_Outputter $o, $mute_errors = FALSE)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
+			$url = $GLOBALS['sq_preview_url'];
+			$url = preg_replace('|^http[s]?://|', '', $url);
+
+			$db = MatrixDAL::getDb();
+
+			$sql = 'SELECT value
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
+
+			$where = 'name LIKE :lookup_name AND
+						((:url = url)
+						OR ((:url_1 LIKE url || \'/%\')
+						AND (:url_2 NOT LIKE url || \'%/$\'))
+						OR ((:url_slash = url)))';
+
+			$order_by = ' ORDER BY depth DESC';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
+				MatrixDAL::bindValueToPdo($query, 'url', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
+				$designid = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
+			}//end try catch
+
+			if ($designid) {
+				$design = $am->getAsset($designid);
+				$stylesheets = $design->getStylesheets();
+
+				// save the ids of all the css files into a global var so the wysiwyg style
+				// drop down plugin can access this information without another querey
+				// we can also limit the stylesheets that are available to it here if we want
+				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+				$am->forgetAsset($design);
+				unset($design);
+
+			} else {
+				if (!$mute_errors) {
+					$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
+				}
+			}
+		} else {
+			if (!$mute_errors) {
+				$o->note(translate('bodycopy_asset_has_no_preview'));
+			}
+		}
+
+	}//end _saveCssIds()
+
+
+	/**
+	* Paint the interface for creating containers in the bodycopy
+	*
+	* @param Bodycopy			$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$write_access = $asset->writeAccess('content');
+		// variable to determine whether or not to allow commit
+		$print_commit_button = $write_access;
+
+		// save css ids into global var
+		$this->_saveCssIds($o);
+
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+		if (!$write_access) {
+			ob_start();
+			foreach ($containers as $container_data) {
+				$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				if ($container->useSystemVersion()) {
+					$container->printBody();
+				} else {
+					$container_edit = $container->getEditFns();
+					$container_edit->paintContainer($container, $o, $prefix);
+				}
+			}
+			$html = ob_get_clean();
+			$html = preg_replace('|<script\b[^>]*>(.*?)</script>|is', '', $html);
+			echo $html;
+			return FALSE;
+		}
+
+		// the initial width and height to have the layer display created at;
+		$init_layer_width  = 500;
+		$init_layer_height = 500;
+
+		// all available content types
+		$content_types = Array();
+		require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
+		$types = Content_Type::getAvailableContentTypes();
+		foreach ($types as $type => $type_data) {
+			$content_types[$type] = Array('name' => str_replace(' Content Type', '', $type_data['name']));
+		}
+
+		?>
+		<input type="hidden" name="bodycopy_action" value="">
+		<input type="hidden" name="bodycopy_name"   value="">
+		<input type="hidden" name="bodycopy_data"   value="">
+
+		<script type="text/javascript">
+			// php vars
+			var backendHref = "<?php echo $asset->getBackendHref('show_popup');?>";
+			var init_layer_width = <?php echo $init_layer_width?>;
+			var init_layer_height = <?php echo $init_layer_height?>;
+			var bodycopy_types = '<?php echo var_serialise($content_types, TRUE)?>';
+			var _prefix = "<?php echo $prefix; ?>";
+			var asset_id = "<?php echo $asset->id; ?>";
+		</script>
+
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_fns.js'?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"></script>
+
+
+		<?php
+		// print JS functions for each of the container types we have installed
+		$container_types = $am->getTypeDescendants('bodycopy_container');
+		foreach ($container_types as $type) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
+			$type_asset = new $type();
+			$edit_fns = $type_asset->getEditFns();
+			$edit_fns->paintGenericBackend($asset, $o, $prefix);
+		}
+
+		$container_type_options = Array();
+		$default = '';
+		foreach ($container_types as $type) {
+			$code = strtolower(substr($type,9));
+			$container_type_options[$code] = ucwords(str_replace('_', ' ', substr($type,9)));
+			if (empty($default)) $default = $code;
+		}
+		asort($container_type_options);
+		echo hidden_field($prefix.'_insert_container_type', $default);
+		?>
+
+		<style type="text/css">
+			#bodycopyPopupDiv {
+				color: #ffffff;
+				position: absolute;
+				left: 100;
+				top: 120;
+				width: <?php echo $init_layer_width?>;
+				height: <?php echo $init_layer_height?>;
+				clip: rect(0,600,600,0);
+				visibility: hidden;
+			}
+			#bodycopyToolTipDiv {
+				position: absolute;
+				width:  1px;
+				height: 1px;
+				visibility: hidden;
+			}
+		</style>
+
+
+		<!-- Begin Popup -->
+		<div id="bodycopyPopupDiv" style="z-index:1001">
+			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" marginwidth=0 marginheight=0 frameborder="no"></iframe>
+		</div>
+		<!-- End Popup -->
+
+		<table border="0" cellspacing="0" cellpadding="0" class="bodytext">
+
+		<?php
+
+		// require library functions needed for drawing the bodycopy
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+
+		// for each container, print it's editing interface
+		$i = 0;
+		foreach ($containers as $container_data) {
+			$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container_edit = $container->getEditFns();
+
+			if ($write_access) {
+				?>
+				<tr>
+					<td>
+						<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
+						<table border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<?php
+								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+									?>
+									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
+									<?php
+								}
+								else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+									?>
+									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+									<?php
+								}
+								else {
+									?>
+									<td>
+										<?php
+											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+										?>
+									</td>
+									<td class="sq-backend-data" valign="top">
+										<?php
+										echo '&nbsp;&nbsp;'.translate('create_new').' ';
+										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, FALSE, '');
+										?>
+									</td>
+								<?php
+								}
+								?>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+				<?php
+			}//end if write access
+
+			?>
+			<tr>
+			<td><?php
+			if ($container_edit->paintContainer($container, $o, $prefix) == TRUE) {
+				$print_commit_button = TRUE;
+			}
+			?></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+			<?php
+
+			$i++;
+		}//end foreach container
+
+		if ($write_access) {
+			?>
+			<tr>
+				<td>
+					<table border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<?php
+							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+								?>
+								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
+								<?php
+							}
+							else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+								?>
+								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+								<?php
+							}
+							else {
+								?>
+								<td>
+									<?php
+									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
+									?>
+								</td>
+								<td class="sq-backend-data" valign="top">
+									<?php
+									echo '&nbsp;&nbsp;'.translate('create_new').' ';
+									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, FALSE, '');
+									?>
+								</td>
+							<?php
+							}
+							?>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<?php
+		}//end if write access
+
+		?>
+		</table>
+		<!-- Begin Tooltip -->
+		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>
+		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;z-index:1000;visibility:hidden;"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
+		<!-- End Tooltip -->
+		<?php
+
+		return $print_commit_button;
+
+	}//end paintBodycopy()
+
+
+	/**
+	* Processes the interface for creating containers in the bodycopy
+	*
+	* @param Bodycopy			$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$updated = FALSE;
+
+		// save css ids into global var
+		// we dont want note to be displayed so we mute errors
+		$this->_saveCssIds($o,TRUE);
+
+		// do some thing for the first time we process a bodycopy on this page
+		if (empty($this->_tmp['update_initialised'])) {
+			$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
+			$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
+			$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
+			$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
+
+			if (empty($bc_data) && empty($bc_saved)) {
+				return FALSE;
+			}
+
+			// if there is some bodycopy data, deserialise it into the arrays
+			// so that everything else can use it
+			if ($bc_data) $bc_data = var_unserialise($bc_data);
+
+			// unserialize the data for a bodycopy.
+			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
+				$containers =& $bc_saved[$k];
+				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
+					$containers[$containersid] = var_unserialise($containers[$containersid]);
+				}
+			}
+
+			unset($containers);
+
+			$this->_tmp['update_initialised'] = TRUE;
+		}
+
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+
+		// process each of the containers
+		foreach ($containers as $container_data) {
+			$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container_edit = $container->getEditFns();
+			if ($container_edit->processContainer($container, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
+				if ($container->saveAttributes()) $updated = TRUE;
+			}
+		}
+
+		// only update if we are the bodycopy that submitted the form
+		if ($bc_name == $prefix || isset($bc_saved[$prefix])) {
+			// perform some bodycopy level actions
+			if ($bc_name == $prefix) {
+				switch ($bc_action) {
+					case 'insert_container' :
+						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) {
+							$updated = TRUE;
+						}
+					break;
+
+					case 'delete_container' :
+						if ($this->deleteContainer($asset, $bc_data['containerid'])) {
+							$asset->_updated();
+							$updated = TRUE;
+						}
+					break;
+				}//end switch
+			}
+		}
+
+		return $updated;
+
+	}//end processBodycopy()
+
+
+	/**
+	* Insert a new container into this bodycopy
+	*
+	* @param Bodycopy	$asset			the bodycopy
+	* @param string		$type			the type of the container (table, div etc)
+	* @param int		$containerid	the ID of the container to insert before/after
+	* @param array		$bc_data		the array of bodycopy data that got posted
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function insertContainer(Bodycopy $asset, $type, $containerid, Array $bc_data)
+	{
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+		$num_containers = count($containers);
+
+		$containerid = intval($containerid);
+
+		// if the containerid is greater than the number of containers we have, set it to the last one
+		if ($containerid > $num_containers - 1) {
+			$containerid = $num_containers - 1;
+		} else if ($containerid < 0) {
+			$divid = 0;
+		}
+
+		// if they want to insert after the passed containerid what
+		// they really mean is to insert before the next containerid
+		if (!$bc_data['before']) $containerid++;
+
+		// now add the container
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $containerid, 'is_dependant' => 1);
+
+		$asset_type = 'bodycopy_'.$type;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+		$new_container = new $asset_type();
+		$new_container->setAttrValue('name', 'New '.ucfirst($type));
+		$new_container->setAttrValue('attributes', $bc_data['attributes']);
+		$retval = (bool) $new_container->create($copy_link, $bc_data);
+		if ($retval && (!isset($bc_data['attributes']['identifier']) || trim($bc_data['attributes']['identifier']) == '')) {
+			// try and update the name to be unique - but dont stress if we couldn't update it
+			$new_container->setAttrValue('name', 'New '.ucfirst($type).' '.$new_container->id);
+			$new_container->saveAttributes();
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_container);
+		return $retval;
+
+	}//end insertContainer()
+
+
+	/**
+	* Unlink a container from this bodycopy (effectivly deleting it from this bodycopy)
+	*
+	* @param Bodycopy	$asset			the bodycopy
+	* @param int		$containerid	the ID of the container to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function deleteContainer(Bodycopy $asset, $containerid)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
+		foreach ($containers as $container_data) {
+			if ($container_data['minorid'] == $containerid) {
+				// found the container to delete
+				return $asset->deleteLink($container_data['linkid']);
+			}
+		}
+
+		return FALSE;
+
+	}//end deleteContainer()
+
+
+	/**
+	* Print an icon for a bodycopy action
+	*
+	* @param string	$onclick	JS to execute when the icon is clicked
+	* @param string	$heading	The heading for the tooltip
+	* @param string	$desc		The main body of the tooltip
+	* @param string	$icon		The filename base of the icon to display (must be a PNG)
+	* @param string	$alt		Alternate text for the icon
+	* @param string	$extra		Any extra HTML you want to put in the IMG tag
+	* @param string	$width		The width of the icon
+	* @param string	$height		The height of the icon
+	*
+	* @return void
+	* @access public
+	*/
+	public static function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
+	{
+		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/'.$icon.'.png';
+		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
+		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
+		$extra .= ' onclick="'.$onclick.'"';
+		$extra .= ' align="absmiddle" ';
+		if (!empty($onclick)) {
+			$extra .= ' style="cursor:pointer;"';
+		}
+		sq_print_icon($path, $width, $height, $alt, '', $extra);
+
+	}//end printBodycopyIcon()
+
+
+}//end class
+
+
+?>

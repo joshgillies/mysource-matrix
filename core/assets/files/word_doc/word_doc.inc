@@ -1,0 +1,93 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: word_doc.inc,v 1.22 2008/10/08 01:14:47 lwright Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+
+
+/**
+* Image
+*
+* Purpose
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.22 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Word_Doc extends File
+{
+
+
+	/**
+	* All allowed extensions for a word doc
+	*
+	* Document and templates recognised, for both earlier versions of Word, and
+	* Office 2007+ OOXML format (with macros both disabled and enabled).
+	*
+	* @var Array(string)
+	*/
+	public $allowed_extensions = Array('doc', 'dot', 'docx', 'docm', 'dotx', 'dotm');
+
+
+	/**
+	* Constructor
+	*
+	* @param int    $assetid    the asset id to be loaded
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Returns the raw content of this word document
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		$file_info = $this->getExistingFile();
+		if (empty($file_info)) return '';
+		$file = $file_info['path'];
+		$file = ereg_replace('\"', '\\\"', $file);
+
+		$content = '';
+		if (SQ_TOOL_ANTIWORD_ENABLED) {
+			// Run a program that converts Word doc to text, set environment variable of bin_path
+			$cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
+			$content = shell_exec($cmd);
+
+		}
+
+		if (!$content) return '';
+
+		// strip out the whitespace
+		$content = strtolower(trim(preg_replace('/[\s]+/', ' ', $content)));
+
+		return $content;
+
+	}//end getContent()
+
+
+}//end class
+?>

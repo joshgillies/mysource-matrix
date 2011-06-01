@@ -1,0 +1,105 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: image_variety_management.inc,v 1.9 2006/12/05 23:14:14 emcdonald Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+/**
+* Image_Variety_Management
+*
+* @see Asset_Management
+*
+* @author  Blair Robertson <brobertson@squiz.co.uk>
+* @version $Revision: 1.9 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Image_Variety_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Image_Variety_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+						'name'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'filename'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
+										   ),
+						'variety_type'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'resize',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'resize'	=> 'Resize Current Image',
+																					'upload'	=> 'Upload Alternate Image',
+																				   ),
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
+															   ),
+											'description'	=> '',
+										   ),
+						'constrain'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'width',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'width'		=> 'Width',
+																					'height'	=> 'Height',
+																					'dimension'	=> 'Both',
+																					'none'		=> 'Neither',
+																				   ),
+																'multiple'		=> FALSE,
+																'allow_empty'	=> FALSE,
+															   ),
+											'description'	=> '',
+										   ),
+						'width'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'height'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'dimension'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+					  );
+
+	}//end constructor
+
+
+}//end class
+?>

@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.3 2006/12/06 02:53:10 emcdonald Exp $
+*
+* Localised Strings File for Paint Layout Bodycopy Asset
+*/
+-->
+
+<strings>
+<string source="core_paint_layout_bodycopy_begin">Begin</string>
+<string source="core_paint_layout_bodycopy_end">End</string>
+<string source="core_paint_layout_bodycopy_else">Else</string>
+<string source="core_paint_layout_bodycopy_full">Full Structure for</string>
+</strings>
+

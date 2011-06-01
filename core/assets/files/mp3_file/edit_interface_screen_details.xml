@@ -1,0 +1,74 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.4 2009/03/13 03:20:22 akarelia Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="title">
+			<text width="25" height="1" />
+		</field>
+		<field keyword="filename">
+			<function_call>
+				<paint_function   name="paintFilename"   />
+				<process_function name="processFilename" />
+			</function_call>
+		</field>
+		<field keyword="file_upload">
+			<function_call>
+				<paint_function   name="paintFileUpload"   />
+				<process_function name="processFileUploadPreUpload" />
+			</function_call>
+		</field>
+		<field attribute="allow_unrestricted">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="ID3 Tag Information" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintExtractID3"   />
+				<process_function name="processExtractID3" />
+			</function_call>
+		</field>
+		<field attribute="song">
+			<text width="40" />
+		</field>
+		<field attribute="album">
+			<text width="40" />
+		</field>
+		<field attribute="artist">
+			<text width="40" />
+		</field>
+		<field attribute="track">
+			<text width="6" />
+		</field>
+		<field attribute="year">
+			<text width="6" />
+		</field>
+		<field attribute="genre">
+			<text width="20" />
+		</field>
+		<field attribute="length">
+			<duration biggest_units="minutes" smallest_units="seconds" />
+		</field>
+		<field attribute="bitrate">
+			<float width="4" />
+		</field>
+		<field attribute="samplerate">
+			<float width="7" />
+		</field>
+	</section>
+</contents>

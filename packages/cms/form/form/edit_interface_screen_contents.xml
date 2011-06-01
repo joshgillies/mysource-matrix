@@ -1,0 +1,203 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_contents.xml,v 1.34 2009/03/16 05:59:23 mbrydon Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Questions (not attached to a section)">
+		<field write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintQuestionLinks"   />
+				<process_function name="processQuestionLinks" />
+			</function_call>
+		</field>
+		<field read_access="write:menu" write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Sections">
+		<field>
+			<function_call>
+				<paint_function   name="paintSectionLinks"   />
+				<process_function name="processSectionLinks" />
+			</function_call>
+		</field>
+		<field read_access="write:menu" write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintAddSections"   />
+				<process_function name="processAddSections" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Formatting">
+		<field attribute="use_confirmation_page">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintUseBodycopy"   />
+				<process_function name="processUseBodycopy" />
+			</function_call>
+		</field>
+		<field attribute="submit_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="reset_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="note_size">
+			<text width="4" height="1" />
+		</field>
+	</section>
+	<section name="Validation">
+		<field attribute="use_client_side">
+			<boolean true_text="on" false_text="off" />
+		</field>
+		<field attribute="submission_errors_msg">
+			<wysiwyg height="40" />
+		</field>
+	</section>
+	<section name="CAPTCHA">
+		<field attribute="require_captcha">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="provide_accessible_captcha">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_length">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_zoom">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_link_text">
+			<text width="50" />
+		</field>
+		<field attribute="captcha_use_colours">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_bgcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_textcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_bordercolour">
+			<colour />
+		</field>
+		<field attribute="captcha_usefont">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintCaptchaFontField" />
+				<process_function name="processCaptchaFontField" />
+			</function_call>
+		</field>
+		<field attribute="captcha_font_size">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_width">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_height">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_x_start">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_arc">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_arc_colour">
+			<colour />
+		</field>
+		<field attribute="captcha_include_uppercase">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_include_numbers">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Multiple Page Form Options">
+		<field attribute="multi_page">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="next_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="previous_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_and_exit_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="page_list_format">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="unattached_page_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="confirmation_page_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_confirmation_message">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Simple Formatting">
+		<field attribute="form_width">
+			<html_width />
+		</field>
+		<field attribute="question_col_width">
+			<html_width />
+		</field>
+		<field attribute="answer_col_width">
+			<html_width />
+		</field>
+		<field attribute="submit_button_extras">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="reset_button_extras">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Complex Formatting">
+		<field>
+			<function_call>
+				<paint_function	name="paintComplexFormatting" />
+				<process_function name="processComplexFormatting" />
+			</function_call>
+		</field>
+	</section>
+</contents>

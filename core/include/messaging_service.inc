@@ -1,0 +1,842 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: messaging_service.inc,v 1.72 2008/10/13 23:43:07 csmith Exp $
+*
+*/
+
+
+require_once SQ_DATA_PATH.'/private/conf/messaging_service.inc';
+require_once 'Mail.php';
+require_once 'Mail/mime.php';
+
+define('SQ_MSG_UNREAD' , 'U');
+define('SQ_MSG_READ'   , 'R');
+define('SQ_MSG_DELETED', 'D');
+
+define('SQ_MSG_PRIORITY_VERY_LOW'  , 1);
+define('SQ_MSG_PRIORITY_LOW'       , 2);
+define('SQ_MSG_PRIORITY_NORMAL'    , 3);
+define('SQ_MSG_PRIORITY_HIGH'      , 4);
+define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
+
+
+/**
+* Messaging_Service
+*
+* Purpose
+*    Facilitate the sending and management of internal messages
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.72 $
+* @package MySource_Matrix
+*/
+class Messaging_Service extends MySource_Object
+{
+
+	/**
+	* Temporary holder for messages added to queues and logs
+	*
+	* @var Array()
+	*/
+	var $_levels = Array(
+					'queues'	=> Array(),
+					'logs'		=> Array(),
+				   );
+
+
+	/**
+	* Queued email messages, that will be sent by sendQueuedEmails()
+	*
+	* @var Array()
+	*/
+	var $_emails = Array();
+
+	/**
+	* Flag that is set when queued messages are sent using send()
+	*
+	* This is used by the internal messages to work out whether it
+	* needs to initiate sending the email itself - if a queue/log is
+	* being processed, it'll be handled by that.
+	*
+	* @var boolean
+	*/
+	var $sending_queue = FALSE;
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Messaging_Service()
+	{
+		$this->MySource_Object();
+
+	}//end constructor
+
+
+	/**
+	* Returns the log types that are to be used for the passed message type
+	* Log Types: 'log_to_file', 'log_to_db', 'send_mail'
+	* ('string'=>bool)	array of log type => boolen for whether to use or not
+	*
+	* @param string	$msg_type	the message type (eg 'asset.workflow.announce.approve')
+	*
+	* @return array
+	* @access public
+	*/
+	function getLogTypes($msg_type)
+	{
+
+		if (!isset($this->_tmp['message_type_logs'][$msg_type])) {
+
+			$this->_tmp['message_type_logs'][$msg_type] = Array();
+
+			$msg_type_list = explode('.', $msg_type);
+
+			foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
+
+				$def_name_w = 'SQ_MS_'.strtoupper($log_type).'_WHITE_LIST';
+				$def_name_b = 'SQ_MS_'.strtoupper($log_type).'_BLACK_LIST';
+				$types_w = explode("\n", constant($def_name_w));
+				$types_b = explode("\n", constant($def_name_b));
+
+				if (in_array($msg_type, $types_w)) {
+					// this exact type is white listed
+					$allow_log = TRUE;
+				} else if (in_array($msg_type, $types_b)) {
+					// this exact type is black listed
+					$allow_log = FALSE;
+				} else {
+
+					// We need to cycle through all the parts for completeness
+					// example of why:
+					//    msg_type = asset.attributes.fulllog.scalar
+					//    WHITE_LIST: asset.attributes.*
+					//    BLACK_LIST: asset.attributes.fulllog.*
+					// If we didn't go through whole list then we would be allowing this log
+					// when we have specifically denied it.
+
+					$allow_log = FALSE;
+
+					if (in_array('*', $types_w)) {
+						// all messages of this type are white listed
+						$allow_log = TRUE;
+					}
+
+					// check the virtual types to see if they clash
+					$check_code = '';
+					foreach ($msg_type_list as $code_part) {
+						if (!empty($check_code)) {
+							$check_code = trim($check_code, '* ');
+						}
+						$check_code .= $code_part.'.*';
+						if (in_array($check_code, $types_w)) {
+							// this virtual type is white listed
+							$allow_log = TRUE;
+
+						} else if (in_array($check_code, $types_b)) {
+							// this virtual type is explicitly black listed
+							$allow_log = FALSE;
+
+						}
+
+					}
+
+				}//end else
+
+				// cache this for this script execution
+				$this->_tmp['message_type_logs'][$msg_type][$log_type] = $allow_log;
+
+			}//end foreach
+
+		}//end if
+
+		return $this->_tmp['message_type_logs'][$msg_type];
+
+	}//end getLogTypes()
+
+
+//--        QUEUES        --//
+
+
+	/**
+	* Opens a new queue or nested queue
+	* Note that this function really just updates how many queues are open
+	*
+	* @return boolean
+	* @access public
+	*/
+	function openQueue()
+	{
+		array_push($this->_levels['queues'], Array());
+
+	}//end openQueue()
+
+
+	/**
+	* Closes a queue or nested queue, and add's it messages to the main queue
+	* If the last queue is closed, the messages in the queue are sent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function closeQueue()
+	{
+		// remove the current levels messages
+		$msgs = array_pop($this->_levels['queues']);
+
+		// add them to the level above or the main queue
+		if (empty($this->_levels['queues'])) {
+			// this is the last queue
+			return $this->send($msgs);
+		} else {
+			foreach ($msgs as $msg) {
+				array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $msg);
+			}
+			return TRUE;
+		}
+
+	}//end closeQueue()
+
+
+	/**
+	* Aborts a queue or nested queue, and removes it's messages from the queue
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abortQueue()
+	{
+		// remove the current levels messages
+		array_pop($this->_levels['queues']);
+		return TRUE;
+
+	}//end abortQueue()
+
+
+	/**
+	* Adds an internal message into the queue
+	*
+	* It takes Internal_Message object as an argument
+	*
+	* @param object	$message	the message to add to the queue
+	*
+	* @return void
+	* @access public
+	*/
+	function enqueueMessage($message)
+	{
+		if (empty($this->_levels['queues'])) {
+			$this->openQueue();
+		}
+		array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $message);
+
+	}//end enqueueMessage()
+
+
+	/**
+	* Returns the messages in the current queue or nested queue (array of object Internal_Message)
+	*
+	* Only the contents of the most inside nested queue are available from this function
+	*
+	* @return array
+	* @access public
+	*/
+	function queueContents()
+	{
+		return $this->_levels['queues'][count($this->_levels['queues']) - 1];
+
+	}//end queueContents()
+
+
+//--        LOGS        --//
+
+
+	/**
+	* Opens a new log or nested log
+	* Note that this function really just updates how many logs are open
+	*
+	* @return boolean
+	* @access public
+	*/
+	function openLog()
+	{
+		array_push($this->_levels['logs'], Array());
+
+	}//end openLog()
+
+
+	/**
+	* Closes a log or nested log, and add's it messages to the main log
+	* If the last log is closed, the messages in the log are sent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function closeLog()
+	{
+		// remove the current logs messages
+		$msgs = array_pop($this->_levels['logs']);
+
+		// add them to the level above or the main queue
+		if (empty($this->_levels['logs'])) {
+			// this is the last queue
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			foreach ($msgs as $msg) {
+				if (!$msg->send()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+
+		} else {
+			foreach ($msgs as $msg) {
+				array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $msg);
+			}
+			return TRUE;
+
+		}//end if
+
+	}//end closeLog()
+
+
+	/**
+	* Aborts a log or nested log, and removes it's messages from the log
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abortLog()
+	{
+		// remove the current levels messages
+		array_pop($this->_levels['logs']);
+		return TRUE;
+
+	}//end abortLog()
+
+
+	/**
+	* Adds an internal message into the log
+	*
+	* It takes Internal_Message object as an argument
+	*
+	* @param object	$message	the message to add to the log
+	*
+	* @return void
+	* @access public
+	*/
+	function logMessage($message)
+	{
+		array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $message);
+
+	}//end logMessage()
+
+
+	/**
+	* Returns the messages in the current log or nested log (array of object Internal_Message)
+	*
+	* Only the contents of the most inside nested log are available from this function
+	*
+	* @return array
+	* @access public
+	*/
+	function logContents()
+	{
+		return $this->_levels['logs'][count($this->_levels['logs']) - 1];
+
+	}//end logContents()
+
+
+//--        MESSAGES        --//
+
+
+	/**
+	* Creates and returns a new internal message
+	*
+	* Some variables of a message can be passed in for simple messages
+	* but messages that want to utilise other options need to set these manually
+	* so as to not clutter this functions
+	*
+	* @param array	$to		an array of user or group IDs to send this message to (integers)
+	* @param string	$type	the log type of this message (if any)
+	* @param array	$reps	the main body replacement
+	*
+	* @return object
+	* @access public
+	*/
+	function newMessage($to=Array(), $type='', $reps=Array())
+	{
+		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
+
+		$new_message = new Internal_Message();
+		$new_message->sent			= ts_iso8601(time());
+		$new_message->from			= $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$new_message->to			= $to;
+		$new_message->type			= $type;
+		$new_message->replacements	= $reps;
+		return $new_message;
+
+	}//end newMessage()
+
+
+	/**
+	* Sends all messages passed in, doing some amalgamation of msg bodies for same user and same subject
+	*
+	* @param array	$msgs	an array of Internal_Message to send
+	*
+	* @return void
+	* @access public
+	*/
+	function send($msgs)
+	{
+		// lets try and work out if any of the messages to be
+		// sent can actually be amalgamated based on who the message is being
+		// sent to, who it is from, the message type, and the subject line of the message
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->sending_queue = TRUE;
+
+		foreach ($msgs as $msg) {
+			$msg->send();
+		}
+
+		$this->sending_queue = FALSE;
+		$this->sendQueuedEmails();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}//end send()
+
+
+	/**
+	* Gets all messages for the passed userid
+	*
+	* @param string		$userid			id of the user you are fetching messages for (0 = system, NULL = any user except system)
+	* @param string		$type			the type of the message eg. asset.workflow or asset.attributes.*
+	* @param array		$statii			can limit returned messages to those with a status
+	*									in this array
+	* @param array		$messageids		can limit returned messages to those with a messageid
+	*									in this array
+	* @param int		$from			timestamp that every msg returned must be this time
+	*									or after (NULL to ignore)
+	* @param int		$to				timestamp that every msg returned must be this time
+	*									or before (NULL to ignore)
+	* @param string		$get_user_name	[name|short_name], used to return the name/short_name
+	*									of the from user with the return, which will be returned
+	*									in the field 'from_name'. (NULL to ignore)
+	* @param array		$parameters		can limit returned messages to those with these params set
+	* @param int		$max_msgs		the maximum number of messages
+	* @param boolean $count_only		whether to only get a count of the number of messages or not. defaults to FALSE
+	*
+	* @return array
+	* @access public
+	*/
+	function getMessages($userid, $type=NULL, $statii=Array(), $messageids=Array(), $from=NULL, $to=NULL, $get_user_name=NULL, $parameters=Array(), $max_msgs=0, $count_only=FALSE)
+	{
+		$db = DAL::getDb();
+
+		$bind_vars = Array();
+
+		if (!is_null($get_user_name) && $get_user_name != 'name') {
+			$get_user_name = 'short_name';
+		}
+
+		if (!$count_only) {
+			$select_clause = 'm.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
+			if (is_string($get_user_name)) {
+				$select_clause .= ',
+						CASE
+							WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
+							ELSE a.'.$get_user_name.'
+						END as from_name';
+				$select_clause .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
+						' ELSE a.type_code END as type_code';
+				$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
+			}
+		} else {
+			$select_clause = 'COUNT(msgid) AS message_count';
+		}
+
+		$sql = 'SELECT ' . $select_clause;
+
+		$sql  .= ' FROM sq_internal_msg m';
+		if (is_null($userid)) {
+			$where = 'm.userto != \'0\'';
+		} else {
+			$where = 'm.userto = :userid';
+			$bind_vars['userid'] = $userid;
+		}
+
+		if (is_string($get_user_name)) {
+			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON m.userfrom = a.assetid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		} else {
+			$where = 'WHERE '.$where;
+		}
+
+		if (!is_null($type)) {
+			if (substr($type, -2) == '.*') {
+				$where .= ' AND m.type LIKE :substrtype';
+				$bind_vars['substrtype'] = substr($type, 0, -1).'%';
+			} else {
+				$where .= ' AND m.type = :type';
+				$bind_vars['type'] = $type;
+			}
+		}
+		if (!empty($statii)) {
+			$statii_strs = Array();
+			for ($i = 0; $i < count($statii); $i++) {
+				$statii[$i] = '\''.$statii[$i].'\'';
+			}
+			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
+		}
+		if (!empty($messageids)) {
+			for ($i = 0; $i < count($messageids); $i++) {
+				$messageids[$i] = '\''.$messageids[$i].'\'';
+			}
+			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
+		}
+		if (!empty($parameters)) {
+			foreach ($parameters as $param_key => $param_value) {
+				$where .= ' AND m.parameters LIKE :parameters';
+				$bind_vars['parameters'] = '%'.$param_key.':'.$param_value.';%';
+			}
+		}
+		if (!is_null($from)) {
+			$where .= ' AND m.sent >= :sent_from';
+			$bind_vars['sent_from'] = ts_iso8601($from);
+		}
+		if (!is_null($to)) {
+			$where .= ' AND m.sent <= :sent_to';
+			$bind_vars['sent_to'] = ts_iso8601($to);
+		}
+
+		$sql .= ' '.$where;
+
+		if (!$count_only) {
+			$sql .= ' ORDER BY m.sent DESC';
+		}
+
+		if ($max_msgs) {
+			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $max_msgs);
+		}
+
+		// Begin try block
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			$result = MatrixDAL::executePdoAll($query);
+
+		} catch (Exception $e) {
+			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
+		}//end try catch
+
+		if ($count_only) {
+			return $result[0]['message_count'];
+		}
+
+		for ($i = 0, $total = count($result); $i < $total; $i++) {
+			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
+
+			// if we are showing the from name, check that any messages from shadow
+			// assets are actually displaying the correct name
+			if (is_string($get_user_name)) {
+				$id_parts = explode(':', $result[$i]['userfrom']);
+				if (isset($id_parts[1])) {
+					$bridgeid = $id_parts[0];
+					$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid, '', TRUE);
+					if (!is_null($bridge)) {
+						$shadow = $bridge->getAsset($result[$i]['userfrom']);
+						if (!is_null($shadow)) {
+							$result[$i]['from_name'] = $shadow->$get_user_name;
+							$result[$i]['type_code'] = $shadow->type();
+						}
+					}
+				}
+
+				// if we couldnt find the name of the user, set a default
+				if (empty($result[$i]['from_name'])) {
+					$result[$i]['from_name'] = 'Unknown User';
+				}
+
+				// if we couldnt find the type code user, set a default
+				if (empty($result[$i]['type_code'])) {
+					$result[$i]['type_code'] = 'user';
+				}
+			}
+
+			// We want to do the asset tagline replacements
+			$body = $result[$i]['body'];
+			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
+			if (preg_match($tagline_reg, $body, $matches)) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+				if (is_null($asset)) {
+					$body = preg_replace($tagline_reg, 'AssetID #'.$matches[1], $body);
+				} else {
+					$body = preg_replace($tagline_reg, get_asset_tag_line($asset->id), $body);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				}
+				$result[$i]['body'] = $body;
+			}
+
+		}//end for
+
+		return $result;
+
+	}//end getMessages()
+
+
+	/**
+	* Get logged messages of the passed typed
+	*
+	* This is just a cut down version of getMessages so you can get logs without
+	* having to call getMessages will a bunch of array and NULL arguments
+	*
+	* @param string	$type		the type of the message eg. asset.attributes
+	* @param array	$parameters	can limit returned messages to those with these params set
+	*
+	* @return array
+	* @access public
+	* @see getMessages()
+	*/
+	function getLogs($type, $parameters=Array())
+	{
+		return $this->getMessages(0, $type, Array(), Array(), NULL, NULL, 'name', $parameters);
+
+	}//end getLogs()
+
+
+	/**
+	* Returns the message object for the passed id
+	*
+	* It returns NULL on error or Internal_Message
+	*
+	* @param int	$messageid	id of the message the you want to get
+	*
+	* @return object
+	* @access public
+	*/
+	function getMessageById($messageid)
+	{
+		$message = $this->newMessage();
+		$message->load($messageid);
+		if (!$message->id) return NULL;
+		return $message;
+
+	}//end getMessageById()
+
+
+	/**
+	* Sorts two messages based on the sent date (newest message first)
+	*
+	* @param array	$a	the first message to compare
+	* @param array	$b	the second message to compare
+	*
+	* @return int
+	* @access public
+	*/
+	public static function sortMessages($a, $b)
+	{
+		if ($a['sent'] == $b['sent']) return 0;
+		return ($a['sent'] > $b['sent']) ? -1 : 1;
+
+	}//end sortMessages()
+
+
+	/**
+	* queue up an email to send at the conclusion of the script
+	*
+	* @param string	$from		the assetid of the user to send from (0 for system)
+	* @param string	$to			the assetid of the user to send to (0 for system)
+	* @param string	$subject	subject of the internal message
+	* @param string	$body		body of the internal message
+	*
+	* @return void
+	* @access public
+	*/
+	function queueEmail($from, $to, $subject, $body)
+	{
+		if (!isset($this->_emails[$from])) {
+			$this->_emails[$from] = Array();
+		}
+
+		if (!isset($this->_emails[$from][$to])) {
+			$this->_emails[$from][$to] = Array();
+		}
+
+		if (!isset($this->_emails[$from][$to][$subject])) {
+			$this->_emails[$from][$to][$subject] = Array();
+		}
+
+		$this->_emails[$from][$to][$subject][] = $body;
+
+	}//end queueEmail()
+
+
+	/**
+	* Sends queued-up emails
+	*
+	* @return boolean
+	* @access public
+	*/
+	function sendQueuedEmails()
+	{
+		$mime_param = Array(
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+		$crlf = "\n";
+		$mime = new Mail_mime($crlf);
+
+		foreach ($this->_emails as $from => $from_emails) {
+			// work out the email address the the email will be sent from
+			$from_email = SQ_CONF_DEFAULT_EMAIL;
+			$from_string = '';
+			if ($from) {
+				$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
+				if (!is_null($user_from)) {
+					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+					$from_email = $user_from->attr('email');
+				}
+			}
+			if (empty($from_email)) {
+				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
+					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
+				} else {
+					$from_email = SQ_CONF_DEFAULT_EMAIL;
+				}
+			}
+			if (empty($from_string)) {
+				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+			}
+
+			foreach ($from_emails as $to => $to_emails) {
+				if (!$to) {
+					// if the userid is empty, we are sending a message to the system
+					// so we send to the default email and tech email
+					$default = SQ_CONF_DEFAULT_EMAIL;
+					$tech = SQ_CONF_TECH_EMAIL;
+					$to_email = '';
+
+					if (!empty($default)) $to_email .= $default;
+					if (!empty($tech)) {
+						if (!empty($to_email)) $to_email .= ',';
+						$to_email .= $tech;
+					}
+
+					// can't come up with a To: email address - bail for this address
+					if (empty($to_email)) {
+						// We want to skip this user
+						continue;
+					}
+
+					$user = SQ_CONF_SYSTEM_OWNER;
+				} else {
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($to);
+					if (is_null($user) || !$user->canAccessBackend()) continue;
+					$to_email = trim($user->attr('email'));
+				}
+
+				if (empty($to_email)) continue;
+
+				foreach ($to_emails as $subject => $bodies) {
+
+					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
+
+					// workaround to fix the php5 strict warning
+					// $mail = Mail::factory('mail', "-f$from_email");
+					$mf = new Mail();
+					$mail = $mf->factory('mail', "-f$from_email");
+
+					$mime = new Mail_mime($crlf);
+
+					$hdrs = Array(
+								'From'		=> $from_string,
+								'Subject'	=> $subject,
+							);
+
+					$text_body = $this->formatEmail($body, $user, 'text');
+					$html_body = $this->formatEmail($body, $user, 'html');
+
+					$mime->setTXTBody(strip_tags($text_body));
+					$mime->setHTMLBody($html_body);
+
+					// get() must be called before headers()
+					$body = $mime->get($mime_param);
+					$hdrs = $mime->headers($hdrs);
+					@$mail->send($to_email, $hdrs, $body);
+					unset($mime);
+					unset($mail);
+				}
+			}//end foreach
+		}//end foreach
+
+		// Remove sent emails
+		unset($this->_emails);
+		$this->_emails = Array();
+
+	}//end sendQueuedEmails()
+
+
+	/**
+	* formats the body of an email with a header and a footer
+	*
+	* @param string	$body	the email body
+	* @param mixed	&$user	either the user object or a string containing the user's name that the email is intended for
+	* @param string	$type	the type of the email (text or html)
+	*
+	* @return string
+	* @access public
+	*/
+	function formatEmail($body, &$user, $type='text')
+	{
+		$term = ($type=='text') ? "\n" : '<br />';
+
+		$header = '';
+		if (!is_null($user) && is_object($user) && ($user instanceof User)) {
+			$header = $user->name.','.$term.$term;
+		} else if (is_string($user) && $user != '') {
+			$header = $user.','.$term.$term;
+		}
+		// replace separator line for multiple-bodied message with a h-rule
+		if ($type == 'html') {
+			$body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
+		}
+
+		// give it newlines
+		if ($type == 'html') $body = nl2br($body);
+
+		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
+
+		$footer = $term.$term.$line
+				.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
+				.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
+				.$term
+				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		return $header.$body.$footer;
+
+	}//end formatEmail()
+
+
+}//end class
+
+?>

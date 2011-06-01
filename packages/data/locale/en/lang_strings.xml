@@ -1,0 +1,37 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.2 2009/01/09 03:23:15 bpearson Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="database_type">Database Type</string>
+<string source="database_name">Database Name</string>
+<string source="user_name">User Name</string>
+<string source="host_name">Host Name</string>
+<string source="password">Password</string>
+
+<string source="connection_type">Connection Type</string>
+<string source="connection_setup">Connection Setup</string>
+<string source="sql_query">SQL Query</string>
+<string source="database_details">Database Details</string>
+<string source="dsn">DSN</string>
+<string source="db_connector">DB Connector</string>
+
+<string source="data_password_not_displayed">(Password not displayed)</string>
+<string source="trigger_execute_database_query_note"><![CDATA[Note that you can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query]]></string>
+
+</strings>

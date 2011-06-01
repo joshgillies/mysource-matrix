@@ -1,0 +1,37 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.4 2007/12/26 22:50:36 hnguyen Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Configuration" write_access="write:attributes">
+		<field attribute="upload_directory">
+			<display_name>Upload Directory</display_name>
+			<note>Word Documents uploaded will be stored here for processing. This value should be set in your Windows-side conversion process also.</note>
+		</field>
+	</section>
+	<section name="Upload" write_access="write:attributes">
+		<function_call>
+			<paint_function   name="paintUpload"   />
+			<process_function name="processUpload" />
+		</function_call>
+	</section>
+</contents>

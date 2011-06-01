@@ -1,0 +1,38 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+*
+*/
+-->
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+        <field attribute="name">
+            <text width="35" height="1" />
+        </field>
+		<field>
+			<function_call>
+				<paint_function		name="paintTestConnection" />
+				<process_function	name="processTestConnection" />
+			</function_call>
+		</field>
+		<field attribute="url">
+			<text width="35" height="1"/>
+		</field>
+		<field attribute="username">
+			<text width="35" height="1"/>
+		</field>
+		<field attribute="password">
+			<password width="35" height="1"/>
+		</field>
+	</section>
+</contents>

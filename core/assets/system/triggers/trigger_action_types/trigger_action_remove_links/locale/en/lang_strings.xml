@@ -1,0 +1,7 @@
+<strings>
+	<string source="trigger_remove_link_basic">As linked to the Broadcasting Asset, which also resides under the Root Node: %1$s</string>
+	<string source="trigger_remove_link_advanced">With Link Type %1$s and Link Value %2$s</string>
+	<string source="trigger_remove_link_matching_asset_types">Linked Asset Type</string>
+	<string source="trigger_remove_link_direct_links_only">Only where Candidate Assets are Directly Linked to the Root Node</string>
+	<string source="trigger_remove_link_any_link_value">Any Link Value</string>
+</strings>

@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2007/07/04 05:15:04 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Authentication Options">
+		<field attribute="log_in_as">
+			<display_name>Log In As</display_name>
+			<note>This option allows you to select which type of user to log in as, after the user name and password are authenticated on the LDAP bridge. If set to "Local User", the authentication system will attempt to locate, and will log in as a (local) User asset with the same user name as was logged in with. If such a user cannot be found, the login will fail.</note>
+		</field>
+	</section>
+</contents>

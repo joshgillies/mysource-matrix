@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_messages.xml,v 1.4 2006/12/07 01:12:23 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Unavailable Content">
+		<field attribute="display_error">
+			<display_name>Display Error Message</display_name>
+			<note>Choose whether you want the error message displayed.</note>
+		</field>
+		<field attribute="error_message">
+			<display_name>Error Message</display_name>
+			<note>This message is displayed if an error occurs while capturing remote content.</note>
+		</field>
+	</section>
+	<section name="Binary Files">
+		<field attribute="binary_message">
+			<display_name>Binary File Message</display_name>
+			<note>Site viewers will see this message if they follow a link to a binary file. Use the %remote_url% keyword replacement to make the url appear in the text of the message.</note>
+		</field>
+	</section>
+</contents>

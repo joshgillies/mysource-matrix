@@ -1,0 +1,49 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.11 2008/11/11 22:09:26 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Date Range Settings">
+		<field attribute="date_field">
+			<display_name>Date Field</display_name>
+			<note>This is the date used to determine if something is "new"</note>
+		</field>
+		<field attribute="date_range_from">
+			<display_name>Oldest Date</display_name>
+			<note>Show assets that are newer than this date</note>
+		</field>
+		<field attribute="date_range_to">
+			<display_name>Newest Date</display_name>
+			<note>Show assets that are older than this date</note>
+		</field>
+	</section>
+	<section name="Asset Locations">
+		<field>
+			<display_name>Link Types</display_name>
+			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
+			<function_call>
+				<paint_function   name="paintLinkTypes"  />
+				<process_function name="processLinkTypes" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Dynamic Parameters">
+		<field attribute="parameter_map">
+			<display_name />
+			<note />
+		</field>
+	</section>
+</contents>

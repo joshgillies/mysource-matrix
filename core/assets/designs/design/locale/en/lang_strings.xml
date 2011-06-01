@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.5 2007/06/04 01:20:54 rong Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="core_design_no_customisations_created">No Customisations Created</string>
+	<string source="core_design_must_acquire_locks_new_customisation">You must acquire all locks on this %s to be able to create a new customisation</string>
+	<string source="core_design_import_file">Import File</string>
+	<string source="core_design_export_filename">Export File Name</string>
+	<string source="core_design_export_no_parsefile">No Valid Parse File Found in Archive</string>
+	<string source="core_design_export_associated_file_problem">Problem Uploading Associated File: %s</string>
+	<string source="core_design_export_opening_problem">Error opening file %s</string>
+	<string source="core_design_export_no_change">No Change</string>
+	<string source="core_design_export_file_name">Filename</string>
+	<string source="core_design_apply_warning">Applying a design will remove all customisations and associated files from the current design.</string>
+	<string source="core_design_export_warning">Customisations will not be exported. They will need to be recreated when this design is imported and applied.</string>
+	<string source="core_design_import_note">Select a file to import as a design file.</string>
+	<string source="core_design_export_note">Enter a file name to export the current design to. The new file will be suffixed with '.tar.gz' automatically.</string>
+	<string source="core_design_existing_asset">Existing Asset</string>
+	<string source="core_design_existing_asset_note">Select an existing file asset to import to this design</string>
+	<string source="core_design_existing_asset_problem">Unable to create link to file: %s</string>
+	<string source="core_design_import_upload_error">Error uploading Design Archive</string>
+
+	<string source="core_design_customisation_no_design_areas_customised">No design areas are customised yet.</string>
+	<string source="core_design_customisation_all_design_areas_customised">All design areas have been customised.</string>
+</strings>

@@ -1,0 +1,41 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.4 2007/12/28 05:01:03 colivar Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="data_url">
+			<url width="30" height="1" protocols="http,https" />
+		</field>
+		<field attribute="refresh_time">
+			<duration biggest_units="days" smallest_units="seconds" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintUserTypeChooser" />
+				<process_function name="processUserTypeChooser" />
+			</function_call>
+		</field>
+	</section>
+	<section name="XML Format" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintXMLFormat" />
+		</function_call>
+	</section>
+</contents>

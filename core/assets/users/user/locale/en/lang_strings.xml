@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.12.2.1 2009/04/08 23:38:50 bpearson Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="user_locale_not_set">No locale is set for this user - system default "%s" used</string>
+	<string source="user_unknown_locale">Unknown locale "%s" set</string>
+	<string source="user_no_membership_conditions">There are no membership conditions set for "%s". This user is always a member of this group.</string>
+	<string source="user_section_group_conditions">Group Membership Conditions for "%1$s" (Id: #%2$s)</string>
+	<string source="user_cannot_be_restricted">This user is not a member of any user groups; it cannot be restricted</string>
+	<string source="session_persist">When the user closes the browser</string>
+	<string source="session_timeout">When the time since their last Matrix-Activity* is longer than</string>
+	<string source="session_max_length">When the time since their last login is longer than</string>
+	<string source="session_timeout_explanation">Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open.  If none of the boxes above are ticked then the session expiry time will be equal to the longest session expiry preference configured in the system, to a maximum of a year and a minimum of a week.</string>
+	<string source="user_prefs_session_settings_header">Session Expiry Rules</string>
+	<string source="user_prefs_asset_map_root_asset_header">Asset Map Root Asset</string>
+	<string source="user_prefs_asset_map_root_asset_explanation">The asset that will be displayed as the Asset Map's root node</string>
+	<string source="user_prefs_limbo_hide_frames">Hide frames in the Simple Edit Interface?</string>
+	<string source="end_user_session">End the user's session</string>
+	<string source="user_held_locks">%s currently holds %d Locks.</string>
+	<string source="current_locks">Current Locks</string>
+	<string source="release_locks">Release Held Locks</string>
+	<string source="release_locks_note">Releasing all locks will delete any editing changes that this user has not yet committed.</string>
+	<string source="password_validation_error">The supplied password is not valid: %s</string>
+	<string source="safe_trash">Safe Trash</string>
+	<string source="asset_map_width">Asset Map Width</string>
+	<string source="commit_button_position">Commit Button Position</string>
+	<string source="limit_by_ip_address">Limit this rule to an IP Address or Range</string>
+	<string source="add_session_expiry_rule">Add a new session expiry rule</string>
+
+	<string source="user_email_image">User Email Image</string>
+	<string source="user_prefs_attribute_image">Settings for using Image keywords replacements</string>
+	<string source="set_attribute_image_settings">Set the attribute image defaults</string>
+	<string source="attribute_image_face">Font</string>
+	<string source="attribute_image_size">Size</string>
+	<string source="attribute_image_hpad">Horizontal padding</string>
+	<string source="attribute_image_vpad">Vertical padding</string>
+	<string source="attribute_image_fgcol">Foreground Colour</string>
+	<string source="attribute_image_bgcol">Background Colour</string>
+
+	<string source="default_gd_font_1">Built in font 1</string>
+	<string source="default_gd_font_2">Built in font 2</string>
+	<string source="default_gd_font_3">Built in font 3</string>
+	<string source="default_gd_font_4">Built in font 4</string>
+	<string source="default_gd_font_5">Built in font 5</string>
+	<string source="using_default_font">Size is fixed for Built in font</string>
+</strings>

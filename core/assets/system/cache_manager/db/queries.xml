@@ -1,0 +1,218 @@
+<queries system="cache_manager">
+	<query id="insertCacheEntry">
+		<!-- Insert a single caching entry. -->
+		<primary>
+			<insert>
+				<fields table="sq_cache">
+					<field>cache_key</field>
+					<field>perm_key</field>
+					<field>url</field>
+					<field>assetid</field>
+					<field>expires</field>
+					<field>path</field>
+				</fields>
+				<values>
+					<value column="cache_key">:cache_key</value>
+					<value column="perm_key">:perm_key</value>
+					<value column="url">:url</value>
+					<value column="assetid">:assetid</value>
+					<value column="expires"><function function="toDate">
+						<arg>:expires</arg>
+					</function></value>
+					<value column="path">:path</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="updateCacheExpiry">
+		<!-- Updates the expiry time of a cache entry. -->
+		<primary>
+			<update>
+				<fields table="sq_cache">
+					<field>expires</field>
+				</fields>
+				<values>
+					<value column="expires">:expires</value>
+				</values>
+				<where>
+					<equal table="sq_cache" column="cache_key">:cache_key</equal>
+					<equal table="sq_cache" column="perm_key">:perm_key</equal>
+					<equal table="sq_cache" column="url">:url</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="updateCacheExpiryByAsset">
+		<!-- Updates the expiry time of all cache entries for an asset(s). -->
+		<primary>
+			<update>
+				<fields table="sq_cache">
+					<field>expires</field>
+				</fields>
+				<values>
+					<value column="expires">:expires</value>
+				</values>
+				<where>
+					<in table="sq_cache" column="assetid">:assetids</in>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="deleteCacheEntry">
+		<!-- Delete a cache entry based on cache and permission keys and URL. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_cache" column="cache_key">:cache_key</equal>
+					<equal table="sq_cache" column="perm_key">:perm_key</equal>
+					<equal table="sq_cache" column="url">:url</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteCacheEntriesByAsset">
+		<!-- Deletes all cache entries for specified asset(s). -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_cache" column="assetid">:assetids</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="clearAllCache">
+		<!-- Delete ALL cache. Yes, everything. -->
+		<primary>
+			<truncate>
+				<table>sq_cache</table>
+			</truncate>
+		</primary>
+	</query>
+	<query id="getAllCacheFilePaths">
+		<!-- Find all cache file paths, to be used for clearing cache. -->
+		<primary>
+			<select distinct="true">
+				<fields>
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+			</select>
+		</primary>
+	</query>
+	<query id="getCacheFilePathsByAsset">
+		<!-- Find all cache file paths, to be used for clearing cache. -->
+		<primary>
+			<select distinct="true">
+				<fields>
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+				<where>
+					<in table="sq_cache" column="assetid">:assetids</in>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getHighestPermissionForUsers">
+		<!-- Get the highest permission -->
+		<primary>
+			<select>
+				<fields>
+					<function function="max">
+						<arg><field table="sq_vw_ast_perm" column="permission" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_vw_ast_perm</table>
+				</from>
+				<where>
+					<equal table="sq_vw_ast_perm" column="assetid">:assetid</equal>
+					<in    table="sq_vw_ast_perm" column="userid">:userids</in>
+					<equal table="sq_vw_ast_perm" column="granted"><value>1</value></equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getCacheExpiryAndFilePath">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_cache" column="expires" />
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+				<where>
+					<equal table="sq_cache" column="cache_key">:cache_key</equal>
+					<equal table="sq_cache" column="perm_key">:perm_key</equal>
+					<equal table="sq_cache" column="url">:url</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+	<!-- //		_recache Queries					// -->
+	<query id="getCachedAssetByUrl">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_cache" column="assetid" />
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+				<where>
+					<or>
+						<equal table="sq_cache" column="url">:url1</equal>
+						<equal table="sq_cache" column="url">:url2</equal>
+						<like table="sq_cache" column="url">:url3</like>
+						<like table="sq_cache" column="url">:url4</like>
+					</or>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteCachedAssetByUrl">
+		<!-- Delete a cache entry based on URL. -->
+		<primary>
+			<delete>
+				<where>
+					<or>
+						<equal table="sq_cache" column="url">:url1</equal>
+						<equal table="sq_cache" column="url">:url2</equal>
+						<like table="sq_cache" column="url">:url3</like>
+						<like table="sq_cache" column="url">:url4</like>
+					</or>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
+	<!-- //     trigger_action_set_cache_expiry     // -->
+	<query id="setNewCacheExpiry">
+		<primary>
+			<update>
+				<fields table="sq_cache">
+					<field>expires</field>
+				</fields>
+				<values>
+					<value column="expires">
+						<function function="toDate">
+							<arg>:expires</arg>
+						</function>
+					</value>
+				</values>
+				<where>
+					<in table="sq_cache" column="assetid">:assetids</in>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+</queries>

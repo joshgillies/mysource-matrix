@@ -1,0 +1,386 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: log_manager_edit_fns.inc,v 1.11 2006/12/06 04:40:08 emcdonald Exp $
+*
+*/
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
+
+/**
+* Log_Manager_Edit_Fns
+*
+* Purpose
+*   Log Manager's Edit Functions
+*
+* @author  Andrei Railean <arailean@squiz.net>
+* @author  Robert Howard  <rhoward@squiz.net>
+* @version $Revision: 1.11 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Log_Manager_Edit_Fns extends Asset_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Log_Manager_Edit_Fns()
+	{
+		$this->Asset_Edit_Fns();
+
+		// disable all static screens
+		$this->static_screens = Array();
+
+		// enable just the details
+		$this->static_screens['details']['name']         =translate('details');
+		$this->static_screens['details']['force_unlock'] = FALSE;
+		$this->static_screens['details']['lock_type']    = 'none';
+
+	}//end constructor
+
+
+	/**
+	* Paint Log List
+	*
+	* @param object	&$lm	log manager
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLogList(&$lm, &$o, $prefix)
+	{
+		$write_access = $lm->writeAccess();
+
+		$o->openRaw();
+		$logs = $lm->getLogs();
+		if (empty($logs)) {
+			echo '<h2>'.translate('no_logs_found').'</h2>';
+			return $write_access;
+		}
+
+		?>
+		<script type="text/javascript">
+			//<![CDATA[
+			var prefix 			 = "<?php echo $prefix; ?>";
+			var communicator_url = "<?php echo $lm->getCommunicatorUrl(); ?>";
+			var action_prefix    = prefix + "_action";
+			var action_value     = prefix + "_value";
+			var logname_index    = prefix + "_log";
+			var offset_index     = prefix + "_offset";
+			var num_lines_index  = prefix + "_num_lines";
+
+			var refresh_interval = 30000; //seconds
+			var last_offset = null;
+			var num_lines = 50;
+
+			var log_refresh = true;
+			var refresher   = null;
+			var current_log = null;
+
+			/**
+			* Start monitoring a new log from the known log list
+			*/
+			function monitorLog(logname)
+			{
+				if (logname == null) {
+					logname = current_log;
+				} else {
+					current_log = logname;
+				}
+
+				if (logname == null) {
+					return false;
+				}
+
+				document.getElementById('sq-log-monitor-initial-message').style.display = 'none';
+				document.getElementById('sq-log-monitor-containter').style.display = 'block';
+				setIdValue('sq-log-name', logname);
+				document.getElementById('sq-log-num-lines').defaultValue = num_lines;
+
+				// initial setting
+				if (log_refresh && null === refresher) {
+					enableRefresh();
+				}
+
+				last_offset = null;
+				loadLog();
+
+				return false;
+
+			}//end monitorLog()
+
+
+
+			/**
+			* Rorces the refresh of the log
+			*
+			* Loads log and re-sets the timeout counter
+			*/
+			function forceRefresh()
+			{
+				loadLog();
+				enableRefresh();
+
+			}//end forceRefresh()
+
+
+			/**
+			* Load current log into the monitor frame
+			*/
+			function loadLog()
+			{
+				request_url = communicator_url+'&'+action_prefix+'=monitor&'+logname_index+'='+current_log+'&rand='+ Math.random()+'&'+num_lines_index+'='+num_lines;
+				if (null !== last_offset) {
+					request_url = request_url+'&'+offset_index+'='+last_offset;
+				}
+
+				document.getElementById('sq-log-monitor').src = request_url;
+				return true;
+
+			}//end loadLog()
+
+
+			//// Setter Functions
+			/**
+			* Load current log into the monitor frame
+			*/
+			function setRefreshInterval(interval)
+			{
+				var value = parseInt(interval);
+				if (!isNaN(value)) {
+					refresh_interval = value * 1000;
+					enableRefresh();
+				}
+
+			}//end setRefreshInterval()
+
+
+			/**
+			* Set the number of lines to display
+			*/
+			function setNumLines(new_num_lines)
+			{
+				var value = parseInt(new_num_lines);
+				if (!isNaN(value)) {
+					num_lines = value;
+				}
+				forceRefresh();
+			}//end setRefreshInterval()
+
+			/**
+			* Sets the parameters of the last refresh
+			*
+			* This function is used by the page included by the monitor
+			* when loaded, that function passes us some data that we can use in the next request
+			* or just for information display
+			*
+			* @param date_string	value	number of bytes representing the offset into the log file
+			* @return void
+			*/
+			function setLastRefreshInfo(date_string, num_rows, offset)
+			{
+				setIdValue('sq-log-last-refresh', date_string);
+				setIdValue('sq-log-total-rows', num_rows);
+				setLastOffset(offset);
+
+			}//end setLastRefreshInfo()
+
+
+			function setIdValue(id, value)
+			{
+				document.getElementById(id).innerHTML = value;
+
+			}//end setIdValue()
+
+
+			/**
+			* Set the offset at the end of the last line read from the log
+			*
+			* this is required for smart reloading, i.e. obtaining entries starting from where
+			* the previous request finished
+			*
+			* @param integer	value	number of bytes representing the offset into the log file
+			* @return void
+			*/
+			function setLastOffset(value)
+			{
+				var value = parseInt(value);
+				if (!isNaN(value)) {
+					last_offset = value;
+				}
+
+			}//end setLastOffset()
+
+
+			/**
+			* Enable log refresh
+			*
+			* Sets the appropriate labels and kills the existing timer and starts a new one
+			*
+			* @return void
+			*/
+			function enableRefresh()
+			{
+				if (null !== refresher) {
+					clearTimeout(refresher);
+				}
+				refresher = setInterval(loadLog, refresh_interval);
+
+				setIdValue('sq-log-refresh-status', 'ON');
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('disable');
+
+				log_refresh = true;
+
+			}//end enableRefresh()
+
+
+			/**
+			* Disable log refresh
+			*
+			* Sets the appropriate labels and kills the timer
+			*/
+			function disableRefresh()
+			{
+				if (null !== refresher) {
+					clearInterval(refresher);
+					refresher = null;
+				}
+
+				setIdValue('sq-log-refresh-status', 'OFF');
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('enable');
+
+				log_refresh = false;
+
+			}//end disableRefresh()
+
+
+			/**
+			* Toggle Refresh to the opposite state
+			*/
+			function toggleLogRefreshStatus()
+			{
+
+				if (!log_refresh) {
+					enableRefresh();
+				} else {
+					disableRefresh();
+				}
+
+				return true;
+
+			}//end toggleLogRefreshStatus()
+
+
+			//]]>
+		</script>
+		<table class="sq-backend-table">
+			<tr>
+				<th style="width: 10%"><?php echo translate('log_name'); ?></th>
+				<th style="width: 50%"><?php echo translate('info'); ?></th>
+				<th>Action</th>
+			</tr>
+		<?php
+		foreach ($logs as $logname => $rotation) {
+			$filepath = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
+			if (!file_exists($filepath)) continue;
+
+			$last_modified = date('G:i:s - M d', filemtime($filepath));
+
+			$last_rotated = array_get_index(array_get_index($rotation,'rotation'), 'last_timestamp');
+			if (empty($last_rotated)) {
+				$last_rotated = translate('never');
+			} else {
+				$last_rotated = date('G:i:s - M d', $last_rotated);
+			}
+
+			?>
+			<tr>
+				<td><strong><?php echo $logname; ?></strong></td>
+				<td>
+					<?php echo translate('modified'); ?>: <strong><?php echo $last_modified; ?></strong>
+					<br />
+					<?php echo translate('rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
+				</td>
+				<td>
+					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="<?php echo translate('monitor'); ?>" />
+				</td>
+			</tr>
+			<?php
+		}
+		echo '</table>';
+
+		$o->closeRaw();
+		$o->closeSection();
+
+		$o->openSection(translate('log_monitor'));
+			$o->openRaw('');
+				?>
+				<div id="sq-log-monitor-initial-message">
+					<?php echo translate('moniter_logs_instructions'); ?>
+				</div>
+				<div id="sq-log-monitor-containter" style="display: none;">
+					<table class="sq-backend-table">
+						<tr>
+							<td>
+								<?php echo translate('log'); ?>: <strong id="sq-log-name"></strong>
+								&nbsp;&nbsp;&nbsp;
+								<?php echo translate('loaded'); ?>: <strong id="sq-log-last-refresh"></strong>
+								&nbsp;&nbsp;&nbsp;
+								<?php echo translate('rows_displayed'); ?>: <strong id="sq-log-total-rows"></strong>
+
+							</td>
+							<td style="text-align: right">
+								<?php echo translate('max_rows'); ?>:
+								<select id="sq-log-num-lines" onchange="setNumLines(this.value)">
+									<option value="10">10</option>
+									<option value="50" selected="selected">50</option>
+									<option value="100">100</option>
+									<option value="500">500</option>
+									<option value="1000">1000</option>
+
+								</select>
+								<?php echo translate('auto-refresh'); ?>: <strong id="sq-log-refresh-status">&nbsp;</strong>
+								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
+								&nbsp;&nbsp;&nbsp;
+								<?php echo translate('refresh_interval'); ?>:
+								<select name="sq-log-refresh-interval" id="sq-log-refresh-interval" onchange="setRefreshInterval(this.value)">
+									<option value="15">15 <?php echo translate('sec'); ?></option>
+									<option value="30" selected="selected">30 <?php echo translate('sec'); ?></option>
+									<option value="60">1 <?php echo translate('min'); ?></option>
+									<option value="300">5 <?php echo translate('min'); ?></option>
+								</select>
+								&nbsp;&nbsp;&nbsp;
+								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="<?php echo translate('refresh_now'); ?>" />
+							</td>
+						</tr>
+					</table>
+					<br />
+					<iframe id="sq-log-monitor" src="" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				</div>
+				<?php
+			$o->closeRaw();
+		$o->closeSection();
+
+		return FALSE;
+
+	}//end paintLogList()
+
+
+}//end class
+
+?>

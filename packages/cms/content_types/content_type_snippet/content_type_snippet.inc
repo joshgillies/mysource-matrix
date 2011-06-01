@@ -1,0 +1,226 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: content_type_snippet.inc,v 1.4 2007/12/13 23:58:20 rong Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
+
+/**
+* Content_Type_Raw_HTML
+*
+* Purpose
+*
+*
+* @author  Greg Sherwoood <greg@squiz.net>
+* @version $Revision: 1.4 $
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Content_Type_Snippet extends Content_Type
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return void
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 1,
+												'exclusive'	=> FALSE,
+											   ),
+								   ),
+			   );
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Allow any required processesing to occur when any link is updated for the asset
+	*
+	* @return void
+	* @access protected
+	*/
+	function linksUpdated()
+	{
+		// update content.php file once snippet notice link has been deleted
+		$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
+		if (!empty($bc_container_link)) {
+			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+			$edit_fns = $container->getEditFns();
+			$edit_fns->generateContentFile($container);
+		}
+
+	}//end linksUpdated()
+
+
+	/**
+	* Returns true if there is no snippet selected
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isEmpty()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'snippet_asset');
+		return empty($link);
+
+	}//end isEmpty()
+
+
+	/**
+	* Returns an array of snippet name and content, indexed by id
+	*
+	* @return array
+	* @access public
+	*/
+	function getSnippets()
+	{
+		$rootid = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_SNIPPET_ROOT');
+		if (empty($rootid)) {
+			// snippet root preference not set
+			return Array();
+		}
+
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getChildren($rootid, 'bodycopy_container', FALSE);
+		if (empty($containers)) {
+			// no container found under the specified snippet root
+			return Array();
+		}
+
+		// generate list of snippet name and content
+		$results = Array();
+		foreach ($containers as $id => $type_code) {
+
+			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			if (is_null($container)) continue;
+
+			// only list what the current user has access to
+			if ($container->readAccess()) {
+				if (method_exists($container, 'getContentType')) {
+					$content_type = $container->getContentType();
+					// recursion check to prevent snippet from nesting itself
+					if ($content_type->id == $this->id) continue;
+					if (($content_type->type() == $this->type()) && $content_type->isEmpty()) {
+						// exclude snippet that has not been initialised
+						continue;
+					}
+					unset($content_type);
+				}
+				ob_start();
+					$container->printBody();
+					$content = ob_get_contents();
+				ob_end_clean();
+				$results[$id] = Array(
+									'name'		=> $container->name,
+									'content'	=> $content,
+								);
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
+
+		}//end foreach container
+		return $results;
+
+	}//end getSnippets()
+
+
+	/**
+	* Get a reference to the snippet asset associated with this content type
+	*
+	* @return mixed object|NULL
+	* @access public
+	*/
+	function &getCurrentSnippet()
+	{
+		$snippet_asset = NULL;
+		$snippet_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'snippet_asset');
+		if (!empty($snippet_link)) {
+			$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_link['minorid'], $snippet_link['minor_type_code'], TRUE);
+		}
+
+		return $snippet_asset;
+
+	}//end getCurrentSnippet()
+
+
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		// provide a more descriptive message when user trash active snippet
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		if ($link['link_type'] == SQ_LINK_NOTICE && $link['value'] == 'snippet_asset') {
+			return translate('cms_ct_snippet_link_desc');
+		}
+		return parent::describeLink($linkid);
+
+	}//end describeLink()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		return '';
+
+	}//end getContent()
+
+
+	/**
+	* Sets the editable content of this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setContent()
+	{
+		return FALSE;
+
+	}//end setContent()
+
+
+}//end class
+
+?>

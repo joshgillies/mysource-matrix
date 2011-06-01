@@ -1,0 +1,429 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: user_edit_fns.inc,v 1.35 2007/11/06 22:36:47 rong Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
+/**
+* User_Edit_Fns
+*
+* Purpose
+*     Editing interfaces for the (standard) user asset - one that can log in
+*     but has no backend editing privileges. This also defines the baseline
+*     interface for all user assets in the system (whether they be standard,
+*     backend, system admin, etc).
+*
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Revision: 1.35 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class User_Edit_Fns extends Asset_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function User_Edit_Fns()
+	{
+		$this->Asset_Edit_Fns();
+
+	}//end constructor
+
+
+	/**
+	* Paints interface for entering password
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPasswordNote(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$o->note(translate('password_entry_instructions').'<br />'.$asset->getPasswordRulesDescription());
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end paintPasswordNote()
+
+
+	/**
+	* Returns a list of groups that the user is linked to (in getAssetInfo() format)
+	*
+	* @param object	&$asset	the user asset
+	*
+	* @return array
+	* @access private
+	*/
+	function _getLinkedGroups(&$asset)
+	{
+		$group_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 1,'user_group', FALSE, 'minor');
+
+		$group_assetids = Array();
+		foreach ($group_links as $group_link) {
+			$group_assetids[] = $group_link['majorid'];
+		}
+
+		$groups_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($group_assetids);
+
+		return $groups_info;
+
+	}//end _getLinkedGroups()
+
+
+	/**
+	* Paints interface for managing user restrictions
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintUserConditions(&$asset, &$o, $prefix)
+	{
+		// get a list of directly linked groups
+		$groups = $this->_getLinkedGroups($asset);
+
+		if (empty($groups)) {
+			$o->openField('');
+				echo translate('user_cannot_be_restricted');
+			$o->closeField();
+			return FALSE;
+		}
+
+		$admin_access = $asset->adminAccess('attributes');
+
+		if ($admin_access) {
+			$conditions = Array('' => '-- Select Type --') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
+		}
+
+		// get a list of user restrictions
+		$restrictions = $asset->attr('restrictions');
+
+		foreach ($groups as $group_assetid => $group) {
+			$o->openSection($group['name'].' (#'.$group_assetid.')');
+			$o->openField('');
+
+			// if user has restrictions related to this group
+			if (!array_get_index($restrictions, $group_assetid, FALSE)) {
+				echo translate('no_membership_conditions', $group['name']);
+			} else {
+				?>
+				This user is part of this group when...
+				<table class="sq-backend-table" border="1">
+					<tr>
+						<th>&nbsp;&nbsp;&nbsp;</th>
+						<th>Condition</th>
+					<?php
+					if ($admin_access) {
+						?>
+						<th>Delete</th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($restrictions[$group_assetid] as $key => $restriction) {
+					$condition_prefix = $prefix.'_condition_'.$group_assetid.'_'.$key;
+					?>
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td>
+							<?php
+							$edit_fns_classname = $restriction['name'].'_edit_fns';
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction['name'], TRUE);
+
+							if ($admin_access) {
+								$match_options = call_user_func(Array($restriction['name'], 'getMatchKeywords'), $restriction['name']);
+								combo_box($condition_prefix.'_match', $match_options, FALSE, $restriction['match']);
+							} else {
+								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
+							}
+							echo '<br />';
+							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access, Array());
+							?>
+						</td>
+					<?php
+					if ($admin_access) {
+						?>
+						<td><?php check_box($condition_prefix.'[delete]', '1'); ?></td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach restriction
+				?>
+				</table>
+				<?php
+			}//end else - membership conditions
+
+			if ($admin_access) {
+				?>
+				<p>Add new condition: <?php combo_box($prefix.'_'.$group_assetid.'_new_condition', $conditions, FALSE, ''); ?></p>
+				<?php
+			}
+
+			$o->closeField();
+			$o->closeSection();
+
+		}//end foreach $groups
+
+		// field closed by asset_edit_functions
+
+		return TRUE;
+
+	}//end paintUserConditions()
+
+
+	/**
+	* Processses user restrictions
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processUserConditions(&$asset, &$o, $prefix)
+	{
+		// get a list of directly linked groups
+		$groups = $this->_getLinkedGroups($asset);
+		$admin_access = $asset->adminAccess('attributes');
+		$restrictions = $asset->attr('restrictions');
+
+		// -- PROCESS CONDITIONS --//
+		foreach ($groups as $group_assetid => $group) {
+
+			// if user has restrictions related to this group
+			if (array_get_index($restrictions, $group_assetid, NULL)) {
+
+				// get array of restrictions for this group
+				foreach ($restrictions[$group_assetid] as $key => $restriction) {
+					$condition_prefix = $prefix.'_condition_'.$group_assetid.'_'.$key;
+
+					// if this condition has been marked to delete, unset it now
+					if (isset($_POST[$condition_prefix]) && array_get_index($_POST[$condition_prefix], 'delete', 0)) {
+						unset($restrictions[$group_assetid][$key]);
+					} else {
+						// prepare condition data
+						$dir = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($restriction['name'], 'dir');
+						$edit_fns_classname = $restriction['name'].'_edit_fns';
+						require_once SQ_SYSTEM_ROOT.'/'.$dir.'/'.$edit_fns_classname.'.inc';
+						$condition_data = call_user_func(Array($edit_fns_classname, 'processEditInterface'), $o, $condition_prefix);
+						$restrictions[$group_assetid][$key]['condition_data'] = $condition_data;
+						$restrictions[$group_assetid][$key]['match'] = array_get_index($_POST, $condition_prefix.'_match', '1');
+					}
+				}
+			}
+			if ($new_name = array_get_index($_POST, $prefix.'_'.$group_assetid.'_new_condition')) {
+				$restrictions[$group_assetid][] = Array('name' => $new_name, 'match' => 1, 'condition_data' => Array());
+			}
+		}
+
+		return $asset->setAttrValue('restrictions', $restrictions);
+
+	}//end processUserConditions()
+
+
+	/**
+	* Interface painting function for locale settings
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLocale(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
+		$current_locale = $asset->attr('locale');
+
+		if ($write_access) {
+			$standards_lists_locales = array_reverse($standards_lists_locales);
+			$standards_lists_locales[''] = '** Use System Default **';
+			$standards_lists_locales = array_reverse($standards_lists_locales);
+			combo_box($prefix.'_locale', $standards_lists_locales, FALSE, $current_locale);
+		} else {
+			if (isset($standards_lists_locales[$current_locale])) {
+				echo $standards_lists_locales[$current_locale];
+			} else if ($current_locale == '') {
+				// add system default to this message when it is determined
+				echo translate('no_locale_set_for_user', $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
+			} else {
+				echo translate('unknown_locale', $current_locale);
+			}
+		}
+
+		return $write_access;
+
+	}//end paintLocale()
+
+
+	/**
+	* Processes the interface for locale settings
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLocale(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		$asset->setAttrValue('locale', $_POST[$prefix.'_locale']);
+		return $asset->saveAttributes();
+
+	}//end processLocale()
+
+
+	/**
+	* Paints the interface re-assigning roles to a user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRoles(&$asset, &$o, $prefix)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+		$user_group = new User_Group();
+		$user_group_edit_fns = $user_group->getEditFns();
+
+		return $user_group_edit_fns->paintRoles($asset, $o, $prefix);
+
+	}//end paintRoles()
+
+
+	/**
+	* Processes the interface re-assigning roles to a user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRoles(&$asset, &$o, $prefix)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+		$user_group = new User_Group();
+		$user_group_edit_fns = $user_group->getEditFns();
+
+		return $user_group_edit_fns->processRoles($asset, $o, $prefix);
+
+	}//end processRoles()
+
+
+	/**
+	* Paints the current Locks held by the user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLockDetails(&$asset, &$o, $prefix)
+	{
+		$current_locks = $asset->getUserLocks();
+		$write_access = $asset->writeAccess('attributes');
+		$o->openField(translate('current_locks'));
+			echo translate('user_held_locks', $asset->name, count($current_locks));
+		$o->closeField();
+		$o->openField(translate('release_locks'));
+			if (!$write_access) {
+				?>
+				<script type="text/javascript">
+
+					// Confirms that this is what the user wants to do
+					function onReleaseAllClick() {
+						if (confirm('Are you sure you want to release all user locks?')) {
+							set_hidden_field("process_form", "1");
+							return true;
+						} else {
+							return false;
+						}
+					}
+				</script>
+
+				<?php
+				// No lock, so we need to create our own commit button
+				submit_button($prefix.'_release_all_locks', 'Release All Locks', 'return onReleaseAllClick();');
+			} else {
+				// We have the lock, so we can use the normal commit button. Just print a dropdown box
+				$options = Array(
+							'yes'	=> translate('yes'),
+							'no'	=> translate('no'),
+						   );
+				combo_box($prefix.'_release_all_locks_dropdown', $options, FALSE, 'no');
+			}
+			$o->note(translate('release_locks_note'));
+		$o->closeField();
+
+		return FALSE;
+
+	}//end paintLockDetails()
+
+
+	/**
+	* Process the current Locks held by the user
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLockDetails(&$asset, &$o, $prefix)
+	{
+		$admin_access = $asset->adminAccess();
+		if (!$admin_access) return FALSE;
+
+		if ((isset($_POST[$prefix.'_release_all_locks'])) || (isset($_POST[$prefix.'_release_all_locks_dropdown']) && ($_POST[$prefix.'_release_all_locks_dropdown'] == 'yes'))) {
+			$asset->releaseUserLocks();
+		}
+		return TRUE;
+
+	}//end processLockDetails()
+
+
+}//end class
+
+?>

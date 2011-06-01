@@ -1,0 +1,26 @@
+<MySource_AREA id_name="stalks_menu" design_area="menu_stalks">
+
+  <MySource_SET name="level"            value="sub" />
+  <MySource_SET name="min_num_levels"   value="0" />
+  <MySource_SET name="max_num_levels"   value="0" />
+
+  <MySource_SET name="alignment"      value="left" />
+  <MySource_SET name="show_stalks"    value="true" />
+  <MySource_SET name="indent"         value="15" />
+  <MySource_SET name="min_height"     value="25" />
+
+  <MySource_SET name="word_wrap"        value="true" />
+  <MySource_SET name="ellipsis_length"  value="0" />
+
+  <MySource_SET name="stalk_fg_colour"  value="#000000" />
+  <MySource_SET name="stalk_bg_colour"  value="#FFFFFF" />
+
+  <MySource_SET name="settings.class.normal"    value="stalk-nav" />
+  <MySource_SET name="settings.class.hierarchy" value="stalk-nav-current" />
+  <MySource_SET name="settings.class.current"   value="stalk-nav-current" />
+
+  <MySource_ASSET>
+    <a href="<MySource_PRINT var='asset_link' />" class="<MySource_PRINT var='settings.class' />" onMouseOver="window.status='<MySource_PRINT var='asset_name' escape='yes' />';return true;" onMouseOut="window.status='';return true;"><MySource_PRINT var='asset_short_name' /></a>
+  </MySource_ASSET>
+
+</MySource_AREA>

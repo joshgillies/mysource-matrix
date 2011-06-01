@@ -1,0 +1,284 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: wysiwyg.inc,v 1.31 2008/10/31 03:50:56 bpearson Exp $
+*
+*/
+
+
+require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
+require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
+
+/**
+* WYSIWYG Asset Attribute
+*
+*
+*
+*
+* <!-- Sample Edit Interface XML Node -->
+*    <wysiwyg style="div" width="100%" height="300" />
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.31 $
+* @package MySource_Matrix
+* @subpackage attributes
+*/
+class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$attributeid	the attribute id to be loaded
+	* @param mixed	$value			the current value for the element
+	*
+	*/
+	function Asset_Attribute_WYSIWYG($attributeid=0, $value=null)
+	{
+		$this->Asset_Attribute_Text($attributeid, $value);
+
+		// set default edit parameters
+		$this->_edit_params['style']  = 'div';
+		$this->_edit_params['width']  = '100%';
+		$this->_edit_params['height'] = '300';
+
+	}//end constructor
+
+
+	/**
+	* Takes an XML_Tree_Node from an edit interface XML file and creates the params array from it
+	*
+	* @param object XML_Tree_Node	$node	the XML_Tree_Node from the edit interface XML file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{// TODO TOF TEST
+		if (!parent::setEditParams($node)) return false;
+
+		if (isset($node->attributes()->style))  $this->_edit_params['style']  = (string)$node->attributes()->style;
+		if (isset($node->attributes()->width))  $this->_edit_params['width']  = (string)$node->attributes()->width;
+		if (isset($node->attributes()->height)) $this->_edit_params['height'] = (string)$node->attributes()->height;
+
+		return true;
+
+	}//end setEditParams()
+
+
+	/**
+	* Sets the various params for this WYSIWYG editor
+	*
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return object WYSIWYG
+	* @access private
+	*/
+	function &_createEditor($prefix)
+	{
+		// allowed plugins (shortened to $ap for easier use below)
+		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_PLUGINS'));
+		// ignore allowed plugins (shortened to $iap for easier use);
+		$iap = in_array('all', $ap);
+
+		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+
+		$wysiwyg->set_body_type($this->_edit_params['style']);
+		$wysiwyg->set_init_onload(false);
+		$wysiwyg->set_show_status_bar(false);
+		$wysiwyg->set_width($this->_edit_params['width']);
+		$wysiwyg->set_height($this->_edit_params['height']);
+
+		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
+		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
+		$base_php_self = rtrim($base_php_self, '/ ');
+
+		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
+		$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?%([a-zA-Z_\-0-9]+)%', '%$1%');
+		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
+
+		// get the keyword replacements
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$keywords = Array();
+		$keyword_vars = Array('keywords' => &$keywords);
+		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
+			if ($iap || in_array('format_font', $ap)) $wysiwyg->add_plugin('format_font');
+			if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
+			if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
+			if ($iap || in_array('replace_text', $ap))    $wysiwyg->add_plugin('replace_text');
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
+		$wysiwyg->close_group();
+
+		if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
+		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
+			$wysiwyg->add_plugin('keyword_replace');
+			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
+			$keyword_replace->keyword_tag = '%';
+			$keyword_replace->keywords = $keywords;
+		}
+		if ($iap || in_array('history', $ap))      $wysiwyg->add_plugin('history');
+		if ($iap || in_array('indenting', $ap))     $wysiwyg->add_plugin('indenting');
+		if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
+		if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
+		if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
+			if ($iap || in_array('matrix_insert_quick_link', $ap) || in_array('quick_link', $ap))  $wysiwyg->add_plugin('matrix_insert_quick_link');
+			if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
+			if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
+			if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
+			if ($iap || in_array('matrix_embed_youtube', $ap))  $wysiwyg->add_plugin('matrix_embed_youtube');
+		$wysiwyg->close_group();
+		$wysiwyg->open_group();
+			if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
+			if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
+			if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
+			if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
+		$wysiwyg->close_group();
+
+		// html_tidy needs to be last so other plugins can set options
+		if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+
+		if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
+		// contents must be set AFTER all plugins are loaded
+		$wysiwyg->set_contents($this->value);
+
+		return $wysiwyg;
+
+	}//end _createEditor()
+
+
+	/**
+	* Print the interface for filling in a value
+	*
+	* @param string		$prefix		prefix for the form elements
+	* @param boolean	$read_only	are we just printing the value
+	*
+	* @access public
+	*/
+	function paint($prefix, $read_only=false)
+	{
+
+		if ($read_only) {
+			echo $this->value;
+			return;
+		}
+
+		$wysiwyg = $this->_createEditor($prefix);
+
+		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
+
+		?>
+		<div style="border: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_switch_option_div'; ?>">
+			<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
+				onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);"></div>
+		</div>
+		<div style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">
+			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
+			<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+		</div>
+		<?php
+
+	}//end paint()
+
+
+	/**
+	* Process the interface for filling in a value
+	*
+	* @param string	prefix	prefix for the form elements
+	*
+	* @access public
+	*/
+	function process($prefix)
+	{
+		$wysiwyg = $this->_createEditor($prefix);
+		$html = $wysiwyg->process();
+		$this->processed = FALSE;
+		if ($html !== FALSE && $html !== $this->value && $this->setValue($html)) {
+			$this->processed = TRUE;
+		}
+
+	}//end process()
+
+
+	/**
+	* Returns the content of this attribute as it should be shown in a keyword replacement
+	*
+	* @param string	$format	Format suffix
+	*
+	* @return void
+	* @access public
+	*/
+	function getKeywordValue($format='')
+	{
+		if (!in_array($format, Array('', 'disableurls', 'disablekeywords', 'disableall'))) {
+			return '';
+		}
+
+		$output = $this->value;
+
+		if (!in_array($format, Array('disableurls', 'disableall'))) {
+			$matches = Array();
+			preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $output, $matches);
+			$normal_assetids = empty($matches[1]) ? Array() : $matches[1];
+			$matches = Array();
+			preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $output, $matches, PREG_PATTERN_ORDER);
+			$shadow_assetids = empty($matches[1]) ? Array() : $matches[1];
+			$assetids = array_unique(array_merge($normal_assetids, $shadow_assetids));
+			$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetUrl($assetids);
+			$output = $this->value;
+			foreach ($urls as $id => $url) {
+				if (FALSE === strpos($id, ':')) {
+					if (!empty($url)) {
+						$output = str_replace('./?a='.$id, $url, $output);
+					}
+				} else {
+					if (!empty($url)) {
+						$output = str_replace('./?a='.$id.'$', $url, $output);
+					} else {
+						$output = str_replace('./?a='.$id.'$', './?a='.$id, $output);
+					}
+				}
+			}
+		}
+
+		if (in_array($format, Array('disablekeywords', 'disableall'))) {
+			// Simulate 'disable keywords' from bodycopy_container
+			// by encoding %s
+			$keywords = retrieve_keywords_replacements($output);
+			foreach ($keywords as $keyword) {
+				$output = str_replace("%$keyword%", "&#37;{$keyword}&#37;", $output);
+			}
+		}
+
+		return $output;
+
+	}//end getKeywordValue()
+
+
+}//end class
+
+?>

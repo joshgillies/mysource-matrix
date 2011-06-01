@@ -1,0 +1,187 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: htmlarea.css,v 1.18 2007/01/22 23:41:40 rong Exp $
+*
+*/
+
+.htmlarea {
+	background: #ffffff;
+}
+
+.htmlarea-toolbar {
+	background:		#5A5A5A;
+	padding:		0px;
+	border:			1px solid;
+	border-color:	#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+	text-align:		left;
+}
+
+.htmlarea-toolbar.img {
+	border:			none;
+}
+
+
+
+/* Toolbar Buttons */
+
+.htmlarea-button {
+	float:			left;
+	background:		#5A5A5A;
+	color:			#5A5A5A;
+	border:			1px solid;
+	padding:		1px;
+	margin:			0px;
+	width:			17px;
+	height:			19px;
+	border-color:	#5A5A5A #5A5A5A #5A5A5A #5A5A5A;
+	font-size:		15px;
+}
+
+.htmlarea-buttonHover {
+	border:			1px solid;
+	border-color:	#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+}
+
+.htmlarea-buttonActive, .htmlarea-buttonPressed {
+	border:			1px solid;
+	border-color:	#A0A0A0 #D5D5D5 #D5D5D5 #A0A0A0;
+}
+
+.htmlarea-buttonPressed {
+	background:		#D5D5D5;
+}
+
+.htmlarea-buttonDisabled {
+}
+
+
+/* Toolbar Menus */
+
+.htmlarea-menu {
+	background:			#5A5A5A;
+	padding:			2px 2px;
+	border:				1px solid #DDDDDD;
+	white-space:		nowrap;
+}
+
+.htmlarea-menuRow {
+	background:			#5A5A5A;
+	border:				0px;
+	padding:			0px 0px;
+	border-collapse:	collapse;
+}
+
+.htmlarea-menuText {
+	background:			#5A5A5A;
+	font-size:			10px;
+	color:				#FFFFFF;
+	font-family:		Verdana, sans-serif;
+	white-space:		nowrap;
+	vertical-align:		middle;
+	padding:			1px 1px;
+}
+
+
+/* Toolbar Select Boxes */
+
+.htmlarea-select {
+	font-size:			9px;
+	font-family:		Verdana, sans-serif;
+	background-color:	#5A5A5A;
+	color:				#FFFFFF;
+}
+.htmlarea-select-container {
+	float:			left;
+	font-size:		9px;
+	width:			auto;
+}
+
+
+/* Status Bar */
+
+.htmlarea-statusBar {
+	border: 1px			solid;
+	border-color:		#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+	padding:			2px 4px;
+	background-color:	#E0E0E0;
+	color:				#000000;
+	font:				11px Tahoma,Verdana,sans-serif;
+	font-weight:		bold;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a {
+	padding:			2px 5px;
+	color:				#333333;
+	text-decoration:	none;
+	font-weight:		normal;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a:visited {
+	color:				#333333;
+	font-weight:		normal;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a:hover {
+	background-color:	#CCCCCC;
+	padding:			1px 4px;
+	border:				1px solid #333333;
+	font-weight:		normal;
+}
+
+
+
+/* Text Indicator */
+
+.htmlarea-indicator {
+	float:			left;
+	padding:		0px 3px;
+	overflow:		hidden;
+	width:			20px;
+	height:			21px;
+	text-align:		center;
+	cursor:			default;
+	border:			1px solid #A0A0A0;
+	font-size:		18px;
+}
+
+
+
+/* Other Toolbar Elements */
+
+.htmlarea-separator div {
+	margin:			3.5px 0px 3.5px 0px;
+	border-left:	1px solid #A0A0A0;
+	border-right:	1px solid #D5D5D5;
+	width:			0px;
+	height:			16px;
+	padding:		0px;
+	font-size:		10px;
+}
+
+.htmlarea-separator {
+	float:			left;
+	margin:			0px 3px 0px 3px;
+	width:			2px;
+	height:			23px;
+	padding:		0px;
+	font-size:		10px;
+}
+
+.htmlarea-space {
+	float:			left;
+	width:			5px;
+	font-size:		15px;
+}
+
+.wysiwyg-noborders {
+	border: 1px dashed #6699CC;
+}

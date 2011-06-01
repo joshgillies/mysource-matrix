@@ -1,0 +1,31 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_variaties.xml,v 1.2 2006/12/08 00:52:00 emcdonald Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="New Variety" write_access="write:attributes" read_access="write:attributes" limbo_access="0">
+		<function_call>
+			<paint_function   name="paintNewVariety"   />
+			<process_function name="processNewVariety" />
+		</function_call>
+	</section>
+	<section name="Current Varieties" write_access="write:attributes" limbo_access="0" show_if="hasVarieties">
+		<function_call>
+			<paint_function   name="paintCurrentVarieties"   />
+			<process_function name="processCurrentVarieties" />
+		</function_call>
+	</section>
+</contents>

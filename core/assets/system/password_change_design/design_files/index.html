@@ -1,0 +1,86 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: index.html,v 1.6 2006/12/20 02:49:11 tbarrett Exp $
+*
+*/
+-->
+<!doctype html public "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html>
+<head>
+    <title>Change Password</title>
+    <link rel="stylesheet" type="text/css" href="mysource_files/password_change_styles.css">
+    <style type="text/css">
+        h3 {
+            background-image: url(mysource_files/swish.gif);
+        }
+        .sq-credentials-section {
+            background-image: url(mysource_files/login_image.gif);
+        }
+    </style>
+</head>
+
+<body>
+    <MySource_AREA id_name="password_change_form" design_area="password_change_form">
+        <div id="sq-message" class="sq-message"><MySource_PRINT var="system_messages" /></div>
+        <script type="text/javascript"><!--
+        //<![CDATA[
+            var msgsDiv = document.getElementById('sq-message');
+            if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
+                msgsDiv.style.display = 'none';
+            }
+        //]]> -->
+        </script>
+
+        <MySource_PASSWORD_CHANGE_SECTION>
+            <MySource_SET name="give_password_old_focus" value="true" />
+            <MySource_SET name="forward_www_vars"    value="true" />
+            <MySource_PRINT var="form_open" />
+                <h3><MySource_PRINT var="password_change_heading" /></h3>
+                <p class="sq-current-user">Currently Logged in as
+                <MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" /></p>
+                <p class="sq-login-message"><MySource_PRINT var="password_change_message" /></p>
+                <div class="sq-credentials-section">
+                    <table border="0">
+                        <tr>
+                            <th>Old Password:</th>
+                            <td><MySource_PRINT var="password_old_box" size="10" class="sq-data" /></td>
+                        </tr>
+                        <tr>
+                            <th>New Password:</th>
+                            <td><MySource_PRINT var="password_new_box" size="10" class="sq-data" /></td>
+                        </tr>
+                        <tr>
+                            <th>Confirm New Password:</th>
+                            <td><MySource_PRINT var="password_confirm_box" size="10" class="sq-data" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="sq-note-section"><MySource_PRINT var="password_rules_note" /></div>
+                <div class="sq-commit-section">
+                    <MySource_PRINT var="submit_button" value="Update Password -&gt;" class="sq-data" />
+                </div>
+                
+            <MySource_PRINT var="form_close" />
+        </MySource_PASSWORD_CHANGE_SECTION>
+    </MySource_AREA>
+</body>
+</html>

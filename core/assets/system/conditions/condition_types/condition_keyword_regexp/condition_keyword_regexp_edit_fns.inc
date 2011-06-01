@@ -1,0 +1,196 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.5 2008/11/25 15:15:45 gnoel Exp $
+*
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_fns.inc';
+require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
+
+/**
+* Condition_Keyword_Regexp_Edit_Fns
+*
+* Edit functions for the keyword regular expression condition
+*
+* @see Asset_Edit_Fns
+*
+* @author  Darren McKee <dmckee@squiz.net>
+* @version $Revision: 1.5 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	* @see Asset_Edit_Fns::__construct()
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
+	* Paint the backend editing interface for this condition
+	*
+	* @param array				$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	&$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
+	* @param array				$allowed_keywords	Allowed keywords fromg getAssetKeywords()
+	*
+	* @return void
+	* @access public
+	*/
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
+	{
+		if (empty($condition_data)) {
+			$condition_data =  Array('keyword' => '', 'operator' => 'ALL');
+		}
+		?>
+		<table style="width: auto" class="no-borders">
+			<tr>
+				<td><strong><?php echo translate('keyword'); ?></strong> </td>
+				<td>
+					<?php
+					$selected_keyword = $condition_data['keyword'];
+
+					if (empty($allowed_keywords)) {
+						// we don't know the type of the asset here so we add the keywords of the generic Asset object
+						$dummy_asset = new Asset();
+						$allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
+					}
+
+					$keyword_options = Array();
+					$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
+					foreach ($allowed_keywords as $keyword) {
+						$keyword_options[$keyword] = $keyword;
+					}
+
+					$i = 0;
+					if (!empty($allowed_keywords)) {
+
+						$keyword_info = self::_getKeywordInfo($selected_keyword, $allowed_keywords);
+						if ($write_access) {
+							combo_box($prefix.'[keyword]', array_merge($keyword_options), FALSE, $keyword_info['constant_part']);
+							// This is a special case for generic/variable keywords (like asset_metadata_)
+							// which name must be completed.
+							// For those keywords, we show an additional box to type the rest of the name
+							if ($keyword_info['is_variable']) {
+								text_box($prefix.'[keyword_extension]', $keyword_info['variable_part'], 30);
+							}
+						} else {
+							echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
+						}
+					} else {
+						echo(translate('core_keyword_list_empty'));
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td><strong><?php echo translate('pattern'); ?></strong> </td>
+				<td>
+					<?php
+					if ($write_access) {
+						text_box($prefix.'[keyword_match]', array_get_index($condition_data, 'keyword_match'), 30);
+					} else {
+						echo array_get_index($condition_data, 'keyword_match', '');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php // echo translate('condition_server_variable_is_regular_expression_enabled'); ?>
+		<?php
+
+	}//end paintEditInterface()
+
+
+	/**
+	* Process the backend editing interface for this condition
+	*
+	* @param Backend_Outputter	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
+	*
+	* @return array
+	* @access public
+	*/
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
+	{
+		$results = Array(
+					'keyword'		=> $_POST[$prefix]['keyword'],
+					'keyword_match'	=> $_POST[$prefix]['keyword_match'],
+				   );
+
+		if (!empty($_POST[$prefix]['keyword_extension'])) {
+			$name_extension = trim($_POST[$prefix]['keyword_extension']);
+			if (!empty($name_extension)) {
+				$results['keyword'] .= $name_extension;
+			}
+		}
+
+		return $results;
+
+	}//end processEditInterface()
+
+
+	/**
+	* Returns an array containing information about a keyword name
+	*
+	* We consider a keyword variable if it contains a part that is defined by
+	* the user.
+	* Example: asset_metadata_XXX -
+	*    constant part= asset_metadata_
+	*    variable part= XXX
+	* Array(
+	* 		'is_variable' => boolean,
+	* 		'constant_part' => string,
+	* 		'variable_part' => string,
+	* 		)
+	*
+	* @param string	$keyword_name		the keyword to analyse
+	* @param array	&$allowed_keywords	allowed keywords, this is the list of keywords
+	*									as returned by getAssetKeywords().
+	*
+	* @return array
+	* @access private
+	*/
+	protected static function _getKeywordInfo($keyword_name, Array &$allowed_keywords)
+	{
+		$ret = Array('is_variable' => FALSE, 'constant_part' => $keyword_name, 'variable_part' => '');
+
+		$keyword_parts = Array();
+		foreach ($allowed_keywords as $allowed_keyword) {
+			if (preg_match('/_$/', $allowed_keyword)) {
+				// $allowed_keyword is a variable keyword
+				if (preg_match('/^'.$allowed_keyword.'(.*)$/', $keyword_name, $keyword_parts)) {
+					// $keyword_name is a variable keyword
+					$ret = Array('is_variable' => TRUE, 'constant_part' => $allowed_keyword, 'variable_part' => $keyword_parts[1]);
+				}
+			}
+		}
+
+		return $ret;
+
+	}//end _getKeywordInfo()
+
+
+}//end class
+
+?>

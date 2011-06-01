@@ -1,0 +1,90 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: user_management.inc,v 1.30 2006/12/05 06:04:33 bcaldwell Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+/**
+* User_Management
+*
+* @see Asset_Management
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Revision: 1.30 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class User_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function User_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+						'username'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+											'uniq'		=> TRUE,
+											'is_admin'	=> 0,
+										   ),
+						'password'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'password',
+											'default'	=> '',
+										   ),
+						'first_name'	=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+											'is_admin'	=> 0,
+										   ),
+						'last_name'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+											'is_admin'	=> 0,
+										   ),
+						'email'			=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'email',
+											'default'	=> '',
+											'is_admin'	=> 0,
+										   ),
+						'locale'		=> Array(
+											'added'		=> '0.3',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'restrictions'	=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+					  );
+
+	}//end constructor
+
+
+}//end class
+
+?>

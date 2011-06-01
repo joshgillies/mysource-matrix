@@ -1,0 +1,799 @@
+<queries system="thesaurus">
+
+
+	<query id="getRelatedTerm">
+		<!-- Given a relation, get all the Parent-Child pairs -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+					<field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_lnk" column="relid" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+					<table>sq_thes_lnk</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_term" column="termid" />
+						<field table="sq_thes_lnk"  column="minor" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="major">:termid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_term" column="term" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="countTermLinks">
+        <!-- Count the links in a thesaurus -->
+        <primary>
+            <select>
+                <fields>
+                    <function name="Count">
+                        <arg><field table="sq_thes_lnk" column="linkid" /></arg>
+                    </function>
+                </fields>
+                <from>
+                    <table>sq_thes_lnk</table>
+                </from>
+                <where>
+                    <equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+	<query id="countChildTerms">
+		<!-- Get a count of how many terms are linked directly underneath a given term. -->
+		<primary>
+			<select>
+				<fields>
+					<function name="Count">
+						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk" column="major">:termid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="countTerms">
+        <!-- Count Terms a thesaurus -->
+        <primary>
+            <select>
+                <fields>
+                    <function name="Count">
+                        <arg><field table="sq_thes_term" column="termid" /></arg>
+                    </function>
+                </fields>
+                <from>
+                    <table>sq_thes_term</table>
+                </from>
+                <where>
+                    <equal table="sq_thes_term" column="thesid">:assetid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+    <query id="countParentTerms">
+        <!-- Get a count of how many terms are linked directly above a given term -->
+        <primary>
+            <select>
+                <fields>
+                    <function name="Count">
+                        <arg><field table="sq_thes_lnk" column="linkid" /></arg>
+                    </function>
+                </fields>
+                <from>
+                    <table>sq_thes_lnk</table>
+                </from>
+                <where>
+                    <equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk" column="major">:termid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+	<query id="getChildRelationsForTerm">
+        <!-- Get a list of relations the passed term is a parent in. -->
+        <primary>
+           <select distinct="true">
+                <fields>
+                    <field table="sq_thes_lnk" column="relid" />
+                    <field table="sq_thes_rel" column="relation" />
+                </fields>
+                <from>
+                    <table>sq_thes_lnk</table>
+                    <table>sq_thes_rel</table>
+                </from>
+                <joins>
+                    <join>
+                        <field table="sq_thes_lnk" column="relid" />
+                        <field table="sq_thes_rel" column="relid" />
+                    </join>
+                </joins>
+                <where>
+                    <equal table="sq_thes_lnk" column="major">:termid</equal>
+                    <equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+                    <equal table="sq_thes_rel" column="thesid">:assetid</equal>
+                </where>
+                <order-by>
+                    <field table="sq_thes_rel" column="relation" />
+                </order-by>
+            </select>
+        </primary>
+    </query>
+	<query id="getParentRelationsForTerm">
+        <!-- Get the parent relations a given term is a child in. -->
+        <primary>
+            <select distinct="true">
+                <fields>
+                    <field table="sq_thes_lnk" column="relid" />
+                    <field table="sq_thes_rel" column="relation" />
+                </fields>
+                <from>
+                    <table>sq_thes_lnk</table>
+                    <table>sq_thes_rel</table>
+                </from>
+                <joins>
+                    <join>
+                        <field table="sq_thes_lnk" column="relid" />
+                        <field table="sq_thes_rel" column="relid" />
+                    </join>
+                </joins>
+                <where>
+                    <equal table="sq_thes_lnk" column="minor">:termid</equal>
+                    <equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+                    <equal table="sq_thes_rel" column="thesid">:assetid</equal>
+                </where>
+                <order-by>
+                    <field table="sq_thes_rel" column="relation" />
+                </order-by>
+            </select>
+        </primary>
+    </query>
+    <query id="getAllTerms">
+        <!-- Get a list of all thesaurus terms. -->
+        <primary>
+            <select>
+                <fields>
+                    <field table="sq_thes_term" column="termid" />
+                    <field table="sq_thes_term" column="term" />
+                </fields>
+                <from>
+                    <table>sq_thes_term</table>
+                </from>
+                <where>
+                    <equal table="sq_thes_term" column="thesid">:assetid</equal>
+                </where>
+                <order-by>
+                    <field table="sq_thes_term" column="term" />
+                </order-by>
+            </select>
+        </primary>
+    </query>
+	<query id="getParentTerms">
+		<!-- Get a list of terms that have a given term as their immediate child. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+					<field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_lnk" column="relid" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+					<table>sq_thes_lnk</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_term" column="termid" />
+						<field table="sq_thes_lnk"  column="minor" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="minor">:termid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_term" column="term" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="countParentLinks">
+		<!-- Get a count of how many terms are linked directly ABOVE a given term. -->
+		<primary>
+			<select>
+				<fields>
+					<function name="Count">
+						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk" column="minor">:termid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="countAllLinks">
+		<!-- Count total number of links in a thesaurus. -->
+		<primary>
+			<select>
+				<fields>
+					<function name="Count">
+						<arg><field table="sq_thes_lnk" column="linkid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteLink">
+		<!-- Delete a single thesaurus link. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk" column="linkid">:linkid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="updateTerm">
+		<!-- Update a single thesaurus term. -->
+		<primary>
+			<update>
+				<fields table="sq_thes_term">
+					<field>term</field>
+				</fields>
+				<values>
+					<value column="term">:name</value>
+				</values>
+				<where>
+					<equal table="sq_thes_term" column="termid">:termid</equal>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="getAllTerms">
+		<!-- Get a list of all thesaurus terms. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+				</from>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_term" column="term" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="getTermById">
+		<!-- Get a single thesaurus term identified by term ID. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+				</from>
+				<where>
+					<equal table="sq_thes_term" column="termid">:termid</equal>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="countAllTerms">
+		<!-- Count total number of terms in a thesaurus. -->
+		<primary>
+			<select>
+				<fields>
+					<function name="Count">
+						<arg><field table="sq_thes_term" column="termid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+				</from>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteTerm">
+		<!-- Delete a single thesaurus term. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+					<equal table="sq_thes_term" column="termid">:termid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteThesaurusLinksContainingTerm">
+		<!-- Delete all links that involve a certain thesaurus term. -->
+		<primary>
+			<delete>
+				<where>
+					<or>
+						<equal table="sq_thes_lnk" column="minor">:termid</equal>
+						<equal table="sq_thes_lnk" column="minor">:termid</equal>
+					</or>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="updateRelationName">
+		<!-- Update the name of a thesaurus relation. -->
+		<primary>
+			<update>
+				<fields table="sq_thes_rel">
+					<field>relation</field>
+				</fields>
+				<values>
+					<value column="relation">:relation</value>
+				</values>
+				<where>
+					<equal table="sq_thes_rel" column="relid">:relid</equal>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+	<query id="deleteRelation">
+		<!-- Delete a thesaurus relation. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_rel" column="relid">:relation</equal>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteLinksContainingRelation">
+		<!-- Delete all links that involve a certain deleted relation. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_lnk" column="relid">:relation</equal>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="getLinkById">
+		<!-- Get a link between two thesaurus terms by its link ID. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_lnk" column="major" />
+					<field table="sq_thes_lnk" column="minor" />
+					<field table="sq_thes_rel" column="relid" />
+					<field table="sq_thes_rel" column="relation" />
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+					<table>sq_thes_rel</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_lnk" column="relid" />
+						<field table="sq_thes_rel" column="relid" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_thes_lnk" column="linkid">:linkid</equal>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getChildRelationsForTerm">
+		<!-- Get a list of relations the passed term is a parent in. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_lnk" column="relid" />
+					<field table="sq_thes_rel" column="relation" />
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+					<table>sq_thes_rel</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_lnk" column="relid" />
+						<field table="sq_thes_rel" column="relid" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_thes_lnk" column="major">:termid</equal>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_rel" column="relation" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="insertTerm">
+		<!-- Inserts a single thesaurus term. -->
+		<primary>
+			<insert>
+				<fields table="sq_thes_term">
+					<field>termid</field>
+					<field>term</field>
+					<field>thesid</field>
+				</fields>
+				<values>
+					<value column="termid">:termid</value>
+					<value column="term">:term</value>
+					<value column="thesid">:thesid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="getTermIdByName">
+		<!-- Get a thesaurus' term ID given the name (not case sensitive). -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+				</from>
+				<where>
+					<like table="sq_thes_term" column="term">:name</like>
+					<equal table="sq_thes_term" column="thesid">:thesid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+    <query id="getTermIdByNames">
+        <!-- Get a thesaurus' term ID given the term names (not case sensitive). -->
+        <primary>
+            <select>
+                <fields>
+                    <field table="sq_thes_term" column="termid" />
+                    <field table="sq_thes_term" column="term" />
+                </fields>
+                <from>
+                    <table>sq_thes_term</table>
+                </from>
+                <where>
+                    <in table="sq_thes_rel" column="LOWER(term)">:names</in>
+                    <equal table="sq_thes_rel" column="thesid">:thesid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+    <query id="getTermLinkByTermIds">
+        <!-- Get a link between two thesaurus terms by its link ID. -->
+        <primary>
+            <select>
+                <fields>
+                    <field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_rel" column="relid" />
+                    <field table="sq_thes_lnk" column="major" />
+                    <field table="sq_thes_lnk" column="minor" />
+                </fields>
+				<from>
+					<table>sq_thes_lnk</table>
+					<table>sq_thes_rel</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_rel" column="relid" />
+						<field table="sq_thes_lnk"  column="relid" />
+					</join>
+				</joins>
+
+                <where>
+                    <equal table="sq_thes_lnk" column="minor">:termid</equal>
+                    <equal table="sq_thes_lnk" column="major">:parentid</equal>
+                    <equal table="sq_thes_lnk" column="relid">:relid</equal>
+					<equal table="sq_thes_lnk" column="thesid">:thesid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+	<query id="insertTermNote">
+		<!-- Inserts a single thesaurus term. -->
+		<primary>
+			<insert>
+				<fields table="sq_thes_term_note">
+					<field>termid</field>
+					<field>name</field>
+					<field>value</field>
+					<field>thesid</field>
+				</fields>
+				<values>
+					<value column="termid">:termid</value>
+					<value column="name">:name</value>
+					<value column="value">:value</value>
+					<value column="thesid">:thesid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="getTermNotes">
+		<!-- Get a thesaurus term's notes. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term_note" column="name" />
+					<field table="sq_thes_term_note" column="value" />
+				</fields>
+				<from>
+					<table>sq_thes_term_note</table>
+				</from>
+				<where>
+					<equal table="sq_thes_term_note" column="thesid">:assetid</equal>
+					<equal table="sq_thes_term_note" column="termid">:termid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_term_note" column="name" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteTermNotes">
+		<!-- Delete all of a certain thesaurus term's notes. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_term_note" column="thesid">:assetid</equal>
+					<equal table="sq_thes_term_note" column="termid">:termid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="insertRelation">
+		<!-- Inserts a single thesaurus relation. -->
+		<primary>
+			<insert>
+				<fields table="sq_thes_rel">
+					<field>relid</field>
+					<field>relation</field>
+					<field>thesid</field>
+				</fields>
+				<values>
+                    <value column="relid">:relid</value>
+					<value column="relation">:relation</value>
+					<value column="thesid">:thesid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="getLinkForRelation">
+		<!-- Get a linkid for a relation, given major and minor terms, and relation name. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_lnk" column="relid" />
+					<field table="sq_thes_lnk" column="major" />
+					<field table="sq_thes_lnk" column="minor" />
+				</fields>
+				<from>
+					<table>sq_thes_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_thes_lnk" column="major">:major</equal>
+					<equal table="sq_thes_lnk" column="minor">:minor</equal>
+					<equal table="sq_thes_lnk" column="relid">:relation</equal>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getActiveRelations">
+		<!-- Get all active relations for a given thesaurus. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_rel" column="relid" />
+					<field table="sq_thes_rel" column="relation" />
+				</fields>
+				<from>
+					<table>sq_thes_rel</table>
+				</from>
+				<where>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_rel" column="relation" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="getRelationIdByName">
+		<!-- Get a thesaurus' relation ID given the name. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_rel" column="relid" />
+				</fields>
+				<from>
+					<table>sq_thes_rel</table>
+				</from>
+				<where>
+					<equal table="sq_thes_rel" column="relation">:name</equal> <!-- NEEDS is-null ALTERNATE -->
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getLinkId">
+        <!-- Get a linkid for a relation, given major and minor terms, and relation name. -->
+        <primary>
+            <select>
+                <fields>
+                    <field table="sq_thes_lnk" column="linkid" />
+                </fields>
+                <from>
+                    <table>sq_thes_lnk</table>
+                </from>
+                <where>
+                    <equal table="sq_thes_lnk" column="major">:major</equal>
+                    <equal table="sq_thes_lnk" column="minor">:minor</equal>
+                    <equal table="sq_thes_lnk" column="relid">:relation</equal>
+                    <equal table="sq_thes_lnk" column="thesid">:thesid</equal>
+                </where>
+            </select>
+        </primary>
+    </query>
+
+	<query id="insertLink">
+		<!-- Inserts a single thesaurus link. -->
+		<primary>
+			<insert>
+				<fields table="sq_thes_lnk">
+					<field>linkid</field>
+					<field>major</field>
+					<field>minor</field>
+					<field>relid</field>
+					<field>thesid</field>
+				</fields>
+				<values>
+					<value column="linkid">:linkid</value>
+					<value column="major">:major</value>
+					<value column="minor">:minor</value>
+					<value column="relid">:relation</value>
+					<value column="thesid">:thesid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="deleteAllTerms">
+		<!-- Delete all of a certain thesaurus' terms. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteAllLinks">
+		<!-- Delete all of a certain thesaurus' links. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_lnk" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteAllRelations">
+		<!-- Delete all of a certain thesaurus' relations. -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_thes_rel" column="thesid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteAllShadowLinks">
+        <!-- Delete all of a certain thesaurus' links. -->
+        <primary>
+            <delete>
+                <where>
+                    <like table="sq_shdw_ast_lnk" column="minorid">:assetid</like>
+                </where>
+            </delete>
+        </primary>
+    </query>
+	<query id="getAbsoluteParentsInRelation">
+		<!-- Get a list of thesaurus terms that only act as parents in a relation - thus becoming the top terms in hierarchy mode. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_lnk" column="termid" />
+					<field table="sq_thes_lnk" column="term" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+				</from>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+					<in table="sq_thes_term" column="termid">
+						<select distinct="true">
+							<fields>
+								<field table="sq_thes_lnk" column="major" />
+							</fields>
+							<from>
+								<table>sq_thes_lnk</table>
+							</from>
+							<where>
+								<equal table="sq_thes_lnk"  column="thesid">:assetid</equal>
+								<equal table="sq_thes_lnk"  column="relid">:relation</equal>
+								<not-in table="sq_thes_lnk" column="major">
+									<select distinct="true">
+										<fields>
+											<field table="sq_thes_lnk" column="minor" />
+										</fields>
+										<from>
+											<table>sq_thes_lnk</table>
+										</from>
+										<where>
+											<equal table="sq_thes_lnk"  column="thesid">:assetid</equal>
+											<equal table="sq_thes_lnk"  column="relid">:relation</equal>
+										</where>
+									</select>
+								</not-in>
+							</where>
+						</select>
+					</in>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+
+</queries>

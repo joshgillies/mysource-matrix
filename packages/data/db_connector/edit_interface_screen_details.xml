@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.3 2007/12/22 02:24:41 gsherwood Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="Connection Setup" write_access="write:attributes">
+		<field attribute="user">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="password">
+			<password width="35"/>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintDSN"   />
+				<process_function name="processDSN" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintDSNAlone"   />
+				<process_function name="processDSNAlone" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Info">
+		<field>
+			<function_call>
+				<paint_function   name="paintUsageInfo"   />
+			</function_call>
+		</field>
+	</section>
+</contents>

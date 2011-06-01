@@ -1,0 +1,47 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.2 2008/07/04 06:13:09 hnguyen Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Settings" write_access="write:attributes">
+		<field attribute="root_node">
+			<assetid type_codes="asset:D" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLevel" />
+				<process_function name="processLevel" />
+			</function_call>
+		</field>
+		<field attribute="self_link">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+        <field>
+            <function_call>
+                <paint_function   name="paintExcludedTypes" />
+                <process_function name="processExcludedTypes" />
+            </function_call>
+        </field>
+	</section>
+</contents>
