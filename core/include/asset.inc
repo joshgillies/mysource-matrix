@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.748 2011/05/02 02:02:57 akarelia Exp $
+* $Id: asset.inc,v 1.748.2.1 2011/06/01 08:32:13 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.748 $
+* @version $Revision: 1.748.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3917,13 +3917,6 @@ class Asset extends MySource_Object
 			$metadata_keyword = substr($keyword, 15);
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-			// check to see if the above $metadata_keyword is actually a field name
-			// for this asset before trying to perform "related asset" op on it
-			// for more info check out bug #5083 Metadata Fields Inaccessible
-			$is_field_name = FALSE;
-			if ($mm->getFieldAssetIdFromName($this->id, $metadata_keyword)) {
-				$is_field_name = TRUE;
-			}
 
 			// Get "metadata field related asset" field names
 		   	if (!isset($this->_tmp['mm_related_asset_fields'])) {
@@ -3935,19 +3928,17 @@ class Asset extends MySource_Object
 			}
 
 			$related_asset_keyword = FALSE;
-			if (!$is_field_name) {
-				foreach($related_assetids as $field_name => $related_assetid) {
-					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
-						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
-							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
-							$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
-							$replacement = $related_asset->getKeywordReplacement($asset_keyword);
-						}
-						$related_asset_keyword = TRUE;
-						break;
+			foreach($related_assetids as $field_name => $related_assetid) {
+				if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
+					if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
+						$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
+						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
+						$replacement = $related_asset->getKeywordReplacement($asset_keyword);
 					}
-				} //end foreach
-			}
+					$related_asset_keyword = TRUE;
+					break;
+				}
+			} //end foreach
 			
 			if (!$related_asset_keyword) {
 				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
