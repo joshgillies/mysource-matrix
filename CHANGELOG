@@ -1,5 +1,37 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.24.6
+
+Featured Changes
+-----------------------------------
+
+WYSIWYG mode switching enhancement for IE7 [ Feature Request #4182 ]
+	Toggling between the content and "View Source" mode in a WYSIWYG DIV with a large amount of content was causing a noticable lag in IE7.
+	The code associated with mapping characters to HTML entities has now been optimised to greatly reduce this delay.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #4178: Link to asset's workflow screen in workflow escalation message is malformed in dependent assets
+
+Calendar
+Fixed Bug #4189: Creating New Dates on Multi-Date Calendar Events does not work with Assets in Workflow
+
+CMS
+Fixed Bug #4166: asset_contents keyword in asset listing's type format cannot process modifiers
+Fixed Bug #4173: Asset listing may display group name as '0'
+Fixed Bug #4174: Asset Buider - Required Metadata Date Field doesn't validate
+Fixed Bug #4197: Unable to deactivate Form submission actions
+Fixed Bug #4199: Listing engine throws an error when expected structure does not exist
+Fixed Bug #4205: Form submission asset throws error if accessed in edit mode
+
+Web Services
+Fixed Bug #4204: JS API not handling '#' characters
+
+
+
 VERSION 3.24.5
 
 Complete Changelog
