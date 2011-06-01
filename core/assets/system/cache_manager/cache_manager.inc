@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.85.2.1 2011/02/25 02:45:44 ewang Exp $
+* $Id: cache_manager.inc,v 1.85.2.2 2011/03/07 05:50:14 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.85.2.1 $
+* @version $Revision: 1.85.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -664,13 +664,19 @@ class Cache_Manager extends Asset
 				return $root_nodes[$assetid][$value];
 			} else {
 				// there are possible tree locations set so search for them because an exact match was not found
-				$matched_roots = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($assetid, array_keys($root_nodes), TRUE);
-				foreach ($root_nodes as $root_id => $cache_settings) {			
+				// if there are a few root nodes, we should use isUnderRootNodes for performance sake
+				if(count($root_nodes) < 10) {
+					$matched_roots = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($assetid, array_keys($root_nodes), TRUE);
+				}
+				else {
+					$matched_roots = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid));
+				}
+				foreach ($matched_roots as $rootid) {
 					// check that this entry actually manages child entries
-					if (in_array($root_id, $matched_roots) && $cache_settings['all_underneath']) {
+					if (isset($root_nodes[$rootid]['all_underneath']) && $root_nodes[$rootid]['all_underneath']) {
 						// check the value of the option that was asked for
-						if (isset($cache_settings[$value])) {
-							return $cache_settings[$value];
+						if (isset($root_nodes[$rootid][$value])) {
+							return $root_nodes[$rootid][$value];
 						}
 					}
 				}//end foreach
