@@ -1204,8 +1204,13 @@ class DAL
                 // legacy OCI8 extension functions.
                 // use @ to suppress warning/error messages, it will be handled by ourself.
 
-				// Also support UTF-8 character encoding
-				$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN'], 'AL32UTF8');
+				// Connect to the database with the specified character encoding (if supplied).
+				$new_dbh = FALSE;
+				if (isset($dsn['encoding'])) {
+					$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
+				} else {
+					$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
+				}
 
                 if ($new_dbh === FALSE) {
                     $oci_error = oci_error();
