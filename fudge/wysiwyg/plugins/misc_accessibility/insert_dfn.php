@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_dfn.php,v 1.3 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: insert_dfn.php,v 1.3.20.1 2011/06/02 07:17:45 mhaidar Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Scott Kim <skim@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.20.1 $
 * @package MySource_Matrix
 */
 
@@ -28,6 +28,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
 if (!isset($_GET['title'])) $_GET['title'] = "";
+//Sanitise
+$_GET['title'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['title']);
+$_GET['dfn'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['dfn']);
 ?>
 
 <html style="width: 400px; height: 250px;">
