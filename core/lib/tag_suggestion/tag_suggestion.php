@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.10 2011/02/16 03:45:30 cupreti Exp $
+* $Id: tag_suggestion.php,v 1.10.2.1 2011/06/02 07:19:43 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,8 @@
 	if (!assert_valid_assetid($assetid)) {
 		exit;
 	}
-	$prefix = htmlspecialchars($_GET['prefix']);
+	//Sanitise
+	$prefix = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['prefix']);
 
 	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	if (is_null($asset)) {

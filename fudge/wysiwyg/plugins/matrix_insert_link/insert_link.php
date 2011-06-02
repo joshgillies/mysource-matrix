@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.47 2011/02/15 02:18:14 cupreti Exp $
+* $Id: insert_link.php,v 1.47.2.1 2011/06/02 07:20:06 mhaidar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix
 */
 
@@ -131,7 +131,7 @@ if (!isset($_GET['new_window'])) {
 
 			function Init() {
 				__dlg_init("matrixInsertLink");
-				enable_new_window(document.main_form, <?php echo htmlspecialchars($_GET['new_window']) ?>);
+				enable_new_window(document.main_form, <?php echo preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['new_window']); ?>);
 
 
 				var patterns = {<?php
