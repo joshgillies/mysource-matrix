@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.9.22.1 2011/02/15 02:55:32 cupreti Exp $
+* $Id: spell_checker_popup.php,v 1.9.22.2 2011/06/02 07:19:05 mhaidar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9.22.1 $
+* @version $Revision: 1.9.22.2 $
 * @package MySource_Matrix
 */
 
@@ -83,7 +83,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		?>
 
 		<script type="text/javascript">
-			var parent_object = opener.editor_<?php echo htmlspecialchars($_REQUEST['editor_name']) ?>._object;
+			var parent_object = opener.editor_<?php echo preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_REQUEST['editor_name']); ?>._object;
 
 			window.opener.onFocus = function() { getFocus(); }
 			parent_object.onFocus = function() { getFocus(); }
