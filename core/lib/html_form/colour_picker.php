@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.php,v 1.12 2009/10/07 22:10:39 bpearson Exp $
+* $Id: colour_picker.php,v 1.13 2011/06/02 06:56:51 mhaidar Exp $
 *
 */
 
@@ -18,13 +18,15 @@
 * Pop-Up for the colour picker
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
 // Sanitise data
-$colour = htmlentities($_GET['colour']);
+$colour = htmlentities($_GET['color']);
+$colour = preg_replace('/[^a-fA-F0-9]+/', '', $colour);
 $pickerid = htmlentities($_GET['pickerid']);
+$pickerid = preg_replace('/[^0-9]+/', '', $pickerid);
 ?>
 <!-- note: this version of the color picker is optimized for IE 5.5+ only -->
 
