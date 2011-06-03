@@ -2,7 +2,16 @@
 USER="anonymous"
 SERVER="public-cvs.squiz.net"
 CVS_PUBLIC_PATH="/home/public"
-CVS="/usr/bin/cvs"
+
+# Allow the path to cvs to be overridden by an env var.
+if [ "x$CVS" = "x" ]; then
+	CVS="/usr/bin/cvs"
+fi
+
+if [ ! -x "$CVS" ]; then
+	echo "No 'cvs' binary found at $CVS, aborting."
+	exit 1
+fi
 
 print_usage()
 {
