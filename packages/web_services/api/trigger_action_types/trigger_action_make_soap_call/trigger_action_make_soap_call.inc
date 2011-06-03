@@ -10,16 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.1 2011/06/03 05:14:33 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.2 2011/06/03 05:18:34 akarelia Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_INCLUDE_PATH.'/general.inc';
-
-// WSDL sometime defines a complex type in a loop, we need to get out of this loop if it repeats too many times while parsing
-define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 
 
 /**
@@ -28,7 +25,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
