@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.2 2011/06/03 05:18:34 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.3 2011/06/05 22:40:49 akarelia Exp $
 *
 */
 
@@ -19,13 +19,17 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_INCLUDE_PATH.'/general.inc';
 
 
+// WSDL sometime defines a complex type in a loop,
+// we need to get out of this loop if it repeats too many times while parsing
+define('SQ_MAX_BREAK_OUT_AFTER', 3);
+
 /**
 * Trigger_Action_Make_SOAP_Call
 *
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,7 +114,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$options['trace'] = 1;
 
 		// If SOAP exceptions are to be silenced
-		if ($settings['mute_exception']) {
+		if ($settings['mute_exceptions']) {
 			$options['exceptions'] = 0;
 		}
 
@@ -727,7 +731,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			if ($parsed == $param) return;
 		}
 		array_push(self::$recent_parsed_type, $param);
-		if(count(self::$recent_parsed_type) > MAX_COMPLEX_TYPE_PASRSE_LOOP) {
+		if(count(self::$recent_parsed_type) > SQ_MAX_BREAK_OUT_AFTER) {
 			array_shift(self::$recent_parsed_type);
 		}
 
