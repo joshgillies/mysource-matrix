@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.5 2011/06/06 04:51:30 mhaidar Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.6 2011/06/06 05:27:17 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -58,6 +58,7 @@ $count_rm_2 = 0;
 $form_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds('form', FALSE);
 foreach ($form_assetids as $assetid) {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	$complete_link   = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
 	$path  = $asset->data_path;
 	$path .= '/incomplete_attachments';
 	$files = list_dirs($path);
@@ -79,7 +80,6 @@ foreach ($form_assetids as $assetid) {
 				}//end if
 				echo "\n";
 			} else {
-				$complete_link   = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($incomplete_submission_assetid, 'folder', TRUE, NULL, NULL, TRUE, 1, 1);
 				if (!empty($complete_link) && !empty($parents) && array_key_exists($complete_link['minorid'], $parents)){
 					echo 'Form #'.$assetid.' still has some incomplete attachments for completed Submission #'.$incomplete_submission_assetid.'.';
