@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2010/05/05 07:15:42 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.8.8.1 2011/06/07 06:32:16 mhaidar Exp $
 *
 */
 -->
@@ -27,11 +27,6 @@
                 <paint_function   name="paintRecordSearchTypes"  />
                 <process_function name="processRecordSearchTypes" />
             </function_call>
-        </field>
-
-        <field attribute="downloadLimit">
-			<display_name>File size Download Limit</display_name>
-			<note>Size in KB</note>
         </field>
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
@@ -67,6 +62,10 @@
     		<display_name>Download Files</display_name>
     		<note>Enable downloading of attachments which comes with TRIM documents. Document Type must be added in Result Field.</note>
     	</field>
+    	<field attribute="download_limit">
+			<display_name>File size Download Limit</display_name>
+			<note>Size in Bytes</note>
+        </field>		
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>

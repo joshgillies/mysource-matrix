@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.24 2011/03/08 02:14:20 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.24.2.1 2011/06/07 06:32:16 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -632,7 +632,7 @@ class TRIM_Saved_Search extends Data_Source
 			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']	!= 'Record has no document attached.') {
 				// We got a file here.
 				$operations = Array (
-								'Download'					=> TRIM_Common::constructDownload(),
+								'Download'					=> TRIM_Common::constructDownload($this->attr('download_limit')),
 								'ShortcutRecordUri'			=> TRIM_Common::constructShortcutRecordUri($record_info['Uri']),
 							  );
 
