@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.27 2009/11/27 05:49:22 bpearson Exp $
+* $Id: page_rss_feed.inc,v 1.28 2011/06/07 00:37:06 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -215,7 +215,7 @@ class Page_RSS_Feed extends Page
 		// try to get the feed from cache
 		$rss = '';
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$rss = $cm->loadFromCache($this->id, $this->type(), 'ctx'.$contextid, FALSE);
+		$rss = $cm->loadFromCache($this->id, $this->type(), 'ctx'.$contextid);
 
 		if ($this->charset) {
 			$charset = $this->charset;
@@ -350,7 +350,7 @@ class Page_RSS_Feed extends Page
 				$writer->addItems($new_items);
 				$rss = $writer->getRSSString(FALSE, $charset);
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$r = $cm->saveToCache($this->id, $this->type(), 'ctx'.$contextid, serialize($rss), FALSE);
+				$r = $cm->saveToCache($this->id, $this->type(), 'ctx'.$contextid, serialize($rss));
 			}
 		}
 
