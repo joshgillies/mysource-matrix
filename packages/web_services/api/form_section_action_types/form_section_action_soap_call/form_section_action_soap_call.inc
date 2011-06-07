@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.2 2011/05/30 02:04:40 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.3 2011/06/07 07:07:13 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -813,6 +813,9 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 
 			} while ($count > 0);
 		}//end foreach
+
+		// Carryout global keywords replacement
+		replace_global_keywords($content);
 
 		return $content;
 
