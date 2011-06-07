@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.257 2011/05/05 01:19:51 cupreti Exp $
+* $Id: form.inc,v 1.258 2011/06/07 01:26:31 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.257 $
+* @version $Revision: 1.258 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4210,7 +4210,9 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 		}
-		apply_keyword_modifiers($replacement, $modifiers);
+		if (!is_null($replacement)) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
 
 		return $replacement;
 
