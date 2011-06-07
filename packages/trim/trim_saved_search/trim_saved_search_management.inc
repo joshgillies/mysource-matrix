@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.10 2010/05/05 07:15:42 ewang Exp $
+* $Id: trim_saved_search_management.inc,v 1.10.6.1 2011/06/07 06:32:36 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -96,9 +96,9 @@ class TRIM_Saved_Search_Management extends Asset_Management
 						'download_limit'			=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'int',
-													'default'		=> 2097152,
+													'default'		=> 4194304,
 													'parameters'	=> Array (
-																		'allow_empty'		=> TRUE,
+																		'allow_empty'		=> FALSE,
 																		'allow_negative'	=> FALSE,
 																	   ),
 												   ),
