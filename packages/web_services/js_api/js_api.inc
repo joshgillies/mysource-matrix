@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75 2011/05/16 23:48:13 akarelia Exp $
+* $Id: js_api.inc,v 1.76 2011/06/07 01:39:49 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -561,7 +561,12 @@ class JS_Api extends Page
 			case	'getMetadata':
 				if ($this->attr('get_metadata')) {
 					if ($ra) {
-						$data = $mm->getMetadataFieldValues($asset->id);
+						$schema = $mm->getSchemas($asset->id, TRUE);
+						if (!empty($schema)) {
+							$data = $mm->getMetadataFieldValues($asset->id);
+						} else {
+							$this->returnError('No Metadata Schema applied to Asset "'.$asset->name.'(#'.$asset->id.')"');
+						}
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
