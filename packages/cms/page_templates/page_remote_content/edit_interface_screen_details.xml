@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.22 2010/05/05 07:09:18 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.23 2011/06/07 04:41:27 akarelia Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
@@ -24,12 +24,12 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Location" write_access="write:attributes">
+	<section name="Location" write_access="write:attributes" limbo_access="1">
 		<field attribute="remote_url">
 			<text width="80" height="1" />
 		</field>
 	</section>
-	<section name="Tunneling" write_access="write:attributes">
+	<section name="Tunneling" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function name="paintRewritingRestrictions" />
@@ -49,7 +49,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-	<section name="Content Filtering" write_access="write:attributes">
+	<section name="Content Filtering" write_access="write:attributes" limbo_access="1">
 		<field attribute="start_tag">
 			<text width="35" height="1" />
 		</field>
@@ -75,7 +75,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Connection Settings" write_access="write:attributes">
+	<section name="Connection Settings" write_access="write:attributes" limbo_access="1">
 		<field attribute="timeout">
 			<int width="5" />
 		</field>
@@ -83,7 +83,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-	<section name="HTTP Authentication" write_access="write:attributes">
+	<section name="HTTP Authentication" write_access="write:attributes" limbo_access="1">
 		<field attribute="username">
 			<text width="35" height="1" />
 		</field>
