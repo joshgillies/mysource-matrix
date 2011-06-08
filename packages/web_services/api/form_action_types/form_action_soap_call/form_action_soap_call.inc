@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.6.2.6 2011/06/07 07:08:03 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.6.2.7 2011/06/08 07:37:11 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6.2.6 $
+* @version $Revision: 1.6.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -270,7 +270,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 				<tr>
 					<td>
-						If the specified field is non-empty in the SOAP respose, the step action will treat it as a regular form error.
+						If the specified field is non-empty in the SOAP respose, the action will treat it as a regular form error.
 					</td>
 				</tr>
 				<tr>
