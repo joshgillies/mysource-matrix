@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.748 2011/05/02 02:02:57 akarelia Exp $
+* $Id: asset.inc,v 1.749 2011/06/09 02:46:38 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.748 $
+* @version $Revision: 1.749 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1131,8 +1131,8 @@ class Asset extends MySource_Object
 			}
 		}
 
-		// save the notice links we currently have in .notice_links file
-		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
+		// save the notice links we currently have in .sq_notice_links file
+		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.sq_notice_links')) {
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
@@ -1307,7 +1307,7 @@ class Asset extends MySource_Object
 		// we need to reconstruct the notice links (for nested contents) before the parent function removes the files in .sq_system!
 		// so, read the notice links information from the system version file
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$notice_links_file = file_to_string($this->data_path.'/.sq_system/.notice_links');
+		$notice_links_file = file_to_string($this->data_path.'/.sq_system/.sq_notice_links');
 
 		// if we have any notice links preserved in the system version file, remove the current notice links
 		// and create new ones based on the information from the system version file 
@@ -1316,11 +1316,15 @@ class Asset extends MySource_Object
 			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 
 			foreach ($notice_links as $index => $info) {
-				foreach($system_ver_notice_links as $prev_index => $prev_info) {
-					if (array_diff($info, $prev_info) == Array()) {
-						unset($system_ver_notice_links[$prev_index]);
-						unset($notice_links[$index]);
+				if ($info['value'] == 'nested_asset' || $info['value'] == 'paint_with_layout' || $info['value'] == 'root') {
+					foreach($system_ver_notice_links as $prev_index => $prev_info) {
+						if (array_diff($info, $prev_info) == Array()) {
+							unset($system_ver_notice_links[$prev_index]); //not going to create
+							unset($notice_links[$index]); //not going to delete
+						}
 					}
+				} else {
+					unset($notice_links[$index]); //not going to delete
 				}
 			}
 			if (empty($system_ver_notice_links) && empty($notice_links)) return TRUE;
