@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.3 2011/06/07 07:07:13 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.4 2011/06/09 08:09:23 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -805,6 +805,9 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				$keyword = parse_keyword($full_keyword, $modifiers);
 
 				$replacement = $form->_getThankYouKeywordReplacement($keyword);
+				if ($replacement == '%'.$keyword.'%') {
+					break;
+				}
 
 				if (!empty($modifiers)) {
 					apply_keyword_modifiers($replacement, $modifiers);
