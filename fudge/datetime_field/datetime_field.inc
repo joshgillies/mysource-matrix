@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.55 2010/09/29 05:32:23 akarelia Exp $
+* $Id: datetime_field.inc,v 1.55.6.1 2011/06/14 01:25:51 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.6.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -392,12 +392,10 @@ class DateTime_Field
 
 		// print which ever form of input is desired
 		if (($u == 'a') || ($input_style[$u] == 's')) {
-			if (!isset($extras[$u]) || !stristr($extras[$u], 'id=')){
-				combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, ' id="'.$prefix.'_'.$u.'" ');
-			} else {
-				// select box
-				combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
-			}
+			if (!isset($extras[$u])) $extras[$u] = '';
+			if (!stristr($extras[$u], 'id=')) $extras[$u] .= ' id="'.$prefix.'_'.$u.'"';
+			// select box
+			combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
 			return;
 		} else {
 			// plain text
@@ -407,7 +405,8 @@ class DateTime_Field
 			if (($value !== '') && ($u == 'i')) {
 				$value = sprintf('%02d', $value);
 			}
-			if (!isset($extras[$u]) || !stristr($extras[$u], 'id=')) {
+			if (!isset($extras[$u])) $extras[$u] = '';
+			if (!stristr($extras[$u], 'id=')) {
 				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()" id="'.$prefix.'_'.$u.'" ';
 			} else {
 				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()"';
