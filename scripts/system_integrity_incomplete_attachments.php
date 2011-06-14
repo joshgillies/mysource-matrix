@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.4.6.1 2011/06/08 00:07:59 mhaidar Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.4.6.2 2011/06/14 04:33:56 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4.6.1 $
+* @version $Revision: 1.4.6.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -69,7 +69,7 @@ foreach ($form_assetids as $assetid) {
 			$incomplete_submission = $GLOBALS['SQ_SYSTEM']->am->getAsset($incomplete_submission_assetid, '', TRUE);
 			if (is_null($incomplete_submission)) {
 				// Report only
-				echo 'Form #'.$assetid.' still has some incomplete attachments for non-existent Submission #'.$incomplete_submission_assetid.'.';
+				echo 'Form #'.$assetid.' still has some incomplete attachment directories for non-existent Submission #'.$incomplete_submission_assetid.'.';
 				$count++;
 				if ($CORRECT) {
 					// Remove the dir, not needed
@@ -82,7 +82,7 @@ foreach ($form_assetids as $assetid) {
 			} else {
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($incomplete_submission_assetid, 'folder', TRUE, NULL, NULL, TRUE, 1, 1);
 				if (!empty($complete_link) && !empty($parents) && array_key_exists($complete_link['minorid'], $parents)){
-					echo 'Form #'.$assetid.' still has some incomplete attachments for completed Submission #'.$incomplete_submission_assetid.'.';
+					echo 'Form #'.$assetid.' still has some incomplete attachment directories for completed Submission #'.$incomplete_submission_assetid.'.';
 					$count_2++;
 					if ($CORRECT) {
 						// Remove the dir, not needed
@@ -102,9 +102,9 @@ foreach ($form_assetids as $assetid) {
 	unset($asset);
 }//end foreach
 
-echo "Incomplete attachments for non-existent submissions found:    ".$count."\n";
-echo "Incomplete attachments for non-existent submissions deleted:  ".$count_rm."\n";
-echo "Incomplete attachments for completed submissions found:    ".$count_2."\n";
-echo "Incomplete attachments for completed submissions deleted:  ".$count_rm_2."\n";
+echo "Incomplete attachment directories for non-existent submissions found:    ".$count."\n";
+echo "Incomplete attachment directories for non-existent submissions deleted:  ".$count_rm."\n";
+echo "Incomplete attachment directories for completed submissions found:    ".$count_2."\n";
+echo "Incomplete attachment directories for completed submissions deleted:  ".$count_rm_2."\n";
 echo "All done!\n";
 ?>
