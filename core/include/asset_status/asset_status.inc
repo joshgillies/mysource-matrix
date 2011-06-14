@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.23 2007/11/30 01:24:52 bshkara Exp $
+* $Id: asset_status.inc,v 1.24 2011/06/14 03:15:48 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -135,7 +135,23 @@ class Asset_Status extends MySource_Object
 			}
 		}
 
-		return true;
+		// we are now certain that we will be changing the status that we were asked to
+		// lets fire the trigger event 'trigger_event_before_status_change' to the triggers
+		// know we will next be changing the status. Last chance to stop before we GO GO GO !!
+		$event_data = Array(
+						'old_status'			=> $this->status_tag,
+						'new_status'			=> $new_status,
+						'allow_unrestricted'	=> isset($this->owner->_tmp['allow_unrestricted']) ? $this->owner->_tmp['allow_unrestricted'] : NULL,
+					  );
+
+		// if the broadcast returns FALSE, dont go ahead with changing the status
+		// NOTE : it is likely to return FALSE only if the trigger is blocking
+		// in other cases the asset status change will still go ahead in full swing
+		if (!$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_status_change', $this->owner, $event_data)) {
+			return FALSE;
+		}
+
+		return TRUE;
 
 	}//end processStatusChange()
 
