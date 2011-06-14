@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.14 2011/06/09 08:08:33 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.15 2011/06/14 07:49:20 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -919,8 +919,8 @@ class Form_Action_SOAP_Call extends Form_Action
 	private static function _toArray ($data, &$form)
 	{
 	  if (is_object($data)) $data = get_object_vars($data);
-	  // Don't play with empty object
-	  if(empty($data)) return '';
+	  // Don't play with empty object or array
+	  if (empty($data) && (is_array($data) || is_object($data))) return '';
 	  if(is_array($data)) {
 	  	$result = Array();
 	  	foreach ($data as $index => $element) {
