@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_incomplete_attachments.inc,v 1.2.6.1 2011/06/08 00:04:36 mhaidar Exp $
+* $Id: test_incomplete_attachments.inc,v 1.2.6.2 2011/06/14 04:34:15 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2.6.1 $
+* @version $Revision: 1.2.6.2 $
 * @package MySource_Matrix
 */
 class Test_Incomplete_Attachments
@@ -83,13 +83,13 @@ class Test_Incomplete_Attachments
 					if (is_null($incomplete_submission)) {
 						$status = FALSE;
 						$count++;
-						$errors[] = 'Form #'.$assetid.' has an incomplete attachment for a non-existent submission (#'.$incomplete_submission_assetid.')';
+						$errors[] = 'Form #'.$assetid.' has an incomplete attachment directory for a non-existent submission (#'.$incomplete_submission_assetid.')';
 					} else {
 						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($incomplete_submission_assetid, 'folder', TRUE, NULL, NULL, TRUE, 1, 1);
 						if (!empty($complete_link) && !empty($parents) && array_key_exists($complete_link['minorid'], $parents)){
 							$status = FALSE;
 							$count_2++;
-							$errors[] = 'Form #'.$assetid.' has an incomplete attachment for a complete submission (#'.$incomplete_submission_assetid.')';
+							$errors[] = 'Form #'.$assetid.' has an incomplete attachment directory for a complete submission (#'.$incomplete_submission_assetid.')';
 						}
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($incomplete_submission, TRUE);
 					}//end if
@@ -101,8 +101,8 @@ class Test_Incomplete_Attachments
 		}//end foreach
 
 		if (!$status) {
-			if (!empty($count)) $messages[] = 'There are '.$count.' incomplete attachments for non-existent submissions found on the system';
-			if (!empty($count_2)) $messages[] = 'There are '.$count_2.' incomplete attachments for complete submissions found on the system';
+			if (!empty($count)) $messages[] = 'There are '.$count.' incomplete attachment directories for non-existent submissions found on the system';
+			if (!empty($count_2)) $messages[] = 'There are '.$count_2.' incomplete attachment directories for complete submissions found on the system';
 		}//end if
 
 		return $status;
