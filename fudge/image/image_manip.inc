@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.7 2010/05/12 23:40:27 ewang Exp $
+* $Id: image_manip.inc,v 1.7.6.1 2011/06/14 07:28:04 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package Fudge
 * @subpackage Image
 */
@@ -147,11 +147,13 @@ class Image_Manip
 		switch (get_file_type($output)) {
 		case 'gif':
 			$d_img = imageCreate($w, $h);
-			// preserve GIF transparency
+			// preserve GIF transparency, if any
 			$colorTransparent = imagecolortransparent($s_img);
-			imagepalettecopy($d_img,$s_img);
-			imagefill($d_img,0,0,$colorTransparent);
-			imagecolortransparent($d_img, $colorTransparent);
+			if ($colorTransparent > -1) {
+				imagepalettecopy($d_img,$s_img);
+				imagefill($d_img,0,0,$colorTransparent);
+				imagecolortransparent($d_img, $colorTransparent);
+			}
 			break;
 		case 'png':
 			// preserve PNG transparency
