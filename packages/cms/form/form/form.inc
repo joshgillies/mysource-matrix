@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.258 2011/06/07 01:26:31 cupreti Exp $
+* $Id: form.inc,v 1.259 2011/06/14 04:27:05 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3183,8 +3183,9 @@ class Form extends Asset implements Bridge
 
 					// Move it using Fudge file_system function
 					create_directory($perm_path);
-					move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
-
+					$moved = move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
+					if ($moved) delete_directory(dirname($extra_data['temp_filesystem_path']));
+					
 					$extra_data = Array(
 									'filesystem_path'	=> $perm_path.'/'.$filename,
 								  );
@@ -3206,7 +3207,7 @@ class Form extends Asset implements Bridge
 			}
 		}
 
-	}//end _storeOrphanedFileUploads()
+	}//end _handleCompletedFileUploads()
 
 
 	/**
@@ -3268,7 +3269,21 @@ class Form extends Asset implements Bridge
 				$question_asset->cleanUp($this);
 			}
 		}
-
+		
+		if (!is_null($this->submission_asset)) {
+			$submission_path = $this->data_path.'/incomplete_attachments/s'.$this->submission_asset->id;
+			if (is_dir($submission_path)){
+				$dirs = list_dirs($submission_path);
+				if (empty($dirs)) delete_directory($submission_path);
+			}
+		}
+		
+		$public_submission_path = $this->data_path.'/incomplete_attachments/'.session_id();
+		if (is_dir($public_submission_path)){
+			$dirs = list_dirs($public_submission_path);
+			if (empty($dirs)) delete_directory($public_submission_path);
+		}
+		
 		// Clean-up submission session variable
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
