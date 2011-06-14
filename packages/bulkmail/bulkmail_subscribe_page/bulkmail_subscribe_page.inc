@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.30 2010/04/22 22:47:36 mhaidar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.30.6.1 2011/06/14 00:45:32 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -800,7 +800,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$body = @$mime->get($param);
 		$headers = @$mime->headers($headers);
 
-		$mail =& Mail::factory('mail');
+		$mf = new Mail();
+		$mail = $mf->factory('mail', "-f$from");
 		$status = @$mail->send($to, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send verification email
@@ -847,7 +848,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$body = @$mime->get($param);
 		$headers = @$mime->headers($headers);
 
-		$mail =& Mail::factory('mail');
+		$mf = new Mail();
+		$mail = $mf->factory('mail', "-f$from");
 		$status = $mail->send($to, $headers, $body);
 		if (PEAR::isError($status)) {
 			// unable to send verification email
