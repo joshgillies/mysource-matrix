@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.2.2.1 2011/06/14 07:25:11 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.2.2.2 2011/06/14 07:50:27 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -930,8 +930,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	private static function _toArray ($data, &$form)
 	{
 	  if (is_object($data)) $data = get_object_vars($data);
-	  // Don't play with empty object
-	  if(empty($data)) return '';
+	  // Don't play with empty object or array
+	  if (empty($data) && (is_array($data) || is_object($data))) return '';
 	  if(is_array($data)) {
 	  	$result = Array();
 	  	foreach ($data as $index => $element) {
