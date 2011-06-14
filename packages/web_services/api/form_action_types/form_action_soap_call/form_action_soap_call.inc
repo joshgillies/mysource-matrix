@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.11 2011/05/30 05:02:16 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.11.2.1 2011/06/14 07:24:42 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -793,6 +793,9 @@ class Form_Action_SOAP_Call extends Form_Action
 				$keyword = parse_keyword($full_keyword, $modifiers);
 
 				$replacement = $form->_getThankYouKeywordReplacement($keyword);
+				if ($replacement == '%'.$keyword.'%') {
+					break;
+				}			
 
 				if (!empty($modifiers)) {
 					apply_keyword_modifiers($replacement, $modifiers);
