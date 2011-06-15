@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.9 2008/01/03 03:12:04 rong Exp $
+* $Id: log_iterator.inc,v 1.10 2011/06/15 23:47:11 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -84,6 +84,28 @@ class Log_Iterator
 		}
 
 	}//end getNextEntry()
+
+
+	/**
+	* Gets the last entry from the log manager
+	*
+	* Returns the last line as an array or FALSE on failure
+	*
+	* @return mixed boolean|array
+	* @access public
+	*/
+	public function getLastEntry()
+	{
+		$last_entry = FALSE;
+		while($line=$this->getNextEntry()) {
+			if ($line) {
+				$last_entry = $line;
+			}
+		}
+
+		return $last_entry;
+
+	}//end function getLastEntry()
 
 
 	/**
