@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.31 2011/06/14 00:41:38 mhaidar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.32 2011/06/15 23:02:33 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -782,13 +782,16 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$body .= translate('bsp_verification_email_body_sub_unsub',
 									$this->_getCommaSeparatedNamesByAssetid($subscriptions),
 									$this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+			$body .= translate('bsp_verification_email_body_part2', $url);
 		} else if (!empty($subscriptions)) {
 			$body .= translate('bsp_verification_email_body_sub', $this->_getCommaSeparatedNamesByAssetid($subscriptions));
+			$body .= translate('bsp_verification_email_body_sub_part2', $url);
 		} else if (!empty($unsubscriptions)) {
 			$body .= translate('bsp_verification_email_body_unsub', $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
+			$body .= translate('bsp_verification_email_body_part2', $url);
 		}
-
-		$body .= translate('bsp_verification_email_body_part2', $url);
+			$body .= translate('bsp_verification_email_note', $from);
+		
 
 		$mime = new Mail_mime("\n");
 		$mime->setTXTBody($body);
