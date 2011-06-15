@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.2.4.1 2011/02/14 00:20:44 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.2.4.2 2011/06/15 23:21:46 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2.4.1 $
+* @version $Revision: 1.2.4.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -115,7 +115,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		$step_data['complete'] = FALSE;
 		while(!$step_data['complete']) {
-			if($this->processImportAsset($step_data, '')) {
+			if(!$this->processImportAsset($step_data, '')) {
 				return FALSE;
 			}
 		}
@@ -187,7 +187,6 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	function processImportAsset(&$step_data, $prefix)
 	{
 		$import_actions = $this->_running_vars['import_actions'];
-		
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
@@ -207,12 +206,12 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->_running_vars['import_actions'] = $import_actions;
-		
+
 		// update progress
 		if (count($import_actions['actions'][0]['action']) == 0) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-	
+
 			// done with everything ? delete the file
 			if ($this->_running_vars['delete_after_import']) {
 				// unlink the import dir
