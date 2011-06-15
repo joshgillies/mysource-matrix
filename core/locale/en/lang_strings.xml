@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391 2011/05/26 05:29:34 ewang Exp $
+* $Id: lang_strings.xml,v 1.391.2.1 2011/06/15 06:08:30 akarelia Exp $
 *
 */
 
@@ -1289,6 +1289,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_link_exists_advanced"><![CDATA[<ul style="list-style-type: none; padding: 0;"><li>Link Type:%1$s</li><li>Is Dependant ? %2$s</li><li>Is Exclusive ? %3$s</li><li>Value: %4$s</li></ul>]]></string>
 
 	<string source="trigger_has_status_basic">Asset has the current status of: %s</string>
+	<string source="trigger_status_change_to_basic">Status of the &lt;i&gt;(firing)&lt;/i&gt; Asset is changed to: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
 
 	<string source="trigger_tree_location_basic">Asset is under %s</string>
@@ -2581,6 +2582,10 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
+	<string source="trigger_action_future_status_customise_msg">Error message</string>
+	<string source="trigger_action_future_status_customise_msg_note">&lt;br&gt;&lt;b&gt;NOTE :&lt;/b&gt; If customised, this error message will be displayed if the caluclated time value is in past.&lt;/p&gt;</string>
+	<string source="trigger_action_future_status_treat_as_fatal">Treat as fatal error :</string>
+	<string source="trigger_action_future_status_treat_as_fatal_note">Tick the box if the error is to be treated as Fatal, i.e. Stops the script execution. &lt;br /&gt;&lt;b&gt;NOTE :&lt;/b&gt;By Default the error will be treated as &lt;i&gt;E_USER_WARNING&lt;/i&gt; which means the eror will be lodged but the scrit execution will continue</string>
 
 	<!-- Future Permission Trigger Actions -->
 	<string source="trigger_delete_future_permission">Delete all future permission cron jobs that would change the asset's</string>
