@@ -10,26 +10,9 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_paths.xml,v 1.1.1.1 2010/03/29 23:32:29 bpearson Exp $
+* $Id: edit_interface_screens.xml,v 1.1.4.2 2011/06/15 05:23:02 akarelia Exp $
 *
 */
 -->
 
-<contents>
-	<section name="Web Paths">
-		<field>
-			<display_name>Paths</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintPaths"   />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Current URLs</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintURLs"   />
-			</function_call>
-		</field>
-	</section>
-</contents>
+<screens />
