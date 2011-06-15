@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75 2011/05/16 23:48:13 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.1 2011/06/15 23:06:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -452,7 +452,7 @@ class JS_Api extends Page
 				}
 
 			break;
-			
+
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
@@ -561,12 +561,18 @@ class JS_Api extends Page
 			case	'getMetadata':
 				if ($this->attr('get_metadata')) {
 					if ($ra) {
-						$data = $mm->getMetadataFieldValues($asset->id);
+						$schema = $mm->getSchemas($asset->id, TRUE);
+						if (!empty($schema)) {
+							$data = $mm->getMetadataFieldValues($asset->id);
+						} else {
+							$this->returnError('No Metadata Schema applied to Asset "'.$asset->name.'(#'.$asset->id.')"');
+						}
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
 				} else {
 					$this->returnError('The getMetadata function must be activated');
+
 				}//end else
 
 			break;
@@ -4243,7 +4249,6 @@ function getRoles(assetid, roleid, userid, include_assetid, include_globals, exp
 }//end getRoles
 
 
-
 /**
 * Performs HTMLTidy on the passed content and returns cleaned up code
 *
@@ -4258,7 +4263,7 @@ function executeHTMLTidy(content, dataCallback)
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var content = isset(content) ? content : '';
-	
+
 	// Build our string
 	var url = '<?php echo $this->getURL(); ?>' + '?key=' + api_key + '&type=executeHTMLTidy&content=' + content.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
@@ -4266,6 +4271,7 @@ function executeHTMLTidy(content, dataCallback)
 	makeRequest(url, true, dataCallback);
 
 }//end executeHTMLTidy()
+
 
 <?php
 
