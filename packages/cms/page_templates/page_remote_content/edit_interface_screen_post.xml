@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_post.xml,v 1.4 2010/05/05 07:09:18 ewang Exp $
+* $Id: edit_interface_screen_post.xml,v 1.4.6.1 2011/06/15 23:27:44 akarelia Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Post Data" write_access="write:attributes">
+	<section name="Post Data" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function name="paintPostVariableTable" />
