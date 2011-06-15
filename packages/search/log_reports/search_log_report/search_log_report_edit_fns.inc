@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.14 2010/04/21 06:55:52 mhaidar Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.15 2011/06/15 23:45:20 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -85,6 +85,11 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 				$meta['level']          = $line['level'];
 				$meta['search_assetid'] = array_get_index($data, 'assetid', 0);
 
+				// Get previous date from last rotated log
+				if (!isset($job_vars['previous_date'])) {
+					$job_vars['previous_date'] = $this->_getPreviousDate($meta['report']->logname);
+				}
+
 				// determine whether we need to rollover to the next day/week/month before processing the line
 				$rollover = FALSE;
 				if (!is_null(array_get_index($job_vars, 'previous_date', NULL))) {
@@ -132,7 +137,6 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 						}
 						$this->_updateTerm($term, $result, $meta);
 					}
-
 				}
 
 			}//end if (!empty($line))
@@ -837,6 +841,24 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		return FALSE;
 
 	}//end paintRegenerate()
+
+
+	/**
+	* Get previous date from last rotated search log, if any
+	*
+	* @param string $log_filename	Search log file name
+	*
+	* @return string
+	* @private
+	*/
+	function _getPreviousDate($log_filename='search')
+	{
+		$iterator = $GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($log_filename, 2);
+		$line = $iterator->getLastEntry();
+
+		return array_get_index($line, 'date', NULL);
+	
+	}//end _getPreviousDate()
 
 
 }//end class
