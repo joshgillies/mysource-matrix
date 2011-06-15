@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.25 2010/06/30 04:04:59 cupreti Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.25.6.1 2011/06/15 06:29:16 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,6 +43,8 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* Array(
 	* 		'status' => int, // the status value to set the asset to
 	* 		'when'   => int, // the time/date to set the cron job to
+	*		'custom_error_msg'	=> string, // the customised error mesage to display
+	*									   // incase of the date-time has expired
 	* 		);
 	* </PRE>
 	*
@@ -69,6 +71,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			}
 		}
 
+		$custom_message = array_get_index($settings, 'custom_error_msg', '');
+		$custom_error_level = $settings['treat_as_fatal'] ? E_USER_ERROR : E_USER_WARNING;
+
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
 
@@ -89,12 +94,20 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			if ($settings['offset_used']) {
 				$offset = (int)substr($settings['when'], 4) * 60;
 				$when = iso8601_ts($val) + $offset;
-				if ($when < time()) return FALSE;  // it's in the past
+				if ($when < time()) {
+					// it's in the past
+					if ($custom_message != '') trigger_error($custom_message, $custom_error_level);
+					return FALSE;
+				}
 				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($when), 0, 16));
 			} else {
 				// just the straight value
 				$ts = iso8601_ts($val);
-				if ($ts < time()) return FALSE; // in the past
+				if ($ts < time()) {
+					// it's in the past
+					if ($custom_message != '') trigger_error($custom_message, $custom_error_level);
+					return FALSE;
+				}
 				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
 			}
 		} else if ($settings['when_type'] == 'by_meta_value') {
@@ -116,12 +129,20 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			if ($settings['offset_used']) {
 				$offset = (int)substr($settings['when'], 4) * 60;
 				$when = iso8601_ts($val) + $offset;
-				if ($when < time()) return FALSE;  // it's in the past
+				if ($when < time()) {
+					// it's in the past
+					if ($custom_message != '') trigger_error($custom_message, $custom_error_level);
+					return FALSE;
+				}
 				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($when), 0, 16));
 			} else {
 				// just the straight value
 				$ts = iso8601_ts($val);
-				if ($ts < time()) return FALSE; // in the past
+				if ($ts < time()){
+					// it's in the past
+					if ($custom_message != '') trigger_error($custom_message, $custom_error_level);
+					return FALSE;
+				}
 				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
 			}
 		} else {
@@ -331,6 +352,27 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			}
 		}
 
+		echo '<p>';
+		echo translate('trigger_action_future_status_customise_msg');
+		$custom_message = array_get_index($settings, 'custom_error_msg', '');
+		if ($write_access) {
+			text_box($prefix.'_custom_error_msg', $custom_message, '40');
+		} else {
+			echo ' : '.$custom_message;
+		}
+		echo translate('trigger_action_future_status_customise_msg_note');
+		'<br />()<b>NOTE :</b> If customised, this error message will be displayed if the caluclated time is in past.</p>';
+
+		echo '<p>';
+		echo translate('trigger_action_future_status_treat_as_fatal');
+		$treat_fatal = array_get_index($settings, 'treat_as_fatal', 0);
+		if ($write_access) {
+			check_box($prefix.'_treat_as_fatal', '1', $treat_fatal); 
+		} else {
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('yes') : translate('no')).'" /> ';
+		}
+		echo translate('trigger_action_future_status_treat_as_fatal_note');
+
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -353,8 +395,11 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 		if (empty($_POST[$prefix.'_when_type'])) return TRUE;
 
-		$settings['when_type'] = $_POST[$prefix.'_when_type'];
-		$settings['cascade'] = !empty($_POST[$prefix.'_cascade_all']);
+		$settings['when_type']			= $_POST[$prefix.'_when_type'];
+		$settings['cascade']			= !empty($_POST[$prefix.'_cascade_all']);
+		$settings['custom_error_msg']	= array_get_index($_POST, $prefix.'_custom_error_msg', '');
+		$settings['treat_as_fatal']		= array_get_index($_POST, $prefix.'_treat_as_fatal', 0);
+
 		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
 		if (!isset($status_list[$_POST[$prefix.'_status']])) {
 			return 'Invalid status';
