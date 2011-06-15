@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.3 2011/02/13 23:42:09 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.3.2.1 2011/06/15 23:19:09 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -115,7 +115,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		$step_data['complete'] = FALSE;
 		while(!$step_data['complete']) {
-			if($this->processImportAsset($step_data, '')) {
+			if(!$this->processImportAsset($step_data, '')) {
 				return FALSE;
 			}
 		}
