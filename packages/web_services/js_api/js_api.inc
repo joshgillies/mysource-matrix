@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.69.2.6 2011/05/16 23:50:57 akarelia Exp $
+* $Id: js_api.inc,v 1.69.2.7 2011/06/15 23:03:13 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.69.2.6 $
+* @version $Revision: 1.69.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -453,7 +453,6 @@ class JS_Api extends Page
 
 			break;
 
-
 			default:
 				// Pass through so the asset based commands can work
 		}//end if
@@ -562,12 +561,18 @@ class JS_Api extends Page
 			case	'getMetadata':
 				if ($this->attr('get_metadata')) {
 					if ($ra) {
-						$data = $mm->getMetadataFieldValues($asset->id);
+						$schema = $mm->getSchemas($asset->id, TRUE);
+						if (!empty($schema)) {
+							$data = $mm->getMetadataFieldValues($asset->id);
+						} else {
+							$this->returnError('No Metadata Schema applied to Asset "'.$asset->name.'(#'.$asset->id.')"');
+						}
 					} else {
 						$this->returnError('You do not have permissions to access this asset');
 					}//end else
 				} else {
 					$this->returnError('The getMetadata function must be activated');
+
 				}//end else
 
 			break;
