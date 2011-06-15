@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.47 2010/10/13 02:19:16 cupreti Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.47.6.1 2011/06/15 06:00:28 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -293,7 +293,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 
 		$prefix = $asset->getPrefix();
-
 		$is_default = FALSE;
 		$default_val = $asset->attr('default');
 
@@ -317,6 +316,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$uses_keyword = (substr($value, 0, 1) == '%');
 		if (empty($value)) $value = NULL;
 		$field = $asset->_getDateTimeField($prefix, $value);
+
 		if ($asset->attr('show_keywords')) {
 			$field->parameters['extras'] = Array(
 											'd'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
@@ -331,13 +331,30 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 
 			$field->printField();
+			echo '<br /> <b>-'.strtoupper(translate('or_in')).'- </b>';
+			preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
+			text_box($prefix.'_duration', '0', 2, '', TRUE);
+			echo " ";
+			$periods = Array(
+						'-'	=> '--Select One --',
+						'minutes'	=> translate('minutes'),
+						'hours'		=> translate('hours'),
+						'days'		=> translate('days'),
+						'weeks'		=> translate('weeks'),
+						'months'	=> translate('months'),
+						'years'		=> translate('years'),
+					   );
+
+			combo_box($prefix.'_period', $periods, FALSE, '-', NULL);
+			echo "<b> from now</b>";
+
 			if ($asset->attr('show_keywords')) {
-				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				echo '<br /> <b>-'.strtoupper(translate('or')).'-</b> ';
 				combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
 			}
 
 			if ($enable_default) {
-				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				echo '<br /> <b>-'.strtoupper(translate('or')).'-</b> ';
 				if ((substr($default_val, 0, 1) == '%') || empty($value)) {
 					$default_date_exp = 'null';
 					$default_kw_exp = "'".trim($default_val, '%')."'";
@@ -366,7 +383,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			if ($print_cascade_values_option) {
-				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				echo '<br />';
 				check_box($prefix.'_cascade_value', '1', FALSE);
 				label(translate('cascade_value'), $prefix.'_cascade_value');
 			}
@@ -407,8 +424,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
-
 		$prefix = $asset->getPrefix();
+
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
@@ -417,6 +434,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value = array_get_index($_POST, $prefix.'_repkeys', '');
 			if (!empty($value)) {
 				$new_value_str = Metadata_Field::encodeValueString('%'.trim($value).'%', Array());
+				$processed = TRUE;
+			} else if (!empty($_POST[$prefix.'_duration']) && $_POST[$prefix.'_duration'] != '0'  && $_POST[$prefix.'_period'] != '-') {
+				$value = date('Y-m-d H:i:s', strtotime($_POST[$prefix.'_duration'].' '.$_POST[$prefix.'_period']));
+				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 				$processed = TRUE;
 			} else {
 				$field = $asset->_getDateTimeField($prefix);
