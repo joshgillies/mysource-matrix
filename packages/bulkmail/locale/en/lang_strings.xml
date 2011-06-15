@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.40 2010/03/18 00:57:25 lwright Exp $
+* $Id: lang_strings.xml,v 1.40.6.1 2011/06/15 23:15:31 ewang Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -28,15 +28,25 @@
 	<string source="bsp_remove_failed">Unable to unsubscribe you from the following mailing lists: </string>
 	<string source="bsp_remove_successful">You have been unsubscribed from the following mailing lists: </string>
 	<string source="bsp_verification_email_subject">Please confirm your subscription / unsubscription request</string>
-	<string source="bsp_verification_email_body_sub_unsub">Someone has requested for this email address to be subscribed to %1$s, and unsubscribed from %2$s.</string>
-	<string source="bsp_verification_email_body_sub">Someone has requested for this email address to be subscribed to %s.</string>
-	<string source="bsp_verification_email_body_unsub">Someone has requested for this email address to be unsubscribed from %s.</string>
-	<string source="bsp_verification_email_body_part2">
+	<string source="bsp_verification_email_body_sub_unsub">You have requested to subscribe to %1$s and unsubscribe from %2$s.</string>
+	<string source="bsp_verification_email_body_sub">Thank you for subscribing to %s.</string>
+	<string source="bsp_verification_email_body_unsub">You have requested to unsubscribe from %s.</string>
+	<string source="bsp_verification_email_note">
 
-Please click on the following link if you would like to proceed:
+
+
+If you have received this email in error, please take no further action or contact %s.</string>
+	<string source="bsp_verification_email_body_sub_part2">
+
+To active your subscription, click the link below:
 
 %s</string>
-	<string source="bsp_already_sub_email_body">Someone has requested for this email address to be subscribed to %1$s.
+<string source="bsp_verification_email_body_part2">
+
+To confirm your request, click the link below:
+
+%s</string>
+	<string source="bsp_already_sub_email_body">You have requested to subscribe to %1$s.
 This request was made from the following URL: %2$s
 
 Your email address is already subscribed, therefore no action has been taken.</string>
