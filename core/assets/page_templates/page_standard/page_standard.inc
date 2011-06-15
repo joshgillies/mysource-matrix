@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.33 2010/08/19 05:41:38 akarelia Exp $
+* $Id: page_standard.inc,v 1.33.6.1 2011/06/15 22:51:21 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,10 +265,16 @@ class Page_Standard extends Page
 			parent::initLimbo();
 		} else {
 			$bodycopy = $this->getBodycopy();
-			if (!is_null($bodycopy)) {
-				$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
-				$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
-				$bodycopy->initLimbo();
+			if (!is_null($bodycopy)) { 
+				$edit_interface = $bodycopy->getEI();
+				$available_screens = array_keys(array_merge($edit_interface->getScreens(), $edit_interface->_edit_fns->static_screens));
+				if (in_array($screen, $available_screens)) {
+					$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
+					$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
+					$bodycopy->initLimbo();
+				} else {
+					parent::initLimbo();
+				}
 			}
 		}
 
