@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.14 2010/04/21 06:55:52 mhaidar Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.14.8.1 2011/06/16 23:27:04 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -84,6 +84,11 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 				$meta['date']           = $line['date'];
 				$meta['level']          = $line['level'];
 				$meta['search_assetid'] = array_get_index($data, 'assetid', 0);
+				
+				// Get previous date from last rotated report
+				if (!isset($job_vars['previous_date'])) {
+					$job_vars['previous_date'] = $this->_getPreviousDate($meta['report']);
+				}				
 
 				// determine whether we need to rollover to the next day/week/month before processing the line
 				$rollover = FALSE;
@@ -838,6 +843,28 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 	}//end paintRegenerate()
 
+	
+	/**
+	* Get previous date from last rotated search report, if any
+	*
+	* @param object $report
+	*
+	* @return int|null
+	* @accesss private
+	*/
+	function _getPreviousDate($report)
+	{
+		$generated_reports = $report->attr('generated_reports');
+		$latest_report = current(array_keys($generated_reports));
+		
+		$last_date = NULL;
+		if ($latest_report) {
+			$last_date = strtotime(substr($latest_report, 7));
+		}
+
+		return $last_date;
+	
+	}//end _getPreviousDate()
 
 }//end class
 
