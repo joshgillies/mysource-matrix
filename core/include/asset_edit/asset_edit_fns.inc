@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.86 2011/01/07 04:46:06 cupreti Exp $
+* $Id: asset_edit_fns.inc,v 1.87 2011/06/16 00:53:49 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -753,6 +753,19 @@ class Asset_Edit_Fns extends MySource_Object
 							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 						   );
+						   
+		if (isset($_REQUEST['parent_assetid'])){
+			$restricted_sites = $GLOBALS['SQ_SYSTEM']->getUserPrefs('site', 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT');
+			$parent_sites = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($_REQUEST['parent_assetid'], 'site'));
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($_REQUEST['parent_assetid'], 'site');
+			if (!empty($asset_info)) $parent_sites[] = $_REQUEST['parent_assetid'];
+
+			if (array_intersect($restricted_sites, $parent_sites) != Array()) {
+				unset($editable_link_types[SQ_LINK_TYPE_1]);
+				$_REQUEST['link_type'] = SQ_LINK_TYPE_2;
+			}
+		}
+		
 		$o->closeField();
 		$o->openField(translate('link_type'));
 		combo_box('link_type', $editable_link_types, FALSE, isset($_REQUEST['link_type']) ? $_REQUEST['link_type'] : SQ_LINK_TYPE_1);
