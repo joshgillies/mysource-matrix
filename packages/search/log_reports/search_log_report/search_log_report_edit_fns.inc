@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.15 2011/06/15 23:45:20 cupreti Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.16 2011/06/16 23:20:11 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -87,7 +87,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 				// Get previous date from last rotated log
 				if (!isset($job_vars['previous_date'])) {
-					$job_vars['previous_date'] = $this->_getPreviousDate($meta['report']->logname);
+					$job_vars['previous_date'] = $this->_getPreviousDate($meta['report']);
 				}
 
 				// determine whether we need to rollover to the next day/week/month before processing the line
@@ -844,19 +844,24 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 
 	/**
-	* Get previous date from last rotated search log, if any
+	* Get previous date from last rotated search report, if any
 	*
-	* @param string $log_filename	Search log file name
+	* @param object $report
 	*
-	* @return string
-	* @private
+	* @return int|null
+	* @accesss private
 	*/
-	function _getPreviousDate($log_filename='search')
+	function _getPreviousDate($report)
 	{
-		$iterator = $GLOBALS['SQ_SYSTEM']->log_manager->getLogIterator($log_filename, 2);
-		$line = $iterator->getLastEntry();
+		$generated_reports = $report->attr('generated_reports');
+		$latest_report = current(array_keys($generated_reports));
+		
+		$last_date = NULL;
+		if ($latest_report) {
+			$last_date = strtotime(substr($latest_report, 7));
+		}
 
-		return array_get_index($line, 'date', NULL);
+		return $last_date;
 	
 	}//end _getPreviousDate()
 
