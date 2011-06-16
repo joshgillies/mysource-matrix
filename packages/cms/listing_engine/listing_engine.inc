@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.317.4.3 2011/05/27 01:23:56 akarelia Exp $
+* $Id: listing_engine.inc,v 1.317.4.4 2011/06/16 01:36:56 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.317.4.3 $
+* @version $Revision: 1.317.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2499,7 +2499,13 @@ class Listing_Engine extends Page
 
 
 		// by the time we reach this point we already have a bodycopy for this asset
-		$bc_keywords = $bodycopy->getKeywords();
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		if (isset($this->_tmp['bc_keywords'][$bodycopy->id][$contextid])) {
+			$bc_keywords = $this->_tmp['bc_keywords'][$bodycopy->id][$contextid];
+		} else {
+			$bc_keywords = $bodycopy->getKeywords();
+			$this->_tmp['bc_keywords'][$bodycopy->id][$contextid] = $bc_keywords;
+		}
 		$keywords    = Array();
 
 		// Asset contents keywords that we want contexted versions thereof
