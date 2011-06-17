@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.91 2011/05/02 01:19:11 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.92 2011/06/17 01:57:57 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1119,6 +1119,14 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 						case "wysiwyg":
 							if (HTMLArea.is_gecko) {
 								retVal = this._iframe.contentWindow.document.body.innerHTML;
+								// if we are using firefox and if it is the initial container
+								// we need to remove any new line character because
+								// firefox will keep on adding <br> and additional \n(\n)
+								// do make sure our body (div) is visible
+								// see bug #5148 br tag created in the WYSIWYG as soon as it's created
+								if (HTMLArea.is_ff && retVal.match(/^<br>(\n)*$/) != null) {
+									retVal = retVal.replace(/^<br>(\n)*$/, '');
+								}
 							} else if (HTMLArea.is_ie) {
 								retVal = this._docContent.innerHTML;
 							}

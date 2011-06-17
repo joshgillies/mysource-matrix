@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.28 2010/05/30 23:59:28 kmyothein Exp $
+* $Id: utility.js,v 1.29 2011/06/17 01:57:57 akarelia Exp $
 *
 */
 
@@ -36,6 +36,7 @@ HTMLArea.is_gecko   = (navigator.product == "Gecko");
 HTMLArea.is_safari  = (HTMLArea.agt.indexOf("safari") != -1);
 HTMLArea.is_safari4 = ((HTMLArea.agt.indexOf("version/4") != -1) && HTMLArea.is_safari);
 HTMLArea.is_linux   = (HTMLArea.agt.indexOf("inux") != -1);
+HTMLArea.is_ff		= (HTMLArea.agt.indexOf("firefox") != -1);
 
 
 // variable used to pass the object to the popup editor window.
