@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.15 2011/06/14 07:49:20 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.16 2011/06/17 00:17:40 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -228,13 +228,32 @@ class Form_Action_SOAP_Call extends Form_Action
 									<td class="sq-backend-table-header">Delete ?</td>
 								</tr>
 								<?php
-								foreach ($selected_fields as $selected_field => $error_msg) {
+								$rules = self::validationRules();
+								foreach ($selected_fields as $selected_field => $rule) {
+									$error_msg =  array_get_index($rule, 'error_msg', '');
+									$rule_value = array_get_index($rule, 'value', '');
+									$rule_type = array_get_index($rule, 'type', 'must_contain');;
+									
 									$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
 									?>
 									<tr>
 										<td class="sq-backend-table-cell"><?php echo $selected_field; ?></td>
 										<td class="sq-backend-table-cell">
-											<?php text_box($sf_prefix.'_error_msg', $error_msg, 110); ?>
+											<table>
+												<tr>
+													<td>Rule</td>
+													<td><?php
+														combo_box($sf_prefix.'_type', $rules, FALSE, $rule_type);
+														?>
+													</td>
+												</tr>
+												<tr>
+													<td>Value</td><td><?php text_box($sf_prefix.'_value', $rule_value, 40); ?></td>
+												</tr>
+												<tr>
+													<td>Error Message</td><td><?php text_box($sf_prefix.'_error_msg', $error_msg, 110); ?></td>
+												</tr>
+											</table>
 										</td>
 
 										<td class="sq-backend-table-cell">
@@ -254,10 +273,10 @@ class Form_Action_SOAP_Call extends Form_Action
 							$response_fields = Array('' => '-- Select Field --');
 							if (isset($settings['response_keywords'][$settings['action']])) {
 								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
-								foreach($response_keywords as $val) {								
+								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
 									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
-								
+							
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -270,7 +289,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 				<tr>
 					<td>
-						If the specified field is non-empty in the SOAP respose, the action will treat it as a regular form error.
+						If the specified field fails the validation, the step action will treat it as an regular form error.
 					</td>
 				</tr>
 				<tr>
@@ -374,7 +393,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
-		$field_error_msgs = Array();
+		$field_rule = Array();
 		
 		// String containg all the SOAP response keywords
 		$keywords_string = '';
@@ -388,9 +407,13 @@ class Form_Action_SOAP_Call extends Form_Action
 			// If the field is deleted or dosen't exists in SOAP response anymore
 			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {			
 				if (isset($_POST[$sf_prefix.'_error_msg'])) {
-					$field_error_msgs[$selected_field] = trim($_POST[$sf_prefix.'_error_msg']);
+					$field_rule[$selected_field] = Array(
+													'type'	=> $_POST[$sf_prefix.'_type'],
+													'value'	=> $_POST[$sf_prefix.'_value'],
+													'error_msg' => trim($_POST[$sf_prefix.'_error_msg']),
+												);
 				} else {
-					$field_error_msgs[$selected_field] = $error_msg;
+					$field_rule[$selected_field] = $rule;
 				}//end else				
 			}//end if
 		}//end foreach
@@ -398,12 +421,12 @@ class Form_Action_SOAP_Call extends Form_Action
 		// Add new "Check response" field
 		if (isset($_POST[$prefix.'_'.$settings['action'].'_response_error_field']) && !empty($_POST[$prefix.'_'.$settings['action'].'_response_error_field'])) {
 			$new_field = $_POST[$prefix.'_'.$settings['action'].'_response_error_field'];
-			$field_error_msgs[$new_field] = '';
+			$field_rule[$new_field] = Array();
 		}
 
 		// Set up current params for current action
 		if(isset($settings['actions'][$settings['action']])) {
-			$settings[$settings['action'].'_response_error_fields'] = $field_error_msgs;
+			$settings[$settings['action'].'_response_error_fields'] = $field_rule;
 			for($i = 0; $i < count($settings['actions'][$settings['action']]); $i++) {
 				if(isset($_POST[$prefix.'_'.$settings['action'].'parameters'.$i]))
 					$settings[$settings['action'].'parameters'.$i] = $_POST[$prefix.'_'.$settings['action'].'parameters'.$i];
@@ -558,9 +581,9 @@ class Form_Action_SOAP_Call extends Form_Action
 		}
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
-			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $error_msg) {				
-				if (!empty($soap_response_keywords[$check_field])) {
-					$form->submission_errors = array_merge($form->submission_errors, Array($error_msg));
+			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {				
+				if (!self::validateValue($soap_response_keywords[$check_field], $rule)) {
+					$form->submission_errors = array_merge($form->submission_errors, Array($rule['error_msg']));
 					$success = FALSE;
 				}
 			}//end foreach
@@ -1009,6 +1032,93 @@ class Form_Action_SOAP_Call extends Form_Action
 		return TRUE;
 
 	}//end isValid()
+	
+	
+	/**
+	* Get the array of validation rules for 
+	* the value in SOAP response
+	*
+	* @access public
+	* @return array
+	*/
+	public static function validationRules()
+	{
+		return Array(
+					'must_contain' => 'Must contain',
+					'must_contain_casesensitive' => 'Must contain (Case sensitive)',
+					'must_not_contain' => 'Must NOT contain',
+					'must_not_contain_casesensitive' => 'Must NOT contain (Case sensitive)',
+					'equals' => 'Must be equal to',
+					'equals_not' => 'Must NOT be equal to',
+					'less_than' => 'Must be less than',
+					'less_than_or_equal' => 'Must be less than or equal to',
+					'more_than' => 'Must be more than',
+					'more_than_or_equal' => 'Must be more than or equal to',
+				);
+	}
+
+	
+	/**
+	* Validate the value based on the applied rule
+	*
+	* @param string $value Value to validate
+	* @param array  $rule  Rule to check against
+	*
+	* @access public
+	* @return boolean
+	*/
+	public static function validateValue($value, $rule)
+	{
+		$valid = FALSE;
+		$rule_type = array_get_index($rule, 'type', '');
+		$rule_value = array_get_index($rule, 'value', '');
+		
+		switch ($rule_type) {
+
+			case 'must_contain':
+				$valid = stripos($value, $rule_value) !== FALSE;
+			break;
+
+			case 'must_not_contain':
+				$valid = stripos($value, $rule_value) === FALSE;
+			break;
+
+			case 'must_contain_casesensitive':
+				$valid = strpos($value, $rule_value) !== FALSE;
+			break;
+
+			case 'must_not_contain_casesensitive':
+				$valid = strpos($value, $rule_value) === FALSE;
+			break;
+
+			case 'equals':
+				$valid = $value == $rule_value;
+			break;
+
+			case 'equals_not':
+				$valid = !($value == $rule_value);
+			break;
+			
+			case 'less_than':
+				$valid = $value < $rule_value;
+			break;
+
+			case 'more_than':
+				$valid = $value > $rule_value;
+			break;
+
+			case 'less_than_or_equal':
+				$valid = $value <= $rule_value;
+			break;
+
+			case 'more_than_or_equal':
+				$valid = $value >= $rule_value;
+			break;
+		}//end switch
+
+		return $valid;
+
+	}	
 
 }//end class
 
