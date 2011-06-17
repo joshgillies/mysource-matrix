@@ -214,7 +214,7 @@ function UpdateLink(linkid, link_type, link_value, sort_order)
 {
 	var soapBody	= "\
 <ns1:UpdateLink>\
-<LinkID>"+assetid+"</LinkID>\
+<LinkID>"+linkid+"</LinkID>\
 <LinkType>"+link_type+"</LinkType>\
 <LinkValue>"+link_value+"</LinkValue>\
 <SortOrder>"+sort_order+"</SortOrder>\
