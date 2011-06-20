@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.106 2011/06/20 05:45:50 mhaidar Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.107 2011/06/20 05:56:47 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -190,7 +190,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					//To safeguard against this, there is no point of having locks if we are Archived/Safe Edit Approved as write access will be blocked.	
 					if (!$asset->accessEffective()){
 						if (!$this->am->releaseLock($asset->id, 'attributes')) {
-							trigger_localised_error('SYS0182', E_USER_WARNING, 'all', $asset->name);
+							trigger_localised_error('SYS0182', E_USER_WARNING, 'attributes', $asset->name);
 							$do_process_backend = FALSE;
 						}
 					}
