@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.41 2011/06/15 22:56:23 ewang Exp $
+* $Id: lang_strings.xml,v 1.42 2011/06/21 23:38:22 akarelia Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -38,7 +38,7 @@
 If you have received this email in error, please take no further action or contact %s.</string>
 	<string source="bsp_verification_email_body_sub_part2">
 
-To active your subscription, click the link below:
+To activate your subscription, click the link below:
 
 %s</string>
 <string source="bsp_verification_email_body_part2">
