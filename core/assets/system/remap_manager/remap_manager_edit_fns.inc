@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.38 2011/01/07 04:45:36 cupreti Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.39 2011/06/21 06:09:18 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,11 +312,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 							</td>
 							<td class="sq-backend-table-cell">
 								<?php
-								if ($never_delete_remap) {
-									check_box($prefix.'_never_delete_remap['.$url_info['url'].']',1, TRUE);
-								} else {
-									check_box($prefix.'_never_delete_remap['.$url_info['url'].']');
-								}
+								check_box($prefix.'_never_delete_remap['.$url_info['url'].']', 1, $never_delete_remap);
 								?>
 							</td>
 							<?php
@@ -527,7 +523,15 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$int_expires = iso8601_ts($expires);
 				}
-				$never_delete = trim($line_value[3]);
+
+				// if the value is not set or isnt what we expect
+				// set never_delete option to the default behaviour
+				// configured on the remap_manager details screen
+				if (!isset($line_value[3]) || trim($line_value[3]) == '') {
+					$never_delete = $asset->attr('never_delete_remap_default');
+				} else {
+					$never_delete = trim($line_value[3]);
+				}
 
 				$asset->addRemapURL($old_url, $new_url, $int_expires, $never_delete, FALSE);
 			}
