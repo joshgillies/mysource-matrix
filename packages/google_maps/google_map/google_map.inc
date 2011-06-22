@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.22.4.4 2011/05/19 04:26:15 mhaidar Exp $
+* $Id: google_map.inc,v 1.22.4.5 2011/06/22 03:13:41 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.22.4.4 $
+* @version $Revision: 1.22.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -387,7 +387,7 @@ class Google_Map extends Page_Asset_Listing
 		?>
 			<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?php echo $api_key; ?>" type="text/javascript"></script>
 			<script type="text/javascript">
-			 //<![CDATA[
+			//<![CDATA[
 				<?php if (!empty($popup_html)) {
 						$popup_html = preg_replace('/(\r\n|\r|\n)/s','', $popup_html);
 				?>
@@ -432,7 +432,7 @@ class Google_Map extends Page_Asset_Listing
 
 
 			?>
-			 //]]>
+			//]]>
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
 			
@@ -530,7 +530,7 @@ class Google_Map extends Page_Asset_Listing
 					<?php
 				}//end if
 			?>
-				   //]]>
+				//]]>
 				</script>
 			<?php
 			if ($create_location) {
@@ -918,7 +918,7 @@ class Google_Map extends Page_Asset_Listing
 	*/
 	public function classifyChildren($root_id, $assetids)
 	{
-		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.$root_id.' AND minorid IN (\''.implode("', '", $assetids).'\')';
+		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = \''.$root_id.'\' AND minorid IN (\''.implode("', '", $assetids).'\')';
 		$query		= MatrixDAL::preparePdoQuery($sql);
 		$children	= MatrixDAL::executePdoAssoc($query);
 
@@ -954,7 +954,7 @@ class Google_Map extends Page_Asset_Listing
 		if (!empty($result)) {
 			?>
 				<script type="text/javascript">
-				 //<![CDATA[
+				//<![CDATA[
 					var FormEle	= {};
 					<?php
 						foreach ($result as $attr_name	=> $attr_id_info) {
@@ -964,7 +964,7 @@ class Google_Map extends Page_Asset_Listing
 							<?php
 						}//end foreach
 					?>
-				 //]]>
+				//]]>
 				</script>
 			<?php
 
@@ -983,7 +983,7 @@ class Google_Map extends Page_Asset_Listing
 	{
 		?>
 		<script type="text/javascript">
-		 //<![CDATA[
+		//<![CDATA[
 			var center = new GLatLng(0, 0);
 			panoramaOptions = { latlng:center };
 			myPano = new GStreetviewPanorama(document.getElementById("street_view"), panoramaOptions);
@@ -996,7 +996,7 @@ class Google_Map extends Page_Asset_Listing
 				//	return;
 				//}
 			}
-		 //]]>
+		//]]>
 		</script>
 		<?php
 	}//end enableStreetView()
