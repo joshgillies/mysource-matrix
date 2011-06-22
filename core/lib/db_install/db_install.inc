@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.67 2010/09/22 01:36:17 cupreti Exp $
+* $Id: db_install.inc,v 1.67.4.1 2011/06/22 02:03:47 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.4.1 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -960,16 +960,23 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 			$trigger_sql = $sql;
 			$sql  = '';
 			$sql .= 'CREATE OR REPLACE FUNCTION '.$trigger_name."_fn() RETURNS trigger AS '";
-			$sql .= ' DECLARE BEGIN ';
+			$sql .= ' DECLARE ';
+			$sql .= 'rollback_timestamp timestamp;';
+			$sql .= ' BEGIN ';
+			$sql .= "RAISE NOTICE ''IN FUNCTION ".$trigger_name."_fn();'';";
 
-			// set the timestamp for this session
-			// note that the timestamp is set only once per session
-			$sql .= 'PERFORM sq_set_rollback_timestamp();';
+			// we don't need to set the timestamp for this session
+			// sq_get_rollback_timestamp() will do it for us.
+			$sql = "EXECUTE ''SELECT sq_get_rollback_timestamp();'' INTO rollback_timestamp;";
 
 			$if_inserting     = "IF TG_OP = ''INSERT'' THEN ";
 			$if_updating      = "IF TG_OP = ''UPDATE'' THEN ";
 			$if_deleting      = "IF TG_OP = ''DELETE'' THEN ";
-			$get_timestamp_fn = 'sq_get_rollback_timestamp()';
+
+			// This is just a function variable, but since oracle is still calling a
+			// function it's easier to just use the variable here so we don't end up
+			// with complicated code.
+			$get_timestamp_fn = 'rollback_timestamp';
 		}
 
 		$old_primary_key_where = '';
