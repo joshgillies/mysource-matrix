@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.257.2.2 2011/06/16 03:09:32 cupreti Exp $
+* $Id: form.inc,v 1.257.2.3 2011/06/22 07:52:35 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.257.2.2 $
+* @version $Revision: 1.257.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1732,7 +1732,7 @@ class Form extends Asset implements Bridge
 				$success = $this->processPage($current_page, $validate_page, $mute_errors);
 
 				// Run the step submission actions for current page, if any
-				$success = $success && $this->performFormSectionActions($current_page) && empty($this->submission_errors);
+				$success = $success && (!$validate_page || $this->performFormSectionActions($current_page)) && empty($this->submission_errors);
 
 				if ($success) {
 
