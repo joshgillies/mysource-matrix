@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.845 2011/06/23 01:08:40 akarelia Exp $
+* $Id: asset_manager.inc,v 1.846 2011/06/23 05:45:53 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.845 $
+* @version $Revision: 1.846 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9107,7 +9107,9 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND ('.$in_clause.$null_clause.')';
 			}
 
-			$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
+			if ($link_type_wanted !== SQ_SC_LINK_ALL) {
+				$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
+			}
 
 			// now merge the bind vars into the master array
 			$bind_vars = array_merge($bind_vars, $where_bind_vars);
