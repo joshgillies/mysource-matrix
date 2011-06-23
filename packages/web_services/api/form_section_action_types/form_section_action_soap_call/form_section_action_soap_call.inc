@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.2.2.3 2011/06/17 00:47:11 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.2.2.4 2011/06/23 05:51:53 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -590,7 +590,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
 			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {
-				if (!self::validateValue($soap_response_keywords[$check_field], $rule)) {
+				if (!isset($soap_response_keywords[$check_field]) || !self::validateValue($soap_response_keywords[$check_field], $rule)) {
 					$form->submission_errors = array_merge($form->submission_errors, Array($rule['error_msg']));
 					$success = FALSE;
 				}
