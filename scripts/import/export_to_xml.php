@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.11.2.1 2011/03/24 23:53:01 akarelia Exp $
+* $Id: export_to_xml.php,v 1.11.2.2 2011/06/23 03:07:51 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix
 */
 
@@ -70,7 +70,7 @@ $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
-
+$warned = FALSE;
 $asset_id_map = Array();
 
 echo "<actions>\n";
@@ -160,9 +160,30 @@ echo "</actions>\n\n";
 			echo "</action>\n\n";
 		}
 
+		$dependants = Array();
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design') {
+			
+			// okie this part is a bit tricky
+			// we need to check if 
+			//	- we are dealing with design
+			//	- if design has a parse file attached
+			//	- and the attribute name we are dealing is 'contents'
+			//	- last but not least the value isnt not empty
+			$parse_file = $asset->data_path.'/parse.txt';
+			if (is_file($parse_file)) _updateParseFileForDesign($asset_id_map[$asset_id], $parse_file);
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+
+		} else if (getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				$parent = '[[output://create_'.$action_code.'.assetid]]';
@@ -249,7 +270,7 @@ echo "</actions>\n\n";
 			}
 			$assets_done[$asset->id] = TRUE;
 
-			if (!empty($value)) {
+			if (!empty($value) && !(getAssetType($asset) == 'Design' && $attr_name == 'contents')) {
 				// if default character set is utf-8 we dont wanna mess around the characters
 				// we are for now just checking for it not to be utf-8 but can append other encoding
 				// we might want to skip later on
@@ -274,15 +295,26 @@ echo "</actions>\n\n";
 				echo "   <action_type>set_attribute_value</action_type>\n";
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
-				if ($attr_name == 'html') { $value = _parseValue($value); }
+				$value = _parseValue($value, $attr_name, 'set_'.$asset_id_map[$asset_id].'_'.$attr_name);
 
 				echo "   <value><![CDATA["._escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -312,6 +344,7 @@ echo "</actions>\n\n";
 		$assets_done = Array();
 
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_LINK_NOTICE, '', FALSE, 'major');
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		foreach ($notice_links as $notice_link) {
 			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
@@ -330,8 +363,19 @@ echo "</actions>\n\n";
 
 		$assets_done[$asset_id] = TRUE;
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -360,6 +404,7 @@ echo "</actions>\n\n";
 		global $asset_id_map;
 
 		$assets_done = Array();
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		// Now, some permissions
 		$read_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_READ, NULL, FALSE, FALSE, TRUE, TRUE);
@@ -470,8 +515,19 @@ echo "</actions>\n\n";
 
 		$assets_done[$asset_id] = TRUE;
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -493,10 +549,27 @@ echo "</actions>\n\n";
 
 	}//end printPermissionXML()
 
-	function _saveFileAsset(&$asset) {
 
-		$file_info = $asset->getExistingFile();
-		$file_type = getAssetType($asset);
+	/**
+	* Saves the file on the file system to keep a copy for our import.
+	* if the asset id provided the information about the file like 'name', 'path'
+	* is grabbed from it or else we need to provide it in an array form
+	*
+	* @param object	$asset		the (file type )asset we are saving file for
+	* @param array	$file		the info about the file we are trying to copy
+	*
+	* @return string
+	* @access public
+	*/
+	function _saveFileAsset(&$asset, $file=Array())
+	{
+		if (!is_null($asset)) {
+			$file_info = $asset->getExistingFile();
+			$file_type = getAssetType($asset);
+		} else {
+			$file_info = $file;
+			$file_type = $file['type'];
+		}
 		$export_path = 'export/'.$file_type.'/'.$file_info['filename'];
 
 		// check to see if an export/ directory exists. If not, create it.
@@ -518,15 +591,30 @@ echo "</actions>\n\n";
 
 	}//end _saveFileAsset()
 
-	function _parseValue($value) {
+
+	/**
+	* this function will parse for any assetids in the value string 
+	* and replace them with our [[output://create_ACTION_.assetid]]
+	*
+	* @param string	$value				the string we want to get parsed
+	* @param string	$attribute_name		the name of the attribute we are processing value for
+	* @param string	$actionid			actionid of the attribute value we are trying to set
+	*
+	* @return string
+	* @access public
+	*/
+	function _parseValue($value, $attribute_name, $actionid)
+	{
 		global $asset_id_map;
+		global $warned;
+		$assetid_mapped = Array();
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
 		$normal_reg = '|.\/?a=(\d+)|';
 		$shadow_matches = Array();
 		$normal_matches = Array();
 
-        preg_match_all($shadow_reg, $value, $shadow_matche);
+        preg_match_all($shadow_reg, $value, $shadow_matches);
 		preg_match_all($normal_reg, $value, $normal_matches);
 
 		if(isset($shadow_matches[1]))		$shadow_matches = $shadow_matches[1];
@@ -538,17 +626,77 @@ echo "</actions>\n\n";
 		foreach ($normal_matches as $data) {
 				$replace_assetids[] = $data;
 		}
-		$replace_assetids = array_unique($replace_assetids);
 
 		foreach ($replace_assetids as $replace_assetid) {
 			if (isset($asset_id_map[$replace_assetid])) {
 				$value = preg_replace('|.\/?a='.$replace_assetid.'|', '?a=[[output://create_'.$asset_id_map[$replace_assetid].'.assetid]]', $value);
+				$assetid_mapped[] = $replace_assetid;
 			}
+		}
+
+		$globals_processed = FALSE;
+		// we have got the /?a=XX type assetids to be replaced
+		// lets not leave away the %globals_xxxxxx_xxx:assetid%
+		$kywrd_reg_global_shdw = '|%globals_asset_[a-z]+:(\d+:\w*)%|';
+		$kywrd_reg_global_real = '|%globals_asset_[a-z]+:(\d+)%|';
+		preg_match_all($kywrd_reg_global_shdw, $value, $globals_match);
+		preg_match_all($kywrd_reg_global_real, $value, $globals_match_2);
+
+		if(isset($globals_match[1]))$globals_match = $globals_match[1];
+		if(isset($globals_match_2[1]))$globals_match_2 = $globals_match_2[1];
+
+		$replace_globals_assetids = Array();
+		foreach ($globals_match as $data) {
+				$replace_globals_assetids[] = $data;
+		}
+		foreach ($globals_match_2 as $data) {
+				$replace_globals_assetids[] = $data;
+		}
+
+		foreach ($replace_globals_assetids as $replace_globals_assetid) {
+			if (isset($asset_id_map[$replace_globals_assetid])) {
+				$value = preg_replace('|%globals_asset_([a-z]+):'.$replace_globals_assetid.'%|',
+									  '%globals_asset_$1:[[output://create_'.$asset_id_map[$replace_globals_assetid].'.assetid]]',
+									   $value);
+				$assetid_mapped[] = $replace_globals_assetid;
+				$globals_processed = TRUE;
+			}
+		}
+
+		// lastly if we are adding the 'additional_get' attribute
+		// check for the directly mentioned assetids
+		// do this only if we have NOT processed globals keywords
+		if (!$globals_processed && $attribute_name != 'html' && $attribute_name != 'quiz_answers' && $attribute_name != 'statuses') {
+			preg_match_all('/\'([0-9]+)\'/', $value, $assetid_match);
+			if (isset($assetid_match[1])) {
+				foreach (array_unique($assetid_match[1]) as $assetid) {
+					// check to see
+					//	- the assetid isnt 0
+					//	- the asset exists on the system
+					//	- and also that we are importing it
+					// if any of the above fails we can be certain that it is something we do nto want
+					if ($assetid != '0' && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid) && array_key_exists($assetid, $asset_id_map)) {
+						$value = preg_replace('/'.$assetid.'/', '[[output://create_'.$asset_id_map[$assetid].'.assetid]]', $value);
+						$assetid_mapped[] = $assetid;
+					}
+				}
+			}
+		}// end if
+
+		if(!empty($assetid_mapped)) {
+			if(!$warned) {
+				echo_text("\n\n\nWARNING : Matrix has found following Assetid(s) appearing in attribute value and mapped. This should be reviewed !!!\n");
+				$warned = TRUE;
+			}
+
+			$mapped_str = implode('", "', $assetid_mapped);
+			$echo_str = '"'.$mapped_str.'" for Action ID "'.$actionid.'" to set attribute "'.$attribute_name.'"'."\n";
+			echo_text($echo_str);
 		}
 
 		return $value;
 
-	}
+	}//end _parseValue()
 
 
 	function printMetadataXML($asset_id) {
@@ -603,9 +751,20 @@ echo "</actions>\n\n";
 				echo "</action>\n\n";
 			} // end foreach metadata
 		} // end foreach schema
-		
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+
+		$dependants = Array();
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if (getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -680,14 +839,16 @@ echo "</actions>\n\n";
 	* @return void|String
 	* @access public
 	*/
-	function replace_system_assetid($assetid){
+	function replace_system_assetid($assetid)
+	{
 		foreach($GLOBALS['SQ_SYSTEM']->am->_system_assetids as $asset_name => $asset_id){
 			if($assetid == $asset_id) {
 				return $asset_name;
 			}
 		}
 		return NULL;
-	}
+
+	}// end replace_system_assetid()
 	
 	
 	/**
@@ -698,12 +859,13 @@ echo "</actions>\n\n";
 	* @return boolean
 	* @access public
 	*/
-	function isSerialized($str) {
+	function isSerialized($str)
+	{
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
-	}
+
+	}// end isSerialized()
 
 
-									
 	/**
 	* If the value string contains CDATA section, escape it
 	*
@@ -715,6 +877,42 @@ echo "</actions>\n\n";
 	function _escapeCDATA($value)
 	{
 		return preg_replace('|(<\!\[CDATA\[.*?)\]\]\>|ms', '$1]]]]><![CDATA[>', $value);
-	}
+
+	}// end _escapeCDATA()
+
+
+	/**
+	* copies parse file from old design to newer one
+	*
+	* @param string		$value
+	*
+	* @return string
+	* @access public
+	*/
+	function _updateParseFileForDesign($design_id, $parse_file_path)
+	{
+		$file_info = Array(
+						'filename'	=> $design_id.'_parse.txt',
+						'path'		=> $parse_file_path,
+						'type'		=> 'txt_file',
+					 );
+
+		$null_asset = NULL;
+
+		// lets copy the parse file to a location and 
+		// then add an action to add it to our new design asset
+		$new_file_path = _saveFileAsset($null_asset, $file_info);
+
+		if ($new_file_path != '') {
+			echo "<action>\n";
+			echo "   <action_id>set_".$design_id."_parse_file</action_id>\n";
+			echo "   <action_type>set_design_parse_file</action_type>\n";				
+			echo "   <asset>[[output://create_".$design_id.".assetid]]</asset>\n";
+			echo "   <file_path>".$new_file_path."</file_path>\n";
+			echo "</action>\n\n";
+		}
+
+	}// end _updateParseFileForDesign()
+
 
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.21.2.2 2011/04/12 00:52:50 mhaidar Exp $
+* $Id: import.inc,v 1.21.2.3 2011/06/23 03:10:25 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21.2.2 $
+* @version $Revision: 1.21.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -227,6 +227,52 @@ function execute_import_action($action, &$outputs, $input_values=array())
 			}
 		}
 	}
+
+	if ($action_class == 'trigger_action_create_asset' && isset($output['assetid'])) {
+		// lets see if the asset we just imported is a design_customisation..
+		$asset_imported = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['assetid']);
+
+		// .. and if it was update the design areas under it
+		if ($asset_imported && $asset_imported->type() == 'design_customisation') {
+			$parent_design = $asset_imported->getParentDesign();
+			$asset_imported->updateFromParent($parent_design);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_design);
+
+		} else if ($asset_imported && strpos($asset_imported->type(), 'design_area') !== FALSE) {
+			// okie we just imported a design_area, we know its parent is design_customisation because
+			// a regular design's design_areas are created out of our parse file
+			// in this case we need to find the design_customisation first
+			// and then update it w.r.t its parent Design
+			$design_customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid'], 'design_customisation', TRUE);
+			if ($design_customisation) {
+				$parent_design = $design_customisation->getParentDesign();
+
+				$custom_da_links = $design_customisation->getDesignAreaLink();
+				$data = Array();
+
+				// get all the design_area on our customisations, and remove the ones that are 
+				// already 'customised' by out customisation
+				foreach ($custom_da_links as $custom_da_link) {
+					$parent_da = $parent_design->getDesignAreaLink($custom_da_link['value']);
+					if (empty($parent_da)) continue;
+
+					$data[$custom_da_link['value']] = Array($custom_da_link['minorid'], $custom_da_link['minor_type_code']);
+				}
+				$design_customisation_edit_fns = $design_customisation->getEditFns();
+
+				if ($data && !$design_customisation_edit_fns->_updateDesignAreaLink($design_customisation, $data)) {
+					$design_customisation->updateFromParent($parent_design);
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design_customisation);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_design);
+			}
+
+		}// end if/else
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset_imported);
+
+	}//end if (trigger_action_create_asset)
 	
 	return TRUE;
 
