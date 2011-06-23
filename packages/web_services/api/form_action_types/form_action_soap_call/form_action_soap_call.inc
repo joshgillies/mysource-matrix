@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.6.2.10 2011/06/17 00:48:36 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.6.2.11 2011/06/23 05:51:03 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6.2.10 $
+* @version $Revision: 1.6.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -582,7 +582,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
 			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {				
-				if (!self::validateValue($soap_response_keywords[$check_field], $rule)) {
+				if (!isset($soap_response_keywords[$check_field]) || !self::validateValue($soap_response_keywords[$check_field], $rule)) {
 					$form->submission_errors = array_merge($form->submission_errors, Array($rule['error_msg']));
 					$success = FALSE;
 				}
