@@ -1,5 +1,91 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.2.4
+
+Featured Changes
+===================================
+
+
+New Trigger Action to Make a SOAP Call [ Feature Request #5139 ]
+-----------------------------------------------------
+
+A new trigger action has been added to Squiz Matrix, allowing you to make a SOAP call. The Make SOAP Call trigger action works in a similar manner to the Make SOAP Call submission action on a Custom Form or Ecommerce Form Page, allowing you to send a message to a remote SOAP server when the trigger is fired.
+
+This trigger action retains all the features of the existing Make SOAP Call form submission action, allowing you to specify the parameters of the SOAP request message, test the content of the request, and configure data validation and error messages.
+
+This feature has been developed to further extend support for web services within Squiz Matrix.
+
+Asset Status Being Changed To Trigger Condition [ Feature Request #5155 ]
+-----------------------------------------------------
+
+A new trigger condition has been added to evaluates the status that an asset is being changed to. The Asset Status Being Changed To trigger condition allows you to specify one or more asset statuses (Live, Under Construction etc.) and will be matched if the firing asset's status is being changed to one of these statuses.
+
+This condition can be used in conjunction with the Before Status Changed and Status Changed trigger events, for example, you could use this condition to prevent users from changing an asset to a particular asset status (using the Fail trigger action).
+
+Before Status Changed Trigger Event [ Feature Request #5156 ]
+-----------------------------------------------------
+
+Currently, Squiz Matrix's trigger system includes the Status Changed trigger event, which will fire a trigger when the status of an asset has been changed. This feature introduces a new trigger event that will fire a trigger when the status of an asset is to be changed but before the status is actually altered.
+
+Make SOAP Call Submission Action: Check Response Rules [ Feature Request #5166 ]
+-----------------------------------------------------
+
+This month's Matrix releases introduced data validation on the SOAP response of the Custom Form's Make SOAP Call form submission action. This feature adds the ability to configure data validation rules to further customise how Matrix evaluates whether or not data returned on the SOAP response is valid
+
+You can now select from a variety of rule types (e.g. must contain, must NOT contain etc.), stipulating a value to create a rule that must be met for a SOAP response to be valid.
+
+For example, if you set the validation rule as Must NOT contain Fail, the response will only be deemed valid if the response does not contain the value Fail. If it does contain this value, the returned data will be evaluated as invalid and the error configured in the Error Message field will be displayed.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5130: TRIM Saved Search: Configure the Download Limit of Record Attachments.
+Minor Enhancement #5142: Enhancements to the System Integrity Incomplete Attachments Script.
+Minor Enhancement #5147: Support for Global Keywords in the SOAP request of the Make SOAP Call Form Submission Action.
+Minor Enhancement #5152: Bulkmail Subscribe Page Envelope Sender Address.
+Minor Enhancement #5153: New Metadata Date Field Option.
+Minor Enhancement #5154: Error Message Options on the Set Future Status Trigger Action.
+Minor Enhancement #5160: Listing Engine Bodycopy Keywords Caching Performance Enhancement.
+
+Core
+
+Fixed Bug #5121: Extras field on Details screen of a Date form field does not work.
+Fixed Bug #5134: Unable to Accept/Reject workflow via EES from emails.
+Fixed Bug #5144: HTTPS links in RSS feeds while viewing in HTTP.
+Fixed Bug #5150: Cancelling Safe Edit results in errors and loss of notice links.
+Fixed Bug #5151: Incomplete attachment submission directories left on file system.
+Fixed Bug #5157: Cannot create image varieties with some GIF files.
+Fixed Bug #5158: Insert Link WYSIWYG bug for shadow assets.
+Fixed Bug #5162: Asset Builder missing Keywords for Product assets.
+Fixed Bug #5165: Internal Message failed to send to LDAP user group.
+Fixed Bug #5169: Typo in the permission change script.
+Fixed Bug #5170: Changes to export script in Matrix for better structured import.
+Fixed Bug #5172: Remap Manager's 'never delete' option doesn't respond to changes.
+
+CMS
+
+Fixed Bug #5141: Keywords in Remote Content Layout do not work.
+Fixed Bug #5145: Global keyword replacements with keyword modifier not working in Form.
+
+Search
+
+Fixed Bug #5163: Search Log Report overwriting the existing entries in Current search report.
+
+Google Maps
+
+Fixed Bug #5081: Enabling root toggling in details screen of Google Map gives fatal error.
+
+Web Services
+
+Fixed Bug #5129: getMetadata() when no metadata schemas are applied returns nothing, causing a javascript error.
+Fixed Bug #5159: In SOAP form/step action, value '0' in SOAP request is ignored.
+Fixed Bug #5167: SOAP Web Service UpdateLink function's LinkID param variables not matching up.
+
+
 
 VERSION 4.2.3
 
