@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_messages.xml,v 1.2 2010/03/22 05:25:06 bpearson Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.3 2011/06/27 05:44:34 mhaidar Exp $
 *
 */
 -->
@@ -21,6 +21,14 @@
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_invitation">
+			<text width="80" height="5" />
+		</field>
+	</section>
+	<section name="Workflow Up for Review Invitation Message" write_access="write:attributes">
+		<field attribute="subject_review_invitation">
+			<text width="80" height="1" />
+		</field>
+		<field attribute="message_review_invitation">
 			<text width="80" height="5" />
 		</field>
 	</section>
@@ -37,6 +45,14 @@
 			<text width="80" height="1" />
 		</field>
 		<field attribute="message_reject">
+			<text width="80" height="5" />
+		</field>
+	</section>
+	<section name="Workflow Up for Review Cancellation Message" write_access="write:attributes">
+		<field attribute="subject_review_cancel">
+			<text width="80" height="1" />
+		</field>
+		<field attribute="message_review_cancel">
 			<text width="80" height="5" />
 		</field>
 	</section>

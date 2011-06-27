@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_management.inc,v 1.16 2010/03/22 05:25:06 bpearson Exp $
+* $Id: workflow_step_management.inc,v 1.17 2011/06/27 05:44:34 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,6 +80,12 @@ class Workflow_Step_Management extends Asset_Management
 																	'default'		=> '',
 																	'description'	=> 'Custom message to users when this workflow step begins',
 																   ),
+						'message_review_invitation'				=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when this workflow step begins by the Up for Review status',
+																   ),																   
 						'message_approve'						=> Array(
 																	'added'			=> '0.4',
 																	'type'			=> 'text',
@@ -92,6 +98,12 @@ class Workflow_Step_Management extends Asset_Management
 																	'default'		=> '',
 																	'description'	=> 'Custom message to users when changes to an asset in workflow are rejected by a user',
 																   ),
+						'message_review_cancel'					=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when an asset in Up for Review workflow is cancelled by a user',
+																   ),																   
 						'message_stale'							=> Array(
 																	'added'			=> '0.4',
 																	'type'			=> 'text',
@@ -110,6 +122,12 @@ class Workflow_Step_Management extends Asset_Management
 																	'default'		=> 'Workflow Approval Required',
 																	'description'	=> 'Custom subject to users when this workflow step begins',
 																   ),
+						'subject_review_invitation'				=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Asset Up For Review',
+																	'description'	=> 'Custom subject to users when this workflow step begins by the Up for Review status',
+																   ),																   
 						'subject_approve'						=> Array(
 																	'added'			=> '0.4',
 																	'type'			=> 'text',
@@ -122,6 +140,12 @@ class Workflow_Step_Management extends Asset_Management
 																	'default'		=> 'Asset Changes Rejected',
 																	'description'	=> 'Custom subject to users when changes to an asset in workflow are rejected by a user',
 																   ),
+						'subject_review_cancel'					=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> 'Asset Review Cancelled',
+																	'description'	=> 'Custom subject to users when an asset in Up for Review workflow is cancelled by a user',
+																   ),																   
 						'subject_stale'							=> Array(
 																	'added'			=> '0.4',
 																	'type'			=> 'text',

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.52 2010/06/17 01:39:41 ewang Exp $
+* $Id: asset_status_live_approval.inc,v 1.53 2011/06/27 05:44:34 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -165,8 +165,10 @@ class Asset_Status_Live_Approval extends Asset_Status
 				$msg = $ms->newMessage();
 				$msg_reps     = Array(
 									'user_name'		=> $user->name,
+									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
+									'assetid'		=> $this->owner->id,
 									'status'		=> get_status_description($new_status),
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);

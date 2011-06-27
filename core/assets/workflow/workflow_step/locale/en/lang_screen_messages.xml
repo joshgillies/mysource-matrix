@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.7 2011/04/08 05:10:46 mhaidar Exp $
+* $Id: lang_screen_messages.xml,v 1.8 2011/06/27 05:44:34 mhaidar Exp $
 *
 */
 -->
@@ -39,6 +39,27 @@
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
 				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>				
+			</ul>
+			]]></note>
+		</field>
+	</section>
+	<section name="Workflow Up for Review Invitation Message">
+		<field attribute="subject_review_invitation">
+			<display_name>Subject</display_name>
+			<note />
+		</field>
+		<field attribute="message_review_invitation">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message invites users to approve or cancel the review of an asset. It is sent when workflow is started on an asset, or when the workflow progresses one or more steps, and will be sent to all users able to approve the new workflow step. If this is empty, a generic message will be used.</p>
+			<p>Keywords available to this message include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
 			</ul>
 			]]></note>
 		</field>
@@ -62,6 +83,7 @@
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
 				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
 			</ul>
 			</p>
 			]]></note>
@@ -86,6 +108,29 @@
 				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
 				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
+			</ul>
+			</p>
+			]]></note>
+		</field>
+	</section>
+	<section name="Workflow Up for Review Cancellation Message">
+		<field attribute="subject_review_cancel">
+			<display_name>Subject</display_name>
+			<note />
+		</field>
+		<field attribute="message_review_cancel">
+			<display_name>Body</display_name>
+			<note><![CDATA[<p>This message is sent when a user cancels the review of an asset in workflow. It is sent to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
+			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom rejection message. A generic message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
+			<p>Keywords available to this message include:</p>
+			<ul>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
+				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
 			</ul>
 			</p>
 			]]></note>
@@ -111,6 +156,7 @@
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
 				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
 			</ul>
 			]]></note>
 		</field>
@@ -137,6 +183,7 @@
 				<li><strong>%asset_url%</strong> - The URL of this asset.</li>
 				<li><strong>%asset_version%</strong> - The version of this asset.</li>
 				<li><strong>%log_message%</strong> - Comments of approvers who accepted or rejected the changes in this workflow.</li>
+				<li>All other available asset keywords such as <strong>%asset_metadata_&lt;fieldname&gt;%, %asset_updated%, etc.</strong></li>
 			</ul>
 			]]></note>
 		</field>

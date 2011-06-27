@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.35 2011/03/31 06:20:39 cupreti Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.36 2011/06/27 05:44:34 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -310,6 +310,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 			$msg->body = $custom_message;
 		}
 
+		$wfm->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 		$ms->enqueueMessage($msg);
 
 	}//end _processExpiredWorkflowStep()
