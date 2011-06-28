@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.40 2011/06/27 05:44:34 mhaidar Exp $
+* $Id: asset_status_live.inc,v 1.41 2011/06/28 04:38:12 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -134,7 +134,6 @@ class Asset_Status_Live extends Asset_Status
 					$msg->type = 'asset.workflow.review';
 
 					$msg_reps = Array(
-									'user_name'		=> $user->name,
 									'workflow_user'	=> $user->name,
 									'assetid'		=> $this->owner->id,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),

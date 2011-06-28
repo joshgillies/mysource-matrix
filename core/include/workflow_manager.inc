@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.164 2011/06/27 05:44:34 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.165 2011/06/28 04:38:12 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1169,7 +1169,6 @@ class Workflow_Manager extends MySource_Object
 						$current_step = $this->getCurrentStep($workflow, $step);
 
 						$msg_reps = Array(
-										'user_name'		=> $user->name,
 										'workflow_user'	=> $user->name,
 										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 										'asset_name'	=> $asset->name,
@@ -2254,7 +2253,6 @@ class Workflow_Manager extends MySource_Object
 				$msg = $ms->newMessage($publishers);
 
 				$msg_reps = Array(
-								'user_name'		=> $user->name,
 								'workflow_user'	=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
@@ -2596,20 +2594,20 @@ class Workflow_Manager extends MySource_Object
 	*/
 	public function addMessageReplacements($asset, $subject, $body, &$replacements)
 	{
-		
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($subject);
 		foreach ($keywords as $keyword) {
 			if (isset($replacements[$keyword])) continue;
 			$replacement = $asset->getKeywordReplacement($keyword);
-			if (!is_null($replacement)) $replacements[$keyword] = $replacement;
+			if (!empty($replacement) && trim($replacement, '%') != $keyword) $replacements[$keyword] = $replacement;
 		}
 		
 		$keywords = retrieve_keywords_replacements($body);
 		foreach ($keywords as $keyword) {
 			if (isset($replacements[$keyword])) continue;
 			$replacement = $asset->getKeywordReplacement($keyword);
-			if (!is_null($replacement)) $replacements[$keyword] = $replacement;
+			if (!empty($replacement) && trim($replacement, '%') != $keyword) $replacements[$keyword] = $replacement;
 		}
 	
 	}//end addMessageReplacements()
