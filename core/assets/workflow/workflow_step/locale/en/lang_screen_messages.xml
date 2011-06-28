@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.9 2011/06/27 06:13:45 mhaidar Exp $
+* $Id: lang_screen_messages.xml,v 1.10 2011/06/28 05:22:19 mhaidar Exp $
 *
 */
 -->
@@ -121,8 +121,7 @@
 		</field>
 		<field attribute="message_review_cancel">
 			<display_name>Body</display_name>
-			<note><![CDATA[<p>This message is sent when a user cancels the review of an asset in workflow. It is sent to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
-			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom cancellation message. A generic message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
+			<note><![CDATA[<p>This message is sent when a user cancels the review of an asset in workflow. It is sent to the user who originally started the workflow and to all users on the same step that were able to approve the workflow before the message was sent. If this is empty, a generic message will be used.<br/>
 			<p>Keywords available to this message include:</p>
 			<ul>
 				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the asset whose workflow has been started.</li>
