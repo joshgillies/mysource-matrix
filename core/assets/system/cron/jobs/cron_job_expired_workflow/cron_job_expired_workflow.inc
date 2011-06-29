@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.36 2011/06/27 05:44:34 mhaidar Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.37 2011/06/29 07:30:51 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -295,8 +295,6 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 						'asset_url'		=> $asset->getDependantParentsURL(),						
 					);
 
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-
 		// If there are no admins, send it to system admins instead
 		if (empty($admins)) $admins = Array(0);
 		$msg = $ms->newMessage($admins, $type, $msg_reps);
@@ -312,6 +310,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 		$wfm->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 		$ms->enqueueMessage($msg);
+		
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 	}//end _processExpiredWorkflowStep()
 
