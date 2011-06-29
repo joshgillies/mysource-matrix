@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.165 2011/06/28 04:38:12 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.166 2011/06/29 03:31:25 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1901,14 +1901,22 @@ class Workflow_Manager extends MySource_Object
 				} else if ($msg->type == 'asset.workflow.review.cancel'){
 					// Does this step have a custom message?
 					if (isset($current_step['message_review_cancel']) && trim($current_step['message_review_cancel']) !== '' ) {
-						$msg->body = trim($current_step['message_review_cancel']);
-					}//end if
-
-					// Does this step have a custom subject?
-					if (isset($current_step['subject_review_cancel']) && trim($current_step['subject_review_cancel']) !== '' ) {
 						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
-					}//end if
+						$msg->body = trim($current_step['message_review_cancel']);
+					} else if (isset($current_step['subject_review_cancel']) && trim($current_step['subject_review_cancel']) !== '') {
+						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
+					} else {
+						// This is the generic message. Make sure only one of these are sent out,
+						// regardless of how many schemas trigger it.
+						if ($generic_msg === NULL) {
+							$generic_msg = $msg;
+						} else {
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
+							continue;
+						}
+					}
 				}
 
 				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
