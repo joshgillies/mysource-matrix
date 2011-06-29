@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.15 2009/09/24 06:38:25 bpearson Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.15.10.1 2011/06/29 06:41:32 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.10.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,16 +209,17 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
 				}
-				 $child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE);
+				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, SQ_SC_LINK_BACKEND_NAV);
 
-				//$child_assets[$assetid] = $asset->type();
 				$child_assets[$assetid]	= Array (
 											0	=> Array (
 													'type_code'	=> $asset->type(),
 												   ),
 										  );
 
-				// getChildren is not supposed to return any assets that are linked by notice links, but at time of writing it did, resulting in tags getting tagged. Check for assets returned that have no type.
+				// getChildren is not supposed to return any assets that are 
+				// linked by notice links but at time of writing it did, resulting in
+				// tags getting tagged. Check for assets returned that have no type
 				$child_assets = array_filter($child_assets);	//TODO: Running array_filter wouldnt have any effect, since it's multi-dimensional array now.
 				unset($asset);
 			}
