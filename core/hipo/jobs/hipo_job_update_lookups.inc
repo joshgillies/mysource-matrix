@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.53 2011/04/18 23:34:36 cupreti Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.53.2.1 2011/06/29 06:43:21 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.53.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -237,7 +237,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						';
+						AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0';
 				$where = 't.treeid LIKE :treeid
 						  GROUP BY l.minorid ORDER BY length';
 
