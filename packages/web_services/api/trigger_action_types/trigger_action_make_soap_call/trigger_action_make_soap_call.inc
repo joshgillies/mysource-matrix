@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.3 2011/06/05 22:40:49 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.4 2011/06/29 06:23:15 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('SQ_MAX_BREAK_OUT_AFTER', 3);
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -897,7 +897,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			}
 
 		}
-		if (!empty($replacement)) replace_keywords(&$content, $replacement);
+		if (!empty($replacement)) replace_keywords($content, $replacement);
 
 		return $content;
 
