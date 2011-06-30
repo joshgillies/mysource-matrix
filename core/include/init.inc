@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.121 2011/05/25 06:28:09 csmith Exp $
+* $Id: init.inc,v 1.122 2011/06/30 03:14:10 ewang Exp $
 *
 */
 
@@ -20,9 +20,11 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 */
+
+
 
 /**
  * This code block came from http://www.php.net/phpversion
@@ -127,6 +129,10 @@ define('SQ_IN_LIMBO', $in_limbo);
 // nice little boolean to use for testing whether we happen to be in login interface or not
 $in_login = (trim(SQ_CONF_LOGIN_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_LOGIN_SUFFIX);
 define('SQ_IN_LOGIN', $in_login);
+
+// we are in performance results view
+$in_performance = (trim(SQ_CONF_PERFORMANCE_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_SUFFIX);
+define('SQ_IN_PERFORMANCE', $in_performance);
 
 // boolean to use for testing whether we're running cron scripts
 if (!defined('SQ_IN_CRON')) {

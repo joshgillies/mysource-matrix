@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.367 2011/06/01 06:57:33 mhaidar Exp $
+* $Id: mysource.inc,v 1.368 2011/06/30 03:14:10 ewang Exp $
 *
 */
 
@@ -20,6 +20,7 @@ require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDAL.inc';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
+require_once SQ_INCLUDE_PATH.'/performance_manager.inc';
 
 // include the system version setttings
 require_once SQ_INCLUDE_PATH.'/version.inc';
@@ -31,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.367 $
+* @version $Revision: 1.368 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -93,6 +94,11 @@ class MySource extends MySource_Object
 	* @var object Transaction_Manager
 	*/
 	public $tm;
+	
+	/**
+	* @var object Performance_Manager
+	*/
+	public $pm;
 
 	/**
 	* @var object Messaging_Service
@@ -254,6 +260,10 @@ class MySource extends MySource_Object
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
+		
+		// initialise the performance manager
+		$this->pm = new Performance_Manager();
+
 
 		// Same with the locale manager; translations will be all around us. 
 		// Loading them is slow though, so first try deja_vu.
@@ -478,6 +488,9 @@ class MySource extends MySource_Object
 	*/
 	public function start()
 	{
+		// init perfromance timer
+		$this->pm->begin();
+		
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
@@ -526,7 +539,7 @@ class MySource extends MySource_Object
 
 		} else if (SQ_IN_LOGIN) {
 			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
-
+			
 		} else {
 			// we are on the frontend
 			if (!(SQ_IN_CRON || SQ_PHP_CLI) && defined('SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH') && SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH){
@@ -652,6 +665,18 @@ class MySource extends MySource_Object
 				exit(1);
 
 			}//end if is_null(asset)
+			
+			// In _performance view mode
+			if (SQ_IN_PERFORMANCE) {
+				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
+					$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
+				} else {
+					$this->pm->printFrames($asset);
+				}
+				exit(1);
+			}
+			
+			
 
 			// Try and find the current site
 			$site = NULL;
@@ -740,8 +765,12 @@ class MySource extends MySource_Object
 				$content = parse_self_links($content);
 			}
 			
+			
 			// Carryout highest level ./?a=xx URL translation
 			$this->_translateMatrixURL($content);
+			
+			// translate all urls to performance mode style url _performance and target=_top
+			$this->_translatePerformanceModeURL($content);
 
 			// remove any sq_wysiwyg_* tags used as placeholders for plugins
 			// such as Embed Movie/Youtube
@@ -762,7 +791,9 @@ class MySource extends MySource_Object
 
 		$this->_setApacheNotes();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
-
+		
+		// finalize perfromance timer
+		$this->pm->end();
 	}//end start()
 
 
@@ -1186,6 +1217,8 @@ class MySource extends MySource_Object
 	}//end paintPasswordChange()
 
 
+	
+	
 	/**
 	* Set up the current user, reading from the session and checking that conditions are satisfied
 	*
@@ -1681,6 +1714,17 @@ class MySource extends MySource_Object
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
 				$asset_map->process($this->backend);
+				exit(1);
+			break;
+			
+			case 'performance_timing' :
+				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
+				if (!defined('SQ_IN_PERFORMANCE_TIMING')) define('SQ_IN_PERFORMANCE_TIMING', 1);
+			break;
+			
+			case 'performance_result' :
+				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
+				$this->pm->printResults();
 				exit(1);
 			break;
 
@@ -4129,6 +4173,74 @@ class MySource extends MySource_Object
 			}
 		}
 	}//end _translateMatrixURL()
+	
+	/**
+	* Replace all URLs with performance suffix and target = _top
+	*
+	* @param string	&$content	The entire matrix output content
+	*
+	* @return void
+	* @access private
+	*/	
+	function _translatePerformanceModeURL(&$content)
+	{	
+		if(!defined('SQ_IN_PERFORMANCE_TIMING')) return;
+		
+		// Get all links in the content
+		preg_match_all('/<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>/siU', $content, $matches);
+		
+		// Replace hyper links with _performance style url
+		foreach($matches[0] as $index => $url) {
+				$src = $matches[2][$index];
+				if(empty($src)) continue;
+				
+				// remove trailing slash
+				if(substr($src, -1) == '/') {
+					$src = rtrim($src, '/');
+				}
+				// add _performance suffix
+				if(strpos($src, '?') !== FALSE) {
+					$src = preg_replace('/\?/', '/'.SQ_CONF_PERFORMANCE_SUFFIX.'/?', $src);	
+				}
+				else {
+					$src = $src.'/'.SQ_CONF_PERFORMANCE_SUFFIX;
+				}
+				
+				// only replace the first link found
+				$pos = strpos($url, $matches[2][$index]);
+				if($pos !== FALSE)
+					$new_url = substr_replace($url, $src, $pos, strlen($matches[2][$index]));
+				
+				// remove target attribute
+				$new_url = preg_replace('/target[ ]*=[ ]*[^a-zA-Z_"\']*/i', '', $new_url);
+				
+				// add new target attribute
+				$new_url = preg_replace('/^<a/i', '<a target="_top"', $new_url);
+				
+				$content = str_replace($url, $new_url, $content);
+		}
+		
+		
+		// Get all forms in the content
+		preg_match_all('/<form\s[^>]*action=(\"??)([^\" >]*?)\\1[^>]*>/siU', $content, $matches);
+		
+		// Add onsubmit event for all forms. We have to refresh the performance result frame in this way(using js addEvent could cause too much issues)
+		foreach($matches[0] as $index => $url) {
+				$new_url = $url;
+				if(preg_match('/onsubmit/i', $new_url)) {
+					// existing submit attribute
+					$new_url = preg_replace('/onsubmit[ ]*=[ ]*["\']+([^"\']*)["\']+/i', 'onsubmit="parent.result_frame.document.location.reload(); \\1"', $new_url);
+				}
+				else {
+					// add new submit event
+					$new_url = preg_replace('/^<form/i', '<form onsubmit="parent.result_frame.document.location.reload();"', $new_url);
+				}
+				$content = str_replace($url, $new_url, $content);
+		}
+		
+	}//end _translatePerformanceModeURL()
+	
+	
 	
 	/**
 	* If SQ_CONF_USE_HTTP_X_FORWARDED_FOR enabled, attempts to obtain User IP using HTTP_X_FORWARDED_FOR 
