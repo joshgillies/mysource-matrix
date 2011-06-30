@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.142 2011/06/30 03:14:10 ewang Exp $
+* $Id: system_config.inc,v 1.143 2011/06/30 05:08:22 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -419,6 +419,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_RECACHE_SUFFIX]', SQ_CONF_RECACHE_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
+			}
+			
+			$o->openField(translate('system_performance_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_PERFORMANCE_SUFFIX]', SQ_CONF_PERFORMANCE_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_PERFORMANCE_SUFFIX);
 			}
 
 			$o->openField(translate('system_timezone'));
