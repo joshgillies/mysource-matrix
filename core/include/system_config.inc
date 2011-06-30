@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.140 2011/05/26 02:03:29 ewang Exp $
+* $Id: system_config.inc,v 1.140.2.1 2011/06/30 06:09:23 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.140.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -43,6 +43,7 @@ class System_Config extends Config
 						'SQ_CONF_LOGIN_SUFFIX'					=> Array('editable' => 1, 'default' => '_login'),
 						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
 						'SQ_CONF_RECACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_recache'),
+						'SQ_CONF_PERFORMANCE_SUFFIX'            => Array('editable' => 1, 'default' => '_performance'),
 						'SQ_CONF_ASSET_TREE_BASE'				=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
 						'SQ_CONF_ASSET_CACHE_SIZE_WEB'			=> Array('editable' => 0, 'default' =>  -1),
@@ -418,7 +419,14 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
 			}
-
+			
+			$o->openField(translate('system_performance_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_PERFORMANCE_SUFFIX]', SQ_CONF_PERFORMANCE_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_PERFORMANCE_SUFFIX);
+			}
+			
 			$o->openField(translate('system_timezone'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_TIMEZONE]', SQ_CONF_TIMEZONE, 15);
