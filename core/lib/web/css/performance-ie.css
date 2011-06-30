@@ -1,0 +1,26 @@
+#perfSummary .perfTotal {
+    position: relative;
+    background-color: #222;
+    border: 1px solid #000;
+}
+#perfSummary .perfHighrollers {
+    position: relative;
+    background-color: #222;
+    border: 1px solid #000;
+}
+#perfSummary .highRoller-bar {
+    border-top: none;
+    margin-top: 5px;
+}
+#perfTable .assetExpand .expandIcon {
+    height: 13px;
+    filter: alpha(opacity=30);
+}
+#perfTable .assetExpandable:hover .expandIcon,
+#perfTable .assetExpand.expanded .expandIcon,
+#perfTable .assetExpand .expandIcon:hover {
+    filter: alpha(opacity=100);
+}
+.perfBlock.idle {
+    filter: alpha(opacity=30);
+}
