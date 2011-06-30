@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.51 2011/04/12 06:45:53 cupreti Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.51.2.1 2011/06/30 06:36:53 ewang Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -227,7 +227,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		 * 3. %begin_SUBSTITUTION_KEYWORD% ... %end_SUBSTITUTION_KEYWORD%
 		 *
 		 */
-
+		// start performance mode timer
+        $GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		$ret = '';
 
 		$this->asset_to_paint = $asset;
@@ -282,6 +283,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$content = ob_get_contents();
 			ob_end_clean();
 		}
+		// end performance mode timer
+        $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $content;
 
 	}//end paintAsset()

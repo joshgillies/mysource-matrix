@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.71 2011/02/27 23:57:41 akarelia Exp $
+* $Id: trigger_manager.inc,v 1.71.2.1 2011/06/30 06:39:58 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1086,7 +1086,11 @@ class Trigger_Manager extends Asset implements Bridge
 			$msg_type = NULL;
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
+			// start performance timer
+			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, $trigger['name']);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
+			// end performance timer
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, $trigger['name']);
 
 			// get settings
 			$trigger_settings =& $trigger['data']['settings'];

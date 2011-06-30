@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.87 2011/03/07 05:49:09 ewang Exp $
+* $Id: cache_manager.inc,v 1.87.2.1 2011/06/30 06:38:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.87.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -508,6 +508,8 @@ class Cache_Manager extends Asset
 		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {
 			return FALSE;
 		}
+		// disable caching in performance mode
+		if(defined('SQ_IN_PERFORMANCE_TIMING')) return FALSE;
 
 		// check if the current URL is excluded
 		$current_url = current_url(FALSE, TRUE);
