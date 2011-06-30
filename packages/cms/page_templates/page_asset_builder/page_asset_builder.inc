@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.164 2011/02/27 23:58:07 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.165 2011/06/30 04:27:47 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -267,6 +267,9 @@ class Page_Asset_Builder extends Page
 			}
 		}
 
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
+		
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
 		// that extend this one, but we wont need it any more - so chuck it out, but first, load up
 		// some replacements for the newly created asset
@@ -290,6 +293,9 @@ class Page_Asset_Builder extends Page
 		$this->$fn();
 		$this->_printBody();
 
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
+		
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
@@ -495,6 +501,8 @@ class Page_Asset_Builder extends Page
 					  ///////////////////////
 					 //  REQUIRED FIELDS  //
 					///////////////////////
+					// start performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'checkRequiredFields');
 
 					$required_fields = $this->attr('required_fields');
 					if (!empty($required_fields[$new_asset->type()])) {
@@ -524,7 +532,7 @@ class Page_Asset_Builder extends Page
 										$edit_fns = $mf_asset->getEditFns();
 										$cascade = TRUE;
 										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade);
-											
+	
 										// When date is not supplied for metadata date field
 										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
 											$result_value = '';
@@ -600,15 +608,20 @@ class Page_Asset_Builder extends Page
 
 					}//end if
 
+					// stop performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'checkRequiredFields');
 					if ($required_error) break;
 
 					  ////////////////////////
 					 //  CREATE LOCATIONS  //
 					////////////////////////
-
+					// start performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getCreateLocations');
 					if (($create_locations = $this->getCreateLocations($create_type)) === FALSE) {
 						return FALSE;
 					}
+					// stop performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getCreateLocations');
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
@@ -622,7 +635,9 @@ class Page_Asset_Builder extends Page
 					  ////////////////////////
 					 //  CREATE THE ASSET  //
 					////////////////////////
-
+					// start performance mode timer
+					$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'createAsset');
+					
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 					$o = new Limbo_Outputter();
@@ -768,6 +783,12 @@ class Page_Asset_Builder extends Page
 						$new_asset->saveAttributes();
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'attributes');
 
+						// stop performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'createAsset');
+					
+						// start performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processMetadata');
+						
 						// process metadata
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
@@ -807,11 +828,23 @@ class Page_Asset_Builder extends Page
 							}
 						}
 
+						// stop performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processMetadata');
+						
+						// start performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processLayouts');
+						
 						// process paint layouts
 						$layouts['paint_layout::system::frontend'] = $this->attr('layout_to_apply');
 						$layouts['override::paint_layout::system::frontend'] = $this->attr('override_layout_to_apply');
 						$new_asset->setPaintLayouts($layouts);
+						
+						// stop performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processLayouts');
 
+						// start performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'linkMultipleLocations');
+						
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
 						if (is_array($create_locations)) {
@@ -847,7 +880,13 @@ class Page_Asset_Builder extends Page
 								}
 							}
 						}
-
+						
+						// stop performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'linkMultipleLocations');
+						
+						// start performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'setCreateStatus');
+						
 						if (empty($this->_errors)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -862,6 +901,8 @@ class Page_Asset_Builder extends Page
 							$this->_abortAssetCreate($new_asset_linkid);
 						}
 
+						// stop performance mode timer
+						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'setCreateStatus');
 					}//end else
 
 					if ($this->attr('allow_public_user')) {

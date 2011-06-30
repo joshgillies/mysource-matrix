@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.71 2011/02/27 23:57:41 akarelia Exp $
+* $Id: trigger_manager.inc,v 1.72 2011/06/30 04:25:55 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1051,6 +1051,7 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function broadcastEvent($event_name, &$broadcaster, $parameters=NULL)
 	{
+
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (!$this->attr('enabled')) return TRUE;
@@ -1085,9 +1086,16 @@ class Trigger_Manager extends Asset implements Bridge
 			$status_message = NULL;
 			$msg_type = NULL;
 			// re-create a trigger
+			
+			
 			$trigger = $this->_loadTrigger($trigger_id);
+			// Timer!
+			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, $trigger['name']);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
-
+			// End timer
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, $trigger['name']);
+			
+			
 			// get settings
 			$trigger_settings =& $trigger['data']['settings'];
 			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', FALSE);
