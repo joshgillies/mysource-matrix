@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge.inc,v 1.2 2010/04/06 00:28:20 mbrydon Exp $
+* $Id: file_bridge.inc,v 1.2.6.1 2011/06/30 04:06:31 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -91,6 +91,13 @@ class File_Bridge extends Asset implements Bridge
 	 */
 	private function _listFiles($path)
 	{
+		// Matrix data directory is forbidden for security reason
+		$real_path = realpath($path);
+		$data_real_path = realpath(SQ_DATA_PATH);
+		if(empty($real_path) || strpos($real_path, $data_real_path) !== FALSE)
+			return Array();
+
+
 		$list = Array();
 
 		$dirs  = list_dirs($path, TRUE, Array('CVS', '.svn'));
