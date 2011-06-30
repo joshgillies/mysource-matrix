@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.85 2010/06/04 06:20:57 akarelia Exp $
+* $Id: page_remote_content.inc,v 1.85.6.1 2011/06/30 06:52:23 ewang Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.85.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -79,6 +79,9 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printFrontend');
+
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
@@ -96,7 +99,10 @@ class Page_Remote_Content extends Page
 		}
 
 		if ($this->_tmp['transform_settings']['use_design']) {
-			return parent::printFrontend();
+			parent::printFrontend();
+			// stop performance mode timer
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printFrontend');
+			return;
 		} else {
 			// do not use design
 			$headers_list = array_get_index($this->_tmp, 'headers', Array());
@@ -107,7 +113,8 @@ class Page_Remote_Content extends Page
 			$content = array_get_index($this->_tmp, 'content', Array());
 			echo array_get_index($content, $url, '');
 		}
-
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printFrontend');
 	}//end printFrontend()
 
 
@@ -125,6 +132,8 @@ class Page_Remote_Content extends Page
 	*/
 	function printBody()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
 
 		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
@@ -150,6 +159,8 @@ class Page_Remote_Content extends Page
 				echo $this->_tmp['content'][$url];
 			}
 		}
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
 		return TRUE;
 
 	}//end printBody()
