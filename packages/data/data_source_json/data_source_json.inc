@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.6 2011/05/10 07:16:28 mhaidar Exp $
+* $Id: data_source_json.inc,v 1.7 2011/06/30 04:43:20 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -161,6 +161,7 @@ class Data_Source_Json extends Data_Source
 	*/
 	function getResultSet()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		// Get source string (to be used as cache key)
 		$source = $this->_getSource();
 
@@ -180,7 +181,7 @@ class Data_Source_Json extends Data_Source
 				}
 			}
 		}
-		
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return (!empty($source)) ? $this->_tmp[$source] : Array();
 
 	}//end getResultSet()

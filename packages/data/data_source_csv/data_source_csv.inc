@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.5 2011/03/07 02:48:31 mhaidar Exp $
+* $Id: data_source_csv.inc,v 1.6 2011/06/30 04:43:20 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -78,7 +78,7 @@ class Data_Source_Csv extends Data_Source
 	*/
 	function getResultSet()
 	{
-
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		$result = Array();
 		$result = parent::getResultSet($this->name);
 		if (empty($result)) {
@@ -87,6 +87,7 @@ class Data_Source_Csv extends Data_Source
 					parent::setResultSet($result, $this->name);
 				}
 		}
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $result;
 
 	}//end getResultSet()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.25 2007/12/04 02:53:57 bshkara Exp $
+* $Id: page_custom_form.inc,v 1.26 2011/06/30 04:49:38 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -121,6 +121,9 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+		
 		$form = $this->getForm();
 
 		if (is_null($form)) {
@@ -129,6 +132,8 @@ class Page_Custom_Form extends Page
 		}
 		$form->printBody();
 
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return TRUE;
 
 	}//end printBody()

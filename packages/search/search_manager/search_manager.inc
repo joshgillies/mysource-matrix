@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.244 2011/05/20 05:26:25 cupreti Exp $
+* $Id: search_manager.inc,v 1.245 2011/06/30 04:48:39 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -483,7 +483,6 @@ class Search_Manager extends Asset
 			foreach ($index_content as &$index_content_item) {
 				$index_content_item['contextid'] = $processed_contextid;
 			}
-
 			$this->addIndexableContent($indexing_assetid, $index_content);
 
 			if ($other_context === TRUE) {
@@ -786,6 +785,7 @@ class Search_Manager extends Asset
 			// we don't want to index any tags so strip them
 
 			$contents = $asset->getContent();
+			
 			//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
 			$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
 			$contents = $this->_strip_tags($formatting_tags, $contents);
@@ -830,7 +830,6 @@ class Search_Manager extends Asset
 		// insert, after all custom values are entered.
 		$defaults = Array();
 		$add_content = Array();
-
 		// Pre-pack the custom indexable content query, so it doesn't have to
 		// prepare itself over and over again
 		if (!empty($keys)) {
@@ -2228,6 +2227,9 @@ class Search_Manager extends Asset
 	function processSearch($search_info, $include_context=FALSE)
 	{	
 
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processSearch');
+		
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
@@ -2443,6 +2445,9 @@ class Search_Manager extends Asset
 			log_write($log_contents, 'search');
 		}
 
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processSearch');
+		
 		return $final_results;
 
 	}//end processSearch()

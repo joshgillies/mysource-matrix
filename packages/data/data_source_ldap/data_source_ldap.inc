@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.6 2011/04/13 18:20:37 ata Exp $
+* $Id: data_source_ldap.inc,v 1.7 2011/06/30 04:43:20 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -80,7 +80,7 @@ class Data_Source_Ldap extends Data_Source
 		if (empty($query_string)) {
 			return Array();
 		}		
-		
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		$hash = md5($query_string.$this->attr('attributes'));
 		// Check the local cache
 		if (!isset($this->_tmp[$hash])) {
@@ -95,7 +95,7 @@ class Data_Source_Ldap extends Data_Source
 				$this->cacheResultSet($this->_tmp[$hash], $hash);
 			}
 		}
-
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $this->_tmp[$hash];
 		
 	}//end getResultSet()

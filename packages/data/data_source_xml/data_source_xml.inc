@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.26 2011/03/07 02:48:31 mhaidar Exp $
+* $Id: data_source_xml.inc,v 1.27 2011/06/30 04:43:20 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -166,6 +166,7 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function getResultSet()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		// use feed url as the cache key
 		$url = $this->_getFeedURL();
 
@@ -185,7 +186,7 @@ class Data_Source_Xml extends Data_Source
 				}
 			}
 		}
-		
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return (!empty($url)) ? $this->_tmp[$hash] : Array();
 
 	}//end getResultSet()
@@ -661,7 +662,7 @@ class Data_Source_Xml extends Data_Source
 	{	
 		$xsl_file = NULL;
 		$xsl_file_id = $this->attr('xslt_file');
-		
+
 		if ($xsl_file_id) {
 			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_file_id);
 			

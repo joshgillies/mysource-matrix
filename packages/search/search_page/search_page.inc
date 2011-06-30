@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.251 2011/05/20 05:25:22 cupreti Exp $
+* $Id: search_page.inc,v 1.252 2011/06/30 04:48:39 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -303,6 +303,9 @@ class Search_Page extends Listing_Engine
 	*/
 	function printContents()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'prepareSearchQuery');
+		
 		if (isset($_REQUEST[$this->getPrefix().'_submit_button']) && empty($_REQUEST['mode'])) {
 			$_REQUEST['mode'] = 'results';
 		}
@@ -409,6 +412,12 @@ class Search_Page extends Listing_Engine
 			$mode = 'results';
 		}//end if
 
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'prepareSearchQuery');
+		
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
+		
 		switch ($mode) {
 			case 'results':
 			case 'sis'    :
@@ -441,6 +450,8 @@ class Search_Page extends Listing_Engine
 			$this->registerFormField('mode');
 		}
 
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
 	}//end printContents()
 
 

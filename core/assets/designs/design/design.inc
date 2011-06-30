@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.157 2011/05/26 06:45:15 mhaidar Exp $
+* $Id: design.inc,v 1.158 2011/06/30 04:46:15 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -957,6 +957,9 @@ echo '/*
 	*/
 	public function paint(Asset $ASSET, Array $FILE_URLS=Array(), Array $CSS_URLS=Array())
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+		
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', FALSE);
@@ -1012,6 +1015,8 @@ echo '/*
 		// else
 		require $file_path;
 
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 	}//end paint()
 
 
