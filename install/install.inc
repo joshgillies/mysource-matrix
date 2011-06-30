@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.91 2010/05/10 23:15:02 lwright Exp $
+* $Id: install.inc,v 1.92 2011/06/30 03:22:17 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -709,6 +709,37 @@ function install_event_listeners()
 	return TRUE;
 
 }//end install_event_listeners()
+
+
+/**
+* Generate performance config file
+*
+* @return boolean
+* @access public
+*/
+function generate_performance_config()
+{
+	$str = "<?php\n";
+	$str .= "#Constants for performance timeline chart\n";
+	$str .= "define('PERFORMANCE_TIME_PRINT_PRECISION', 2);\n";
+	$str .= "define('PERFORMANCE_PERCENTAGE_PRINT_PRECISION', 8);\n";
+
+	$performance_config = Array(
+							'page_asset_listing' => Array(
+									'report'	=>	'http://www.squizlabs.com/squiz-matrix/matrix-performance-report-asset-listing-page',		
+							)
+						 );
+
+	$str .= '$performance_config = '.var_export($performance_config, TRUE).";\n";
+	$str .= "?>";
+	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/performance_config.inc')) {
+		return FALSE;
+	}
+
+	return TRUE;
+
+}//end generate_performance_config()
+
 
 
 /**
