@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.45 2011/02/21 00:33:25 mhaidar Exp $
+* $Id: data_source_db.inc,v 1.45.2.1 2011/06/30 07:20:58 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,6 +125,7 @@ class Data_Source_DB extends Data_Source
 	*/
 	function &getResultSet()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		$query_string = $this->_getExecutableQueryString();
 		if (!empty($query_string)) {
 			$hash = md5($query_string);
@@ -142,10 +143,11 @@ class Data_Source_DB extends Data_Source
 					$this->cacheResultSet($this->_tmp[$hash], $hash);
 				}
 			}
-
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 			return $this->_tmp[$hash];
 		}
 
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		// Fall-through failure case
 		$res = Array();
 		return $res;

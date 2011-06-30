@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.6 2011/03/24 22:26:33 mhaidar Exp $
+* $Id: data_source_ical.inc,v 1.6.2.1 2011/06/30 07:20:58 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -86,6 +86,8 @@ class Data_Source_iCal extends Data_Source
 	*/
 	function &getResultSet()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+
 		$result = Array();
 		$result = parent::getResultSet($this->name);
 		if (empty($result)) {
@@ -95,6 +97,7 @@ class Data_Source_iCal extends Data_Source
 				}//end if
 		}//end if
 
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $result;
 
 	}//end getResultSet()

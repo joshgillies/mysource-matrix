@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.15 2011/03/07 02:48:31 mhaidar Exp $
+* $Id: data_source_rss.inc,v 1.15.2.1 2011/06/30 07:20:58 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -79,6 +79,7 @@ class Data_Source_RSS extends Data_Source
 	*/
 	function getResultSet()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		// use feed url as the cache key
 		$url = $this->attr('url');
 
@@ -96,6 +97,7 @@ class Data_Source_RSS extends Data_Source
 				}
 			}
 		}
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $result;
 
 	}//end getResultSet()
