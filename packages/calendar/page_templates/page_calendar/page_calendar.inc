@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.242.2.1 2011/05/31 05:55:51 ewang Exp $
+* $Id: page_calendar.inc,v 1.242.2.2 2011/06/30 07:06:46 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.242.2.1 $
+* @version $Revision: 1.242.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -301,6 +301,9 @@ class Page_Calendar extends Page
 	*/
 	function printBody()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+
 		$root_node_ids = array_keys($this->attr('root_nodes'));
 		$res = '';
 		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
@@ -412,7 +415,8 @@ class Page_Calendar extends Page
 			}//end else no cache
 
 		}//end if
-
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 	}//end printBody()
 
 

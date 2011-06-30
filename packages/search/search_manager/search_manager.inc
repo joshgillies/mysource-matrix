@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.244 2011/05/20 05:26:25 cupreti Exp $
+* $Id: search_manager.inc,v 1.244.2.1 2011/06/30 07:10:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.244.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2227,6 +2227,8 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info, $include_context=FALSE)
 	{	
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processSearch');
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -2442,6 +2444,8 @@ class Search_Manager extends Asset
 			$log_contents['assetid'] = $search_info['requester'];
 			log_write($log_contents, 'search');
 		}
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processSearch');
 
 		return $final_results;
 

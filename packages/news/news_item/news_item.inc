@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.21 2009/11/27 05:49:22 bpearson Exp $
+* $Id: news_item.inc,v 1.21.10.1 2011/06/30 07:12:11 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -191,6 +191,9 @@ class News_Item extends Page
 	*/
 	public function printBody()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+
 		// if there is no url, see if we have an asset selected
 		if (($url = $this->attr('link_url')) == '') {
 			$link_asset = $this->getLinkAsset();
@@ -248,6 +251,9 @@ class News_Item extends Page
 		</div>
 		<?php
 		}
+
+		// stop performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 
 	}//end printBody()
 
