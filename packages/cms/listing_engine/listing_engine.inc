@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.323 2011/06/14 23:57:42 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.324 2011/06/30 06:31:51 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.323 $
+* @version $Revision: 1.324 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -436,7 +436,7 @@ class Listing_Engine extends Page
 	* @access public
 	*/
 	function printBody()
-	{	
+	{
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
@@ -636,9 +636,11 @@ class Listing_Engine extends Page
 			$keywords = array_merge($format_bodycopy_no_result->getKeywords(),$keywords);
 		}
 		$replacements = Array();
-
-
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetList');
 		$children = $this->getAssetList();
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetList');
+
 		
 		/*
 		 * Performance Monitor
@@ -680,7 +682,11 @@ class Listing_Engine extends Page
 
 
 		$children =& $this->convertProxyAssetTypes($children);
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'filterAssetList');
 		$this->filterAssetList($children);
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'filterAssetList');
+		
 		$num_kids = count($children);
 
 		foreach ($keywords as $word) {
@@ -721,11 +727,17 @@ class Listing_Engine extends Page
 			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
 		}
 
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'groupAssets');
 		// the list is sorted and positions set, now we can split to groups
 		if ($this->attr('group_by') == 'grouped') {
 			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'groupAssets');
+		
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'chunkAssets');
 		
 		// Which position in the list to start from
 		$start_pos = $this->attr('start_position') - 1;
@@ -776,7 +788,12 @@ class Listing_Engine extends Page
 				array_pop($todo);
 			}
 		}
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'chunkAssets');
+		
 
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
 		// get any extra keyword replacements from this asset or asset_listing
 		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
 		$num_assets_showing = count($todo);
@@ -843,6 +860,8 @@ class Listing_Engine extends Page
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
 
+		// Timer!
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
 	}//end printContents()
 
 
@@ -3292,6 +3311,7 @@ class Listing_Engine extends Page
 		$field_name = $prefix.'_sort_by';
 
 		$default_sort_by = $this->attr('default_sort_by');
+
 		$sort_by = array_get_index($_REQUEST, $field_name, $default_sort_by);
 		$sort_by_list = $this->attr('sort_by');
 		if (!isset($sort_by_list[$sort_by])) {
