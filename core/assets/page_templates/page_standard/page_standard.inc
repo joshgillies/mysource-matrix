@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.34 2011/06/06 23:50:18 akarelia Exp $
+* $Id: page_standard.inc,v 1.35 2011/06/30 04:13:04 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -199,6 +199,9 @@ class Page_Standard extends Page
 	*/
 	public function printBody()
 	{
+		// start performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+		
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if ($contextid === 0) {
 			$cache_key = 'default';
@@ -229,7 +232,10 @@ class Page_Standard extends Page
 		} else {
 			echo $cached_contents;
 		}
-
+		
+		// end performance mode timer
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
+		
 	}//end printBody()
 
 
