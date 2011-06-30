@@ -51,8 +51,9 @@ Minor Enhancement #5153: New Metadata Date Field Option.
 Minor Enhancement #5154: Error Message Options on the Set Future Status Trigger Action.
 Minor Enhancement #5160: Listing Engine Bodycopy Keywords Caching Performance Enhancement.
 Minor Enhancement #5164: Revised Bulkmail Verification Emails.
-Minor Enhancement: Clean DB of Redundant Rollback Entries
-Minor Enhancement: Rollback Performance Enhancement
+Minor Enhancement #5177: Cascading Tags gets TYPE 3 linked asset and tags them.
+Minor Enhancement #5178: getChildren() in Matrix doesn't let you filter by link_type.
+Minor Enhancement: Rollback Performance Enhancement.
 
 Core
 
