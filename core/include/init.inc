@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.122 2011/06/30 03:14:10 ewang Exp $
+* $Id: init.inc,v 1.123 2011/06/30 05:35:31 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 
@@ -131,7 +131,7 @@ $in_login = (trim(SQ_CONF_LOGIN_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']
 define('SQ_IN_LOGIN', $in_login);
 
 // we are in performance results view
-$in_performance = (trim(SQ_CONF_PERFORMANCE_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_SUFFIX);
+$in_performance = defined('SQ_CONF_PERFORMANCE_SUFFIX') && (trim(SQ_CONF_PERFORMANCE_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_SUFFIX);
 define('SQ_IN_PERFORMANCE', $in_performance);
 
 // boolean to use for testing whether we're running cron scripts
