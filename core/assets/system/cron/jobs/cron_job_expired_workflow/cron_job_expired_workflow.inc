@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.37 2011/06/29 07:30:51 mhaidar Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.38 2011/06/30 04:43:19 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -264,9 +264,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	protected function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $schemaid, $step_data)
 	{
-		 if (Workflow_Manager::silentWorkflowParty($assetid)) {
-			 return;
-		 }
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		if ($wfm->silentWorkflowParty($assetid)) {
+			return;
+		}
+		
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
@@ -275,8 +277,6 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$url = 'http://'.current($root_urls).'/'.$href;
 		$type = 'asset.workflow.stale';
 		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
-
-		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 		$schema_workflows = $wfm->getSchemaWorkflows($assetid);
 		$workflow =& $schema_workflows[$schemaid];
@@ -301,12 +301,15 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$msg->parameters['assetid'] = $assetid;
 		
 		// Does this step have a custom message for stale workflow?
-		$custom_message = trim($step_data['message_stale']);
-		if ($custom_message !== '') {
-			$subject = trim(array_get_index($step_data, 'message_stale', 'Stale Workflow Step'));
-			$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
-			$msg->body = $custom_message;
+		if (isset($step_data['message_stale']) && trim($step_data['message_stale']) !== '' ) {
+			$msg->body = trim($step_data['message_stale']);
 		}
+
+		// Does this step have a custom subject for stale workflow?
+		if (isset($step_data['subject_stale']) && trim($step_data['subject_stale']) !== '' ) {
+			$subject = trim(array_get_index($step_data, 'subject_stale', 'Stale Workflow Step'));
+			$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
+		}//end if
 
 		$wfm->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 		$ms->enqueueMessage($msg);
