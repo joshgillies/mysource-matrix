@@ -10,23 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.2 2011/07/04 06:10:08 mhaidar Exp $
+* $Id: system_integrity_invalid_links.php,v 1.3 2011/07/04 08:03:56 mhaidar Exp $
 *
 */
 
 /**
-* Finds, and optionally removes links from sq_ast_lnk where one or both sides of the link do not exist.
-* For orphan assets or where the majorid side of link is just missing, 
-* you can use the system_integrity_orphaned_assets.php script to rescue the minorid.
+* Finds, and optionally removes significant links from sq_ast_lnk where one or both sides of the link do not exist.
+* Report on the number of orphaned assets left in the system and recommends running system_integrity_orphaned_assets.php.
 * 
-* This script can only be run SYSTEM WIDE.
-* 
-* Note that we're only interested in significant links here.
-* NOTICE links can potentially cause issues, but there are good reasons to preserve them.
+* This script can only be run system wide.
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -73,7 +69,7 @@ $sql = "SELECT * FROM sq_ast_lnk a
 		AND 
 			b.link_type <> :link_type
 		AND
-			b.majorid != '0'"; // Need to skip the link for the root folder.
+			b.majorid <> '0'"; // Need to skip the link for the root folder.
 
 try {
 	$query = MatrixDAL::preparePdoQuery($sql);
@@ -81,8 +77,7 @@ try {
 	$links = DAL::executePdoAssoc($query);
 	$link_count = count($links);
 } catch (Exception $e) {
-	throw new Exception('Unable to find invalid links due to database error: '.$e->getMessage());
-	exit (1);
+	trigger_error('Unable to find invalid links due to database error: '.$e->getMessage(), E_USER_ERROR);
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -102,13 +97,14 @@ if ($link_count == 0) {
 }
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 foreach($links as $link) {
 
 	//the upcoming queries have been copied over from Asset_Manager::deleteAssetLinkByLink().
 	if (!($link['link_type'] & SQ_SC_LINK_SIGNIFICANT)) continue;
 	
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	echo "Deleting Link ID: ".$link['linkid']." with Major ID: ".$link['majorid']." and Minor ID: ".$link['minorid']."\n";
 	
 	// update the parents to tell them that they are going to be one kid less
@@ -137,7 +133,7 @@ foreach($links as $link) {
 		MatrixDAL::bindValueToPdo($update_tree_parents_query, 'linkid', $link['linkid']);
 		MatrixDAL::execPdoQuery($update_tree_parents_query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to update the link tree for linkid: '.$link['linkid'].' due to database error: '.$e->getMessage());
+		trigger_error('Unable to update the link tree for linkid: '.$link['linkid'].' due to database error: '.$e->getMessage(), E_USER_ERROR);
 	}
 
 	// we can delete all the links under these nodes because it will be a clean start
@@ -161,7 +157,7 @@ foreach($links as $link) {
 		MatrixDAL::bindValueToPdo($delete_tree_query, 'linkid', $link['linkid']);
 		MatrixDAL::execPdoQuery($delete_tree_query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to delete tree links for linkid: '.$link['linkid'].' due to database error: '.$e->getMessage());
+		trigger_error('Unable to delete tree links for linkid: '.$link['linkid'].' due to database error: '.$e->getMessage(), E_USER_ERROR);
 	}
 
 	// Update sort orders of other children of this parent
@@ -178,7 +174,7 @@ foreach($links as $link) {
 		MatrixDAL::bindValueToPdo($update_sort_order_query, 'sort_order', $link['sort_order']);
 		MatrixDAL::execPdoQuery($update_sort_order_query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to update sort orders for majorid: '.$link['majorid'].' due to database error: '.$e->getMessage());
+		trigger_error('Unable to update sort orders for majorid: '.$link['majorid'].' due to database error: '.$e->getMessage(), E_USER_ERROR);
 	}
 
 	// Delete from the link table
@@ -189,10 +185,30 @@ foreach($links as $link) {
 				 );
 		MatrixDAL::executeQuery('core', 'deleteLink', $bind_vars);
 	} catch (Exception $e) {
-		throw new Exception('Unable to delete link with linkid: '.$link['linkid'].' due to database error: '.$e->getMessage());
+		trigger_error('Unable to delete link with linkid: '.$link['linkid'].' due to database error: '.$e->getMessage(), E_USER_ERROR);
 	}
 
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	
 } // end foreach link
+
+$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+
+$sql = 'SELECT count(*) 
+		FROM sq_ast a 
+		WHERE a.assetid NOT IN (SELECT minorid from sq_ast_lnk) 
+		AND a.assetid NOT IN (SELECT majorid from sq_ast_lnk)';
+
+try {
+	$query = MatrixDAL::preparePdoQuery($sql);
+	$orphans = DAL::executePdoOne($query);
+} catch (Exception $e) {
+	trigger_error('Unable to count orphaned assets due to database error: '.$e->getMessage(), E_USER_ERROR);
+}
+
+echo "There are $orphans orphan assets found. You must run system_integrity_orphaned_assets.php on the root folder to rescue these assets.\n";
 
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
