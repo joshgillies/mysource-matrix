@@ -1759,7 +1759,7 @@ class DAL
 	 */
 	protected static function _startQueryTimer($query)
 	{
-		if (self::$_logQueries === TRUE) {
+		if (self::$_logQueries === TRUE || defined('SQ_IN_PERFORMANCE_TIMING')) {
 			self::$_currentQueryLog = array();
 			if (is_string($query) === true) {
 				self::$_currentQueryLog['id']  = 'sql';
@@ -1770,6 +1770,7 @@ class DAL
 			}
 			self::$_currentQueryLog['start'] = microtime(TRUE);
 		}
+
 
 	}//end _startQueryTimer()
 
@@ -1782,17 +1783,12 @@ class DAL
 	 */
 	protected static function _endQueryTimer()
 	{
-		if (self::$_currentQueryLog !== NULL) {
-			if (isset(self::$_queryLog[self::$_currentQueryLog['id']]) === FALSE) {
-				self::$_queryLog[self::$_currentQueryLog['id']] = array();
-			}
-
-			self::$_queryLog[self::$_currentQueryLog['id']][] = (microtime(TRUE) - self::$_currentQueryLog['start']);
+		if (self::$_currentQueryLog !== NULL || defined('SQ_IN_PERFORMANCE_TIMING')) {
+			self::$_queryLog[] = (microtime(TRUE) - self::$_currentQueryLog['start']);
 			if (isset($GLOBALS['THE_CONSTRUCT']) === TRUE) {
 				$GLOBALS['THE_CONSTRUCT']->recordDatabaseQuery(self::$_currentQueryLog['sql'], self::$_currentQueryLog['start'], microtime(TRUE));
 			}
 		}
-
 		self::$_currentQueryLog = NULL;
 
 	}//end _endQueryTimer()
@@ -1807,6 +1803,18 @@ class DAL
 	public static function getLoggedQueries()
 	{
 		return self::$_queryLog;
+
+	}//end getLoggedQueries()
+	
+	/**
+	 * Clears logged queries.
+	 *
+	 * @return void
+	 */
+	public static function clearLoggedQueries()
+	{
+		self::$_queryLog = Array();
+		return;
 
 	}//end getLoggedQueries()
 
