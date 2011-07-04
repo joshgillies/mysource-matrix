@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.3 2011/07/04 08:03:56 mhaidar Exp $
+* $Id: system_integrity_invalid_links.php,v 1.4 2011/07/04 08:09:56 mhaidar Exp $
 *
 */
 
@@ -22,14 +22,14 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
 if (count($_SERVER['argv']) != 3 || php_sapi_name() != 'cli') {
 	echo "This script needs to be run in the following format:\n\n";
-	echo "\tphp system_integrity_invalid_links.php [SYSTEM_ROOT] [-fix|-check]\n\n";
+	echo "\tphp system_integrity_invalid_links.php [SYSTEM_ROOT] [-delete|-check]\n\n";
 	exit(1);
 }
 
@@ -42,7 +42,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $ACTION = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 $ACTION = ltrim($ACTION, '-');
-if (empty($ACTION) || ($ACTION != 'fix' && $ACTION != 'check')) {
+if (empty($ACTION) || ($ACTION != 'delete' && $ACTION != 'check')) {
 	trigger_error("No action specified", E_USER_ERROR);
 }//end if
 
@@ -87,8 +87,8 @@ if ($link_count == 0) {
  	exit(0);
 } else {
 	echo "\nFound $link_count invalid links\n";
-	if ($ACTION == 'fix'){
-		echo 'This script is about to be run SYSTEM WIDE in FIX mode. Are you sure you want to continue (y/n): ';
+	if ($ACTION == 'delete'){
+		echo 'This script is about to be run SYSTEM WIDE in DELETE mode. Are you sure you want to continue (y/n): ';
 		$confirm = rtrim(fgets(STDIN, 4094));
 		if ($confirm != 'y') exit(0);
 	} else {
