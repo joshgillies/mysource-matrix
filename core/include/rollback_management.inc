@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.6 2010/06/22 23:50:42 ewang Exp $
+* $Id: rollback_management.inc,v 1.6.6.1 2011/07/04 01:31:28 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,6 +165,131 @@ function delete_rollback_entries($table_name, $date)
 	return $affected_rows;
 
 }//end delete_rollback_entries()
+
+
+/**
+* Deletes the redundent rollback entries
+*
+* @param string	$table_name	the tablename to update
+*
+* @return int
+* @access public
+*/
+function delete_redundent_rollback_entries($table_name)
+{	
+	$relevant_tables = Array(
+			'ast' => Array(
+						'assetid',
+					), 
+			'ast_attr_val' => Array(
+						'assetid',
+						'attrid',
+						'contextid',
+					),
+		);
+	if (!in_array($table_name, array_keys($relevant_tables))) {
+		return 0;
+	}
+
+	// For now, we only clean entries for Cron Manager
+	$assets = Array(
+			$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager'),
+		);
+
+
+	$affected_rows = 0;
+	foreach($assets as $asset) {
+		
+		// Get all the entries for the given asset
+		$sql = 'SELECT * FROM sq_rb_'.$table_name.'
+				WHERE assetid=:assetid';
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable get asset info from table '.$table_name.' for assetid #'.$asset->id.' due to the following error: '.$e->getMessage());
+		}//end try catch
+		
+		// Get the very first rollback entries in the table
+		$org_rows = Array();
+		foreach($result as $index => $row) {
+			$key = '';
+			foreach($relevant_tables[$table_name] as $col) {
+				if (!isset($row[$col])) {
+					trigger_error('Expected column "'.$col.'" not found in rollback table "'.$table_name.'"');
+					return 0;
+				}
+				$key .= $row[$col].'.';
+			}//end foreach
+			if (!empty($key)) {
+				if (!empty($org_rows[$key]['sq_eff_from'])) {
+					if (strtotime($row['sq_eff_from']) < strtotime($org_rows[$key]['sq_eff_from'])) {
+						$org_rows[$key]['sq_eff_from'] = $row['sq_eff_from'];
+						$org_rows[$key]['index'] = $index;
+					}
+				} else {
+					$org_rows[$key]['sq_eff_from'] = $row['sq_eff_from'];
+					$org_rows[$key]['index'] = $index;
+				}
+			}
+		}//end foreach
+
+		if (!empty($org_rows)) {
+			// Keep the very first entries and delete the rest
+			foreach($org_rows as $org_row) {
+				$rb_row = $result[$org_row['index']];
+				
+				// Open these rollback entires
+				$where ='WHERE sq_eff_from=\''.$rb_row['sq_eff_from'].'\' AND '.
+						(is_null($rb_row['sq_eff_to']) ? 'sq_eff_to IS NULL ' : 'sq_eff_to=\''.$rb_row['sq_eff_to'].'\' ');
+				foreach($relevant_tables[$table_name] as $col) {
+					$where .= ' AND '.$col.'=:'.$col;
+				}//end foreach
+				$sql = 'UPDATE sq_rb_'.$table_name.'
+						SET sq_eff_to = NULL '.
+						$where;
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					foreach($relevant_tables[$table_name] as $col) {
+						MatrixDAL::bindValueToPdo($query, $col, $rb_row[$col]);
+					}
+					MatrixDAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$e->getMessage());
+				}//end try catch
+			
+				unset($result[$org_row['index']]);
+			}//end foreach
+			
+			// Get rid of rest
+			foreach($result as $row) {
+
+				$where ='WHERE sq_eff_from=\''.$row['sq_eff_from'].'\' AND '.
+						(is_null($row['sq_eff_to']) ? 'sq_eff_to IS NULL ' : 'sq_eff_to=\''.$row['sq_eff_to'].'\' ');
+				foreach($relevant_tables[$table_name] as $col) {
+					$where .= ' AND '.$col.'=:'.$col;
+				}//end foreach
+				$sql = 'DELETE FROM sq_rb_'.$table_name.' '.
+						$where;
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					foreach($relevant_tables[$table_name] as $col) {
+						MatrixDAL::bindValueToPdo($query, $col, $row[$col]);
+						$sql = str_replace(':'.$col, $row[$col], $sql);
+					}
+					$affected_rows += MatrixDAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$e->getMessage());
+				}
+			}//end foreach
+		}//end if
+		
+	}//end foreach
+
+	return $affected_rows;
+
+}//end delete_redundent_rollback_entries()
 
 
 /**

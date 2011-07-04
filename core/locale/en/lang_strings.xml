@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391.2.2 2011/06/30 06:53:57 ewang Exp $
+* $Id: lang_strings.xml,v 1.391.2.3 2011/07/04 01:32:23 cupreti Exp $
 *
 */
 
@@ -2060,6 +2060,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_purging_file_versioning">Purging File Versioning</string>
 	<string source="hipo_job_rollback_resetting_rollback">Resetting Rollback</string>
 	<string source="hipo_job_rollback_toggling_rb_state">Toggling Rollback State</string>
+	<string source="hipo_job_rollback_delete_redundant_rb_entries">Deleting Redundant Rollback Entries</string>
 	<string source="hipo_job_rollback_deleting_rb_entries">Deleting Rollback Entries</string>
 	<string source="hipo_job_rollback_aligning_rb_entries">Aliging Rollback Entries</string>
 	<string source="hipo_job_rollback_completing_db_transaction">Completing Database Transaction</string>
@@ -2068,7 +2069,8 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_closing_rb_entries_in">Closing rollback entries in %s</string>
 	<string source="hipo_job_rollback_deleting_rb_entries_from">Deleting rollback entries from %s</string>
 	<string source="hipo_job_rollback_aligning_rb_entries_in">Aligning rollback entries in %s</string>
-
+	<string source="hipo_job_rollback_delete_redundant_rb_entries_in">Deleting redundant rollback entries in %s</string>
+	
 	<string source="hipo_job_regen_simple_reports_name">Regenerate Simple Reports</string>
 
 	<string source="hipo_job_edit_bundled_assets_status_status">Editing Status of Bundled Assets</string>
