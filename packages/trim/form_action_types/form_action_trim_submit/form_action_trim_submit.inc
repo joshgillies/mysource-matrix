@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_trim_submit.inc,v 1.7 2010/05/05 03:42:53 ewang Exp $
+* $Id: form_action_trim_submit.inc,v 1.8 2011/07/04 01:36:12 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -388,6 +388,8 @@ class Form_Action_TRIM_Submit extends Form_Action
 			$connection['authentication']	= Array (
 												'login'		=> $trim_connector->attr('username'),
 												'password'	=> $trim_connector->attr('password'),
+												'trace'		=> TRUE,
+												'exceptions'=> TRUE,
 											  );
 			// add proxy 
 			$proxy = $trim_connector->getProxy();
@@ -397,6 +399,8 @@ class Form_Action_TRIM_Submit extends Form_Action
 			$connection['authentication']	= Array (
 												'login'		=> $settings['username'],
 												'password'	=> $settings['password'],
+												'trace'		=> TRUE,
+												'exceptions'=> TRUE,
 											  );
 		}//end if
 
