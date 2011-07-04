@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.394 2011/06/30 05:07:58 ewang Exp $
+* $Id: lang_strings.xml,v 1.395 2011/07/04 00:46:18 cupreti Exp $
 *
 */
 
@@ -1856,7 +1856,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="id_name_text">ID</string>
 	<string source="class_name_text">Class</string>
 	<string source="title">Title</string>
-	<string source="include_summary">Include Summary</string>
+	<string source="include_summary">select this option to include a summary of a linked file asset, as specified by the file summary format on the Global Preferences screen</string>
 	<string source="new_window_options">New Window Options</string>
 	<string source="target">Target</string>
 	<string source="new_window">New Window</string>
@@ -2062,6 +2062,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_purging_file_versioning">Purging File Versioning</string>
 	<string source="hipo_job_rollback_resetting_rollback">Resetting Rollback</string>
 	<string source="hipo_job_rollback_toggling_rb_state">Toggling Rollback State</string>
+	<string source="hipo_job_rollback_delete_redundant_rb_entries">Deleting Redundant Rollback Entries</string>
 	<string source="hipo_job_rollback_deleting_rb_entries">Deleting Rollback Entries</string>
 	<string source="hipo_job_rollback_aligning_rb_entries">Aliging Rollback Entries</string>
 	<string source="hipo_job_rollback_completing_db_transaction">Completing Database Transaction</string>
@@ -2070,7 +2071,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_closing_rb_entries_in">Closing rollback entries in %s</string>
 	<string source="hipo_job_rollback_deleting_rb_entries_from">Deleting rollback entries from %s</string>
 	<string source="hipo_job_rollback_aligning_rb_entries_in">Aligning rollback entries in %s</string>
-
+	<string source="hipo_job_rollback_delete_redundant_rb_entries_in">Deleting redundant rollback entries in %s</string>
 	<string source="hipo_job_regen_simple_reports_name">Regenerate Simple Reports</string>
 
 	<string source="hipo_job_edit_bundled_assets_status_status">Editing Status of Bundled Assets</string>
