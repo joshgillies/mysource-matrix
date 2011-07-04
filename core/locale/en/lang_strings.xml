@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.395 2011/07/04 00:46:18 cupreti Exp $
+* $Id: lang_strings.xml,v 1.396 2011/07/04 00:52:13 cupreti Exp $
 *
 */
 
@@ -1856,7 +1856,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="id_name_text">ID</string>
 	<string source="class_name_text">Class</string>
 	<string source="title">Title</string>
-	<string source="include_summary">select this option to include a summary of a linked file asset, as specified by the file summary format on the Global Preferences screen</string>
+	<string source="include_summary">Include Summary</string>
 	<string source="new_window_options">New Window Options</string>
 	<string source="target">Target</string>
 	<string source="new_window">New Window</string>
