@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_rollback_management.inc,v 1.1 2009/02/11 00:41:19 mbrydon Exp $
+* $Id: hipo_job_rollback_management.inc,v 1.1.16.1 2011/07/04 01:38:55 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 * </pre>
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.16.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,6 +204,18 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
+					'name'			=> translate('hipo_job_rollback_delete_redundant_rb_entries'),
+					'function_call'	=> Array(
+										'process_function'	=> 'deleteRedundantRollbackEntries',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
 					'name'			=> translate('hipo_job_rollback_completing_db_transaction'),
 					'function_call'	=> Array(
 										'process_function'	=> 'completeTransaction',
@@ -295,7 +307,11 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 			return FALSE;
 		}
 
-		if (!$this->completeTransaction($this->_steps[8], $this->getCodeName())) {
+		if (!$this->deleteRedundantRollbackEntries($this->_steps[8], $this->getCodeName())) {
+			return FALSE;
+		}
+
+		if (!$this->completeTransaction($this->_steps[9], $this->getCodeName())) {
 			return FALSE;
 		}
 
@@ -684,6 +700,52 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 
 	}//end alignRollbackEntries()
 
+	
+	/**
+	* Delete redundant entries from the Rollback table
+	*
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteRedundantRollbackEntries(&$step_data, $prefix)
+	{
+		if (!empty($this->_running_vars['delete_redundant_entries'])) {
+			if ($this->_running_vars['start_job']) {
+				$this->_running_vars['start_job'] = FALSE;
+				$this->_running_vars['to_check'] = $this->_running_vars['rollback_table_names'];
+			}
+
+			if (!empty($this->_running_vars['to_check'])) {
+				reset($this->_running_vars['to_check']);
+				list($key, $table_name) = each($this->_running_vars['to_check']);
+				unset($this->_running_vars['to_check'][$key]);
+
+				$step_data['message'] = translate('hipo_job_rollback_delete_redundant_rb_entries_in', $table_name);
+				delete_redundent_rollback_entries($table_name);
+			}
+
+
+			if (empty($this->_running_vars['to_check'])) {
+				$step_data['percent_done'] = 100;
+				$step_data['complete']     = TRUE;
+				$this->_running_vars['start_job'] = TRUE;
+			} else {
+				$step_data['percent_done'] = (int)(((count($this->_running_vars['rollback_table_names']) - count($this->_running_vars['to_check'])) / count($this->_running_vars['rollback_table_names'])) * 100);
+				$step_data['complete']     = FALSE;
+			}
+		} else {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+			$this->_running_vars['start_job'] = TRUE;
+		}
+
+		return TRUE;
+
+	}//end deleteRedundantRollbackEntries()
+	
 
 	/**
 	* Completes the database transaction started by this HIPO

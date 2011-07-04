@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_rollback_management.inc,v 1.3 2010/05/05 07:20:53 ewang Exp $
+* $Id: tool_rollback_management.inc,v 1.3.8.1 2011/07/04 01:39:33 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 * 	A tool to manage the amount of data stored in Rollback
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,6 +158,15 @@ class Tool_Rollback_Management extends Tool
 			combo_box($type_code.'_purge_file_entries_period_timeframe', $options, FALSE, '');
 		$o->closeField();
 
+		$o->openField(translate('tool_delete_redundant_entries'));
+			$options = Array(
+						'0'	=> 'No',
+						'1'	=> 'Yes',
+					   );
+			combo_box($type_code.'_delete_redundant_entries', $options, FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('tool_delete_redundant_entries_confirm'))) { this.value = 0; } } \"");
+			$o->note(translate('tool_delete_redundant_entries_note'));
+		$o->closeField();
+
 		$o->openField('');
 			if (isset($_REQUEST['redirect_to_sys_maintenance'])) {
 				$redirect_to_system_maintenance = (int)$_REQUEST['redirect_to_sys_maintenance'];
@@ -257,6 +266,7 @@ class Tool_Rollback_Management extends Tool
 		}
 
 		$reset_rollback = ($_REQUEST[$type_code.'_reset_rollback_entries'] == '1');
+		$delete_redundant_entries = ($_REQUEST[$type_code.'_delete_redundant_entries'] == '1');
 
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
@@ -266,6 +276,7 @@ class Tool_Rollback_Management extends Tool
 					'purge_fv_date'		=> $purge_fv_date,
 					'purge_rb_date'		=> $purge_rb_date,
 					'reset_rollback'	=> $reset_rollback,
+					'delete_redundant_entries' => $delete_redundant_entries,
 					'fail_on_error'		=> TRUE,
 				);
 
