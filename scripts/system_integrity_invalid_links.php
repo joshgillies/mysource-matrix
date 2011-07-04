@@ -10,13 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.1 2011/07/04 06:06:46 mhaidar Exp $
+* $Id: system_integrity_invalid_links.php,v 1.2 2011/07/04 06:10:08 mhaidar Exp $
 *
 */
 
 /**
 * Finds, and optionally removes links from sq_ast_lnk where one or both sides of the link do not exist.
-* For orphan assets or where the majorid side of link is just missing, you can use the system_integrity_orphaned_assets.php script.
+* For orphan assets or where the majorid side of link is just missing, 
+* you can use the system_integrity_orphaned_assets.php script to rescue the minorid.
 * 
 * This script can only be run SYSTEM WIDE.
 * 
@@ -25,7 +26,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
