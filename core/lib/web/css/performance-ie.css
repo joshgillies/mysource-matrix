@@ -3,6 +3,12 @@
     background-color: #222;
     border: 1px solid #000;
 }
+#perfSummary .perfSwitch {
+    position: relative;
+    background-color: #222;
+    border: 1px solid #000;
+    text-decoration: none
+}
 #perfSummary .perfHighrollers {
     position: relative;
     background-color: #222;
