@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.4 2011/07/04 08:09:56 mhaidar Exp $
+* $Id: system_integrity_invalid_links.php,v 1.5 2011/07/05 03:33:32 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -105,7 +105,6 @@ foreach($links as $link) {
 	if (!($link['link_type'] & SQ_SC_LINK_SIGNIFICANT)) continue;
 	
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	echo "Deleting Link ID: ".$link['linkid']." with Major ID: ".$link['majorid']." and Minor ID: ".$link['minorid']."\n";
 	
 	// update the parents to tell them that they are going to be one kid less
 	$sql = 'UPDATE
@@ -189,6 +188,7 @@ foreach($links as $link) {
 	}
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	echo "Deleted Link ID: ".$link['linkid']." with Major ID: ".$link['majorid']." and Minor ID: ".$link['minorid']."\n";
 	
 } // end foreach link
 
@@ -208,7 +208,7 @@ try {
 	trigger_error('Unable to count orphaned assets due to database error: '.$e->getMessage(), E_USER_ERROR);
 }
 
-echo "There are $orphans orphan assets found. You must run system_integrity_orphaned_assets.php on the root folder to rescue these assets.\n";
+if (!empty($orphans)) echo "There are $orphans orphan assets found. You must run system_integrity_orphaned_assets.php on the root folder to rescue these assets.\n";
 
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
