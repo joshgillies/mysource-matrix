@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.163 2011/04/08 05:10:46 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.163.2.1 2011/07/05 05:55:19 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.163.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -2038,9 +2038,10 @@ class Workflow_Manager extends MySource_Object
 			// Does this step have a custom subject for stale workflow?
 			if (isset($current_step['subject_stale']) && trim($current_step['subject_stale']) !== '' ) {
 				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
-				$subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
+				$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 			}//end if
-
+			
+			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
 
 			return TRUE;
