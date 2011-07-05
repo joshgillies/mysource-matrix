@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.15 2010/12/21 21:22:12 hlliauw Exp $
+* $Id: trim_common.inc,v 1.15.4.1 2011/07/05 06:24:51 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -910,8 +910,17 @@ class TRIM_Common
 
 			// We need to convert the TRIM Execute object to XML, so we can swap the elements.
 
-			$xml = $client->ConvertToXml($Execute);
-
+			try {
+				$xml = $client->ConvertToXml($Execute);
+			} catch (SoapFault $e) {
+				$error_message = "Failed to ConvertToXml: ".$e->getMessage()."\n";
+				if (SQ_PHP_CLI || SQ_IN_CRON) {
+					$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+					$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+				}
+				trigger_error($error_message, E_USER_WARNING);
+				return Array();
+			}
 
 	
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
@@ -939,7 +948,17 @@ class TRIM_Common
 			
 
 			// Now its time to get the data
-			$data = $client->ExecuteXml(Array('xml'	=> $xml));
+			try {
+				$data = $client->ExecuteXml(Array('xml'	=> $xml));
+			} catch (SoapFault $e) {
+				$error_message = "Failed to ExecuteXml: ".$e->getMessage()."\n";
+				if (SQ_PHP_CLI || SQ_IN_CRON) {
+					$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+					$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+				}
+				trigger_error($error_message, E_USER_WARNING);
+				return Array();
+			}
 
 			// The data returned is in XML format, so we have to parse it.
 			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
@@ -994,10 +1013,30 @@ class TRIM_Common
 
         $client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
-        $xml = $client->ConvertToXml($Execute);
+		try {
+			$xml = $client->ConvertToXml($Execute);
+		} catch (SoapFault $e) {
+			$error_message = "Failed to ConvertToXml: ".$e->getMessage()."\n";
+			if (SQ_PHP_CLI || SQ_IN_CRON) {
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+			}
+			trigger_error($error_message, E_USER_WARNING);
+			return 0;
+		}
         $xml = self::SwapElement($xml->ConvertToXmlResult, 'LocationStringSelect', 'FetchInjectionUri');
  
-        $data = $client->ExecuteXml(Array('xml' => $xml));
+		try {
+			$data = $client->ExecuteXml(Array('xml' => $xml));
+		} catch (SoapFault $e) {
+			$error_message = "Failed to ExecuteXml: ".$e->getMessage()."\n";
+			if (SQ_PHP_CLI || SQ_IN_CRON) {
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+			}
+			trigger_error($error_message, E_USER_WARNING);
+			return 0;
+		}
 
         $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
         $trim_userid = 0;
@@ -1086,7 +1125,13 @@ class TRIM_Common
 
 
 		} catch (SoapFault $e) {
-			print 'The request failed due to the following error: '. $e->faultstring;
+			$error_message = "Create Request Failed: ".$e->getMessage()."\n";
+			if (SQ_PHP_CLI || SQ_IN_CRON) {
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+			}
+			trigger_error($error_message, E_USER_WARNING);
+			return 0;
 		}//end try catch
 
 		$new_record_uri	= 0;
@@ -1272,7 +1317,20 @@ class TRIM_Common
 	public static function test_trim_connection($connection)
 	{
 
-
+		//test a cURL connection first otherwise the Soap constructor will crash and leave edit interfaces inaccessible or cause Cron deadlocks.
+		if (!isset($connection['authentication']['proxy_login'])){ //TODO: test cURL with proxies involved
+			$curl = curl_init();
+			curl_setopt($curl, CURLOPT_URL, $connection['wsdl']);
+			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl, CURLAUTH_BASIC, 1);
+			curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+			curl_setopt($curl, CURLOPT_USERPWD, $connection['authentication']['login'].":".$connection['authentication']['password']);
+			$contents = curl_exec($curl);
+			curl_close($curl);
+			if (strpos($contents, '?xml') === FALSE) return FALSE;
+		}
+		
 		//check if recTitle property is set
 		try {
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);

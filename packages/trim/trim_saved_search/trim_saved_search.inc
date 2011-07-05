@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.24.2.1 2011/06/07 06:32:16 mhaidar Exp $
+* $Id: trim_saved_search.inc,v 1.24.2.2 2011/07/05 06:24:51 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.24.2.1 $
+* @version $Revision: 1.24.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -580,7 +580,7 @@ class TRIM_Saved_Search extends Data_Source
 											'login'		=> $connector->attr('username'),
 											'password'	=> $connector->attr('password'),
 											'trace'		=> TRUE,
-											'exception'	=> TRUE,
+											'exceptions'	=> TRUE,
 										  );
 		// add proxy 
 		if(method_exists($connector, 'getProxy')) {
