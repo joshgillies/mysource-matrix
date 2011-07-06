@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.7.2.2 2011/05/19 00:17:28 mhaidar Exp $
+* $Id: http_request.inc,v 1.7.2.3 2011/07/06 06:59:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.7.2.2 $
+* @version $Revision: 1.7.2.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -504,10 +504,6 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				$this->_replaceKeywords($this->_res['request']['auth']['http_auth_options']['password']);
 				break;
 
-				case 'Matrix':
-					array_push($this->_res['request']['headers'], 'Set-Cookie: SQ_SYSTEM_SESSION=' . $_COOKIE['SQ_SYSTEM_SESSION']);
-					break;
-
 				case 'OAuth':
 					// at this point, the oauth asset needs to have access token available...otherwise no data will be received back...
 					$oauth_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_config['oauth_asset']['assetid'], '', TRUE);
@@ -756,6 +752,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 			curl_setopt($ch, CURLOPT_USERPWD, $this->_res['request']['auth']['http_auth_options']['username'].':'.$this->_res['request']['auth']['http_auth_options']['password']);
 			break;
+		case "Matrix":
+            curl_setopt($ch, CURLOPT_COOKIE, 'SQ_SYSTEM_SESSION=' . $_COOKIE['SQ_SYSTEM_SESSION']);
+            curl_setopt($ch,CURLOPT_COOKIESESSION,true);
+			session_write_close();
+			break;
 		}
 
 		$this->_urls_to_request[$key] = Array('handle' => $ch, 'url' => $url);
@@ -789,6 +790,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				trigger_error("cURL request failed: '" . $this->_urls_to_request[$key]['url'] . "': " . curl_error($this->_urls_to_request[$key]['handle']), E_USER_WARNING);
 			}
 
+			// restart session which was closed previously
+			if ($this->_res['request']['auth']['type'] === 'Matrix')
+				session_start();
+				
 			// Clean up.
 			curl_close($this->_urls_to_request[$key]['handle']);
 			$this->_headers = Array();
