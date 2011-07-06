@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.46 2010/12/20 02:02:43 cupreti Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.46.2.1 2011/07/06 00:29:54 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -84,7 +84,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<?php $this->printDateChooser($prefix.'_start', (isset($_REQUEST['SQ_CALENDAR_DATE']) && !$asset->id) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')); ?>
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start',  isset($_REQUEST['SQ_CALENDAR_TIME']) ? strtotime($_REQUEST['SQ_CALENDAR_TIME']) : ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : FALSE), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);'), Array('onclick'=>'if (isChecked(\''.$prefix.'_end_enabled\')) { if (this.checked) enableTimeField(\''.$prefix.'_end\'); else disableTimeField(\''.$prefix.'_end\'); } else { if (this.checked) { checkBox(\''.$prefix.'_end_time_enabled\'); } else { unCheckBox(\''.$prefix.'_end_time_enabled\'); } } ')); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start',  isset($_REQUEST['SQ_CALENDAR_TIME']) ? strtotime($_REQUEST['SQ_CALENDAR_TIME']) : ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : FALSE), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);'), Array('onclick'=>'if (isChecked(\''.$prefix.'_end_enabled\')) { if (this.checked) enableTimeField(\''.$prefix.'_end\'); else disableTimeField(\''.$prefix.'_end\'); } else { if (this.checked) { checkBox(\''.$prefix.'_end_time_enabled\'); } else { uncheckBox(\''.$prefix.'_end_time_enabled\'); } } ')); ?>
 				</td>
 			</tr>
 		</table>
