@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.9 2011/05/13 01:51:19 mhaidar Exp $
+* $Id: http_request.inc,v 1.10 2011/07/06 06:53:15 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -495,7 +495,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		// Replace keywords in the body.
 		$this->_replaceKeywords($this->_res['request']['body']);
-
+		
 		// Auth options.
 		switch ($this->_res['request']['auth']['type']) {
 			case 'HTTP_Basic':
@@ -503,10 +503,6 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				$this->_replaceKeywords($this->_res['request']['auth']['http_auth_options']['username']);
 				$this->_replaceKeywords($this->_res['request']['auth']['http_auth_options']['password']);
 				break;
-
-				case 'Matrix':
-					array_push($this->_res['request']['headers'], 'Set-Cookie: SQ_SYSTEM_SESSION=' . $_COOKIE['SQ_SYSTEM_SESSION']);
-					break;
 
 				case 'OAuth':
 					// at this point, the oauth asset needs to have access token available...otherwise no data will be received back...
@@ -756,6 +752,11 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 			curl_setopt($ch, CURLOPT_USERPWD, $this->_res['request']['auth']['http_auth_options']['username'].':'.$this->_res['request']['auth']['http_auth_options']['password']);
 			break;
+		case "Matrix":
+            curl_setopt($ch, CURLOPT_COOKIE, 'SQ_SYSTEM_SESSION=' . $_COOKIE['SQ_SYSTEM_SESSION']);
+            curl_setopt($ch,CURLOPT_COOKIESESSION,true);
+			session_write_close();
+			break;
 		}
 
 		$this->_urls_to_request[$key] = Array('handle' => $ch, 'url' => $url);
@@ -793,6 +794,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			curl_close($this->_urls_to_request[$key]['handle']);
 			$this->_headers = Array();
 
+			// restart session which was closed previously
+			if ($this->_res['request']['auth']['type'] === 'Matrix')
+				session_start();
+				
 			// Attempt to cache this response.
 			if ($this->_canCacheResponses()) {
 				$this->_setCacheExpiry($response);
