@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge.inc,v 1.2.8.1 2011/06/30 04:05:51 ewang Exp $
+* $Id: file_bridge.inc,v 1.2.8.2 2011/07/06 07:06:16 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2.8.1 $
+* @version $Revision: 1.2.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -480,8 +480,9 @@ class File_Bridge extends Asset implements Bridge
 	*/
 	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
-		return Array();
-
+		// All users underneath this bridge inherit the permissions of the bridge
+		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
+		
 	}//end getPermission()
 
 
