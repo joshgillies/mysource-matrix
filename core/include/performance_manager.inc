@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.1.2.3 2011/07/04 01:27:59 ewang Exp $
+*$Id: performance_manager.inc,v 1.1.2.4 2011/07/06 02:58:43 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -68,7 +68,7 @@ class Performance_Manager extends MySource_Object
 	{
 		if(!defined('SQ_IN_PERFORMANCE_TIMING')) return;
 		unset($this->performance_data);
-		unset($_SESSION['SQ_PERFORMANCE_DATA']);
+		$this->_clearPerformanceData();
 		
 		$this->performance_data['total_start'] = microtime(TRUE);
 	}
@@ -90,8 +90,9 @@ class Performance_Manager extends MySource_Object
 		}
 		$this->performance_data['total_num_queries'] += count(DAL::getLoggedQueries());
 		
-		// save all data to session
-		$_SESSION['SQ_PERFORMANCE_DATA'] = $this->performance_data;
+		// save all data to temp file for result frame to fetch
+		$this->_savePerformanceData($this->performance_data);
+		
 	}
 	
 	/**
@@ -229,14 +230,13 @@ class Performance_Manager extends MySource_Object
 	public function printFrames($asset)
 	{
 		$primary_url = current_url();
-		unset($_SESSION['SQ_PERFORMANCE_DATA']);
+		$this->_clearPerformanceData();
 		
 		// save switch setting to session
 		if(isset($_GET['performance_setting_caching'])) {
 			$_SESSION['SQ_PERFORMANCE_SETTING']['caching'] = $_GET['performance_setting_caching'] == 'Default' ? TRUE : FALSE;
 			unset($_GET['performance_switch_caching']);
 		}
-		
 		// make up original page url
 		$param_string = '?';
 		foreach($_GET as $name => $value) {
@@ -293,14 +293,18 @@ function fillFrame() {
 	{	
 		require_once SQ_DATA_PATH.'/private/conf/performance_config.inc';
 		
+		header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: no-cache');
+		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
+		$performance_data = $this->_loadPerformanceData();
 		// if performace data in the other frame is not ready, wait for it
-		if(!isset($_SESSION['SQ_PERFORMANCE_DATA'])) {
+		if(empty($performance_data)) {
 			$this->_printWaitingScreen();
 			return;
 		}
-		
- 		$this->performance_data = $_SESSION['SQ_PERFORMANCE_DATA'];
+
+ 		$this->performance_data = $performance_data;
  		
  		$caching_status = isset($_SESSION['SQ_PERFORMANCE_SETTING']['caching']) && $_SESSION['SQ_PERFORMANCE_SETTING']['caching'] === FALSE ? 'Off' : 'Default';
 		$caching_status_reverse = $caching_status === 'Default' ? 'Off' : 'Default';
@@ -637,7 +641,7 @@ var addUrlParam = function(search, key, val){
 		<?php 
 		// end of print, clean the data
 		unset($this->performance_data);
-		unset($_SESSION['SQ_PERFORMANCE_DATA']);
+		$this->_clearPerformanceData();
 	}// end printResults()
 	
 
@@ -722,7 +726,49 @@ var addUrlParam = function(search, key, val){
 		}		
 		$all[] = $timer;
 	}//end _combineSteps()
+	
+	/**
+	* Save performance data to a temp file ( save to session will cause problems with frames)
+	* result frame can access and restore the data
+	* 
+	* @param $data		array		Performance data
+	* 
+	* @return void
+	* @access private
+	*/	
+	private function _savePerformanceData ($data) {
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		$file = fopen ($path, "w");
+		fwrite($file, serialize($data));
+		fclose ($file);  
+	}// end _savePerformanceData()
 
+	/**
+	* Remove the performance data temp file
+	* 
+	* 
+	* @return void
+	* @access private
+	*/	
+	private function _clearPerformanceData () {
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		if(file_exists($path))
+			unlink($path); 
+	}// end _clearPerformanceData()
+
+	/**
+	* Load the temp file and restore performance data
+	* 
+	* @return array
+	* @access private
+	*/	
+	private function _loadPerformanceData () {
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		$data = file_exists($path) ? file_get_contents($path) : '';	
+		return unserialize($data);
+	}// end _loadPerformanceData()
+	
+	
 }//end class
 
 ?>
