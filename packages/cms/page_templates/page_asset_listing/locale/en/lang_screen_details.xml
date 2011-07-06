@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.20 2009/07/15 05:16:32 wszymanski Exp $
+* $Id: lang_screen_details.xml,v 1.21 2011/07/06 08:01:57 cupreti Exp $
 *
 */
 -->
@@ -31,6 +31,10 @@
 			<display_name />
 			<note />
 		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+		</field>		
 	</section>
 	<section name="Asset Locations">
 		<field>
