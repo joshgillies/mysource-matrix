@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.3 2011/04/26 23:50:00 ewang Exp $
+* $Id: dps_processor.inc,v 1.4 2011/07/06 04:55:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -37,7 +37,7 @@ class Dps_Processor
 	 * 
 	 * @var array
 	 */
-	private static $_URL = 'https://www.paymentexpress.com/pxpost.aspx';
+	private static $_URL = 'https://sec.paymentexpress.com/pxpost.aspx';
 
 
 	/**
