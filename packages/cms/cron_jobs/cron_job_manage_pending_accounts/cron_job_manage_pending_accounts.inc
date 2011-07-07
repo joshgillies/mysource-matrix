@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.13 2011/05/11 23:32:47 ewang Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.14 2011/07/07 04:45:28 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,7 +201,10 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						if (!empty($resent_link)) continue;
 						
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
-
+						if(empty($user)) {
+							trigger_error("User #".$user_assetid." doesn't exist", E_USER_WARNING);
+							continue;
+						}
 						// Resend the validation and create a notice link so email does not get resent in future cron runs.
 						if ($asset->resendValidation($user->attr('username'))) $GLOBALS['SQ_SYSTEM']->am->createAssetLink($pending_group, $user, SQ_LINK_NOTICE, 'validation_email_resent');
 
@@ -236,7 +239,10 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						$user_linkid  = $user_row['linkid'];
 
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
-
+						if(empty($user)) {
+							trigger_error("User #".$user_assetid." doesn't exist", E_USER_WARNING);
+							continue;
+						}
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($user_assetid);
 
 						// trick the user asset into thinking we're purging the
