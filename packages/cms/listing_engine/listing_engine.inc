@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.326 2011/07/06 08:00:48 cupreti Exp $
+* $Id: listing_engine.inc,v 1.327 2011/07/07 00:33:21 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.326 $
+* @version $Revision: 1.327 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3139,7 +3139,7 @@ class Listing_Engine extends Page
 
 			$parameter_map = $this->getAttribute('parameter_map');
 			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
-			$empty_dynamic_roots = FALSE;
+			$empty_dynamic_roots = TRUE;
 
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!empty($raw_dynamic_root_nodes)) {
@@ -3174,13 +3174,13 @@ class Listing_Engine extends Page
 				
 				if (!empty($dynamic_root_nodes)) {
 					$root_asset_ids = $dynamic_root_nodes;
-				} else {
-					$empty_dynamic_roots = TRUE;
+					$empty_dynamic_roots = FALSE;
 				}
 
 			}//end if
 			
-			if ($empty_dynamic_roots && $this->attr('dynamic_root_option') == 'empty_result') {
+			$dynamic_parameters = unserialize($this->attr('parameter_map'));
+			if (isset($dynamic_parameters['root_node']) && $empty_dynamic_roots && $this->attr('dynamic_root_option') == 'empty_result') {
 				$root_asset_ids = Array();
 			} else if (empty($root_asset_ids)) {
 				$root_asset_ids = Array($this->id);
