@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.327 2011/07/07 00:33:21 cupreti Exp $
+* $Id: listing_engine.inc,v 1.328 2011/07/07 03:36:50 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.327 $
+* @version $Revision: 1.328 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -720,15 +720,6 @@ class Listing_Engine extends Page
 			return;
 		}
 		
-		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
-		// this flag can be set if getAssetList() function returns different format of array.
-		// you can find the example in Search List. Also see getAssetList()'s comment
-		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
-			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
-			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
-		}
-		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
-		
 		// Timer!
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'groupAssets');
 		// the list is sorted and positions set, now we can split to groups
@@ -780,6 +771,15 @@ class Listing_Engine extends Page
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
 
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
+		// this flag can be set if getAssetList() function returns different format of array.
+		// you can find the example in Search List. Also see getAssetList()'s comment
+		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
+			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($todo));
+		}
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
+		
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still
 		// respect the 'per page' settings - but with only one page in random
