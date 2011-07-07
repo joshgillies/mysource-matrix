@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2011/04/19 00:15:17 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2011/07/07 01:48:12 akarelia Exp $
 *
 */
 -->
@@ -55,7 +55,12 @@
 		<field attribute="force_simple_edit">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-
+		<field attribute="use_enhanced_js">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="batch_requests">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>	
     <section name="API Settings" write_access="write:attributes">
         <field>
@@ -159,6 +164,10 @@
 		<field attribute="get_asset_tree">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="get_lineage">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+
 	</section>	
     <section name="Metadata" write_access="write:attributes">
 		<field attribute="get_metadata">
