@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.1.2.2 2011/07/07 04:10:54 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.1.2.3 2011/07/08 06:46:07 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1700,6 +1700,36 @@ function executeHTMLTidy(content, dataCallback)
 
 			<?php
 		}//end if(execute_html_tidy)
+
+		if ($js_api_asset->attr('get_lineage')) {
+			?>
+
+/**
+* Gets lineage based on the url passed for the asset
+*
+* @param string		asset_url		the asset url we are getting lineage from
+* @param function	dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function getLineage(asset_url, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var asset_url = isset(asset_url) ? asset_url.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
+	
+	// Build our string
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getLineage&asset_url=' + asset_url;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getLineage()
+
+
+			<?php
+		}//end if(get_lineage)
 
 
 	}//end paintJSFunctions()
