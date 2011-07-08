@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.17 2011/07/07 01:48:12 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.18 2011/07/08 05:28:34 akarelia Exp $
 *
 */
 -->
@@ -208,7 +208,7 @@
             <display_name>Get Lineage</display_name>
             <note />
         </field>
-   </section>
+    </section>
     <section name="Metadata" write_access="write:attributes">
         <field attribute="get_metadata">
             <display_name>Get Metadata</display_name>

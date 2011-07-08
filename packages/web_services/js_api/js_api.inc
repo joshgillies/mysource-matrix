@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.77 2011/07/07 01:57:56 akarelia Exp $
+* $Id: js_api.inc,v 1.78 2011/07/08 05:28:34 akarelia Exp $
 *
 */
 
@@ -22,13 +22,17 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
 class JS_Api extends Page
 {
 
+	/*
+	* maping array for the function
+	* and the attribute to enable them
+	*/
 	private $_attribute_mapping = Array(
 									'getAssetTypes'					=> 'get_asset_types',
 									'trashAsset'					=> 'trash_asset',
@@ -65,8 +69,13 @@ class JS_Api extends Page
 									'getWorkflowSchema'				=> 'get_workflow_schema',
 									'createFileAsset'				=> 'create_asset',
 									'setContentOfEditableFileAsset'	=> 'set_file_content',
+									'getLineage'					=> 'get_lineage',
 								  );
 
+	/*
+	* array mapping the function call 
+	* the permission needed to access them
+	*/
 	private $_permission_mapping = Array(
 									'getGeneral'					=> Array('read_access'),
 									'getAttributes'					=> Array('read_access'),
@@ -103,6 +112,7 @@ class JS_Api extends Page
 									'importAssetsFromXML'			=> Array('no_check'),
 									'getRoles'						=> Array('no_check'),
 									'executeHTMLTidy'				=> Array('no_check'),
+									'getLineage'					=> Array('no_check'),
 								   );
 	/**
 	* Constructor
@@ -570,7 +580,7 @@ class JS_Api extends Page
 
 		return $data;
 
-	}// end updateMultipleLinks
+	}// end _updateMultipleLinks
 
 
 	/**
@@ -1907,6 +1917,108 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _setContentOfEditableFileAsset
+
+
+	/**
+	* get the lineage of the passed asset
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$internal_call	
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getLineage($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE, $internal_call=FALSE)
+	{
+		// we have the url in the args, lets get it and get the asset are dealing with
+		$url = array_get_index($args, 'asset_url', '');
+
+
+		if (!empty($url)) {
+			// cant get lineage of root_folder, DUHH !
+			if ($url == '1') return Array();
+
+			// now if we have url we have a ready made function in asset_manager.inc we can use
+			// although we manipulate the results as it not the elements/format we want
+			$url_bits = parse_url($url);
+			if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
+				$data = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
+				// now we have a lot of data, lets filter it out
+				foreach ($data as $index => $lineage) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($lineage['linkid'], $lineage['assetid'], 'minor');
+					$treeid_array = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($lineage['linkid']);
+
+					$data[$index]['parent_assetid']		= $link['majorid'];
+					$data[$index]['parent_type_code']	= $link['major_type_code'];
+					$data[$index]['treeid']				= $treeid_array[$lineage['linkid']][0][0];
+
+					unset($data[$index]['short_name']);
+					unset($data[$index]['status']);
+					unset($data[$index]['protocol']);
+					unset($data[$index]['url']);
+					for ($i = 0; $i <=9; $i++) {
+						// removing duplicate data
+						unset($data[$index][$i]);
+					}
+				}
+			}// end if url
+
+			// could be an assetid, yes people do that !
+			else if (is_numeric($url) || (preg_match('/^[0-9]*:/i', $url) != FALSE)) {
+				$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
+				$lineages	= $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($url, 0, NULL, Array('name', 'type_code'));
+
+				$data = Array();
+				$asset_id_done = Array();
+				// do this just for the immidiate parent
+				foreach ($lineages as $index => $lineage) {
+					$treeid_array 			= $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($lineage['linkid']);
+					$asset_id_done[]		= $asset->id;
+					$info['tree_id']		= $treeid_array[$lineage['linkid']][0][0];
+					$info['assetid']		= $url;
+					$info['name']			= $asset->name;
+					$info['type_code']		= $asset->type();
+					$info['link_type']		= $lineage['link_type'];
+					$info['link_value']		= $lineage['link_value'];
+					$info['linkid']			= $lineage['linkid'];
+					// now if we have just one element in 'lineage' we are golden
+					// else we need to work out more
+					$parents_ids = array_keys($lineage['lineage']);
+					if (count($lineage['lineage']) == 1) {
+						$info['parent_assetid']		= $parents_ids[0];
+						$info['parent_type_code']	= $lineage['lineage'][$parents_ids[0]]['type_code'];
+						if ($internal_call) return $info;
+					} else {
+						$parent_id = end($parents_ids);
+						$info['parent_assetid']		= $parent_id;
+						$info['parent_type_code']	= $lineage['lineage'][$parent_id]['type_code'];
+						if ($internal_call) return $info;
+					}
+
+					foreach ($parents_ids as $parent_id) {
+						if ($parent_id == '1' || in_array($parent_id, $asset_id_done)) continue;
+						$higher_parent_info = $this->_getLineage(Array('asset_url' => $parent_id), NULL, FALSE, FALSE, TRUE);
+						$asset_id_done[] = $parent_id;
+						$data[] = $higher_parent_info;
+					}
+					$data[] = $info;
+				}
+			}else {
+				$data['error'] = 'URL supplied is invalid';
+			}
+		} else {
+			$data['error'] = 'No URL supplied';
+		}
+
+		return $data;
+
+	}// end _getLineage
+
 
 	/**
 	* Gets general information for the passed in Asset

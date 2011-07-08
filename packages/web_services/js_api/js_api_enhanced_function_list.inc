@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.1 2011/07/07 01:50:06 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.2 2011/07/08 05:28:34 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -288,12 +288,9 @@ class Js_Api_Enhanced_Function_List
 
 		},// end _cleanUrlParam
 
-
 			<?php
-		log_dump($js_api_asset);
 		if ($js_api_asset->attr('batch_requests')) {
 			?>
-
 
 		batchRequest: function(options)
 		{
@@ -426,12 +423,12 @@ class Js_Api_Enhanced_Function_List
 				return {
 					// Set the default values
 					defaults: {
-						url:                '',
+						asset_url: 	        '',
 						dataCallback:       function(){}
 					},
 
 					// Set the required arguments
-					required: ['url']
+					required: ['asset_url']
 				};
 			}// end if
 
@@ -441,10 +438,10 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			// Encode the url
-			options.url = encodeURI(options.url);
+			options.asset_url = encodeURI(options.asset_url);
 
 			this._doPost(fnName,[
-				['url', options.url]
+				['asset_url', options.asset_url]
 			],options);
 
 		},// end getLineage
