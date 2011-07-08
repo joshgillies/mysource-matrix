@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.6 2011/07/07 02:07:43 ewang Exp $
+* $Id: content_type_snippet.inc,v 1.7 2011/07/08 01:30:26 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -136,16 +136,10 @@ class Content_Type_Snippet extends Content_Type
 						// exclude snippet that has not been initialised
 						continue;
 					}
-					// grab html source code of content type, except Nested Content which has to be printed
-					if ($content_type instanceof Content_Type_Nest_Content) {
-						ob_start();
-							$container->printBody();
-							$content = ob_get_contents();
-						ob_end_clean();
-					}
-					else {
-						$content = $content_type->attr('html');
-					}
+					
+					// grab html source code of content type
+					$content = $content_type->attr('html');
+					
 					$results[$id] = Array(
 										'name'		=> $container->name,
 										'content'	=> $content,
