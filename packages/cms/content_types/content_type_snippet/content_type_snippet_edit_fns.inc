@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_edit_fns.inc,v 1.4 2007/12/10 06:32:47 rong Exp $
+* $Id: content_type_snippet_edit_fns.inc,v 1.4.18.1 2011/07/08 01:34:55 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -215,10 +215,6 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 
-			// no access, do not change anything
-			$snippets = $asset->getSnippets();
-			if (empty($snippets)) return FALSE;
-
 			// update view style and selected snippet
 			if (isset($_POST[$prefix.'_viewstyle'])) {
 				$asset->setAttrValue('view_style', $_POST[$prefix.'_viewstyle']);
@@ -228,7 +224,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			$current_id = (is_null($current_snippet)) ? 0 : $current_snippet->id;
 			$new_id = (isset($_POST[$prefix.'_dropdown'])) ? $_POST[$prefix.'_dropdown'] : 0;
 
-			if (!$new_id && !isset($snippets[$current_id])) {
+			if (!$new_id && (!$current_id || !$current_snippet->readAccess())) {
 				// no new id set, and does not have access to current snippet
 				// prevent accidental overwrite
 				return FALSE;
