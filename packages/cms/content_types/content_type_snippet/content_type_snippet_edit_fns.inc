@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_edit_fns.inc,v 1.5 2011/07/08 01:30:27 ewang Exp $
+* $Id: content_type_snippet_edit_fns.inc,v 1.6 2011/07/10 23:45:29 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -142,7 +142,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			foreach ($snippets as $id => $info) {
 				$dropdown[$id] = $id.': '.$info['name'];
 				// print the content for quick switching later
-				hidden_field($prefix.'_hidden_source_'.$id, nl2br(htmlspecialchars($info['content'])));
+				hidden_field($prefix.'_hidden_source_'.$id, $info['type'] == 'content_type_nest_content' ? $info['content'] : nl2br(htmlspecialchars($info['content'])));
 				hidden_field($prefix.'_hidden_html_'.$id, $info['content']);
 			}
 
@@ -163,7 +163,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 						<span id="<?php echo $prefix.'_displayarea'; ?>" name="<?php echo $prefix.'_displayarea'; ?>">
 						<?php
 						if ($current_view == 'source' && $source_safe) {
-							echo nl2br(htmlspecialchars($current_content));
+							echo $snippets[$current_id]['type'] == 'content_type_nest_content' ? $current_content : nl2br(htmlspecialchars($current_content));
 						} else {
 							echo $current_content;
 						}
