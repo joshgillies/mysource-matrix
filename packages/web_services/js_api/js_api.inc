@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.78 2011/07/08 05:28:34 akarelia Exp $
+* $Id: js_api.inc,v 1.79 2011/07/10 23:01:39 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -204,20 +204,20 @@ class JS_Api extends Page
 		// Get our JSON data that was sent, then encode it into an array
 		$api_key = array_get_index($_REQUEST, 'key', '');
 		$id = array_get_index($_REQUEST, 'id', '');
-		$function_calls = array_get_index($_REQUEST, 'type', '');
+		$function_type = array_get_index($_REQUEST, 'type', '');
 
 		// Check to see if we have a function type
-		if (empty($function_calls)) {
+		if (empty($function_type)) {
 			$this->returnError('You must set a function type');
 			restore_error_handler();
 			return;
 		}
 
-		if ($function_calls == 'batchRequest') {
+		if ($function_type == 'batchRequest') {
 			$function_calls = array_keys($_REQUEST['functions']);
 			$batching_request = TRUE;
 		} else {
-			$function_calls = Array($function_calls);
+			$function_calls = Array($function_type);
 			$batching_request = FALSE;
 		}
 
@@ -338,9 +338,13 @@ class JS_Api extends Page
 			$track_func++;
 		}
 
-		// weather we are batchign the request or not
-		// we always send back the data from the last function we executed
-		$data = $results[$track_func - 1];
+		// if we are batching request, send back all the data we have
+		// if not, then pick the 0th index of the results because thats our baby
+		if ($function_type == 'batchRequest') {
+			$data = $results;
+		} else {
+			$data = $results[$track_func - 1];
+		}
 
 		// Send our data as JSON
 		if (isset($data)) {
