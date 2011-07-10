@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.5.6.2 2011/07/08 01:34:55 ewang Exp $
+* $Id: content_type_snippet.inc,v 1.5.6.3 2011/07/10 23:49:13 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5.6.2 $
+* @version $Revision: 1.5.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,7 +141,8 @@ class Content_Type_Snippet extends Content_Type
 					
 					$results[$id] = Array(
 										'name'		=> $container->name,
-										'content'	=> $content,
+										'content'                              => $content,
+                                                                                                                                                                                                                                                'type'		=> $content_type->type(),
 									);
 				}
 				unset($content_type);
