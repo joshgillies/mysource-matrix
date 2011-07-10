@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.329 2011/07/08 03:58:17 cupreti Exp $
+* $Id: listing_engine.inc,v 1.330 2011/07/10 23:14:38 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.329 $
+* @version $Revision: 1.330 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -725,8 +725,8 @@ class Listing_Engine extends Page
 		// this flag can be set if getAssetList() function returns different format of array.
 		// you can find the example in Search List. Also see getAssetList()'s comment
 		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
-			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($todo));
+			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
+			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
 		}
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
 		
