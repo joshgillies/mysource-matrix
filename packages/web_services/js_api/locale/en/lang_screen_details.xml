@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.16.2.2 2011/07/08 06:46:07 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.16.2.3 2011/07/10 22:19:37 akarelia Exp $
 *
 */
 -->
@@ -73,7 +73,7 @@
 		</field>
 		<field attribute="batch_requests">
 			<display_name>Allow Batching Requests</display_name>
-			<note>Enables the &lt;i&gt;batchRequest&lt;/i&gt; function which can perform multiple function calls in one API call&lt;br /&gt; &lt;b&gt;NOTE:&lt;/b&gt; The returned result is just the output of the last performed function in the batched request</note>
+			<note>Enables the &lt;i&gt;batchRequest&lt;/i&gt; function which can perform multiple function calls in one API call&lt;br /&gt; &lt;b&gt;NOTE:&lt;/b&gt; The returned result is all data returned by the performed functions in the batched request</note>
 		</field>
 
     </section>
