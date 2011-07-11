@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.844.2.1 2011/06/29 06:38:24 akarelia Exp $
+* $Id: asset_manager.inc,v 1.844.2.2 2011/07/11 00:35:30 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.844.2.1 $
+* @version $Revision: 1.844.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3825,6 +3825,7 @@ class Asset_Manager extends MySource_Object
 			foreach ($link_info[$majorid] as $link_data) {
 				$link_type = $link_data['link_type'];
 				$linkid = $link_data['linkid'];
+				$link_value = $link_data['value'];
 
 				$asset_lineage = Array();
 				foreach ($link_tree as $tree_data) {
@@ -3851,6 +3852,7 @@ class Asset_Manager extends MySource_Object
 				$link_lineages[] = Array(
 									'linkid'	=> $linkid,
 									'link_type'	=> $link_type,
+									'link_value'=> $link_value,
 									'lineage'	=> $asset_lineage,
 								   );
 			}//end foreach
@@ -7897,12 +7899,12 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type, al.value AS link_value, al.linkid AS linkid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.assetid = a.assetid
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk al ON a.assetid = al.minorid
 				'.$where.'
-				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$group_by_protocol.'
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$group_by_protocol.', al.value, al.linkid
 				ORDER BY l.url ASC';
 
 		try {
