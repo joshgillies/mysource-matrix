@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.36 2010/10/19 22:58:58 cupreti Exp $
+#* $Id: backup.sh,v 1.37 2011/07/11 01:51:50 csmith Exp $
 #*
 #*/
 #
@@ -146,21 +146,26 @@ pg_dbdump()
 		return
 	fi
 
-	file_exists "pg_dump"
-	if [ $? -gt 0 ]; then
-		print_verbose ""
-		print_error "Unable to create postgres dump."
-		print_error "Make sure 'pg_dump' is in your path."
-		print_error "The database has not been included in the backup."
-		print_verbose ""
-		exit
-		return
+	
+	if [ "x${PGDUMP}" != "x" ]; then
+		pgdump="${PGDUMP}"
+	else
+		file_exists "pg_dump"
+		if [ $? -gt 0 ]; then
+			print_verbose ""
+			print_error "Unable to create postgres dump."
+			print_error "Make sure 'pg_dump' is in your path."
+			print_error "The database has not been included in the backup."
+			print_verbose ""
+			exit
+			return
+		fi
+
+		# We know the file exists so grab the path.
+		pgdump=`which pg_dump`
 	fi
 
-	# We know the file exists so grab the path.
-	pgdump=`which pg_dump`
-
-	pgpass_filename="${SYSTEM_ROOT}/.pgpass_${db}"
+	pgpass_filename="${SYSTEM_ROOT}/data/.pgpass_${db}"
 
 	print_verbose "Creating pgpass file (${pgpass_filename})"
 
@@ -196,7 +201,7 @@ pg_dbdump()
 
 	dumpfile=${dumpdir}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
 
-	echo "${dumpfile}" >> "${SYSTEM_ROOT}/.extra_backup_files"
+	echo "${dumpfile}" >> "${SYSTEM_ROOT}/data/.extra_backup_files"
 
 	echo $pgpass_string > ${pgpass_filename}
 
@@ -207,24 +212,10 @@ pg_dbdump()
 
 	print_verbose "Dumping database out to ${dumpfile} .. "
 
-	outputfile="${SYSTEM_ROOT}/.pgdumpoutput"
+	outputfile="${SYSTEM_ROOT}/data/.pgdumpoutput"
 
 	${pgdump} ${args} -f ${dumpfile} ${db} 2> ${outputfile}
-
-	if [ $? -gt 0 ]; then
-		print_verbose ""
-		print_error "*** Unable to create dumpfile ${dumpfile}."
-		print_error ""
-		output=`cat ${outputfile}`
-		print_error "${output}"
-		print_error ""
-		print_verbose ""
-		return 1
-	else
-		print_verbose "Finished dumping database."
-	fi
-
-	rm -f ${outputfile}
+	pgdumpsuccess=$?
 
 	print_verbose "Cleaning up temp pgpass file .. "
 
@@ -234,6 +225,23 @@ pg_dbdump()
 	rm -f ${pgpass_filename}
 
 	print_verbose "Finished cleaning up temp pgpass file."
+
+	if [ ${pgdumpsuccess} -gt 0 ]; then
+		print_verbose ""
+		print_error "*** Unable to create dumpfile ${dumpfile}."
+		print_error ""
+		output=`cat ${outputfile}`
+		print_error "${output}"
+		print_error ""
+		print_verbose ""
+		rm -f ${outputfile}
+		return 1
+	else
+		print_verbose "Finished dumping database."
+	fi
+
+	rm -f ${outputfile}
+
 }
 
 if [ "x$1" = "x" ]; then
@@ -313,8 +321,8 @@ if [ $? -gt 0 ]; then
 	CRON_RUN=1
 fi
 
-if [ -f "${SYSTEM_ROOT}/.extra_backup_files" ]; then
-	rm -f "${SYSTEM_ROOT}/.extra_backup_files"
+if [ -f "${SYSTEM_ROOT}/data/.extra_backup_files" ]; then
+	rm -f "${SYSTEM_ROOT}/data/.extra_backup_files"
 fi
 
 if [ "x${PHP}" != "x" ]; then
@@ -337,7 +345,7 @@ if [ "x${PHP}" = "x" ]; then
 	exit 1
 fi
 
-touch "${SYSTEM_ROOT}/.extra_backup_files"
+touch "${SYSTEM_ROOT}/data/.extra_backup_files"
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 matrix_318_php_code="<?php
@@ -477,11 +485,12 @@ oracle_dbdump()
 
 	# Also need the hostname to see if we need to do a remote dump
 	# since we're not using ' ' as the separator,
-	# the field we want is actually #3.
-	dbhost=`echo $hostspec | awk -F'/' '{ print $3 }'`
+	# the field we want is actually #1.
+	dbhost=`echo $hostspec | awk -F'/' '{ print $1 }'`
 	print_verbose ""
 	print_verbose "Found a dbhost of ${dbhost}"
 	print_verbose ""
+
 	if [ "$dbhost" != "localhost" ]; then
 		if [ "x$remote_user" = "x" ]; then
 			print_verbose ""
@@ -543,7 +552,7 @@ oracle_dbdump()
 
 	dumpfile=${dumpfilepath}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
 
-	echo "${dumpfile}" >> "${SYSTEM_ROOT}/.extra_backup_files"
+	echo "${dumpfile}" >> "${SYSTEM_ROOT}/data/.extra_backup_files"
 
 	print_verbose "Dumping database out to ${dumpfile} .. "
 
@@ -589,7 +598,7 @@ oracle_dbdump()
 	return 0
 }
 
-dumpdir="${SYSTEM_ROOT}"
+dumpdir="${SYSTEM_ROOT}/data"
 if [ "${database_only}" -eq 1 ]; then
 	dumpdir="${backupdir}"
 fi
@@ -636,8 +645,8 @@ esac
 
 # We've specified database-only, so stop
 if [ "${database_only}" = "1" ]; then
-	if [ -f "${SYSTEM_ROOT}/.extra_backup_files" ]; then
-		rm -f "${SYSTEM_ROOT}/.extra_backup_files"
+	if [ -f "${SYSTEM_ROOT}/data/.extra_backup_files" ]; then
+		rm -f "${SYSTEM_ROOT}/data/.extra_backup_files"
 	fi
 	exit $rc
 fi
@@ -670,11 +679,11 @@ mydir=`pwd`
 cd "${sysroot_dir}/"
 
 print_verbose "Creating an exclude file .. "
-exclude_file="${mydir}/tar_exclude_file"
+exclude_file="${mydir}/data/.tar_exclude_file"
 echo "${exclude_file}" > "${exclude_file}"
-echo "${sysroot_base}/tar_exclude_file" >> "${exclude_file}"
+echo "${sysroot_base}/data/.tar_exclude_file" >> "${exclude_file}"
 echo "${sysroot_base}/${backupfilename}" >> "${exclude_file}"
-echo "${sysroot_base}/.extra_backup_files" >> "${exclude_file}"
+echo "${sysroot_base}/data/.extra_backup_files" >> "${exclude_file}"
 echo "${backupdir}/${backupfilename}" >> "${exclude_file}"
 
 for file in `find "${sysroot_base}" -name cache -o -name data -prune -o -type f -name '*-backup.tar*' -print`; do
@@ -772,7 +781,7 @@ print_verbose ""
 
 print_verbose "Cleaning up .. "
 
-files=`cat ${SYSTEM_ROOT}/.extra_backup_files`
+files=`cat ${SYSTEM_ROOT}/data/.extra_backup_files`
 for file in $files; do
 	rm -f "${file}"
 	if [ $? -gt 0 ]; then
@@ -782,7 +791,7 @@ for file in $files; do
 	fi
 done
 
-file="${SYSTEM_ROOT}/.extra_backup_files"
+file="${SYSTEM_ROOT}/data/.extra_backup_files"
 rm -f "${file}"
 if [ $? -gt 0 ]; then
 	print_verbose ""
