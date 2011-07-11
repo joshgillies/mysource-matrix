@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.330 2011/07/10 23:14:38 cupreti Exp $
+* $Id: listing_engine.inc,v 1.331 2011/07/11 02:04:42 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.330 $
+* @version $Revision: 1.331 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3179,9 +3179,8 @@ class Listing_Engine extends Page
 				}
 
 			}//end if
-			
-			$dynamic_parameters = unserialize($this->attr('parameter_map'));
-			if (isset($dynamic_parameters['root_node']) && $empty_dynamic_roots && $this->attr('dynamic_root_option') == 'empty_result') {
+			$dynamic_parameters = $parameter_map->getParameters();
+			if (in_array('root_node', $dynamic_parameters) && $empty_dynamic_roots && $this->attr('dynamic_root_option') == 'empty_result') {
 				$root_asset_ids = Array();
 			} else if (empty($root_asset_ids)) {
 				$root_asset_ids = Array($this->id);

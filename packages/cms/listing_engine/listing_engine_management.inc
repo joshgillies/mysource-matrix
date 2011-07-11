@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.83 2011/07/06 08:00:48 cupreti Exp $
+* $Id: listing_engine_management.inc,v 1.84 2011/07/11 02:04:42 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -472,7 +472,20 @@ class Listing_Engine_Management extends Asset_Management
 																				'empty_result'		=> 'Return empty result',
 																			   ),
 														   ),
-									  );										
+									  );
+		$this->vars['dynamic_asset_selection_option'] = Array(
+										'added'			=> '0.16',
+										'type'			=> 'selection',
+										'default'		=> 'static_root',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				'static_root'		=> 'Use static root node',
+																				'empty_result'		=> 'Return empty result',
+																			   ),
+														   ),
+									  );
 										
 										
 	}//end constructor
