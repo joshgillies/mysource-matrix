@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.2 2011/07/08 05:28:34 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.3 2011/07/12 05:38:03 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -266,7 +266,7 @@ function getChildCount(asset_id, level, dataCallback)
 	var level = isset(level) ? level : 0;
 
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getChildCount&asset_id=' + asset_id + '&depth=' + level;
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getChildCount&asset_id=' + asset_id + '&levels=' + level;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -567,8 +567,8 @@ function getChildren(asset_id, levels, type_codes, link_types, link_values, get_
 	var url = '<?php echo $api_url; ?>' +
 				'?key=' + api_key +
 				'&type=getChildren&id=' + asset_id +
-				'&depth=' + levels +
-				'&type_code=' + type_code +
+				'&levels=' + levels +
+				'&type_codes=' + type_code +
 				'&link_type=' + link_type +
 				'&link_value=' + link_value +
 				'&get_attributes=' + get_attributes;
@@ -650,8 +650,8 @@ function getParents(asset_id, levels, type_codes, link_types, link_values, get_a
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
 				'&type=getParents&id=' + asset_id +
-				'&depth=' + levels +
-				'&type_code=' + type_code +
+				'&levels=' + levels +
+				'&type_codes=' + type_code +
 				'&link_type=' + link_type +
 				'&link_value=' + link_value +
 				'&get_attributes=' + get_attributes;
@@ -1339,7 +1339,7 @@ function getAssetTree(asset_id, levels, dataCallback)
 	var levels = typeof(levels) != 'undefined' ? levels : 0;
 
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getAssetTree&id=' + asset_id + '&depth=' + levels;
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getAssetTree&id=' + asset_id + '&levels=' + levels;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
@@ -1727,6 +1727,45 @@ function getLineage(asset_url, dataCallback)
 
 }//end getLineage()
 
+
+			<?php
+		}//end if(get_lineage)
+
+		if ($js_api_asset->attr('batch_requests')) {
+			?>
+
+/**
+* Gets lineage based on the url passed for the asset
+*
+* @param json		function		s
+* @param function	dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function batchRequest(functions, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	// Loop through the functions to validate
+	for (var index in functions) {
+		fnName = functions[index].function;
+		// Error check that the function name supplied is a valid function
+		if (!(window[fnName])) {
+			throw "The function name " + functions[index].function + " does not exist";
+		}
+	}
+
+	// Package up the required function calls into string to POST
+	var postData = JSON.stringify(functions);
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=batchRequest&functions=' + postData;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getLineage()
 
 			<?php
 		}//end if(get_lineage)

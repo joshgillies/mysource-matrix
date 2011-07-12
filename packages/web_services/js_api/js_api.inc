@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.79 2011/07/10 23:01:39 akarelia Exp $
+* $Id: js_api.inc,v 1.80 2011/07/12 05:38:03 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -70,6 +70,7 @@ class JS_Api extends Page
 									'createFileAsset'				=> 'create_asset',
 									'setContentOfEditableFileAsset'	=> 'set_file_content',
 									'getLineage'					=> 'get_lineage',
+									'batchRequest'					=> 'batch_requests',
 								  );
 
 	/*
@@ -113,6 +114,7 @@ class JS_Api extends Page
 									'getRoles'						=> Array('no_check'),
 									'executeHTMLTidy'				=> Array('no_check'),
 									'getLineage'					=> Array('no_check'),
+									'batchRequest'					=> Array('no_check'),
 								   );
 	/**
 	* Constructor
@@ -214,7 +216,17 @@ class JS_Api extends Page
 		}
 
 		if ($function_type == 'batchRequest') {
-			$function_calls = array_keys($_REQUEST['functions']);
+			// check to see if batching is allowed else complain
+			if (!$this->_attribute_mapping[$function_type]) {
+				$this->returnError('The '.$type.' function must be activated');
+				restore_error_handler();
+				return;
+			}
+
+			$functions_info = json_decode($_REQUEST['functions'], TRUE);
+			foreach ($functions_info as $index => $info) {
+				$function_calls[$index] = $info['function'];
+			}
 			$batching_request = TRUE;
 		} else {
 			$function_calls = Array($function_type);
@@ -280,8 +292,38 @@ class JS_Api extends Page
 
 		foreach ($function_calls as $type) {
 			// lets decide on what arguments we need to pass through for execution
-			if ($batch_request) {
-				$args = $_REQUEST['functions'][$type];
+			$blocking = FALSE;
+			if ($batching_request) {
+				$args = $functions_info[$track_func]['args'];
+				$blocking = (isset($functions_info[$track_func]['blocking']) && $functions_info[$track_func]['blocking']) ? TRUE : FALSE;
+
+				// so we are batching requests
+				// in this case we get the assetid needed
+				// to start with from the first function call
+				// and then every consecutive time get it from the output of previously
+				// executed function is the format there is %results_0_*% type
+				// else it might be a raw input and we use that
+				if ($track_func === 0 || strpos($args['id'], '%results_') === FALSE) {
+					if (isset($args['id'])) {
+						$id = $args['id'];
+					} else if (isset($args['asset_id'])) {
+						$id = $args['asset_id'];
+					}
+				} else {
+					// okie so we arent the first called function in batched request
+					// and we are to use the assetid from the previous function exec
+					$keyword = $args['id'];
+					$instructions = explode('_', trim($keyword, '%'));
+					// if we know where to take the new id from, do it or 
+					// else just continue with the previous one we have been using
+					$string_to_eval = '';
+					if (count($instructions) >= 3) {
+						for ($i = 1; $i < count($instructions); $i++) {
+							$string_to_eval .= '[$'."instructions[$i]]";
+						}
+						eval('$id = $results'.$string_to_eval.';');
+					}
+				}
 			} else {
 				// old API way
 				$args = $_REQUEST;
@@ -315,7 +357,7 @@ class JS_Api extends Page
 						$ra = $asset->readAccess();
 						$wa = FALSE;
 					} else {
-						//check if there is any runing workflow schema on it
+						// check if there is any runing workflow schema on it
 						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
 						if(!empty($running_wfs)) {
@@ -329,6 +371,13 @@ class JS_Api extends Page
 
 				$func_name = '_'.$type;
 				$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+
+				// if batching request and one of the function is set to blocking
+				// and of the function execution returned error bail out
+				if (isset($results[$track_func]['error']) && $blocking) {
+					$results['error'] = 'Function '.$type.' set to blocking returned error';
+					break;
+				}
 
 			} else {
 				$this->returnError('The '.$type.' function must be activated');
@@ -490,10 +539,10 @@ class JS_Api extends Page
 		if (isset($args['asset_id']) && !empty($args['asset_id'])) {
 			$assetid = $args['asset_id'];
 			// Check to see how deep we should go
-			if ($args['depth'] == '0') {
+			if ($args['levels'] == '0') {
 				$level = NULL;
 			} else {
-				$level = $args['depth'];
+				$level = $args['levels'];
 			}
 			$children = $this->getChildren($assetid, $level);
 			$data['child_count'] = count($children);
@@ -1029,19 +1078,19 @@ class JS_Api extends Page
 	{
 
 		if ($read_access) {
-			if (empty($args['depth']) && $args['depth'] != '0') {
-				$data['error'] = 'Please set a depth limit';
+			if (empty($args['levels']) && $args['levels'] != '0') {
+				$data['error'] = 'Please set a depth(levels) limit';
 				return $data;
 			}
 			// Check to see how deep we should go
-			if ($args['depth'] == '0') {
+			if ($args['levels'] == '0') {
 				$level = NULL;
 			} else {
-				$level = $args['depth'];
+				$level = $args['levels'];
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			$type_codes		= (isset($args['type_code']) && $args['type_code'] != '') ? explode('\\,', $args['type_code']) : Array();
+			$type_codes		= (isset($args['type_codes']) && $args['type_codes'] != '') ? explode('\\,', $args['type_codes']) : Array();
 			$link_types		= (isset($args['link_type']) && $args['link_type'] != '') ? explode('\\,', $args['link_type']) : Array();
 			$link_values	= (isset($args['link_value']) && $args['link_value'] != '') ? explode('\\,', $args['link_value']) : Array() ;
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
@@ -1082,19 +1131,19 @@ class JS_Api extends Page
 				$data['error'] = 'The root asset does not have any parents';
 				return $data;
 			}
-			if (empty($args['depth']) && $args['depth'] != '0') {
-				$data['error'] = 'Please set a depth limit';
+			if (empty($args['levels']) && $args['levels'] != '0') {
+				$data['error'] = 'Please set a depth(levels) limit';
 				return $data;
 			}
 			// Check to see how deep we should go
-			if ($args['depth'] == '0') {
+			if ($args['levels'] == '0') {
 				$level = NULL;
 			} else {
-				$level = $args['depth'];
+				$level = $args['levels'];
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			$type_codes		= (isset($args['type_code']) && $args['type_code'] != '') ? explode('\\,', $args['type_code']) : Array();
+			$type_codes		= (isset($args['type_codes']) && $args['type_codes'] != '') ? explode('\\,', $args['type_codes']) : Array();
 			$link_types		= (isset($args['link_type']) && $args['link_type'] != '') ? explode('\\,', $args['link_type']) : Array();
 			$link_values	= (isset($args['link_value']) && $args['link_value'] != '') ? explode('\\,', $args['link_value']) : Array();
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
@@ -1543,10 +1592,10 @@ class JS_Api extends Page
 	{
 		if ($read_access) {
 			// Check to see how deep we should go
-			if (empty($args['depth'])) {
+			if (empty($args['levels'])) {
 				$levels = NULL;
 			} else {
-				$levels = $args['depth'];
+				$levels = $args['levels'];
 			}//end if
 
 			$data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($asset->id, $levels);
@@ -1951,27 +2000,14 @@ class JS_Api extends Page
 			// although we manipulate the results as it not the elements/format we want
 			$url_bits = parse_url($url);
 			if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
-				$data = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
-				// now we have a lot of data, lets filter it out
-				foreach ($data as $index => $lineage) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($lineage['linkid'], $lineage['assetid'], 'minor');
-					$treeid_array = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($lineage['linkid']);
-
-					$data[$index]['parent_assetid']		= $link['majorid'];
-					$data[$index]['parent_type_code']	= $link['major_type_code'];
-					$data[$index]['treeid']				= $treeid_array[$lineage['linkid']][0][0];
-
-					unset($data[$index]['short_name']);
-					unset($data[$index]['status']);
-					unset($data[$index]['protocol']);
-					unset($data[$index]['url']);
-					for ($i = 0; $i <=9; $i++) {
-						// removing duplicate data
-						unset($data[$index][$i]);
-					}
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
+				if (!is_null($asset)) {
+					return $this->_getLineage(Array('asset_url' => $asset->id));
+				} else {
+					$data['error'] = 'URL supplied does not point to asset in Matrix';
 				}
-			}// end if url
 
+			}// end if url
 			// could be an assetid, yes people do that !
 			else if (is_numeric($url) || (preg_match('/^[0-9]*:/i', $url) != FALSE)) {
 				$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
@@ -2557,7 +2593,7 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
-			$parent_arr[$parent_asset->id] = array_merge($this->getGeneralInfo($parent_asset, $also_attributes), $show);
+			$parent_arr[] = array_merge($this->getGeneralInfo($parent_asset, $also_attributes), $show);
 
 		}//end foreach
 
@@ -2651,7 +2687,7 @@ class JS_Api extends Page
 			$direct_shadow_children = $am->getLinks($child->id, SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE);
 			$show['direct_notice_linked_children'] = count($direct_shadow_children);
 
-			$children_arr[$child->id] = array_merge($this->getGeneralInfo($child, $also_attributes), $show);
+			$children_arr[] = array_merge($this->getGeneralInfo($child, $also_attributes), $show);
 
 		}//end foreach
 

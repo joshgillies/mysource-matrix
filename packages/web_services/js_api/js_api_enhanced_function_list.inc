@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.2 2011/07/08 05:28:34 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.3 2011/07/12 05:38:03 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -314,11 +314,11 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			// Loop through the functions to validate
-			for (var processFnName in options.functions) {
-				if (options.functions.hasOwnProperty(processFnName)) {
+			for (var index in options.functions) {
+				if (options.functions.hasOwnProperty(index.function)) {
 					// Error check that the fnName supplied is a valid function
-					if (typeof(this[processFnName]) !== "function") {
-						throw "The function name " + processFnName + " does not exist";
+					if (typeof(this[index.function]) !== "function") {
+						throw "The function name " + index.function + " does not exist";
 					}// end if
 				}// end if
 			}// end for
@@ -405,7 +405,7 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['asset_id', options.asset_id],
-				['depth',options.level]
+				['levels',options.level]
 			],options);
 
 		},// end getChildCount
@@ -513,7 +513,7 @@ class Js_Api_Enhanced_Function_List
 					// Set the default values
 					defaults: {
 						asset_id:           null,
-						attr_name:           '',
+						attr_name:          '',
 						attr_val:           '',
 						dataCallback:       function(){}
 					},
@@ -789,7 +789,8 @@ class Js_Api_Enhanced_Function_List
 		*      levels:			number      Number of levels to return
 		*      type_codes:		array       asset type_code that we want back
 		*      link_types:		array       type of links we are looking for
-		*								Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*                                   Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:      array       link values we are looking for
 		*      get_attributes:	boolean     if we are getting non standard attribute values of the assets(FALSE by default)
 		*      dataCallback:	function    Custom callback function
 		* }
@@ -836,8 +837,8 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['depth', options.levels],
-				['type_code', options.type_codes.join('\\,')],
+				['levels', options.levels],
+				['type_codes', options.type_codes.join('\\,')],
 				['link_type', options.link_types.join('\\,')],
 				['link_value', options.link_values.join('\\,')],
 				['get_attributes', options.get_attributes]
@@ -893,8 +894,8 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['depth', options.levels],
-				['type_code', options.type_codes.join('\\,')],
+				['levels', options.levels],
+				['type_codes', options.type_codes.join('\\,')],
 				['link_type', options.link_types.join('\\,')],
 				['link_value', options.link_values.join('\\,')],
 				['get_attributes', options.get_attributes]
@@ -950,7 +951,7 @@ class Js_Api_Enhanced_Function_List
 				return {
 					// Set the default values
 					defaults: {
-						asset_id:           null,
+						parent_id:          null,
 						type_code:          '',
 						asset_name:         '',
 						link_type:          '',
@@ -964,7 +965,7 @@ class Js_Api_Enhanced_Function_List
 					},
 
 					// Set the required arguments
-					required: ['asset_id','type_code','asset_name','link_type']
+					required: ['parent_id','type_code','asset_name','link_type']
 				};
 			}// end if
 
@@ -977,7 +978,7 @@ class Js_Api_Enhanced_Function_List
 			options.is_exclusive = (convertToBoolean(options.is_exclusive)) ? 1 : 0;
 
 			this._doPost(fnName,[
-				['id', options.asset_id],
+				['id', options.parent_id],
 				['type_code', options.type_code],
 				['asset_name', this._cleanUrlParam(options.asset_name)],
 				['link_type', options.link_type],
@@ -1538,7 +1539,7 @@ class Js_Api_Enhanced_Function_List
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
-				['depth', options.levels]
+				['levels', options.levels]
 			],options);
 
 		},// end getAssetTree
