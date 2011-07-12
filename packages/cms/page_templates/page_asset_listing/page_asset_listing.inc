@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.137 2011/04/07 22:45:53 cupreti Exp $
+* $Id: page_asset_listing.inc,v 1.138 2011/07/12 00:05:01 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -188,6 +188,12 @@ class Page_Asset_Listing extends Listing_Engine
 			}//end foreach
 
 			return $assets_to_list;
+			
+		} else {		
+			$dynamic_asset_selection = $parameter_map->getParameters();
+			if (in_array('asset_selection', $dynamic_asset_selection) && $this->attr('dynamic_asset_selection_option') == 'empty_result') {
+				return Array();
+			}		
 		}//end if
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
