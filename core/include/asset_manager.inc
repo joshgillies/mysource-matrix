@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.847 2011/07/11 00:29:26 akarelia Exp $
+* $Id: asset_manager.inc,v 1.848 2011/07/12 04:06:45 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.847 $
+* @version $Revision: 1.848 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7899,12 +7899,12 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type, al.value AS link_value, al.linkid AS linkid
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.assetid = a.assetid
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk al ON a.assetid = al.minorid
 				'.$where.'
-				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$group_by_protocol.', al.value, al.linkid
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, a.status, '.$group_by_protocol.'
 				ORDER BY l.url ASC';
 
 		try {
