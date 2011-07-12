@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.396 2011/07/04 00:52:13 cupreti Exp $
+* $Id: lang_strings.xml,v 1.397 2011/07/12 06:56:33 cupreti Exp $
 *
 */
 
@@ -2847,5 +2847,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="mollom_test_mode_note">Test mode allows user tag posts as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
 	<string source="mollom_accept_bypassed_submission_question">Accept Bypassed Submission ?</string>
 	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond expectedly</string>
+
+	<!-- Trigger - Remove future lineage cron -->
+	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>
 
 </strings>

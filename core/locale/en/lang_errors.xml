@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.134 2011/05/25 06:30:04 cupreti Exp $
+* $Id: lang_errors.xml,v 1.135 2011/07/12 06:56:33 cupreti Exp $
 *
 */
 
@@ -1814,6 +1814,9 @@ Full Node Contents :
 	<!-- Roles -->
 	<error code="CORE0306">Cannot set roles. #%1$s is not a valid Role asset</error>
 	<error code="CORE0307">Cannot set roles. #%1$s is not a valid User/User Group asset</error>
+
+	<!-- Trigger - Remove future lineage cron -->
+	<error code="CORE0308">Cannot remove future lineage cron job #%1$s</error>
 	
 	
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
