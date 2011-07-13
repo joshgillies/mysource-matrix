@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.848 2011/07/12 04:06:45 akarelia Exp $
+* $Id: asset_manager.inc,v 1.849 2011/07/13 06:49:08 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.848 $
+* @version $Revision: 1.849 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3685,14 +3685,6 @@ class Asset_Manager extends MySource_Object
 			$link_types = SQ_SC_LINK_ALL;
 		}//end if
 
-		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
-						';
-
 		// we want to get all the parent links of this assetid and use these
 		// as the minorid in the query, effectively getting the lineages of the
 		// asset's immediate parents.
@@ -3700,14 +3692,22 @@ class Asset_Manager extends MySource_Object
 
 		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 		$sub_where = 'l.minorid = :minorid';
-		$sub_where .= ' and link_type < :link_types';
+		$sub_where .= ' and l.link_type < :link_types';
 		$bind_vars['minorid'] = (string)$assetid;
 		$bind_vars['link_types'] = $link_types;
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
+		
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid
+						INNER JOIN ('.$sub_sql.') x ON cl.minorid = x.majorid,
+					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
+						';
 
-		$where = 'cl.minorid IN ('.$sub_sql.')
-				  AND ct.treeid LIKE pt.treeid || '.'\''.'%'.'\''.'
+		$where = 'ct.treeid LIKE pt.treeid || '.'\''.'%'.'\''.'
 				  AND pt.treeid <= ct.treeid';
 
 		if (!is_null($from_treeid)) {
