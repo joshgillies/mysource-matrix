@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.38 2009/07/15 05:16:32 wszymanski Exp $
+* $Id: page_asset_listing_management.inc,v 1.38.12.1 2011/07/13 00:56:55 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,6 +80,19 @@ class Page_Asset_Listing_Management extends Asset_Management
 																			   ),
 														   ),
 									   );
+		$this->vars['dynamic_asset_selection_option'] = Array(
+										'added'			=> '0.16',
+										'type'			=> 'selection',
+										'default'		=> 'static_root',
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				'static_root'		=> 'Use static root node',
+																				'empty_result'		=> 'Return empty result',
+																			   ),
+														   ),														   
+									   );									   
 
 
 	}//end constructor

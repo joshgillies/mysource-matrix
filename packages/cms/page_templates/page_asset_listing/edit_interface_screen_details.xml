@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.42 2010/06/23 01:57:44 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.42.6.1 2011/07/13 00:56:55 cupreti Exp $
 *
 */
 -->
@@ -149,6 +149,12 @@
 		<field attribute="parameter_map" format="new_line">
 			<parameter_map />
 		</field>
+		<field attribute="dynamic_root_option">
+			<selection style="list" />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<selection style="list" />
+		</field>				
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
 		<field>
