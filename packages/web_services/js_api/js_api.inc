@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.80 2011/07/12 05:38:03 akarelia Exp $
+* $Id: js_api.inc,v 1.81 2011/07/14 00:14:58 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1287,6 +1287,7 @@ class JS_Api extends Page
 	/**
 	* acquires lock on the specified asset for the screen mentioned.
 	* forcibly if flag is set
+	* if the locks are already acquired then they are updated and extended
 	*
 	* @param array		$args			bundeled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
@@ -3232,6 +3233,7 @@ class JS_Api extends Page
 
 	/**
 	* Description: trys to acquire locks on the asset
+	* if the locks are already acquired then it will update them
 	*
 	* @param object	 $asset				the asset to acquire locks for
 	* @param string	 $screen			the screen for which to acquire locks for
@@ -3254,7 +3256,8 @@ class JS_Api extends Page
 		//lets prepare a hipo running vars
 		$res = NULL;
 		$locks = $this->getLocksInfo($asset->id, $screen);
-		if (empty($locks) || (!empty($locks) && $force_acquire)) {
+
+		if (empty($locks) || (!empty($locks) && $force_acquire) || (!empty($locks) && $screen == 'all')) {
 			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			require_once $job_dir.'/hipo_job_acquire_locks.inc';
 			$init_hipo = new Hipo_Job_Acquire_Locks();
@@ -3267,7 +3270,7 @@ class JS_Api extends Page
 			$init_hipo->setRunningVars($running_vars);
 			$init_hipo->_steps = $init_hipo->getInitialStepData();
 			if (!$init_hipo->prepare()) {
-				$return_array[] = 'Could not initialise HIPO job';
+				$return_array['error'] = 'Could not initialise HIPO job';
 				return $return_array;
 			}
 			set_error_handler(Array(&$init_hipo, '_errorHandler'));
@@ -3275,14 +3278,16 @@ class JS_Api extends Page
 			restore_error_handler();
 			$return_array = $init_hipo->getErrors();
 		} else {
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			foreach ($locks as $screen_lock => $lock_info) {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock_info['userid']);
-				$expires_in = easy_time_total(($lock_info['expires'] - time()), TRUE);
-				if (!$expires_in) $expires_in = '1 second';
-				$return_array[] = '"'.$screen_lock.'" locks are held by User "'.$user->name.'" (#'.$lock_info['userid'].') for Asset "'.$asset->name.'" (#'.$asset->id.'). This is due to expire in '.$expires_in;
+			// the locks are already acquired on the asset
+			// if we are asked again to do it mean we have
+			// to update the locks
+			if (!$GLOBALS['SQ_SYSTEM']->am->updateLock($asset->id, $screen)) {
+				$return_array['error'] = 'Unable to update locks for Asset '.$asset->name.'('.$asset->id.')';
+			} else {
+				$return_array[] = 'Locks for \''.$screen.'\' screen for Asset '.$asset->name.'('.$asset->id.') successfully updated';
 			}
 		}
+
 		return array_unique($return_array);
 	
 	}//end acquireLocks()

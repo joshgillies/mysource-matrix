@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.3 2011/07/12 05:38:03 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.4 2011/07/14 00:14:59 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -844,7 +844,8 @@ function getLocksInfo(asset_id, screen_name, dataCallback)
 		if ($js_api_asset->attr('acquire_lock')) {
 			?>
 /**
-* Acquires a lock
+* Acquires locks on the given asset. if the locks were already acquired
+* by current user then they are updated
 *
 * @param string		asset_id		Id of the asset to get locks for
 * @param string		screen_name		The screen to get locks for
