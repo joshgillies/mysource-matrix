@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.8 2011/02/11 01:29:38 mhaidar Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.9 2011/07/15 00:31:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -718,12 +718,6 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
                                            			       									'TypeCode'			=> self::$string_optional,
                                            			       								   ),
                                            			   ),
-                            'GetSchemasOnAsset'    => Array (
-															'SchemaSetInfo'				=> Array (
-																						   	'SchemaID'			=> self::$string_non_optional,
-																							'Granted'			=> self::$int_non_optional,
-																						   ),
-                                           			       ),
                           );
 
         $complex_types_available = parent::getComplexElements($complex_types);
