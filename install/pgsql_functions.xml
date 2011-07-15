@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.21 2011/02/23 00:28:14 akarelia Exp $
+* $Id: pgsql_functions.xml,v 1.22 2011/07/15 04:48:56 mhaidar Exp $
 *
 */
 -->
@@ -240,6 +240,7 @@
                 rb_date ALIAS FOR $3;
                 table_prefix VARCHAR;
                 sql VARCHAR;
+                sub_sql VARCHAR;
 				link_types ALIAS FOR $4;
             BEGIN
                 IF rb_date IS NULL THEN
@@ -248,30 +249,34 @@
                     table_prefix := ''sq_rb_'';
                 END IF;
 
-                sql := ''SELECT t.treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t 
-					ON l.linkid = t.linkid
-                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l WHERE l.minorid = '''''' || minorid || '''''''';
-
+				sub_sql := ''(SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l WHERE l.minorid = '''''' || minorid || '''''''';
+				
 				IF link_types IS NOT NULL THEN
-                	sql := sql || '' AND l.link_type < '''''' || link_types || '''''''';
+                	sub_sql := sub_sql || '' AND l.link_type < '''''' || link_types || '''''''';
 				END IF;
-
-                IF rb_date IS NOT NULL THEN
-                    -- note the extra bracket at the end of this statement to close the IN clause above
-                    sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
+				
+				IF rb_date IS NOT NULL THEN
+					-- note the extra bracket at the end of this statement to close the clause above
+                    sub_sql := sub_sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (l.sq_eff_to IS NULL
                                  OR l.sq_eff_to > '''''' || rb_date || '''''''' || ''))'';
+               	ELSE
+                    -- close the clause above
+                    sub_sql := sub_sql || '')'';
+                END IF;
+               	                  
+                sql := ''SELECT t.treeid FROM '' || table_prefix || ''ast_lnk l 
+                	INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
+                    INNER JOIN '' || sub_sql || '' x ON l.minorid = x.majorid'';
 
-                    sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
+                IF rb_date IS NOT NULL THEN
+                    sql := sql || '' WHERE l.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (l.sq_eff_to IS NULL
                                  OR l.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
 
                     sql := sql || '' AND t.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (t.sq_eff_to IS NULL
                                  OR t.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
-                ELSE
-                    --close the in clause above
-                    sql := sql || '')'';
                 END IF;
 
                 FOR treeids IN EXECUTE sql LOOP
