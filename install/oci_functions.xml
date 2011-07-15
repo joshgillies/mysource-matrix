@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.3 2011/02/23 00:27:33 akarelia Exp $
+* $Id: oci_functions.xml,v 1.4 2011/07/15 08:30:33 mhaidar Exp $
 *
 */
 -->
@@ -178,6 +178,7 @@
 				concat_treeids VARCHAR2(2000);
 				table_prefix VARCHAR2(6);
 				sql_str VARCHAR2(2000);
+				sub_sql_str VARCHAR2(2000);
 				cursor_ptr INTEGER;
 				ignore INTEGER;
 			BEGIN
@@ -186,16 +187,28 @@
 				ELSE
 					table_prefix := 'sq_rb_';
 				END IF;
-
-				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
-						    WHERE l.minorid = "' || minorid || '"';
+				
+				sub_sql_str := '(SELECT l.majorid FROM ' || table_prefix || 'ast_lnk l WHERE l.minorid = "' || minorid || '"';
 
 				IF link_types IS NOT NULL THEN
-					sql_str := sql_str || ' AND l.link_type < "' || link_types || '"';
+					sub_sql_str := sub_sql_str || ' AND l.link_type < "' || link_types || '"';
 				END IF;
+				
+				IF rb_date IS NOT NULL THEN
+					-- note the extra bracket at the end of this statement to close the clause above
+                    sub_sql_str := sub_sql_str || ' WHERE l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || '))';
+               	ELSE
+                    -- close the clause above
+                    sub_sql_str := sub_sql_str || ')';
+                END IF;
+				
+				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l 
+							INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
+							INNER JOIN ' || sub_sql_str || ' x ON l.minorid = x.majorid';
 
 				IF rb_date IS NOT NULL THEN
-                    sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+                    sql_str := sql_str || ' WHERE l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
 						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
 
 					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
@@ -214,7 +227,6 @@
 						DBMS_SQL.COLUMN_VALUE(cursor_ptr, 1, db_treeid);
 						offset := 1;
 						concat_treeids := '';
-						db_treeid := SUBSTR(db_treeid, 1, LENGTH(db_treeid) - SQ_TREE_BASE_SIZE);
 						LOOP
 							next_treeid := SUBSTR(db_treeid, offset, SQ_TREE_BASE_SIZE);
 							EXIT WHEN next_treeid IS NULL;
