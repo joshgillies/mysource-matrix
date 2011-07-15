@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.19 2010/12/14 03:03:27 mhaidar Exp $
+* $Id: ipb.inc,v 1.20 2011/07/15 04:32:29 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -324,9 +324,10 @@ class Ipb
 					$db_result = $this->db->query($sql);
 					$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
 
-					while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
+					while ($row = $this->db->{$this->command}($db_result)) {
 						$test[] = $row;
 					}
+                                                                                                                                                                $this->db->{$this->command_free}($db_result);
 					if (empty($test)) return FALSE;
 
 					@$converge->converge_load_member_by_id($test[0]['id']);
