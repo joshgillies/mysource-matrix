@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.9 2010/09/22 00:26:07 csmith Exp $
+* $Id: soap_api_link_service.inc,v 1.9.6.1 2011/07/15 00:32:37 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1025,12 +1025,7 @@ class Soap_Api_Link_Service extends Soap_Api
                                            			       									'TypeCode'			=> self::$string_non_optional,
                                            			       								   ),
                                            			   ),
-                            'GetSchemasOnAsset'    => Array (
-															'SchemaSetInfo'				=> Array (
-																						   	'SchemaID'			=> self::$string_non_optional,
-																							'Granted'			=> self::$int_non_optional,
-																						   ),
-                                           			       ),
+
                           );
 
         $complex_types_available = parent::getComplexElements($complex_types);
