@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.22 2011/07/15 04:48:56 mhaidar Exp $
+* $Id: pgsql_functions.xml,v 1.23 2011/07/15 09:13:08 mhaidar Exp $
 *
 */
 -->
@@ -249,17 +249,17 @@
                     table_prefix := ''sq_rb_'';
                 END IF;
 
-				sub_sql := ''(SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l WHERE l.minorid = '''''' || minorid || '''''''';
+				sub_sql := ''(SELECT lx.majorid FROM '' || table_prefix || ''ast_lnk lx WHERE lx.minorid = '''''' || minorid || '''''''';
 				
 				IF link_types IS NOT NULL THEN
-                	sub_sql := sub_sql || '' AND l.link_type < '''''' || link_types || '''''''';
+                	sub_sql := sub_sql || '' AND lx.link_type < '''''' || link_types || '''''''';
 				END IF;
 				
 				IF rb_date IS NOT NULL THEN
 					-- note the extra bracket at the end of this statement to close the clause above
-                    sub_sql := sub_sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
-                              '''''' AND (l.sq_eff_to IS NULL
-                                 OR l.sq_eff_to > '''''' || rb_date || '''''''' || ''))'';
+                    sub_sql := sub_sql || '' AND lx.sq_eff_from <= '''''' || rb_date ||
+                              '''''' AND (lx.sq_eff_to IS NULL
+                                 OR lx.sq_eff_to > '''''' || rb_date || '''''''' || ''))'';
                	ELSE
                     -- close the clause above
                     sub_sql := sub_sql || '')'';
