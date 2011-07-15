@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.4 2011/07/15 08:30:33 mhaidar Exp $
+* $Id: oci_functions.xml,v 1.5 2011/07/15 09:06:33 mhaidar Exp $
 *
 */
 -->
@@ -188,16 +188,16 @@
 					table_prefix := 'sq_rb_';
 				END IF;
 				
-				sub_sql_str := '(SELECT l.majorid FROM ' || table_prefix || 'ast_lnk l WHERE l.minorid = "' || minorid || '"';
+				sub_sql_str := '(SELECT lx.majorid FROM ' || table_prefix || 'ast_lnk lx WHERE lx.minorid = "' || minorid || '"';
 
 				IF link_types IS NOT NULL THEN
-					sub_sql_str := sub_sql_str || ' AND l.link_type < "' || link_types || '"';
+					sub_sql_str := sub_sql_str || ' AND lx.link_type < "' || link_types || '"';
 				END IF;
 				
 				IF rb_date IS NOT NULL THEN
 					-- note the extra bracket at the end of this statement to close the clause above
-                    sub_sql_str := sub_sql_str || ' WHERE l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
-						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || '))';
+                    sub_sql_str := sub_sql_str || ' AND lx.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (lx.sq_eff_to IS NULL OR lx.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || '))';
                	ELSE
                     -- close the clause above
                     sub_sql_str := sub_sql_str || ')';
