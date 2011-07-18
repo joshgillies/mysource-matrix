@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.71 2010/03/10 21:59:17 ewang Exp $
+* $Id: hipo_job_edit_status.inc,v 1.71.6.1 2011/07/18 06:20:38 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.6.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -421,7 +421,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 					// If we are moving into a "pending approval" state and we have been sent
 					// a workflow stream name, then set that as the stream to use before changing status
-					if ((($current_status & SQ_SC_STATUS_CAN_APPROVE) > 0) && (($new_status & SQ_SC_STATUS_PENDING) > 0)) {
+					if ((($current_status & (SQ_SC_STATUS_CAN_APPROVE | SQ_STATUS_LIVE)) > 0) && (($new_status & SQ_SC_STATUS_PENDING) > 0)) {
 						if (array_get_index($this->_running_vars, 'workflow_stream') !== NULL) {
 							$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 							$wfm->setStartingStream($assetid, $this->_running_vars['workflow_stream']);
