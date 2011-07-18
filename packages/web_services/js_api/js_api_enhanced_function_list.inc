@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.4 2011/07/18 01:10:44 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.5 2011/07/18 06:28:17 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -401,8 +401,9 @@ class Js_Api_Enhanced_Function_List
 				return {
 					// Set the default values
 					defaults: {
-						asset_url: 	        '',
-						dataCallback:       function(){}
+						asset_url: 	           '',
+						significant_link_only: 1,
+						dataCallback:          function(){}
 					},
 
 					// Set the required arguments
@@ -418,8 +419,11 @@ class Js_Api_Enhanced_Function_List
 			// Encode the url
 			options.asset_url = encodeURI(options.asset_url);
 
+			options.significant_link_only = (convertToBoolean(options.significant_link_only)) ? 1 : 0;
+
 			this._doPost(fnName,[
-				['asset_url', options.asset_url]
+				['asset_url', options.asset_url],
+				['significant_link_only', options.significant_link_only]
 			],options);
 
 		},// end getLineage

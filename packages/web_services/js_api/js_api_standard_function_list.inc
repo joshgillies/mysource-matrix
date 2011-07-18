@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.4 2011/07/14 00:14:59 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.5 2011/07/18 06:28:17 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1529,7 +1529,6 @@ function getWorkflowSchema(asset_id, granted, running, dataCallback)
 
 	// we cannot pass TRUE or FALSE as string so lets do our conversion 
 	// but try conversion only if its a string still
-	// but try conversion only if its a string still
 	if (typeof(granted) == 'string') {
 		if (granted.toLowerCase() == 'false') {
 			granted = 0;
@@ -1708,20 +1707,32 @@ function executeHTMLTidy(content, dataCallback)
 /**
 * Gets lineage based on the url passed for the asset
 *
-* @param string		asset_url		the asset url we are getting lineage from
-* @param function	dataCallback	Custom callback function
+* @param string		asset_url				the asset url we are getting lineage from
+* @param boolean	significant_link_only	if get to get back significant (type_1 and type_2) links only
+* @param function	dataCallback			Custom callback function
 *
 * @return string
 * @access public
 */
-function getLineage(asset_url, dataCallback)
+function getLineage(asset_url, significant_link_only, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var asset_url = isset(asset_url) ? asset_url.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
-	
+	var significant_link_only = isset(significant_link_only) && (significant_link_only.toString().toLowerCase() != 'null' && significant_link_only != '' ) ? significant_link_only : 1;
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
+	// but try conversion only if its a string still
+	if (typeof(significant_link_only) == 'string') {
+		if(significant_link_only.toLowerCase() == 'false') {
+			significant_link_only = 0;
+		} else if (significant_link_only.toLowerCase() == 'true') {
+			significant_link_only = 1;
+		}
+	}
+
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getLineage&asset_url=' + asset_url;
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getLineage&asset_url=' + asset_url + '&significant_link_only=' + significant_link_only;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
