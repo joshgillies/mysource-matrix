@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.3 2011/07/12 05:38:03 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.4 2011/07/18 01:10:44 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -221,28 +221,6 @@ class Js_Api_Enhanced_Function_List
 			http.send(encodeURI(data(options.params)));
 
 		},// end _ajax
-
-
-		/**
-		* Shortcut function for sending post data
-		*/
-		_doPost: function(fnName,data,options)
-		{
-			var self = this;
-
-			// Add the 'type' parameter for as the calling function name
-			data.push(['type',fnName]);
-			self._http({
-				params: data,
-				onSuccess: function(json) {
-					// Every function should have a dataCallback argument
-					if (options.hasOwnProperty('dataCallback')) {
-						options.dataCallback.call(this,json);
-					}// end if
-				}
-			});
-
-		},// end _doPost
 
 
 		/**
@@ -1898,6 +1876,28 @@ class Js_Api_Enhanced_Function_List
 			<?php
 		}//end if(execute_html_tidy)
 		?>
+
+		/**
+		* Shortcut function for sending post data
+		*/
+		_doPost: function(fnName,data,options)
+		{
+			var self = this;
+
+			// Add the 'type' parameter for as the calling function name
+			data.push(['type',fnName]);
+			self._http({
+				params: data,
+				onSuccess: function(json) {
+					// Every function should have a dataCallback argument
+					if (options.hasOwnProperty('dataCallback')) {
+						options.dataCallback.call(this,json);
+					}// end if
+				}
+			});
+
+		}// end _doPost
+
 
 	};// end Squiz_Matrix_API methods
 
