@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.45 2010/05/12 04:24:46 mhaidar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.46 2011/07/18 04:43:36 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,14 +263,18 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 					case 'new_file_assetid' :
 					case 'existing_file_assetid' :
-						if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
-							$new_summary = get_asset_tag_line($value);
+						if (!empty($value)){
+							if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+								$new_summary = get_asset_tag_line($value);
+							} else {
+								$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+								$file_info = $file_asset->getExistingFile();
+								$type = array_get_index($standards_lists_mime_types, get_file_type($file_info['filename']), '');
+								if (!empty($type)) $type = ', type '.$type;
+								$new_summary = basename($file_info['filename']).$type.', '.easy_filesize($file_info['size']);
+							}
 						} else {
-							$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
-							$file_info = $file_asset->getExistingFile();
-							$type = array_get_index($standards_lists_mime_types, get_file_type($file_info['filename']), '');
-							if (!empty($type)) $type = ', type '.$type;
-							$new_summary = basename($file_info['filename']).$type.', '.easy_filesize($file_info['size']);
+							$new_summary = translate('core_form_file_upload_none');	
 						}
 
 					break;
@@ -578,7 +582,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 					// create location, no matter who we are. To avoid errors
 					// regarding write permissions, we'll force this through
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					if ($file_asset->create($link, $file_info)) {
+					if (!$file_asset->create($link, $file_info)) {
+						$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
 						$ok = FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
