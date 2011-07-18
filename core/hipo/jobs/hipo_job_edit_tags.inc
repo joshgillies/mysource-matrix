@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.16 2011/06/23 01:16:15 akarelia Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.17 2011/07/18 04:54:26 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,7 +209,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
 				}
-				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, SQ_SC_LINK_BACKEND_NAV);
+				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, Array(SQ_SC_LINK_BACKEND_NAV));
 
 				$child_assets[$assetid]	= Array (
 											0	=> Array (
