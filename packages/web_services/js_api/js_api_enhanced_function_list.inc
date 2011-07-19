@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.1.2.4 2011/07/12 05:48:51 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.1.2.5 2011/07/19 05:51:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.4 $
+* @version $Revision: 1.1.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -224,28 +224,6 @@ class Js_Api_Enhanced_Function_List
 
 
 		/**
-		* Shortcut function for sending post data
-		*/
-		_doPost: function(fnName,data,options)
-		{
-			var self = this;
-
-			// Add the 'type' parameter for as the calling function name
-			data.push(['type',fnName]);
-			self._http({
-				params: data,
-				onSuccess: function(json) {
-					// Every function should have a dataCallback argument
-					if (options.hasOwnProperty('dataCallback')) {
-						options.dataCallback.call(this,json);
-					}// end if
-				}
-			});
-
-		},// end _doPost
-
-
-		/**
 		* Validates options and returns merged data
 		*/
 		_options: function(required,defaults,options)
@@ -423,8 +401,9 @@ class Js_Api_Enhanced_Function_List
 				return {
 					// Set the default values
 					defaults: {
-						asset_url: 	        '',
-						dataCallback:       function(){}
+						asset_url: 	           '',
+						significant_link_only: 1,
+						dataCallback:          function(){}
 					},
 
 					// Set the required arguments
@@ -440,8 +419,11 @@ class Js_Api_Enhanced_Function_List
 			// Encode the url
 			options.asset_url = encodeURI(options.asset_url);
 
+			options.significant_link_only = (convertToBoolean(options.significant_link_only)) ? 1 : 0;
+
 			this._doPost(fnName,[
-				['asset_url', options.asset_url]
+				['asset_url', options.asset_url],
+				['significant_link_only', options.significant_link_only]
 			],options);
 
 		},// end getLineage
@@ -1898,6 +1880,28 @@ class Js_Api_Enhanced_Function_List
 			<?php
 		}//end if(execute_html_tidy)
 		?>
+
+		/**
+		* Shortcut function for sending post data
+		*/
+		_doPost: function(fnName,data,options)
+		{
+			var self = this;
+
+			// Add the 'type' parameter for as the calling function name
+			data.push(['type',fnName]);
+			self._http({
+				params: data,
+				onSuccess: function(json) {
+					// Every function should have a dataCallback argument
+					if (options.hasOwnProperty('dataCallback')) {
+						options.dataCallback.call(this,json);
+					}// end if
+				}
+			});
+
+		}// end _doPost
+
 
 	};// end Squiz_Matrix_API methods
 
