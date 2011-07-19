@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash.inc,v 1.8 2010/10/12 01:00:23 ewang Exp $
+* $Id: report_safe_trash.inc,v 1.8.6.1 2011/07/19 06:25:11 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,6 +91,7 @@ class Report_Safe_Trash extends Report implements Bridge
 							'url'			=> '',
 							'path'			=> '',
 							'locked'		=> 0,
+							'is_dependant'	=> 0,
 						   );
 
 				$sort_order++;

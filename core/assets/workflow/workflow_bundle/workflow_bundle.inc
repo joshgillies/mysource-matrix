@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle.inc,v 1.8 2010/01/14 02:01:57 mbrydon Exp $
+* $Id: workflow_bundle.inc,v 1.8.8.1 2011/07/19 06:25:11 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *   asset_status/ sub-directory of the asset.
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -308,6 +308,7 @@ class Workflow_Bundle extends Asset implements Bridge
 						'path'				=> '',
 						'num_kids'			=> -1,
 						'accessible'		=> 1,
+						'is_dependant'		=> 0,
 					 );
 
 			$sort_order++;

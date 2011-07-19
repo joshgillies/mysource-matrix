@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.41 2009/12/03 00:09:24 cupreti Exp $
+* $Id: simple_form.inc,v 1.41.10.1 2011/07/19 06:25:11 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -334,7 +334,6 @@ class Simple_Form extends Asset implements Bridge
 			unset($link['majorid']);
 			unset($link['minorid']);
 			unset($link['value']);
-			unset($link['is_dependant']);
 			unset($link['is_exclusive']);
 
 		}//end foreach

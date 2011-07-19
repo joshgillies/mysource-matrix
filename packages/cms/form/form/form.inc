@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.257.2.3 2011/06/22 07:52:35 cupreti Exp $
+* $Id: form.inc,v 1.257.2.4 2011/07/19 06:24:00 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.257.2.3 $
+* @version $Revision: 1.257.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -696,7 +696,6 @@ class Form extends Asset implements Bridge
 			unset($link['majorid']);
 			unset($link['minorid']);
 			unset($link['value']);
-			unset($link['is_dependant']);
 			unset($link['is_exclusive']);
 
 		}//end foreach
