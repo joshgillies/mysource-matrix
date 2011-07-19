@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.28 2011/05/25 03:55:43 akarelia Exp $
+* $Id: content_type_nest_content.inc,v 1.28.2.1 2011/07/19 00:13:28 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -154,6 +154,25 @@ class Content_Type_Nest_Content extends Content_Type
 	}//end linksUpdated()
 
 
+                                /**
+                    * Called to generate the special interface for snippet content type
+                    *
+                    * @return string
+                    * @access public
+                    */     
+                               public  function getSnippetInterface()
+                               {
+                                        $edit_fns = $this ->getEditFns();
+                                        $nested_asset =   $edit_fns->_getNestedAsset($this);
+                                        $asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+
+                                        if (empty($asset_link)) {
+                                            $asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
+                                        }
+                                        $content = '<strong>'.translate('cms_ct_nest_content_nested_content').get_asset_tag_line($nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
+                                        return $content;
+                            }
+        
 }//end class
 
 ?>
