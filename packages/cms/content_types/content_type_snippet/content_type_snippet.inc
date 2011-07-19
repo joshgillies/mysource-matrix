@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.9 2011/07/11 17:39:10 ata Exp $
+* $Id: content_type_snippet.inc,v 1.10 2011/07/19 00:14:10 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -139,6 +139,12 @@ class Content_Type_Snippet extends Content_Type
 					
 					// grab html source code of content type
 					$content = $content_type->attr('html');
+                                                                                                                                                                
+                                                                                                                                                                // special interface for nest content type
+                                                                                                                                                                if($content_type->type()  === 'content_type_nest_content') {
+                                                                                                                                                                    $content = $content_type->getSnippetInterface();
+                                                                                                                                                                }
+                                    
 					
 					$results[$id] = Array(
 										'name'		=> $container->name,
