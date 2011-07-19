@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.301 2011/05/11 05:26:12 ewang Exp $
+* $Id: asset_map.inc,v 1.302 2011/07/19 04:01:30 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.301 $
+* @version $Revision: 1.302 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1052,7 +1052,7 @@ class Asset_Map
 			}
 
 			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
-						l.linkid, l.link_type, l.sort_order, ap.path, u.url,
+						l.linkid, l.link_type, l.sort_order, l.is_dependant, ap.path, u.url,
 						(CASE u.'.$primary_protocol.'
 							WHEN \'1\' THEN :primary_protocol
 							WHEN \'0\' THEN :secondary_protocol
@@ -1285,6 +1285,7 @@ class Asset_Map
 										'sort_order'	=> $link_data['sort_order'],
 										'url'			=> $link_asset->getURL(),
 										'path'			=> '',
+										'is_dependant'	=> $link_data['is_dependant']
 									);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 					}//end foreach
@@ -1351,6 +1352,7 @@ class Asset_Map
 						'sort_order'	=> $asset['sort_order'],
 						'url'			=> urlencode($asset['url']),
 						'web_path'		=> urlencode($asset['path']),
+						'is_dependant'	=> $asset['is_dependant'],
 					 );
 					 
 			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
