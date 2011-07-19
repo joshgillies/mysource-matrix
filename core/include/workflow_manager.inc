@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.163.2.1 2011/07/05 05:55:19 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.163.2.2 2011/07/19 07:15:26 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163.2.1 $
+* @version $Revision: 1.163.2.2 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1785,6 +1785,7 @@ class Workflow_Manager extends MySource_Object
 									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'	=> $asset->name,
+									'assetid'		=> $asset->id,
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 									'asset_url'		=> $asset->getDependantParentsURL(),
 									'asset_version'	=> $asset->version,

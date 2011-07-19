@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.7 2011/04/08 05:10:46 mhaidar Exp $
+* $Id: lang_screen_messages.xml,v 1.7.2.1 2011/07/19 07:15:26 mhaidar Exp $
 *
 */
 -->
@@ -79,7 +79,7 @@
 			<strong>Note:</strong> If an asset has multiple workflows, each workflow will use its current step's custom rejection message. A generic message is also sent to the user who originally started the workflow. Only one generic message will be sent to each user, per asset.
 			<p>Keywords available to this message include:</p>
 			<ul>
-				<li><strong>%asset_name%, %type_code%</strong> - The name and type code of the affected asset.</li>
+				<li><strong>%assetid%, %asset_name%, %type_code%</strong> - The ID, name and type code of the affected asset.</li>
 				<li><strong>%user_name%</strong> - The name of the message recipient</li>
 				<li><strong>%workflow_user%</strong> - The name of the user that rejected the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
