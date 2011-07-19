@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75.2.6 2011/07/14 00:50:39 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.7 2011/07/19 05:46:24 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75.2.6 $
+* @version $Revision: 1.75.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -116,6 +116,8 @@ class JS_Api extends Page
 									'getLineage'					=> Array('no_check'),
 									'batchRequest'					=> Array('no_check'),
 								   );
+
+
 	/**
 	* Constructor
 	*
@@ -1991,7 +1993,7 @@ class JS_Api extends Page
 	{
 		// we have the url in the args, lets get it and get the asset are dealing with
 		$url = array_get_index($args, 'asset_url', '');
-
+		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);
 
 		if (!empty($url)) {
 			// cant get lineage of root_folder, DUHH !
@@ -2003,7 +2005,7 @@ class JS_Api extends Page
 			if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
 				if (!is_null($asset)) {
-					return $this->_getLineage(Array('asset_url' => $asset->id));
+					return $this->_getLineage(Array('asset_url' => $asset->id, 'significant_link_only' => $significant_link_only));
 				} else {
 					$data['error'] = 'URL supplied does not point to asset in Matrix';
 				}
@@ -2012,7 +2014,7 @@ class JS_Api extends Page
 			// could be an assetid, yes people do that !
 			else if (is_numeric($url) || (preg_match('/^[0-9]*:/i', $url) != FALSE)) {
 				$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
-				$lineages	= $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($url, 0, NULL, Array('name', 'type_code'));
+				$lineages	= $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($url, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 
 				$data = Array();
 				$asset_id_done = Array();
@@ -2043,7 +2045,7 @@ class JS_Api extends Page
 
 					foreach ($parents_ids as $parent_id) {
 						if ($parent_id == '1' || in_array($parent_id, $asset_id_done)) continue;
-						$higher_parent_info = $this->_getLineage(Array('asset_url' => $parent_id), NULL, FALSE, FALSE, TRUE);
+						$higher_parent_info = $this->_getLineage(Array('asset_url' => $parent_id, 'significant_link_only' => $significant_link_only), NULL, FALSE, FALSE, TRUE);
 						$asset_id_done[] = $parent_id;
 						$data[] = $higher_parent_info;
 					}
@@ -2083,46 +2085,36 @@ class JS_Api extends Page
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if (isset($asset->created_userid) && $asset->created_userid != '' && (int)$asset->created_userid != 0 ) {
-			if($am->assetExists($asset->created_userid)) {
-				$created_user = $am->getAsset($asset->created_userid);
-			} else {
-				$created_user = 'Unknown User';
-			}
-		} else if (isset($asset->created_userid) && (int)$asset->created_userid == 0) {
-			$created_user = 'Root User';
-		} else {
-			$created_user = 'Undefined';
-		}
+		$user_to_check = Array(
+							'created_user'		=> Array(
+														'id'		=> 'created_userid',
+														'default'	=> 'Undefined',
+												   ),
+							'updated_user'		=> Array(
+														'id'		=> 'updated_userid',
+														'default'	=> 'Never Updated',
+												   ),
+							'published_user'	=> Array(
+														'id'		=> 'published_userid',
+														'default'	=> 'Never Published',
+												   ),
+							'status_user'		=> Array(
+														'id'		=> 'status_changed_userid',
+														'default'	=> 'Never Changed',
+												   ),
+						 );
 
-		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
-			if($am->assetExists($asset->updated_userid)) {
-				$updated_user = $am->getAsset($asset->updated_userid);
+		foreach ($user_to_check as $user => $user_info) {
+			$user_id = $user_info['id'];
+			if (isset($asset->$user_id) && $asset->$user_id != '' && (int)$asset->$user_id != 0 ) {
+				if(!(${$user} = $am->getAsset($asset->$user_id, '', FALSE))) {
+					${$user} = 'Unknown User';
+				}
+			} else if (isset($asset->$user_id) && (int)$asset->$user_id == 0) {
+				${$user} = 'Root User';
 			} else {
-				$updated_user = 'Unknown User';
+				${$user} = $user_info['default'];
 			}
-		} else {
-			$updated_user = 'Never Updated';
-		}
-
-		if (isset($asset->published_userid) && $asset->published_userid != '' && (int)$asset->published_userid != 0 ) {
-			if($am->assetExists($asset->published_userid)) {
-				$published_user = $am->getAsset($asset->published_userid);
-			} else {
-				$published_user = 'Unknown User';
-			}
-		} else {
-			$published_user = 'Never Published';
-		}
-
-		if (isset($asset->status_changed_userid) && $asset->status_changed_userid != '' && (int)$asset->status_changed_userid != 0 ) {
-			if($am->assetExists($asset->status_changed_userid)) {
-				$status_user = $am->getAsset($asset->status_changed_userid);
-			} else {
-				$status_user = 'Unknown User';
-			}
-		} else {
-			$status_user = 'Never Changed';
 		}
 
 		$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
@@ -2136,19 +2128,20 @@ class JS_Api extends Page
 		//if we havent got max permissions yet try the user id and all the user groups it belongs in
 		if($effective_permission === '' ) {
 			foreach($array_to_check_in as $user_group_id) {
-				if ($effective_permission != '' ) continue;
 				if ($asset->adminAccess('', Array($user_group_id))) {
 					$effective_permission = 'Admin Access';
-				}else if($asset->writeAccess('', Array($user_group_id), FALSE)) {
+					break;
+				} else if ($asset->writeAccess('', Array($user_group_id), FALSE)) {
 					$effective_permission = 'Write Access';
-				} else if($asset->readAccess(Array($user_group_id))) {
+					break;
+				} else if ($asset->readAccess(Array($user_group_id))) {
 					$effective_permission = 'Read Access';
+					break;
 				}
 			}
 		}
 
 		// Get general info about asset
-		
 		$data = Array(
 					'name'						=>	$asset->name,
 					'short_name'				=>	$asset->short_name,
@@ -2623,18 +2616,17 @@ class JS_Api extends Page
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$children_arr =Array();
+		if (empty($type_codes)) $type_codes = '';
+		foreach ($link_types as $index => $link_type) {
+			 if(defined($link_type)) $link_types[$index] = constant($link_type);
+		}
 
-		$childrens = $am->getChildren($id, '', TRUE, NULL, NULL, NULL, TRUE, NULL, $level);
-		foreach ($childrens as $children => $child_id) {
-			$child = $am->getAsset($children);
-			// not in the type_code we want, remove it
-			if(!empty($type_codes) && !in_array($child->type(), $type_codes)) {
-				unset($childrens[$children]);
-				continue;
-			}
+		$children = $am->getChildren($id, $type_codes, TRUE, NULL, NULL, NULL, TRUE, NULL, $level, TRUE, NULL, $link_types);
+
+		foreach ($children as $child_id => $child_info) {
 
 			// Levels lower than 1 won't have a link id with the parent
-			if (!$this->hasLink($id, $children)) {
+			if (!$this->hasLink($id, $child_id)) {
 				$show['link_id']		= NULL;
 				$show['link_type']		= NULL;
 				$show['is_dependant']	= NULL;
@@ -2643,31 +2635,12 @@ class JS_Api extends Page
 				$show['link_value']		= NULL;
 				$show['locked']			= NULL;
 			} else {
-				$show_link = $this->getLinkId($id, $child->id, NULL, NULL, TRUE);
-				if (!$show_link) {
-					$data['error'] = 'Parent Asset #'.$id.' and Child Asset #'.$child->id.' do not have a valid link';
-					return $data;
-				}
+				$show_link = $this->getLinkId($id, $child_id, NULL, NULL, TRUE);
 
-				// abra-ka-dabra all except fo the link_values we are interested in
+				// avada kedavra all except fo the link_values we are interested in
 				if (!empty($link_values) && !in_array($show_link['value'], $link_values)) {
-					unset($childrens[$children]);
+					unset($children[$child_id]);
 					continue;
-				}
-
-				if(!empty($link_types)) {
-					$found = FALSE;
-					foreach($link_types as $link_type) {
-						if(defined($link_type) && (constant($link_type) == $show_link['link_type'])) {
-							$found = TRUE;
-						} else if (!defined($link_type) && ($link_type == $show_link['link_type'])) {
-							$found = TRUE;
-						}
-					}
-					if(!$found) {
-						unset($childrens[$children]);
-						continue;
-					}
 				}
 
 				$show['link_id']		= $show_link['link_id'];
@@ -2679,15 +2652,21 @@ class JS_Api extends Page
 				$show['locked']			= $show_link['locked'];
 			}
 
-			$direct_dependant_children = $am->getLinks($child->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, TRUE);
-			$show['direct_dependant_children'] = count($direct_dependant_children);
+			$sub_children = $am->getLinks($child_id, SQ_SC_LINK_ALL);
+			$sub_dependent_count = $sub_non_dependent_count = $sub_shadow_child_count = 0;
 
-			$direct_non_dependant_children = $am->getLinks($child->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, FALSE);
-			$show['direct_non_dependant_children'] = count($direct_non_dependant_children);
+			foreach ($sub_children as $idx => $sub_child) {
 
-			$direct_shadow_children = $am->getLinks($child->id, SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE);
-			$show['direct_notice_linked_children'] = count($direct_shadow_children);
+				if ($sub_child['link_type'] == SQ_LINK_NOTICE)	$sub_shadow_child_count++;
+				else if ($sub_child['is_dependant']) 			$sub_dependent_count++;
+				else if ($sub_child['is_dependant'] == 0) 		$sub_non_dependent_count++;
+			}
 
+			$show['direct_dependant_children']		= $sub_dependent_count;
+			$show['direct_non_dependant_children']	= $sub_non_dependent_count;
+			$show['direct_notice_linked_children']	= $sub_shadow_child_count;
+
+			$child = $am->getAsset($child_id);
 			$children_arr[] = array_merge($this->getGeneralInfo($child, $also_attributes), $show);
 
 		}//end foreach
