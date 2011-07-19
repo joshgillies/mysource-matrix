@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.30 2011/07/19 11:41:49 ata Exp $
+* $Id: content_type_nest_content.inc,v 1.31 2011/07/19 12:04:09 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,8 +161,8 @@ class Content_Type_Nest_Content extends Content_Type
 	 */
 	public function getSnippetInterface()
 	{
-		$edit_fns = $this ->getEditFns();
-		$nested_asset =   $edit_fns->_getNestedAsset($this);
+		$edit_fns = $this->getEditFns();
+		$nested_asset = $edit_fns->_getNestedAsset($this);
 		$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 		
 		if (empty($asset_link)) {
@@ -172,7 +172,7 @@ class Content_Type_Nest_Content extends Content_Type
 		
 		return $content;
 		
-	}
+	}//end getSnippetInterface()
 	
 	
 }//end class
