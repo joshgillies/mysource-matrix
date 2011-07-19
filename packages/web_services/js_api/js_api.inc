@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.82 2011/07/18 06:31:06 akarelia Exp $
+* $Id: js_api.inc,v 1.83 2011/07/19 05:06:10 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2085,46 +2085,36 @@ class JS_Api extends Page
 		// Set some shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if (isset($asset->created_userid) && $asset->created_userid != '' && (int)$asset->created_userid != 0 ) {
-			if($am->assetExists($asset->created_userid)) {
-				$created_user = $am->getAsset($asset->created_userid);
-			} else {
-				$created_user = 'Unknown User';
-			}
-		} else if (isset($asset->created_userid) && (int)$asset->created_userid == 0) {
-			$created_user = 'Root User';
-		} else {
-			$created_user = 'Undefined';
-		}
+		$user_to_check = Array(
+							'created_user'		=> Array(
+														'id'		=> 'created_userid',
+														'default'	=> 'Undefined',
+												   ),
+							'updated_user'		=> Array(
+														'id'		=> 'updated_userid',
+														'default'	=> 'Never Updated',
+												   ),
+							'published_user'	=> Array(
+														'id'		=> 'published_userid',
+														'default'	=> 'Never Published',
+												   ),
+							'status_user'		=> Array(
+														'id'		=> 'status_changed_userid',
+														'default'	=> 'Never Changed',
+												   ),
+						 );
 
-		if (isset($asset->updated_userid) && $asset->updated_userid != '' && (int)$asset->updated_userid != 0 ) {
-			if($am->assetExists($asset->updated_userid)) {
-				$updated_user = $am->getAsset($asset->updated_userid);
+		foreach ($user_to_check as $user => $user_info) {
+			$user_id = $user_info['id'];
+			if (isset($asset->$user_id) && $asset->$user_id != '' && (int)$asset->$user_id != 0 ) {
+				if(!(${$user} = $am->getAsset($asset->$user_id, '', FALSE))) {
+					${$user} = 'Unknown User';
+				}
+			} else if (isset($asset->$user_id) && (int)$asset->$user_id == 0) {
+				${$user} = 'Root User';
 			} else {
-				$updated_user = 'Unknown User';
+				${$user} = $user_info['default'];
 			}
-		} else {
-			$updated_user = 'Never Updated';
-		}
-
-		if (isset($asset->published_userid) && $asset->published_userid != '' && (int)$asset->published_userid != 0 ) {
-			if($am->assetExists($asset->published_userid)) {
-				$published_user = $am->getAsset($asset->published_userid);
-			} else {
-				$published_user = 'Unknown User';
-			}
-		} else {
-			$published_user = 'Never Published';
-		}
-
-		if (isset($asset->status_changed_userid) && $asset->status_changed_userid != '' && (int)$asset->status_changed_userid != 0 ) {
-			if($am->assetExists($asset->status_changed_userid)) {
-				$status_user = $am->getAsset($asset->status_changed_userid);
-			} else {
-				$status_user = 'Unknown User';
-			}
-		} else {
-			$status_user = 'Never Changed';
 		}
 
 		$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
@@ -2141,10 +2131,10 @@ class JS_Api extends Page
 				if ($asset->adminAccess('', Array($user_group_id))) {
 					$effective_permission = 'Admin Access';
 					break;
-				}else if($asset->writeAccess('', Array($user_group_id), FALSE)) {
+				} else if ($asset->writeAccess('', Array($user_group_id), FALSE)) {
 					$effective_permission = 'Write Access';
 					break;
-				} else if($asset->readAccess(Array($user_group_id))) {
+				} else if ($asset->readAccess(Array($user_group_id))) {
 					$effective_permission = 'Read Access';
 					break;
 				}
@@ -2152,7 +2142,6 @@ class JS_Api extends Page
 		}
 
 		// Get general info about asset
-		
 		$data = Array(
 					'name'						=>	$asset->name,
 					'short_name'				=>	$asset->short_name,
@@ -2648,7 +2637,7 @@ class JS_Api extends Page
 			} else {
 				$show_link = $this->getLinkId($id, $child_id, NULL, NULL, TRUE);
 
-				// abra-ka-dabra all except fo the link_values we are interested in
+				// avada kedavra all except fo the link_values we are interested in
 				if (!empty($link_values) && !in_array($show_link['value'], $link_values)) {
 					unset($children[$child_id]);
 					continue;
