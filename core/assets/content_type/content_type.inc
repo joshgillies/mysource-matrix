@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.28 2010/07/15 23:52:42 kmyothein Exp $
+* $Id: content_type.inc,v 1.28.6.1 2011/07/19 06:25:07 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,6 +202,13 @@ class Content_Type extends Asset
 		if ($contents_changed && $success) {
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'ContentsUpdated');
+                        
+                                                                                                 // broadcast conetnt chnaged trigger event for its top level parent
+                                                                                                $top_level_parents = $GLOBALS['SQ_SYSTEM']->am-> getDependantParents($this->id, '', TRUE, FALSE);
+                                                                                                foreach ($top_level_parents as $parentid) {
+                                                                                                    $parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+                                                                                                     $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_content_changed', $parent);
+                                                                                                }
 		}
 
 		return $success;
