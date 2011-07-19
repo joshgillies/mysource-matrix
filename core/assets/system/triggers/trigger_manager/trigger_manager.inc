@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.72 2011/06/30 04:25:55 ewang Exp $
+* $Id: trigger_manager.inc,v 1.73 2011/07/19 04:04:20 akarelia Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -377,6 +377,7 @@ class Trigger_Manager extends Asset implements Bridge
 						$link['sort_order'] = NULL;
 						$link['link_type'] = SQ_LINK_TYPE_1;
 						$link['locked'] = 0;
+						$link['is_dependant'] = 0;
 
 						$sort_index ['trigger'][] = $link['name'];
 						$links_unsorted['trigger'][] = $link;
@@ -404,6 +405,7 @@ class Trigger_Manager extends Asset implements Bridge
 						$link['sort_order'] = NULL;
 						$link['link_type'] = SQ_LINK_TYPE_1;
 						$link['locked'] = 0;
+						$link['is_dependant'] = 0;
 
 						$sort_index ['folder'][] = $link['name'];
 						$links_unsorted ['folder'][] = $link;

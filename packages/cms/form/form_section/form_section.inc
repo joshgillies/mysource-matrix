@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.77 2010/03/16 00:33:32 akarelia Exp $
+* $Id: form_section.inc,v 1.78 2011/07/19 04:05:12 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -626,7 +626,6 @@ class Form_Section extends Asset implements Bridge
 			unset($link['majorid']);
 			unset($link['minorid']);
 			unset($link['value']);
-			unset($link['is_dependant']);
 			unset($link['is_exclusive']);
 
 		}//end foreach
