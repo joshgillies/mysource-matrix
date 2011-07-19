@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.10 2011/07/19 00:14:10 ewang Exp $
+* $Id: content_type_snippet.inc,v 1.11 2011/07/19 11:31:23 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -132,24 +132,24 @@ class Content_Type_Snippet extends Content_Type
 					$content_type = $container->getContentType();
 					// recursion check to prevent snippet from nesting itself
 					if (!isset($content_type->id) || $content_type->id == $this->id) continue;
-					if (($content_type->type() == $this->type()) && $content_type->isEmpty()) {
+					$content_type_type = $content_type->type();
+					if (($content_type_type == $this->type()) && $content_type->isEmpty()) {
 						// exclude snippet that has not been initialised
 						continue;
 					}
 					
-					// grab html source code of content type
-					$content = $content_type->attr('html');
-                                                                                                                                                                
-                                                                                                                                                                // special interface for nest content type
-                                                                                                                                                                if($content_type->type()  === 'content_type_nest_content') {
-                                                                                                                                                                    $content = $content_type->getSnippetInterface();
-                                                                                                                                                                }
-                                    
+					// special interface for nest content type
+					if($content_type_type == 'content_type_nest_content') {
+						$content = $content_type->getSnippetInterface();
+					} else {
+						// grab html source code of other content types
+						$content = $content_type->attr('html');
+					}
 					
 					$results[$id] = Array(
 										'name'		=> $container->name,
 										'content'	=> $content,
-										'type'		=> $content_type->type(),
+										'type'		=> $content_type_type,
 									);
 				}
 				unset($content_type);
