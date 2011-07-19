@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75.2.7 2011/07/19 05:46:24 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.8 2011/07/19 23:03:06 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75.2.7 $
+* @version $Revision: 1.75.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -546,7 +546,7 @@ class JS_Api extends Page
 			} else {
 				$level = $args['levels'];
 			}
-			$children = $this->getChildren($assetid, $level);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, '', TRUE, NULL, NULL, NULL, TRUE, NULL, $level);
 			$data['child_count'] = count($children);
 		} else {
 			$data['error'] = 'Please Enter Asset Id to get the child count';
