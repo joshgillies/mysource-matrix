@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.229 2011/07/20 04:42:20 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.230 2011/07/20 05:02:51 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.229 $
+* @version $Revision: 1.230 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -852,7 +852,7 @@ class Metadata_Manager extends MySource_Object
 	* @access public
 	*/
 	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE, $broadcast_all_fields=FALSE)
-	{	$broadcast_all_fields = FALSE;
+	{	
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
