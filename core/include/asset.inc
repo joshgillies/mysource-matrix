@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.749 2011/06/09 02:46:38 mhaidar Exp $
+* $Id: asset.inc,v 1.750 2011/07/20 09:11:14 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.749 $
+* @version $Revision: 1.750 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1494,10 +1494,6 @@ class Asset extends MySource_Object
 			$this->updated        = $updated;
 			$this->updated_userid = $updated_userid;
 
-			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
-
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
-
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
 				trigger_localised_error('SYS0183', E_USER_WARNING, $this->name);
@@ -1508,6 +1504,10 @@ class Asset extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			
+			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
+
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
 
 		}//end if $this->id
 
@@ -2544,13 +2544,11 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
-
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$db = MatrixDAL::getDb();
 
 			$sql = 'UPDATE
@@ -2573,6 +2571,24 @@ class Asset extends MySource_Object
 				throw new Exception('Unable to update status of asset "'.$this->name.'" (#'.$this->id.'), due to database error: '.$e->getMessage());
 			}
 
+			$this->status = $new_status;
+			unset($this->_tmp['status_object']);
+
+			if ($run_updated) $this->_updated($update_parents);
+
+			// if we have just made this asset live, we update its minor version
+			if ($new_status == SQ_STATUS_LIVE) {
+				if (!$this->incrementVersion('minor', FALSE)) {
+					trigger_localised_error('SYS0271', E_USER_WARNING, $this->name);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+			
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			
 			// broadcast event notifying of status change
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
@@ -2592,23 +2608,7 @@ class Asset extends MySource_Object
 			$message = $ms->newMessage(Array(), 'asset.status', $msg_reps);
 			$message->parameters['assetid'] = $this->id;
 			$message->send();
-
-			$this->status = $new_status;
-			unset($this->_tmp['status_object']);
-
-
-			if ($run_updated) $this->_updated($update_parents);
-
-			// if we have just made this asset live, we update its minor version
-			if ($new_status == SQ_STATUS_LIVE) {
-				if (!$this->incrementVersion('minor', FALSE)) {
-					trigger_localised_error('SYS0271', E_USER_WARNING, $this->name);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
-				}
-			}
-
+			
 			// prepare the event data and fire trigger_event_status_changed
 			$event_data['old_status'] = $old_status;
 			if (isset($this->_tmp['old_urls'])) {
@@ -2619,9 +2619,6 @@ class Asset extends MySource_Object
 			}
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_status_changed', $this, $event_data);
 		}//end if
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
