@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.5 2011/07/18 06:28:17 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.6 2011/07/20 00:10:32 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1772,7 +1772,7 @@ function batchRequest(functions, dataCallback)
 	// Package up the required function calls into string to POST
 	var postData = JSON.stringify(functions);
 
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=batchRequest&functions=' + postData;
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=batchRequest&functions=' + postData.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
 	// Make our request
 	makeRequest(url, true, dataCallback);

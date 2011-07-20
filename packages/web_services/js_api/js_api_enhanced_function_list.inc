@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.5 2011/07/18 06:28:17 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.6 2011/07/20 00:10:32 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -305,7 +305,7 @@ class Js_Api_Enhanced_Function_List
 			var postData = JSON.stringify(options.functions);
 
 			this._doPost(fnName,[
-				['functions', postData]
+				['functions', this._cleanUrlParam(postData)]
 			],options);
 
 		},// end batchRequest
