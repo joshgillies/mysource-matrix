@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.6 2011/07/20 00:10:32 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.7 2011/07/20 04:39:50 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -270,6 +270,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('batch_requests')) {
 			?>
 
+		/**
+		* batches multiple JS API calls and executs them in one HTTP Request
+		*
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      functions:		json		json of all the function and its respective arguments to be passed in
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		batchRequest: function(options)
 		{
 			var fnName = 'batchRequest';
@@ -290,16 +300,6 @@ class Js_Api_Enhanced_Function_List
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
-
-			// Loop through the functions to validate
-			for (var index in options.functions) {
-				if (options.functions.hasOwnProperty(index.function)) {
-					// Error check that the fnName supplied is a valid function
-					if (typeof(this[index.function]) !== "function") {
-						throw "The function name " + index.function + " does not exist";
-					}// end if
-				}// end if
-			}// end for
 
 			// Package up the required function calls into string to POST
 			var postData = JSON.stringify(options.functions);
@@ -322,9 +322,9 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       Id of the asset we are getting info for
-		*      get_attributes: Set this to 1 to also return an assets attributes
-		*      dataCallback:	Custom callback function
+		*      asset_id:		string/int	Id of the asset we are getting info for
+		*      get_attributes:	boolean		Set this to 1 to also return an assets attributes
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		getGeneral: function(options)
@@ -359,6 +359,17 @@ class Js_Api_Enhanced_Function_List
 		},// end getGeneral
 
 
+		/**
+		* Gets child count for the passed asset uptill certain level
+		*
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset we are getting info for
+		*      level:			int			Number of levels to check, default : 'all'
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getChildCount: function(options)
 		{
 			var fnName = 'getChildCount';
@@ -394,6 +405,17 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_lineage')) {
 			?>
 
+		/**
+		* Gets lineage of the passed asset until the root_folder
+		*
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_url:				string		url(inclusing protocol) or the assetid of the asset
+		*      significant_link_only:	boolean		if get to get back significant (type_1 and type_2) links only
+		*      dataCallback:			function	Custom callback function
+		* }
+		*/
 		getLineage: function(options)
 		{
 			var fnName = 'getLineage';
@@ -435,12 +457,12 @@ class Js_Api_Enhanced_Function_List
 			?>
 
 		/**
-		* This will get an attribute value
+		* This will get all attribute value
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       Id of the asset we are getting info for
-		*      dataCallback:	Custom callback function
+		*      asset_id:		string/int	Id of the asset we are getting info for
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		getAttributes: function(options)
@@ -481,10 +503,10 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       string      Id of the asset we are setting attributes for
-		*      attr_name:		string      Name of the attribute to change
-		*      attr_val:		string      Value to change the attribute to
-		*      dataCallback:	function    Custom callback function
+		*      asset_id:		string/int	Id of the asset we are setting attributes for
+		*      attr_name:		string		Name of the attribute to change
+		*      attr_val:		string		Value to change the attribute to
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		setAttribute: function(options)
@@ -524,9 +546,9 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:		string      Id of the asset we are setting attributes for
-		*      field_info:		array       Attribute name and their respective values to be changed to
-		*      dataCallback:	function    Custom callback function
+		*      asset_id:		string/int	Id of the asset we are setting attributes for
+		*      field_info:		json		Attribute name and their respective values to be changed to
+		*      dataCallback:	sunction	Custom callback function
 		* }
 		*/
 		setMultipleAttributes: function(options)
@@ -579,8 +601,8 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       Id of the asset we are getting info for
-		*      dataCallback:	Custom callback function
+		*      asset_id:		string/int	Id of the asset we are getting info for
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		getMetadata: function(options)
@@ -621,10 +643,10 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       string      Id of the asset we are setting metadata for
-		*      field_id:       string      The asset id of the metadata field
-		*      field_val:      string      The value to set for the metadata field
-		*      dataCallback:	function    Custom callback function
+		*      asset_id:		string/int	Id of the asset we are setting metadata for
+		*      field_id:		string/int	The asset id of the metadata field
+		*      field_val:		string		The value to set for the metadata field
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		setMetadata: function(options)
@@ -664,9 +686,9 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:       string      Id of the asset we are setting attributes for
-		*      field_info:     array       Metadata field id and their respective values to be changed to
-		*      dataCallback:	function    Custom callback function
+		*      asset_id:		string/int	Id of the asset we are setting attributes for
+		*      field_info:		json		Metadata field id and their respective values to be changed to
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		setMetadataAllFields: function(options)
@@ -719,8 +741,8 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_ids:      mixed       A single string asset id, or array of strings for asset ids
-		*      dataCallback:	function    Custom callback function
+		*      asset_ids:		string/array	A single string asset id, or array of strings for asset ids
+		*      dataCallback:	function		Custom callback function
 		* }
 		*/
 		trashAsset: function(options)
@@ -767,14 +789,14 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_id:		string      Id of the asset we are setting attributes for
-		*      levels:			number      Number of levels to return
-		*      type_codes:		array       asset type_code that we want back
-		*      link_types:		array       type of links we are looking for
-		*                                   Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
-		*      link_value:      array       link values we are looking for
-		*      get_attributes:	boolean     if we are getting non standard attribute values of the assets(FALSE by default)
-		*      dataCallback:	function    Custom callback function
+		*      asset_id:		string/int	Id of the asset we are setting attributes for
+		*      levels:			int			Number of levels to return
+		*      type_codes:		array		asset type_code that we want back
+		*      link_types:		array		type of links we are looking for
+		*                       			Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:      array		link values we are looking for
+		*      get_attributes:	boolean		if we are getting non standard attribute values of the assets(FALSE by default)
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		getChildren: function(options)
@@ -834,6 +856,21 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_parents')) {
 			?>
 
+		/**
+		* This will return parent asset ids of the passed asset
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset we are setting attributes for
+		*      levels:			int			Number of levels to return
+		*      type_codes:		array		asset type_code that we want back
+		*      link_types:		array		type of links we are looking for
+		*                       			Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:      array		link values we are looking for
+		*      get_attributes:	boolean		if we are getting non standard attribute values of the assets(FALSE by default)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getParents: function(options)
 		{
 			var fnName = 'getParents';
@@ -891,6 +928,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_permissions')) {
 			?>
 
+		/**
+		* This returns permissions for an asset
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get permissions for
+		*      level:			int			1=READ 2=WRITE 3=ADMIN, default to READ
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getPermissions: function(options)
 		{
 			var fnName = 'getPermissions';
@@ -899,7 +946,7 @@ class Js_Api_Enhanced_Function_List
 					// Set the default values
 					defaults: {
 						asset_id:           null,
-						level:              '',
+						level:              1,
 						dataCallback:       function(){}
 					},
 
@@ -926,6 +973,24 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('create_asset')) {
 			?>
 
+		/**
+		* Creates an asset
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parent_id:			string/int		parentid of the asset to create
+		*      type_code:			string			type of asset to create
+		*      asset_name:			string			name for new asset
+		*      link_type:			string			type of link to create
+		*      link_value:			string			value of link
+		*      sort_order:			int				order in the tree under the parent
+		*      is_dependant:		boolean			dependant to parent?
+		*      is_exclusive:		boolean			exclusive to parent?
+		*      extra_attributes:	boolean			allows additional attributes on create
+		*      attributes:			string			String of additional query string containing key/pair values
+		*      dataCallback:		function		Custom callback function
+		* }
+		*/
 		createAsset: function(options)
 		{
 			var fnName = 'createAsset';
@@ -974,6 +1039,19 @@ class Js_Api_Enhanced_Function_List
 		},// end createAsset
 
 
+		/**
+		* Creates a file asset
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parentID:			string/int		parentid of the asset to create
+		*      type_code:			string			type of asset to create
+		*      friendly_name:		string			name for new asset
+		*      link_type:			string			type of link to create
+		*      link_value:			string			value of link
+		*      dataCallback:		function		Custom callback function
+		* }
+		*/
 		createFileAsset: function(options)
 		{
 			var fnName = 'createFileAsset';
@@ -1015,6 +1093,14 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_asset_types')) {
 			?>
 
+		/**
+		* Returns asset type codes installed on the system
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getAssetTypes: function(options)
 		{
 			var fnName = 'getAssetTypes';
@@ -1047,6 +1133,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_locks_info')) {
 			?>
 
+		/**
+		* Gets information for the lock type passed for an asset
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get permissions for
+		*      screen_name:		string		The screen to get locks for
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getLocksInfo: function(options)
 		{
 			var fnName = 'getLocksInfo';
@@ -1082,6 +1178,19 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('acquire_lock')) {
 			?>
 
+		/**
+		* Acquires locks on the given asset. if the locks were already acquired
+		* by current user then they are updated
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get permissions for
+		*      screen_name:		string		the screen to get locks on, by default 'all'
+		*      dependants_only:	boolean		whether dependants only or all children, defaults to true
+		*      force_acquire:	boolean		whether to attempt to forceably acquire the lock or not,  defaults to false
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		acquireLock: function(options)
 		{
 			var fnName = 'acquireLock';
@@ -1124,6 +1233,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('release_lock')) {
 			?>
 
+		/**
+		* Releases locks on the given screen
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get permissions for
+		*      screen_name:		string		the screen to release locks for
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		releaseLock: function(options)                                       
 		{
 			var fnName = 'releaseLock';
@@ -1159,6 +1278,21 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('create_link')) {
 			?>
 
+		/**
+		* Creates a link between two assets with passed information
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parent_id:		string/int	Major asset id we are linking from
+		*      child_id:		string/int	Minor asset id we are linking to
+		*      link_type:		string		Type of link to create
+		*      link_value:		string		Value of the link
+		*      sort_order:		int			Order in the tree
+		*      is_dependant:	boolean		Dependant to parent
+		*      is_exclusive:	boolean		Exclusive to parent
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		createLink: function(options)
 		{
 			var fnName = 'createLink';
@@ -1207,6 +1341,19 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('remove_link')) {
 			?>
 
+		/**
+		* Removes a link between a parent and child
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parent_id:		string/int	Major asset id we are linking from
+		*      child_id:		string/int	Minor asset id we are linking to
+		*      link_type:		string		type of link we are looking for (SQ_LINK_TYPE_1 link by default)
+		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:		string		value of link we are looking for ('' by default)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		removeLink: function(options)
 		{
 			var fnName = 'removeLink';
@@ -1216,7 +1363,7 @@ class Js_Api_Enhanced_Function_List
 					defaults: {
 						parent_id:          null,
 						child_id:           null,
-						link_type:          '',
+						link_type:          'SQ_LINK_TYPE_1',
 						link_value:         '',
 						dataCallback:       function(){}
 					},
@@ -1241,6 +1388,16 @@ class Js_Api_Enhanced_Function_List
 		},// end removeLink
 
 
+		/**
+		* Removes multiple links between a parent and child pairs
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      link_info:		json		json object containing link info as 
+		*									per removeLink() function of thuis API
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		removeMultipleLinks: function(options)
 		{
 			var fnName = 'removeMultipleLinks';
@@ -1297,6 +1454,24 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('move_link')) {
 			?>
 
+		/**
+		* Moves a link from one parent to another
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      old_parent_id:		string/int	Id of old parent
+		*      child_id:			string/int	Id of the child
+		*      old_link_type:		string		type of link we are looking for (SQ_LINK_TYPE_1 link by default)
+		*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      old_link_value:		string		Value of link we are searching for between given assets ('' by default)
+		*      new_parent_id:		string/int	Id of the new parent
+		*      new_link_type:       string		type of link we are looking for (SQ_LINK_TYPE_1 link by default)
+		*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      new_link_value:		string		Value of link to use ('' by default)
+		*      new_position:		int			The new position
+		*      dataCallback:		function	Custom callback function
+		* }
+		*/
 		moveLink: function(options)
 		{
 			var fnName = 'moveLink';
@@ -1344,6 +1519,24 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('update_link')) {
 			?>
 
+		/**
+		* Updates a link with provided information
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parent_id:			string/int	Id of parent
+		*      child_id:			string/int	Id of child
+		*      existing_link_type:	string		type of link we are looking for (SQ_LINK_TYPE_1 link by default)
+		*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      existing_link_value:	string		existing link value betweent the assets ('' by default)
+		*      link_type:   	    string		link type to be updated to (SQ_LINK_TYPE_1 link by default)
+		*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:			string		Value of link to be updated to ('' by default)
+		*      sort_order:			int			The new position
+		*      locked:				boolean		the asset link lock status(locked by default)
+		*      dataCallback:		function	Custom callback function
+		* }
+		*/
 		updateLink: function(options)
 		{
 			var fnName = 'updateLink';
@@ -1386,6 +1579,16 @@ class Js_Api_Enhanced_Function_List
 		},// end updateLink
 
 
+		/**
+		* Updates multiple links
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      link_info:		json		object containing all the information
+		*									as per updateLink() of this API
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		updateMultipleLinks: function(options)
 		{
 			var fnName = 'updateMultipleLinks';
@@ -1454,6 +1657,20 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_link_id')) {
 			?>
 
+		/**
+		* Returns the link id between a parent and child
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      parent_id:		string/int	Id of parent
+		*      child_id:		string/int	Id of child
+		*      link_type:		string		type of link we are looking for(SQ_LINK_TYPE_1 link by default)
+		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+		*      link_value:		string		value of link we are looking for ('' by default)
+		*      all_info:		boolean		if we want all the link information or just linkid
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getLinkId: function(options)
 		{
 			var fnName = 'getLinkId';
@@ -1497,6 +1714,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_asset_tree')) {
 			?>
 
+		/**
+		* This will return tree information for children
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get children of
+		*      levels:			int			Number of levels to return
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getAssetTree: function(options)
 		{
 			var fnName = 'getAssetTree';
@@ -1532,6 +1759,16 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_keywords_replacements')) {
 			?>
 
+		/**
+		* This will get replacements for the passed in keywords
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get keyword replacements for
+		*      keywords_array:	array		Array of keywords to get replacements for
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getKeywordsReplacements: function(options)
 		{
 			var fnName = 'getKeywordsReplacements';
@@ -1573,6 +1810,18 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('set_asset_status')) {
 			?>
 
+		/**
+		* This will set Asset to the status that is passed in
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to set status to
+		*      status:			int			status tha asset is to be set to
+		*      cascade:			boolean		if to cascade the status to non-dependant children(false by default)
+		*      workflow_stream:	string		workflow stream to be passed in
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		setAssetStatus: function(options)
 		{
 			var fnName = 'setAssetStatus';
@@ -1614,6 +1863,15 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_web_path')) {
 			?>
 
+		/**
+		* gets webpath(s) of the assetid supplied
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get webpaths for
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getWebPath: function(options)
 		{
 			var fnName = 'getWebPath';
@@ -1647,6 +1905,17 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('set_web_path')) {
 			?>
 
+		/**
+		* This will set webpath(s) of the assetid supplied
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to set webpaths for
+		*      paths:			array		new web paths to be assigned to asset
+		*      auto_remap:		boolean		if we auto remaping(default to TRUE)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		setWebPath: function(options)
 		{
 			var fnName = 'setWebPath';
@@ -1656,7 +1925,7 @@ class Js_Api_Enhanced_Function_List
 					defaults: {
 						asset_id:           null,
 						paths:              [],
-						auto_remap:         0,
+						auto_remap:         1,
 						dataCallback:       function(){}
 					},
 
@@ -1692,6 +1961,18 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_workflow_schema')) {
 			?>
 
+		/**
+		* This function will tell us if we have a runnig workflow on the passed assetid
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to get workflow schemas on
+		*      granted:			mixed		what is the status of workflow we are trying to get (default to NULL)
+		*									TRUE => granted, FALSE => denied, NULL => get all
+		*      running:			boolean		if we only are getting wokflows that are running (default to FALSE)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		getWorkflowSchema: function(options)
 		{
 			var fnName = 'getWorkflowSchema';
@@ -1731,6 +2012,18 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('set_file_content')) {
 			?>
 
+		/**
+		* This function will let user edit content of Editable File type assets
+		* File type that can be edited - css_file, xml_file, css_file, text_file, xsl_file, js_file
+		* User needs to acquire locks before being able to edit the file
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Id of the asset to update content for
+		*      content:			string		new content of the asset
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		setContentOfEditableFileAsset: function(options)
 		{
 			var fnName = 'setContentOfEditableFileAsset';
@@ -1768,6 +2061,17 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('import_assets')) {
 			?>
 
+		/**
+		* This function will let user import assets into Matrix from a structured XML file
+		* For example for xml file look under System Tools > Import Assets from XML Tool > example.xml
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:		string/int	Asset under which the assets are to be imported under
+		*      filePath:		string		path to file on the file system
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		importAssetsFromXML: function(options)
 		{
 			var fnName = 'importAssetsFromXML';
@@ -1805,6 +2109,24 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_roles')) {
 			?>
 
+		/**
+		* Returns an array of roles and the users/groups which can perform it
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_id:			string/int	the assetid of the asset the role is applied to
+		*      role_id:				string/int	the assetid of the the role that is applied
+		*      user_id:				string/int	the assetid of the user performing the role
+		*      include_assetid:		boolean		whether to include the assetid in the returned array
+		*      include_globals:		boolean		whether to query the role view which includes
+		*										expanded global roles as individual users
+		*      expand_groups:		boolean		when TRUE, any groups defined within a role will be
+		*										replaced with the userids in that group
+		*										If FALSE, return the groupids
+		*      inc_dependants:		boolean		If false it will filter out the dependant assets
+		*      dataCallback:		function	Custom callback function
+		* }
+		*/
 		getRoles: function(options)
 		{
 			var fnName = 'getRoles';
@@ -1850,6 +2172,15 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('execute_html_tidy')) {
 			?>
 
+		/**
+		* Performs HTMLTidy on the passed content and returns cleaned up code
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      content:			string		the string content that needs to be cleaned up
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
 		executeHTMLTidy: function(options)
 		{
 			var fnName = 'executeHTMLTidy';
