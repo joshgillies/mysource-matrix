@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.84 2011/07/19 23:02:07 akarelia Exp $
+* $Id: js_api.inc,v 1.85 2011/07/20 00:12:55 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -298,6 +298,8 @@ class JS_Api extends Page
 			if ($batching_request) {
 				$args = $functions_info[$track_func]['args'];
 				$blocking = (isset($functions_info[$track_func]['blocking']) && $functions_info[$track_func]['blocking']) ? TRUE : FALSE;
+				// let the user use 'id' and 'asset_id' to pass in the asset id to work on in the argmunets
+				if (!isset($args['id']) && isset($args['asset_id'])) $args['id'] = $args['asset_id'];
 
 				// so we are batching requests
 				// in this case we get the assetid needed
@@ -306,11 +308,7 @@ class JS_Api extends Page
 				// executed function is the format there is %results_0_*% type
 				// else it might be a raw input and we use that
 				if ($track_func === 0 || strpos($args['id'], '%results_') === FALSE) {
-					if (isset($args['id'])) {
-						$id = $args['id'];
-					} else if (isset($args['asset_id'])) {
-						$id = $args['asset_id'];
-					}
+					$id = $args['id'];
 				} else {
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
