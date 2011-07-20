@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.85 2011/07/20 00:12:55 akarelia Exp $
+* $Id: js_api.inc,v 1.86 2011/07/20 05:01:36 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2271,7 +2271,7 @@ class JS_Api extends Page
 					// Only one link holly cow, lets trash it instead, otherwise we'l have an orphan asset in the system
 					$result	= $am->trashAsset($link['minorid']);
 				}//end if
-				//no matter if link is deleted or the whole asset is moved to thrash, we will update lookups :)
+				//no matter if link is deleted or the whole asset is moved to trash, we will update lookups :)
 				$result_from_update = $this->updateLookupsforAsset($child);
 				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset "'.$child_asset->name.'" (#'.$child.') and its Childrens');
 
@@ -2724,7 +2724,7 @@ class JS_Api extends Page
 					if (!$result) {
 						$response[] = 'Could not move Asset "'.$asset->name.'" (#'.$asset->id.') to Trash';
 					} else {
-						//done thrashing the asset? update lookups then
+						//done trashing the asset? update lookups then
 						$result_from_update = $this->updateLookupsforAsset($id);
 						if (!is_null($result_from_update)) {
 							$response[] = 'Asset deleted but unable to Update Lookups on the Asset "'.$asset->name.'" (#'.$asset->id.')';

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.7 2011/07/20 04:39:50 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.8 2011/07/20 05:01:36 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -548,7 +548,7 @@ class Js_Api_Enhanced_Function_List
 		* { 
 		*      asset_id:		string/int	Id of the asset we are setting attributes for
 		*      field_info:		json		Attribute name and their respective values to be changed to
-		*      dataCallback:	sunction	Custom callback function
+		*      dataCallback:	function	Custom callback function
 		* }
 		*/
 		setMultipleAttributes: function(options)
