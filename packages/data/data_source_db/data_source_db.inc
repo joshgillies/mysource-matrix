@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.46 2011/06/30 04:43:20 ewang Exp $
+* $Id: data_source_db.inc,v 1.47 2011/07/20 07:03:30 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,8 +238,7 @@ class Data_Source_DB extends Data_Source
 	{
 		$db = $this->connectToDB();
 		if ($db === FALSE) return Array();
-		$sql = trim($sql, ';');
-		
+		$sql = trim($sql, '; ');
 		try {
 			MatrixDAL::changeDb('data_source_db_'.$this->id);
 			$empty_result = TRUE;
