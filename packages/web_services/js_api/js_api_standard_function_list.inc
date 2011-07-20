@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.6 2011/07/20 00:10:32 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.7 2011/07/20 04:39:24 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -672,7 +672,7 @@ function getParents(asset_id, levels, type_codes, link_types, link_values, get_a
 * This returns permissions for an asset
 *
 * @param string		asset_id		Id of the asset to get permissions for
-* @param string		level			1=READ 2=WRITE 3=ADMIN
+* @param string		level			1=READ 2=WRITE 3=ADMIN, default to READ
 * @param function	dataCallback	Custom callback function
 *
 * @version $Revision: 0.2
@@ -681,6 +681,7 @@ function getPermissions(asset_id, level, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var level = (isset(level) && level != '') ? level : 1 ;
 
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getPermissions&id=' + asset_id + '&level=' + level;
@@ -788,7 +789,7 @@ function createFileAsset(parentID, type_code, friendly_name, link_type, link_val
 			?>
 
 /**
-* Returns asset type codes
+* Returns asset type codes installed on the system
 *
 * @param function	dataCallback	Custom callback function
 *
@@ -931,7 +932,7 @@ function releaseLock(asset_id, screen_name, dataCallback)
 			?>
 
 /**
-* Creates a link between two assets
+* Creates a link between two assets with passed information
 *
 * @param integer	parent_id		Major asset id we are linking from
 * @param integer	child_id		Minor asset id we are linking to
@@ -1130,7 +1131,7 @@ function moveLink(old_parent_id, child_id, old_link_type, old_link_value, new_pa
 			?>
 
 /**
-* Updates a link
+* Updates a link with provided information
 *
 * @param string		parent_id				id of the parent
 * @param string		child_id				id of the child
@@ -1356,7 +1357,7 @@ function getAssetTree(asset_id, levels, dataCallback)
 /**
 * This will get replacements for the passed in keywords
 *
-* @param string		asset_id		Id of the asset to get children of
+* @param string		asset_id		Id of the asset to get keyword replacements for
 * @param array		keywords		Array of keywords to get replacements for
 * @param function	dataCallback	Custom callback function
 *
@@ -1393,7 +1394,7 @@ function getKeywordsReplacements(asset_id, keywords_array, dataCallback)
 /**
 * This will set Asset to the status that is passed in
 *
-* @param string		asset_id		id of the asset to get children of
+* @param string		asset_id		id of the asset to set status to
 * @param int		status			status tha asset is to be set to
 * @param boolean	cascade			if to cascade the status to non-dependant children(false by default)
 * @param string		workflow_stream workflow stream to be passed in
@@ -1462,7 +1463,7 @@ function getWebPath(asset_id, dataCallback)
 /**
 * This will set webpath(s) of the assetid supplied
 *
-* @param string		asset_id		Id of the asset to get webpaths for
+* @param string		asset_id		Id of the asset to set webpaths for
 * @param array		paths			new web paths to be assigned to asset
 * @param boolean	auto_remap		if we auto remaping(default to TRUE)
 * @param function	dataCallback	Custom callback function
@@ -1512,7 +1513,7 @@ function setWebPath(asset_id, paths, auto_remap ,dataCallback)
 /**
 * This function will tell us if we have a runnig workflow on the passed assetid
 *
-* @param string		asset_id		Id of the asset to get webpaths for
+* @param string		asset_id		Id of the asset to get workflow schemas on
 * @param boolean	granted			what is the status of workflow we are trying to get (default to NULL)
 *									TRUE => granted, FALSE => denied, NULLL => get all
 * @param boolean	running			if we only are getting wokflows that are running (default to FALSE)
@@ -1747,9 +1748,9 @@ function getLineage(asset_url, significant_link_only, dataCallback)
 			?>
 
 /**
-* Gets lineage based on the url passed for the asset
+* batches multiple JS API calls and executs them in one HTTP Request
 *
-* @param json		function		s
+* @param json		function		json of all the function and its respective arguments to be passed in
 * @param function	dataCallback	Custom callback function
 *
 * @return string
