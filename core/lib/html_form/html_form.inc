@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.157 2011/02/13 23:33:30 ewang Exp $
+* $Id: html_form.inc,v 1.158 2011/07/21 02:05:21 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -305,7 +305,14 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	if (!stristr($extras, 'id=')) {
 		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
-	echo	'<textarea name="', htmlspecialchars($name), '" ',
+
+	// add JS translation files
+	echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
+	foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+		echo '<script type="text/javascript" src="'.$js_include.'"></script>';
+	}
+
+	echo 	'<textarea name="', htmlspecialchars($name), '" ',
 			'cols="'.$cols.'" ',
 			'rows="'.$rows.'" ',
 			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(js_translate(\'max_characters_warning\', \''.$max.'\')); this.focus()}" ' : ''),
