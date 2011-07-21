@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.3 2011/04/06 06:04:32 mhaidar Exp $
+* $Id: requirements.xml,v 1.4 2011/07/21 00:21:23 csmith Exp $
 *
 */
 -->
@@ -25,6 +25,6 @@
     </requirement>
 	<requirement>
   	    <pear_package>Mail_mimeDecode</pear_package>
-  	    <version>1.5.5</version>
+  	    <version>1.5.1</version>
   	</requirement>
 </requirement_info>
