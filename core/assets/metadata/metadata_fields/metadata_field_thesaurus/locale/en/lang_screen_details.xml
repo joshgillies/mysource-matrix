@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.4.24.1 2011/07/21 05:08:49 akarelia Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 		</field>
 		<field attribute="description">
 			<display_name>Description</display_name>
-			<note />
+			<note>Use of HTML tags in description will be picked up by browser on the Metadata screen of the Asset it is applied to. This can conflict with other HTML on the page and may stop the screen from loading. Care needs to be taken here and use of entity name or entity number format is encouraged.</note>
 		</field>
 		<field>
 			<display_name>Default Value</display_name>
