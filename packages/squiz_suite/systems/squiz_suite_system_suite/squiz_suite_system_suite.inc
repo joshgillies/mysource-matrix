@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.7.2.1 2011/02/11 14:03:57 bpearson Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.7.2.2 2011/07/21 23:54:00 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -302,7 +302,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 
 			// All the required fields exist?
 			foreach ($required as $field) {
-				if ($message[$field] === NULL) {
+				if ($field !== 'conn_token' && $message[$field] === NULL) {
 					$errMsg = $field.' has not been specified.';
 					throw new Exception($errMsg);
 				}
@@ -408,7 +408,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 
 			// All the required fields exist?
 			foreach ($required as $field) {
-				if ($message[$field] === NULL) {
+				if ($field !== 'conn_token' && $message[$field] === NULL) {
 					$errMsg = $field.' has not been specified.';
 					throw new Exception($errMsg);
 				}
