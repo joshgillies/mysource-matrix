@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.371 2011/03/22 06:15:39 ewang Exp $
+* $Id: asset_edit_interface.inc,v 1.371.2.1 2011/07/21 01:03:52 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.371 $
+* @version $Revision: 1.371.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1687,7 +1687,6 @@ class Asset_Edit_Interface extends MySource_Object
 									$get_field = TRUE;
 									$field_keyword = $layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->attribute];
 								}
-
 								// if we do not want anything in this loop, continue
 								if (!$get_field && !$get_section && !$get_screen) {
 									continue;
@@ -2747,7 +2746,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (strtolower($current_screen) != 'contents') {
 			   $o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
 			} else {
-				if ($asset_type == 'page_standard') {
+				if (in_array($asset_type, Array('page_standard', 'calendar_event_multi_date'))) {
 					$o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%__custom-'.str_replace(' ', '_', strtolower($current_screen)).'%)</span>');
 					$o->closeSection();
 					continue;
