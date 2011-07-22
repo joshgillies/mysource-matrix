@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.7 2011/02/11 13:45:57 bpearson Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.8 2011/07/22 01:40:11 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -130,11 +130,11 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 		$deregister = array_get_index($_POST, $prefix.'_deregister', '0');
 
 		if ($deregister == '1' && !empty($current_product)) {
-			$systemid = array_get_index($current_product, 'systemid', '0');
-			if (!empty($systemid)) {
+			$suiteid = array_get_index($current_product, 'suiteid', '0');
+			if (!empty($suiteid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				try {
-					$asset->removeProduct($systemid, TRUE);
+					$asset->removeProduct($suiteid, TRUE);
 				} catch (PDOException $e) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return FALSE;
