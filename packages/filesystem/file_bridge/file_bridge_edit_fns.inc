@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge_edit_fns.inc,v 1.1.1.1 2010/03/29 23:32:29 bpearson Exp $
+* $Id: file_bridge_edit_fns.inc,v 1.1.1.1.6.1 2011/07/22 07:53:18 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -84,7 +84,25 @@ class File_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processFilename()
 
+	/**
+	* Prints the interface for editing filename
+	*
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPath(&$asset, &$o, $prefix)
+	{
+                                                require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+                                                $o->openField('Path');
+                                                echo FILE_BRIDGE_PATH;
+                                                $o->note("Configure path in ".SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+                                                $o->closeField();
 
+	}//end paintFilename()
 }//end class
 
 ?>

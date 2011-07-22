@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: physical_file.inc,v 1.1.1.1 2010/03/29 23:32:28 bpearson Exp $
+* $Id: physical_file.inc,v 1.1.1.1.6.1 2011/07/22 07:53:18 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -190,7 +190,8 @@ class Physical_File extends Asset
 		$type = $this->getMimeType();
 
 		if (strpos($type, 'text') === 0) {
-			$location = $bridge->attr('path');
+			require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+			$location = FILE_BRIDGE_PATH;
 			$location = rtrim($location, '/');
 			$full_path = $location.'/'.$this->_shadowid;
 
@@ -217,7 +218,8 @@ class Physical_File extends Asset
 		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_bridgeid);
 		if (is_null($bridge)) return '';
 
-		$location = $bridge->attr('path');
+		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+		$location = FILE_BRIDGE_PATH;
 		$location = rtrim($location, '/');
 		$full_path = $location.'/'.$this->_shadowid;
 
