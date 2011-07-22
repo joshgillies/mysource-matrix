@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.261 2011/07/19 04:05:12 akarelia Exp $
+* $Id: form.inc,v 1.262 2011/07/22 00:27:58 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3143,9 +3143,15 @@ class Form extends Asset implements Bridge
 				$submission_asset->saveAttributes();
 			} else {
 				// Trash it if it exists
+				// We need to force this through, for the same reason as we
+				// need to force for the creation of a submission. Without
+				// this, a User asset without write access to the form would
+				// not be able to move it to the tarash and delete it permanently
 				if ($submission_asset) {
-					$GLOBALS['SQ_SYSTEM']->am->trashAsset($submission_asset->id);
-					$submission_asset->delete();
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_SECURITY_LINK_INTEGRITY);
+						$GLOBALS['SQ_SYSTEM']->am->trashAsset($submission_asset->id);
+						$submission_asset->delete();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
 			}
 
@@ -3184,7 +3190,7 @@ class Form extends Asset implements Bridge
 					create_directory($perm_path);
 					$moved = move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
 					if ($moved) delete_directory(dirname($extra_data['temp_filesystem_path']));
-					
+
 					$extra_data = Array(
 									'filesystem_path'	=> $perm_path.'/'.$filename,
 								  );
@@ -3439,7 +3445,7 @@ class Form extends Asset implements Bridge
 					  );
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		
+
 		if (!$submission_asset->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3447,7 +3453,6 @@ class Form extends Asset implements Bridge
 			return FALSE;
 		}
 
-		
 		$submission_asset->setAttrValue('complete', FALSE);
 		// initially created submission asset should have current page set to first page.
 		$submission_asset->setAttrValue('current_page', 1);
