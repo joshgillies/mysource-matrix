@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge_management.inc,v 1.1.1.1.8.1 2011/06/15 05:13:57 akarelia Exp $
+* $Id: file_bridge_management.inc,v 1.1.1.1.8.2 2011/07/22 07:34:53 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1.8.1 $
+* @version $Revision: 1.1.1.1.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -114,6 +114,41 @@ class File_Bridge_Management extends Asset_Management
 
 			pre_echo('FILE BRIDGES SUCCESSFULLY UPGRADED TO VERSION 0.2');
 		}//end if
+		
+		
+		if (version_compare($current_version, '0.3', '<')) {
+			$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+			// version 0.2 -> 0.3
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
+			$file_bridges = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			$found = FALSE;
+			foreach ($file_bridges as $assetid => $type_code) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($asset)) continue;
+
+				// We need to output our content files, otherwise old paint layouts will print blank
+				$path = $asset->attr('path');
+				if(!empty($path)) {
+				    echo('Detected File Bridge asset #'.$asset->id.' with Path attribute "'.$asset->attr('path').'"'."\n");
+				    $found = TRUE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			
+			if($found) {
+			    echo ("\n");
+			    echo ('******************************************************************************************************************'."\n");
+			    echo ("Security Updates\n");
+			    echo('Paths of above assets are now restored to "data/public" for security purposes'."\n");
+			    echo('If old paths are required and considered safe, please configure '.SQ_DATA_PATH.'/private/conf/file_bridge.inc'."\n");
+			    echo('******************************************************************************************************************'."\n");
+			}	    
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
+
+		}//end version 0.3 upgrade
 
 		return TRUE;
 

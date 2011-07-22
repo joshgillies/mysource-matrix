@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1 2010/03/29 23:32:29 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.8.1 2011/07/22 07:34:53 ewang Exp $
 *
 */
 -->
@@ -21,8 +21,10 @@
 			<display_name>Name</display_name>
 			<note />
 		</field>
-		<field attribute="path">
-			<display_name>Path</display_name>
+		<field>
+			<function_call>
+			    <paint_function   name="paintPath"   />
+			</function_call>
 			<note />
 		</field>
 	</section>

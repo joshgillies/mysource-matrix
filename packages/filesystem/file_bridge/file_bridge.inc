@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_bridge.inc,v 1.2.8.2 2011/07/06 07:06:16 ewang Exp $
+* $Id: file_bridge.inc,v 1.2.8.3 2011/07/22 07:34:53 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2.8.2 $
+* @version $Revision: 1.2.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -91,11 +91,6 @@ class File_Bridge extends Asset implements Bridge
 	 */
 	private function _listFiles($path)
 	{
-		// Matrix data directory is forbidden for security reason
-		$real_path = realpath($path);
-		$data_real_path = realpath(SQ_DATA_PATH);
-		if(empty($real_path) || strpos($real_path, $data_real_path) !== FALSE)
-			return Array();
 
 		$list = Array();
 
@@ -170,7 +165,8 @@ class File_Bridge extends Asset implements Bridge
 		}
 
 		// The shadow id is the path from the location of the bridge
-		$location = $this->attr('path');
+		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+		$location = FILE_BRIDGE_PATH;
 		$location = rtrim($location, '/');
 		if ($this->_isValidFile($location.'/'.$shadowid)) {
 			if (is_dir($location.'/'.$shadowid)) {
@@ -232,7 +228,8 @@ class File_Bridge extends Asset implements Bridge
 					trigger_localised_error('CORE0089', E_USER_ERROR);
 
 				} else {
-					$location = $this->attr('path');
+					require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+					$location = FILE_BRIDGE_PATH;
 					$location = rtrim($location, '/');
 					$files = $this->_listFiles($location);
 					$i = 0;
@@ -259,7 +256,8 @@ class File_Bridge extends Asset implements Bridge
 			// looking from shadow asset
 			} else {
 				list($bridgeid,$shadowid) = explode(':', $assetid);
-				$location = $this->attr('path');
+				require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+				$location = FILE_BRIDGE_PATH;
 				$location = rtrim($location, '/');
 
 				// The file is invalid why proceed?

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.77.6.1 2011/06/30 06:21:27 ewang Exp $
+* $Id: step_03.php,v 1.77.6.2 2011/07/22 07:35:16 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77.6.1 $
+* @version $Revision: 1.77.6.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -149,6 +149,7 @@ generate_lang_char_map();
 install_event_listeners();
 cache_asset_types();
 generate_performance_config();
+generate_file_bridge_config();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
