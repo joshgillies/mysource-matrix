@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2010/03/29 23:32:29 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2011/07/22 06:49:00 ewang Exp $
 *
 */
 -->
@@ -20,8 +20,10 @@
 		<field attribute="name">
 			<text width="25" height="1" />
 		</field>
-		<field attribute="path">
-			<text width="100" height="1" />
+		<field>
+			<function_call>
+				<paint_function   name="paintPath"   />
+			</function_call>
 		</field>
 	</section>
 </contents>

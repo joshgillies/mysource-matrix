@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.92 2011/06/30 03:22:17 ewang Exp $
+* $Id: install.inc,v 1.93 2011/07/22 06:49:34 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -741,6 +741,27 @@ function generate_performance_config()
 }//end generate_performance_config()
 
 
+/**
+* Generate file bridge config file
+*
+* @return boolean
+* @access public
+*/
+function generate_file_bridge_config()
+{
+                                if(is_file(SQ_DATA_PATH.'/private/conf/file_bridge.inc')) return TRUE;
+                                
+	$str = "<?php\n";
+	$str .= "#path of file bridge\n";
+	$str .= "define('FILE_BRIDGE_PATH', SQ_DATA_PATH.'/public');\n";
+	$str .= "?>";
+	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/file_bridge.inc')) {
+		return FALSE;
+	}
+
+	return TRUE;
+
+}//end generate_file_bridge_config()
 
 /**
 * Format an array of packages => Array(type_codes) for display

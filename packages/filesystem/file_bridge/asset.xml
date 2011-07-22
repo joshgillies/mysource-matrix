@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2011/06/15 04:37:45 akarelia Exp $
+* $Id: asset.xml,v 1.3 2011/07/22 06:49:00 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>filesystem</package>
 	<type_code>file_bridge</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>File Bridge</name>
 	<description>The file bridge</description>
 	<instantiable>yes</instantiable>

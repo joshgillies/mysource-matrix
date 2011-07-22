@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: physical_folder.inc,v 1.1.1.1 2010/03/29 23:32:27 bpearson Exp $
+* $Id: physical_folder.inc,v 1.2 2011/07/22 06:49:00 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -75,7 +75,8 @@ class Physical_Folder extends Asset
 			$this->vars[$attr_name]['value'] = ($this->vars[$attr_name]['type'] == 'serialise') ? unserialize($attr_value) : $attr_value;
 		}
 
-		$location = $bridge->attr('path');
+		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+		$location = FILE_BRIDGE_PATH;
 		$location = rtrim('/', $location);
 		$full_path = $location.'/'.$this->_shadowid;
 		$name = basename($full_path);
