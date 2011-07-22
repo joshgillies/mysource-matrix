@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.80 2011/07/22 00:19:26 cupreti Exp $
+* $Id: form_section.inc,v 1.81 2011/07/22 00:21:46 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1163,7 +1163,7 @@ class Form_Section extends Asset implements Bridge
 				</tr>
 				</table>
 			<?php
-			$content = ob_end_clean();
+			$content = ob_get_clean();
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 
