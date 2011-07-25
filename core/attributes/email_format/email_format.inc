@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.49.4.1 2011/05/27 00:39:10 cupreti Exp $
+* $Id: email_format.inc,v 1.49.4.2 2011/07/25 00:24:01 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49.4.1 $
+* @version $Revision: 1.49.4.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -320,7 +320,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['to_assetids'] = Array();
 		if (isset($_REQUEST[$prefix.'_to_assetids']) && is_array($_REQUEST[$prefix.'_to_assetids'])) {
 			foreach ($_REQUEST[$prefix.'_to_assetids'] as $new_to_info) {
-				if (!empty($new_to_info['assetid'])) {
+				if (!empty($new_to_info['assetid']) && assert_valid_assetid($new_to_info['assetid'], 'Invalid Asset Id: #'.$new_to_info['assetid'].' supplied to attribute"'.$this->name.'"', FALSE, FALSE)) {
 					$value['to_assetids'][] = $new_to_info['assetid'];
 				}
 			}
