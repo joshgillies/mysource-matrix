@@ -1,5 +1,162 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.4.1
+
+Featured Changes
+===================================
+
+
+Squiz Matrix Performance Mode [ Feature Request #5182 ]
+-----------------------------------------------------
+
+Squiz Matrix's new Performance Mode analyses the load times of assets within a system and presents this information to users through an in-depth timeline chart. This allows users to monitor the performance of their assets and pinpoint problem areas that may be causing excessive loading.
+
+Performance mode is accessed by appending _performance to the URL of an asset, like so:
+
+http://www.example.com/site/_performance
+
+Performance results are displayed at the bottom of the user's browser and will regenerate as a user navigates through the assets of their site.
+
+The performance results presented to users will include the total load time of the URL and the assets that have been loaded, identifying the worst performing assets. Certain assets, such as an Asset Listing Page, also allow users to break down their load times into individual steps; this allows you to single out at which stage an asset may be under-performing.
+
+Asset Listing: Option to Return No Results if Dynamic Parameters Not Found [ Feature Request #5196 ]
+-----------------------------------------------------
+
+On an asset listing page, dynamic parameters are available to source alternate root nodes and asset selections for the listing.
+
+Previously, if the dynamic parameter that was configured could not be found (ie. no root node/selection returned), the asset listing would fall back to its static root node settings - either a configured root node or the asset listing, itself. This could potentially cause  performance issues, for example, if the static root node was pointing to a top level asset with many children.
+
+This feature adds new options, allowing you to prevent your asset listing from reverting to its default root node settings. 
+
+The If dynamic root not found and If asset selection not specified fields allow you to specify whether to revert back to the static root node when the dynamic root/selection is not returned or to instead return an empty result on the listing.
+
+These options have been added to give users greater control over the results of their listings.
+
+New Trigger Action to Remove Future Lineage Cron Jobs [ Feature Request #5209 ]
+-----------------------------------------------------
+
+When you create a future linking job on the Linking screen of an asset (to either create or delete a link), Squiz Matrix will create a one off future lineage cron job to perform this task.
+
+This feature adds a new trigger action to remove any of these future lineage cron jobs on an asset, effectively cancelling the future link.
+
+This trigger action allows you to specify whether to remove future lineage cron jobs of type Create, Delete or both. With these options, you can select whether to remove future jobs only when a link is being either created or deleted or to remove all future link job regardless of their type.
+
+New Javascript API Function to Return the Asset Lineage of a URL [ Feature Request #5211 ]
+-----------------------------------------------------
+
+The getLineage() operation has been added to Matrix's JS API to return the asset lineage of an asset ID or URL. The operation takes the following parameters:
+
+asset_url: the URL or asset ID of the asset to get the lineage of.
+signficant_link_only: whether or not to return significant links only (TYPE 1 and TYPE 2 links).
+dataCallback: the custom callback function.
+
+An example usage of this operation is as follows: 
+
+getLineage ("http://www.example.com/site", 1, customDataCallbackFunc);  
+
+getLineage ("100", 0, customDataCallbackFunc); 
+
+New JavaScript API Function to Batch Requests [ Feature Request #5212 ]
+-----------------------------------------------------
+
+The batchRequests operation allows you to group multiple functions on the JS API into a single batched request. The response of this operation will include all the data returned from each executed function. 
+
+The output of functions on this operation can be used as the input for subsequent functions using the following keyword replacement format:
+
+%results_0_<param>%
+
+For example, the keyword replacement %results_0_1_name% would print the value of the name parameter returned on the second element of the first array of the response.
+
+A blocking parameter is available for use on each operation to stop the execution of subsequent operations if an error is returned.
+
+An example usage of this operation is as follows: 
+
+batchRequest({
+   '0': {
+      function : 'getChildren',
+      args : {
+         asset_id : 100,
+          levels : 1,
+         type_codes : 'page_standard',
+         get_attributes : 0
+       },
+    blocking : 1 
+   },
+   '1':  {
+       function : 'setAttribute',
+      args : {
+         id : '%results_0_0_id%',
+         attr_name : 'short_name',
+         attr_val : 'new short name'
+      },
+   blocking : 1,
+   },
+},customDataCallbackFunc); 
+
+Enhanced JavaScript for the JS API [ Feature Request #5218 ]
+-----------------------------------------------------
+
+Previously, the JavaScript API had no defined NameSpace, meaning that it could possibly interfere with or be interfered with by other JavaScript in the global namespace.
+
+This feature introduces scope based Javascript for the API which is more efficient in handling errors and more flexible. It also has basic 'reflection' so you can call it without arguments and it tells you what is required and what is default.
+
+To ensure older API calls are still supported, there is a switch on the Details screen of the JS API, allowing you to toggle between the Enhanced and Standard JS of the API.
+
+Also on the new and Improved form of this asset if an operation is not activated, it will not be included in the asset's JavaScipt file which can reduce the size of the file considerably if only a few operations are activated.
+
+The return value of the JS API's operations will remain the same.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #4583: Menu Design Area Cacheable
+Minor Enhancement #5193: Changes to DPS Payment Gateway Asset.
+Minor Enhancement #5194: Permissions Inherited on Imported File Bridge Assets.
+Minor Enhancement #5199: Snippet Content Type Does Not Replace Keywords.
+Minor Enhancement #5214: Performance Enhancement to the regen_metadata_schemas.php Script.
+Minor Enhancement #5215: JS API: getChildren and getParents Functions Return Regular Index Arrays.
+Minor Enhancement #5216: JS API: acquireLock Function Updates Locks if Already Acquired.
+Minor Enhancement #5225: Form Error Handling For Uploaded File Asset Creation Failure.
+Minor Enhancement #5226: DB Data Source: SQL Queries to Oracle Databases.
+Minor Enhancement #5228: Asset ID Keyword Now Available on Rejection Workflow Message.
+Minor Enhancement #5230: Email Format Error Handling for Invalid Asset ID.
+Minor Enhancement #5238: Minifying Matrix JS Files.
+Minor Enhancement #5239: Form SOAP action not working for SOAP functions return simple element.
+
+Core
+
+Fixed Bug #5185: Workflow stale messages not sending and subject can't be customised.
+Fixed Bug #5186: Can't start an alternate workflow stream by placing Up for Review.
+Fixed Bug #5187: TRIM Saved Search Uncaught SoapFault exceptions.
+Fixed Bug #5195: REST resource asset authentication type Pass Matrix session through doesn't work.
+Fixed Bug #5201: PHP Fatal error on cron_job_manage_pending_accounts.
+Fixed Bug #5205: SEI keywords list for Multi-Date Calendar Event.
+Fixed Bug #5208: Expired workflow cron job sends workflow escalation email for every dependant assets.
+Fixed Bug #5223: Asset Manager Get Link Lineages skips some notice links on Oracle.
+Fixed Bug #5220: Custom form gives errors if submission logging is set to No.
+Fixed Bug #5229: Custom form text field with height > 1 giving JavaScript error.
+Fixed Bug #5232: Status Changed event broadcasts too early.
+
+Calendar
+
+Fixed Bug #5192: Calendar event asset detail screen, Occurs on check box has minor js error.
+
+IPB
+
+Fixed Bug #5221: IPB authentication broken.
+
+Web Services
+
+Fixed Bug #5213: getPermissions() JS API function provides incomplete results.
+Fixed Bug #5219: SOAP API metadata service GetSchemasOnAsset API throws error Object hasn't 'Granted' property.
+Fixed Bug #5236: Squiz Suite will not register with older Suite products.
+Fixed Bug #5237: Cannot de-register a registered system on Suite manager.
+
+
 VERSION 4.4.0
 
 Featured Changes
