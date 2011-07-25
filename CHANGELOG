@@ -1,5 +1,49 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.2.5
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5193: Changes to DPS Payment Gateway Asset.
+Minor Enhancement #5214: Performance Enhancement to the regen_metadata_schemas.php Script.
+Minor Enhancement #5225: Form Error Handling For Uploaded File Asset Creation Failure.
+Minor Enhancement #5226: DB Data Source: SQL Queries to Oracle Databases.
+Minor Enhancement #5228: Asset ID Keyword Now Available on Rejection Workflow Message.
+Minor Enhancement #5230: Email Format Error Handling for Invalid Asset ID.
+Minor Enhancement #5238: Minifying Matrix JS Files.
+
+Core
+
+Fixed Bug #5185: Workflow stale messages not sending and subject can't be customised.
+Fixed Bug #5186: Can't start an alternate workflow stream by placing Up for Review.
+Fixed Bug #5195: REST resource asset authentication type Pass Matrix session through doesn't work.
+Fixed Bug #5201: PHP Fatal error on cron_job_manage_pending_accounts.
+Fixed Bug #5205: SEI keywords list for Multi-Date Calendar Event.
+Fixed Bug #5208: Expired workflow cron job sends workflow escalation email for every dependant assets.
+Fixed Bug #5223: Asset Manager Get Link Lineages skips some notice links on Oracle.
+Fixed Bug #5220: Custom form gives errors if submission logging is set to No.
+Fixed Bug #5229: Custom form text field with height > 1 giving JavaScript error.
+Fixed Bug #5232: Status Changed event broadcasts too early.
+
+Calendar
+
+Fixed Bug #5192: Calendar event asset detail screen, Occurs on check box has minor js error.
+
+IPB
+
+Fixed Bug #5221: IPB authentication broken.
+
+Web Services
+
+Fixed Bug #5219: SOAP API metadata service GetSchemasOnAsset API throws error Object hasn't 'Granted' property.
+Fixed Bug #5236: Squiz Suite will not register with older Suite products.
+Fixed Bug #5237: Cannot de-register a registered system on Suite manager.
+
+
 VERSION 4.2.4
 
 Featured Changes
