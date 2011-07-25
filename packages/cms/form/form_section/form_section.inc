@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.77.8.1 2011/07/19 06:24:00 akarelia Exp $
+* $Id: form_section.inc,v 1.77.8.2 2011/07/25 05:01:01 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77.8.1 $
+* @version $Revision: 1.77.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1148,10 +1148,10 @@ class Form_Section extends Asset implements Bridge
 		$question_width = $form->attr('question_col_width');
 		$response_width = $form->attr('answer_col_width');
 
-		ob_start();
 		include $this->data_path.'/content_file.php';
 
 		if ($submit_buttons) {
+			ob_start();
 			?>
 			<table width="<?php echo $form_width; ?>">
 				<tr>
