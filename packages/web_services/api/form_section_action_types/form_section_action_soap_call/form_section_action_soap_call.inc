@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.7 2011/06/23 05:52:05 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.8 2011/07/25 00:24:24 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -372,6 +372,8 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					// parse parameters
 					$parsed_params = Array();
 					foreach ($function_params as $param) {
+						if (!trim($param)) continue;
+						
 						// Get XML representation of params of the functions
 						$xml_param = self::_parse_type($param, $types);
 						$parsed_params[$param] = self::_formatXmlString(empty($xml_param) ? $param : $xml_param->asXML());
@@ -379,11 +381,16 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					$function_list[$function_name] = $parsed_params;
 
 					// parse response
-					$xml_response = self::_parse_type($function_response, $types);
-					$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
-
+					$xml_response = self::_parse_type ($function_response, $types);
+					if ($xml_response === TRUE || $xml_response === FALSE) {
+						$response_list[$function_name] = self::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");						
+						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
+					} else {
+						$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
+						$keywords = self::_parse_response_keywords ($xml_response, 'globals_session_soap_');
+					}
 					// parse response keywords
-					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', self::_parse_response_keywords ($xml_response, 'globals_session_'.$form_section->id.'_soap_'));
+					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', $keywords);
 					
 				}//end foreach
 				
@@ -630,7 +637,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	/**
 	* This function returns XML representation of param struct
 	*
-	* @return object | void
+	* @return object | boolean
 	* @access private
 	*/
 	private static function _parse_type($type, $types) 
@@ -639,8 +646,10 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		//$param_name = preg_replace('/.* (.*);/', '$1', $param);
 		$sub_types = self::_is_complex_type($type_name, $types);
 
-		// Don't worry about simple type arguments
-		if (!$sub_types) return NULL;
+		// If simple type arguments
+		if (!$sub_types) {
+			return self::_is_array_type($type_name, $types);
+		}//end if
 
 		// reset infinity loop check counter
 		self::$recent_parsed_type = Array();
@@ -732,7 +741,31 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		
 	}//end _parse_param()
 
+	
+	/** 
+	* Checks if the given param is array
+	*
+	* @return boolean
+	* @access private
+	*/
+	private static function _is_array_type($param, $types)
+	{
+		// Get array types
+		$array_types = Array();
+		foreach($types as $type) {
+			if (substr($type, -2) == '[]') {
+				$array_type = explode(' ', $type);
+				if (count($array_type) > 1) {
+					$array_types[rtrim($array_type[1], '[]')] = $array_type[0];
+				}
+			}
+		}
 
+		return isset($array_types[$param]);
+
+	}//end _is_array_type()
+
+	
 	/**
 	* This function formats a xml, inserts indentation, newlines for better display
 	*
