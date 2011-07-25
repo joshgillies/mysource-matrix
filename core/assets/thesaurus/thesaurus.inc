@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.67 2011/07/19 04:04:20 akarelia Exp $
+* $Id: thesaurus.inc,v 1.68 2011/07/25 00:43:15 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -1616,6 +1616,7 @@ class Thesaurus extends Asset implements Bridge
 			$link['status'] = $this->status;
 			$link['link_type'] = SQ_LINK_TYPE_1;
 			$link['sort_order'] = 1;
+			$link['is_dependant'] = 0;
 
 			$links[] = $link;
 		}
