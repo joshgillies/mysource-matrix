@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.69 2011/05/02 03:29:14 akarelia Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.70 2011/07/25 08:24:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -704,14 +704,16 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				// is different to any other content types. This is more so based on what asset is linked
 				// with the link_value of 'nested_asset'. And since the Links are not contextable
 				// we have to treat all the context w.r.t the changed asset
-				$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'bodycopy_div', TRUE));
-				$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id[0]);
-				$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
-				$all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-				foreach ($all_context as $context_id => $info) {
-					$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
-						$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
-					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'bodycopy_container', FALSE));
+				if (isset($bodycopy_div_id[0])) {
+					$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id[0]);
+					$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
+					$all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+					foreach ($all_context as $context_id => $info) {
+						$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
+							$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
+						$GLOBALS['SQ_SYSTEM']->restoreContext();
+					}
 				}
 
 			}//end if
