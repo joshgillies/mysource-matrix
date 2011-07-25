@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.3.2.3 2011/06/29 06:24:34 ewang Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.3.2.4 2011/07/25 00:37:20 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('SQ_MAX_BREAK_OUT_AFTER', 3);
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3.2.3 $
+* @version $Revision: 1.3.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -484,6 +484,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					// parse parameters
 					$parsed_params = Array();
 					foreach ($function_params as $param) {
+						if (!trim($param)) continue;
+						
 						// Get XML representation of params of the functions
 						$xml_param = self::_parse_type ($param, $types);
 						$parsed_params[$param] = self::_formatXmlString(empty($xml_param) ? $param : $xml_param->asXML());
@@ -492,10 +494,15 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 					// parse response
 					$xml_response = self::_parse_type ($function_response, $types);
-					$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
-
+					if ($xml_response === TRUE || $xml_response === FALSE) {
+						$response_list[$function_name] = self::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");						
+						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
+					} else {
+						$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
+						$keywords = self::_parse_response_keywords ($xml_response, 'globals_session_soap_');
+					}
 					// parse response keywords
-					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', self::_parse_response_keywords ($xml_response, 'globals_session_soap_'));
+					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', $keywords);
 				}
 
 				$settings['actions'] = $function_list;
@@ -703,8 +710,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		//$param_name = preg_replace('/.* (.*);/', '$1', $param);
 		$sub_types = self::_is_complex_type($type_name, $types);
 
-		// Don't worry about simple type arguments
-		if (!$sub_types) return NULL;
+		// If simple type arguments
+		if (!$sub_types) {
+			return self::_is_array_type($type_name, $types);
+		}//end if
 
 		// reset infinity loop check counter
 		self::$recent_parsed_type = Array();
@@ -799,6 +808,30 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	}//end _parse_param()
 
 
+	/** 
+	* Checks if the given param is array
+	*
+	* @return boolean
+	* @access private
+	*/
+	private static function _is_array_type($param, $types)
+	{
+		// Get array types
+		$array_types = Array();
+		foreach($types as $type) {
+			if (substr($type, -2) == '[]') {
+				$array_type = explode(' ', $type);
+				if (count($array_type) > 1) {
+					$array_types[rtrim($array_type[1], '[]')] = $array_type[0];
+				}
+			}
+		}
+
+		return isset($array_types[$param]);
+
+	}//end _is_array_type()
+
+	
 	/**
 	* This function formats a xml, inserts indentation, newlines for better display
 	*
