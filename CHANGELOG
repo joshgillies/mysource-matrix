@@ -126,6 +126,7 @@ Minor Enhancement #5228: Asset ID Keyword Now Available on Rejection Workflow Me
 Minor Enhancement #5230: Email Format Error Handling for Invalid Asset ID.
 Minor Enhancement #5238: Minifying Matrix JS Files.
 Minor Enhancement #5239: Form SOAP action not working for SOAP functions return simple element.
+Minor Enhancement #5242: Asset Map XML doesnt return is_dependant flag.
 
 Core
 
