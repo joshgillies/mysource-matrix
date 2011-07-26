@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75.2.10 2011/07/20 05:02:50 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.11 2011/07/26 00:24:03 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75.2.10 $
+* @version $Revision: 1.75.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -224,8 +224,16 @@ class JS_Api extends Page
 				restore_error_handler();
 				return;
 			}
+			if (!function_exists('json_decode')) {
+				require_once 'Services/JSON.php';
+				$json = new Services_JSON();
+				$functions_info = Array();
+				$request_data = $json->decode($_REQUEST['functions']);
+				$functions_info = $this->object2Array($request_data);
+			} else {
+				$functions_info = json_decode($_REQUEST['functions'], TRUE);
+			}//end else
 
-			$functions_info = json_decode($_REQUEST['functions'], TRUE);
 			foreach ($functions_info as $index => $info) {
 				$function_calls[$index] = $info['function'];
 			}
@@ -3453,6 +3461,34 @@ class JS_Api extends Page
 		return $ext_array[$type_code];
 
 	}//end get_file_extension()
+
+
+	/**
+	* Purpose : converts our stdClass object to an array
+	*
+	* @param object	$obj	the stdClass object we need to convert
+	*
+	* @return array
+	* @access public
+	*/
+	function object2Array($obj)
+	{
+		$array = Array();
+		if (is_object($obj)) {
+    	    foreach ($obj as $key => $value) {
+				if (is_object($value)) {
+					$array[$key] = $this->object2Array($value);
+				} else {
+	        	    $array[$key] = $value;
+				}
+	        }
+    	} else {
+	        $array = $obj;
+    	}
+
+	    return $array;
+
+	}// end object2Array
 
 
 }//end class
