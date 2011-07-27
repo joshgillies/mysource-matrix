@@ -141,6 +141,7 @@ Fixed Bug #5223: Asset Manager Get Link Lineages skips some notice links on Orac
 Fixed Bug #5220: Custom form gives errors if submission logging is set to No.
 Fixed Bug #5229: Custom form text field with height > 1 giving JavaScript error.
 Fixed Bug #5232: Status Changed event broadcasts too early.
+Fixed Bug #5246: Export to XML script shouldn't export shadow links.
 
 Calendar
 
