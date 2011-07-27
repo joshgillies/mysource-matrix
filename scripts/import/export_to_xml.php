@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.17 2011/05/25 04:22:21 akarelia Exp $
+* $Id: export_to_xml.php,v 1.17.2.1 2011/07/27 01:53:59 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix
 */
 
@@ -347,6 +347,7 @@ echo "</actions>\n\n";
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		foreach ($notice_links as $notice_link) {
+			if (strpos($notice_link['minorid'], ':')) continue;
 			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
 			if (isset($asset_id_map[$asset_id])){
 				$remap_id =	"[[output://create_".$asset_id_map[$asset_id].".assetid]]" ;
