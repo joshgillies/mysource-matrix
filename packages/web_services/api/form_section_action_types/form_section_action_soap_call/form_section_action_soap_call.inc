@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.2.2.5 2011/07/25 00:37:20 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.2.2.6 2011/07/27 03:05:43 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_FC_ACTION_MAX_COMPLEX_TYPE_DEPTH', 3);
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.2.5 $
+* @version $Revision: 1.2.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -384,10 +384,10 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					$xml_response = self::_parse_type ($function_response, $types);
 					if ($xml_response === TRUE || $xml_response === FALSE) {
 						$response_list[$function_name] = self::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");						
-						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
+						$keywords = 'globals_session_'.$form_section->id.'_soap'.($xml_response ? '0' : '');
 					} else {
 						$response_list[$function_name] = self::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
-						$keywords = self::_parse_response_keywords ($xml_response, 'globals_session_soap_');
+						$keywords = self::_parse_response_keywords ($xml_response, 'globals_session_'.$form_section->id.'_soap_');
 					}
 					// parse response keywords
 					$keywords_list[$function_name] = str_replace('[ARRAY_ELEMENT]', '0', $keywords);
