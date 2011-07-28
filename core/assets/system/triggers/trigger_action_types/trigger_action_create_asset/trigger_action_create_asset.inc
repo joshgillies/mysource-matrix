@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.15 2007/12/12 02:54:31 hnguyen Exp $
+* $Id: trigger_action_create_asset.inc,v 1.15.18.1 2011/07/28 07:25:56 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,30 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		// set the attributes for the newly created asset
 		if (!empty($attributes)) {
 			foreach ($attributes as $index => $val) {
-				$new_asset->setAttrValue($val['attribute'], $val['value']);
+				$value = $val['value'];
+				//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to attribute
+				if (array_get_index($settings, 'replace_keywords', 0)) {
+					// replace global keywords
+					$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
+					replace_global_keywords($value);
+
+					if (is_null($old_current_asset)) {
+						$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+					} else {
+						$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+					}
+
+					// replace broadcasting asset keywords
+					$keywords = retrieve_keywords_replacements($value);
+					$replacements = Array();
+					foreach ($keywords as $keyword) {
+						$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+					}
+					replace_keywords($value, $replacements);
+				}
+				$new_asset->setAttrValue($val['attribute'], $value);
 			}
 		}
 		$linkid = $new_asset->create($link);
@@ -269,6 +292,15 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			}
 			$attributes = ob_get_contents();
 			ob_end_clean();
+			
+			// Replace keywords checkbox
+			ob_start();
+				check_box($prefix.'[replace_keywords]', '1', array_get_index($settings, 'replace_keywords', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
+				label('Replace keywords in the attribute value', $prefix.'[replace_keywords]');
+			$replace_keywords = '<br />'.ob_get_clean();
+
+			$attributes .= $replace_keywords;
+			
 
 			// now patch together the output
 			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
@@ -337,6 +369,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			}
 			$settings['attributes'] = $new_attr;
 		}
+		
+		$settings['replace_keywords']      = array_get_index($request_data, 'replace_keywords', 0);
+		
 		return FALSE;
 
 	}//end processInterface()
