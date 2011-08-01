@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.245 2011/06/30 04:48:39 ewang Exp $
+* $Id: search_manager.inc,v 1.246 2011/08/01 06:47:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -3479,11 +3479,13 @@ class Search_Manager extends Asset
 	* @param array	$results		*CONDENSED* search results (returned by
 	*								getCondensedResults())
 	* @param string	$search_string	string searched for
+	* 
+	* @param string	$full_content	return full formatted content or not
 	*
 	* @return array
 	* @access public
 	*/
-	function getFormattedResults($results, $search_string)
+	function getFormattedResults($results, $search_string, $full_content = TRUE)
 	{
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
 		$search_string = trim(preg_replace('/[\~\&\|\/]/i', ' ', $search_string));
@@ -3506,6 +3508,11 @@ class Search_Manager extends Asset
 
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
+						// not need to retrieve full content which could be time wasting
+						 if(!$full_content) {
+							$formatted_results[$assetid]['contents'][0]='...'.$search_string.'...';
+							break;
+						 }
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						// If there is no editable contents for the asset, see if the content was generated (eg; for PDF files)
