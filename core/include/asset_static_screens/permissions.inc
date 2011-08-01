@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.42 2010/06/01 01:54:47 mhaidar Exp $
+* $Id: permissions.inc,v 1.43 2011/08/01 05:31:42 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 
@@ -603,6 +603,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'permission_changes'	=> $permission_vars,
+					'permission_screen_assetid'	=> $owner->id,
 				);
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);
 	}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.72 2009/09/24 06:38:25 bpearson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.73 2011/08/01 05:30:37 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,11 +204,11 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$this->_running_vars['done_changes']  = 0;
 		$this->_running_vars['total_changes'] = 0;
-
+		
 		if (empty($this->_running_vars['permission_changes'])) {
 			// no schema changes, so do nothing
 			$this->_running_vars['todo_assetids'] = Array();
-		} else {
+		} else if (empty($this->_running_vars['permission_screen_assetid'])) {
 			$this->_running_vars['todo_assetids'] = Array();
 			foreach ($this->_running_vars['permission_changes'] as $perm_change) {
 				$assetids = $perm_change['assetids'];
@@ -246,8 +246,46 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 					}
 				}
 			}
-		}
+		} else {
+			// Job from static permission screen
+			$need_all = false;
+			foreach ($this->_running_vars['permission_changes'] as $perm_change) {
+				if (!((!array_get_index($perm_change, 'cascades', TRUE)) || array_get_index($perm_change, 'dependants_only'))) {
+					$need_all = true;
+				}
+			}//end foreach
+			
+			$assetid = $this->_running_vars['permission_screen_assetid'];
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+			if (empty($asset_info)) {
+				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+				return '';
+			}
 
+			if ($need_all) {
+				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+			} else {
+				$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);			
+			}
+			
+			// Add the parent asset to the list too
+			$todo_assetids = Array(
+								$assetid => Array(
+												'type_code' => $asset_info[$assetid]['type_code'],
+											),
+								);
+			foreach($children as $todo_assetid => $info) {
+				if (!isset($todo_assetids[$todo_assetid])) {
+					$todo_assetids[$todo_assetid]['type_code'] = $info[0]['type_code'];
+				}
+			}//end foreach
+			unset($dep_children);
+			unset($children);
+			
+			$this->_running_vars['todo_assetids'] = $todo_assetids;			
+			$this->_running_vars['total_changes'] = count($todo_assetids);		
+		}
+		
 		return parent::prepare();
 
 	}//end prepare()
@@ -268,9 +306,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid]['type_code'];
-			$perm_changes = $this->_running_vars['todo_assetids'][$assetid]['permission_changes'];
+			$perm_changes = empty($this->_running_vars['permission_screen_assetid']) ? $this->_running_vars['todo_assetids'][$assetid]['permission_changes'] : $this->_running_vars['permission_changes'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset) ) {
