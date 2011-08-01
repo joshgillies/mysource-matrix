@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.850 2011/07/18 04:53:17 akarelia Exp $
+* $Id: asset_manager.inc,v 1.851 2011/08/01 03:36:41 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.850 $
+* @version $Revision: 1.851 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4039,12 +4039,13 @@ class Asset_Manager extends MySource_Object
 	*												Other values that can be used in the array : SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, 
 	*												SQ_LINK_TYPE_3, SQ_LINK_NOTICE, SQ_SC_LINK_FRONTEND_NAV, 
 	*												SQ_SC_LINK_BACKEND_NAV, SQ_SC_LINK_SIGNIFICANT, SQ_SC_LINK_WEB_PATHS
+	* @param boolean		$expand_shadows			Get shadow children of shadow asset links. Enable this where necessary but keep performance in mind.
 	*
 	* @return array
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, Array $link_types_wanted=Array())
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL, Array $link_types_wanted=Array(), $expand_shadows=FALSE)
 	{
 		assert_valid_assetid($assetid);
 		// check if we are getting children for a shadow asset, and palm the request off to the
@@ -4102,6 +4103,16 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get children for asset: '.$assetid.' due to database error: '.$e->getMessage());
 		}
 
+		if ($expand_shadows){
+			foreach (array_keys($result) as $child_id){
+				$id_parts = explode(':', $child_id);
+				if (isset($id_parts[1])) {
+					$children = $this->getChildren($child_id, $type_code, $strict_type_code, $dependant, $sort_by);
+					$result += $children;
+				}
+			}	
+		}
+		
 		if (!is_null($sort_by)) {
 			$children = Array();
 			foreach ($result as $assetid => $asset_info) {
