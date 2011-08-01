@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.228 2011/05/26 06:15:09 mhaidar Exp $
+* $Id: metadata_manager.inc,v 1.228.2.1 2011/08/01 06:27:49 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.228 $
+* @version $Revision: 1.228.2.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -845,11 +845,12 @@ class Metadata_Manager extends MySource_Object
 	* @param string	$assetid	the ID of the asset to set the values for
 	* @param array	$metadata	the values to set
 	* @param int	$contextid	The context ID that this metadata setting applies for
+	* @param boolean	$broadcast_all_fields   If true, the event "metadata updated" will be broadcasted for all metadata fields
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE)
+	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE, $broadcast_all_fields=FALSE)
 	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -1094,7 +1095,7 @@ class Metadata_Manager extends MySource_Object
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		// broadcasted the assetids of the updated fields
 		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
-		$em->broadcastEvent($asset, 'MetadataUpdate', Array('fieldids' => array_keys($metadata)));
+		$em->broadcastEvent($asset, 'MetadataUpdate', $broadcast_all_fields ? Array('all') : Array('fieldids' => array_keys($metadata)));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset, $updated_fields);
 
 		return TRUE;
@@ -1369,7 +1370,7 @@ class Metadata_Manager extends MySource_Object
 		if (!$regenerate) {
 			$result = TRUE;
 		} else {
-			$result = $this->setMetadata($assetid, $metadata, $contextid, $update_asset);
+			$result = $this->setMetadata($assetid, $metadata, $contextid, $update_asset, TRUE);
 		}
 
 		if ($result) {
