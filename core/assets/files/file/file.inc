@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.203 2011/05/12 01:55:35 mhaidar Exp $
+* $Id: file.inc,v 1.204 2011/08/01 05:32:26 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -752,7 +752,7 @@ class File extends Asset
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	public function updateLookups()
+	public function updateLookups($auto_add_remaps = TRUE)
 	{	
 		$old_urls = $this->getURLs();
 
@@ -762,7 +762,7 @@ class File extends Asset
 		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
 			// so we dont worry about __data paths
-			return parent::updateLookups();
+			return parent::updateLookups($auto_add_remaps);
 		}
 
 		// Remove all the old URLs

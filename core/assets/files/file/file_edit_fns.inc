@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.94 2009/07/06 06:20:55 cupreti Exp $
+* $Id: file_edit_fns.inc,v 1.95 2011/08/01 05:32:26 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -371,7 +371,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		// bug fix for # 3625. If we cloning an asset then we need not call saveWebPaths now
 		// hipo_job_clone_asset will call saveWebPaths after it is sure the links have been established
-		if (!($asset_cloned) && !($asset->saveWebPaths(Array($name)))) {
+		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
+		if (!($asset_cloned) && !($asset->saveWebPaths(Array($name),$auto_add_remaps))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
 			return FALSE;
 		}//end if
