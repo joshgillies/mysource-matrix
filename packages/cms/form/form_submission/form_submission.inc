@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.42 2010/07/14 23:16:44 csmith Exp $
+* $Id: form_submission.inc,v 1.43 2011/08/01 03:38:14 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -439,6 +439,8 @@ class Form_Submission extends Asset
 	function getKeywordReplacement($keyword)
 	{
 		$matches = Array();
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		if (preg_match('/question\_name\_q([0-9]+)/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');			
 			if (!isset($attrs['summary'])) return '';
@@ -446,6 +448,7 @@ class Form_Submission extends Asset
 			foreach ($attrs['summary'] as $name => $value) {
 				$q_ids = explode(':q', $name);
 				if ($q_ids[1] == $matches[1]) {
+					apply_keyword_modifiers($value['name'], $modifiers);
 					return $value['name'];
 				}
 			}
@@ -457,6 +460,7 @@ class Form_Submission extends Asset
 			if (!isset($attrs['summary'])) return '';
 
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
+			apply_keyword_modifiers($elt['name'], $modifiers);
 			return $elt['name'];
 		}
 
@@ -466,7 +470,8 @@ class Form_Submission extends Asset
 
 			foreach ($attrs['summary'] as $name => $value) {
 				$q_ids = explode(':q', $name);
-				if ($q_ids[1] == $matches[1]) {
+				if ($q_ids[1] == $matches[1]) {	
+					apply_keyword_modifiers($value['answer'], $modifiers);
 					return $value['answer'];
 				}
 			}
@@ -478,6 +483,7 @@ class Form_Submission extends Asset
 			if (!isset($attrs['summary'])) return '';
 
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
+			apply_keyword_modifiers($elt['answer'], $modifiers);
 			return $elt['answer'];
 		}
 
@@ -489,6 +495,7 @@ class Form_Submission extends Asset
 					if (!is_scalar($value['answer'])) {
 						$value = array_get_index($attrs['summary'], $name, Array('answer' => ''));
 					}
+					apply_keyword_modifiers($value['answer'], $modifiers);
 					return $value['answer'];
 				}
 			}
@@ -503,7 +510,7 @@ class Form_Submission extends Asset
 			if (!is_scalar($elt['answer'])) {
 				$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
 			}
-			
+			apply_keyword_modifiers($elt['answer'], $modifiers);
 			return $elt['answer'];
 		}
 
