@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_search.inc,v 1.7 2007/12/18 23:47:04 rong Exp $
+* $Id: backend_search.inc,v 1.7.16.1 2011/08/01 06:52:53 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.16.1 $
 * @package MySource_Matrix
 */
 class Backend_Search
@@ -108,7 +108,7 @@ class Backend_Search
 				if ($result_limit > 0) {
 					$results = array_slice($results, 0, $result_limit, TRUE);
 				}
-				$results = $sm->getFormattedResults($results, $search_terms);
+				$results = $sm->getFormattedResults($results, $search_terms, FALSE);
 
 			}
 		} else {
