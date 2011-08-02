@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.50 2010/12/02 05:20:32 mhaidar Exp $
+* $Id: matrix_insert_link.inc,v 1.50.4.1 2011/08/02 01:01:15 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.4.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -242,7 +242,7 @@ class matrix_insert_link extends wysiwyg_plugin
 					re = new RegExp('title="([^"]+)"', "gi");
 					results = re.exec(tag_html);
 					if (results != null) {
-						currArgs["link_title"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
+						currArgs["link_title"] = rev_htmlspecialchars(results[1]);
 					}
 					// let's try and get the target if any
 					re = new RegExp('target="([^"]+)"', "gi");
@@ -400,7 +400,7 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
 							}
 							if (param["link_title"] != "") {
-								html += ' title="' + htmlspecialchars(param["link_title"]).replace(/\'/gi, "\\'") + '"';
+								html += ' title="' + htmlspecialchars(param["link_title"]) + '"';
 							}
 							if (param["onClick"] != null && param["onClick"] != "") {
 								html += ' onClick="' + param["onClick"] + '"';
@@ -438,7 +438,7 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
 							}
 							if (param["link_title"] != "") {
-								html += ' title="' + htmlspecialchars(param["link_title"]).replace(/\'/gi, "\\'") + '"';
+								html += ' title="' + htmlspecialchars(param["link_title"]) + '"';
 							}
 							if (param["onClick"] != null && param["onClick"] != "") {
 								html += ' onClick="' + param["onClick"] + '"';
