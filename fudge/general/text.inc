@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.58 2011/05/16 06:01:04 akarelia Exp $
+* $Id: text.inc,v 1.59 2011/08/02 03:52:47 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package Fudge
 * @subpackage Text
 */
@@ -431,7 +431,38 @@ function apply_keyword_modifier($text, $modifier)
 		}
 		return '';
 
-
+	case "xslt":
+		$new_text = '';
+		try {
+			//create an XSL object from the file asset id
+			$xsl_assetid = array_get_index($modifier['args'], 0, NULL);
+			if (empty($xsl_assetid)) return $new_text;
+			$xsl_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_assetid);
+			if (empty($xsl_asset)) return $new_text;
+			
+			$xsl = new DOMDocument();
+			if ($xsl_asset instanceof File) {
+				$xsl->load($xsl_asset->data_path.'/'.$xsl_asset->name);
+			} else {
+				trigger_error("XSLT keyword modifier: The asset #$xsl_assetid is not a File asset.");
+				return $new_text;
+			}
+	
+			//create the xslt object and import the style sheet
+			$xslt = new XSLTProcessor();
+			$xslt->importStylesheet($xsl);
+	
+			//load the XML from the keyword replacement text
+			$xml = new DOMDocument();
+			$xml->loadXML($text);
+			$new_text = $xslt->transformToXml($xml);
+		   
+		} catch (Exception $e) {
+			trigger_error($e->getMessage());
+		}
+		
+		return $new_text;
+		
 	default:
 		return $text;
 
