@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.51 2009/07/20 07:00:10 wszymanski Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.52 2011/08/02 06:12:32 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -346,14 +346,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		?>
-		<table cellspacing="2" cellpadding="2" border="0" width="100%">
+		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-data" width="25%"><b><?php echo translate('type'); ?></b></td>
-				<td class="sq-backend-data" width="25%"><b><?php echo translate('core_design_area'); ?></b></td>
+				<th class="sq-backend-table-header" width="33%"><?php echo translate('type'); ?></th>
+				<th class="sq-backend-table-header" width="33%"><?php echo translate('core_design_area'); ?></th>
 			<?php
 			if ($write_access) {
 			?>
-				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
+				<th class="sq-backend-table-header" width="34%" style="text-align: center;"><?php echo $check_box_col; ?></th>
 			<?php
 			}// end if
 			?>
@@ -382,7 +382,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 		?>
 			<tr>
-				<td class="sq-backend-data">
+				<td class="sq-backend-table-cell">
 				<?php
 					if ($current_type != $da->type()) {
 						$current_type = $da->type();
@@ -392,7 +392,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 					}
 				?>
 				</td>
-				<td class="sq-backend-data" style="white-space: nowrap;">
+				<td class="sq-backend-table-cell" style="white-space: nowrap;">
 					<?php
 					if ($link_name) {
 						echo get_asset_tag_line($da->id, 'details');
@@ -404,7 +404,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			<?php
 			if ($write_access) {
 				?>
-				<td class="sq-backend-data" style="text-align: center;">
+				<td class="sq-backend-table-cell" style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
 			<?php
