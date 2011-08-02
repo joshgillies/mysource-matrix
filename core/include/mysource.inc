@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.369 2011/08/01 03:07:33 akarelia Exp $
+* $Id: mysource.inc,v 1.370 2011/08/02 01:01:07 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.369 $
+* @version $Revision: 1.370 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3973,17 +3973,6 @@ class MySource extends MySource_Object
 	*/
 	protected function _paintNotFoundAsset(Asset $asset, Site $site)
 	{
-		$asset_url = strip_url($asset->getURL(), TRUE);
-		$new_php_self = str_replace($_SERVER['SERVER_NAME'], '', $asset_url);
-		$new_request_uri = $new_php_self.'?'.$_SERVER['QUERY_STRING'];
-
-		$old_php_self = $_SERVER['PHP_SELF'];
-		$old_request_uri = $_SERVER['REQUEST_URI'];
-
-		// swap ...
-		$_SERVER['PHP_SELF'] = $new_php_self;
-		$_SERVER['REQUEST_URI'] = $new_request_uri;
-
 		header('HTTP/1.0 404 Not Found');
 
 		// Send Cacheable Header based on Not Found page asset type
@@ -4016,11 +4005,6 @@ class MySource extends MySource_Object
 		}//end if
 
 		echo $content;
-		
-		// ... and restore
-		$_SERVER['PHP_SELF'] = $old_php_self;
-		$_SERVER['REQUEST_URI'] = $old_request_uri;
-
 
 	}//end _paintNotFoundAsset()
 
