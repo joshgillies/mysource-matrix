@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.79 2011/02/17 22:20:35 ewang Exp $
+* $Id: site_edit_fns.inc,v 1.80 2011/08/03 06:20:19 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -548,7 +548,75 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 	}//end processNotFoundPage()
 
+	
+	/**
+	* Paint the interface for the design setting the not found page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintNotFoundPageDesign(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'not_found_design', Array('design' => 'D'));
 
+	}//end paintNotFoundPageDesign()
+
+
+	/**
+	* Processes the design setting of the not found page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processNotFoundPageDesign(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->processNoticeLinkedAsset($asset, 'not_found_design');
+
+	}//end processNotFoundPageDesign()
+	
+
+	/**
+	* Paint the interface for the paint layout setting the not found page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintNotFoundPagePaintLayout(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'not_found_layout', Array('paint_layout_page' => 'D'));
+
+	}//end paintNotFoundPagePaintLayout()
+
+
+	/**
+	* Processes the design setting of the not found page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processNotFoundPagePaintLayout(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->processNoticeLinkedAsset($asset, 'not_found_layout');
+
+	}//end processNotFoundPagePaintLayout()
+	
+	
 	/**
 	* Paint the interface for setting authentication redirects for the site
 	*
