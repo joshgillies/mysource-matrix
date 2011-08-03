@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75.2.11 2011/07/26 00:24:03 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.12 2011/08/03 01:06:35 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75.2.11 $
+* @version $Revision: 1.75.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -347,7 +347,7 @@ class JS_Api extends Page
 				$asset = NULL;
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
-					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
+					if ((preg_match('/^[0-9]*:/i', $id) !== FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
 						$results[$track_func]['error'] = 'Assetid supplied doesnt exist on the system';
 						$track_func++;
 						break;
@@ -409,7 +409,7 @@ class JS_Api extends Page
 		}//end if
 
 		// lets restor PHP_SELF just incase if Matrix is going to check if $_SERVER var is
-		// exactly the same when it went in THIS function and when i goes out
+		// exactly the same when it went in THIS function and when it goes out
 		$_SERVER['PHP_SELF'] = $temp_server_vars;
 
 		// Restore error handler
@@ -3394,8 +3394,34 @@ class JS_Api extends Page
 					require_once 'Services/JSON.php';
 					$json = new Services_JSON();
 					$output = $json->encode($data);
+					if (Services_JSON::isError($output)) {
+						$this->returnError($output);
+					}
 				} else {
 					$output = json_encode($data);
+					if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
+						switch (json_last_error()) {
+							case JSON_ERROR_DEPTH:
+								$error = 'Maximum stack depth exceeded';
+								break;
+							case JSON_ERROR_STATE_MISMATCH:
+								$error = 'Underflow or the modes mismatch';
+								break;
+							case JSON_ERROR_CTRL_CHAR:
+								$error = 'Unexpected control character found';
+								break;
+							case JSON_ERROR_SYNTAX:
+								$error = 'Syntax error, malformed JSON';
+								break;
+							case JSON_ERROR_UTF8:
+								$error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+								break;
+							default:
+								$error = 'Unknown error';
+								break;
+						}
+						$this->returnError($error);
+					}
 				}//end else
 
 				// Send our JSON
