@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.124 2010/06/23 23:00:47 akarelia Exp $
+* $Id: site.inc,v 1.124.6.1 2011/08/04 00:51:40 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.124.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -743,7 +743,7 @@ class Site extends Folder
 	* @return void
 	* @access public
 	*/
-	public function paintAsset(Asset $asset)
+	public function paintAsset(Asset $asset, $design=NULL, $layout=NULL)
 	{
 		if (is_null($asset)) return;
 
@@ -762,56 +762,80 @@ class Site extends Folder
 		if ($asset->languages) {
 			header("Content-language: $this->languages");
 		}
-
-		$url = strip_url($this->getURL(), TRUE);
-		$asset_url = strip_url($asset->getURL(NULL, TRUE), TRUE);
-		$design_name = $this->getCurrentDesignName();
-		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
-
-		if (empty($result)) {
-			$db = MatrixDAL::getDb();
-			// try and find the default design used by the asset we are painting (i.e. not our default design)
-			$sql = 'SELECT lv.value as designid, a.type_code
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
-					';
-			$where ='l.assetid  = :assetid
-					  AND lv.url  LIKE :url
-					  AND lv.name    = :lookup_name';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-			$sql .= $where;
-			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-				MatrixDAL::bindValueToPdo($query, 'url', $url.'%');
-				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::system::frontend');
-				$result = MatrixDAL::executePdoAssoc($query);
-				if (!empty($result)) $result = $result[0];
-			} catch (Exception $e) {
-				throw new Exception('Unable to get default design for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+		
+		// Validate the overriding design, if any
+		if (!is_null($design)) {
+			$design_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($design->id, Array('design'), FALSE);
+			if (empty($design_info)) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+				unset($design);
+				$design = NULL;
 			}
 		}
+
+		$asset_url = strip_url($asset->getURL(NULL, TRUE), TRUE);
+		if (is_null($design)) {
+			$url = strip_url($this->getURL(), TRUE);
+			$design_name = $this->getCurrentDesignName();
+			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
+
+			if (empty($result)) {
+				$db = MatrixDAL::getDb();
+				// try and find the default design used by the asset we are painting (i.e. not our default design)
+				$sql = 'SELECT lv.value as designid, a.type_code
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
+						';
+				$where ='l.assetid  = :assetid
+						  AND lv.url  LIKE :url
+						  AND lv.name    = :lookup_name';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+				$sql .= $where;
+				$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
+
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+					MatrixDAL::bindValueToPdo($query, 'url', $url.'%');
+					MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::system::frontend');
+					$result = MatrixDAL::executePdoAssoc($query);
+					if (!empty($result)) $result = $result[0];
+				} catch (Exception $e) {
+					throw new Exception('Unable to get default design for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+				}
+			}
+
+			// we have found the design to use
+			if ($result) {
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			}
+		}//end if
 
 		global $ASSET_LINEAGE;
 		if (!empty($asset_url)) {
 			$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
 		}
 
-		if ($result) {
-			// we have found the design to use
-			$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+		if (!is_null($design)) {
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
 			} else {
 				// if there is an appopriate paint layout for the index page, tell the system to use it
-				$layout_name = $this->getCurrentPaintLayoutName();
-				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, $layout_name);
+				if (!is_null($layout)) {
+					// Validate the overriding paint layout, if any
+					$layout_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($layout->id, Array('paint_layout_page'));
+					if (!empty($layout_info)) {
+						$layout_id = $layout->id;
+					}
+				}
+				if (empty($layout_id)) {
+					$layout_name = $this->getCurrentPaintLayoutName();
+					$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, $layout_name);
+				}
 				if ($layout_id) {
 					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
 				}
@@ -867,6 +891,8 @@ class Site extends Folder
 		switch ($page) {
 			case 'index'     :
 			case 'not_found' :
+			case 'not_found_design':
+			case 'not_found_layout':			
 			case 'archive'   :
 				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, $page);
 			break;

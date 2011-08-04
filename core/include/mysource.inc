@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.366.2.3 2011/08/02 01:04:17 akarelia Exp $
+* $Id: mysource.inc,v 1.366.2.4 2011/08/04 00:52:11 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.366.2.3 $
+* @version $Revision: 1.366.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3972,8 +3972,11 @@ class MySource extends MySource_Object
 		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
 
+		// If "Not found" page has overriding design and/or paint layout
+		$override_design = $site->getSpecialPage('not_found_design');
+		$override_layout = $site->getSpecialPage('not_found_layout');
 		ob_start();
-			$site->paintAsset($asset);
+			$site->paintAsset($asset, $override_design, $override_layout);
 		$content = ob_get_clean();
 
 		$this->replaceKeyword($content);
