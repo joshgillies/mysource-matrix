@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.14.14.1 2011/05/13 00:36:41 cupreti Exp $
+* $Id: esec_processor.inc,v 1.14.14.2 2011/08/04 06:03:42 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14.14.1 $
+* @version $Revision: 1.14.14.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -77,7 +77,7 @@ class Esec_Processor
 		'05' => 'do not honour',
 		'06' => 'error',
 		'07' => 'pickup card, special conditions',
-		'08' => 'honour with ID (signature)(corresponds to 200 response)',
+		'08' => 'approved',
 		'09' => 'request in progress',
 		'10' => 'approved for partial amount',
 		'11' => 'approved VIP',
