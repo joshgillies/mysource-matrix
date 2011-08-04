@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4.16.1 2011/08/04 00:51:40 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.4.16.2 2011/08/04 05:17:29 cupreti Exp $
 *
 */
 -->
@@ -32,6 +32,14 @@
 			</function_call>
 		</field>
 		<field>
+			<display_name>Not Found Page</display_name>
+			<note>The Asset that gets printed when the URI that the user has entered does not exist</note>
+			<function_call>
+				<paint_function   name="paintNotFoundPage"   />
+				<process_function name="processNotFoundPage" />
+			</function_call>
+		</field>		
+		<field>
 			<display_name>Archived Asset</display_name>
 			<note>When a user without read access accesses an archived asset within this site on the frontend, the selected asset will be printed instead of showing the login screen.</note>
 			<function_call>
@@ -40,15 +48,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Page Not Found Link">
-		<field>
-			<display_name>Not Found Page</display_name>
-			<note>The Asset that gets printed when the URI that the user has entered does not exist</note>
-			<function_call>
-				<paint_function   name="paintNotFoundPage"   />
-				<process_function name="processNotFoundPage" />
-			</function_call>
-		</field>		
+	<section name="Not Found Page Options">
 		<field>
 			<display_name>Override Design</display_name>
 			<note>This will override the design based on the current URI that the user has entered</note>
