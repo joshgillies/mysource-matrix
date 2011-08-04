@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.124.6.1 2011/08/04 00:51:40 cupreti Exp $
+* $Id: site.inc,v 1.124.6.2 2011/08/04 05:26:25 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124.6.1 $
+* @version $Revision: 1.124.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -524,10 +524,10 @@ class Site extends Folder
 		unset($our_layout_links);
 
 		$urls = $this->getSiteURLs();
-
+		$current_urls = Array();
 		// if we have urls then do some url inserting
 		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
-
+			$current_urls[] = $urls[$urlid]['url'];
 			// merge old paint layout lookup values with design values for inserting into the lookup_value table later
 			// i.e. designs are set on an asset basis, not on a URL basis like paint layouts
 			foreach ($design_lookups as $design_name => $value) {
@@ -582,6 +582,13 @@ class Site extends Folder
 
 			// merge in asset based paint layout values if they do not already exist
 			foreach ($lookup_values as $url => $data) {
+			
+				//Bug #5251, filter out lookup values for old urls
+				if (!in_array(rtrim($url, '/'), $current_urls)) {
+					unset($lookup_values[$url]);
+					continue;
+				}
+				
 				if (preg_match('/.+\/$/', $url)) {
 					// override layout
 					foreach ($override_paint_layouts as $name => $value) {
