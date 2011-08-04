@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.331 2011/07/11 02:04:42 cupreti Exp $
+* $Id: listing_engine.inc,v 1.332 2011/08/04 04:20:39 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.331 $
+* @version $Revision: 1.332 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -720,25 +720,25 @@ class Listing_Engine extends Page
 			return;
 		}
 	
-		// Timer!
-		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
-		// this flag can be set if getAssetList() function returns different format of array.
-		// you can find the example in Search List. Also see getAssetList()'s comment
-		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
-			$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
-			$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
-		}
-		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
-		
-		// Timer!
-		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'groupAssets');
-		// the list is sorted and positions set, now we can split to groups
 		if ($this->attr('group_by') == 'grouped') {
-			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
-			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
-		}
-		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'groupAssets');
+			// Timer!
+			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
+			// this flag can be set if getAssetList() function returns different format of array.
+			// you can find the example in Search List. Also see getAssetList()'s comment
+			if (!isset($this->_tmp['no_asset_info_url_cache'])) {
+				$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
+				$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
+			}
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
 		
+			// Timer!
+			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'groupAssets');
+			// the list is sorted and positions set, now we can split to groups
+				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'groupAssets');
+		}
+
 		// Timer!
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'chunkAssets');
 		
@@ -753,7 +753,6 @@ class Listing_Engine extends Page
 					$children[$group_id] = $start_pos < count($child_group) ? array_slice($child_group, $start_pos, count($child_group) - $start_pos, TRUE) : Array();
 				}//end foreach
 			}//end else
-
 		}//end if start position
 		
 		$num_per_page = $this->_getNumPerPage();
@@ -780,7 +779,7 @@ class Listing_Engine extends Page
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
-
+		
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still
 		// respect the 'per page' settings - but with only one page in random
@@ -793,7 +792,18 @@ class Listing_Engine extends Page
 		}
 		// Timer!
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'chunkAssets');
-		
+
+		// For non-grouped listing, get asset info of chucked assets here
+		if ($this->attr('group_by') != 'grouped') {
+			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
+			// this flag can be set if getAssetList() function returns different format of array.
+			// you can find the example in Search List. Also see getAssetList()'s comment
+			if (!isset($this->_tmp['no_asset_info_url_cache'])) {
+				$this->_tmp['assets_info']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+				$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($todo));
+			}
+			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
+		}
 
 		// Timer!
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
