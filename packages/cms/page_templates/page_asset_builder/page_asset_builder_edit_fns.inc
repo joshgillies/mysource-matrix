@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.52 2010/09/08 23:47:18 cupreti Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.53 2011/08/04 07:48:35 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -376,8 +376,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// add a new create location
 		if (isset($_POST[$prefix.'_new_create_location'])) {
-			$new_location = $_POST[$prefix.'_new_create_location']['assetid'];
-			if ($new_location && !isset($new_locations[$new_location])) {
+			$new_location = trim($_POST[$prefix.'_new_create_location']['assetid']);
+			if ($new_location && assert_valid_assetid($new_location, 'Invalid Asset Id: #'.$new_location.' supplied for "create location"', FALSE, FALSE) && !isset($new_locations[$new_location])) {
 				$link_type_name = link_type_name((int)$_POST[$prefix.'_new_link_type']);
 				if (!empty($link_type_name)) {
 					$new_locations[$new_location] = (int)$_POST[$prefix.'_new_link_type'];
