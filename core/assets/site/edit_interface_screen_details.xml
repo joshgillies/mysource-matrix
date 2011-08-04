@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.19 2011/08/03 06:20:19 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20 2011/08/04 05:12:25 cupreti Exp $
 *
 */
 -->
@@ -30,18 +30,18 @@
 		</field>
 		<field>
 			<function_call>
+				<paint_function   name="paintNotFoundPage"   />
+				<process_function name="processNotFoundPage" />
+			</function_call>
+		</field>		
+		<field>
+			<function_call>
 				<paint_function   name="paintArchivedPage"   />
 				<process_function name="processArchivedPage" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Page Not Found Link" write_access="write:links" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintNotFoundPage"   />
-				<process_function name="processNotFoundPage" />
-			</function_call>
-		</field>
+	<section name="Not Found Page Options" write_access="write:links" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintNotFoundPageDesign"   />
