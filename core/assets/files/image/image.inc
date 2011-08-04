@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.81.6.4 2011/05/19 01:12:54 mhaidar Exp $
+* $Id: image.inc,v 1.81.6.5 2011/08/04 04:00:56 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81.6.4 $
+* @version $Revision: 1.81.6.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -574,12 +574,12 @@ class Image extends File implements Bridge
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups()
+	function updateLookups($auto_add_remaps = TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::updateLookups()) {
+		if (!parent::updateLookups($auto_add_remaps)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
