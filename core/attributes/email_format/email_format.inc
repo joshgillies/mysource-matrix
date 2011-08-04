@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.50.2.1 2011/07/25 00:23:47 mhaidar Exp $
+* $Id: email_format.inc,v 1.50.2.2 2011/08/04 03:19:03 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50.2.1 $
+* @version $Revision: 1.50.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -150,7 +150,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								echo get_asset_tag_line($assetid).'<br />';
 							}
 						} else {
-							multiple_asset_finder($prefix.'_to_assetids', $current_value['to_assetids'], Array('user' => 'D', 'user_group' => 'I'));
+							multiple_asset_finder($prefix.'_to_assetids', $current_value['to_assetids'], Array('user' => 'D', 'user_group' => 'I', 'bulkmail_user' => 'I'));
 						}
 					}
 					?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.29 2011/03/03 22:39:04 cupreti Exp $
+* $Id: trigger_action_send_email.inc,v 1.29.2.1 2011/08/04 03:19:03 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$group_members = Array();
 			foreach ($settings['groups'] as $group) {
 				// Grab all users and all directly and indirectly-linked shadow assets
-				$group_result = $GLOBALS['SQ_SYSTEM']->am->getChildren($group, 'user', FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL);
+				$group_result = $GLOBALS['SQ_SYSTEM']->am->getChildren($group, Array('user', 'bulkmail_user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL);
 				while (!empty($group_result)) {
 					$member_id = reset(array_keys($group_result));
 					$member_type = reset($group_result);
