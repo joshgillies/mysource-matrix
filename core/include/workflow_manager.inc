@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.163.2.2 2011/07/19 07:15:26 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.163.2.3 2011/08/04 05:07:13 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163.2.2 $
+* @version $Revision: 1.163.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -689,7 +689,7 @@ class Workflow_Manager extends MySource_Object
 			foreach ($current_step['conditions'] as $conditionid => $condition_details) {
 				// is a user_group
 				if (in_array('user_group', $condition_type_info[$conditionid])) {
-					$group_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($conditionid, Array('user'), FALSE));
+					$group_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($conditionid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
 					if (in_array($userid, $group_users)) {
 						$listed_user = TRUE;
 					}
@@ -775,7 +775,7 @@ class Workflow_Manager extends MySource_Object
 								foreach ($userids as $userid) {
 									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
+										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE)));
 									} else {
 										$can_publish_cond[] = $userid;
 									}
@@ -784,7 +784,7 @@ class Workflow_Manager extends MySource_Object
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
 						// getChildren with all the shadow asset children
-						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE));
+						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
 					}
 				}
 
@@ -899,7 +899,7 @@ class Workflow_Manager extends MySource_Object
 								if ($asset instanceof User) {
 									$can_publish_cond[] = $asset->id;
 								} else if ($asset instanceof User_Group) {
-									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
+									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
 								}
 							}
 							$cond_string = 'if ('.count($cond_data['published_by']).
@@ -1351,7 +1351,7 @@ class Workflow_Manager extends MySource_Object
 							}
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE));
+						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
 					}
 				}
 
