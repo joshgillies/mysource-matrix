@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.93 2011/07/22 06:49:34 ewang Exp $
+* $Id: install.inc,v 1.94 2011/08/05 02:04:46 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -762,6 +762,53 @@ function generate_file_bridge_config()
 	return TRUE;
 
 }//end generate_file_bridge_config()
+
+
+/**
+* Minify js files for EES improvement
+*
+* @return boolean
+* @access public
+*/
+function minify_css_files()
+{
+    pre_echo('Minify JS Files');
+    
+    require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
+
+    $file = SQ_SYSTEM_ROOT.'/core/lib/js/matrix.min.js';
+
+    $source_files = Array (
+	SQ_SYSTEM_ROOT.'/fudge/var_serialise/var_serialise.js',
+	SQ_SYSTEM_ROOT.'/core/lib/js/general.js',
+	SQ_SYSTEM_ROOT.'/core/lib/js/debug.js',
+	SQ_SYSTEM_ROOT.'/core/lib/js/layer_handler.js',
+	SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.js',
+	SQ_SYSTEM_ROOT.'/core/lib/js/detect.js',
+	SQ_SYSTEM_ROOT.'/core/assets/bodycopy/bodycopy/js/bodycopy_edit_divs.js',
+	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_select/js/metadata_field_select.js',
+	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_multiple_text/js/metadata_field_multiple_text.js',
+	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_hierarchy/js/metadata_field_hierarchy.js',
+    );
+
+    // Output a minified version
+    $string = '';
+    foreach ($source_files as $source) {
+	echo 'processing '.$source."\n";
+	$string .= JSMin::minify(file_get_contents($source));
+    }
+    $result = file_put_contents($file, $string);
+
+    if($result === FALSE) {
+	trigger_error ("FAILED TO GENREATE MINIFIED JS FILES FOR EES");
+	return FALSE;
+    }
+
+    echo $file." is completed.\n";
+    
+    return TRUE;
+}
+
 
 /**
 * Format an array of packages => Array(type_codes) for display
