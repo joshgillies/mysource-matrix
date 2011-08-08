@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.10.8.1 2011/05/08 23:39:19 akarelia Exp $
+* $Id: system_update_lookups.php,v 1.10.8.2 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -27,11 +27,11 @@
 * also you can specify verbose eg. php scripts/system_update_lookups.php . 46 70 --verbose
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10.8.1 $
+* @version $Revision: 1.10.8.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }

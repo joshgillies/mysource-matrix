@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.4 2011/02/01 00:57:07 akarelia Exp $
+* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.4.2.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -23,12 +23,12 @@
 
 /**
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts 
 */
 
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 
 if (php_sapi_name() != 'cli') {

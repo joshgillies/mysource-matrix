@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.27 2010/03/02 05:03:33 cupreti Exp $
+* $Id: recreate_link_tree.php,v 1.27.6.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.6.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -46,7 +46,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {

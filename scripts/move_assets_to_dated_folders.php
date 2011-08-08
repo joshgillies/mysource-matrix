@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.5 2010/07/15 04:43:37 csmith Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.5.4.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix
 */
 
@@ -377,7 +377,7 @@ function setAssetStatus($asset_id, $status)
 /************************** MAIN PROGRAM ****************************/
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if ((php_sapi_name() != 'cli')) {
 	printUsage();

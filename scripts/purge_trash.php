@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.4.14.2 2011/02/24 22:45:15 mhaidar Exp $
+* $Id: purge_trash.php,v 1.4.14.3 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -25,12 +25,12 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.4.14.2 $
+* @version $Revision: 1.4.14.3 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if (php_sapi_name() != 'cli') {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);

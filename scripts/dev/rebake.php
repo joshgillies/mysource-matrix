@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rebake.php,v 1.4 2010/07/15 04:43:37 csmith Exp $
+* $Id: rebake.php,v 1.4.4.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -28,11 +28,11 @@
 *    php install_queries.php /system/root
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 

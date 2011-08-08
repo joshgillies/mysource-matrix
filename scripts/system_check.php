@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_check.php,v 1.3 2010/08/03 04:22:34 csmith Exp $
+* $Id: system_check.php,v 1.3.4.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -23,11 +23,11 @@
 *		--no-colours
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 if (php_sapi_name() != 'cli') {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 	exit(1);

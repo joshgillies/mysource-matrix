@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.6 2007/12/10 06:23:45 rong Exp $
+* $Id: system_parse_designs.php,v 1.6.16.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -18,10 +18,10 @@
 * Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.16.1 $
 * @package MySource_Matrix
 */
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 

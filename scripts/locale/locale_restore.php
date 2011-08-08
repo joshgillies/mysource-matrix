@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_restore.php,v 1.3 2010/07/14 01:15:07 csmith Exp $
+* $Id: locale_restore.php,v 1.3.4.1 2011/08/08 23:08:22 akarelia Exp $
 *
 */
 
@@ -38,11 +38,11 @@
 *	XML file has locale info that this script uses..
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 $exs = Array();
