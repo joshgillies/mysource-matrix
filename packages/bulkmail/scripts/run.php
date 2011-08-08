@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.3 2008/12/17 23:17:59 bshkara Exp $
+* $Id: run.php,v 1.4 2011/08/08 04:48:17 akarelia Exp $
 *
 */
 
@@ -22,11 +22,11 @@
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 ini_set('error_reporting', E_ALL & (~E_STRICT));
 require_once dirname(__FILE__).'/../bulk_mailer.inc';
 

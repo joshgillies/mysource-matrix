@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files_from_bridge.php,v 1.3 2011/03/28 07:51:43 cupreti Exp $
+* $Id: import_files_from_bridge.php,v 1.4 2011/08/08 04:48:16 akarelia Exp $
 *
 */
 
@@ -19,12 +19,12 @@
 * Usage: php import_files_from_bridge.php matrix_root bridge_id parent_id recursive [y/n]
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package file
 */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
