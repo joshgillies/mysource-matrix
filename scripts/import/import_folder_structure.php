@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_folder_structure.php,v 1.4 2010/07/15 04:43:37 csmith Exp $
+* $Id: import_folder_structure.php,v 1.5 2011/08/08 04:42:31 akarelia Exp $
 *
 */
 
@@ -170,7 +170,7 @@ function createFolder($name, &$parent_folder)
 
 /************************** MAIN PROGRAM ****************************/
 
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);

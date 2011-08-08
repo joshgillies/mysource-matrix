@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: migrate_metadata_text_to_multiple_text.php,v 1.2 2007/12/10 06:23:45 rong Exp $
+* $Id: migrate_metadata_text_to_multiple_text.php,v 1.3 2011/08/08 04:42:30 akarelia Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -64,7 +64,7 @@ if (empty($FROM_ASSETID)) usage();
 if (empty($TO_ASSETID)) usage();
 
 
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 define('SQ_SYSTEM_ROOT', $_SYSTEM_ROOT);
 include_once $_SYSTEM_ROOT.'/core/include/init.inc';
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_public_files.php,v 1.1 2011/06/21 02:48:57 mhaidar Exp $
+* $Id: system_integrity_fix_public_files.php,v 1.2 2011/08/08 04:42:30 akarelia Exp $
 *
 */
 
@@ -18,11 +18,12 @@
 * Fix (update, recover or remove) public files in the public data directory of file and its descendant assets. 
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
-ini_set("memory_limit","-1");
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
+
 error_reporting(E_ALL);
 if (count($_SERVER['argv']) < 3 || php_sapi_name() != 'cli') {
         echo "This script needs to be run in the following format:\n\n";

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.15 2010/06/28 00:47:47 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.16 2011/08/08 04:42:30 akarelia Exp $
 *
 */
 
@@ -26,12 +26,12 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
 
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 
 /**

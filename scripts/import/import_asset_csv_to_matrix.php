@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.11 2010/01/29 00:10:57 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.12 2011/08/08 04:42:31 akarelia Exp $
 *
 */
 
@@ -611,7 +611,7 @@ function editMetadata(Asset &$asset, Array $asset_spec, Array $metadata_mapping,
 
 /************************** MAIN PROGRAM ****************************/
 
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if ((php_sapi_name() != 'cli')) {
 trigger_error("You can only run this script from the command line\n", E_USER_ERROR);

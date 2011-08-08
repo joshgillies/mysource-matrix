@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_metadata_schemas.php,v 1.3 2011/07/13 05:57:17 ewang Exp $
+* $Id: regen_metadata_schemas.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
 *
 */
 
@@ -19,11 +19,11 @@
 * If no schema is specified, then all schemas in the system are regenerated.
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 $metadata_schemas = Array();
 

@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permission_change.php,v 1.3 2011/06/20 22:13:11 akarelia Exp $
+* $Id: permission_change.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
 *
 */
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);

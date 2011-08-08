@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.7 2011/06/14 04:29:37 mhaidar Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.8 2011/08/08 04:42:30 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -48,7 +48,7 @@ if ($ACTION == 'fix') {
 }//end if
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $count = 0;
 $count_rm = 0;
