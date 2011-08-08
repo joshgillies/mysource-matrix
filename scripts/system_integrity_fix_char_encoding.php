@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_char_encoding.php,v 1.1 2010/06/01 06:24:48 cupreti Exp $
+* $Id: system_integrity_fix_char_encoding.php,v 1.1.6.1 2011/08/08 05:11:12 akarelia Exp $
 */
 
 /**
@@ -20,7 +20,7 @@
 * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.6.1 $
 * @package MySource_Matrix
 */
 
@@ -36,7 +36,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 	exit;
 }
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $old_encoding = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (!$old_encoding || !isValidCharset($old_encoding)) {

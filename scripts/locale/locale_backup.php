@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.8 2010/07/14 01:15:07 csmith Exp $
+* $Id: locale_backup.php,v 1.8.6.1 2011/08/08 05:11:13 akarelia Exp $
 *
 */
 
@@ -45,11 +45,11 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
-ini_set('memory_limit', -1);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 $exs = Array();

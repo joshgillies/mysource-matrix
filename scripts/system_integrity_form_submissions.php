@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_form_submissions.php,v 1.2 2010/07/05 14:46:34 ata Exp $
+* $Id: system_integrity_form_submissions.php,v 1.2.6.1 2011/08/08 05:11:13 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * system_integrity_form_submissions.php SYSTEM_ROOT [list|delete]
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.6.1 $
 * @package MySource_Matrix
 */
 
@@ -53,7 +53,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	getInfo('You need to supply the path to the System Root as the first argument');
 }
 
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $am = $GLOBALS['SQ_SYSTEM']->am;

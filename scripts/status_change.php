@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: status_change.php,v 1.2.6.1 2011/06/20 22:15:43 akarelia Exp $
+* $Id: status_change.php,v 1.2.6.2 2011/08/08 05:11:13 akarelia Exp $
 *
 */
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regenerate_treeids_for_triggers.php,v 1.1 2009/08/27 01:43:10 akarelia Exp $
+* $Id: regenerate_treeids_for_triggers.php,v 1.1.14.1 2011/08/08 05:11:13 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * this will re-enter values in table, thus fxing up any issue with inconsistent tree_ids
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.14.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -36,7 +36,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
