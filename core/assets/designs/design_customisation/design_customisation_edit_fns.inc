@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.51.12.1 2011/08/02 06:21:55 mhaidar Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.51.12.2 2011/08/09 03:37:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51.12.1 $
+* @version $Revision: 1.51.12.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,16 +103,18 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			return FALSE;
 		}// end if
 
-		// regenerate the design_file.php and css_file.php here (because the processBackend function
-		// doesn't do it automatically any more
-		if (!$asset->updateFromParent($parent_design)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}// end if
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// regenerate the design_file.php and css_file.php here (because the processBackend function
+		// doesn't do it automatically any more
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(
+		    'assetid'	=> $asset->id,
+		    'parentid'	=> $parent_design->id,
+		);
+		$hh->queueHipo('hipo_job_regenerate_design', $vars);
+		
 		return TRUE;
 
 	}//end processCustomisedDesignAreas()

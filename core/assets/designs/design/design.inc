@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.157.2.1 2011/06/30 07:13:45 ewang Exp $
+* $Id: design.inc,v 1.157.2.2 2011/08/09 03:38:23 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157.2.1 $
+* @version $Revision: 1.157.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -598,18 +598,15 @@ class Design extends Design_Area
 	{
 		switch ($_POST['asset_action']) {
 			case 'edit' :
-				$this->_tmp['update_customisations'] = FALSE;
 				if (parent::processBackend($o, $link)) {
-					
-					// regenerate the design (if necessary),
-					// but don't do the customisations if they have yet to be updated
-					// (they will be regenerated during the update process anyway)
-					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
-						
-						$this->generateDesignFile(!$this->_tmp['update_customisations']);
-						if ($this->_tmp['update_customisations']) {
-							$this->updateCustomisations();
-						}
+					// regenerate the design (if necessary) and update customisations in HIPO
+					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {						
+						 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+						     $vars = Array(
+								'assetid'    =>$this->id,
+							       );
+						    $hh->queueHipo('hipo_job_regenerate_design', $vars);
+
 					}
 
 					return TRUE;
