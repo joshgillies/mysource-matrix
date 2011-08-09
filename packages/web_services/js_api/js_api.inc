@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.75.2.12 2011/08/03 01:06:35 akarelia Exp $
+* $Id: js_api.inc,v 1.75.2.13 2011/08/09 03:17:52 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.75.2.12 $
+* @version $Revision: 1.75.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2110,10 +2110,11 @@ class JS_Api extends Page
 												   ),
 						 );
 
+		$created_user = $updated_user = $published_user = $status_user = NULL;
 		foreach ($user_to_check as $user => $user_info) {
 			$user_id = $user_info['id'];
 			if (isset($asset->$user_id) && $asset->$user_id != '' && (int)$asset->$user_id != 0 ) {
-				if(!(${$user} = $am->getAsset($asset->$user_id, '', FALSE))) {
+				if(!(${$user} = $am->getAsset($asset->$user_id, '', TRUE))) {
 					${$user} = 'Unknown User';
 				}
 			} else if (isset($asset->$user_id) && (int)$asset->$user_id == 0) {
@@ -2161,9 +2162,9 @@ class JS_Api extends Page
 					'created'					=>	$asset->created,
 					'created_userid'			=>	$asset->created_userid,
 					'created_username'			=>	($created_user === 'Root User' || $created_user === 'Undefined' || $created_user === 'Unknown User') ? $created_user : $created_user->name,
-					'updated'					=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $asset->updated,
-					'updated_userid'			=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $updated_user->id,
-					'update_username'			=>	($updated_user === 'Never Updated' || $update_user === 'Unknown User') ? $updated_user : $updated_user->name,
+					'updated'					=>	($updated_user === 'Never Updated' || $updated_user === 'Unknown User') ? $updated_user : $asset->updated,
+					'updated_userid'			=>	($updated_user === 'Never Updated' || $updated_user === 'Unknown User') ? $updated_user : $updated_user->id,
+					'updated_username'			=>	($updated_user === 'Never Updated' || $updated_user === 'Unknown User') ? $updated_user : $updated_user->name,
 					'published'					=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $asset->published,
 					'published_userid'			=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $published_user->id,
 					'published_username'		=>	($published_user === 'Never Published' || $published_user === 'Unknown User') ? $published_user : $published_user->name,
