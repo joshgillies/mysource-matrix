@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.34 2009/10/20 00:59:47 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.35 2011/08/09 05:51:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -211,6 +211,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$this->_running_vars['contextid'] = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 
+		$todo_assetids = Array();
 		foreach ($this->_running_vars['root_assetid'] as $assetid) {
 			// so we have an assetid to start at, but make sure it is a valid assetid
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -218,12 +219,19 @@ class HIPO_Job_ReIndex extends HIPO_Job
 				trigger_localised_error('SCH0022', E_USER_WARNING, $assetid);
 				return FALSE;
 			}
+			
+			if (!empty($this->_running_vars['root_only']) && $this->_running_vars['root_only']) {
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+			} else {
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			}
+			$todo_assetids += $child_assets;
+			$todo_assetids[$asset->id][0]['type_code'] = $asset->type();
 
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-			$child_assets[$asset->id][0]['type_code'] = $asset->type();
-			$this->_running_vars['todo_assetids'] = $child_assets;
-			$this->_running_vars['done_assetids'] = Array();
-		}
+		}//end foreach
+
+		$this->_running_vars['todo_assetids'] = $todo_assetids;
+		$this->_running_vars['done_assetids'] = Array();
 
 		return parent::prepare();
 

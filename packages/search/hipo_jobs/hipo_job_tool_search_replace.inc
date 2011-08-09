@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.21 2011/02/01 03:37:58 ewang Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.22 2011/08/09 05:51:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -288,8 +288,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
-							'root_assetid'	=> $this->_running_vars['root_assetid'],
+							'root_assetid'	=> array_keys($this->_running_vars['search_data']),
 							'contextid'		=> $this->_running_vars['contextid'],
+							'root_only'		=> TRUE,
 						);
 
 		$hipo_vars = Array(
