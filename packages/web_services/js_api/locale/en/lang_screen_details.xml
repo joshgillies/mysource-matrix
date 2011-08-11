@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.19 2011/07/10 22:16:01 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.20 2011/08/11 04:14:26 akarelia Exp $
 *
 */
 -->
@@ -92,7 +92,11 @@
             <display_name>Create Asset</display_name>
             <note />
         </field>
-        <field attribute="get_general">
+		<field attribute="clone_asset">
+			<display_name>Clone Asset</display_name>
+			<note />
+		</field>
+		<field attribute="get_general">
             <display_name>Get General Info</display_name>
             <note />
         </field>

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.8 2011/07/20 05:01:36 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.9 2011/08/11 04:14:26 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2211,6 +2211,68 @@ class Js_Api_Enhanced_Function_List
 			<?php
 		}//end if(execute_html_tidy)
 		?>
+
+			<?php
+		if ($js_api_asset->attr('clone_asset')) {
+			?>
+
+		/**
+		* Clones the given asset under the parent passed in
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      asset_id:		string/int	asset under which the assets are to be imported under
+		*      new_parent		string/int	assetid of the parent to clone under
+		*      clone_num		int			number of clones to create under new parent (default is 1)
+		*      new_position		int			position to place the newly cloned asset at (default at the bottom)
+		*      link_type		string		type of links we are looking for (default is SQ_LINK_TYPE_1)
+		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3
+		*      link_value		string		the value of new link we want (default '')
+		*      content:			string		the string content that needs to be cleaned up
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		cloneAsset: function(options)
+		{
+			var fnName = 'cloneAsset';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:           null,
+						new_parent:         null,
+						clone_num:          1,
+						new_position:       -1,
+						link_type:          'SQ_LINK_TYPE_1',
+						link_value:         '',
+						dataCallback:       function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id', 'new_parent']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.asset_id],
+					['new_parent', options.new_parent],
+					['clone_num', options.clone_num],
+					['new_position', options.new_position],
+					['link_type', options.link_type],
+					['link_value', options.link_value],
+			],options);
+
+		},// end cloneAsset
+
+			<?php
+		}//end if(clone_asset)
+		?>
+
 
 		/**
 		* Shortcut function for sending post data

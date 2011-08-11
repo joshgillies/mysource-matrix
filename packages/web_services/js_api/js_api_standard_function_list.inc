@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.7 2011/07/20 04:39:24 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.8 2011/08/11 04:14:26 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1778,10 +1778,54 @@ function batchRequest(functions, dataCallback)
 	// Make our request
 	makeRequest(url, true, dataCallback);
 
+}//end batchRequest()
+
+			<?php
+		}//end if(batch_requests)
+
+		if ($js_api_asset->attr('clone_asset')) {
+			?>
+
+/**
+* clones the passed asset under a new parent
+*
+* @param assetid		string			id of asset we want to clone
+* @param new_parent		string			assetid of the parent to clone under
+* @param clone_num		int				number of clones to create under new parent (default is 1)
+* @param new_position	int				position to place the newly cloned asset at (default at the bottom)
+* @param link_type		string			type of links we are looking for (default is SQ_LINK_TYPE_1)
+*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+* @param link_value		string			the value of new link we want (default '')
+* @param function		dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function cloneAsset(assetid, new_parent, clone_num, new_position, link_type, link_value, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var clone_num	 = (isset(clone_num) && clone_num != '') ? clone_num : 1
+	var new_position = (isset(new_position) && new_position != '') ? new_position : -1;
+	var link_type	 = (isset(link_type) && link_type != '') ? link_type : 'SQ_LINK_TYPE_1';
+	var link_value	 = (isset(link_value)) ? link_value : '';
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
+				+ '&type=cloneAsset&id=' + assetid
+				+ '&new_parent=' + new_parent
+				+ '&clone_num=' + clone_num
+				+ '&new_position=' + new_position
+				+ '&link_value=' + link_value
+				+ '&link_type=' + link_type;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
 }//end getLineage()
 
 			<?php
-		}//end if(get_lineage)
+		}//end if(clone_asset)
 
 
 	}//end paintJSFunctions()

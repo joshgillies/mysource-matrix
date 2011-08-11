@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.89 2011/08/09 03:16:18 akarelia Exp $
+* $Id: js_api.inc,v 1.90 2011/08/11 04:14:26 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -71,6 +71,7 @@ class JS_Api extends Page
 									'setContentOfEditableFileAsset'	=> 'set_file_content',
 									'getLineage'					=> 'get_lineage',
 									'batchRequest'					=> 'batch_requests',
+									'cloneAsset'					=> 'clone_asset',
 								  );
 
 	/*
@@ -95,6 +96,7 @@ class JS_Api extends Page
 									'setMetadataAllFields'			=> Array('write_access'),
 									'setMetadata'					=> Array('write_access'),
 									'createAsset'					=> Array('write_access', 'ignore_perm'),
+									'cloneAsset'					=> Array('write_access', 'ignore_perm'),
 									'createFileAsset'				=> Array('write_access', 'ignore_perm'),
 									'acquireLock'					=> Array('write_access'),
 									'releaseLock'					=> Array('write_access'),
@@ -208,6 +210,8 @@ class JS_Api extends Page
 		// Get our JSON data that was sent, then encode it into an array
 		$api_key = array_get_index($_REQUEST, 'key', '');
 		$id = array_get_index($_REQUEST, 'id', '');
+		// if id is still empty try getting 'assetid'
+		if (empty($id)) $id = array_get_index($_REQUEST, 'assetid', '');
 		$function_type = array_get_index($_REQUEST, 'type', '');
 
 		// Check to see if we have a function type
@@ -2067,6 +2071,72 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _getLineage
+
+
+	/**
+	* clone the given asset under a new parent
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _cloneAsset($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access || $this->attr('ignore_permissions')) {
+			$data = Array();
+			$new_parent = array_get_index($args, 'new_parent', '');
+			$clone_num	= array_get_index($args, 'clone_num', 1);
+			$position	= array_get_index($args, 'new_position', -1);
+			$value		= array_get_index($args, 'link_value', '');
+			$link_type	= defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1;
+			
+			if (!is_null($asset) && !empty($new_parent)) {
+				$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$running_vars	= Array (
+									'assets'			=> Array (
+															$asset->id			=> Array (
+																					'number_of_clones'	=> $clone_num ,
+																				   ),
+														   ),
+									'to_parent_assetid'	=> $new_parent,
+									'to_parent_pos'		=> $position,
+									'link_type'			=> $link_type,
+									'value'				=> $value,
+								  );
+
+				$all_errors	= Array();
+				for ($i = 0; $i < $clone_num; $i++) {
+					// Need to reset the running vars again as it is passed by reference to the hipo job
+					$running_vars_copy	= $running_vars;
+					$errors	= $hh->freestyleHipo('hipo_job_clone_assets', $running_vars_copy);
+
+					$all_errors	+= $errors;
+				}//end for
+				if (empty($all_errors)) {
+					$data['success'] = 'Cloning of Asset "'.$asset->name.'(#'.$asset->id.')" completed successfully';
+				} else {
+					$data['error'] = $all_errors;
+				}
+			} else {
+				if (is_null($asset)) {
+					$data['error'] = 'Asset to clone was not provided';
+				} else if (empty($new_parent)) {
+					$data['error'] = 'No location provided to clone the asset under';
+				}
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to create an asset';
+		}//end else
+
+		return $data;
+
+	}// end _cloneAsset
 
 
 	/**
