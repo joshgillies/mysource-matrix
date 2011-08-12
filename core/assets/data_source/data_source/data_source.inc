@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.28.8.1 2011/03/22 05:49:48 mhaidar Exp $
+* $Id: data_source.inc,v 1.28.8.2 2011/08/12 04:19:13 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28.8.1 $
+* @version $Revision: 1.28.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -546,39 +546,37 @@ class Data_Source extends Asset implements Bridge
 		$type_code_key = implode('-', $type_code);
 		$links = Array();
 
-		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key])) {
-			if ($side_of_link == 'major') {
-				if ($assetid == $this->id) {
-					$result = $this->getResultSet();
-					if (empty($result)) {
-						return Array();
-					} else {
-						$identity = 0;
-						$index = 0;
-						foreach ($result as $record) {
-							$links[] = Array(
-										'linkid'			=> 0,
-										'majorid'			=> $this->id,
-										'minorid'			=> $this->id.':'.$identity,
-										'minor_type_code'	=> 'data_source_record_set',
-										'value'				=> '',
-										'link_type'			=> SQ_LINK_TYPE_1,
-										'is_dependant'		=> FALSE,
-										'is_exclusive'		=> FALSE,
-										'sort_order'		=> $index,
-										'locked'			=> 0,
-									   );
-							$index++;
-							$identity++;
-						}
-					}
+		if ($side_of_link == 'major') {
+			if ($assetid == $this->id) {
+				$result = $this->getResultSet();
+				if (empty($result)) {
+					return Array();
 				} else {
-					$links = Array();
+					$identity = 0;
+					$index = 0;
+					foreach ($result as $record) {
+						$links[] = Array(
+									'linkid'			=> 0,
+									'majorid'			=> $this->id,
+									'minorid'			=> $this->id.':'.$identity,
+									'minor_type_code'	=> 'data_source_record_set',
+									'value'				=> '',
+									'link_type'			=> SQ_LINK_TYPE_1,
+									'is_dependant'		=> FALSE,
+									'is_exclusive'		=> FALSE,
+									'sort_order'		=> $index,
+									'locked'			=> 0,
+								   );
+						$index++;
+						$identity++;
+					}
 				}
-			}//end if side_of_link
-			$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key] = $links;
+			} else {
+				$links = Array();
+			}
 		}
-		return $this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key];
+		
+		return $links;
 
 	}//end getLinks()
 

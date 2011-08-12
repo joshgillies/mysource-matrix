@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.5.4.1 2011/03/24 22:31:05 mhaidar Exp $
+* $Id: data_source_ical.inc,v 1.5.4.2 2011/08/12 04:19:54 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.5.4.1 $
+* @version $Revision: 1.5.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -86,14 +86,26 @@ class Data_Source_iCal extends Data_Source
 	*/
 	function &getResultSet()
 	{
-		$result = Array();
-		$result = parent::getResultSet($this->name);
-		if (empty($result)) {
-				if (empty($result)) $result = $this->getItems();
-				if (!empty($result)) {
-					parent::setResultSet($result, $this->name);
-				}//end if
-		}//end if
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+
+		$hash = md5($this->name);
+
+		if (!isset($this->_tmp[$hash])) {
+			$result = parent::getResultSet($hash);
+			if (empty($result)) {
+					$result = $this->getItems();
+					if (!empty($result)) {
+						$this->_tmp[$hash] = $result;
+						parent::setResultSet($result, $hash);
+					}//end if
+			} else {
+				$this->_tmp[$hash] = $result;
+			}
+		} else {
+			$result = $this->_tmp[$hash];
+		}
+
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 
 		return $result;
 

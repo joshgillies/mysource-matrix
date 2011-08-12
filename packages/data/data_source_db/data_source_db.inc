@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.44.2.2 2011/07/20 07:04:38 ewang Exp $
+* $Id: data_source_db.inc,v 1.44.2.3 2011/08/12 04:20:39 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.44.2.2 $
+* @version $Revision: 1.44.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,9 +163,6 @@ class Data_Source_DB extends Data_Source
 	*/
 	function _getExecutableQueryString()
 	{
-		$query_string = @$this->_tmp['query_string'];
-		if (!is_null($query_string)) return $query_string;
-
 		$sql = $this->attr('sql');
 
 		$keyword_wrapper = '%%';
@@ -174,8 +171,7 @@ class Data_Source_DB extends Data_Source
 		// insert the dynamic parameters into the query
 		preg_match_all ('/'.$keyword_pattern.'/', $sql, $matches, PREG_PATTERN_ORDER);
 		if (empty($matches[1])) {
-			$this->_tmp['query_string'] = $sql;
-			return $this->_tmp['query_string'];
+			return $sql;
 		}
 
 		$raw_keywords =& $matches[1];
@@ -193,8 +189,7 @@ class Data_Source_DB extends Data_Source
 
 		$sql = preg_replace($patterns, $replacements, $sql);
 
-		$this->_tmp['query_string'] = $sql;
-		return $this->_tmp['query_string'];
+		return $sql;
 
 	}//end _getExecutableQueryString()
 
