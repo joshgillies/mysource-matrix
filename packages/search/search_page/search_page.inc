@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.253 2011/08/12 03:43:14 cupreti Exp $
+* $Id: search_page.inc,v 1.254 2011/08/12 03:45:39 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1530,7 +1530,7 @@ class Search_Page extends Listing_Engine
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
-				// Extra hidden field to make IE submit the form with a single field (see bug #5279)
+				// Extra hidden field to make IE submit the form with a single field (See bug #5279)
 				$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" disabled="disabled" style="display:none" />';
 				if ($mode == 'initial') {
 					$replacement  .= '<input type="submit" name="'.$field_name.'"
