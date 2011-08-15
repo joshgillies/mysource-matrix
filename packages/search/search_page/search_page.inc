@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.251.2.1 2011/06/30 07:08:59 ewang Exp $
+* $Id: search_page.inc,v 1.251.2.2 2011/08/15 02:05:21 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.251.2.1 $
+* @version $Revision: 1.251.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1529,18 +1529,20 @@ class Search_Page extends Listing_Engine
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
+				// Extra hidden field to make IE submit the form with a single field (See bug #5279)
+				$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" disabled="disabled" style="display:none" />';
 				if ($mode == 'initial') {
-					$replacement  = '<input type="submit" name="'.$field_name.'"
+					$replacement  .= '<input type="submit" name="'.$field_name.'"
 						value="'.$this->attr('submit_button_text').'" />';
 				} else {
-					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
+					$replacement  .= '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.current_result_page.value=\'1\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
 						return true;
 					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
-
+			
 			case 'search_in_search_button' :
 				$field_name = 'sis_search_button';
 				$this->registerFormField($field_name);
