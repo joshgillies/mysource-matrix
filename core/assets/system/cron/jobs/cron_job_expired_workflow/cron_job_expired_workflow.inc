@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.34.4.3 2011/07/12 04:40:36 ewang Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.34.4.4 2011/08/15 01:41:03 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.34.4.3 $
+* @version $Revision: 1.34.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,18 +169,18 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		} catch (DALException $e) {
 			throw new Exception ('Unable to get running workflows due to database error: '.$e->getMessage());
 		}
-
+	
 		$now = time();
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$last_run = $cm->attr('last_run');
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openQueue();
-		
+
 		foreach ($rows as $row) {
+			$ms->openQueue();
+			
 			$workflow = unserialize($row['wflow']);
 			$schemaid = $row['schemaid'];
-
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$step =& $wfm->getCurrentStep($workflow); // need by ref
 
@@ -189,7 +189,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 				if ($exp_time < $now) {
 					// workflow step has expired since the last cron run
-
+					
 					if ($step['escalate']) {
 						// Escalate the job, at any time
 						if (!$wfm->escalateWorkflow($row['assetid'], $schemaid)) {
@@ -205,41 +205,41 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 					//break;
 				}
 			}
+			
+			// Don't send escalation message for all dependants (See #5034)
+			$escalation_wf_msgs = Array();
+			foreach($ms->queueContents() as $queued_message) {
+				$ms_assetid =  $queued_message->parameters['assetid'];
+				if ($ms_assetid) {
+					$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($ms_assetid, '', TRUE, FALSE);
+					foreach($parents as $key => $parentid) {
+						if ($ms_assetid == $parentid) {
+							unset($parents[$key]);
+						}
+					}//end foreach
 
-                                                                                                // Don't send escalation message for all dependants (See #5034)
-                                                                                                $escalation_wf_msgs = Array();
-                                                                                                foreach($ms->queueContents() as $queued_message) {
-                                                                                                        $ms_assetid =  $queued_message->parameters['assetid'];
-                                                                                                        if ($ms_assetid) {
-                                                                                                                $parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($ms_assetid, '', TRUE, FALSE);
-                                                                                                                foreach($parents as $key => $parentid) {
-                                                                                                                        if ($ms_assetid == $parentid) {
-                                                                                                                                unset($parents[$key]);
-                                                                                                                        }
-                                                                                                                }//end foreach
+					// If asset has no dependant parents or more than 1 dependant parents, send the workflow message
+					if(count($parents) > 1 || empty($parents)) {
+						$escalation_wf_msgs[] = $queued_message;
+					} else {
+						// The asset's only dependant parent is not in workflow, it means workflow was started at this asset
+						$dependant_workflows = $wfm->getSchemaWorkflows($parents[0]);
+						if (empty($dependant_workflows[$schemaid]['steps']) || (isset($dependant_workflows[$schemaid]['complete']) && $dependant_workflows[$schemaid]['complete'])) {
+							$escalation_wf_msgs[] = $queued_message;
+						}//end if
+				
+					}//end else
+				}//end if
+			}//end foreach
 
-                                                                                                                // If asset has no dependant parents or more than 1 dependant parents, send the workflow message
-                                                                                                                if(count($parents) > 1 || empty($parents)) {
-                                                                                                                        $escalation_wf_msgs[] = $queued_message;
-                                                                                                                } else {
-                                                                                                                        // The asset's only dependant parent is not in workflow, it means workflow was started at this asset
-                                                                                                                        $dependant_workflows = $wfm->getSchemaWorkflows($parents[0]);
-                                                                                                                        if (empty($dependant_workflows[$schemaid]['steps']) || (isset($dependant_workflows[$schemaid]['complete']) && $dependant_workflows[$schemaid]['complete'])) {
-                                                                                                                                $escalation_wf_msgs[] = $queued_message;
-                                                                                                                        }//end if
-                                                                                                                }//end else
-                                                                                                        }//end if
-                                                                                                }//end foreach
-
-                                                                                                $ms->abortQueue();
-
-                                                                                                // Send all the relevant escalation workflow messages
-                                                                                                $ms->send($escalation_wf_msgs);
-
-                                                                                                unset($escalation_wf_msgs);
-                
-		}		
+			$ms->abortQueue();
+			
+			// Send all the relevant escalation workflow messages
+			$ms->send($escalation_wf_msgs);
+			unset($escalation_wf_msgs);
+		}	
 		unset($rows);
+
 		return SQ_CRON_JOB_COMPLETED;
 
 	}//end _exec()
