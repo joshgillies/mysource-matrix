@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.17 2011/02/17 05:10:24 ewang Exp $
+* $Id: lang_strings.xml,v 1.17.2.1 2011/08/16 07:42:44 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -67,7 +67,7 @@
 <string source="file_import_tools_not_ready_msg">Please set the file import directory in Import Tool Manager under System Management</string>
 <string source="file_import_tools_allow_unrestricted_note">Set to Yes to allow this file to be be served by the web server if it is Live and publicly readable.</string>
 <string source="file_import_tools_file_link_type_msg">Each asset will be linked to the selected parent using this link type.</string>
-<string source="file_import_tools_file_chunk">These files locate under %s and they will be import at once.</string>
+<string source="file_import_tools_file_chunk">These files are located under %s and they will be imported at once.</string>
 <string source="file_import_tools_global_options">Global Options</string>
 <string source="file_import_tools_allow_unrestricted">Allow Unrestricted</string>
 <string source="file_import_tools_file_dir_selection">Choose File or Directory</string>
