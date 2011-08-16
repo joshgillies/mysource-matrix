@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.90 2011/08/11 04:14:26 akarelia Exp $
+* $Id: js_api.inc,v 1.91 2011/08/16 01:13:32 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -351,7 +351,7 @@ class JS_Api extends Page
 				$asset = NULL;
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
-					if ((preg_match('/^[0-9]*:/i', $id) !== FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
+					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
 						$results[$track_func]['error'] = 'Assetid supplied doesnt exist on the system';
 						$track_func++;
 						break;
