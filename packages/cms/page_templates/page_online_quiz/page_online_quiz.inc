@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.35 2009/11/27 03:09:50 akarelia Exp $
+* $Id: page_online_quiz.inc,v 1.36 2011/08/16 02:35:58 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3051,6 +3051,17 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+		
+		//Bug #5283: Need to flatten $todo down one level before returning
+		if ($this->attr('group_by') == 'grouped') {
+			$todo_flattened = Array();
+			foreach($todo as $group_key => $group_data){
+				foreach($group_data as $key => $value){
+					$todo_flattened[$key] = $value;
+				}
+			}
+			$todo = $todo_flattened;
+		}
 
 		return $todo;
 
