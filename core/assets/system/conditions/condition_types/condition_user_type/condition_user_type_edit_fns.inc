@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_type_edit_fns.inc,v 1.3 2007/11/22 22:24:00 lwright Exp $
+* $Id: condition_user_type_edit_fns.inc,v 1.4 2011/08/17 01:31:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Condition_User_Type_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		$user_types = array_get_index($condition_data, 'user_types', '');
 

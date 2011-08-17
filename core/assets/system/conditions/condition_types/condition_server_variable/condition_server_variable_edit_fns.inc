@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable_edit_fns.inc,v 1.5 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_server_variable_edit_fns.inc,v 1.6 2011/08/17 01:31:24 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		?>
 		<table style="width: auto" class="no-borders">
