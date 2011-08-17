@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.91 2011/08/16 01:13:32 akarelia Exp $
+* $Id: js_api.inc,v 1.92 2011/08/17 01:17:13 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -72,6 +72,7 @@ class JS_Api extends Page
 									'getLineage'					=> 'get_lineage',
 									'batchRequest'					=> 'batch_requests',
 									'cloneAsset'					=> 'clone_asset',
+									'showDifference'				=> 'show_diff',
 								  );
 
 	/*
@@ -91,6 +92,7 @@ class JS_Api extends Page
 									'getKeywordsReplacements'		=> Array('read_access'),
 									'getWebPath'					=> Array('read_access'),
 									'getWorkflowSchema'				=> Array('read_access'),
+									'showDifference'				=> Array('read_access'),
 									'setMultipleAttributes'			=> Array('write_access'),
 									'setAttribute'					=> Array('write_access'),
 									'setMetadataAllFields'			=> Array('write_access'),
@@ -2091,17 +2093,35 @@ class JS_Api extends Page
 		if ($write_access || $this->attr('ignore_permissions')) {
 			$data = Array();
 			$new_parent = array_get_index($args, 'new_parent', '');
+
+			// check if the parent asset is provided
+			if (empty($new_parent)) {
+				$data['error'] = 'No location to clone the asset was provided';
+				return $data;
+			}
+
+			// check to see if we have write permission to the new parent
+			if (!($new_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_parent, '', TRUE))) {
+				$data['error'] = 'Assetid "'.$new_parent.'" provided is invalid or doesn\'t exist on system';
+				return $data;
+			}
+
+			if (!$new_parent_asset->writeAccess() && !$this->attr('ignore_permissions')) {
+				$data['error'] = 'You do not have write access to the Asset under which you are tying to clone';
+				return $data;
+			}
+
 			$clone_num	= array_get_index($args, 'clone_num', 1);
 			$position	= array_get_index($args, 'new_position', -1);
 			$value		= array_get_index($args, 'link_value', '');
 			$link_type	= defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1;
 			
-			if (!is_null($asset) && !empty($new_parent)) {
+			if (!is_null($asset)) {
 				$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$running_vars	= Array (
 									'assets'			=> Array (
 															$asset->id			=> Array (
-																					'number_of_clones'	=> $clone_num ,
+																					'number_of_clones'	=> 1,
 																				   ),
 														   ),
 									'to_parent_assetid'	=> $new_parent,
@@ -2124,11 +2144,7 @@ class JS_Api extends Page
 					$data['error'] = $all_errors;
 				}
 			} else {
-				if (is_null($asset)) {
-					$data['error'] = 'Asset to clone was not provided';
-				} else if (empty($new_parent)) {
-					$data['error'] = 'No location provided to clone the asset under';
-				}
+				$data['error'] = 'Asset to clone was not provided';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to create an asset';
@@ -2137,6 +2153,103 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _cloneAsset
+
+
+	/**
+	* takes in 2 assets and checks for the difference in their content
+	* optionally lets user to use the paint layout to generate the difference
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _showDifference($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		$asset_2_id = array_get_index($args, 'assetid_2', '');
+		if (empty($asset_2_id)) {
+			$data['error'] = 'Only one asset was provided. Need 2 assets to check the difference';
+			return $data;
+		}
+
+		if (!($asset_2 = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_2_id, '', TRUE))) {
+			$data['error'] = 'Assetid "'.$asset_2_id.'", provided is invalid or doesn\'t exist on system';
+			return $data;
+		}
+
+		if (($read_access) && $asset_2->readAccess()) {
+			$data = Array();
+			$paint_layout_1 = array_get_index($args, 'paint_layout_1', '');
+			$paint_layout_2 = array_get_index($args, 'paint_layout_2', '');
+
+			if (empty($paint_layout_1) || empty($paint_layout_2)) {
+				// we dont care about the paint layout
+				// get the content without them	
+				ob_start();
+					$asset->printBody();
+					$content1 = ob_get_contents();
+				ob_end_clean();
+
+				ob_start();
+					$asset_2->printBody();
+					$content2 = ob_get_contents();
+				ob_end_clean();
+
+			} else {
+				// we are considering the paint layout lets see if we are passed the layouts
+				// to use or just using the defined layouts
+				// now the values for $paint_layout_1 and $paint_layout_2 are either assetids
+				// or empty string, both are valid argument we can pass into printBodyWithPaintLayout
+				foreach (Array($paint_layout_1, $paint_layout_2) as $paint_layout_assetid) {
+					if (!$paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_assetid, 'paint_layout_page', 'TRUE')) {
+						$data['error'] = 'Invalid assetid (#'.$paint_layout_assetid.') provided for Paint Layout to use';
+					}
+					$paint_layout = NULL;
+					if (isset($data['error'])) return $data;
+				}
+
+				ob_start();
+					$asset->printBodyWithPaintLayout($paint_layout_1);
+					$content1 = ob_get_contents();
+				ob_end_clean();
+
+				ob_start();
+					$asset_2->printBodyWithPaintLayout($paint_layout_2);
+					$content2 = ob_get_contents();
+				ob_end_clean();
+			}
+
+			// Show the differences
+			require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/design_area_body/matrix_diff_highlighter.inc';
+			$highlighter = new Matrix_Diff_Highlighter();
+			$contents = Array(&$content1, &$content2);
+			foreach ($contents as $index => $content) {
+				$pattern = '/(<div)([^>]*)( id="content_div_[0-9]*")([^>]*)(>)/';
+				$replacement = '$1$2$4$5';
+				// we need to remove the div id's as they are the assetid
+				// of the bodycopy containers ..this will always be different while comparing 2 assets
+				// and this will cause the output to be malformed even if the content was same
+				$contents[$index] = preg_replace($pattern, $replacement, $contents[$index]);
+				// replace &nbsp; with proper space. this is to prevent html_entity_decode 
+				// in matrix_diff_highlighter.inc to convert it to a "\xa0"
+				// which is break the putput when were are json_encode'ing the results
+				// to be sent back to API
+				$contents[$index] = str_replace('&nbsp;', ' ', $contents[$index]);
+			}
+			$difference =  $highlighter->process($content1, $content2, FALSE);
+			$data['success'] = $difference;
+		} else {
+			$data['error'] = 'You do not have permissions to read content of one or either of the assets passed in';
+		}//end else
+
+		return $data;
+
+	}// end _showDifference
 
 
 	/**
