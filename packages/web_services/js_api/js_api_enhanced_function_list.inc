@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.1.2.7 2011/07/20 05:02:29 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.1.2.8 2011/08/17 03:20:13 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.7 $
+* @version $Revision: 1.1.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2211,6 +2211,122 @@ class Js_Api_Enhanced_Function_List
 			<?php
 		}//end if(execute_html_tidy)
 		?>
+
+			<?php
+		if ($js_api_asset->attr('clone_asset')) {
+			?>
+
+		/**
+		* Clones the given asset under the parent passed in
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      asset_id:		string/int	asset under which the assets are to be imported under
+		*      new_parent		string/int	assetid of the parent to clone under
+		*      clone_num		int			number of clones to create under new parent (default is 1)
+		*      new_position		int			position to place the newly cloned asset at (default at the bottom)
+		*      link_type		string		type of links we are looking for (default is SQ_LINK_TYPE_1)
+		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3
+		*      link_value		string		the value of new link we want (default '')
+		*      content:			string		the string content that needs to be cleaned up
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		cloneAsset: function(options)
+		{
+			var fnName = 'cloneAsset';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_id:           null,
+						new_parent:         null,
+						clone_num:          1,
+						new_position:       -1,
+						link_type:          'SQ_LINK_TYPE_1',
+						link_value:         '',
+						dataCallback:       function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_id', 'new_parent']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.asset_id],
+					['new_parent', options.new_parent],
+					['clone_num', options.clone_num],
+					['new_position', options.new_position],
+					['link_type', options.link_type],
+					['link_value', options.link_value],
+			],options);
+
+		},// end cloneAsset
+
+			<?php
+		}//end if(clone_asset)
+		?>
+
+			<?php
+		if ($js_api_asset->attr('show_diff')) {
+			?>
+
+		/**
+		* Clones the given asset under the parent passed in
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid_1:		string/int	assetid of first asset
+		*      assetid_2:		string/int	assetid of second asset
+		*      paint_layout_1:	string		assetid of the paint layout you want to use on asset_1
+		*      paint_layout_2:	string		assetid of the paint layout you want to use on asset_2
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		showDifference: function(options)
+		{
+			var fnName = 'showDifference';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid_1:           null,
+						assetid_2:           null,
+						paint_layout_1:      '',
+						paint_layout_2:      '',
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid_1', 'assetid_2']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid_1],
+					['assetid_2', options.assetid_2],
+					['paint_layout_1', options.paint_layout_1],
+					['paint_layout_2', options.paint_layout_2],
+			],options);
+
+		},// end showDifference
+
+			<?php
+		}//end if(show_diff)
+		?>
+
+
 
 		/**
 		* Shortcut function for sending post data

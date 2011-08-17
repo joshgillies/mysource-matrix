@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.16.2.3 2011/07/10 22:19:37 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.16.2.4 2011/08/17 03:20:13 akarelia Exp $
 *
 */
 -->
@@ -92,7 +92,11 @@
             <display_name>Create Asset</display_name>
             <note />
         </field>
-        <field attribute="get_general">
+		<field attribute="clone_asset">
+			<display_name>Clone Asset</display_name>
+			<note />
+		</field>
+		<field attribute="get_general">
             <display_name>Get General Info</display_name>
             <note />
         </field>
@@ -155,6 +159,10 @@
 		<field attribute="execute_html_tidy">
 			<display_name>Execute HTML Tidy</display_name>
 			<note>Allows user to execute HTML Tidy on passed string.</note>
+		</field>
+		<field attribute="show_diff">
+			<display_name>Show content difference</display_name>
+			<note>Allows user to compare contents of two different assets. Optionally a paint layout cant be passed for each of the assets to check the difference with.</note>
 		</field>
    </section>
     <section name="Linking" write_access="write:attributes">

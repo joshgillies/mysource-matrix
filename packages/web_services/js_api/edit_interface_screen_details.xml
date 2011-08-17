@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15.2.1 2011/07/07 04:11:04 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15.2.2 2011/08/17 03:20:13 akarelia Exp $
 *
 */
 -->
@@ -74,6 +74,9 @@
 		<field attribute="create_asset">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="clone_asset">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="get_general">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -122,7 +125,9 @@
 		<field attribute="execute_html_tidy">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-
+		<field attribute="show_diff">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>
 
     <section name="Linking" write_access="write:attributes">
