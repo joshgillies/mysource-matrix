@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.19 2011/08/11 04:14:26 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20 2011/08/17 01:08:10 akarelia Exp $
 *
 */
 -->
@@ -125,7 +125,9 @@
 		<field attribute="execute_html_tidy">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-
+		<field attribute="show_diff">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>
 
     <section name="Linking" write_access="write:attributes">

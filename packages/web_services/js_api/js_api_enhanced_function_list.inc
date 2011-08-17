@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.9 2011/08/11 04:14:26 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.10 2011/08/17 01:11:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2272,6 +2272,60 @@ class Js_Api_Enhanced_Function_List
 			<?php
 		}//end if(clone_asset)
 		?>
+
+			<?php
+		if ($js_api_asset->attr('show_diff')) {
+			?>
+
+		/**
+		* Clones the given asset under the parent passed in
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid_1:		string/int	assetid of first asset
+		*      assetid_2:		string/int	assetid of second asset
+		*      paint_layout_1:	string		assetid of the paint layout you want to use on asset_1
+		*      paint_layout_2:	string		assetid of the paint layout you want to use on asset_2
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		showDifference: function(options)
+		{
+			var fnName = 'showDifference';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid_1:           null,
+						assetid_2:           null,
+						paint_layout_1:      '',
+						paint_layout_2:      '',
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid_1', 'assetid_2']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid_1],
+					['assetid_2', options.assetid_2],
+					['paint_layout_1', options.paint_layout_1],
+					['paint_layout_2', options.paint_layout_2],
+			],options);
+
+		},// end showDifference
+
+			<?php
+		}//end if(show_diff)
+		?>
+
 
 
 		/**

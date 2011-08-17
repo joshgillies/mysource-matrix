@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.8 2011/08/11 04:14:26 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.9 2011/08/17 01:11:04 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1822,10 +1822,48 @@ function cloneAsset(assetid, new_parent, clone_num, new_position, link_type, lin
 	// Make our request
 	makeRequest(url, true, dataCallback);
 
-}//end getLineage()
+}//end cloneAsset()
 
 			<?php
 		}//end if(clone_asset)
+
+		if ($js_api_asset->attr('show_diff')) {
+			?>
+
+/**
+* gets the content (with or without paint layout) and check for the difference
+*
+* @param assetid_1			string			assetid of first asset
+* @param assetid_2			string			assetid of second asset
+* @param paint_layout_1		string			assetid of the paint layout you want to use on asset_1
+* @param paint_layout_2		string			assetid of the paint layout you want to use on asset_2
+* @param function			dataCallback	Custom callback functio
+*
+* @return string
+* @access public
+*/
+function showDifference(assetid_1, assetid_2, paint_layout_1, paint_layout_2, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	paint_layout_1 = (isset(paint_layout_1)) ? paint_layout_1 : '';
+	paint_layout_2 = (isset(paint_layout_2)) ? paint_layout_2 : '';
+
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
+				+ '&type=showDifference&id=' + assetid_1
+				+ '&assetid_2=' + assetid_2
+				+ '&paint_layout_1=' + paint_layout_1
+				+ '&paint_layout_2=' + paint_layout_2;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end showDifference()
+
+			<?php
+		}//end if(show_diff)
+
 
 
 	}//end paintJSFunctions()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.20 2011/08/11 04:14:26 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.21 2011/08/17 01:08:10 akarelia Exp $
 *
 */
 -->
@@ -159,6 +159,10 @@
 		<field attribute="execute_html_tidy">
 			<display_name>Execute HTML Tidy</display_name>
 			<note>Allows user to execute HTML Tidy on passed string.</note>
+		</field>
+		<field attribute="show_diff">
+			<display_name>Show content difference</display_name>
+			<note>Allows user to compare contents of two different assets. Optionally a paint layout cant be passed for each of the assets to check the difference with.</note>
 		</field>
    </section>
     <section name="Linking" write_access="write:attributes">
