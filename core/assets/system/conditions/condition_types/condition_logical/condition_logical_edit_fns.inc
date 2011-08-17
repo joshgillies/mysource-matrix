@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.10 2010/04/27 07:10:13 kmyothein Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.10.8.1 2011/08/17 06:28:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
     {
         if (empty($condition_data)) {
 			$condition_data =  Array('logical_keywords' => Array('logical_keyword_1' => ''), 'operator' => 'ALL');

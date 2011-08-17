@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_asset_status_edit_fns.inc,v 1.3 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_asset_status_edit_fns.inc,v 1.3.18.1 2011/08/17 06:28:34 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 
 		foreach (get_constant_values('SQ_STATUS_') as $status_value) {

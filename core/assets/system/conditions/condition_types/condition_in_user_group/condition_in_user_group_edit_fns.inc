@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_edit_fns.inc,v 1.7 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_in_user_group_edit_fns.inc,v 1.7.18.1 2011/08/17 06:28:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		?>
 		<table class="no-borders">

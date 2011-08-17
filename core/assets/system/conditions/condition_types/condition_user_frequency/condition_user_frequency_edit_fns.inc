@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.8 2008/11/27 00:55:00 bpearson Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.8.16.1 2011/08/17 06:28:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		$value = array_get_index($condition_data, 'value', 0);
 		$units = array_get_index($condition_data, 'units', 'hits');
