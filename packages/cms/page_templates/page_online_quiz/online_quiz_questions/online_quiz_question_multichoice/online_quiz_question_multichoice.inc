@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.7 2008/07/03 06:38:06 bpearson Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.7.14.1 2011/08/18 00:27:05 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -213,9 +213,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 			} else {
 				?>
 				select_box = document.getElementById("<?php echo $prefix.'_response'; ?>");
-				for (var ii in select_box.options) {
-					if (select_box.options[ii].selected) selected[selected.length] = ii;
-				}
+                selected[selected.length] = select_box.selectedIndex;
 				<?php
 			}
 			?>
