@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.35 2009/11/27 03:09:50 akarelia Exp $
+* $Id: page_online_quiz.inc,v 1.35.10.1 2011/08/18 05:53:25 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1548,10 +1548,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			// as an initial attempt, load the current page of assets, and store it in the question pagination array
 			// check $replacements['total_pages'] to see how many more chunks we have to get
-
-			// Note: custom grouping and standard grouping have different formats for the
-			// return value of getPageAssets - calling dal_array_flatten() will convert the custom grouping format
-			// to match the standard one
 
 			// assumption: any assets that are of interest to us (online_quiz_questions) will never be parents
 			// of other assets that interest us (other quiz questions)
@@ -3051,6 +3047,19 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+        
+        //Bug #5283: Need to extract the page ids from the grouping structure
+		if ($this->attr('group_by') == 'grouped') {
+			for ($i = 0; $i < count($this->attr('asset_grouping')); $i++){ //group levels
+				$todo_pages = Array();
+				foreach($todo as $group_key => $group_data){
+					foreach($group_data as $key => $value){
+						$todo_pages[$key] = $value;
+					}
+				}
+				$todo = $todo_pages; //$todo will be the final traversal
+			}
+		}
 
 		return $todo;
 
