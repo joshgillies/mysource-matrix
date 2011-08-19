@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.1.2.9 2011/08/19 03:12:48 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.1.2.10 2011/08/19 03:19:32 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.9 $
+* @version $Revision: 1.1.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2277,7 +2277,8 @@ class Js_Api_Enhanced_Function_List
 			?>
 
 		/**
-		* Clones the given asset under the parent passed in
+		* 
+		* gets the content (with or without paint layout) and check for the difference
 		*
 		* @param object		options       JSON string of options
 		* {
