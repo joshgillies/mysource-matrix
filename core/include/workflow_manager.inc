@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.163.2.3 2011/08/04 05:07:13 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.163.2.4 2011/08/19 02:03:28 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163.2.3 $
+* @version $Revision: 1.163.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -582,10 +582,9 @@ class Workflow_Manager extends MySource_Object
 		$schemas = $this->getSchemas($assetid, TRUE);
 		if (empty($schemas)) return TRUE;
 
-		// these will be the people who to notify (some may be groups)
-		$notify = Array();
-
 		foreach ($schemas as $schemaid) {
+			// these will be the people who to notify (some may be groups)
+			$notify = Array();
 			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
 			foreach ($conditions as $cond_id => $type_code) {
 				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
@@ -612,31 +611,48 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}//end foreach
-		}//end foreach
+			
+			if (!empty($notify)) {
+				$notify = array_unique($notify);
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$msg = $ms->newMessage($notify);
+				$msg->type    = 'asset.status.notify';
+				$msg_reps     = Array(
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'	=> $asset->name,
+									'status'		=> get_status_description($old_status),
+								);
+	
+				// create a link to the preview screen, or to the details screen if preview doesn't exist
+				$asset_edt_fns = $asset->getEditFns();
+				if (isset($asset_edt_fns->static_screens['preview'])) {
+					$msg_reps['asset_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+				} else {
+					$msg_reps['asset_url'] = current_url().$asset->getBackendHref('details', FALSE);
+				}
+	
+				$msg->replacements  = $msg_reps;
+				
+				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+				if ($schema){
+					// Does this schema have a custom message?
+					if (trim($schema->attr('message_notify_on_live')) !== '' ) {
+						$msg->body = trim($schema->attr('message_notify_on_live'));
+					}//end if
 
-		if (!empty($notify)) {
-			$notify = array_unique($notify);
-			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$msg = $ms->newMessage($notify);
-			$msg->type    = 'asset.status.notify';
-			$msg_reps     = Array(
-								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-								'asset_name'	=> $asset->name,
-								'status'		=> get_status_description($old_status),
-							);
-
-			// create a link to the preview screen, or to the details screen if preview doesn't exist
-			$asset_edt_fns = $asset->getEditFns();
-			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('preview', FALSE);
-			} else {
-				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('details', FALSE);
+					// Does this schema have a custom subject?
+					if (trim($schema->attr('subject_notify_on_live')) !== '') {
+						$subject = trim($schema->attr('subject_notify_on_live'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Made Live';
+					}//end if
+				}
+				
+				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+				
+				$msg->parameters['assetid'] = $asset->id;
+				$ms->enqueueMessage($msg);
 			}
-
-			$msg->parameters['assetid'] = $asset->id;
-			$msg->replacements          = $msg_reps;
-			$ms->enqueueMessage($msg);
-		}
+		}//end foreach
 
 		return TRUE;
 
@@ -1083,12 +1099,14 @@ class Workflow_Manager extends MySource_Object
 						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
 						$msg->body = trim($current_step['message_approve']);
+						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 						$ms->enqueueMessage($msg);
 					} else if (isset($current_step['subject_approve']) && trim($current_step['subject_approve']) !== '') {
 						$msg = clone $base_msg;
 						$msg->to = $publishers_step;
 						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
+						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 						$ms->enqueueMessage($msg);
 					} else {
 						$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
@@ -1122,64 +1140,110 @@ class Workflow_Manager extends MySource_Object
 
 				if (!($step == $steps_before[$schemaid])) {
 					$publishers = $this->whoCanPublish($asset->id, $schemaid);
-					// send internal messages to everyone in the next step who can now publish the asset
-					$msg = $ms->newMessage($publishers);
-
-					$workflow =& $schema_workflows[$schemaid];
-					$previous_step =& $this->getCurrentStep($workflow, $steps_before[$schemaid]);
-					$previous_step_name =& $previous_step['step_name'];
-					$current_step =& $this->getCurrentStep($workflow, $step);
-					$current_step_name =& $current_step['step_name'];
+					
 					// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
 					$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
 					if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
 						$workflow_backend_href  = '/'.$workflow_backend_href;
 					}//end if
-
-					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
-					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
-
 					
-					$msg_reps = Array(
-									'workflow_user'			=> $user->name,
-									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-									'asset_name'			=> $asset->name,
-									'assetid'				=> $asset->id,
-									'previous_step_id'		=> implode('.', $steps_before[$schemaid]),
-									'previous_step_name'	=> $previous_step_name,
-									'current_step_id'		=> implode('.', $step),
-									'current_step_name'		=> $current_step_name,
-									'workflow_url'			=> current_url().$workflow_backend_href,
-									'accept_url'			=> current_url().$accept_url,
-									'reject_url'			=> current_url().$reject_url,
-									'asset_url'				=> $asset->getDependantParentsURL(),
-									'asset_version'			=> $asset->version,
-									'log_message'			=> $log_message,
-								);
-
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+						$preview_backend_href = $asset->getBackendHref('preview', FALSE);
+						if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
+							$preview_backend_href   = '/'.$preview_backend_href;
+						}//end if
+						$preview_url = current_url().$preview_backend_href;
 					} else {
-						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
+						$details_backend_href = $asset->getBackendHref('preview', FALSE);
+						if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
+							$details_backend_href   = '/'.$details_backend_href;
+						}//end if
+						$preview_url = current_url().$details_backend_href;
 					}
+						
+					if ($asset->status == SQ_STATUS_LIVE_APPROVAL){
+						$msg = $ms->newMessage($publishers);
+		
+						$workflow = $schema_workflows[$schemaid];
+						$current_step = $this->getCurrentStep($workflow, $step);
 
-					$msg->type    = 'asset.workflow.invitation.progress';
-					$msg->parameters['assetid'] = $asset->id;
-					$msg->replacements = $msg_reps;
+						$msg_reps = Array(
+										'workflow_user'	=> $user->name,
+										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+										'asset_name'	=> $asset->name,
+										'assetid'		=> $asset->id,
+										'workflow_url'	=> current_url().$workflow_backend_href,
+										'preview_url'   => $preview_url,
+									);
 
-					// Does this step have a custom message?
-					if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
-						$msg->body = trim($current_step['message_invitation']);
-					}//end if
-
-					// Does this step have a custom subject?
-					if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
-						$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
-					}//end if
-
-					$ms->enqueueMessage($msg);
+						$msg->type = 'asset.workflow.review';
+						$msg->parameters['assetid'] = $asset->id;
+			
+						// Does this step have a custom message (for inviting users to the next step)?
+						if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
+							$msg->body = trim($current_step['message_review_invitation']);
+						}
+			
+						// Does this step have a custom subject (for inviting users to the next step)?
+						if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
+							$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
+							$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+						}
+			
+						$msg->replacements = $msg_reps;
+						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+						$ms->enqueueMessage($msg);	
+						
+					} else {
+						// send internal messages to everyone in the next step who can now publish the asset
+						$msg = $ms->newMessage($publishers);
+	
+						$workflow =& $schema_workflows[$schemaid];
+						$previous_step =& $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+						$previous_step_name =& $previous_step['step_name'];
+						$current_step =& $this->getCurrentStep($workflow, $step);
+						$current_step_name =& $current_step['step_name'];
+	
+						$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+						$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+	
+						$msg_reps = Array(
+										'workflow_user'			=> $user->name,
+										'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+										'asset_name'			=> $asset->name,
+										'assetid'				=> $asset->id,
+										'previous_step_id'		=> implode('.', $steps_before[$schemaid]),
+										'previous_step_name'	=> $previous_step_name,
+										'current_step_id'		=> implode('.', $step),
+										'current_step_name'		=> $current_step_name,
+										'workflow_url'			=> current_url().$workflow_backend_href,
+										'accept_url'			=> current_url().$accept_url,
+										'reject_url'			=> current_url().$reject_url,
+										'asset_url'				=> $asset->getDependantParentsURL(),
+										'asset_version'			=> $asset->version,
+										'log_message'			=> $log_message,
+										'preview_url'   		=> $preview_url,
+									);
+	
+						$msg->type    = 'asset.workflow.invitation.progress';
+						$msg->parameters['assetid'] = $asset->id;
+						$msg->replacements = $msg_reps;
+	
+						// Does this step have a custom message?
+						if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+							$msg->body = trim($current_step['message_invitation']);
+						}//end if
+	
+						// Does this step have a custom subject?
+						if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
+							$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+							$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+						}//end if
+	
+						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+						$ms->enqueueMessage($msg);
+					}//end else
 
 				}//end if step has advanced
 			}//end foreach $steps_after
@@ -1641,7 +1705,20 @@ class Workflow_Manager extends MySource_Object
 				}//end if
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.invitation';
+				} else if ($msg->type == 'asset.workflow.review'){
+					// Does this step have a custom message?
+					if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
+						$msg->body = trim($current_step['message_review_invitation']);
+					}//end if
+
+					// Does this step have a custom subject?
+					if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
+						$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+					}//end if
 				}
+				
+				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
@@ -1757,6 +1834,8 @@ class Workflow_Manager extends MySource_Object
 			}
 				
 			foreach ($current_steps as $schemaid => $current_step_num) {
+				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
+				
 				// we don't want to be sending asset.workflow.announce.reject emails to users who have admin
 				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
 				if (is_null($base_msg)) {
@@ -1798,31 +1877,50 @@ class Workflow_Manager extends MySource_Object
 						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
 					}
 					$msg->replacements = $msg_reps;
+					
+					// Does this step have a custom message?
+					if (isset($current_step['message_reject']) && trim($current_step['message_reject']) !== '' ) {
+						$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
+						$msg->body = trim($current_step['message_reject']);
+					} else if (isset($current_step['subject_reject']) && trim($current_step['subject_reject']) !== '') {
+						$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
+					} else {
+						// This is the generic message. Make sure only one of these are sent out,
+						// regardless of how many schemas trigger it.
+						if ($generic_msg === NULL) {
+							$generic_msg = $msg;
+						} else {
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
+							continue;
+						}
+					}
 				}
 				if (empty($msg->type)) {
 					$msg->type = 'asset.workflow.announce.reject';
-				}
-
-				// Does this step have a custom message?
-				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
-				if (isset($current_step['message_reject']) && trim($current_step['message_reject']) !== '' ) {
-					$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
-					$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
-					$msg->body = trim($current_step['message_reject']);
-				} else if (isset($current_step['subject_reject']) && trim($current_step['subject_reject']) !== '') {
-					$subject = trim(array_get_index($current_step, 'subject_reject', 'Asset Changes Rejected'));
-					$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Rejected';
-				} else {
-					// This is the generic message. Make sure only one of these are sent out,
-					// regardless of how many schemas trigger it.
-					if ($generic_msg === NULL) {
-						$generic_msg = $msg;
+				} else if ($msg->type == 'asset.workflow.review.cancel'){
+					// Does this step have a custom message?
+					if (isset($current_step['message_review_cancel']) && trim($current_step['message_review_cancel']) !== '' ) {
+						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
+						$msg->body = trim($current_step['message_review_cancel']);
+					} else if (isset($current_step['subject_review_cancel']) && trim($current_step['subject_review_cancel']) !== '') {
+						$subject = trim(array_get_index($current_step, 'subject_review_cancel', 'Asset Review Cancelled'));
+						$msg->subject = (!empty($subject)) ? $subject : 'Asset Review Cancelled';
 					} else {
-						$generic_msg->to = array_merge($generic_msg->to, $msg->to);
-						continue;
+						// This is the generic message. Make sure only one of these are sent out,
+						// regardless of how many schemas trigger it.
+						if ($generic_msg === NULL) {
+							$generic_msg = $msg;
+						} else {
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);
+							continue;
+						}
 					}
 				}
 
+				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
 
@@ -2041,8 +2139,9 @@ class Workflow_Manager extends MySource_Object
 				$subject = trim(array_get_index($current_step, 'subject_stale', 'Stale Workflow Step'));
 				$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 			}//end if
-			
+
 			$msg->parameters['assetid'] = $asset->id;
+			$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 			$ms->enqueueMessage($msg);
 
 			return TRUE;
@@ -2142,20 +2241,13 @@ class Workflow_Manager extends MySource_Object
 				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Escalated';
 			}
 
+			$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 			$ms->enqueueMessage($msg);
 
 			// send messages to the new approvers if they have
 
 			$publishers = $this->whoCanPublish($asset->id, $schemaid);
-			// send internal messages to everyone in the next step who can now publish the asset
-			$msg = $ms->newMessage($publishers);
-
-			$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
-			$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
-			$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
-
 			$url_parts = explode('://' , $asset->getURL());
-			
 			if (count($url_parts) > 1) {			
 				$site_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL($url_parts[1]);
 				$root_url = $url_parts[0].'://'.$site_url['url'];
@@ -2166,48 +2258,94 @@ class Workflow_Manager extends MySource_Object
 				$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 				$root_url = 'http://'.current($root_urls).'/'.$href;
 			}
+			
+			if ($asset->status == SQ_STATUS_LIVE_APPROVAL){
+				$msg = $ms->newMessage($publishers);
 
-			$msg_reps = Array(
-							'workflow_user'			=> $user->name,
-							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-							'asset_name'			=> $asset->name,
-							'assetid'				=> $asset->id,
-							'previous_step_id'		=> implode('.',$step_before_id),
-							'previous_step_name'	=> $step_before['step_name'],
-							'current_step_id'		=> implode('.',$workflow['current_step']),
-							'current_step_name'		=> $current_step['step_name'],
-							'stream'				=> $workflow['stream_name'],
-							'workflow_url'			=> $root_url.'/'.$workflow_backend_href,
-							'accept_url'			=> $root_url.'/'.$accept_url,
-							'reject_url'			=> $root_url.'/'.$reject_url,
-							'asset_url'				=> $asset->getDependantParentsURL(),
-							'asset_version'			=> $asset->version,
-							'log_message'			=> $log_message,
-						);
-
-			$asset_edt_fns = $asset->getEditFns();
-			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('preview', FALSE);
+				$msg_reps = Array(
+								'workflow_user'	=> $user->name,
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+								'asset_name'	=> $asset->name,
+								'assetid'		=> $asset->id,
+								'workflow_url'	=> $root_url.'/'.$asset->getBackendHref('workflow', FALSE),
+							);
+							
+				$asset_edt_fns = $asset->getEditFns();
+				if (isset($asset_edt_fns->static_screens['preview'])) {
+					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('preview', FALSE);
+				} else {
+					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
+				}
+	
+				$msg->type = 'asset.workflow.review';
+				$msg->parameters['assetid'] = $asset->id;
+	
+				// Does this step have a custom message (for inviting users to the next step)?
+				if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
+					$msg->body = trim($current_step['message_review_invitation']);
+				}
+	
+				// Does this step have a custom subject (for inviting users to the next step)?
+				if (isset($current_step['subject_review_invitation']) && trim($current_step['subject_review_invitation']) !== '' ) {
+					$subject = trim(array_get_index($current_step, 'subject_review_invitation', 'Asset Up For Review'));
+					$msg->subject = (!empty($subject)) ? $subject : 'Asset Up For Review';
+				}
+	
+				$msg->replacements = $msg_reps;
+				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+				$ms->enqueueMessage($msg);	
+				
 			} else {
-				$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
-			}
-
-			$msg->type    = 'asset.workflow.invitation.progress';
-			$msg->parameters['assetid'] = $asset->id;
-
-			// Does this step have a custom message (for inviting users to the next step)?
-			if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
-				$msg->body = trim($current_step['message_invitation']);
-			}
-
-			// Does this step have a custom subject (for inviting users to the next step)?
-			if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
-				$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
-				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
-			}
-
-			$msg->replacements = $msg_reps;
-			$ms->enqueueMessage($msg);
+				// send internal messages to everyone in the next step who can now publish the asset
+				$msg = $ms->newMessage($publishers);
+	
+				$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+				$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+				$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+	
+				$msg_reps = Array(
+								'workflow_user'			=> $user->name,
+								'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+								'asset_name'			=> $asset->name,
+								'assetid'				=> $asset->id,
+								'previous_step_id'		=> implode('.',$step_before_id),
+								'previous_step_name'	=> $step_before['step_name'],
+								'current_step_id'		=> implode('.',$workflow['current_step']),
+								'current_step_name'		=> $current_step['step_name'],
+								'stream'				=> $workflow['stream_name'],
+								'workflow_url'			=> $root_url.'/'.$workflow_backend_href,
+								'accept_url'			=> $root_url.'/'.$accept_url,
+								'reject_url'			=> $root_url.'/'.$reject_url,
+								'asset_url'				=> $asset->getDependantParentsURL(),
+								'asset_version'			=> $asset->version,
+								'log_message'			=> $log_message,
+							);
+	
+				$asset_edt_fns = $asset->getEditFns();
+				if (isset($asset_edt_fns->static_screens['preview'])) {
+					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('preview', FALSE);
+				} else {
+					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
+				}
+	
+				$msg->type    = 'asset.workflow.invitation.progress';
+				$msg->parameters['assetid'] = $asset->id;
+	
+				// Does this step have a custom message (for inviting users to the next step)?
+				if (isset($current_step['message_invitation']) && trim($current_step['message_invitation']) !== '' ) {
+					$msg->body = trim($current_step['message_invitation']);
+				}
+	
+				// Does this step have a custom subject (for inviting users to the next step)?
+				if (isset($current_step['subject_invitation']) && trim($current_step['subject_invitation']) !== '' ) {
+					$subject = trim(array_get_index($current_step, 'subject_invitation', 'Workflow Approval Required'));
+					$msg->subject = (!empty($subject)) ? $subject : 'Workflow Approval Required';
+				}
+	
+				$msg->replacements = $msg_reps;
+				$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+				$ms->enqueueMessage($msg);
+			}//end else
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -2451,6 +2589,38 @@ class Workflow_Manager extends MySource_Object
 		return array_get_index($starting_streams, $assetid, NULL);
 
 	}//end getStartingStream()
+	
+	
+	/**
+	* Add keyword values for the given $asset to the $replacements array
+	* by extracting any extra keywords found in the $subject and $body.
+	* 
+	* @param object $asset			The asset in workflow to get keyword replacements from
+	* @param string $subject		The message subject
+	* @param string $body			The message body
+	* @param array  $replacements	The keywords and their replacement values
+	* 
+	* @return void
+	*/
+	public function addMessageReplacements($asset, $subject, $body, &$replacements)
+	{
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($subject);
+		foreach ($keywords as $keyword) {
+			if (isset($replacements[$keyword])) continue;
+			$replacement = $asset->getKeywordReplacement($keyword);
+			if (!empty($replacement) && trim($replacement, '%') != $keyword) $replacements[$keyword] = $replacement;
+		}
+		
+		$keywords = retrieve_keywords_replacements($body);
+		foreach ($keywords as $keyword) {
+			if (isset($replacements[$keyword])) continue;
+			$replacement = $asset->getKeywordReplacement($keyword);
+			if (!empty($replacement) && trim($replacement, '%') != $keyword) $replacements[$keyword] = $replacement;
+		}
+	
+	}//end addMessageReplacements()
 
 
 }//end class

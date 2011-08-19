@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.38 2010/03/22 05:25:06 bpearson Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.38.8.1 2011/08/19 02:03:27 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,14 +359,18 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$workflow_array['require_comment_from_unlisted_users']	= $asset->attr('require_comment_from_unlisted_users');
 
 		$workflow_array['message_invitation']					= $asset->attr('message_invitation');
+        $workflow_array['message_review_invitation']			= $asset->attr('message_review_invitation');
 		$workflow_array['message_approve']						= $asset->attr('message_approve');
 		$workflow_array['message_reject']						= $asset->attr('message_reject');
+        $workflow_array['message_review_cancel']				= $asset->attr('message_review_cancel');
 		$workflow_array['message_stale']						= $asset->attr('message_stale');
 		$workflow_array['message_escalated']					= $asset->attr('message_escalated');
 
 		$workflow_array['subject_invitation']					= $asset->attr('subject_invitation');
+        $workflow_array['subject_review_invitation']			= $asset->attr('subject_review_invitation');
 		$workflow_array['subject_approve']						= $asset->attr('subject_approve');
 		$workflow_array['subject_reject']						= $asset->attr('subject_reject');
+        $workflow_array['subject_review_cancel']				= $asset->attr('subject_review_cancel');
 		$workflow_array['subject_stale']						= $asset->attr('subject_stale');
 		$workflow_array['subject_escalated']					= $asset->attr('subject_escalated');
 

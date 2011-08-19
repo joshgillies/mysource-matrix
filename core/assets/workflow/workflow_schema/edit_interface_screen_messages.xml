@@ -10,12 +10,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.8.8.1 2011/08/19 02:03:27 mhaidar Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.1.2.2 2011/08/19 02:03:27 mhaidar Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
-    <screen code_name="messages" display_name="Custom Messages" icon="web" force_unlock="0" lock_type="attributes" />
-</screens>
+<contents>
+	<section name="Notify on Live Message" write_access="write:attributes">
+		<field attribute="subject_notify_on_live">
+			<text width="80" height="1" />
+		</field>
+		<field attribute="message_notify_on_live">
+			<text width="80" height="5" />
+		</field>
+	</section>
+</contents>

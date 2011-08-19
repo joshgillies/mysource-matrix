@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.14 2009/03/25 04:45:48 lwright Exp $
+* $Id: workflow_schema_management.inc,v 1.14.14.1 2011/08/19 02:03:27 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,11 +40,23 @@ class Workflow_Schema_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
-						'name'	=> Array(
-									'added'		=> '0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								   ),
+						'name'						=> Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'subject_notify_on_live'	=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'text',
+														'default'		=> 'Asset Made Live',
+														'description'	=> 'Custom subject to users when workflow is complete and the asset is made live',
+													   ),
+						'message_notify_on_live'	=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'text',
+														'default'		=> '',
+														'description'	=> 'Custom message to users when workflow is complete and the asset is made live',
+													   ),														   
 					  );
 
 	}//end constructor
