@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.9 2011/08/17 01:11:04 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.10 2011/08/19 03:11:37 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1793,8 +1793,8 @@ function batchRequest(functions, dataCallback)
 * @param new_parent		string			assetid of the parent to clone under
 * @param clone_num		int				number of clones to create under new parent (default is 1)
 * @param new_position	int				position to place the newly cloned asset at (default at the bottom)
-* @param link_type		string			type of links we are looking for (default is SQ_LINK_TYPE_1)
-*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE
+* @param link_type		string			type of links we want to create for cloned asset(default is SQ_LINK_TYPE_1)
+*										Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3
 * @param link_value		string			the value of new link we want (default '')
 * @param function		dataCallback	Custom callback function
 *

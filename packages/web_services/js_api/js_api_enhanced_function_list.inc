@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.10 2011/08/17 01:11:04 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.11 2011/08/19 03:11:37 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2225,10 +2225,9 @@ class Js_Api_Enhanced_Function_List
 		*      new_parent		string/int	assetid of the parent to clone under
 		*      clone_num		int			number of clones to create under new parent (default is 1)
 		*      new_position		int			position to place the newly cloned asset at (default at the bottom)
-		*      link_type		string		type of links we are looking for (default is SQ_LINK_TYPE_1)
+		*      link_type		string		type of links we want to create for cloned asset (default is SQ_LINK_TYPE_1)
 		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3
 		*      link_value		string		the value of new link we want (default '')
-		*      content:			string		the string content that needs to be cleaned up
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
