@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.135.6.1 2011/03/24 02:57:54 mhaidar Exp $
+* $Id: design_edit_fns.inc,v 1.135.6.2 2011/08/23 05:16:53 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135.6.1 $
+* @version $Revision: 1.135.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -787,24 +787,17 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Let's place an print operation after the head tag
 		// to allow us to print the default header stuff like
 		// style sheets, JS files and meta tag stuff
-		$temp = explode('</head>', $file_contents, 2);
-		if (sizeof($temp) > 1) {
-			$file_contents= $temp[0]
-							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
-							."</head>"
-							.$temp[1];
+		if(strpos($file_contents, '</head>') !== FALSE) {  
+		    $file_contents = str_replace('</head>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n</head>", $file_contents);
 		}
 
 		// Let's place an print operation after the termination body tag
 		// to allow us to print the anything that has come to our attention
 		// like image rollovers
-		$temp = explode('</body>', $file_contents, 2);
-		if (sizeof($temp) > 1) {
-			$file_contents= $temp[0]
-							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
-							.$temp[1];
+		if(strpos($file_contents, '</body>') !== FALSE) {  
+		    $file_contents = str_replace('</body>', "\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>", $file_contents);
 		}
-
+		
 		return parent::_parseString($file_contents);
 
 	}//end _parseString()
