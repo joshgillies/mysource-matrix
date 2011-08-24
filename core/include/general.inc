@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.258 2011/06/30 03:10:28 ewang Exp $
+* $Id: general.inc,v 1.259 2011/08/24 05:23:35 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix
 */
 
@@ -2422,7 +2422,7 @@ function file_mime_type($filename)
 	} else {
 		$ext_pos = strrpos($filename, '.');
 		if ($ext_pos !== FALSE) {
-			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+			require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			$mime_type = array_get_index($standards_lists_mime_types, substr($filename, $ext_pos + 1), '');
 		}
 	}
