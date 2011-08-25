@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.246 2011/08/01 06:47:40 ewang Exp $
+* $Id: search_manager.inc,v 1.247 2011/08/25 03:58:30 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1521,41 +1521,43 @@ class Search_Manager extends Asset
 				$value_components = Array();
 				Metadata_Field::decodeValueString($value, $value, $value_components);
 
-				$keywords = retrieve_keywords_replacements($value, '.');
-
-				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
-
-				foreach($keywords as $keyword) {
-
-					if (!isset($the_replacement[$keyword])) {
-						// Looking for further replacements
-						$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-
-					} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
-
-						 // Remove any modifiers from keyword
-						$full_keyword = $keyword;
-						$keyword = parse_keyword($keyword, $modifiers);
-
-						// searching for keywords that replace the content of another field
-						$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
-						$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, TRUE);
-
-						if ($keyword_replacement !== NULL) {
-							if (count($modifiers) > 0) {
-								apply_keyword_modifiers($keyword_replacement, $modifiers);
+				for($i = 0; $i < 3; $i++) { //attempt to replace nested keywords max 3 levels. See Bug #5295
+					$keywords = retrieve_keywords_replacements($value, '.');
+	
+					$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+	
+					foreach($keywords as $keyword) {
+	
+						if (!isset($the_replacement[$keyword])) {
+							// Looking for further replacements
+							$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
+	
+						} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
+	
+							 // Remove any modifiers from keyword
+							$full_keyword = $keyword;
+							$keyword = parse_keyword($keyword, $modifiers);
+	
+							// searching for keywords that replace the content of another field
+							$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
+							$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, FALSE);
+	
+							if ($keyword_replacement !== NULL) {
+								if (count($modifiers) > 0) {
+									apply_keyword_modifiers($keyword_replacement, $modifiers);
+								}
+								$the_replacement[$full_keyword] = $keyword_replacement;
+							} else {
+								$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
 							}
-							$the_replacement[$full_keyword] = $keyword_replacement;
-						} else {
-							$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
-						}
-
-					}//end if
-
-				}//end foreach
-
-				replace_keywords($value, $the_replacement);
-
+	
+						}//end if
+	
+					}//end foreach
+	
+					replace_keywords($value, $the_replacement);
+				}//end for
+				
 				// check field_type to define the indexing way
 				if ($field_type == 'metadata_field_date') {
 					$index_content[] = Array(
