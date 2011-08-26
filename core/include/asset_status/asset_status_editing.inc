@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.47 2010/05/11 23:01:50 cupreti Exp $
+* $Id: asset_status_editing.inc,v 1.47.6.1 2011/08/26 05:19:08 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.6.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -168,7 +168,7 @@ class Asset_Status_Editing extends Asset_Status
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
-			return translate('cannot_approve_metadata_incomplete', '<a href="'.replace_query_string_vars(Array('asset_ei_screen' => 'metadata')).'">'.strtolower(translate('metadata')).'</a>');
+			return translate('cannot_approve_metadata_incomplete', '<a href="'.htmlspecialchars(replace_query_string_vars(Array('asset_ei_screen' => 'metadata'))).'">'.strtolower(translate('metadata')).'</a>');
 		}
 		return '';
 

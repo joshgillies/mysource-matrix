@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.10 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_restricted.inc,v 1.10.14.1 2011/08/26 05:19:19 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -97,7 +97,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 			if ($next_date > $last_normal_start) {
 				$num_days_next = days_between_isos($last_valid_date, $next_date) + 1;
 			}
-			$url = replace_query_string_vars(Array('show_date' => $next_date));
+			$url = htmlspecialchars(replace_query_string_vars(Array('show_date' => $next_date)));
 			$text = str_replace('%n%', $num_days_next, $this->attr('next_text'));
 			$res['next_link'] = '<a href="'.$url.'">'.$text.'</a>';
 		}
@@ -110,7 +110,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 				$last_date = $first_valid_date;
 				$num_days_next = days_between_isos($current_start_date, $last_date) + 1;
 			}
-			$url = replace_query_string_vars(Array('show_date' => $last_date));
+			$url = htmlspecialchars(replace_query_string_vars(Array('show_date' => $last_date)));
 			$text = str_replace('%n%', $num_days_next, $this->attr('prev_text'));
 			$res['prev_link'] = '<a href="'.$url.'">'.$text.'</a>';
 		}

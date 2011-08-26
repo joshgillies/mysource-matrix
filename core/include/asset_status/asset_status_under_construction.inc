@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.55 2010/10/21 04:02:47 cupreti Exp $
+* $Id: asset_status_under_construction.inc,v 1.55.4.1 2011/08/26 05:19:08 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -186,7 +186,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 										'am_section'        => 'edit_asset',
 										'assetid'           => $this->owner->id,
 									  );
-			$metadata_screen_url = replace_query_string_vars($replace_string_vars);
+			$metadata_screen_url = htmlspecialchars(replace_query_string_vars($replace_string_vars));
 			return translate('cannot_make_live_metadata_incomplete', '<a href="'.$metadata_screen_url.'">'.strtolower(translate('metadata')).'</a>');
 
 		}

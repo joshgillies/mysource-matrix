@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.96 2011/01/17 22:49:50 mhaidar Exp $
+* $Id: calendar_event_recurring.inc,v 1.96.2.1 2011/08/26 05:19:19 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.96.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -863,7 +863,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		switch ($keyword) {
 			case 'edit_link':
-				return $this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
+				return $this->writeAccess('') ? '<a href="'.htmlspecialchars(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
 			case 'event_frequency':
 				return $this->getFriendlyFrequency();
 			case 'event_ical_frequency':
@@ -1127,7 +1127,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 												'SQ_CALENDAR_DATE'			=> $replacement->getStartDate(),
 												'SQ_CALENDAR_EVENT_ACTION'	=> NULL,
 											 );
-					$res .= '<p><a href="'.replace_query_string_vars($new_query_string_vars).'">'.translate('cal_event_view_replacement_event').'</a></p>';
+					$res .= '<p><a href="'.htmlspecialchars(replace_query_string_vars($new_query_string_vars)).'">'.translate('cal_event_view_replacement_event').'</a></p>';
 				}
 			break;
 

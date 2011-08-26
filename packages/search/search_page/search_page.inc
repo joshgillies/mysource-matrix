@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.248.4.4 2011/08/15 02:05:10 cupreti Exp $
+* $Id: search_page.inc,v 1.248.4.5 2011/08/26 05:19:15 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.248.4.4 $
+* @version $Revision: 1.248.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1519,13 +1519,11 @@ class Search_Page extends Listing_Engine
 				// if we are on the initial search page, don't use javascript
 				// for the submit button so enter will submit the form
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
-				// Extra hidden field to make IE submit the form with a single field (See bug #5279)
-				$replacement = '<input type="text" name="'.$prefix.'_extra_field" id="'.$prefix.'_extra_field" disabled="disabled" style="display:none" />';
 				if ($mode == 'initial') {
-					$replacement  .= '<input type="submit" name="'.$field_name.'"
+					$replacement  = '<input type="submit" name="'.$field_name.'"
 						value="'.$this->attr('submit_button_text').'" />';
 				} else {
-					$replacement  .= '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
+					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.current_result_page.value=\'1\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
 						return true;
@@ -2018,7 +2016,7 @@ class Search_Page extends Listing_Engine
 												$cat_data['options'] = Array('' => Array('full_name' => $cat_data['unselected_text'])) + $cat_data['options'];
 												foreach ($cat_data['options'] as $key => $data) {
 													$query_string_vars['category_'.$cat_name] = $key;
-													$url = replace_query_string_vars($query_string_vars);
+													$url = htmlspecialchars(replace_query_string_vars($query_string_vars));
 													?>
 													<li<?php echo ($current_option == $key) ? ' id="current"' : ''; ?>>
 														<a href="<?php echo $url; ?>">
