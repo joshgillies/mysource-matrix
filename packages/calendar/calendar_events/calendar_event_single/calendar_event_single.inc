@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.22 2011/08/26 03:48:27 ewang Exp $
+* $Id: calendar_event_single.inc,v 1.23 2011/08/26 05:58:02 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -59,7 +59,7 @@ class Calendar_Event_Single extends Calendar_Event
 	{
 		parent::load($assetid);
 
-		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'image', FALSE, 'minor');
+		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'calendar_event_multi_date', FALSE, 'minor');
 
 	}//end load()
 
@@ -171,7 +171,7 @@ class Calendar_Event_Single extends Calendar_Event
 	function getKeywordReplacement($keyword)
 	{
 		$replacement = parent::getKeywordReplacement($keyword);
-		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%' || empty($replacement));
+		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
 
 		// If we have not found an appropriate replacement, ask the parent, if it is a Calendar Multi Date Event asset
 		if ($empty_replacement && (count($this->parent_links) > 0)) {
