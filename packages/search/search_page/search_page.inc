@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.254 2011/08/12 03:45:39 cupreti Exp $
+* $Id: search_page.inc,v 1.255 2011/08/26 03:51:13 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2029,7 +2029,7 @@ class Search_Page extends Listing_Engine
 												$cat_data['options'] = Array('' => Array('full_name' => $cat_data['unselected_text'])) + $cat_data['options'];
 												foreach ($cat_data['options'] as $key => $data) {
 													$query_string_vars['category_'.$cat_name] = $key;
-													$url = replace_query_string_vars($query_string_vars);
+													$url = htmlspecialchars(replace_query_string_vars($query_string_vars));
 													?>
 													<li<?php echo ($current_option == $key) ? ' id="current"' : ''; ?>>
 														<a href="<?php echo $url; ?>">

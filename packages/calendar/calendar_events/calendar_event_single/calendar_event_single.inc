@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.21 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: calendar_event_single.inc,v 1.22 2011/08/26 03:48:27 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -59,7 +59,7 @@ class Calendar_Event_Single extends Calendar_Event
 	{
 		parent::load($assetid);
 
-		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'calendar_event_multi_date', FALSE, 'minor');
+		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'image', FALSE, 'minor');
 
 	}//end load()
 
@@ -118,7 +118,7 @@ class Calendar_Event_Single extends Calendar_Event
 					$recurring_events = array_keys($recurring_events);
 					$recurring_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => NULL));
+						$cancellation_href = htmlspecialchars(replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => NULL)));
 					} else {
 						$cancellation_href = $root_url.'?a='.$recurring_events[0];
 					}
@@ -171,7 +171,7 @@ class Calendar_Event_Single extends Calendar_Event
 	function getKeywordReplacement($keyword)
 	{
 		$replacement = parent::getKeywordReplacement($keyword);
-		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
+		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%' || empty($replacement));
 
 		// If we have not found an appropriate replacement, ask the parent, if it is a Calendar Multi Date Event asset
 		if ($empty_replacement && (count($this->parent_links) > 0)) {

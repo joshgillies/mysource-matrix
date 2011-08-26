@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.12 2008/06/30 01:46:33 bshkara Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.13 2011/08/26 03:47:59 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -267,11 +267,11 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		if ($paginate) {
 			echo '<p>';
 			if ($current_page_no > 0) {
-				echo '<a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no-1)).'">'.translate('previous_page').'</a> &nbsp; ';
+				echo '<a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no-1))).'">'.translate('previous_page').'</a> &nbsp; ';
 			}
 			echo translate('page_number', $current_page_no + 1, $total_pages);
 			if ($current_page_no < ($total_pages-1)) {
-				echo ' &nbsp; <a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no+1)).'">'.translate('next_page').'</a> ';
+				echo ' &nbsp; <a href="'.htmlspecialchars(replace_query_string_vars(Array('usage_page_no' => $current_page_no+1))).'">'.translate('next_page').'</a> ';
 			}
 			echo '</p>';
 		}
