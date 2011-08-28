@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.257.2.5 2011/07/22 00:31:06 akarelia Exp $
+* $Id: form.inc,v 1.257.2.6 2011/08/28 23:36:46 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.257.2.5 $
+* @version $Revision: 1.257.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2976,7 +2976,29 @@ class Form extends Asset implements Bridge
 			// So we will print all questions' js code.
 			if (in_array('form_contents', $keywords)) {
 				$use_bc = FALSE;
-			}
+			} else {
+				// Check if we have section keywords in bodycopy
+				$section_keywords = Array();
+				foreach($keywords as $keyword) {
+					if (strpos($keyword, 'section_contents_') !== FALSE) {
+						$section_id = substr($keyword, strlen('section_contents_'));
+						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($section_id, Array('form_section'))) {
+							$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+							$s_questions = array_keys($section->getQuestions());
+							foreach($s_questions as $q_id) {
+								$q_keyword = 'question_field_'.$section_id.'_q'.$q_id;
+								if (!in_array($q_keyword, $keywords)) {
+									$section_keywords[] = $q_keyword;
+								}
+							}//end foreach
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
+						}//end if
+					}//end if
+				}//end foreach
+				
+				// Merge the questions (keywords) contained in form section
+				$keywords = array_merge($keywords, $section_keywords);
+			}//end else
 		}
 
 		ob_start();
