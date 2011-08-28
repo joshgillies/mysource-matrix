@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.32.2.3 2011/03/24 02:32:52 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.32.2.4 2011/08/28 23:27:24 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.32.2.3 $
+* @version $Revision: 1.32.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -514,7 +514,11 @@ class Funnelback_Manager extends Asset
 		 *	- Public permission and live status, give a "public" lock
 		 *  - Specific permission, add the lock
 		 */
-		$permissions    = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
+		if (!($asset->status & SQ_SC_STATUS_NOT_LIVE)) {
+			$permissions = $am->getPermission($asset->id, SQ_PERMISSION_READ, TRUE);
+		} else {
+			$permissions = $am->getPermission($asset->id, SQ_PERMISSION_WRITE, TRUE);
+		}
 		$public_user_id = $am->getSystemAssetId('public_user');
 		$root_user_id   = $am->getSystemAssetId('root_user');
 		if (empty($permissions)) {
