@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.100 2011/04/14 01:00:36 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.100.2.1 2011/08/29 06:13:21 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.100.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -446,14 +446,14 @@ class LDAP_Bridge extends Asset implements Bridge
 
 				$entries = NULL;
 
+                $attr = $this->attr('attributes');
+                // If the group defines its own members, use the "Group Members" attribute to
+                // provide links to its members. Note that this is mandatory in Active Directory
+                // so if nothing is provided, the default "member" will be used.
+                if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
+                    $attr['gm'] = 'member';
+                }
 				if ($assetid != $this->id) {
-					$attr = $this->attr('attributes');
-					// If the group defines its own members, use the "Group Members" attribute to
-					// provide links to its members. Note that this is mandatory in Active Directory
-					// so if nothing is provided, the default "member" will be used.
-					if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
-						$attr['gm'] = 'member';
-					}
 					$asset = $this->getAsset($this->id.':'.$assetid);
 					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']])) {
 						$members = $asset->vars[$attr['gm']];
@@ -499,8 +499,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
 
 					$base_dn = $this->decodeString($base_dn);
-					$required_attrs = $this->attr('attributes');
-					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, array_merge(array_values($required_attrs), Array('objectclass')));
+					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, array_merge(array_values($attr), Array('objectclass')));
 
 					if (!$result) {
 						$ldap->disconnect();
