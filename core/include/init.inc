@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.123 2011/06/30 05:35:31 ewang Exp $
+* $Id: init.inc,v 1.124 2011/08/29 02:04:16 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix
 */
 
@@ -133,6 +133,15 @@ define('SQ_IN_LOGIN', $in_login);
 // we are in performance results view
 $in_performance = defined('SQ_CONF_PERFORMANCE_SUFFIX') && (trim(SQ_CONF_PERFORMANCE_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_SUFFIX);
 define('SQ_IN_PERFORMANCE', $in_performance);
+
+// we are timing performance data
+$in_performance_timing = defined('SQ_CONF_PERFORMANCE_TIMING_SUFFIX') && (trim(SQ_CONF_PERFORMANCE_TIMING_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_TIMING_SUFFIX);
+if($in_performance_timing)
+    define('SQ_IN_PERFORMANCE_TIMING', $in_performance_timing);
+
+// we are showing performance result
+$in_performance_result = defined('SQ_CONF_PERFORMANCE_RESULT_SUFFIX') && (trim(SQ_CONF_PERFORMANCE_RESULT_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_PERFORMANCE_RESULT_SUFFIX);
+define('SQ_IN_PERFORMANCE_RESULT', $in_performance_result);
 
 // boolean to use for testing whether we're running cron scripts
 if (!defined('SQ_IN_CRON')) {
@@ -270,5 +279,4 @@ require_once SQ_INCLUDE_PATH.'/mysource.inc';
 $GLOBALS['SQ_SYSTEM'] = new MySource();
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_SECURE);
 $GLOBALS['SQ_SYSTEM']->init();
-
 ?>

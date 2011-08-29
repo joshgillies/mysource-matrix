@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.371 2011/08/03 06:21:32 cupreti Exp $
+* $Id: mysource.inc,v 1.372 2011/08/29 02:04:16 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.371 $
+* @version $Revision: 1.372 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -426,7 +426,38 @@ class MySource extends MySource_Object
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
+		
+		// In performance timing mode, set current user if required
+		 if(defined('SQ_IN_PERFORMANCE_TIMING') && SQ_IN_PERFORMANCE_TIMING) {
+		     if(isset($_REQUEST['performance_setting_user'])) {
+			 // set user to either Public user or default user based on GET and SESSION settings
+			 // the default user in SESSION must be in performance manager only with caution, we don't want to expose security hole
+			 if($_REQUEST['performance_setting_user'] === 'Default' && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && isset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user'])) {
+			     $user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user']);
+			     $this->setCurrentUser($user);
+			 }
+			 else if ($_REQUEST['performance_setting_user'] === 'Public' && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
+			     $user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			     $this->setCurrentUser($user);
+			 }
+		     }
+		}
+		// In result mode, print performance result
+		else  if(defined('SQ_IN_PERFORMANCE_RESULT') && SQ_IN_PERFORMANCE_RESULT) {
+		    	// restore to default user
+			 if(isset($_REQUEST['performance_setting_user']) ) {
+			     if($GLOBALS['SQ_SYSTEM']->user instanceof Public_User && isset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user'])) {
+				 $user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user']);
+				 $this->setCurrentUser($user);
+			     }
+			}
+			
+			if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
+			$this->pm->printResults();
+			exit(1);
+		}
 
+			
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -791,7 +822,7 @@ class MySource extends MySource_Object
 
 		$this->_setApacheNotes();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
-		
+
 		// finalize perfromance timer
 		$this->pm->end();
 	}//end start()
@@ -1717,16 +1748,6 @@ class MySource extends MySource_Object
 				exit(1);
 			break;
 			
-			case 'performance_timing' :
-				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
-				if (!defined('SQ_IN_PERFORMANCE_TIMING')) define('SQ_IN_PERFORMANCE_TIMING', 1);
-			break;
-			
-			case 'performance_result' :
-				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
-				$this->pm->printResults();
-				exit(1);
-			break;
 
 		}//end switch
 
@@ -4238,6 +4259,8 @@ class MySource extends MySource_Object
 					// add new submit event
 					$new_url = preg_replace('/^<form/i', '<form onsubmit="parent.result_frame.document.location.reload();"', $new_url);
 				}
+				
+
 				$content = str_replace($url, $new_url, $content);
 		}
 		

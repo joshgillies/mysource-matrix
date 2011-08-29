@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.143 2011/06/30 05:08:22 ewang Exp $
+* $Id: system_config.inc,v 1.144 2011/08/29 02:04:16 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -43,7 +43,9 @@ class System_Config extends Config
 						'SQ_CONF_LOGIN_SUFFIX'					=> Array('editable' => 1, 'default' => '_login'),
 						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
 						'SQ_CONF_RECACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_recache'),
-						'SQ_CONF_PERFORMANCE_SUFFIX'            => Array('editable' => 1, 'default' => '_performance'),
+						'SQ_CONF_PERFORMANCE_SUFFIX'			=> Array('editable' => 1, 'default' => '_performance'),
+						'SQ_CONF_PERFORMANCE_TIMING_SUFFIX'		=> Array('editable' => 1, 'default' => '_performance_timing'),
+						'SQ_CONF_PERFORMANCE_RESULT_SUFFIX'		=> Array('editable' => 1, 'default' => '_performance_result'),
 						'SQ_CONF_ASSET_TREE_BASE'				=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
 						'SQ_CONF_ASSET_CACHE_SIZE_WEB'			=> Array('editable' => 0, 'default' =>  -1),
