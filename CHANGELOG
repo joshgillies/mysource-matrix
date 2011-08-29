@@ -1,5 +1,187 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 4.4.2
+
+Featured Changes
+===================================
+
+
+New Workflow Custom Messages [ Feature Request #5181 ]
+-----------------------------------------------------
+
+New customisable messages have been added to Squiz Matrix's Workflow Schema package to allow you to configure the messages sent when an asset is Up For Review. Previously, these messages were not customisable.
+
+The Workflow Up for Review Invitation and Workflow Up for Review Rejection messages can be configured on the Custom Messages screen of a workflow step. If these messages are not customised, a generic message will be used instead.
+
+Also now customisable, is the system's Notify on Live message, sent to users when an asset in workflow is approved and made live.
+
+The Notify on Live message can be configured on a new Custom Messages screen on the workflow schema asset. If this message is not customised, a generic message will be used instead.
+
+Additionally, all available asset keywords are now available for use on workflow custom messages. This includes all attribute and metadata keywords of the asset currently in workflow.
+
+This feature has been added to allow greater customisation of the messages sent when an asset is in workflow. 
+
+New Keyword Modifier to Apply XSLT to XML Content [ Feature Request #5183 ]
+-----------------------------------------------------
+
+Keyword Modifiers allow you to modify keyword replacements to further configure their returned values. This feature adds a new keyword modifier to apply XSLT (Extensible Stylesheet Language Transformations) to XML content returned on the keyword.
+
+The format for this keyword modifier is as follows.
+
+%keyword^xslt:<assetid>%
+ 
+%asset_contents_raw^xslt:343% 
+
+This modifier will take the XSLT of a file asset (specified by asset ID), apply it to XML returned on the asset and output the result.
+
+This feature has been added to allow users to transform the XML of assets, providing greater control over the content of their sites. 
+
+Keywords Supported as Attributes Values on the Create Asset Trigger Action [ Feature Request #5249 ]
+-----------------------------------------------------
+
+The Create Asset trigger action will create a new asset on the system. When configuring this action, you can specify values to set the attribute values of the asset to be created.
+
+Previously, this trigger action did not support the use of keyword replacements in these attribute value fields.
+
+This feature modifies this trigger action to allow keyword replacements to be used when setting the attribute values of the asset to be created. This allows you to use the values of the firing asset as the attribute values of the created asset. 
+
+Bulkmail User Recipients on Send Email Trigger Action [ Feature Request #5256 ]
+-----------------------------------------------------
+
+The Send Email trigger action will send an email to user or group when an event occurs. Previously, however, this trigger action could only send emails to users with the ability to log in to the system, which did not include bulkmail users.
+
+This feature enables the use of bulkmail user accounts to be selected as recipients on the Send Email trigger action. Any bulkmail users located under a selected user group asset will also be included as a recipient on the email.
+
+This feature has been added to allow users to create trigger configurations where public users would only need to supply their name and email address in order to subscribe to email updates on a site. 
+
+New Trigger Condition: Keyword Value [ Feature Request #5257 ]
+-----------------------------------------------------
+
+A new trigger condition has been added that will check against a keyword value on the firing asset.
+
+The Keyword Value condition, allows you to input a keyword and a replacement value, specifying whether this value should be an exact, partial or regular expression match of the firing asset's keyword value.
+
+For example, if you set this condition to check the asset_name keyword as a Partial Match with the value News, the condition will be met if the asset name of the firing asset contains the value News (e.g. Latest News or Newspaper).
+
+This trigger condition has been added to allow users to further configure their trigger configurations.
+
+New HIPO Job to Regenerate a Design [ Feature Request #5259 ]
+-----------------------------------------------------
+
+When editing the parse file of a design, a design will need to regenerate in order to display the changes you have made. Previously, this regeneration was handled by a single request, however, on more complex designs (e.g. multiple customisations) this could be quite a lengthy process and could potentially timeout.
+
+This feature introduces the Regenerate Design HIPO Job to manage the regeneration process. This job will respond multiple times while regenerating the design, preventing any timeout issues that may have occurred.
+
+This feature has been added to improve the performance of Squiz Matrix and provide a more reliability on larger, complex systems.
+
+Custom Design and Paint Layout Options for Site's Not Found Page [ Feature Request #5260 ]
+-----------------------------------------------------
+
+When you create a Site asset in your system, you can specify a Not Found Page, an asset to be displayed when the user enters a URL that does not exist (404 page error).
+
+By default, the design and layout of this Not Found Page is determined by the asset URL closest to the given non-existent URL.
+
+This feature introduces additional options for the Not Found Page to specify an override design and/or paint layout to use instead of the default.
+
+The Override Design and Override Paint Layout settings are set on a new Not Found Page Options section on the Details screen of a Site asset. If these settings are customised, the Not Found Page will use the selected design and paint layout instead of using the design of the closest URL. 
+
+JS API: New Function to Clone an Asset [ Feature Request #5278 ]
+-----------------------------------------------------
+
+A new cloneAsset() operation has been added to the JavaScript API to clone an asset under a specified parent, allowing you to specify the number of clones to create and their link type.
+
+This operation is enabled on the Details screen of the JS API on a new Clone Asset field. 
+The getLineage() operation takes the following parameters:
+
+    asset_id: the asset ID of the asset to clone.
+    new_parent: the asset ID of the parent to clone under.
+    clone_num: the number of clones to create under the new parent.
+    new_position: the position to place newly cloned assets under the parent.
+    link_type: the link type of the cloned asset.
+    link_value: the link value of the cloned asset.
+    dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows (enhanced JS API): 
+
+  js_api.cloneAsset({asset_id : 100, new_parent : 240, clone_num : 2, new_position : 1, link_type: 'SQ_LINK_TYPE_2', link_value : 'new value', dataCallback : customDataCallbackFunc})
+
+JS API: New Function to Compare the Content of Assets [ Feature Request #5285 ]
+-----------------------------------------------------
+
+A new showDifferences() operation has been added to the JavaScript API to compare the content of two different assets. This works in a similar manner to the Preview screen's Show Diff tool for Safe Edit assets and highlights the differences between two specified assets.
+
+This operation also allows you to apply paint layouts to the content to be compare. It is enabled on the Details screen of the JS API on a new Show content difference field.
+
+The showDifferences() operation takes the following parameters:
+
+    assetid_1: the asset ID of the first asset to compare.
+    assetid_2: the asset ID of the second asset to compare.
+    paint_layout_1: the asset ID of the Paint Layout to apply to asset 1.
+    paint_layout_2: the asset ID of the Paint Layout to apply to asset 2.
+    dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows (enhanced JS API):   
+
+  js_api.showDifferences({assetid_1 : 100, assetid_2 : 200, paint_layout_1 : 340, paint_layout_2 : 350, dataCallback : customDataCallbackFunc}) 
+
+Performance Mode: View as Public User [ Feature Request #5297 ]
+-----------------------------------------------------
+
+This new feature to Squiz Matrix's Performance Mode allows users to view the performance of assets as a public user. An option is available on the Performance Mode interface to switch between viewing as both a public and logged in user.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5240: Better Handling for JSON Encoding on the Javascript API.
+Minor Enhancement #5247: Ecommerce Form Honour with ID code now Approved.
+Minor Enhancement #5252: Twitter Update Status Trigger Action Respects Matrix Proxy.
+Minor Enhancement #5254: Quick Search Performance Improvement.
+Minor Enhancement #5261: Asset ID Format Validation in Asset Builder's Create Location Field.
+Minor Enhancement #5276: Bulk File Import Tool Description Improved.
+
+Core
+
+Fixed Bug #5184: Regenerate Metadata on schema doesn't reindex metadata fields with default metadata value.
+Fixed Bug #5190: WYSIWYG Insert Link Title adds backslashs before apostrophes.
+Fixed Bug #5208: Expired workflow cron job sends workflow escalation email for every dependant assets.
+Fixed Bug #5231: Keyword modifiers don't work on custom form answers.
+Fixed Bug #5244: Can not disable automatic remaps for File assets.
+Fixed Bug #5245: Design Customisation Table Misaligned and Awkward.
+Fixed Bug #5251: Layout lookup values remain for removed site URL.
+Fixed Bug #5263: Bulkmail job setting mem_limit to unlimited triggers suhosin.
+Fixed Bug #5269: WYSIWYG in Chrome: Heading 2 style for last paragraph will stop user from creating new paragraph.
+Fixed Bug #5272: JS API typo Undefined variable: update_user in error log.
+Fixed Bug #5275: Nesting more than one AL using same DB Data Source and diff dynamic vars doesn't refresh results.
+Fixed Bug #5280: Client side form validation doesn't work with %section_contents_XXXX% keyword.
+Fixed Bug #5282: TO_CHAR on CLOB (Oracle DB) causing workflow escalation to fail.
+Fixed Bug #5284: In PHP 5.3.1+, Details screen of Show If design area with User IP condition throws error.
+Fixed Bug #5289: Matrix licence statement not printed in HTML source code if EES design is used on the design file.
+Fixed Bug #5291: general.inc:mime_type_content() throwing undefined variable error. 
+
+CMS
+
+Fixed Bug #5281: Online Quiz select box question reported empty by client side validation. 
+Fixed Bug #5283: Online Quiz alerts all questions unanswered when using Custom Grouping.    
+
+Search
+
+Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer.  
+
+LDAP
+
+Fixed Bug #5248: LDAP users not being recognised as step of workflow.   
+
+Funnelback
+
+Fixed Bug #5290: Funnelback search page returning non-live asset result to non-publishing user.
+
+
+
+
 VERSION 4.4.1
 
 Featured Changes
