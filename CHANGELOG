@@ -1,5 +1,46 @@
 MYSOURCE MATRIX CHANGELOG
 
+
+VERSION 4.2.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5240: Better Handling for JSON Encoding on the Javascript API.
+Minor Enhancement #5247: Ecommerce Form Honour with ID code now Approved.
+Minor Enhancement #5254: Quick Search Performance Improvement.
+Minor Enhancement #5261: Asset ID Format Validation in Asset Builder's Create Location Field.
+Minor Enhancement #5276: Bulk File Import Tool Description Improved.
+
+Core
+
+Fixed Bug #5184: Regenerate Metadata on schema doesn't reindex metadata fields with default metadata value.
+Fixed Bug #5190: WYSIWYG Insert Link Title adds backslashs before apostrophes.
+Fixed Bug #5208: Expired workflow cron job sends workflow escalation email for every dependant assets.
+Fixed Bug #5231: Keyword modifiers don't work on custom form answers.
+Fixed Bug #5244: Can not disable automatic remaps for File assets.
+Fixed Bug #5251: Layout lookup values remain for removed site URL.
+Fixed Bug #5263: Bulkmail job setting mem_limit to unlimited triggers suhosin.
+Fixed Bug #5272: JS API typo Undefined variable: update_user in error log.
+Fixed Bug #5275: Nesting more than one AL using same DB Data Source and diff dynamic vars doesn't refresh results.
+Fixed Bug #5280: Client side form validation doesn't work with %section_contents_XXXX% keyword.
+Fixed Bug #5282: TO_CHAR on CLOB (Oracle DB) causing workflow escalation to fail.
+Fixed Bug #5289: Matrix licence statement not printed in HTML source code if EES design is used on the design file.
+Fixed Bug #5291: general.inc:mime_type_content() throwing undefined variable error. 
+
+CMS
+
+Fixed Bug #5281: Online Quiz select box question reported empty by client side validation. 
+Fixed Bug #5283: Online Quiz alerts all questions unanswered when using Custom Grouping.    
+
+Search
+
+Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer.
+
+
 VERSION 4.2.5
 
 Minor Enhancements and Bug Fixes
