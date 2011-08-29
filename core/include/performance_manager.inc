@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.1.2.4 2011/07/06 02:58:43 ewang Exp $
+*$Id: performance_manager.inc,v 1.1.2.5 2011/08/29 02:27:39 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.2.4 $
+* @version $Revision: 1.1.2.5 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -229,23 +229,36 @@ class Performance_Manager extends MySource_Object
 	*/
 	public function printFrames($asset)
 	{
-		$primary_url = current_url();
+		$primary_url = current_url(TRUE, TRUE);
 		$this->_clearPerformanceData();
 		
 		// save switch setting to session
 		if(isset($_GET['performance_setting_caching'])) {
-			$_SESSION['SQ_PERFORMANCE_SETTING']['caching'] = $_GET['performance_setting_caching'] == 'Default' ? TRUE : FALSE;
-			unset($_GET['performance_switch_caching']);
+			$_SESSION['SQ_PERFORMANCE_SETTING']['caching'] = $_GET['performance_setting_caching'] ;
+			unset($_GET['performance_setting_caching']);
 		}
+		
+		    // save current user id to the session, so we can restore it
+		if(isset($_GET['performance_setting_user'])) {
+			$_SESSION['SQ_PERFORMANCE_SETTING']['default_user'] = $GLOBALS['SQ_SYSTEM']->user->id;
+		}
+
+		
 		// make up original page url
-		$param_string = '?';
+		$param_string = '';
 		foreach($_GET as $name => $value) {
-			$param_string .= $name.'='.$value.'&';
+			if(!empty($param_string))
+			    $param_string .= '&';
+			$param_string .= $name.'='.$value;
 		}
-		$param_string .= 'SQ_ACTION=performance_timing';
+		if(!empty($param_string)) {
+		    $param_string = '?'.$param_string;
+		}
+
+		$timing_url = $primary_url.'/_performance_timing'.$param_string;
 		
 		// make up result page url
-		$result_url = $primary_url.'?&SQ_ACTION=performance_result';
+		$result_url = $primary_url.'/_performance_result'.$param_string;
 
 		// title
 		$title =  $asset->name . ' - Squiz Matrix Performance Mode';
@@ -260,7 +273,7 @@ class Performance_Manager extends MySource_Object
 // set page frame as blank first, then loaded with page url
 // this workaround is making sure waiting screen appears first in IE
 function fillFrame() {
-		parent.content_frame.location.href = "<?php echo ($primary_url.$param_string); ?>";
+		parent.content_frame.location.href = "<?php echo ($timing_url); ?>";
 }
 
 
@@ -297,7 +310,7 @@ function fillFrame() {
 		header('Pragma: no-cache');
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 
-		$performance_data = $this->_loadPerformanceData();
+		$performance_data = $this->_loadPerformanceData();		
 		// if performace data in the other frame is not ready, wait for it
 		if(empty($performance_data)) {
 			$this->_printWaitingScreen();
@@ -305,10 +318,21 @@ function fillFrame() {
 		}
 
  		$this->performance_data = $performance_data;
- 		
- 		$caching_status = isset($_SESSION['SQ_PERFORMANCE_SETTING']['caching']) && $_SESSION['SQ_PERFORMANCE_SETTING']['caching'] === FALSE ? 'Off' : 'Default';
+
+		// caching, user switch strings
+ 		$caching_status = isset($_SESSION['SQ_PERFORMANCE_SETTING']['caching']) && $_SESSION['SQ_PERFORMANCE_SETTING']['caching'] === 'Off' ? 'Off' : 'Default';
 		$caching_status_reverse = $caching_status === 'Default' ? 'Off' : 'Default';
- 		
+
+		// view as public user or current user
+		$as_user = 'Default';
+		$as_user_reverse = 'Public';
+		if(isset($_REQUEST['performance_setting_user'])) {
+		    if($_REQUEST['performance_setting_user'] === 'Public') {
+			 $as_user = 'Public';
+			 $as_user_reverse = 'Default';
+		    }	  
+		}
+		
  		$slowest = Array();
 		$active_total = 0;
 		foreach ($this->performance_data as $assetid => $content) {
@@ -461,7 +485,11 @@ var addUrlParam = function(search, key, val){
     
     <div id="perfSummary">
         <div class="perfTotal">Total Time <strong><?php echo ($this->_printTime($total_time)); ?></strong>,&nbsp; System <strong><?php echo ($this->_printTime($total_system_time)); ?></strong> (<?php echo ($this->_printPercent($total_system_time, $total_time, 2)); ?>), Queries: <strong><?php echo $total_num_queries; ?></strong></div>
-        <div><a href="javascript:" onclick="javascript:parent.document.location = parent.document.location.pathname + addUrlParam(parent.document.location.search, 'performance_setting_caching', '<?php echo $caching_status_reverse; ?>');" class="perfSwitch" title="Turn on/off Matrix Caching" target="_top">Caching: <?php echo $caching_status; ?></a></div>
+        <div  class="perfSwitch">
+	    <a href="javascript:" onclick="javascript:parent.document.location = parent.document.location.pathname + addUrlParam(parent.document.location.search, 'performance_setting_caching', '<?php echo $caching_status_reverse; ?>');" title="Use current Matrix Caching setting or disable Matrix Caching" target="_top">Caching: <?php echo $caching_status; ?></a>
+	    ,&nbsp; 
+	    <a href="javascript:" onclick="javascript:parent.document.location = parent.document.location.pathname + addUrlParam(parent.document.location.search, 'performance_setting_user', '<?php echo $as_user_reverse; ?>');" title="Render page as current logged in user or Public User" target="_top">User: <?php echo $as_user; ?></a>
+        </div>
         <div class="perfHighrollers">
             <span class="highRoller-label">Asset count: <strong><?php echo $total_assets_count; ?></strong> Slowest:</span>
             <span class="highRoller-bar">
@@ -764,7 +792,7 @@ var addUrlParam = function(search, key, val){
 	*/	
 	private function _loadPerformanceData () {
 		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
-		$data = file_exists($path) ? file_get_contents($path) : '';	
+		$data = file_exists($path) ? file_get_contents($path) : '';
 		return unserialize($data);
 	}// end _loadPerformanceData()
 	

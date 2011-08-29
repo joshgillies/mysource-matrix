@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.87.2.2 2011/07/04 01:29:13 ewang Exp $
+* $Id: cache_manager.inc,v 1.87.2.3 2011/08/29 02:27:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.87.2.2 $
+* @version $Revision: 1.87.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -508,9 +508,9 @@ class Cache_Manager extends Asset
 		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {
 			return FALSE;
 		}
-		// disable caching in performance mode
-		if(defined('SQ_IN_PERFORMANCE_TIMING') && isset($_SESSION['SQ_PERFORMANCE_SETTING']['caching']) && $_SESSION['SQ_PERFORMANCE_SETTING']['caching'] === FALSE) return FALSE;
-
+		if(defined('SQ_IN_PERFORMANCE_TIMING') && isset($_SESSION['SQ_PERFORMANCE_SETTING']['caching'])) {
+		    if($_SESSION['SQ_PERFORMANCE_SETTING']['caching'] === 'Off') return FALSE;
+		}
 		// check if the current URL is excluded
 		$current_url = current_url(FALSE, TRUE);
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
@@ -557,6 +557,7 @@ class Cache_Manager extends Asset
 		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {
 			return FALSE;
 		}
+		if(defined('SQ_IN_PERFORMANCE_TIMING')) return FALSE;
 
 		// check if the current URL is excluded
 		$current_url = current_url(FALSE, TRUE);
