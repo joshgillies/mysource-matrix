@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.1.2.10 2011/08/19 03:19:32 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.1.2.11 2011/08/30 03:00:20 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.10 $
+* @version $Revision: 1.1.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1394,7 +1394,7 @@ class Js_Api_Enhanced_Function_List
 		* @param object		options       JSON string of options
 		* { 
 		*      link_info:		json		json object containing link info as 
-		*									per removeLink() function of thuis API
+		*									per removeLink() function of this API
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -1912,7 +1912,7 @@ class Js_Api_Enhanced_Function_List
 		* { 
 		*      asset_id:		string/int	Id of the asset to set webpaths for
 		*      paths:			array		new web paths to be assigned to asset
-		*      auto_remap:		boolean		if we auto remaping(default to TRUE)
+		*      auto_remap:		boolean		if we are auto remaping(default to TRUE)
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -1962,7 +1962,7 @@ class Js_Api_Enhanced_Function_List
 			?>
 
 		/**
-		* This function will tell us if we have a runnig workflow on the passed assetid
+		* This function will tell us if we have a running workflow on the passed assetid
 		*
 		* @param object		options       JSON string of options
 		* { 
@@ -2225,7 +2225,7 @@ class Js_Api_Enhanced_Function_List
 		*      new_parent		string/int	assetid of the parent to clone under
 		*      clone_num		int			number of clones to create under new parent (default is 1)
 		*      new_position		int			position to place the newly cloned asset at (default at the bottom)
-		*      link_type		string		type of links we want to create for cloned asset(default is SQ_LINK_TYPE_1)
+		*      link_type		string		type of links we want to create for cloned asset (default is SQ_LINK_TYPE_1)
 		*									Valid Values - SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3
 		*      link_value		string		the value of new link we want (default '')
 		*      dataCallback:	function	Custom callback function
@@ -2277,7 +2277,7 @@ class Js_Api_Enhanced_Function_List
 			?>
 
 		/**
-		* 
+		*
 		* gets the content (with or without paint layout) and check for the difference
 		*
 		* @param object		options       JSON string of options
