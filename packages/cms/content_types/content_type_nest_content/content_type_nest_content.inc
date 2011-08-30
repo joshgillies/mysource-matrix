@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.31 2011/07/19 12:04:09 ata Exp $
+* $Id: content_type_nest_content.inc,v 1.32 2011/08/30 07:15:38 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,17 +134,20 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	public function linksUpdated()
 	{
-		// this function is called, which mean the asset we are
-		// nesting is modified (deleted) update our content file
-		$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bodycopy_div', TRUE));
-		if (!empty($bodycopy_div_id)) {
-			$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id[0]);
-			$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
-			$all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-			foreach ($all_context as $context_id => $info) {
-				$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
-					$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
+		// Only generate the parent bodycopy content if the asset is not being cloned
+		if (!isset($this->_tmp['edit_fns'])) {
+			// this function is called, which mean the asset we are
+			// nesting is modified (deleted) update our content file
+			$bodycopy_div_id = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bodycopy_div', TRUE));
+			if (!empty($bodycopy_div_id)) {
+				$bodycopy_div = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_div_id[0]);
+				$bodycopy_div_edit_fns = $bodycopy_div->getEditFns();
+				$all_context = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+				foreach ($all_context as $context_id => $info) {
+					$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
+						$bodycopy_div_edit_fns->generateContentFile($bodycopy_div);
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				}
 			}
 		}
 
