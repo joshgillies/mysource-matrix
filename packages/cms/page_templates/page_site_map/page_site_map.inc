@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.42 2010/07/14 05:23:07 csmith Exp $
+* $Id: page_site_map.inc,v 1.43 2011/08/31 06:17:59 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -406,8 +406,8 @@ class Page_Site_Map extends Page
 		if (!is_null($format_type_code)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
 			$format = $display_formats[$format_type_code]['format'];
-			preg_match_all('/%(\w+)%/i', $format, $matches);
 
+			preg_match_all('/%([^%]*)%/i', $format, $matches);
 			foreach ($matches[1] as $key => $keyword) {
 				$rep = $asset->getKeywordReplacement($keyword);
 				$format = preg_replace('!' . preg_quote($matches[0][$key], '!') . '!', $rep, $format);
