@@ -10,9 +10,18 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permission_change.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
+* $Id: permission_change.php,v 1.5 2011/09/01 01:22:37 ewang Exp $
 *
 */
+
+echo 'This script is deprecated because it has memory issue when used on large amount of assets. Use system_apply_permission.php instead.'."\n";
+// ask for the root password for the system
+echo 'Are you sure you want to continue? (y/N): ';
+$force_denied = rtrim(fgets(STDIN, 4094));
+if (strtoupper($force_denied) != 'Y') {
+             exit;
+}
+
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
