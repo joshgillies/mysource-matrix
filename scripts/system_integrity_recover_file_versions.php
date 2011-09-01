@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.5 2010/07/06 01:48:26 mhaidar Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.6 2011/09/01 08:10:35 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -53,7 +53,7 @@ $assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($TREE_ID, 'file', FALSE);
 //if the tree root asset is file type, include it
 if ($TREE_ID != '1') {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($TREE_ID);
-	if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset->type(), 'file')) {
+	if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset->type(), 'file') || $asset instanceof Image_Variety) {
 		$assetids[$asset->id] = Array(0 => Array('type_code' => $asset->type())); //match with the return of the getChildren() method above
 	}
 }
@@ -62,14 +62,34 @@ $fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $error_count = 0;
 $error_fixed = 0;
 
+// add image varieties to check list
+$imageids = $assetids;
+foreach ($imageids as $assetid => $asset_info) {
+    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+    if($asset instanceof Image) {
+	$varieties = $asset->attr('varieties');
+	if(empty($varieties)) continue;
+	foreach($varieties['data'] as $id => $details) {
+	    $assetids[$asset->id.':'.$id] = $details;
+	}
+    }
+}
+
 //Check the file version integrity of each file
 foreach ($assetids as $assetid => $asset_info) {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-	$rep_file = $asset->data_path_suffix.'/'.$asset->name;
-	$real_file = $asset->data_path.'/'.$asset->name;
+	if($asset instanceof Image_Variety) {
+	    $file_name = $asset->attr('filename');
+	}
+	else {
+	    $file_name = $asset->name;
+	}
+	$rep_file = $asset->data_path_suffix.'/'.$file_name;
+	$real_file = $asset->data_path.'/'.$file_name;
 	
 	//get the current version info of the file stored in database
 	$db_info = $fv->_getFileInfoFromPath($rep_file);
+	
 	//if there is no current version in database, set it to 0 and fix it later
 	if (empty($db_info)) {
 		$db_info = Array('version' => 0);
@@ -77,13 +97,16 @@ foreach ($assetids as $assetid => $asset_info) {
 	
 	//get the version info stored in the FFV file (in .FFV folder in data/private/{data_path} folder)
 	$fs_info = _getFileInfoFromRealFile($fv, $real_file);
+
 	//if there is no version info in the file system, set it to 0 and fix it later
 	if (($fs_info == FUDGE_FV_NOT_CHECKED_OUT) || ($fs_info == FUDGE_FV_ERROR)) {
 		$fs_info = Array('version' => 0);
 	}
+
 	
 	//if the 2 previous versions are different, there is something wrong with this file asset => report and fix it (if required)
 	if ($db_info['version'] != $fs_info['version']) {
+
 		//report the problem
 		$file_id = isset($db_info['fileid'])? $db_info['fileid'] : $fs_info['fileid'];
 		echo "The versions of the file asset #{$asset->id} (fileid = $file_id, rep_path = $rep_file) are different. Database version: {$db_info['version']} - File system version {$fs_info['version']}\n";
@@ -167,6 +190,7 @@ if ($error_count > 0) {
 function _getFileInfoFromRealFile($file_versioning, $real_file)
 {
 	$ffv_dir = dirname($real_file).'/.FFV';
+	
 	if (!is_dir($ffv_dir)) return FUDGE_FV_NOT_CHECKED_OUT;
 
 	$ffv_file = $ffv_dir.'/'.basename($real_file);
