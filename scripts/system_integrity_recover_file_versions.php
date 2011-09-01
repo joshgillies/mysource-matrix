@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.5 2010/07/06 01:48:26 mhaidar Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.5.6.1 2011/09/01 08:11:21 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -53,7 +53,7 @@ $assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($TREE_ID, 'file', FALSE);
 //if the tree root asset is file type, include it
 if ($TREE_ID != '1') {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($TREE_ID);
-	if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset->type(), 'file')) {
+	if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset->type(), 'file') || $asset instanceof Image_Variety) {
 		$assetids[$asset->id] = Array(0 => Array('type_code' => $asset->type())); //match with the return of the getChildren() method above
 	}
 }
@@ -62,11 +62,31 @@ $fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $error_count = 0;
 $error_fixed = 0;
 
+// add image varieties to check list
+$imageids = $assetids;
+foreach ($imageids as $assetid => $asset_info) {
+    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+    if($asset instanceof Image) {
+	$varieties = $asset->attr('varieties');
+	if(empty($varieties)) continue;
+	foreach($varieties['data'] as $id => $details) {
+	    $assetids[$asset->id.':'.$id] = $details;
+	}
+    }
+}
+
 //Check the file version integrity of each file
 foreach ($assetids as $assetid => $asset_info) {
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-	$rep_file = $asset->data_path_suffix.'/'.$asset->name;
-	$real_file = $asset->data_path.'/'.$asset->name;
+	if($asset instanceof Image_Variety) {
+	    $file_name = $asset->attr('filename');
+	}
+	else {
+	    $file_name = $asset->name;
+	}
+	$rep_file = $asset->data_path_suffix.'/'.$file_name;
+	$real_file = $asset->data_path.'/'.$file_name;
+	
 	
 	//get the current version info of the file stored in database
 	$db_info = $fv->_getFileInfoFromPath($rep_file);
