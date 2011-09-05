@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.60 2009/04/14 00:59:24 ewang Exp $
+* $Id: cron_job.inc,v 1.60.10.1 2011/09/05 22:41:58 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -261,7 +261,11 @@ class Cron_Job extends Asset
 								while ($minutes % $interval != 0) {
 									$minutes++;
 								}
-								if ($minutes >= 60) $minutes = $minutes - $interval;
+								// we have removed an "if" block from here
+								// we need not worry about the minutes greater than 60
+								// PHP mktime() will take care if we pass minutes like
+								// 60 or greater, 11:60 and 12:00 OR 11:66 and 12:06 
+								// will give us same results as timestamp outta mktime
 								$fields[$field] = $minutes;
 								$when_str .= $fields[$field];
 							break;
@@ -285,7 +289,12 @@ class Cron_Job extends Asset
 					return FALSE;
 				}//end if
 
-				$value = $when_str;
+				// instead of using $when_str, convert back the date 
+				// from when_ts this will ensure us that the date if
+				// passed something like 11:64 to mktime will be
+				// converted back to 12:04 below
+				// for proper displaying on backend
+				$value = 'OO='.date('Y-m-d H:i', $when_ts);
 
 			}//end if
 
