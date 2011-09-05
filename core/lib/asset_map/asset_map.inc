@@ -10,11 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.301.2.1 2011/07/19 06:26:14 akarelia Exp $
+* $Id: asset_map.inc,v 1.301.2.2 2011/09/05 07:32:11 akarelia Exp $
 *
 */
 
-//require_once 'XML/Tree.php';
 
 /**
 * Asset Map
@@ -24,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.301.2.1 $
+* @version $Revision: 1.301.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1285,7 +1284,7 @@ class Asset_Map
 										'sort_order'	=> $link_data['sort_order'],
 										'url'			=> $link_asset->getURL(),
 										'path'			=> '',
-										'is_dependant'	=> $link_data['is_dependant'],
+										'is_dependant'	=> $link_data['is_dependant']
 									);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 					}//end foreach
@@ -1438,10 +1437,6 @@ class Asset_Map
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend())))
 			exit();
 			
-		if (!count((array)$input->children())) {
-			throw new Exception('Failed to get the assets due to an empty XML');
-		}
-
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
 		//$output = new XML_Tree();
