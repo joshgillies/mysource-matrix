@@ -161,6 +161,7 @@ Fixed Bug #5282: TO_CHAR on CLOB (Oracle DB) causing workflow escalation to fail
 Fixed Bug #5284: In PHP 5.3.1+, Details screen of Show If design area with User IP condition throws error.
 Fixed Bug #5289: Matrix licence statement not printed in HTML source code if EES design is used on the design file.
 Fixed Bug #5291: general.inc:mime_type_content() throwing undefined variable error. 
+Fixed Bug #5293: Nested Content in Cloned Assets.
 
 CMS
 
@@ -169,11 +170,13 @@ Fixed Bug #5283: Online Quiz alerts all questions unanswered when using Custom G
 
 Search
 
-Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer.  
+Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer. 
+Fixed Bug #5295: Deja Vu caching old metadata as Search Manager re-indexes old metadata.
 
 LDAP
 
-Fixed Bug #5248: LDAP users not being recognised as step of workflow.   
+Fixed Bug #5248: LDAP users not being recognised as step of workflow.  
+Fixed Bug #5296: LDAP Groups not expanding in Active Directory.
 
 Funnelback
 
