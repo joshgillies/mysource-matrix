@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.748.2.3 2011/07/25 01:31:30 mhaidar Exp $
+* $Id: asset.inc,v 1.748.2.4 2011/09/05 09:19:30 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.748.2.3 $
+* @version $Revision: 1.748.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2611,6 +2611,7 @@ class Asset extends MySource_Object
 			
 			// prepare the event data and fire trigger_event_status_changed
 			$event_data['old_status'] = $old_status;
+			$event_data['new_status'] = $new_status;
 			if (isset($this->_tmp['old_urls'])) {
 				$event_data['old_urls'] = $this->_tmp['old_urls'];
 			}
