@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.28 2011/04/04 00:43:56 akarelia Exp $
+* $Id: authentication_ldap.inc,v 1.29 2011/09/06 01:59:59 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -62,10 +62,16 @@ class Authentication_LDAP extends Authentication
 	function &authenticateUser($username, $password)
 	{
 		$user = NULL;
+		$bridge_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'ldap_bridge', TRUE);
 
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
-		foreach ($bridges as $bridgeid => $type_code) {
+		$bridges = Array();
+		if (!empty($bridge_links)) {
+			foreach($bridge_links as $bridge_info) {
+				$bridges[$bridge_info['sort_order']] = $bridge_info['minorid'];
+			}
+		}
 
+		foreach ($bridges as $sort_order => $bridgeid) {
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
@@ -137,9 +143,16 @@ class Authentication_LDAP extends Authentication
 	function &authenticateHttpUser($username)
 	{
 		$user = NULL;
+		$bridge_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'ldap_bridge', TRUE);
 
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
-		foreach ($bridges as $bridgeid => $type_code) {
+		$bridges = Array();
+		if (!empty($bridge_links)) {
+			foreach($bridge_links as $bridge_info) {
+				$bridges[$bridge_info['sort_order']] = $bridge_info['minorid'];
+			}
+		}
+
+		foreach ($bridges as $sort_order => $bridgeid) {
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
@@ -175,9 +188,16 @@ class Authentication_LDAP extends Authentication
 	function &locateUser($username)
 	{
 		$user = NULL;
+		$bridge_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'ldap_bridge', TRUE);
 
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
-		foreach ($bridges as $bridgeid => $type_code) {
+		$bridges = Array();
+		if (!empty($bridge_links)) {
+			foreach($bridge_links as $bridge_info) {
+				$bridges[$bridge_info['sort_order']] = $bridge_info['minorid'];
+			}
+		}
+
+		foreach ($bridges as $sort_order => $bridgeid) {
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
