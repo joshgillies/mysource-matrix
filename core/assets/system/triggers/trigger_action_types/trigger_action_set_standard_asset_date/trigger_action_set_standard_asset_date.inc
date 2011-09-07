@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_standard_asset_date.inc,v 1.2 2010/03/30 00:00:39 lwright Exp $
+* $Id: trigger_action_set_standard_asset_date.inc,v 1.3 2011/09/07 01:14:52 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,6 +164,16 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$date_field = $settings['date_field'];
+		$date_field_userid = $date_field.'_userid';
+		$changed_data = Array($date_field, $date_field_userid);
+
+		$state['asset']->$date_field = $when;
+		$state['asset']->$date_field_userid = $userid;
+		
+		$em->broadcastEvent($state['asset'], 'AssetUpdate', $changed_data);
+		
 		return Array(
 				'assetid'		=> $state['asset']->id,
 				'userid'		=> $userid,
