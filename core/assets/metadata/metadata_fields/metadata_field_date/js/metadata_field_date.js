@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.js,v 1.6 2010/09/09 07:10:26 akarelia Exp $
+* $Id: metadata_field_date.js,v 1.6.6.1 2011/09/07 00:14:49 mhaidar Exp $
 *
 */
 
@@ -27,44 +27,52 @@ function setInputsEnabled(parent, enabled)
 
 function handleMetadataDatetimeDefaultClick(defaultCheckbox, prefix, defaultDateTime, defaultKeyword)
 {
-	if (defaultDateTime != null) {
-		var dateComps = ['c', 'd', 'm', 'y', 'h', 'i', 's'];
-		if (defaultCheckbox.checked) {
-			if (defaultKeyword !== null) {
-				for (i in dateComps) {
-					var elt = document.getElementById(prefix+'_datetimevalue['+dateComps[i]+']');
-					if (elt !== null) {
-						elt.value = 1;
-						elt.disabled = true;
-					}
-				}
-				document.getElementById(prefix+'_repkeys').value = defaultKeyword;
-			} else {
-				for (i in dateComps) {
-					var elt = document.getElementById(prefix+'_datetimevalue['+dateComps[i]+']');
-					if (elt !== null) {
-						elt.value = defaultDateTime[dateComps[i]];
-						elt.disabled = true;
-					}
-				}
-				var repKeys = document.getElementById(prefix+'_repkeys');
-				if (repKeys) {
-					repKeys.value = '';
-				}
-			}
-		} else {
+	var dateComps = ['c', 'd', 'm', 'y', 'h', 'i', 's'];
+	if (defaultCheckbox.checked) {
+		if (defaultKeyword !== null) {
 			for (i in dateComps) {
-				var elt = document.getElementById(prefix+'_datetimevalue['+dateComps[i]+']');
+				var elt = document.getElementById(prefix+'_datetimevalue_'+dateComps[i]);
 				if (elt !== null) {
-					elt.disabled = false;
+					elt.selectedIndex = 0;
+					elt.disabled = true;
 				}
 			}
+			document.getElementById(prefix+'_repkeys').value = defaultKeyword;
+		} else if (defaultDateTime != null) {
+			for (i in dateComps) {
+				var elt = document.getElementById(prefix+'_datetimevalue_'+dateComps[i]);
+				if (elt !== null) {
+					elt.value = defaultDateTime[dateComps[i]];
+					elt.disabled = true;
+				}
+			}
+			var repKeys = document.getElementById(prefix+'_repkeys');
+			if (repKeys) {
+				repKeys.value = '';
+			}
 		}
+	} else {
+		for (i in dateComps) {
+			var elt = document.getElementById(prefix+'_datetimevalue_'+dateComps[i]);
+			if (elt !== null) {
+				elt.disabled = false;
+			}
+		}
+	}
 
-		elt = document.getElementById(prefix+'_repkeys');
-		if (elt !== null) {
-			elt.disabled = defaultCheckbox.checked;
-		}
+	elt = document.getElementById(prefix+'_repkeys');
+	if (elt !== null) {
+		elt.disabled = defaultCheckbox.checked;
+	}
+	
+	period = document.getElementById(prefix+'_period');
+	if (period !== null) {
+		period.disabled = defaultCheckbox.checked;
+	}
+	
+	duration = document.getElementById(prefix+'_duration');
+	if (duration !== null) {
+		duration.disabled = defaultCheckbox.checked;
 	}
 }
 
