@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.9 2010/11/05 05:49:11 mhaidar Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.9.4.1 2011/09/09 02:02:51 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -182,18 +182,8 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			while ($this->_isOpenTag($lines[$end_index]) && ($end_index > 0)) {
 				$end_index--;
 			}
-			//sometimes the lines don't begin with close tags but rather open tags 
-			//and once again we don't want these tags nested in <ins> or <del> tags.
-			if ($begin_index == 0 && $this->_isOpenTag($lines[$begin_index])){
-				$lines[$begin_index] .= $prefix;
-			} else {
-				$lines[$begin_index] = $prefix.$lines[$begin_index];
-			}
-			if ($end_index == (count($lines) - 1) && $this->_isCloseTag($lines[$end_index])){
-				$lines[$end_index] = $suffix.$lines[$end_index];
-			} else {
-				$lines[$end_index] .= $suffix;
-			}
+			$lines[$begin_index] = $prefix.$lines[$begin_index];
+			$lines[$end_index] .= $suffix;
 			
 			return $this->_lines($lines, ' ', FALSE);
 		}
@@ -413,12 +403,10 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 				ins, ins *, ins * * {
 					background: #aaffaa;
 					text-decoration: none;
-					border: 1px solid #88cc88;
 				}
 				del, del *, del * * {
 					background: #ffaaaa;
 					text-decoration: line-through;
-					border: 1px solid #cc8888;
 				}
 			</style>
 		';
