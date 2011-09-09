@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.126 2011/08/03 06:20:19 cupreti Exp $
+* $Id: site.inc,v 1.127 2011/09/09 03:51:57 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -439,6 +439,7 @@ class Site extends Folder
 
 		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
 		$lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
+		$our_edit_layouts = $this->getLookupValues(FALSE, 'layout::');
 
 		// remove all normal and override lookup values for this site
 		$sql = 'DELETE FROM
@@ -522,6 +523,17 @@ class Site extends Folder
 		}
 		unset($link);
 		unset($our_layout_links);
+		
+		// edit layouts applied to the asset
+		$edit_layouts = Array();
+		foreach($our_edit_layouts as $layout_url => $layouts) {
+			foreach($layouts as $name => $layout_data) {
+				if (!isset($edit_layouts[$name])) {
+					$edit_layouts[$name] = $layout_data['value'];
+				}//end if
+			}//end foreach
+		}//end foreach
+		unset($our_edit_layouts);		
 
 		$urls = $this->getSiteURLs();
 		$current_urls = Array();
@@ -544,6 +556,13 @@ class Site extends Folder
 			if (!isset($lookup_values[$urls[$urlid]['url'].'/'])) {
 				// insert an entry so override paint layout values are also checked even if we don't have an override design set
 				$lookup_values[$urls[$urlid]['url'].'/'] = '';
+			}
+			
+			// merge in edit layout lookup values
+			foreach($edit_layouts as $layout_name => $value) {
+				if (!isset($lookup_values[$urls[$urlid]['url']][$layout_name])) {
+					$lookup_values[$urls[$urlid]['url']][$layout_name]['value'] = $value;
+				}
 			}
 
 			$sql = 'INSERT INTO
