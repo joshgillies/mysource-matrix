@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_design.inc,v 1.1 2011/08/04 04:12:42 ewang Exp $
+* $Id: hipo_job_regenerate_design.inc,v 1.2 2011/09/12 03:27:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -186,12 +186,12 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 		$all_customisations = Array();
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$type = $asset->type();
-		
+
 		// first of first, generate parse file for itself
-		if($type === 'design') {
+		if($type === 'design' || $type === 'design_css') {
 		    $asset->generateDesignFile(FALSE);
 		}
-		else if ($type === 'design_customisation') {
+		else if ($type === 'design_customisation' || $type === 'design_css_customisation') {
 		    if(empty ($parentid)) {
 			trigger_error('To regenerate a design customisation, parentid is required', E_USER_WARNING);
 			return FALSE;
@@ -265,6 +265,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	*/
 	private function _getCustomisations ($designid) {
 	    $customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($designid, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
+	    $customisation_links = array_merge($customisation_links, $GLOBALS['SQ_SYSTEM']->am->getLinks($designid, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation'));
 	    if (empty($customisation_links)) return Array();
 	    
 	    $children_customisations = Array();
