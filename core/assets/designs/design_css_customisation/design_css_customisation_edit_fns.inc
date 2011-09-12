@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.20.18.1 2011/08/02 06:21:55 mhaidar Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.20.18.2 2011/09/12 03:31:27 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20.18.1 $
+* @version $Revision: 1.20.18.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,6 +105,16 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// regenerate the design_file.php and css_file.php here (because the processBackend function
+		// doesn't do it automatically any more
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(
+		    'assetid'	=> $asset->id,
+		    'parentid'	=> $parent_design->id,
+		);
+		$hh->queueHipo('hipo_job_regenerate_design', $vars);
+		
 		return TRUE;
 
 	}//end processCustomisedDesignAreas()
