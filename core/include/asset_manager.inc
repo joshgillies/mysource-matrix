@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.851 2011/08/01 03:36:41 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.852 2011/09/12 00:07:45 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.851 $
+* @version $Revision: 1.852 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4765,6 +4765,7 @@ class Asset_Manager extends MySource_Object
 		// Use Master DB since we are going to change stuff
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
+		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
 
 		// Can't link to the new parent if it is only in the trash
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
@@ -5041,17 +5042,24 @@ class Asset_Manager extends MySource_Object
 
 				try {
 					$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
-					$query = MatrixDAL::preparePdoQuery($sql);
+
+					$bind_vars = Array();
 					if ($existing_treeid != '-') {
-						MatrixDAL::bindValueToPdo($query, 'existing_treeid_wildcard', $existing_treeid.'%');
-						if (!empty($existing_treeid)) {
-							MatrixDAL::bindValueToPdo($query, 'existing_treeid', $existing_treeid);
+						if (!$is_oci) {
+							$sql = str_replace(':existing_treeid_wildcard', MatrixDAL::quote($existing_treeid.'%'), $sql);
+						} else {
+							$bind_vars['existing_treeid_wildcard'] = $existing_treeid.'%';
 						}
-					}
-					if ($existing_treeid != '-') {
-						MatrixDAL::bindValueToPdo($query, 'length', strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+						if (!empty($existing_treeid)) {
+							$bind_vars['existing_treeid'] = $existing_treeid;
+						}
+						$bind_vars['length'] = strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE;
 					} else {
-						MatrixDAL::bindValueToPdo($query, 'length', SQ_CONF_ASSET_TREE_SIZE);
+						$bind_vars['length'] = SQ_CONF_ASSET_TREE_SIZE;
+					}
+					$query = MatrixDAL::preparePdoQuery($sql);
+					foreach ($bind_vars as $bind_name => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
 					}
 					$last_treeid = MatrixDAL::executePdoOne($query);
 					//if (!empty($last_treeid)) {
@@ -5170,13 +5178,19 @@ class Asset_Manager extends MySource_Object
 
 				try {
 					$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
+				
+					$bind_vars = Array();
+					if (!$is_oci) {
+						$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
+					} else {
+						$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+					}
+					$bind_vars['treeid'] = $treeid.$free_treeid;
 					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'treeid_wildcard', $treeid.$free_treeid.':%');
-					MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.$free_treeid);
-					$found_treeid = MatrixDAL::executePdoOne($query);
-					//if (!empty($found_treeid)) {
-						//$found_treeid = stream_get_contents($found_treeid);
-					//}
+					foreach ($bind_vars as $bind_name => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
+					}
+ 					$found_treeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -5209,14 +5223,21 @@ class Asset_Manager extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					try {
+						$bind_vars = Array();
+						if (!$is_oci) {
+							$sql = str_replace(':treeid_wildcard_1', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
+							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
+						} else {
+							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+							$bind_vars['treeid_wildcard_1'] = $treeid.$free_treeid.':%';
+						}
+						$bind_vars['linkid'] = -$linkid;
+						$bind_vars['treeid'] = $treeid.$free_treeid;
 						$query = MatrixDAL::preparePdoQuery($sql);
-						// The negative link ID is correct; we will replace with
-						// a positive version if we've drawn a winning tree ID
-						MatrixDAL::bindValueToPdo($query, 'linkid', -$linkid);
-						MatrixDAL::bindValueToPdo($query, 'treeid_wildcard', $treeid.$free_treeid.':%');
-						MatrixDAL::bindValueToPdo($query, 'treeid_wildcard_1', $treeid.$free_treeid.':%');
-						MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.$free_treeid);
-						$aff_rows = MatrixDAL::execPdoQuery($query);
+						foreach ($bind_vars as $bind_name => $bind_value) {
+							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
+						}
+ 						$aff_rows = MatrixDAL::execPdoQuery($query);
 					} catch (Exception $e) {
 						throw new Exception('Unable to attempt to win tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 					}
