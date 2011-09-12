@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.17 2010/12/22 05:49:56 mhaidar Exp $
+* $Id: design_css_customisation.inc,v 1.17.4.1 2011/09/12 03:31:27 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -280,7 +280,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return boolean
 	* @access protected
 	*/
-	public function updateFromParent(Design_CSS $parent)
+	public function updateFromParent(Design_CSS $parent, $update_children = TRUE)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -336,7 +336,8 @@ class Design_Css_Customisation extends Design_Css
 
 		//// AND FINALLY, regenerate our design file and update any of our customisations ////
 		$this->generateDesignFile(FALSE); // not recursive because update customisations takes care of that
-		$this->updateCustomisations();
+		if($update_children)
+		    $this->updateCustomisations();
 
 		return TRUE;
 

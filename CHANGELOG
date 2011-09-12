@@ -108,11 +108,11 @@ An example usage of this operation is as follows (enhanced JS API):
 JS API: New Function to Compare the Content of Assets [ Feature Request #5285 ]
 -----------------------------------------------------
 
-A new showDifferences() operation has been added to the JavaScript API to compare the content of two different assets. This works in a similar manner to the Preview screen's Show Diff tool for Safe Edit assets and highlights the differences between two specified assets.
+A new showDifference() operation has been added to the JavaScript API to compare the content of two different assets. This works in a similar manner to the Preview screen's Show Diff tool for Safe Edit assets and highlights the differences between two specified assets.
 
 This operation also allows you to apply paint layouts to the content to be compare. It is enabled on the Details screen of the JS API on a new Show content difference field.
 
-The showDifferences() operation takes the following parameters:
+The showDifference() operation takes the following parameters:
 
     assetid_1: the asset ID of the first asset to compare.
     assetid_2: the asset ID of the second asset to compare.
@@ -122,7 +122,7 @@ The showDifferences() operation takes the following parameters:
 
 An example usage of this operation is as follows (enhanced JS API):   
 
-  js_api.showDifferences({assetid_1 : 100, assetid_2 : 200, paint_layout_1 : 340, paint_layout_2 : 350, dataCallback : customDataCallbackFunc}) 
+  js_api.showDifference({assetid_1 : 100, assetid_2 : 200, paint_layout_1 : 340, paint_layout_2 : 350, dataCallback : customDataCallbackFunc}) 
 
 Performance Mode: View as Public User [ Feature Request #5297 ]
 -----------------------------------------------------
@@ -161,6 +161,7 @@ Fixed Bug #5282: TO_CHAR on CLOB (Oracle DB) causing workflow escalation to fail
 Fixed Bug #5284: In PHP 5.3.1+, Details screen of Show If design area with User IP condition throws error.
 Fixed Bug #5289: Matrix licence statement not printed in HTML source code if EES design is used on the design file.
 Fixed Bug #5291: general.inc:mime_type_content() throwing undefined variable error. 
+Fixed Bug #5293: Nested Content in Cloned Assets.
 
 CMS
 
@@ -169,11 +170,13 @@ Fixed Bug #5283: Online Quiz alerts all questions unanswered when using Custom G
 
 Search
 
-Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer.  
+Fixed Bug #5279: Search Page form's submit onClick action not executing in Internet Explorer. 
+Fixed Bug #5295: Deja Vu caching old metadata as Search Manager re-indexes old metadata.
 
 LDAP
 
-Fixed Bug #5248: LDAP users not being recognised as step of workflow.   
+Fixed Bug #5248: LDAP users not being recognised as step of workflow.  
+Fixed Bug #5296: LDAP Groups not expanding in Active Directory.
 
 Funnelback
 
