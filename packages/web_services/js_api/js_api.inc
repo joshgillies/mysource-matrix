@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.69.2.9 2011/08/09 03:18:41 akarelia Exp $
+* $Id: js_api.inc,v 1.69.2.10 2011/09/13 05:14:15 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.69.2.9 $
+* @version $Revision: 1.69.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2871,7 +2871,7 @@ function success(ajaxRequest, dataCallback)
 {
 	if (ajaxRequest.readyState == 4) {
 		if (ajaxRequest.status == 200) {
-			if (ajaxRequest.responseText !== '' || ajaxRequest.responseText !== 'undefined' || ajaxRequest.responseText !== null) {
+			if (ajaxRequest.responseText !== '' && ajaxRequest.responseText !== 'undefined' && ajaxRequest.responseText !== null) {
 				var response = jsonToObj(ajaxRequest.responseText);
 				// Custom callback
 				dataCallback(response);
