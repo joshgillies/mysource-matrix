@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.39 2011/06/21 06:09:18 akarelia Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.40 2011/09/13 07:50:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -269,8 +269,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				?>
 				<td class="sq-backend-table-header">
-					<?php echo translate('never_delete'); ?>
+					<?php echo translate('never_delete');
+					
+					if ($write_access) {						
+						check_box($prefix.'never_delete_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_never_delete_remap', this.checked);");						
+					}
+				?>					
 				</td>
+				
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
