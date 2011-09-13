@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.1.2.10 2011/08/19 03:12:48 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.1.2.11 2011/09/13 05:12:00 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.10 $
+* @version $Revision: 1.1.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -128,7 +128,7 @@ function success(ajaxRequest, dataCallback)
 {
 	if (ajaxRequest.readyState == 4) {
 		if (ajaxRequest.status == 200) {
-			if (ajaxRequest.responseText !== '' || ajaxRequest.responseText !== 'undefined' || ajaxRequest.responseText !== null) {
+			if (ajaxRequest.responseText !== '' && ajaxRequest.responseText !== 'undefined' && ajaxRequest.responseText !== null) {
 				var response = jsonToObj(ajaxRequest.responseText);
 				// Custom callback
 				dataCallback(response);
