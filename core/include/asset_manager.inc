@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.844.2.6 2011/09/12 00:08:14 ewang Exp $
+* $Id: asset_manager.inc,v 1.844.2.7 2011/09/16 02:03:33 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.844.2.6 $
+* @version $Revision: 1.844.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6844,6 +6844,8 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$trashid = $this->getSystemAssetid('trash_folder');
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() | SQ_SECURITY_LINK_INTEGRITY);
 		foreach ($parent_links as $link_details) {
 			// don't delete the link to the trash, we don't want to end up with an orphan asset
 			if ($trashid == $link_details['majorid']) continue;
@@ -6859,6 +6861,8 @@ class Asset_Manager extends MySource_Object
 				return FALSE;
 			}
 		}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		
 		foreach ($locked as $aid) {
 			$this->releaseLock($aid, 'links');
 		}
