@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.201 2011/05/24 06:37:47 mhaidar Exp $
+* $Id: backend.inc,v 1.202 2011/09/19 07:07:49 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -946,6 +946,8 @@ class Backend extends MySource_Object
 							<?php
 								echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
 								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) form.submit();"');
+
+								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" src="http://whiskey.labs.squiz.net.au/cupreti_dev/__lib/web/images/icons/header/search.png" onClick="form.submit();">';
 							?>
 							</td>
 							<td nowrap>
