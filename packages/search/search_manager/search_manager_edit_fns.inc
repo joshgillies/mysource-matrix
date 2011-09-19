@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.26 2010/10/28 05:26:06 cupreti Exp $
+* $Id: search_manager_edit_fns.inc,v 1.26.6.1 2011/09/19 07:15:15 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.26.6.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1076,6 +1076,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _processMetadataWeights($prefix, &$weights)
 	{
+		//Bug #5324: don't process metadata when hitting the GO button.
+		$tree_type_go = array_get_index($_POST, $prefix.'_selected_tree_type_go', FALSE);
+		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
+		if ($tree_type_go && $tree_type == 'metadata') return;
+        
 		// information about already added metadata assets
 		$metadata_assets = array_get_index($_POST, $prefix.'_metadata_assets', Array());
 
