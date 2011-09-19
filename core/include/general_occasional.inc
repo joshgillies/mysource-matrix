@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.97 2010/09/01 06:44:51 akarelia Exp $
+* $Id: general_occasional.inc,v 1.98 2011/09/19 03:55:46 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 
@@ -624,8 +624,11 @@ function get_proxy_info_for_url($page_url)
 	$match = FALSE;
 
 	foreach ($alternatives as $alternative) {
-		$pattern_url = $alternative['pattern_url'];
+		// if the $alternative was just added it will  not have any index defined so  no point going further
+		// and throw the PHP notices see bug #5326 trying to add an Alternative Proxy spits out PHP warnings
+		if (empty($alternative)) continue;
 
+		$pattern_url = $alternative['pattern_url'];
 		switch ($alternative['pattern_type']) {
 			case 'equals':
 				$match = ($page_url == $pattern_url);

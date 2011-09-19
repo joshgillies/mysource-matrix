@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.12 2009/05/03 23:15:24 lwright Exp $
+* $Id: proxy_authentication_config.inc,v 1.13 2011/09/19 03:55:46 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -327,7 +327,7 @@ class Proxy_Authentication_Config extends Config
 						echo ' ';
 						echo combo_box($class.'_alternative[pattern_type]['.$proxy_key.']', $pattern_type_options, FALSE, array_get_index($proxy_details, 'pattern_type', 'equals'));
 						echo ' ';
-						text_box($class.'_alternative[pattern_url]['.$proxy_key.']', $proxy_details['pattern_url'], 30);
+						text_box($class.'_alternative[pattern_url]['.$proxy_key.']', array_get_index($proxy_details, 'pattern_url', ''), 30);
 					} else {
 						echo translate('comparison'.(array_get_index($proxy_details, 'pattern_not', '0') ? '_not_' : '_').array_get_index($proxy_details, 'pattern_type', 'equals'), 'URL', '"'.array_get_index($proxy_details, 'pattern_url', '').'"');
 					}
@@ -405,7 +405,13 @@ class Proxy_Authentication_Config extends Config
 
 		$add = array_get_index($alt_post, 'add', 0);
 		if ($add) {
-			$new_key = max(array_keys($all_proxies)) + 1;
+			// stop Matrix from throwing PHP notice if the 
+			// $all_proxies array is empty
+			if (!empty($all_proxies)) {
+				$new_key = max(array_keys($all_proxies)) + 1;
+			} else {
+				$new_key = 1;
+			}
 			$all_proxies[$new_key] = Array();
 		}
 
