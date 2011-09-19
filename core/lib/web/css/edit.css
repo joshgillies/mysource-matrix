@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.88 2010/05/05 04:27:06 lwright Exp $
+* $Id: edit.css,v 1.89 2011/09/19 07:06:11 cupreti Exp $
 *
 */
 
@@ -230,12 +230,21 @@ td.sq-backend-commit {
 
 .sq-backend-header-search-box {
 	background-color:	#FFFFFF;
-	border:				1px #000000 solid;
+	vertical-align:		middle;
+	border:				0px;
+	height:				16px;
 	padding-left:		3px;
-	padding-right:		3px;
-	margin-right:		5px;
+	padding-right:		0px;
 }
 
+.sq-backend-header-search-button {
+	background-color:	#FFFFFF;
+	vertical-align:		middle;
+	border:				0px;
+	width:				16px;
+	height:				16px;
+	margin-right:		6px;
+}
 
 
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
