@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.248 2011/09/16 05:30:33 mhaidar Exp $
+* $Id: search_manager.inc,v 1.249 2011/09/20 01:03:27 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1758,9 +1758,9 @@ class Search_Manager extends Asset
 								// check metadata weightings in asset weight customisation
 								0 => Array('function_name' => 'Asset'		, 'params' => Array($assetid)),
 								// check metadata weightings in asset type of asset tree customisation
-								1 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE)),
+								1 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE, FALSE, TRUE, FALSE)),
 								// check generic metadata weightings of asset tree customisation
-								2 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE, FALSE, FALSE)),
+								2 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE, FALSE, FALSE, FALSE)),
 								// check metadata weightings in asset type of global weight customisation
 								3 => Array('function_name' => 'AssetType'	, 'params' => Array($type_code)),
 								// check generic metadata weightings of global weight customisation
@@ -1892,30 +1892,37 @@ class Search_Manager extends Asset
 	* Returns the Asset Tree weightings for the specified assetid, or all
 	* weightings registered for asset trees if the specified assetid is null
 	*
-	* @param string		$assetid			the assetid of the wanted tree weightings
-	*										or null for all asset tree weightings
-	* @param boolean	$strict_assetid		if TRUE only weightings that have been
-	*										customised explicitly using the specified assetid
-	*										will be returned, otherwise the closest weighting
-	*										customisation will be returned
-	* @param boolean	$strict_type_code	if TRUE only weightings matching the asset type of the
-	*										specified assetid will be returned
-	* @param boolean	$type_weights_only	Applies only if $assetid is not NULL and $strict_assetid is FALSE.
-	* 										if TRUE only type weights data according to $strict_type_code is returned.
-	* 										if FALSE $strict_type_code is ineffective & both type_weights & metadata_weights data is returned.
-	* 										
+	* @param string		$assetid					the assetid of the wanted tree weightings
+	*												or null for all asset tree weightings
+	* @param boolean	$strict_assetid				if TRUE only weightings that have been
+	*												customised explicitly using the specified assetid
+	*												will be returned, otherwise the closest weighting
+	*												customisation will be returned
+	* @param boolean	$strict_type_code			if TRUE only weightings matching the asset type of the
+	*												specified assetid will be returned
+	* @param boolean	$type_weights_only			Applies only if $assetid is not NULL and $strict_assetid is FALSE.
+	* 												if TRUE only type weights data according to $strict_type_code is returned.
+	* 												if FALSE $strict_type_code is ineffective & both type_weights & metadata_weights data is returned.
+	* @param boolean	$include_global_weights		if TRUE, the asset tree weights will include the root folder weight which defines global weights.										
 	*
 	* @return array
 	* @access public
 	* @see saveTypeWeightings()
 	* @see getMetadataWeighting()
 	*/
-	function getAssetTreeWeightings($assetid=NULL, $strict_assetid=TRUE, $strict_type_code=FALSE, $type_weights_only=TRUE)
+	function getAssetTreeWeightings($assetid=NULL, $strict_assetid=TRUE, $strict_type_code=FALSE, $type_weights_only=TRUE, $include_global_weights=TRUE)
 	{
 		$weightings_file = $this->data_path.'/asset_tree_weightings.inc';
 		if (file_exists($weightings_file)) {
 			require $weightings_file;
-
+			
+			if (!$include_global_weights) {
+				$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+				if (isset($asset_tree_weightings[$root_folder_assetid])) {
+					unset($asset_tree_weightings[$root_folder_assetid]);
+				}
+			}
+			
 			if (!is_null($assetid)) {
 
 				if ($strict_assetid) {
@@ -1976,9 +1983,8 @@ class Search_Manager extends Asset
 							return $asset_tree_weightings[$assetid];
 						}
 						
-						$customised_assetids = array_keys($asset_tree_weightings);
 						foreach (array_keys($parents) as $parentid) {
-							if (in_array($parentid, $customised_assetids)) {
+                            if (isset($asset_tree_weightings[$parentid])) {
 								return $asset_tree_weightings[$parentid];
 							}//end if
 						}//end foreach
