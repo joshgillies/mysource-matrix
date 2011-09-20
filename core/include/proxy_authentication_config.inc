@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.13 2011/09/19 03:55:46 akarelia Exp $
+* $Id: proxy_authentication_config.inc,v 1.14 2011/09/20 03:30:05 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -293,8 +293,9 @@ class Proxy_Authentication_Config extends Config
 				$o->openField('Hostname');
 					if ($write_access) {
 						echo text_box($class.'_alternative[proxy_url]['.$proxy_key.']', array_get_index($proxy_details, 'proxy_url', ''), 30);
+						$o->note(translate('proxy_leave_blank'));
 					} else {
-						echo array_get_index($proxy_details, 'proxy_url', '');
+						echo (array_get_index($proxy_details, 'proxy_url', '') === '') ? '<i>' . translate('proxy_none_set') . '</i>' : array_get_index($proxy_details, 'proxy_url', '');
 					}
 				$o->closeField();
 				$o->openField('Port');
