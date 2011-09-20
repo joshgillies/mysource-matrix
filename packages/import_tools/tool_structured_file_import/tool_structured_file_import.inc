@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.15 2010/05/05 07:12:57 ewang Exp $
+* $Id: tool_structured_file_import.inc,v 1.16 2011/09/20 03:37:03 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -79,15 +79,6 @@ class Tool_Structured_File_Import extends Tool
 			// Some variable initialisation
 			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 			$o->openSection($tool_info['name']);
-
-			$o->closeSection();
-
-			$o->openSection(translate('import_tools_new_html_file'));
-
-			$o->closeSection();
-
-
-			$o->openSection(translate('import_tools_available_files'));
 
 				$compatible_types = $itm->attr('valid_file_types');
 				$o->openField(translate('import_tools_import_dir'));
