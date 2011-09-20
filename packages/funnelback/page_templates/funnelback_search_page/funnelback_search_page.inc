@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.38 2011/02/16 23:42:02 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.39 2011/09/20 03:55:55 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2243,18 +2243,10 @@ class Funnelback_Search_Page extends Listing_Engine
 		$url = $Fetch_URL->getURL();
 
 		// Get Proxy details for the url
-		include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
-		if (SQ_PA_ENABLED) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$proxy_details = get_proxy_info_for_url($url);
-			$request_parameters['proxy_host'] = $proxy_details['host'];
-			$request_parameters['proxy_port'] = $proxy_details['port'];
-			$request_parameters['proxy_user'] = $proxy_details['user'];
-			$request_parameters['proxy_pass'] = $proxy_details['password'];
-		}
+		addProxyInfo($request_parameters, $default_headers, $url);
 
 		$request_parameters['timeout'] = 5;
-		$HTTP_Client = new HTTP_Client($request_parameters);
+		$HTTP_Client = new HTTP_Client($request_parameters, $default_headers);
 		$HTTP_Client->setMaxRedirects(2);
 
 		$result = $HTTP_Client->get($url);
