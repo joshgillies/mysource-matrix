@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.52 2011/06/30 04:23:15 ewang Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.53 2011/09/20 05:57:31 mhaidar Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -395,10 +395,42 @@ class Paint_Layout_Bodycopy extends Bodycopy
 						$ret['asset_contents'] = ob_get_contents();
 					ob_end_clean();
 				}
+			} else if (substr($required_keyword, 0, 21) == 'asset_contents_paint_') {
+			    $paint_layout_name = substr($required_keyword, 21);
+			
+			    // If a paint layout name has been specified, change that to an id
+			    if (assert_valid_assetid($paint_layout_name, '', TRUE, FALSE)) {
+			        $paint_layout_id = $paint_layout_name;
+			    } else {
+			        $paint_layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getURL()), 'paint_layout::user::'.$paint_layout_name);
+			    }
+			
+			    if (assert_valid_assetid($paint_layout_id, 'Invalid paint layout specified in bodycopy #' . $this->id . ': ' . $paint_layout_name, FALSE, FALSE)) {
+			        $paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_id, 'paint_layout_page');
+			        if (!empty($paint_layout)) {
+			            // A safeguard to mitigate users from easily creating a loop: check that the
+			            // paint layout we're painting with is not the current one. If it is, just print
+			            // the contents without painting again.
+			            $type_formats = $paint_layout->getFormats();
+			            if (!isset($type_formats[$this->id])) {
+			                ob_start();
+			                $contexted_asset->printBodyWithPaintLayout($paint_layout_id);
+			                $ret[$required_keyword] = ob_get_contents();
+			                ob_end_clean();
+			            } else {
+			                ob_start();
+			                $contexted_asset->printBody();
+			                $ret[$required_keyword] = ob_get_contents();
+			                ob_end_clean();
+			            }
+			        }
+			    }
 			} else {
 				$ret[$required_keyword] = $contexted_asset->getKeywordReplacement($required_keyword);
 			}//end else
 
+
+					
 			if ($contextid !== NULL) {
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
