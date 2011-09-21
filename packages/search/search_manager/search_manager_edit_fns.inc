@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.26.4.2 2011/09/21 01:05:40 mhaidar Exp $
+* $Id: search_manager_edit_fns.inc,v 1.26.4.3 2011/09/21 01:49:05 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26.4.2 $ - 1.0
+* @version $Revision: 1.26.4.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -910,7 +910,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$post_field = $this->_getPostField($screen);
 
 		// if they have clicked on a current customisation, dont process
-		if (isset($_POST[$prefix.'_customise_'.$post_field]) && !empty($_POST[$prefix.'_customise_'.$post_field])) {
+		if (!empty($_POST[$prefix.'_customise_type_code']) || !empty($_POST[$prefix.'_customise_assetid'])) {
 			return FALSE;
 		}
 
