@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.26.6.1 2011/09/19 07:15:15 mhaidar Exp $
+* $Id: search_manager_edit_fns.inc,v 1.26.6.2 2011/09/21 01:05:28 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26.6.1 $ - 1.0
+* @version $Revision: 1.26.6.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -137,6 +137,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processAssetTreeWeights(&$asset, &$o, $prefix)
 	{
+        if ($this->_usingGoButton($prefix)) return FALSE;
 		return $this->_processWeights($asset, $o, $prefix, 'asset_tree');
 
 	}//end processAssetTreeWeights()
@@ -215,6 +216,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processGlobalWeights(&$asset, &$o, $prefix)
 	{
+        if ($this->_usingGoButton($prefix)) return FALSE;
 		return $this->_processWeights($asset, $o, $prefix, 'asset_tree');
 
 	}//end processGlobalWeights()
@@ -1075,12 +1077,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @access private
 	*/
 	function _processMetadataWeights($prefix, &$weights)
-	{
-		//Bug #5324: don't process metadata when hitting the GO button.
-		$tree_type_go = array_get_index($_POST, $prefix.'_selected_tree_type_go', FALSE);
-		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
-		if ($tree_type_go && $tree_type == 'metadata') return;
-        
+	{   
 		// information about already added metadata assets
 		$metadata_assets = array_get_index($_POST, $prefix.'_metadata_assets', Array());
 
@@ -1358,6 +1355,21 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	}//end indexingOn()
 
+
+    /**
+	 * Determine whether we are using the interface "Go" buttons.
+	 * 
+	 * @param string $prefix
+	 */
+	private function _usingGoButton($prefix)
+	{
+		$tree_type_go = array_get_index($_POST, $prefix.'_selected_tree_type_go', FALSE);
+		$type_code_go = array_get_index($_POST, $prefix.'_selected_type_code_go', FALSE);
+		
+		return ($tree_type_go !== FALSE || $type_code_go !== FALSE);
+	
+	}// end _usingGoButton()
+    
 
 }//end class
 ?>
