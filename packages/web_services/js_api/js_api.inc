@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.69.2.10 2011/09/13 05:14:15 cupreti Exp $
+* $Id: js_api.inc,v 1.69.2.11 2011/09/22 01:34:51 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.69.2.10 $
+* @version $Revision: 1.69.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2067,7 +2067,12 @@ class JS_Api extends Page
 				$attributes = $am->getAssetTypeAttributes($asset->type());
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
-					$asset->setAttrValue($attr_name[$i], $attr_val[$i]);
+					$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i]);
+					if(!$attr_set) {
+						$attr_type = $attributes[$attr_name[$i]]['type'];
+						$data[] = 'Attribute "'.$attr_name[$i].'"(of type "'.$attr_type.'") could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+						continue;
+					}
 				} else if (!array_key_exists($attr_name[$i], $attributes)){
 					$data[] = 'Attribute "'.$attr_name[$i].'" does not exist for Asset "'.$asset->name.'" (#'.$assetid.')';
 					continue;
@@ -2080,6 +2085,7 @@ class JS_Api extends Page
 			}//end for
 			$am->releaseLock($assetid, 'attributes');
 			$am->forgetAsset($asset);
+
 			return $data;
 		} else {
 			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value');
