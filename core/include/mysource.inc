@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.360.2.8 2011/09/21 23:03:37 cupreti Exp $
+* $Id: mysource.inc,v 1.360.2.9 2011/09/22 01:20:24 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.360.2.8 $
+* @version $Revision: 1.360.2.9 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4100,9 +4100,12 @@ class MySource extends MySource_Object
 	function _translateMatrixURL(&$content)
 	{
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+(?:\:[^\$]+)?)'.'[^"\']*?'.'(?:"|\')'.'[^>]*>!msi', $content, $matches);
+		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+(?:\:[^\$]+\$)?)'.'[^:"\']*?'.'(?:"|\')'.'[^>]*>!msi', $content, $matches);
 		if (empty($matches[1])) return;
-		
+
+		foreach($matches[1] as $key => $assetid) {
+			$matches[1][$key] = rtrim($assetid, '$');
+		}
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
 		
 		// Replace each ./a=xx link by its respective full URL
