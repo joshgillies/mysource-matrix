@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.238.2.6 2011/08/29 06:41:12 mhaidar Exp $
+* $Id: search_manager.inc,v 1.238.2.7 2011/09/23 05:12:37 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.238.2.6 $
+* @version $Revision: 1.238.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1756,16 +1756,21 @@ class Search_Manager extends Asset
 		$type_code = $info[$assetid];
 
 		$weight_sources = Array(
-								0 => Array('function_name' => 'Asset'		, 'param' => $assetid),
-								1 => Array('function_name' => 'AssetTree'	, 'param' => $assetid),
-								2 => Array('function_name' => 'AssetType'	, 'param' => $type_code),
-								// also check the global metadata weightings
-								3 => Array('function_name' => 'AssetTree'	, 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
+								// check metadata weightings in asset weight customisation
+								0 => Array('function_name' => 'Asset'		, 'params' => Array($assetid)),
+								// check metadata weightings in asset type of asset tree customisation
+								1 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE, FALSE, TRUE, FALSE)),
+								// check generic metadata weightings of asset tree customisation
+								2 => Array('function_name' => 'AssetTree'	, 'params' => Array($assetid, FALSE, FALSE, FALSE, FALSE)),
+								// check metadata weightings in asset type of global weight customisation
+								3 => Array('function_name' => 'AssetType'	, 'params' => Array($type_code)),
+								// check generic metadata weightings of global weight customisation
+								4 => Array('function_name' => 'AssetTree'	, 'params' => Array($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder'))),
 						  );
 
 		foreach ($weight_sources as $source) {
 			$fn = 'get'.$source['function_name'].'Weightings';
-			$weightings = $this->$fn($source['param']);
+			$weightings = call_user_func_array(Array($this, $fn), $source['params']);
 			if (!empty($weightings) && isset($weightings['metadata_weights'])) {
 				$weight = $this->_getLocalMetadataWeightings($weightings['metadata_weights'], $fieldid, $sectionid, $schemaids);
 
@@ -1888,25 +1893,37 @@ class Search_Manager extends Asset
 	* Returns the Asset Tree weightings for the specified assetid, or all
 	* weightings registered for asset trees if the specified assetid is null
 	*
-	* @param string		$assetid			the assetid of the wanted tree weightings
-	*										or null for all asset tree weightings
-	* @param boolean	$strict_assetid		if TRUE only weightings that have been
-	*										customised explicitly using the specified assetid
-	*										will be returned, otherwise the closest weighting
-	*										customisation will be returned
-	* @param boolean	$strict_type_code	if TRUE only weightings matching the asset type of the
-	*										specified assetid will be returned
+	* @param string		$assetid			        the assetid of the wanted tree weightings
+	*										        or null for all asset tree weightings
+	* @param boolean	$strict_assetid		        if TRUE only weightings that have been
+	*										        customised explicitly using the specified assetid
+	*										        will be returned, otherwise the closest weighting
+	*										        customisation will be returned
+	* @param boolean	$strict_type_code	        if TRUE only weightings matching the asset type of the
+	*										        specified assetid will be returned
+	* @param boolean	$type_weights_only			Applies only if $assetid is not NULL and $strict_assetid is FALSE.
+	* 												if TRUE only type weights data according to $strict_type_code is returned.
+	* 												if FALSE $strict_type_code is ineffective & both type_weights & metadata_weights data is returned.
+	* @param boolean	$include_global_weights		if TRUE, the asset tree weights will include the root folder weight which defines global weights.										
 	*
 	* @return array
 	* @access public
 	* @see saveTypeWeightings()
+	* @see getMetadataWeighting()
 	*/
-	function getAssetTreeWeightings($assetid=NULL, $strict_assetid=TRUE, $strict_type_code=FALSE)
+	function getAssetTreeWeightings($assetid=NULL, $strict_assetid=TRUE, $strict_type_code=FALSE, $type_weights_only=TRUE, $include_global_weights=TRUE)
 	{
 		$weightings_file = $this->data_path.'/asset_tree_weightings.inc';
 		if (file_exists($weightings_file)) {
 			require $weightings_file;
-
+            
+			if (!$include_global_weights) {
+				$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+				if (isset($asset_tree_weightings[$root_folder_assetid])) {
+					unset($asset_tree_weightings[$root_folder_assetid]);
+				}
+			}
+			
 			if (!is_null($assetid)) {
 
 				if ($strict_assetid) {
@@ -1914,54 +1931,65 @@ class Search_Manager extends Asset
 						return $asset_tree_weightings[$assetid];
 					}
 				} else {
-					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-					$type_code = array_get_index($type_code, $assetid, '');
-
-					// firstly, check to see if there is an explicit entry for this assetid
-					if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
-						return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
-					}
-
-					// check to see if there are customisations for all asset types
-					if (isset($asset_tree_weightings[$assetid]['type_weights']['asset'])) {
-						return $asset_tree_weightings[$assetid]['type_weights']['asset'];
-					}
-
-					// if type code not found for some unknown reason, default to base asset
-					if (empty($type_code)) $type_code = 'asset';
-
 					// there is no explicit weighting customisation for the assetid
 					// so do a tree lookup for the closest one. getParents ORDER's by treeid
 					// by default so we can be garunteed that the closest assetids are at the top of the array
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
+					
+					if ($type_weights_only){               
+                        $type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
+                        $type_code = array_get_index($type_code, $assetid, '');
 
-					// find the parent asset types of this type code
-					if (!$strict_type_code) {
-						$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
-						// add the current type code so that we can also find
-						// weightings for this type, not just its parent types
-						array_unshift($type_hier, $type_code);
-					} else {
-						$type_hier = Array($type_code);
-					}
+                        // firstly, check to see if there is an explicit entry for this assetid
+                        if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
+                            return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
+                        }
 
-					// Search by parents first; that way we will always find the
-					// closest asset to what we are using, otherwise having a tree weight and global weight,
-					// the tree weight does not get used when using all asset types
-					$customised_assetids = array_keys($asset_tree_weightings);
-					foreach (array_keys($parents) as $parentid) {
-						if (in_array($parentid, $customised_assetids)) {
-							if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
-								$customised_type_codes = array_keys($asset_tree_weightings[$parentid]['type_weights']);
-								foreach ($type_hier as $parent_type_code) {
-									if (in_array($parent_type_code, $customised_type_codes)) {
-										return $asset_tree_weightings[$parentid]['type_weights'][$parent_type_code];
-									}
-								}//end foreach
-							}
-						}//end if
-					}//end foreach
+                        // check to see if there are customisations for all asset types
+                        if (isset($asset_tree_weightings[$assetid]['type_weights']['asset'])) {
+                            return $asset_tree_weightings[$assetid]['type_weights']['asset'];
+                        }
 
+                        // if type code not found for some unknown reason, default to base asset
+                        if (empty($type_code)) $type_code = 'asset';
+
+                        // find the parent asset types of this type code
+                        if (!$strict_type_code) {
+                            $type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
+                            // add the current type code so that we can also find
+                            // weightings for this type, not just its parent types
+                            array_unshift($type_hier, $type_code);
+                        } else {
+                            $type_hier = Array($type_code);
+                        }
+
+                        // Search by parents first; that way we will always find the
+                        // closest asset to what we are using, otherwise having a tree weight and global weight,
+                        // the tree weight does not get used when using all asset types
+                        $customised_assetids = array_keys($asset_tree_weightings);
+                        foreach (array_keys($parents) as $parentid) {
+                            if (in_array($parentid, $customised_assetids)) {
+                                if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
+                                    $customised_type_codes = array_keys($asset_tree_weightings[$parentid]['type_weights']);
+                                    foreach ($type_hier as $parent_type_code) {
+                                        if (in_array($parent_type_code, $customised_type_codes)) {
+                                            return $asset_tree_weightings[$parentid]['type_weights'][$parent_type_code];
+                                        }
+                                    }//end foreach
+                                }
+                            }//end if
+                        }//end foreach
+                    } else {
+						if (isset($asset_tree_weightings[$assetid])) {
+							return $asset_tree_weightings[$assetid];
+						}
+						
+						foreach (array_keys($parents) as $parentid) {
+                            if (isset($asset_tree_weightings[$parentid])) {
+								return $asset_tree_weightings[$parentid];
+							}//end if
+						}//end foreach
+					}//end else
 				}//end else strict_assetid
 			} else {
 				return $asset_tree_weightings;
