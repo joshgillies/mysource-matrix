@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.163.2.4 2011/08/19 02:03:28 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.163.2.5 2011/09/25 22:53:54 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163.2.4 $
+* @version $Revision: 1.163.2.5 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -2148,7 +2148,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		// we may have gone deeper in workflow. If so, mark the current step as started.,
-
 		$current_step =& $this->getCurrentStep($workflow);
 		if (!$current_step['started']) {
 			$current_step['started'] = time();
@@ -2231,13 +2230,13 @@ class Workflow_Manager extends MySource_Object
 			$msg->replacements = $msg_reps;
 
 			// Does this step have a custom message for escalation?
-			if (isset($current_step['message_escalated']) && trim($current_step['message_escalated']) !== '' ) {
+			if (isset($step_before['message_escalated']) && trim($step_before['message_escalated']) !== '' ) {
 				$msg->body = trim($step_before['message_escalated']);
 			}
 
 			// Does this step have a custom subject for escalation?
-			if (isset($current_step['subject_escalated']) && trim($current_step['subject_escalated']) !== '' ) {
-				$subject = trim(array_get_index($current_step, 'subject_escalated', 'Workflow Escalated'));
+			if (isset($step_before['subject_escalated']) && trim($step_before['subject_escalated']) !== '' ) {
+				$subject = trim(array_get_index($step_before, 'subject_escalated', 'Workflow Escalated'));
 				$msg->subject = (!empty($subject)) ? $subject : 'Workflow Escalated';
 			}
 
