@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391.2.4 2011/07/13 01:17:13 cupreti Exp $
+* $Id: lang_strings.xml,v 1.391.2.5 2011/09/25 23:58:02 akarelia Exp $
 *
 */
 
@@ -298,6 +298,8 @@
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
 	<string source="proxy_url_strip_port_note">Useful if you access Squiz Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by Squiz Matrix will not contain the port number by which the system is being accessed.</string>
+	<string source="proxy_none_set">None</string>
+	<string source="proxy_leave_blank">Leave hostname blank if you want to disable proxy use for this matching pattern.</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regex_match">RegEx Match</string>
 	<string source="regular_expression">Regular Expression</string>
@@ -2070,7 +2072,6 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_job_rollback_deleting_rb_entries_from">Deleting rollback entries from %s</string>
 	<string source="hipo_job_rollback_aligning_rb_entries_in">Aligning rollback entries in %s</string>
 	<string source="hipo_job_rollback_delete_redundant_rb_entries_in">Deleting redundant rollback entries in %s</string>
-	
 	<string source="hipo_job_regen_simple_reports_name">Regenerate Simple Reports</string>
 
 	<string source="hipo_job_edit_bundled_assets_status_status">Editing Status of Bundled Assets</string>
@@ -2846,7 +2847,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="mollom_test_mode_note">Test mode allows user tag posts as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
 	<string source="mollom_accept_bypassed_submission_question">Accept Bypassed Submission ?</string>
 	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond expectedly</string>
-	
+
 	<!-- Trigger - Remove future lineage cron -->
 	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>
 
