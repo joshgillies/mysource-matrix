@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.381.2.8 2011/07/15 07:48:37 ewang Exp $
+* $Id: lang_strings.xml,v 1.381.2.9 2011/09/26 00:09:29 akarelia Exp $
 *
 */
 
@@ -298,6 +298,8 @@
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
 	<string source="proxy_url_strip_port_note">Useful if you access Squiz Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by Squiz Matrix will not contain the port number by which the system is being accessed.</string>
+	<string source="proxy_none_set">None</string>
+	<string source="proxy_leave_blank">Leave hostname blank if you want to disable proxy use for this matching pattern.</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regex_match">RegEx Match</string>
 	<string source="regular_expression">Regular Expression</string>

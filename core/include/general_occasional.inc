@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.97.4.1 2011/09/25 23:25:13 akarelia Exp $
+* $Id: general_occasional.inc,v 1.97.4.2 2011/09/26 00:06:43 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97.4.1 $
+* @version $Revision: 1.97.4.2 $
 * @package MySource_Matrix
 */
 
@@ -512,8 +512,10 @@ function addProxyInfo(&$request_parameters, &$default_headers, $page_url)
 	if (SQ_PA_ENABLED) {
 		$proxy = get_proxy_info_for_url($page_url);
 
-		$request_parameters['proxy_host'] = $proxy['host'];
-		$request_parameters['proxy_port'] = $proxy['port'];
+		// Make the host/port values null unless a proxy host has been set. Ensures
+		// a proxy is NOT used if the host field is blank
+		$request_parameters['proxy_host'] = ($proxy['host'] === '') ? NULL : $proxy['host'];
+		$request_parameters['proxy_port'] = ($proxy['host'] === '') ? NULL : $proxy['port'];
 		$default_headers['Proxy-Authorization'] = 'Basic '.base64_encode($proxy['user'].':'.$proxy['password']);
 	}
 
