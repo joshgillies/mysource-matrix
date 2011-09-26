@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_design.inc,v 1.1.2.3 2011/09/12 03:31:27 ewang Exp $
+* $Id: hipo_job_regenerate_design.inc,v 1.1.2.4 2011/09/26 07:53:27 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -133,7 +133,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 					'function_call'	=> Array(
 							    'process_function'	=> 'processCustomisation',
 							),
-					'running_mode'	=> 'server',
+					'running_mode'	=> 'web',
 					'auto_step'		=> true,
 					'allow_cancel'	=> true,
 					'percent_done'	=> 0,
