@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.77.4.1 2011/07/22 07:54:44 ewang Exp $
+* $Id: step_03.php,v 1.77.4.2 2011/09/27 03:42:44 ewang Exp $
 *
 */
 
@@ -35,12 +35,27 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77.4.1 $
+* @version $Revision: 1.77.4.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
 ini_set('memory_limit', -1);
-error_reporting(E_ALL);
+if (!defined('PHP_VERSION_ID')) {
+	$version = explode('.', PHP_VERSION);
+	define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
+
+
+// set the level of PHP reported errors and some other
+// PHP thingies we want done OUR way
+if (PHP_VERSION_ID < 50300) {
+	// pear http/client module contains deprecated syntax which will cause trouble
+	// E_DEPRECATED is introduced in PHP 5.3 and included in E_ALL, so has to remove E_DEPRECATED for php 5.3 and above
+	error_reporting(E_ALL);
+}
+else {
+	error_reporting(E_ALL ^ E_DEPRECATED);
+}
 $SYSTEM_ROOT = '';
 
 $cli = TRUE;
