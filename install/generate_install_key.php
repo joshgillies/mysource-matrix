@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: generate_install_key.php,v 1.4 2010/05/13 06:46:14 lwright Exp $
+* $Id: generate_install_key.php,v 1.5 2011/09/27 04:43:04 ewang Exp $
 *
 */
 
@@ -20,12 +20,11 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
 ini_set('memory_limit', -1);
-error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
 if ((php_sapi_name() == 'cli')) {
