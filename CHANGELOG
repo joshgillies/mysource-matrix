@@ -1,4 +1,139 @@
-MYSOURCE MATRIX CHANGELOG
+SQUIZ MATRIX CHANGELOG
+
+VERSION 4.6.0 RC1
+
+Featured Changes
+===================================
+
+
+Remove Trailing Slash Off Requested URLs and Redirect [ Feature Request #5138 ]
+-----------------------------------------------------
+
+Within Matrix, a URL with or without a trailing slash will render the same content. As the Cache Manager treats every URL uniquely, however, Matrix would previously end up caching both of these URLs, resulting in two separate cache entries for the same content.
+
+This feature strips the trailing slash off such front-end requested URLs and redirect them, resulting in just one cache entry for the URL content.
+
+Please note that this feature does not apply to root URLs due to the possibility of apache being configured to append the trailing slash. 
+
+Global Preference to Restrict Assets Created Under Specified Sites as Type 2 Linked [ Feature Request #5161 ]
+-----------------------------------------------------
+
+The new 'Child Creation Type 2 Link Restriction' global preference allows users to specify site assets to restrict newly created children to TYPE 2 links only. This means that any newly created assets under these sites (at any depth) will only be able to be created as TYPE 2 linked assets.
+
+The link type of these assets can still be changed after asset creation via the asset's Linking screen.
+
+
+New Script to Evaluate and Fix Files in the Public Data Directory [ Feature Request #5171 ]
+-----------------------------------------------------
+
+Matrix's public data directory houses File assets on the Matrix system that are publicly accessible (live with public read access). However, in some cases this directory may be missing files or contain old or private files due to file system permission problems and other issues.
+
+This feature introduces the system_integrity_fix_public_files.php script. When run, this script will update any out-of-date files on the public data directory, create any files that are missing from the directory and remove any files that are private and should not be in the directory.
+
+Usage of this script is as follows:
+
+$ php system_integrity_fix_public_files.php SYSTEM_ROOT ROOT_ID 
+
+System Integrity Clean Invalid Links Script [ Feature Request #5175 ]
+-----------------------------------------------------
+
+Squiz Matrix's system_integrity_orphaned_assets.php script finds and links orphaned assets underneath a specified asset ID. It also takes care of invalid links, where the major ID in a link is a missing asset; it does not, however, cater for when the child minor ID is missing while the major ID still exists.
+
+This feature introduces the system_integrity_invalid_links.php script. This script will remove significant links where one or both sides of a link does not exist. This script will also report on the number of orphaned assets in the system and may recommend running the system_integrity_orphaned_assets.php script, upon its completion.
+
+New Keyword Modifier to Apply XSLT to XML Content [ Feature Request #5183 ]
+-----------------------------------------------------
+
+Keyword modifiers allow you to modify keyword replacements to further configure their returned values. This feature adds a new keyword modifier to apply XSLT (Extensible Stylesheet Language Transformations) to XML content returned on the keyword.
+
+The format for this keyword modifier is as follows.
+
+%keyword^xslt:<assetid>%
+ 
+%asset_contents_raw^xslt:343% 
+
+This modifier will take the XSLT of a file asset (specified by asset ID), apply it to XML returned on the asset and output the result.
+
+This feature has been added to allow users to transform the XML of assets, providing greater control over the content of their sites.
+
+New System Forking Scripts [ Feature Request #5294 ]
+-----------------------------------------------------
+
+This feature adds three forking scripts, aimed to increase the performance of these scripts and prevent memory leakage, especially on larger systems where memory usage is otherwise too high and/or performance of single-threaded scripts is too slow.
+
+The scripts added are:
+
+system_apply_permissions.php : takes a permission string in a specific format that allows you to run multiple permission operations on the specified asset and their children. This script forks and runs in batches to curb memory usage and also runs multiple threads in parallel to speed up the overall operation.
+
+system_apply_metadata_schema.php : applies a metadata schema to the specified assets and their children (and generates the metadata for that asset). Runs in batches and multiple threads in parallel.
+
+system_update_lookups.php : updates lookups for all assets under the specified root node. Forks and runs in batches to keep memory usage down.
+
+
+%asset_contents_paint_X% on Paint Layout Bodycopy [ Feature Request #5323 ]
+-----------------------------------------------------
+
+The %asset_contents_paint_X% keyword replacement is used on an Asset Listing Page to print the content of an asset with a specified Paint Layout applied. For example, the keyword %asset_contents_paint_1234% would apply the layout of asset #1234 to the asset content.
+
+This feature enables the use of this keyword replacement for use within a Paint Layout bodycopy. This can be useful, for example, when using Conditional Keywords, to print the asset content with other Paint Layouts applied, based on the conditions specified.
+
+This feature has been added to aid in the implementation of Paint Layouts, providing users with more flexibility and control over their content. 
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5197: Enhanced Performance on Asset Listing Pagination.
+Minor Enhancement #5206: Backup Script to Move Database Dump into the data/ Directory.
+Minor Enhancement #5207: Asset Manager: getLinkLineages Query Performance Improvements.
+Minor Enhancement #5255: Performance Enhancement: Cascading Permissions on Permissions Screen.
+Minor Enhancement #5270: Performance Enhancement: Global Search and Replace Reindex Altered Assets Only.
+Minor Enhancement #5304: system_integrity_recover_file_versions.php Now Works for Image Varieties.
+Minor Enhancement #5308: Metadata Field's Friendly Name Attribute Available as Keyword Replacement.
+Minor Enhancement #5310: Search Button on the Quick Search Tool.
+Minor Enhancement #5312: Custom Form Date field link issue.
+Minor Enhancement #5313: Performance Improvement to createAssetLink() Function.
+Minor Enhancement #5316: Remap Manager: Never Delete Mass Select / Deselect.
+Minor Enhancement #5321: Alternative Proxy Config Allows Matches to Exclude Going Through Proxy
+Minor Enhancement #5325: http_request Obeys Alternative Proxy Settings.
+
+Core
+
+Fixed Bug #5143: Committing from "archived/approved to go live" causes attributes to be cleared.
+Fixed Bug #5299: Cron job added are of time stamp in past.
+Fixed Bug #5300: Keyword modifiers not working properly on site map.
+Fixed Bug #5301: Metadata date field not disabled when "Use default" selected.
+Fixed Bug #5303: Trigger action set standard date, updates not search re-indexed.
+Fixed Bug #5306: Asset map complains about the empty XML on PHP 5.3.
+Fixed Bug #5307: Trigger condition "Status changes to" throws PHP notice.
+Fixed Bug #5309: Manual asset id input processing and trimming.
+Fixed Bug #5311: Show Diff preview incomplete highlights.
+Fixed Bug #5314: Short form shadow asset links.
+Fixed Bug #5315: Design CSS assets doesn't regenerate parse file for itself or children customisations. CSS changes can't be seen in front end.
+Fixed Bug #5326: Trying to add an Alternative Proxy spits out PHP warnings.
+Fixed Bug #5334: Workflow escalation custom message are have wrong subject.
+Fixed Bug #5341: Filter Front End User Input - set to 'Filter input' breaking front end layout after parse file commit.
+Fixed Bug #5342: PHP 5.3 E_DEPRECATED warning in installation scripts.
+
+Search
+
+Fixed Bug #5319: Search Manager Asset Tree and Global Weights screen error. 
+Fixed Bug #5324: Metadata Weightings in Search Manager Asset Tree Weights screen does not work. 
+
+LDAP
+
+Fixed Bug #5305: LDAP authentication ignores bridge asset-map position.
+Fixed Bug #5347: LDAP Bridge not expanding for some User/User Groups LDAP entries
+
+Web Services
+
+Fixed Bug #5140: JS API importAssetsFromXML() only imports the first Asset. 
+Fixed Bug #5318: JS API causing syntax error if the ajax response is "undefined" or "null". 
+Fixed Bug #5328: JS API setAttribute will show success even on error. 
+
+
 
 VERSION 4.4.0 RC1
 
