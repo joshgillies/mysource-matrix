@@ -1,4 +1,48 @@
-MYSOURCE MATRIX CHANGELOG
+SQUIZ MATRIX CHANGELOG
+
+VERSION 4.2.7
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5312: Custom Form Date field link issue.
+Minor Enhancement #5321: Alternative Proxy Config Allows Matches to Exclude Going Through Proxy
+Minor Enhancement #5325: http_request Obeys Alternative Proxy Settings.
+
+Core
+
+Fixed Bug #5299: Cron job added are of time stamp in past.
+Fixed Bug #5300: Keyword modifiers not working properly on site map.
+Fixed Bug #5301: Metadata date field not disabled when "Use default" selected.
+Fixed Bug #5303: Trigger action set standard date, updates not search re-indexed.
+Fixed Bug #5306: Asset map complains about the empty XML on PHP 5.3.
+Fixed Bug #5307: Trigger condition "Status changes to" throws PHP notice.
+Fixed Bug #5309: Manual asset id input processing and trimming.
+Fixed Bug #5311: Show Diff preview incomplete highlights.
+Fixed Bug #5314: Short form shadow asset links.
+Fixed Bug #5326: Trying to add an Alternative Proxy spits out PHP warnings.
+Fixed Bug #5334: Workflow escalation custom message are have wrong subject.
+Fixed Bug #5342: PHP 5.3 E_DEPRECATED warning in installation scripts.
+
+Search
+
+Fixed Bug #5319: Search Manager Asset Tree and Global Weights screen error. 
+Fixed Bug #5324: Metadata Weightings in Search Manager Asset Tree Weights screen does not work. 
+
+LDAP
+
+Fixed Bug #5305: LDAP authentication ignores bridge asset-map position.
+Fixed Bug #5347: LDAP Bridge not expanding for some User/User Groups LDAP entries
+
+Web Services
+
+Fixed Bug #5318: JS API causing syntax error if the ajax response is "undefined" or "null". 
+Fixed Bug #5328: JS API setAttribute will show success even on error. 
+
+
 
 
 VERSION 4.2.6
