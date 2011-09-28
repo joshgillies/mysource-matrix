@@ -26,6 +26,7 @@ Fixed Bug #5314: Short form shadow asset links.
 Fixed Bug #5326: Trying to add an Alternative Proxy spits out PHP warnings.
 Fixed Bug #5334: Workflow escalation custom message are have wrong subject.
 Fixed Bug #5342: PHP 5.3 E_DEPRECATED warning in installation scripts.
+Fixed Bug #5327: Linking to image varieties requires a dollar $ sign to work.
 
 Search
 
