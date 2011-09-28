@@ -1,4 +1,54 @@
-MYSOURCE MATRIX CHANGELOG
+SQUIZ MATRIX CHANGELOG
+
+
+VERSION 4.4.3
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5304: system_integrity_recover_file_versions.php Now Works for Image Varieties.
+Minor Enhancement #5308: Metadata Field's Friendly Name Attribute Available as Keyword Replacement.
+Minor Enhancement #5312: Custom Form Date field link issue.
+Minor Enhancement #5313: Performance Improvement to createAssetLink() Function.
+Minor Enhancement #5316: Remap Manager: Never Delete Mass Select / Deselect.
+Minor Enhancement #5321: Alternative Proxy Config Allows Matches to Exclude Going Through Proxy
+Minor Enhancement #5325: http_request Obeys Alternative Proxy Settings.
+
+Core
+
+Fixed Bug #5299: Cron job added are of time stamp in past.
+Fixed Bug #5300: Keyword modifiers not working properly on site map.
+Fixed Bug #5301: Metadata date field not disabled when "Use default" selected.
+Fixed Bug #5303: Trigger action set standard date, updates not search re-indexed.
+Fixed Bug #5306: Asset map complains about the empty XML on PHP 5.3.
+Fixed Bug #5307: Trigger condition "Status changes to" throws PHP notice.
+Fixed Bug #5309: Manual asset id input processing and trimming.
+Fixed Bug #5311: Show Diff preview incomplete highlights.
+Fixed Bug #5314: Short form shadow asset links.
+Fixed Bug #5326: Trying to add an Alternative Proxy spits out PHP warnings.
+Fixed Bug #5334: Workflow escalation custom message are have wrong subject.
+Fixed Bug #5341: Filter Front End User Input - set to 'Filter input' breaking front end layout after parse file commit.
+Fixed Bug #5342: PHP 5.3 E_DEPRECATED warning in installation scripts.
+
+Search
+
+Fixed Bug #5319: Search Manager Asset Tree and Global Weights screen error. 
+Fixed Bug #5324: Metadata Weightings in Search Manager Asset Tree Weights screen does not work. 
+
+LDAP
+
+Fixed Bug #5305: LDAP authentication ignores bridge asset-map position.
+Fixed Bug #5347: LDAP Bridge not expanding for some User/User Groups LDAP entries
+
+Web Services
+
+Fixed Bug #5318: JS API causing syntax error if the ajax response is "undefined" or "null". 
+Fixed Bug #5328: JS API setAttribute will show success even on error. 
+
+
 
 VERSION 4.4.2
 
@@ -189,6 +239,9 @@ VERSION 4.4.1
 
 Featured Changes
 ===================================
+
+
+Squiz Matrix Performance Mode [ Feature Request #5182 ]
 
 
 Squiz Matrix Performance Mode [ Feature Request #5182 ]
@@ -691,9 +744,6 @@ Also added a custom field in saved search to allow the result set to contain a t
 	=================================== 
 
 	Minor Enhancements
-	Minor Enhancement #4804: HTTP Request Header Acknowledges System Proxy Settings.
-	Minor Enhancement #4869: Exporting Asset Attributes with CDATA Values.
-	Minor Enhancement #4891: Asset Manager: getAttributeValuesByName Enhancements.
 	Minor Enhancement #4894: Asset::readAccess Makes Unnecessary Calls to the Workflow Manager.
 	Minor Enhancement #4895: Don't Add Remap Option on the Add Web Path Trigger Action.
 	Minor Enhancement #4912: Improved Performance of the Workflow Screen.
