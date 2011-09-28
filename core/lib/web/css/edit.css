@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.89 2011/09/19 07:06:11 cupreti Exp $
+* $Id: edit.css,v 1.90 2011/09/28 05:53:03 ewang Exp $
 *
 */
 
@@ -244,6 +244,8 @@ td.sq-backend-commit {
 	width:				16px;
 	height:				16px;
 	margin-right:		6px;
+	margin-left:			-2px;
+	padding:			0px;
 }
 
 
