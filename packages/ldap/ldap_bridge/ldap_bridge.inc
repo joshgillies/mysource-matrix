@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.100.2.1 2011/08/29 06:13:21 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.100.2.2 2011/09/28 06:06:43 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100.2.1 $
+* @version $Revision: 1.100.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -499,7 +499,11 @@ class LDAP_Bridge extends Asset implements Bridge
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
 
 					$base_dn = $this->decodeString($base_dn);
-					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, array_merge(array_values($attr), Array('objectclass')));
+					
+					// Attributes represnting the objectclass values are always required
+					$required_attrs = array_values(array_unique(array_merge($attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
+					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
+
 
 					if (!$result) {
 						$ldap->disconnect();
