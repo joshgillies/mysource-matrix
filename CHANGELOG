@@ -32,6 +32,7 @@ Fixed Bug #5326: Trying to add an Alternative Proxy spits out PHP warnings.
 Fixed Bug #5334: Workflow escalation custom message are have wrong subject.
 Fixed Bug #5341: Filter Front End User Input - set to 'Filter input' breaking front end layout after parse file commit.
 Fixed Bug #5342: PHP 5.3 E_DEPRECATED warning in installation scripts.
+Fixed Bug #5327: Linking to image varieties requires a dollar $ sign to work.
 
 Search
 
@@ -212,6 +213,7 @@ Fixed Bug #5284: In PHP 5.3.1+, Details screen of Show If design area with User 
 Fixed Bug #5289: Matrix licence statement not printed in HTML source code if EES design is used on the design file.
 Fixed Bug #5291: general.inc:mime_type_content() throwing undefined variable error. 
 Fixed Bug #5293: Nested Content in Cloned Assets.
+Fixed Bug #5327: Linking to image varieties requires a dollar $ sign to work.
 
 CMS
 
