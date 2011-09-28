@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.81 2011/09/27 03:40:02 ewang Exp $
+* $Id: step_03.php,v 1.81.2.1 2011/09/28 08:48:56 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.81.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -126,6 +126,7 @@ if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
+
 // Install all DAL core and package queries upfront
 install_dal_core_queries();
 $packages = get_package_list();
@@ -141,6 +142,9 @@ require_once $SYSTEM_ROOT.'/install/generate_install_key.php';
 
 // check if the $packageList variable has been defined at all
 if (!isset($package_list)) $package_list = Array();
+
+// generate the char map first, creating asset will need this
+generate_lang_char_map();
 
 uninstall_asset_types();
 uninstall_packages();
@@ -160,7 +164,6 @@ if (is_array($deferred)) {
 
 install_authentication_types();
 generate_global_preferences();
-generate_lang_char_map();
 install_event_listeners();
 cache_asset_types();
 generate_performance_config();
