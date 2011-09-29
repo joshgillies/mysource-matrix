@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398 2011/09/20 03:30:05 akarelia Exp $
+* $Id: lang_strings.xml,v 1.398.2.1 2011/09/29 04:56:21 ewang Exp $
 *
 */
 
@@ -2550,7 +2550,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="safe_trash_child_message_status">Your asset is currently at a status of "%s".</string>
 
 	<string source="licence_type_warranty_valid"><![CDATA[system warranted by Squiz SLA]]></string>
-	<string source="licence_type_no_warranty"><![CDATA[system unwarranted. <a href="http://www.squiz.com.au/mysource-matrix-cms/why-warranty/_nocache" style="text-decoration: underline" target="_blank">What does this mean?</a>]]></string>
+	<string source="licence_type_no_warranty"><![CDATA[system unwarranted. <a href="http://www.squiz.com.au/about-squiz/support-services" style="text-decoration: underline" target="_blank">Contact Squiz for further information.</a>]]></string>
 
 	<string source="print_this_page">Print this Page</string>
 
