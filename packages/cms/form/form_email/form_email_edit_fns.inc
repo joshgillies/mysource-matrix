@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.107 2011/05/26 07:45:05 cupreti Exp $
+* $Id: form_email_edit_fns.inc,v 1.108 2011/09/30 05:10:44 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -730,11 +730,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processExportCSV(&$asset, &$o, $prefix, $header_row=TRUE, $delimiter=',')
 	{
-		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv = new CSV();
-		$csv->setFilename('submission_log.csv');
-		$csv->setDeliminator($delimiter);
-
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
@@ -746,13 +741,38 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// about the h:m:s section of the above times
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
-		$from_time = ts_iso8601($from_ts);
-		$to_time = ts_iso8601($to_ts);
 
+		$csv = $this->createCSVSubmissionLogs($asset, $from_ts, $to_ts);
+		$csv->setFilename('submission_log.csv');
+		$csv->setDeliminator($delimiter);
+
+		// by default, headers are set in createCSVSubmissionLogs(). If we do not need it, set it to FALSE
+		if (!$header_row) $csv->setFieldHeaders($header_row); // setFieldHeaders() accept pass-by-reference parameter so we just can not use FALSE literal value alone
+
+		// export with keyed fields
+		$csv->export(TRUE);
+		exit(0);
+
+		return TRUE;
+
+	}//end processExportCSV()
+
+
+	/**
+	 * Create a CSV submission log of all the Form submissions in a period of time.
+	 *
+	 * @param Form $form		The Form that submissions were submitted to
+	 * @param int $from_time	The Unix timestamp of the from time
+	 * @param int $to_time		The Unix timestamp of the to time
+	 */
+	public function createCSVSubmissionLogs($form, $from_time, $to_time)
+	{
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
-		$sub_folder = $asset->getSubmissionsFolder();
-		$assetids = Array($asset->id, $sub_folder->id);
+		$sub_folder = $form->getSubmissionsFolder();
+		$assetids = Array($form->id, $sub_folder->id);
+		$from_time = ts_iso8601($from_time);
+		$to_time = ts_iso8601($to_time);
 
 		try {
 			$bind_vars = Array(
@@ -802,17 +822,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}//end if
 		}//end foreach
 
-		if ($header_row) $csv->setFieldHeaders($headers);
-
+		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
+		$csv = new CSV();
+		$csv->setFieldHeaders($headers);
 		$csv->setValues($logs);
 
-		// export with keyed fields
-		$csv->export(TRUE);
-		exit(0);
+		return $csv;
 
-		return TRUE;
-
-	}//end processExportCSV()
+	}//end createCSVSubmissionLogs()
 
 
 	/**
