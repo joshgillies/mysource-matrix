@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.27 2011/06/30 04:43:20 ewang Exp $
+* $Id: data_source_xml.inc,v 1.27.2.1 2011/09/30 06:52:57 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -182,7 +182,9 @@ class Data_Source_Xml extends Data_Source
 					$this->_tmp[$hash] = $result;
 				} else {
 					$this->_tmp[$hash] = $this->getItems();
-					parent::setResultSet($this->_tmp[$hash], $hash);
+					if ($this->_tmp[$hash] !== FALSE) { 
+						parent::setResultSet($this->_tmp[$hash], $hash);
+					}
 				}
 			}
 		}
