@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.322.2.5 2011/08/26 05:10:25 ewang Exp $
+* $Id: listing_engine.inc,v 1.322.2.6 2011/09/30 03:59:43 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.322.2.5 $
+* @version $Revision: 1.322.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2239,7 +2239,8 @@ class Listing_Engine extends Page
 			if ($using_columns && $column_layout_type === 'table') {
 
 				foreach ($todo as $letter => $assets) {
-					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$letter_text = $letter === '@' ?  $this->attr('other_page_text') : $letter;
+					$anchor = '<a name="letter_'.$letter.'">'.$letter_text.'</a>';
 					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
 					echo $anchor;
 					echo '<table width="100%">';
@@ -2279,7 +2280,8 @@ class Listing_Engine extends Page
 			//if div is used to generate the column
 			else if ($using_columns && $column_layout_type === 'div') { 
 				foreach ($todo as $letter => $assets) {
-					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$letter_text = $letter === '@' ?  $this->attr('other_page_text') : $letter;
+					$anchor = '<a name="letter_'.$letter.'">'.$letter_text.'</a>';
 					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
 					echo $anchor;
 					$num_rows = max(array_keys($column_layout)) + 1;
@@ -2307,7 +2309,8 @@ class Listing_Engine extends Page
 			
 			} else {
 				foreach ($todo as $letter => $assets) {
-					$anchor = '<a name="letter_'.$letter.'">'.$letter.'</a>';
+					$letter_text = $letter === '@' ?  $this->attr('other_page_text') : $letter;
+					$anchor = '<a name="letter_'.$letter.'">'.$letter_text.'</a>';
 					$anchor = str_replace('%letter_group%', $anchor, $a_z_letter_format);
 					echo $anchor;
 					foreach ($assets as $assetid => $type_code) {
