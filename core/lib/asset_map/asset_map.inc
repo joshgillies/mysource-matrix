@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.303 2011/09/05 07:29:19 akarelia Exp $
+* $Id: asset_map.inc,v 1.304 2011/09/30 01:43:09 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.303 $
+* @version $Revision: 1.304 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1291,7 +1291,6 @@ class Asset_Map
 				}//end else
 			}//end if
 		}//end if is a bridge
-
 		foreach ($result as $asset) {
 			if (!isset($asset['num_kids'])) {
 				$default_kids = 0;
@@ -1728,7 +1727,7 @@ class Asset_Map
 		foreach ($input->root->children as $index =>$child) {
 			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
-
+	
 		$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('AMAP0020', $input->root->attributes['from_parent_assetid']);
@@ -1884,14 +1883,10 @@ class Asset_Map
 		$output = simplexml_load_string('<xml></xml>');
 		$responses = $output->addChild('responses');
 
-		$response_count = 0;
-
-		// ensure no url friendly values exists for assetids
-		$input->attributes()->to_parent_assetid = urlencode($input->attributes()->to_parent_assetid);
-		foreach($input->asset as $asset) {
-			$asset->attributes()->assetid = urldecode($asset->attributes()->assetid);
-		}
-
+		$response_count = 0;		
+		
+		// Make sure urlencoded assetids are restored correctly in xml
+		$input = $this->_fixUrlencodedAssetids($input);
 
 		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
 		$new_parent_pos = (string)$input->attributes()->to_parent_pos;
@@ -2085,11 +2080,8 @@ class Asset_Map
 
 		$response_count = 0;
 
-		// ensure no url friendly values exists for assetids
-		$input->attributes()->to_parent_assetid = urlencode((string)$input->attributes()->to_parent_assetid);
-		foreach($input->asset as $asset) {
-			$asset->attributes()->assetid = urldecode((string)$asset->attributes()->assetid);
-		}
+		// Make sure urlencoded assetids are restored correctly in xml
+		$input = $this->_fixUrlencodedAssetids($input);
 
 		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
 
@@ -2208,11 +2200,8 @@ class Asset_Map
 
 		$response_count = 0;
 
-		// ensure no url friendly values exists for assetids
-		$input->attributes()->to_parent_assetid = urldecode((string)$input->attributes()->to_parent_assetid);
-		foreach($input->asset as $asset) {
-			$asset->attributes()->assetid = urldecode((string)$asset->attributes()->assetid);
-		}
+		// Make sure urlencoded assetids are restored correctly in xml
+		$input = $this->_fixUrlencodedAssetids($input);
 
 		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
 
@@ -2296,6 +2285,42 @@ class Asset_Map
 		$this->_send($responses);
 
 	}//end _newLinks()
+
+	/**
+	* Decode the "urlencoded" assetids and make sure the entities resutling 
+	* after "urldecoding" are escaped correctly in the input XML
+	*
+	* @param object	&$input	the request info from the Asset Map in the form:
+	*
+	* @return object
+	* @access private
+	*/	
+	private function _fixUrlencodedAssetids($input)
+	{
+		// Construct a new input object with attribute values correctly escaped
+		$temp_input = new SimpleXMLElement('<command></command>');
+
+		foreach($input->attributes() as $attr_name => $attr_value) {
+			// Ensure no url friendly values exists for assetids
+			if ($attr_name == 'to_parent_assetid') {
+				$attr_value = urlencode($attr_value);
+			}
+			$temp_input->addAttribute($attr_name, $attr_value);
+		}
+
+		foreach($input->asset as $asset) {
+			$new_child = $temp_input->addChild('asset', '');
+			foreach($asset->attributes() as $attr_name => $attr_value) {
+				if ($attr_name == 'assetid') {
+					$attr_value = urldecode($attr_value);
+				}//end if
+				$new_child->addAttribute($attr_name, $attr_value);
+			}//end foreach
+		}//end foreach
+		
+		return $temp_input;
+	
+	}//end _fixUrlencodedAssetids()
 
 
 }//end class
