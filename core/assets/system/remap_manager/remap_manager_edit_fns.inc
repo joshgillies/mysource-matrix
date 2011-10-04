@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.40 2011/09/13 07:50:09 cupreti Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.40.2.1 2011/10/04 06:53:30 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -367,50 +367,29 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		
-		if (isset($_POST[$prefix.'_never_delete_remap'])) {
+		// Only update the remaps in current page
+		$urls_to_check = (isset($_POST[$prefix.'_never_delete_remap'])) ? array_keys($_POST[$prefix.'_never_delete_remap']) : array();
+		$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
+		$urls_to_uncheck = array_diff($urls_in_current_page, $urls_to_check);
 
-			// Only update the remaps in current page
-			$urls_to_check = array_keys($_POST[$prefix.'_never_delete_remap']);
-			$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
-			$urls_to_uncheck = array_diff($urls_in_current_page, $urls_to_check);
+		try {
+			$bind_vars = Array(
+							'never_delete'		=> '0',
+							'urls_to_update'	=> $urls_to_uncheck,
+						);
+			$bind_vars_add = Array(
+							'never_delete'		=> '1',
+							'urls_to_update'	=> $urls_to_check,
+						);
 
-			try {
-				$bind_vars = Array(
-								'never_delete'		=> '0',
-								'urls_to_update'	=> $urls_to_uncheck,
-								'inverse_never_delete' => '1',
-							);
-				$bind_vars_add = Array(
-								'never_delete'		=> '1',
-								'urls_to_update'	=> $urls_to_check,
-								'inverse_never_delete' => '0',
-							);
-
-				if (!empty($urls_to_uncheck)) {
-					MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
-				}
-				if (!empty($urls_to_check)) {
-					MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars_add);
-				}
-			} catch (DALException $e) {
-				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
-			}
-		} else {
-
-			// When 'never delete' option is not checked for any remaps, only the remaps in current page are to be unchecked
-			$urls_in_current_page = array_keys(array_get_index($_POST, $prefix.'_current_page_remaps', Array()));
-			try {
-							$bind_vars = Array(
-								'never_delete'		=> '0',
-								'urls_to_update'	=> $urls_in_current_page,
-								'inverse_never_delete' => '1',
-							);
-
+			if (!empty($urls_to_uncheck)) {
 				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars);
-
-			} catch (Exception $e) {
-				throw new Exception('Unable to get remap urls due to the following database error: '.$e->getMessage());
 			}
+			if (!empty($urls_to_check)) {
+				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars_add);
+			}
+		} catch (DALException $e) {
+			throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 		}
 
 		// Purge all remaps with "Never Delete" option set to "No"
