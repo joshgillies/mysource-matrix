@@ -21,7 +21,6 @@
 	<string source="no_cert">No certificate file found</string>
 	<string source="mute_exception">Mute SOAP Exceptions</string>
 	<string source="run_test">Run Test</string>
-	<string source="add_new_field">New field to check ?</string>
 	<string source="no_field_selected">No SOAP response fields selected</string>
 	<string source="check_response">Check Response</string>
 	<string source="run_test_note">The test will be based on the request content in the "SOAP Request Message" below</string>
