@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.11 2011/10/06 00:52:36 akarelia Exp $
+* $Id: form_section_action_soap_call.inc,v 1.12 2011/10/06 02:15:49 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -371,7 +371,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
-			$options = SOAP_Common::_getSoapOptions($settings, $form);
+			$options = SOAP_Common::_getSoapOptions($settings);
 			try {
 				$client = new SoapClient($settings['wsdl'], $options);
 				$functions = $client->__getFunctions();
@@ -558,7 +558,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		
 		$function = $settings['action'];
 		$wsdl = $settings['wsdl'];
-		$options = SOAP_Common::_getSoapOptions($settings, $form);
+		$options = SOAP_Common::_getSoapOptions($settings);
 
 		// Work out the parameters of that soap function
 		for($i = 0, $param = Array(); $i < count($settings['actions'][$settings['action']]); $i++) {
