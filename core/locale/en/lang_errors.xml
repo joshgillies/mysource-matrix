@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.135 2011/07/12 06:56:33 cupreti Exp $
+* $Id: lang_errors.xml,v 1.136 2011/10/06 22:59:57 ewang Exp $
 *
 */
 
@@ -1258,9 +1258,9 @@ The install order for these assets could not be established	%2$s</error><!-- cor
 
 	<error code="SYS0245">Unable to find an Asset for the URL "%s"</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0246">Unable to find an lineage for the URL "%s"</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0246">Unable to find a lineage for the URL "%s"</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0247">Unable to find an lineage for the URL "%s", no root url was found</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0247">Unable to find a lineage for the URL "%s", no root url was found</error><!-- core/include/asset_manager.inc: -->
 
 	<error code="SYS0248">Unable to get Root Folder Asset</error><!-- core/include/mysource.inc: -->
 
