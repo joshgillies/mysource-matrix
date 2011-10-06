@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.13 2011/10/06 02:48:32 akarelia Exp $
+* $Id: form_section_action_soap_call.inc,v 1.14 2011/10/06 06:40:53 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -617,14 +617,15 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		// Store results in session
 		$soap_response_keywords = Array();
 		$file_saving_keywords = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
-		SOAP_Common::_store_results($data, 'soap_', $soap_response_keywords, $file_saving_keywords);
+		SOAP_Common::_store_results($data, $form_section->id.'_soap_', $soap_response_keywords, $file_saving_keywords);
 		
 		// Store all the session keywords vars in each form step
-		if (empty($_SESSION[SQ_SESSION_SANDBOX_INDEX][$form->id.'_soap_response_keywords'])) {
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX][$form->id.'_soap_response_keywords'] = Array();
+		if (empty($_SESSION[SQ_SESSION_SANDBOX_INDEX][$form_section->id.'_soap_response_keywords'])) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX][$form_section->id.'_soap_response_keywords'] = Array();
 		}
 		
-		$_SESSION[SQ_SESSION_SANDBOX_INDEX][$form->id.'_soap_response_keywords'] = array_merge($_SESSION[SQ_SESSION_SANDBOX_INDEX][$form->id.'_soap_response_keywords'], array_keys($soap_response_keywords));		
+		$_SESSION[SQ_SESSION_SANDBOX_INDEX][$form_section->id.'_soap_response_keywords'] = array_merge($_SESSION[SQ_SESSION_SANDBOX_INDEX][$form_section->id.'_soap_response_keywords'], array_keys($soap_response_keywords));
+
 		
 		// Remove prefix from response keywords
 		foreach($soap_response_keywords as $key => $val) {
