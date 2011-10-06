@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.19 2011/10/04 05:42:52 akarelia Exp $
+* $Id: form_action_soap_call.inc,v 1.20 2011/10/06 02:48:32 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -221,7 +221,7 @@ class Form_Action_SOAP_Call extends Form_Action
 									<td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
 								</tr>
 								<?php
-								$rules = SOAP_form_Based_Common::validationRules();
+								$rules = SOAP_Form_Based_Common::validationRules();
 								foreach ($selected_fields as $selected_field => $rule) {
 									$error_msg =  array_get_index($rule, 'error_msg', '');
 									$rule_value = array_get_index($rule, 'value', '');
@@ -626,7 +626,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
 			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {				
-				if (!isset($soap_response_keywords[$check_field]) || !SOAP_form_Based_Common::validateValue($soap_response_keywords[$check_field], $rule)) {
+				if (!isset($soap_response_keywords[$check_field]) || !SOAP_Form_Based_Common::validateValue($soap_response_keywords[$check_field], $rule)) {
 					$form->submission_errors = array_merge($form->submission_errors, Array($rule['error_msg']));
 					$success = FALSE;
 				}
