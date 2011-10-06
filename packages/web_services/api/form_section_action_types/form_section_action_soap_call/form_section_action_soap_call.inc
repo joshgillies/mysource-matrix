@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.10 2011/10/04 05:42:46 akarelia Exp $
+* $Id: form_section_action_soap_call.inc,v 1.11 2011/10/06 00:52:36 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -707,7 +707,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	* @return void
 	* @access public
 	*/
-	public static function isValid(Form $form, $settings)
+	public static function isValid(Form_Section $form_section, $settings)
 	{
 		// Must have a wsdl
 		if (empty($settings['wsdl'])) {
