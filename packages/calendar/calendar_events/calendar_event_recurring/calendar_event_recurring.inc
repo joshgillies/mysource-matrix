@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.97 2011/08/26 03:48:27 ewang Exp $
+* $Id: calendar_event_recurring.inc,v 1.98 2011/10/09 22:49:55 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -861,72 +861,92 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getKeywordReplacement($keyword)
 	{
+
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		switch ($keyword) {
 			case 'edit_link':
-				return $this->writeAccess('') ? '<a href="'.htmlspecialchars(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
+				$replacement = $this->writeAccess('') ? '<a href="'.htmlspecialchars(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
+				break;
+
 			case 'event_frequency':
-				return $this->getFriendlyFrequency();
+				$replacement = $this->getFriendlyFrequency();
+				break;
+
 			case 'event_ical_frequency':
-				return $this->getiCalFrequency();
+				$replacement = $this->getiCalFrequency();
+				break;
+
 			case 'event_ical_exceptions':
-				return $this->getiCalExceptions();
+				$replacement = $this->getiCalExceptions();
+				break;
+
 			default:
 				if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime', 'cancel_link', 'modify_link'))) {
 					if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
 							// exception today
-							return '';
+							$replacement = '';
 						} else {
 							// we are showing a normal instance of this event
 							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
 							switch ($keyword) {
 								case 'instance_start_datetime':
-									return $instance_dates['start'];
+									$replacement = $instance_dates['start'];
 								case 'instance_end_datetime':
-									return $instance_dates['end'];
+									$replacement = $instance_dates['end'];
 								case 'cancel_link':
 									$write_access = $this->writeAccess('');
-									return $write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default');
+									$replacement = $write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default');
 								case 'modify_link':
 									$write_access = $this->writeAccess('');
-									return $write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default');
+									$replacement = $write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default');
 							}
 						}
 					} else {
 						// somehow we're just viewing the event by itself, so set the instance-specific
 						// keywords to blank for tidiness's sake
-						return '';
+						$replacement = '';
 					}
+
+					// break outta switch block
+					break;
 				}
 				$matches = Array();
 				preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
 				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
 						// exception today
-						return '';
+						$replacement = '';
 					} else {
 						// we are showing a normal instance of this event
 						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						return date($matches[1], iso8601_ts($instance_dates['start']));
+						$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
 					}
+
+					// break outta switch block
+					break;
 				}
 				$matches = Array();
 				preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
 				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
 						// exception today
-						return '';
+						$replacement = '';
 					} else {
 						// we are showing a normal instance of this event
 						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						return date($matches[1], iso8601_ts($instance_dates['end']));
+						$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
 					}
+
+					// break outta switch block
+					break;
 				}
 				$matches = Array();
 				preg_match('/^event_stop_date_(.+)/', $keyword, $matches);
 				$stop_date = $this->attr('stop_date');
 				if ((!empty($matches)) && !empty($stop_date) && (FALSE === strpos('----', $stop_date))) {
-					return date($matches[1], iso8601_ts($stop_date));
+					$replacement = date($matches[1], iso8601_ts($stop_date));
 				}
 				if (in_array($keyword, Array('asset_url', 'asset_href'))) {
 					$res = parent::getKeywordReplacement($keyword);
@@ -935,9 +955,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 					}
 
 					// Produce some valid XHTML
-					$res = htmlentities($res);
+					$replacement = htmlentities($res);
 
-					return $res;
+					// break outta switch block
+					break;
 				}
 
 				$replacement = parent::getKeywordReplacement($keyword);
@@ -953,9 +974,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 				}
 
-				return $replacement;
-
 		}//end switch
+		
+		apply_keyword_modifiers($replacement, $modifiers);
+
+		return $replacement;
 
 	}//end getKeywordReplacement()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.92 2011/04/08 03:00:26 mhaidar Exp $
+* $Id: calendar_event.inc,v 1.93 2011/10/09 22:49:55 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -843,48 +843,69 @@ class Calendar_Event extends Asset
 		$end_date_not_set = ($this->getEndDate() === FALSE);
 		$start_time_not_set = ($this->getStartTime() === FALSE);
 		$end_time_not_set = ($this->getEndTime() === FALSE);
-		
+
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		switch ($keyword) {
 			case 'event_name':
-				return $this->name;
+				$replacement = $this->name;
+				break;
+
 			case 'event_start_date':
-				return date('jS M Y', iso8601_ts($this->attr('start_date')));
+				$replacement = date('jS M Y', iso8601_ts($this->attr('start_date')));
+				break;
+
 			case 'event_start_time_12h':
-				return $start_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('start_date')));
+				$replacement = $start_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('start_date')));
+				break;
+
 			case 'event_start_time_24h':
-				return $start_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('start_date')));
+				$replacement = $start_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('start_date')));
+				break;
+
 			case 'event_start_time_ical':
 				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
 				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
-					return date('Ymd', iso8601_ts($this->attr('start_date')));
+					$replacement = date('Ymd', iso8601_ts($this->attr('start_date')));
 				}
-				return date('Ymd\THis', iso8601_ts($this->attr('start_date')));
+				$replacement = date('Ymd\THis', iso8601_ts($this->attr('start_date')));
+				break;
+
 			case 'event_end_date':
 				// In the case of 'end_date' of the first instance is not set
-				return $end_date_not_set ? '' : date('jS M Y', iso8601_ts($this->attr('end_date')));
+				$replacement = $end_date_not_set ? '' : date('jS M Y', iso8601_ts($this->attr('end_date')));
+				break;
+
 			case 'event_end_time_12h':
-				return $end_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date')));
+				$replacement = $end_time_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date')));
+				break;
+
 			case 'event_end_time_24h':
-				return $end_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date')));
+				$replacement = $end_time_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date')));
+				break;
+
 			case 'event_short_start_time':
-				if ($start_time_not_set) return '';
+				if ($start_time_not_set) $replacement = '';
 				$mins = date('i', iso8601_ts($this->attr('start_date')));
 				if ($mins == '00') {
-					return date('ga', iso8601_ts($this->attr('start_date')));
+					$replacement = date('ga', iso8601_ts($this->attr('start_date')));
 				} else {
-					return date('g:ia', iso8601_ts($this->attr('start_date')));
+					$replacement = date('g:ia', iso8601_ts($this->attr('start_date')));
 				}
+				break;
+
 			case 'event_short_end_time':
-				if ($end_time_not_set) return '';
+				if ($end_time_not_set) $replacement = '';
 				$mins = date('i', iso8601_ts($this->attr('end_date')));
 				if ($mins == '00') {
-					return date('ga', iso8601_ts($this->attr('end_date')));
+					$replacement = date('ga', iso8601_ts($this->attr('end_date')));
 				} else {
-					return date('g:ia', iso8601_ts($this->attr('end_date')));
-					
+					$replacement = date('g:ia', iso8601_ts($this->attr('end_date')));
 				}
+				break;
+
 			case 'event_end_time_ical':
-				if ($end_date_not_set) return '';
+				if ($end_date_not_set) $replacement = '';
 				
 				// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
 				$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
@@ -892,36 +913,56 @@ class Calendar_Event extends Asset
 				$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
 				
 				// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
-				return preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
+				$replacement = preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
+				break;
+
 
 			case 'event_start_datetime':
-				return $this->getFriendlyStart();
+				$replacement = $this->getFriendlyStart();
+				break;
+
 			case 'event_end_datetime':
-				return $this->getFriendlyEnd();
+				$replacement = $this->getFriendlyEnd();
+				break;
+
 			case 'event_datetime_summary':
-				return $this->getFriendlyDatesAndTimes();
+				$replacement = $this->getFriendlyDatesAndTimes();
+				break;
+
 			case 'event_duration':
 				// give useful info if no duration (single point in time) - easy_time_total returns empty string
 				$total_time = easy_time_total($this->getDuration(), TRUE);
 				if (empty($total_time)) $total_time = 'N/A';
-				return $total_time;
+				$replacement = $total_time;
+				break;
+
 			case 'edit_link':
-				return $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+				$replacement = $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+				break;
+
 			case 'delete_link':
-				return $this->_getDeleteLink();
+				$replacement = $this->_getDeleteLink();
+				break;
+
 			default:
 				// if the keyword at this point starts with event_start_datetime_ or event_end_datetime_
 				// it means this is a dynamic keyword to display a date
 				preg_match('/^event_start_datetime_(.+)/', $keyword, $matches);
 				if ($matches != NULL) {
-					return date($matches[1], iso8601_ts($this->attr('start_date')));
+					$replacement = date($matches[1], iso8601_ts($this->attr('start_date')));
 				}
 				preg_match('/^event_end_datetime_(.+)/', $keyword, $matches);
 				if ($matches != NULL) {
-					return $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
+					$replacement = $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
 				}
-				return parent::getKeywordReplacement($keyword);
+				$replacement = parent::getKeywordReplacement($keyword);
+				break;
+
 		}//end switch
+		
+		apply_keyword_modifiers($replacement, $modifiers);
+
+		return $replacement;
 
 	}//end getKeywordReplacement()
 

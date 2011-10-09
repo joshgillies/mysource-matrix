@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.27 2010/10/06 22:48:36 mhaidar Exp $
+* $Id: calendar_event_modification.inc,v 1.28 2011/10/09 22:49:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -273,14 +273,16 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$keyword = parse_keyword($keyword, $modifiers);
+
 		if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime'))) {
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
 				switch ($keyword) {
 					case 'instance_start_datetime':
-						return $instance_dates['start'];
+						$replacement = $instance_dates['start'];
 					case 'instance_end_datetime':
-						return $instance_dates['end'];
+						$replacement = $instance_dates['end'];
 				}
 			}
 		}
@@ -288,17 +290,19 @@ class Calendar_Event_Modification extends Calendar_Event
 		preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
 		if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-			return date($matches[1], iso8601_ts($instance_dates['start']));
+			$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
 		}
 		$matches = Array();
 		preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
 		if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-			return date($matches[1], iso8601_ts($instance_dates['end']));
+			$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
 		}
-
-		$replacement = parent::getKeywordReplacement($keyword);
-		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
+	
+		if (empty($replacement)) {
+			$replacement = parent::getKeywordReplacement($keyword);
+		}
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 
