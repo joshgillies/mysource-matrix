@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.752 2011/09/09 03:51:28 cupreti Exp $
+* $Id: asset.inc,v 1.753 2011/10/10 02:05:01 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.752 $
+* @version $Revision: 1.753 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3378,8 +3378,8 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
-		
-		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON) {
+
+		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
 			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
@@ -3898,7 +3898,9 @@ class Asset extends MySource_Object
 		} else if (strcmp('asset_type_icon', $keyword) == 0) {
 			$replacement = sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type()), 16, 16, '');
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
+		
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
+			  
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = $this->getAttribute($attr_name);
 				if (!is_null($attr) && !$attr->is_admin) {
