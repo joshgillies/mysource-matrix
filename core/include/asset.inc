@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.748.2.5 2011/09/13 00:06:04 cupreti Exp $
+* $Id: asset.inc,v 1.748.2.6 2011/10/10 02:06:15 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.748.2.5 $
+* @version $Revision: 1.748.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3379,7 +3379,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 		
-		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON) {
+		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
 			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
