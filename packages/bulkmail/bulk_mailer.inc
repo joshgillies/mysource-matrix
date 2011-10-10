@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.95 2010/08/16 23:50:38 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.95.8.1 2011/10/10 22:06:40 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.95 $
+* @version $Revision: 1.95.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -1172,7 +1172,7 @@ class Bulk_Mailer
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
-		if (error_reporting() || $terminate) {
+		if ((error_reporting() & $err_no) || $terminate) {
 
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
