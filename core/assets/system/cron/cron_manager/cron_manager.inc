@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.82 2011/05/13 01:05:32 akarelia Exp $
+* $Id: cron_manager.inc,v 1.82.2.1 2011/10/10 21:59:44 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.82.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -989,11 +989,12 @@ class Cron_Manager extends Asset
 	*/
 	public function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
+
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
-		if (error_reporting() || $terminate) {
+		if ((error_reporting() & $err_no) || $terminate) {
 
 			// Strip out the file path begining
 			$err_file = hide_system_root($err_file);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.60.12.1 2011/09/05 22:44:24 akarelia Exp $
+* $Id: cron_job.inc,v 1.60.12.2 2011/10/10 21:59:44 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60.12.1 $
+* @version $Revision: 1.60.12.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -735,7 +735,7 @@ class Cron_Job extends Asset
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
-		if (error_reporting() || $terminate) {
+		if ((error_reporting() & $err_no) || $terminate) {
 
 			// Strip out the file path begining
 			$err_file = hide_system_root($err_file);
