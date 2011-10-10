@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.19 2010/07/14 23:01:25 csmith Exp $
+* $Id: csv.inc,v 1.19.8.1 2011/10/10 23:50:14 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.8.1 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -343,6 +343,9 @@ class CSV
 
 		// check to see if the file exsts
 		if (!is_file($this->filepath)) return;
+		
+		//set auto_detect_line_endings to detect weird old mac line endings and stuff
+		$line_ending_cfg = ini_set('auto_detect_line_endings', 1);
 
 		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
@@ -365,7 +368,11 @@ class CSV
 		}
 
 		fclose($fp);
-
+		
+		//set auto_detect_line_endings back off if neccesary
+		if (!$line_ending_cfg) {
+			ini_set('auto_detect_line_endings', 0);
+		}
 	}//end import()
 
 
