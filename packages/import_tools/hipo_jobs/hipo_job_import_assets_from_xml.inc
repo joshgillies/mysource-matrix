@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.3.2.1 2011/06/15 23:19:09 akarelia Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.3.2.2 2011/10/11 04:50:12 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -134,6 +134,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	function prepare()
 	{
 		$this->_running_vars['import_action_outputs'] = Array();
+		$this->_running_vars['nest_content_to_fix'] = Array();
 		$file_info = $this->_running_vars['file_info'];
 		$import_actions = get_import_actions($file_info);
 
@@ -147,6 +148,10 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			if($action['action_type'][0] === 'create_file_asset') {
 				$action['file_path'][0] = dirname($file_info).'/'.$action['file_path'][0];
 				$import_actions['actions'][0]['action'][$id] = $action;
+			}
+			// remember nest content to fix
+			if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {
+				$this->_running_vars['nest_content_to_fix'] [] = $action['action_id'][0];
 			}
 		}
 		
@@ -213,6 +218,16 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
 	
+			// fix nest content type, regenerate the bodycopy
+			foreach ($this->_running_vars['nest_content_to_fix'] as $actionid) {
+			   if(isset($this->_running_vars['import_action_outputs'][$actionid])) {
+				$nest_content_id = $this->_running_vars['import_action_outputs'][$actionid]['assetid'];
+				$nest_content = $GLOBALS['SQ_SYSTEM']->am->getAsset($nest_content_id);
+				$nest_content->_tmp['edit_fns'] = NULL;
+				$nest_content->linksUpdated();
+			   }
+			}
+			
 			// done with everything ? delete the file
 			if ($this->_running_vars['delete_after_import']) {
 				// unlink the import dir
