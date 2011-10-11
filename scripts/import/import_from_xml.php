@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.16.2.1 2011/08/08 05:11:13 akarelia Exp $
+* $Id: import_from_xml.php,v 1.16.2.2 2011/10/11 04:49:41 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix
 */
 
@@ -86,9 +86,14 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $import_action_outputs = Array();
+$nest_content_to_fix = Array();
 // Loop through the Actions from the XML File
 foreach ($import_actions['actions'][0]['action'] as $action) {
-
+	// remember nest content to fix
+	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {	
+		$nest_content_to_fix[] = $action['action_id'][0];
+	}
+	
 	// Execute the action
 	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
@@ -99,6 +104,16 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	}
 }
 
+
+// fix nest content type, regenerate the bodycopy
+foreach ($nest_content_to_fix as $actionid) {
+	if(isset($import_action_outputs[$actionid])) {
+		$nest_content_id = $import_action_outputs[$actionid]['assetid'];
+		$nest_content = $GLOBALS['SQ_SYSTEM']->am->getAsset($nest_content_id);
+		$nest_content->_tmp['edit_fns'] = NULL;
+		$nest_content->linksUpdated();
+	}
+}
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
