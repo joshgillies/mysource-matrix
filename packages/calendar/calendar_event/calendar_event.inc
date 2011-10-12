@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.93 2011/10/09 22:49:55 akarelia Exp $
+* $Id: calendar_event.inc,v 1.94 2011/10/12 05:11:25 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -363,6 +363,21 @@ class Calendar_Event extends Asset
 		// page go super-mega-hyperturbo (but only if already created)
 		if (!empty($this->id) && !$dont_run_updated) {
 			if (!$this->cacheCalendarData()) return FALSE;
+		}
+
+		// bug fix #5364 Recurring Calendar Event: Time Changes don't get sent to child Event Modifications
+		// we need to make ssure to cascade the changes to and children of the recurring event,if thats the
+		// asset type we are updating
+ 		if ($this->id && $this->type() == 'calendar_event_recurring' && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+			$events_to_update = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'calendar_event_modification');
+			// because we do not have locks on the child modofication assets
+			// we need to set the run level so that we can update these assets
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			foreach ($events_to_update as $event_id => $info) {
+				$modification_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
+				if (!$modification_event->saveAttributes()) return FALSE;
+			}
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
 		// all sweet, so it seems
