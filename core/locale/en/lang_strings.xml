@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391.2.6 2011/09/29 04:58:13 ewang Exp $
+* $Id: lang_strings.xml,v 1.391.2.7 2011/10/13 03:40:43 akarelia Exp $
 *
 */
 
@@ -922,6 +922,7 @@
 	<string source="content_type_no_change">-- Leave Unchanged --</string>
 	<string source="bodycopy_asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it for the URL currently being edited [&lt;b&gt;%s&lt;/b&gt;]. No style information is available to use for content editing.</string>
 	<string source="bodycopy_asset_has_no_preview">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</string>
+	<string source="asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it. You need a Design applied for Paint Layouts to work.</string>
 	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
 	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
