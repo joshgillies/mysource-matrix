@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.30 2010/10/12 06:28:17 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.30.8.1 2011/10/13 06:38:08 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -420,7 +420,7 @@ class Page_Upcoming_Events_List extends Page
 			$asset_infos = $am->getAssetInfo($keys);
 		}
 
-		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
+		$recurring_event_descendants = array_merge($am->getTypeDescendants('calendar_event_recurring', TRUE), Array('calendar_event_modification'));
 
 		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
 		$first_current_date = TRUE;
@@ -467,11 +467,26 @@ class Page_Upcoming_Events_List extends Page
 				}
 
 				$first_current_date = FALSE;
+
+			} else if ($asset && $asset->type() == 'calendar_event_modification') {
+
+				$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
+				$current_date = add_days_to_iso($current_date, 1);
+				// for the modification event we ned to find what recurring 
+				// event we are modifying and update that events instances
+				$link = $GLOBALS['SQ_SYSTEM']->am->getParents($id, 'calendar_event_recurring', NULL, NULL, TRUE, 1, 1);
+
+				foreach($events as $temp_id => $temp_event) {
+					$original_id = strtok($temp_id, ':');
+					if (array_key_exists($original_id, $link)) {
+						$events[$temp_id]['current_date'] = $current_date;
+						$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
+					}
+				}
 			}
 
 			// get asset keywords
 			if ($asset && $needs_asset[$format_type] ) {
-
 				foreach ($required_keywords[$format_type] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
@@ -630,9 +645,9 @@ class Page_Upcoming_Events_List extends Page
 				throw new Exception($e->getMessage());
 			}//end
 			$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
-			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 
 			$new_events = $single_result + $recur_result;
+			$new_events = Calendar_Common::expandEventList($new_events, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 			Calendar_Common::processExceptions($new_events);
 
 			$all_events += $new_events;
@@ -640,6 +655,7 @@ class Page_Upcoming_Events_List extends Page
 			$start_ts = $end_ts - 1; // for next loop if necessary
 
 		}
+
 		uasort($all_events, Array('Calendar_Common', 'compareStartDates'));
 		$res = Array();
 		$i = 0;
