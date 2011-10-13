@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.39 2010/09/23 06:11:12 cupreti Exp $
+* $Id: page_calendar_rolling.inc,v 1.39.8.1 2011/10/13 06:37:34 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -517,7 +517,7 @@ class Page_Calendar_Rolling extends Page
 					if (!isset($type_formats[$format_type])) {
 						if (in_array($format_type, $single_event_descendants)) {
 							$format_type = 'calendar_event_single';
-						} else if (in_array($format_type, $recurring_event_descendants)) {
+						} else if (in_array($format_type, $recurring_event_descendants) || $format_type == 'calendar_event_modification') {
 							$format_type = 'calendar_event_recurring';
 						}
 					}

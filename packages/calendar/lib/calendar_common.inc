@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.73 2010/09/23 06:10:13 cupreti Exp $
+* $Id: calendar_common.inc,v 1.73.8.1 2011/10/13 06:37:34 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -587,9 +587,6 @@ class Calendar_Common
 				$id_bits = explode(':', $id);
 				$real_id = $id_bits[0];
 				$exception_ids[] = MatrixDAL::quote($real_id);
-				if ($details['type_code'] == 'calendar_event_cancellation') {
-					unset($res[$id]);
-				}
 			}
 		}
 		if (empty($exception_ids)) return FALSE;
@@ -602,10 +599,45 @@ class Calendar_Common
 			throw new Exception($e->getMessage());
 		}
 
-		foreach ($res as $key => $details) {
-			$id = explode(':', $key);
-			$id = $id[0];
-			if (isset($exception_links[$id])) unset($res[$key]);
+		// if there are no event modification or event cancalletions found
+		// it is safe to return back from here as we dont need to remove
+		// any of the events
+		if (empty($exception_links)) return FALSE;
+
+		// so guess we have found some event modification or cancellation
+		// lets deal with them Matrix style B-)
+		$events_n_exceptions = Array();
+
+		foreach ($exception_links as $event => $exceptions) {
+			foreach ($exceptions as $index => $exception) {
+				$exception_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($exception[0]);
+				$events_n_exceptions[$event][] = $exception_event;
+			}
+		}
+
+		foreach ($events_n_exceptions as $event_id => $exceptions) {
+			foreach ($exceptions as $i => $exception) {
+				foreach ($res as $key => $details) {
+					$id = explode(':', $key);
+					$id = $id[0];
+					if ($event_id == $id) {
+						// get the start date of the calendar_event_modification 
+						// or calendar_event_cancellation (exception)
+						// and compare it with the instance we have
+						// because we need to just cancel/modify that occurance 
+						// and not all of the occurance of that particular event
+						$exception_date = $exception->attr('start_date');
+						if (strpos($exception_date, date('Y-m-d', $details['start_date_ts'])) !== FALSE) {
+							unset($res[$key]);
+						}
+					}
+					// also if we are ourselves the cancellation event
+					// unset ouselves
+					if ($details['type_code'] == 'calendar_event_cancellation') {
+						unset($res[$key]);
+					}
+				}
+			}
 		}
 
 	}//end processExceptions()
