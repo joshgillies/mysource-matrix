@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.257.2.6 2011/08/28 23:36:46 cupreti Exp $
+* $Id: form.inc,v 1.257.2.7 2011/10/13 05:24:46 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.257.2.6 $
+* @version $Revision: 1.257.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4741,7 +4741,6 @@ class Form extends Asset implements Bridge
 	*/
 	public function _getThankYouKeywordReplacement($keyword)
 	{
-
 		$replacement = '%'.$keyword.'%';
 		$prefix = $this->getPrefix();
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -4795,7 +4794,7 @@ class Form extends Asset implements Bridge
 				$replacement = $this->submission_asset->id;
 			}
 
-		} else if (preg_match('|^form_submission_time(_.*)|', $keyword, $matches)) {
+		} else if (preg_match('|^form_submission_time(_?.*)|', $keyword, $matches)) {
 			// Submission time - can use date formats - if not recognised as
 			// a valid shorthand date format, it's assumed to be a date() format
 			// (just like date keywords elsewhere)
