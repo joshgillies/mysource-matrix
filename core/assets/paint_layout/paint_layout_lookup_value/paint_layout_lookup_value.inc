@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.15 2008/07/03 02:07:23 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.15.18.1 2011/10/13 03:41:02 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,6 +159,11 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		} else {
 			echo empty($asset_override) ? '<i>'.translate('none').'</i>' : get_asset_tag_line($asset_override['minorid']);
 		}
+		$design_info = $owner->getDesignLookups();
+		if (empty($design_info) && !empty($lookup_values)) {
+			echo '<br/><span style="color:#FF0000">'.translate('asset_has_no_design').'</span>';
+		}
+
 		$o->closeField();
 
 		// close asset definitions section
