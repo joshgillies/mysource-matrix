@@ -24,7 +24,7 @@
     <string source="form_action_upload_youtube_video_client_credentials_status_no_consumer"><![CDATA[<strong style="color: #f00">Client credentials missing.</strong>]]></string>
     <string source="form_action_upload_youtube_video_settings_header">YouTube Video Setup</string>
     <string source="form_action_upload_youtube_video_settings_note"><![CDATA[
-    <p>For the Title, Description and Category, you may either set a fixed value or select a Form Question asset to dynamically populate the value from its submission answer. The Form Question answer takes priority over the fixed value. Category is compulsory. Description is optional. A missing Title will be populated with the video file name.</p>
+    <p>For the Title, Description and Category, you may set a default value and/or select a Form Question asset to dynamically populate the value from its submission answer. The Form Question answer takes priority over the default value. Category is compulsory. Description is optional. A missing Title will be populated with the video file name.</p>
     <p>The Video Source field is compulsory and must be a File Upload Form Question.</p>
     <p>Video files are only deleted from the server if the File Upload Form Question does not specify a "Create Location".</p>
     ]]></string>
