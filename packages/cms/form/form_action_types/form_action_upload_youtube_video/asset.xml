@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2011/10/14 00:57:47 mhaidar Exp $
+* $Id: asset.xml,v 1.2 2011/10/14 04:06:56 mhaidar Exp $
 *
 */
 -->
@@ -22,8 +22,8 @@
 	<package>cms</package>
 	<type_code>form_action_upload_youtube_video</type_code>
 	<version>0.1</version>
-	<name>Upload Youtube Video</name>
-	<description>Form Action that uploads a video to Youtube</description>
+	<name>Upload YouTube Video</name>
+	<description>Form Action that uploads a video to YouTube</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>form_action</parent_type>
