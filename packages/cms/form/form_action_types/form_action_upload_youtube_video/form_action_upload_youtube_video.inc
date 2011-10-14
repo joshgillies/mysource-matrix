@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_upload_youtube_video.inc,v 1.2 2011/10/14 05:35:23 mhaidar Exp $
+* $Id: form_action_upload_youtube_video.inc,v 1.3 2011/10/14 05:36:09 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -513,7 +513,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$settings['title'] = $submission['answers'][$settings['title_question_id']]['answer'];
 		}
 		
-		//if (empty($settings['title'])) $settings['title'] = basename($video_path);
+		if (empty($settings['title'])) $settings['title'] = basename($video_path);
 		
 		if (!empty($settings['description_question_id']) && !empty($submission['answers'][$settings['description_question_id']]['answer'])){
 			$settings['description'] = $submission['answers'][$settings['description_question_id']]['answer'];
