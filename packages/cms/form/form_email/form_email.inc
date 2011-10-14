@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.74 2011/03/08 23:24:15 ewang Exp $
+* $Id: form_email.inc,v 1.75 2011/10/14 00:57:47 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -701,6 +701,7 @@ class Form_Email extends Form
 	*/
 	public function _getThankYouKeywordReplacement($keyword)
 	{
+		$keyword = parse_keyword($keyword, $modifiers);
 		$prefix = $this->getPrefix();
 		$replacement = NULL;
 
@@ -733,9 +734,17 @@ class Form_Email extends Form
 				}
 			}//end if referrer is not empty
 
+		} else if ($keyword == 'youtube_video_link'){
+			$replacement = (isset($this->form_action_keywords['youtube_video_link'])) ? $this->form_action_keywords['youtube_video_link'] : '';
+		} else if ($keyword == 'youtube_video_id'){
+			$replacement = (isset($this->form_action_keywords['youtube_video_id'])) ? $this->form_action_keywords['youtube_video_id'] : '';
+		} else if ($keyword == 'youtube_video_published_date'){
+			$replacement = (isset($this->form_action_keywords['youtube_video_published_date'])) ? $this->form_action_keywords['youtube_video_published_date'] : '';
 		} else {
 			$replacement = parent::_getThankYouKeywordReplacement($keyword);
 		}
+		
+		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
 
