@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.29 2011/10/17 04:36:36 akarelia Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.30 2011/10/17 04:46:28 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -283,7 +283,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$current = $asset->attr('user_attributes');bam($current);
+		$current = $asset->attr('user_attributes');
 		$array_flipped = array_flip(array_merge($current['show'], $current['hide']));
 		$sort_by = array_get_index($array_flipped, $current['sort_by'], '');
 
