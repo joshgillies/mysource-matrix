@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.95 2011/10/17 00:00:28 akarelia Exp $
+* $Id: calendar_event.inc,v 1.96 2011/10/17 00:10:03 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -901,7 +901,11 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'event_short_start_time':
-				if ($start_time_not_set) $replacement = '';
+				if ($start_time_not_set) {
+					$replacement = '';
+					break;
+				}
+
 				$mins = date('i', iso8601_ts($this->attr('start_date')));
 				if ($mins == '00') {
 					$replacement = date('ga', iso8601_ts($this->attr('start_date')));
@@ -911,7 +915,11 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'event_short_end_time':
-				if ($end_time_not_set) $replacement = '';
+				if ($start_time_not_set) {
+					$replacement = '';
+					break;
+				}
+
 				$mins = date('i', iso8601_ts($this->attr('end_date')));
 				if ($mins == '00') {
 					$replacement = date('ga', iso8601_ts($this->attr('end_date')));
