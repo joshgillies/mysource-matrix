@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.94 2011/10/12 05:11:25 akarelia Exp $
+* $Id: calendar_event.inc,v 1.95 2011/10/17 00:00:28 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -882,8 +882,9 @@ class Calendar_Event extends Asset
 				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
 				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
 					$replacement = date('Ymd', iso8601_ts($this->attr('start_date')));
+				} else {
+					$replacement = date('Ymd\THis', iso8601_ts($this->attr('start_date')));
 				}
-				$replacement = date('Ymd\THis', iso8601_ts($this->attr('start_date')));
 				break;
 
 			case 'event_end_date':
@@ -974,7 +975,7 @@ class Calendar_Event extends Asset
 				break;
 
 		}//end switch
-		
+
 		apply_keyword_modifiers($replacement, $modifiers);
 
 		return $replacement;
