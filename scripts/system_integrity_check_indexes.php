@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.16 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_integrity_check_indexes.php,v 1.16.2.1 2011/10/18 00:02:56 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -177,7 +177,6 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					$temp_idx_cols = implode(',', $idx_columns);
 					if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
 						$idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
-
 						$error = false;
 					}
 				}
@@ -217,6 +216,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 						$bad_indexes[] = array('table_name' => $tablename, 'index_name' => $idx_name, 'expected' => implode(',', $idx_columns), 'found' => $index_definition, 'primary_key' => true);
 						$sql_commands[] = $create_index_statement;
 					}
+					unset($full_index_list[$tablename][$idx_name]);
 				}
 			}
 		}
@@ -251,7 +251,6 @@ foreach ($packages as $_pkgid => $pkg_details) {
 						$temp_idx_cols = implode(',', $index_info['columns']);
 						if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
 							$full_idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
-
 							$error = false;
 						}
 					}
@@ -261,6 +260,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					} else {
 
 						if (in_array($full_idx_name, $skip_definition_checks)) {
+							unset($full_index_list[$tablename][$full_idx_name]);
 							printUpdateStatus('OK');
 							continue;
 						}
@@ -269,6 +269,8 @@ foreach ($packages as $_pkgid => $pkg_details) {
 
 						$index_definition = $full_index_list[$tablename][$full_idx_name];
 						$found_index_columns = explode(',', $index_definition);
+
+						unset($full_index_list[$tablename][$full_idx_name]);
 
 						if ($found_index_columns === $index_info['columns']) {
 							printUpdateStatus('OK');
@@ -328,6 +330,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					continue;
 				} else {
 					if (in_array($full_idx_name, $skip_definition_checks)) {
+						unset($full_index_list[$tablename][$full_idx_name]);
 						printUpdateStatus('OK');
 						continue;
 					}
@@ -336,6 +339,8 @@ foreach ($packages as $_pkgid => $pkg_details) {
 
 					$index_definition = $full_index_list[$tablename][$full_idx_name];
 					$found_index_columns = explode(',', $index_definition);
+
+					unset($full_index_list[$tablename][$full_idx_name]);
 
 					if ($found_index_columns === $idx_columns) {
 						printUpdateStatus('OK');
@@ -446,6 +451,32 @@ if (!empty($postgres_primary_key_warnings)) {
 	$msg .= "COMMIT;\n";
 	pre_echo($msg);
 }
+
+$show_extra_indexes_message = false;
+$extra_indexes_message = "Extra indexes have been found on the following tables.\n";
+$extra_indexes_message .= "If these changes have been made deliberately, ignore this warning.\n";
+$extra_indexes_message .= "This can lead to performance loss.\n";
+$extra_indexes_message .= "To remove these, run the following command(s):\n\n";
+foreach ($full_index_list as $tablename => $info) {
+	if (strpos($tablename, 'sq_rb_') !== FALSE) {
+		continue;
+	}
+	if (empty($info) === TRUE) {
+		continue;
+	}
+	$extra_message_shown = true;
+	$show_extra_indexes_message = true;
+	$extra_indexes_message .= "These were found on table ".$tablename.":\n";
+	foreach ($info as $index_name => $fields) {
+		$extra_indexes_message .= "\tDROP INDEX ".$index_name.";\n";
+	}
+	$extra_indexes_message .= "\n";
+}
+
+if ($show_extra_indexes_message) {
+	pre_echo(trim($extra_indexes_message));
+}
+
 if (!$extra_message_shown) {
 	pre_echo('Everything has been checked and no problems were found.');
 }
@@ -725,6 +756,14 @@ function getIndexes()
 					}
 
 					$idx_name = strtolower($idx_name);
+
+					/**
+					 * The way oracle handles unique indexes is to create a sub-index
+					 * to enforce things. It's still an index but it has no columns.
+					 */
+					if (empty($idx_columns) === TRUE) {
+						break;
+					}
 
 					$idx_list[$tablename][$idx_name] = $idx_columns;
 
