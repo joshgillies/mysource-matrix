@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.92.4.2 2011/10/13 06:22:48 akarelia Exp $
+* $Id: calendar_event.inc,v 1.92.4.3 2011/10/18 01:03:17 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.92.4.2 $
+* @version $Revision: 1.92.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -364,11 +364,14 @@ class Calendar_Event extends Asset
 		if (!empty($this->id) && !$dont_run_updated) {
 			if (!$this->cacheCalendarData()) return FALSE;
 		}
+		$treeid = Array();
 
 		// bug fix #5364 Recurring Calendar Event: Time Changes don't get sent to child Event Modifications
 		// we need to make ssure to cascade the changes to and children of the recurring event,if thats the
-		// asset type we are updating
- 		if ($this->id && $this->type() == 'calendar_event_recurring' && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+		// asset type we are updating.
+		// also make sure "THIS" asset does have the valid treeid before we try to get its children
+		if ($this->id) $treeid = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($this->id);
+ 		if (($this->id) && $this->type() == 'calendar_event_recurring' && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && !empty($treeid)) {
 			$events_to_update = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'calendar_event_modification');
 			// because we do not have locks on the child modofication assets
 			// we need to set the run level so that we can update these assets
@@ -882,8 +885,9 @@ class Calendar_Event extends Asset
 				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
 				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
 					$replacement = date('Ymd', iso8601_ts($this->attr('start_date')));
+				} else {
+					$replacement = date('Ymd\THis', iso8601_ts($this->attr('start_date')));
 				}
-				$replacement = date('Ymd\THis', iso8601_ts($this->attr('start_date')));
 				break;
 
 			case 'event_end_date':
@@ -900,35 +904,43 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'event_short_start_time':
-				if ($start_time_not_set) $replacement = '';
-				$mins = date('i', iso8601_ts($this->attr('start_date')));
-				if ($mins == '00') {
-					$replacement = date('ga', iso8601_ts($this->attr('start_date')));
+				if ($start_time_not_set) {
+					$replacement = '';
 				} else {
-					$replacement = date('g:ia', iso8601_ts($this->attr('start_date')));
+					$mins = date('i', iso8601_ts($this->attr('start_date')));
+					if ($mins == '00') {
+						$replacement = date('ga', iso8601_ts($this->attr('start_date')));
+					} else {
+						$replacement = date('g:ia', iso8601_ts($this->attr('start_date')));
+					}
 				}
 				break;
 
 			case 'event_short_end_time':
-				if ($end_time_not_set) $replacement = '';
-				$mins = date('i', iso8601_ts($this->attr('end_date')));
-				if ($mins == '00') {
-					$replacement = date('ga', iso8601_ts($this->attr('end_date')));
+				if ($start_time_not_set) {
+					$replacement = '';
 				} else {
-					$replacement = date('g:ia', iso8601_ts($this->attr('end_date')));
+					$mins = date('i', iso8601_ts($this->attr('end_date')));
+					if ($mins == '00') {
+						$replacement = date('ga', iso8601_ts($this->attr('end_date')));
+					} else {
+						$replacement = date('g:ia', iso8601_ts($this->attr('end_date')));
+					}
 				}
 				break;
 
 			case 'event_end_time_ical':
-				if ($end_date_not_set) $replacement = '';
-				
-				// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
-				$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
-				$replacement = "'$1-$2-'.str_pad(($3+1),2,\"0\",STR_PAD_LEFT)";
-				$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
-				
-				// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
-				$replacement = preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
+				if ($end_date_not_set) {
+					$replacement = '';
+				} else {
+					// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
+					$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
+					$replacement = "'$1-$2-'.str_pad(($3+1),2,\"0\",STR_PAD_LEFT)";
+					$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
+	
+					// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
+					$replacement = preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
+				}
 				break;
 
 
