@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.29 2011/06/17 01:57:57 akarelia Exp $
+* $Id: utility.js,v 1.30 2011/10/18 06:05:03 mhaidar Exp $
 *
 */
 
@@ -69,13 +69,8 @@ HTMLArea.prototype._createRange = function(sel) {
 		return sel.createRange();
 	} else {
 		this.focusEditor();
-		if (typeof sel != "undefined") {
-			if ((sel.rangeCount == 0 && HTMLArea.is_safari4)) {
-				// Safari 4 does not like a range of 0 and gettting the range at 0
-				return this._doc.createRange();
-			} else {
-				return sel.getRangeAt(0);
-			}
+		if (typeof sel != "undefined" && sel.rangeCount > 0) {
+			return sel.getRangeAt(0);
 		} else {
 			return this._doc.createRange();
 		}
