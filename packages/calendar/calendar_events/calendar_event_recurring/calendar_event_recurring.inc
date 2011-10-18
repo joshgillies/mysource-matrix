@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.97.2.1 2011/10/13 06:22:48 akarelia Exp $
+* $Id: calendar_event_recurring.inc,v 1.97.2.2 2011/10/18 01:06:40 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.97.2.1 $
+* @version $Revision: 1.97.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -861,7 +861,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getKeywordReplacement($keyword)
 	{
-
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		switch ($keyword) {
@@ -893,14 +892,21 @@ class Calendar_Event_Recurring extends Calendar_Event
 							switch ($keyword) {
 								case 'instance_start_datetime':
 									$replacement = $instance_dates['start'];
+									break;
+
 								case 'instance_end_datetime':
 									$replacement = $instance_dates['end'];
+									break;
+
 								case 'cancel_link':
 									$write_access = $this->writeAccess('');
 									$replacement = $write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default');
+									break;
+
 								case 'modify_link':
 									$write_access = $this->writeAccess('');
 									$replacement = $write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default');
+									break;
 							}
 						}
 					} else {
@@ -947,6 +953,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$stop_date = $this->attr('stop_date');
 				if ((!empty($matches)) && !empty($stop_date) && (FALSE === strpos('----', $stop_date))) {
 					$replacement = date($matches[1], iso8601_ts($stop_date));
+
+					// break outta switch block
+					break;
 				}
 				if (in_array($keyword, Array('asset_url', 'asset_href'))) {
 					$res = parent::getKeywordReplacement($keyword);
