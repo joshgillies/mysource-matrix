@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93 2011/09/22 01:23:05 akarelia Exp $
+* $Id: js_api.inc,v 1.93.2.1 2011/10/18 05:24:45 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.93.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3391,10 +3391,10 @@ class JS_Api extends Page
 				$return_array[$se_keyword] = $ei->getKeywordsReplacementsForPaint($asset, $limbo_outputter, $layout, $screen_sort_order, FALSE, TRUE);
 				// lets replace % with &#37; so that while rendering on frontend %asset_name% (keywords)
 				// are not replaced and the raw keyword is spat out. but also make sure to do this only to keywords
-				$pattern = '/(.)(%)([asset_|globals_]?[a-zA-Z0-9_:\^]*)(%)(.)/';
+				$pattern = '/(.)(%)([asset_|globals_]?[a-zA-Z0-9_:\.\^]*)(%)(.)/';
 				$replacement = '$1&#37;$3&#37;$5';
 				$return_array[$se_keyword] = preg_replace($pattern, $replacement ,$return_array[$se_keyword]);
-				$pattern_2 = '/([\"|\']{0}%)([asset_|globals_]?[a-zA-Z0-9_:\^]*)(%[\"|\']{0})/';
+				$pattern_2 = '/([\"|\']{0}%)([asset_|globals_]?[a-zA-Z0-9_:\.\^]*)(%[\"|\']{0})/';
 				$replacement_2 = '&#37;$2&#37;';
 				$return_array[$se_keyword] = preg_replace($pattern_2, $replacement_2 ,$return_array[$se_keyword]);
 
