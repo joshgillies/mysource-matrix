@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.71 2010/10/29 03:30:48 csmith Exp $
+* $Id: tables.xml,v 1.71.8.1 2011/10/18 00:02:40 csmith Exp $
 *
 */
 -->
@@ -1245,9 +1245,6 @@
 				</primary_key>
 			</keys>
 			<indexes>
-				<index>
-					<column name="userto" />
-				</index>
 				<index>
 					<column name="type" />
 				</index>
