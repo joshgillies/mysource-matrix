@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.8 2007/12/06 05:03:08 rong Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.8.20.1 2011/10/19 03:08:00 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.20.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -231,7 +231,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					// Ensure that the content is retained when setting HTML options (text to WYSIWYG) or disabling this option (WYSIWYG to text)
 					if (($new_use_html_options) || ($asset_use_html_options && !$new_use_html_options)) {
 						if (isset($_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key])) {
-							$text = $_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key];
+							$text = trim($_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key]);
 						}
 					}
 
