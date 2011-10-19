@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.854 2011/10/18 00:39:18 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.855 2011/10/19 02:57:20 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.854 $
+* @version $Revision: 1.855 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8633,6 +8633,15 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of the passed web paths that are currently in use by any the children of the major asset
 	*
+	* Ideally we could do this in only a couple of queries:
+	* - check which paths already exist
+	* - get the last path variation for each one that does exist
+	* - increment variations appropriately.
+	* Unfortunately due to db sorting (sometimes '#99' is being returned when '#120 is the real last variation)
+	* this isn't possible.
+	* Instead, it checks existing paths in chunks of 1000 to see which exist, remembers the last id from each
+	* chunk (worked out in php, it's more consistent), and then modifies path variations as required.
+	*
 	* @param Asset		$major					the major asset, whose children we are to check
 	* @param array		$paths					array of web paths to check
 	* @param int		$ignore_assetid			ignore this assetid when checking
@@ -8650,67 +8659,149 @@ class Asset_Manager extends MySource_Object
 		// db_extras_bitand
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$db = MatrixDAL::getDb();
+		$db     = MatrixDAL::getDb();
+		$dbType = MatrixDAL::getDbType();
 
-		while (!empty($paths)) {
-			$bindVars = array();
+		$sql = 'SELECT p.path
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+				ON p.assetid = l.minorid ';
+		$where = 'WHERE l.majorid = :majorid ';
+		$bindVars['majorid'] = (string) $major->id;
 
-			$paths_string = '';
-			foreach ($paths as $pathid => $path) {
-				$bindVars['path'.$pathid] = $path;
-				$paths_string .= ':path'.$pathid.',';
+		if ($ignore_assetid) {
+			$where .= 'AND l.minorid <> :ignore_assetid ';
+			$bindVars['ignore_assetid'] = (string) $ignore_assetid;
+		}
+
+		$where .= 'AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
+
+		/**
+		 * fixPaths will be a list of paths that are already taken and need to be adjusted.
+		 */
+		$fixPaths = array();
+
+		/**
+		 * endPaths keeps a lits of the last path used in each chunk received from the database.
+		 * See function comments about #99 vs #120 for why
+		 */
+		$endPaths = array();
+
+		// Used for chunking when looking at existing paths.
+		$offset = 0;
+		$limit  = 1000;
+		do {
+			/**
+			 * If we're not returning alternatives, we're just checking whether the
+			 * paths passed in exist or not.
+			 * This is quite easy to do - however we have to chunk it into < 1000 pieces
+			 * for oracle just in case.
+			 */
+			if ($return_alternatives === FALSE) {
+				$paths_string_array = array();
+				foreach (array_chunk($paths, 499) as $chunkid => $chunk) {
+					$paths_string = '(p.path IN (';
+					foreach ($chunk as $pathid => $path) {
+						$bindVars['path'.$chunkid.$pathid] = $path;
+						$paths_string .= ':path'.$chunkid.$pathid.',';
+					}
+					$paths_string = rtrim($paths_string, ',');
+					$paths_string .= '))';
+					$paths_string_array[] = $paths_string;
+				}
+				$where .= 'AND '.implode(' OR ', $paths_string_array);
 			}
-			$paths_string = rtrim($paths_string, ',');
 
-			$sql = 'SELECT p.path
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
-					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					ON p.assetid = l.minorid ';
-			$where = 'WHERE l.majorid = :majorid ';
-			$bindVars['majorid'] = (string) $major->id;
-
-			if ($ignore_assetid) {
-				$where .= 'AND l.minorid <> :ignore_assetid ';
-				$bindVars['ignore_assetid'] = (string) $ignore_assetid;
-			}
-
-			$where .= 'AND p.path IN ('.$paths_string.')
-				AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
+			$fullSql = $sql.$where;
+
+			/**
+			 * Since we're fetching in chunks we need to make sure we order the results.
+			 * So we don't double up and we don't miss any.
+			 *
+			 * (path, assetid) is the primary key - so use that for ordering.
+			 */
+			if ($return_alternatives == TRUE) {
+				$fullSql .= ' ORDER BY path, assetid DESC';
+				$fullSql = db_extras_modify_limit_clause($fullSql, $dbType, $limit, $offset);
+			}
+
 			try {
-				$paths_result = MatrixDAL::preparePdoQuery($sql.$where);
+				$paths_result = MatrixDAL::preparePdoQuery($fullSql);
 				foreach ($bindVars as $bindVar => $bindValue) {
 					MatrixDAL::bindValueToPdo($paths_result, $bindVar, $bindValue);
 				}
-				$used_paths = MatrixDAL::executePdoAssoc($paths_result, 0);
+				$foundPaths = MatrixDAL::executePdoAssoc($paths_result, 0);
 			} catch (Exception $e) {
 				throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
 			}//end try catch
 
-			// if we do not need to get alternate we paths, just return
-			// the ones that are currently in use
-			if (!$return_alternatives) return $used_paths;
-
-			$unused_paths = array_diff($paths, $used_paths);
-			$return_paths = array_merge($return_paths, $unused_paths);
-
-			// we now update the paths we are looking for to be the ones we know
-			// are currently in use, except we will increment the paths using
-			// numerials and check thse new valids to see if they are in use
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$paths = $used_paths;
-			for ($i = count($paths) - 1; $i >= 0; $i--) {
-				$paths[$i] = increment_filename($paths[$i]);
+			if ($return_alternatives === FALSE) {
+				return $foundPaths;
 			}
-		}//end while
 
-		return $return_paths;
+			if (empty($foundPaths) === FALSE) {
+				/**
+				 * Keep a list of the last path in this chunk.
+				 * We'll use this later on in case we need to increment
+				 * the path id's.
+				 */
+				natcasesort($foundPaths);
+				$endPaths[] = end($foundPaths);
 
+				// These are the ones that are already taken.
+				$problem_paths = array_intersect($paths, $foundPaths);
+
+				/**
+				 * array_merge here resets the keys, which we don't want.
+				 * we need to make sure we send back the paths in the right order.
+				 * especially if they are modified later on, so we just
+				 * add the two arrays together.
+				*/
+				$fixPaths = $fixPaths + $problem_paths;
+			}
+			$offset += $limit;
+
+			// If we only get 100 results, don't bother going back for more.
+			// We know there are no more!
+			if (sizeof($foundPaths) < $limit) {
+				break;
+			}
+		} while (empty($foundPaths) === FALSE);
+		/*
+		 * The above should never be needed since we're checking the size
+		 * of the returned paths against the limit, but it can't hurt to have
+		 * this check anyway.
+		 */
+
+		/**
+		 * None need adjusting, so return them as-is.
+		 */
+		if (empty($fixPaths) === TRUE) {
+			return $paths;
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// Work out the real end path based on all the end paths of the chunks.
+		natcasesort($endPaths);
+		$last_path = end($endPaths);
+
+		/**
+		 * increment each modified path based on the last_path above.
+		 * no need to check if the id is taken again, we've done that.
+		 */
+		foreach ($fixPaths as $i => $path) {
+			$temp_path = increment_filename($last_path);
+			$paths[$i] = $temp_path;
+			$last_path = $temp_path;
+		}
+		return $paths;
 	}//end webPathsInUse()
 
 
-//--        PAINTING        --//
+	//--        PAINTING        --//
 
 
 	/**
