@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_upload_youtube_video.inc,v 1.3 2011/10/14 05:36:09 mhaidar Exp $
+* $Id: form_action_upload_youtube_video.inc,v 1.4 2011/10/19 00:06:14 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -282,7 +282,9 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$settings['access_token'] = NULL;
 			$settings['access_token_secret'] = NULL;
 			$settings['access_token_errors'] = NULL;
-
+			
+			unset($_REQUEST['oauth_verifier']);
+			
 			return TRUE;
 		}
 		
