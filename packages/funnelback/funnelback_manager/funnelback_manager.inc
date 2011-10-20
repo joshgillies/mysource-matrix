@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.37 2011/08/24 03:20:47 cupreti Exp $
+* $Id: funnelback_manager.inc,v 1.37.2.1 2011/10/20 00:16:37 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1512,7 +1512,8 @@ class Funnelback_Manager extends Asset
 				// Find the errors ... do NOT throw to output
 				$errors = stream_get_contents($pipes[2]);
 				if (!empty($errors)) {
-					error_log("\nCommand failed\n");
+					error_log("Funnelback Command failed, see funnelback.log for additional detail.");
+					log_write($errors, 'funnelback');
 				}//end if
 				fclose($pipes[2]);
 			}//end if
