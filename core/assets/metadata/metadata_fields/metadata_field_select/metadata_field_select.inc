@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.35 2010/11/14 23:22:16 mhaidar Exp $
+* $Id: metadata_field_select.inc,v 1.36 2011/10/20 02:12:56 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,7 @@ class Metadata_Field_Select extends Metadata_Field
 			$key = str_replace('\\=', '=', $key);
 			$key = str_replace('\\\\', '\\', $key);
 			if (isset($options[$key])) {
-				$value_str .= $options[$key].'\\; ';
+				$value_str .= $options[$key].'; ';
 			}
 		}
 		if (strlen($value_str) == 0) {
@@ -158,7 +158,8 @@ class Metadata_Field_Select extends Metadata_Field
 		}
 
 		// trim the last separator
-		$value_str = substr($value_str, 0, -3);
+		$value_str = substr($value_str, 0, -2);
+		$value_str = Metadata_Field::encodeValueString($value_str, Array());
 
 		return $value_str;
 
