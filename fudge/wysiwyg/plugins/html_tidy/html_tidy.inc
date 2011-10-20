@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.72 2010/06/17 01:07:45 mhaidar Exp $
+* $Id: html_tidy.inc,v 1.73 2011/10/20 23:16:36 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -194,9 +194,6 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				foreach ($config as $param => $option) {
 					$args .= ' '.$param.' '.((is_bool($option)) ? (int) $option : $option);
 				}
-
-				// replaces &middot; with a <li>
-				$html = str_replace('&middot;','<li>',$html);
 
 				$complete_html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 						<html lang="en"><head><title></title>

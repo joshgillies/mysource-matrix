@@ -7,7 +7,7 @@
 *
 * 
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -163,8 +163,8 @@ $options = Array (
 						$rep = "";
 						break;
 					case 'Change Microsoft Words bullets':
-						$reg = "%<p[^>]*>".$bullet."(.*?)<\/p>%i";
-						$rep = "<li>$1";
+						$reg = "%<p[^>]*>(".$bullet."|&middot;)(.*?)<\/p>%i";
+						$rep = "<li>$2";
 						break;
 					case 'Remove soft hyphens':
 						$reg = "%(&shy;?|".$shy.")%i";
