@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.11 2011/01/12 03:44:25 cupreti Exp $
+* $Id: replace_text.inc,v 1.11.6.1 2011/10/21 00:30:44 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.6.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -105,8 +105,8 @@ class Replace_Text extends WYSIWYG_Plugin
 									break;
 								}
 								case 4	: {
-									reg = new RegExp("<p[^>]*>"+bullet+"(.*?)<\/p>", "gi");
-									rep = "<li>$1";
+									reg = new RegExp("<p[^>]*>("+bullet+"|&middot\;)(.*?)<\/p>", "gi");
+									rep = "<li>$2";
 									break;
 								}
 								case 5	: {
