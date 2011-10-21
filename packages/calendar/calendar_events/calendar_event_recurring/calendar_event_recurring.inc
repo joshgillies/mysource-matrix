@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.99 2011/10/17 03:15:11 akarelia Exp $
+* $Id: calendar_event_recurring.inc,v 1.100 2011/10/21 04:24:49 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -927,7 +927,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 					} else {
 						// we are showing a normal instance of this event
 						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
+						switch ($matches[1]){
+							case 'ical':
+								// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
+								if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['start'])) {
+									$replacement = date('Ymd', iso8601_ts($instance_dates['start']));
+								} else {
+									$replacement = date('Ymd\THis', iso8601_ts($instance_dates['start']));
+								}
+								break;
+							default:
+								$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
+						}
+						
 					}
 
 					// break outta switch block
@@ -942,7 +954,17 @@ class Calendar_Event_Recurring extends Calendar_Event
 					} else {
 						// we are showing a normal instance of this event
 						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
+						switch ($matches[1]){
+							case 'ical':
+								if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['end'])) {
+									$replacement = date('Ymd', iso8601_ts($instance_dates['end']));
+								} else {
+									$replacement = date('Ymd\THis', iso8601_ts($instance_dates['end']));
+								}
+								break;
+							default:
+								$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
+						}
 					}
 
 					// break outta switch block
