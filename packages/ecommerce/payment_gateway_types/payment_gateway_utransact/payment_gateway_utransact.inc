@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_utransact.inc,v 1.3 2011/04/14 00:31:56 cupreti Exp $
+* $Id: payment_gateway_utransact.inc,v 1.4 2011/10/21 05:54:50 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/utransact_processor.inc';
 * Interface for online credit card processing using Utransact payment gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -613,7 +613,8 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 	 */
 	private function _isValidMonth($month)
 	{
-		return (preg_match('/^\d{2}$/', $month) && $month >=1 && $month <=12);
+		$month_of_year = Array('JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC');
+		return (in_array(strtoupper($month), $month_of_year));
 		
 	}//end _isValidMonth()
 
@@ -628,7 +629,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 	 */
 	private function _isValidYear($year)
 	{
-		return preg_match('/^\d{2}$/', $year);
+		return preg_match('/^\d{4}$/', $year);
 		
 	}//end _isValidYear()
 
