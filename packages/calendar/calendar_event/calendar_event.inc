@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.97 2011/10/17 03:16:54 akarelia Exp $
+* $Id: calendar_event.inc,v 1.98 2011/10/21 00:49:15 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -933,12 +933,22 @@ class Calendar_Event extends Asset
 				if ($end_date_not_set) {
 					$replacement = '';
 				} else {
-					// If theres no end time for given end date, then accourding to iCal standards this means end date is next day without time bit
-					$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--):(--):(--)$/e";
-					$replacement = "'$1-$2-'.str_pad(($3+1),2,\"0\",STR_PAD_LEFT)";
-					$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
+					// If theres no end time for given end date then accourding to iCal
+					// standards this means end date is next day without time bit but
+					// this is confusing and misleading for the users so as a fix to 
+					// issue reported on #5359 iCal date keyword prints incorrected if 
+					// end date has no time, we will let the end date be according to 
+					// hCalendar standards. More information on bug report's comments
+					$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--:--:--)$/";
+					$replacement = "$1-$2-$3";
+					if (preg_match($no_endtime_pattern, $this->attr('end_date'), $matches)) {
+						$end_date = preg_replace($no_endtime_pattern, $replacement, $this->attr('end_date'));
+					} else {
+						$end_date = $this->attr('end_date');
+					}
 	
-					// Don't worry about possibility of invalid date resulting from incrementing the day bit above; php's date() will handle it correctly
+					// Don't worry about possibility of invalid date resulting from incrementing 
+					// the day bit above; php's date() will handle it correctly
 					$replacement = preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
 				}
 				break;
