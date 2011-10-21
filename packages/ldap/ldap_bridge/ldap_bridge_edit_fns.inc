@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.28 2011/04/04 02:00:25 akarelia Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.28.2.1 2011/10/21 02:29:02 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -284,7 +284,8 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('user_attributes');
-		$sort_by = (isset($current['sort_by'])) ? $current['sort_by'] : '';
+		$array_flipped = array_flip(array_merge($current['show'], $current['hide']));
+		$sort_by = array_get_index($array_flipped, $current['sort_by'], '');
 
 		// connect through the bridge and find out what type of information
 		// we get back for the users
@@ -375,7 +376,15 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 			$show_hide = (isset($field_data['show']) && $field_data['show']) ? 'show' : 'hide';
 			$user_attributes[$show_hide][$field_name] = $field_data['name'];
 		}
-		$user_attributes['sort_by'] = (isset($_POST[$prefix.'_sort_by'])) ? $_POST[$prefix.'_sort_by'] : '';
+		$user_attributes['sort_by'] = '';
+		if (isset($_POST[$prefix.'_sort_by'])) {
+			if (isset($user_attributes['show'][$_POST[$prefix.'_sort_by']])) {
+				$user_attributes['sort_by'] = $user_attributes['show'][$_POST[$prefix.'_sort_by']];
+			} else if (isset($user_attributes['hide'][$_POST[$prefix.'_sort_by']])) {
+				$user_attributes['sort_by'] = $user_attributes['hide'][$_POST[$prefix.'_sort_by']];
+			}
+		}
+
 		return $asset->setAttrValue('user_attributes', $user_attributes);
 
 	}//end processUserSetup()
