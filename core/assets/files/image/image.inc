@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.89 2011/08/01 05:32:26 mhaidar Exp $
+* $Id: image.inc,v 1.89.2.1 2011/10/21 02:05:21 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.89.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,7 +298,7 @@ class Image extends File implements Bridge
 		}
 		if ($alt == '') $alt = $this->attr('alt');
 
-		$tag = '<img src="'.$this->getURL().'" width="'.$this->attr('width').'" height="'.$this->attr('height').'" alt="'.$alt.'" title="'.$title.'" />';
+		$tag = '<img src="'.$this->getURL().'" width="'.$this->attr('width').'" height="'.$this->attr('height').'" alt="'.htmlentities($alt).'" title="'.htmlentities($title).'" />';
 		if ($return) return $tag;
 		echo $tag;
 
