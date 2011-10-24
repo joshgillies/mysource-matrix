@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_web_services.inc,v 1.8 2011/01/25 00:59:41 cupreti Exp $
+* $Id: package_manager_web_services.inc,v 1.9 2011/10/24 23:43:53 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -62,6 +62,7 @@ class Package_Manager_Web_Services extends Package_Manager
 		return Array(
 				'web_folder_web_services',
 				'rest_manager',
+				'cron_job_remove_soap_response_files',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -151,6 +152,37 @@ class Package_Manager_Web_Services extends Package_Manager
         return $rest_manager;
 
     }//end createRestManager()
+
+
+	/**
+	* Create the funnelback log rotation cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobremoveSoapResponseFiles()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Remove SOAP Response Files cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_remove_soap_response_files');
+
+		$cron_job = new Cron_Job_Remove_SOAP_Response_Files();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Remove SOAP Response Files Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Remove SOAP Response Files Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_remove_soap_response_files', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobFunnelbackLogRotation()
 
 
 }//end class
