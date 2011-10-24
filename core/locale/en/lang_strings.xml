@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398.2.2 2011/10/13 03:41:02 akarelia Exp $
+* $Id: lang_strings.xml,v 1.398.2.3 2011/10/24 07:27:39 akarelia Exp $
 *
 */
 
@@ -466,6 +466,7 @@
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
 	<string source="cron_job_expired_matrix_cache">Expired Matrix Cache Cron Job</string>
 	<string source="cron_job_expired_matrix_locks">Expired Matrix Locks Cron Job</string>
+	<string source="cron_job_remove_soap_response_files">Remove SOAP Response Files Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
@@ -532,6 +533,13 @@
 	<string source="update_permission_to_current_children">Update this permission to all existing children that fall under this asset in the various hierarchies</string>
 	<string source="option_value">Option Value</string>
 	<string source="no_select_box_options">There are currently no select box options</string>
+	<string source="response_keyword_note">Note: This list only shows the keywords for the first set of data for the array elements in the soap response, if any</string>
+	<string source="field_keyword_tags">Field Keyword (Tag)</string>
+	<string source="fail_validation_error_msg">If the specified field fails the validation, the step action will treat it as an regular form error.</string>
+	<string source="question_keyword_example">Question keywords can be used in the message, for example, <![CDATA[&#37;response_100_q1&#37;, &#37;question_name_100_q1&#37;, &#37;file_upload_100_q2&#37;]]></string>
+	<string source="response_to_download_as_file">Response to download as file</string>
+	<string source="response_to_download_as_file_note">If a file is expected in the SOAP Response, you can configure the keywords above. This will ensure the file is temporary downloaded on the server and a relative link is provided to view that file in the replacement for above keyword.</string>
+	<string source="add_new_field">New field to check ?</string>
 
 	<string source="system_configuration">System Configuration</string>
 	<string source="squiz_server_configuration">Squiz Server Configuration</string>

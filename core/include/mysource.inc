@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.374 2011/09/22 01:18:26 cupreti Exp $
+* $Id: mysource.inc,v 1.374.2.1 2011/10/24 07:27:15 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374 $
+* @version $Revision: 1.374.2.1 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1747,7 +1747,29 @@ class MySource extends MySource_Object
 				$asset_map->process($this->backend);
 				exit(1);
 			break;
-			
+
+			case 'get_soap_downloaded_file' :
+				$filename = array_get_index($_GET, 'soap_filename', '');
+				$sessionid = session_id();
+				$full_file_path = SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$filename;
+
+				if (!file_exists($full_file_path)) {
+					trigger_localised_error('FVER0007', E_USER_WARNING, $filename);
+					exit();
+				}
+
+				if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+					$finfo = finfo_open(FILEINFO_MIME_TYPE); 
+					$mime_type = finfo_file($finfo, $full_file_path);
+				} else {
+					$mime_type = mime_content_type($full_file_path);
+				}
+				header('Content-type: '.$mime_type);
+				readfile($full_file_path);
+
+				exit(1);
+			break;
+
 
 		}//end switch
 
