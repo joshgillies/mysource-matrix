@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.26 2011/06/14 03:27:13 akarelia Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.26.2.1 2011/10/24 00:25:11 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		}
 
 		$custom_message = array_get_index($settings, 'custom_error_msg', '');
-		$custom_error_level = $settings['treat_as_fatal'] ? E_USER_ERROR : E_USER_WARNING;
+		$custom_error_level = (isset($settings['treat_as_fatal']) && $settings['treat_as_fatal']) ? E_USER_ERROR : E_USER_WARNING;
 
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
