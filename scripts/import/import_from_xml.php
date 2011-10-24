@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.16.2.2 2011/10/11 04:49:41 ewang Exp $
+* $Id: import_from_xml.php,v 1.16.2.3 2011/10/24 06:16:33 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.16.2.2 $
+* @version $Revision: 1.16.2.3 $
 * @package MySource_Matrix
 */
 
@@ -93,7 +93,10 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {	
 		$nest_content_to_fix[] = $action['action_id'][0];
 	}
-	
+	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {	
+		$designs_to_fix[] = $action['action_id'][0];
+	}
+
 	// Execute the action
 	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
@@ -104,7 +107,6 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	}
 }
 
-
 // fix nest content type, regenerate the bodycopy
 foreach ($nest_content_to_fix as $actionid) {
 	if(isset($import_action_outputs[$actionid])) {
@@ -112,6 +114,16 @@ foreach ($nest_content_to_fix as $actionid) {
 		$nest_content = $GLOBALS['SQ_SYSTEM']->am->getAsset($nest_content_id);
 		$nest_content->_tmp['edit_fns'] = NULL;
 		$nest_content->linksUpdated();
+	}
+}
+
+// we have imported a few design , lets fix them
+foreach ($designs_to_fix as $design) {
+	if(isset($import_action_outputs[$design])) {
+		$design_id = $import_action_outputs[$design]['assetid'];
+		$vars = Array('assetid' => $design_id);
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh->freestyleHipo('hipo_job_regenerate_design', $vars);
 	}
 }
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

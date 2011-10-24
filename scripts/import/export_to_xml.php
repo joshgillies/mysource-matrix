@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.17.2.1 2011/07/27 01:53:59 ewang Exp $
+* $Id: export_to_xml.php,v 1.17.2.2 2011/10/24 06:16:33 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix
 */
 
@@ -161,10 +161,10 @@ echo "</actions>\n\n";
 		}
 
 		$dependants = Array();
-		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design' && getAssetType($asset) != 'Design_Css') {
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
-		} else if (getAssetType($asset) == 'Design') {
+		} else if (getAssetType($asset) == 'Design' || getAssetType($asset) == 'Design_Css') {
 			
 			// okie this part is a bit tricky
 			// we need to check if 
@@ -270,7 +270,7 @@ echo "</actions>\n\n";
 			}
 			$assets_done[$asset->id] = TRUE;
 
-			if (!empty($value) && !(getAssetType($asset) == 'Design' && $attr_name == 'contents')) {
+			if (!empty($value) && !((getAssetType($asset) == 'Design' || getAssetType($asset) == 'Design_Css') && $attr_name == 'contents')) {
 				// if default character set is utf-8 we dont wanna mess around the characters
 				// we are for now just checking for it not to be utf-8 but can append other encoding
 				// we might want to skip later on
@@ -303,10 +303,10 @@ echo "</actions>\n\n";
 		}
 
 		$dependants = Array();
-		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design') {
+		if (getAssetType($asset) != 'Design_Customisation' && getAssetType($asset) != 'Design' && getAssetType($asset) != 'Design_Css') {
 			// Then, if it has dependant children, we add those too
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
-		} else if (getAssetType($asset) == 'Design') {
+		} else if (getAssetType($asset) == 'Design' || getAssetType($asset) == 'Design_Css') {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
 		} else if (getAssetType($asset) == 'Design_Customisation') {
 			// if we are dealing with customisations, then only deal with
@@ -830,7 +830,7 @@ echo "</actions>\n\n";
 	{
 		fwrite(STDERR, "$s\n");
 
-	}//end echo_headline()
+	}//end echo_text()
 
 	/**
 	* Replace a current system asset's id with its name, because new system might have different asset id. a name will be safer
