@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.27 2011/04/27 23:45:46 ewang Exp $
+* $Id: google_map.inc,v 1.27.2.1 2011/10/24 04:57:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -1025,7 +1025,27 @@ class Google_Map extends Page_Asset_Listing
 		$steps  = 0;
 		while ($geocode_pending) {
 			$delay	= 0;
-			$xml	= simplexml_load_file($request_url) or die("url not loading");
+
+	  		$ch	= curl_init();
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_URL, $request_url);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+
+			// Use proxy if set
+			if (SQ_PA_ENABLED) {
+				$proxy = get_proxy_info_for_url($request_url);
+				if (!empty($proxy['host'])) {
+					curl_setopt($ch, CURLOPT_PROXY, $proxy['host']);
+					curl_setopt($ch, CURLOPT_PROXYPORT, $proxy['port']);
+					if (!empty($proxy['user'])) {
+						curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy['user'] . ':' . $proxy['password']);
+					}
+				}
+			}
+			$maps_xml = curl_exec($ch);
+			curl_close($ch);
+
+			$xml	= simplexml_load_string($maps_xml) or die("url not loading");
 			$status = $xml->Response->Status->code;
 			if (strcmp($status, "200") == 0) {
 				$geocode_pending = false;
