@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.97.6.2 2011/09/25 23:49:32 akarelia Exp $
+* $Id: general_occasional.inc,v 1.97.6.3 2011/10/24 03:00:17 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97.6.2 $
+* @version $Revision: 1.97.6.3 $
 * @package MySource_Matrix
 */
 
@@ -584,7 +584,7 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 		fputs($con, "GET $page_url HTTP/1.0\r\n");
 		fputs($con, "Host: ".$host."\r\n");
 		if( !empty($proxy['user']) && !empty($proxy['password']) ){
-			fputs($con, 'Proxy-Authorization: Basic'.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n");
+			fputs($con, 'Proxy-Authorization: Basic '.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n");
 		}
 		fputs($con, "\r\n"); // empty row to tell remote headers are complete
 
