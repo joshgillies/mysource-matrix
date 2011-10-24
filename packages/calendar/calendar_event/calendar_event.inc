@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.98 2011/10/21 00:49:15 akarelia Exp $
+* $Id: calendar_event.inc,v 1.99 2011/10/24 03:34:19 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -992,7 +992,7 @@ class Calendar_Event extends Asset
 				if ($matches != NULL) {
 					$replacement = $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
 				}
-				$replacement = parent::getKeywordReplacement($keyword);
+				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 				break;
 
 		}//end switch
