@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.99 2011/10/24 03:34:19 mhaidar Exp $
+* $Id: calendar_event.inc,v 1.100 2011/10/24 23:41:45 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -204,6 +204,7 @@ class Calendar_Event extends Asset
 		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
 		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
 		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
+		$our_keywords[] = 'event_calendar_date_'; // = dynamic keyword to print calendar date
 
 
 		foreach ($our_keywords as $keyword) {
@@ -985,13 +986,19 @@ class Calendar_Event extends Asset
 				// if the keyword at this point starts with event_start_datetime_ or event_end_datetime_
 				// it means this is a dynamic keyword to display a date
 				preg_match('/^event_start_datetime_(.+)/', $keyword, $matches);
-				if ($matches != NULL) {
+				if (!empty($matches)) {
 					$replacement = date($matches[1], iso8601_ts($this->attr('start_date')));
 				}
 				preg_match('/^event_end_datetime_(.+)/', $keyword, $matches);
-				if ($matches != NULL) {
+				if (!empty($matches)) {
 					$replacement = $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
 				}
+				
+				preg_match('/^event_calendar_date_(.+)/', $keyword, $matches);
+				if (!empty($matches) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+					$replacement = date($matches[1], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
+				}
+				
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 				break;
 
