@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.856 2011/10/21 01:11:58 csmith Exp $
+* $Id: asset_manager.inc,v 1.857 2011/10/24 02:21:43 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.856 $
+* @version $Revision: 1.857 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8724,8 +8724,12 @@ class Asset_Manager extends MySource_Object
 		/**
 		 * We only need to do this for the paths we need to fix.
 		 * We'll go through them one by one and work out the closest match.
+		 * We do that by stripping numbers off the end of the path and seeing
+		 * if there are any matches.
 		 */
 		foreach ($fixPaths as $fixid => $pathToFix) {
+			$pathToFix = preg_replace('/(.*?)\d+$/', '$1', $pathToFix);
+
 			/**
 			 * endPaths keeps a lits of the last path used in each chunk received from the database.
 			 * See function comments about #99 vs #120 for why
@@ -8736,11 +8740,14 @@ class Asset_Manager extends MySource_Object
 			$offset = 0;
 			$limit  = 1000;
 			do {
-				$where = $baseWhere . ' AND p.path LIKE :pathToFix';
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
 				$bindVars = $baseBindVars;
-				$bindVars['pathToFix'] = $pathToFix.'%';
+				$where    = $baseWhere;
+				if (empty($pathToFix) === FALSE) {
+					$where .= ' AND p.path LIKE :pathToFix';
+					$bindVars['pathToFix'] = $pathToFix.'%';
+				}
+
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 				$fullSql = $sql.$where;
 
@@ -8762,6 +8769,21 @@ class Asset_Manager extends MySource_Object
 				} catch (Exception $e) {
 					throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
 				}//end try catch
+
+				/**
+				 * If we're only looking at numeric paths, get rid of non-numeric paths
+				 * we can't use 'max' here to do it because '1' and 'page-1' will get returned
+				 * depending on which path was found first (see php.net/max for details/examples)
+				 * and also if a path starts with a number it will be included (which is not
+				 * what we want at all).
+				 */
+				if (empty($pathToFix) === TRUE) {
+					foreach ($foundPaths as $_idx => $_foundPath) {
+						if (is_numeric($_foundPath) === FALSE) {
+							unset($foundPaths[$_idx]);
+						}
+					}
+				}
 
 				/**
 				 * Keep a list of the last path in this chunk.
