@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.844.2.7 2011/09/16 02:03:33 cupreti Exp $
+* $Id: asset_manager.inc,v 1.844.2.8 2011/10/25 01:28:36 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.844.2.7 $
+* @version $Revision: 1.844.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1184,6 +1184,8 @@ class Asset_Manager extends MySource_Object
 			if ($deja_vu) {
 				$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $assetid);
 				if (!empty($asset)) {
+                    // Bug #5349: Deja Vu and Safe Editing
+					$asset->_loadDataPaths();
 					// We still want asset cache to do its thing.
 					$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 				}
