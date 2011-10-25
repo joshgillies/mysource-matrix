@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.24 2011/05/04 04:28:08 mhaidar Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.24.4.1 2011/10/25 01:12:55 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -851,10 +851,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	public function generateMetadata(Metadata_Field_Hierarchy $asset, $value_str, &$tag_value, Array &$keywords)
 	{
 		if (is_null($value_str)) {
-			$value_str = str_replace('; ', '\\; ', $asset->attr('default'));
+			$value_str = Metadata_Field::encodeValueString($asset->attr('default'), Array());
 		}
 
-		$options = $asset->attr('hierarchy_options');
 		// If we are showing the value, then go fetch it
 		if ($asset->attr('visible_part') === 'value') {
 			$value_str = $asset->getValueFromKey($value_str);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.13 2011/04/15 07:10:54 mhaidar Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.13.4.1 2011/10/25 01:12:55 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,7 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		foreach ($option_keys as $key) {
 			$key = str_replace('\\', '', $key);
 			if (isset($options[$key])) {
-				$value_str .= $options[$key].'\\; ';
+				$value_str .= $options[$key].'; ';
 			}
 		}
 		if (strlen($value_str) == 0) {
@@ -131,7 +131,8 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		}
 
 		// trim the last separator
-		$value_str = substr($value_str, 0, -3);
+		$value_str = substr($value_str, 0, -2);
+        $value_str = Metadata_Field::encodeValueString($value_str, Array());
 
 		return $value_str;
 
