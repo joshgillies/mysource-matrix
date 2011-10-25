@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.25 2011/01/31 23:46:38 ewang Exp $
+* $Id: page_remote_content_management.inc,v 1.25.4.1 2011/10/25 02:55:17 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,6 +43,7 @@ class Page_Remote_Content_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'text',
 													'default'	=> 'http://www.squizsuite.net',
+                                                    'is_admin'	=> 0
 												   ),
 						'load_links'			=> Array(
 													'added'			=> '0.1',
