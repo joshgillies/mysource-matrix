@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.14 2011/10/20 02:12:56 mhaidar Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.15 2011/10/25 00:58:30 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,6 +121,8 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 
 		foreach ($option_keys as $key) {
 			$key = str_replace('\\', '', $key);
+			$key = str_replace('\\=', '=', $key);
+			$key = str_replace('\\\\', '\\', $key);
 			if (isset($options[$key])) {
 				$value_str .= $options[$key].'; ';
 			}
