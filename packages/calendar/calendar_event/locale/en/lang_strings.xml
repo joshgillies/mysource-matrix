@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.11 2008/11/24 23:17:13 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.11.18.1 2011/10/25 00:13:03 mhaidar Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -39,6 +39,7 @@
 <string source="cal_evt_keyword_event_duration">Event Duration</string>
 <string source="cal_evt_keyword_event_start_datetime_">Event Start expressed with PHP date format which follow the last underscore character of the keyword.</string>
 <string source="cal_evt_keyword_event_end_datetime_">Event End expressed with PHP date format which follow the last underscore character of the keyword.</string>
+<string source="cal_evt_keyword_event_calendar_date_">Event Calendar Date with PHP date format after the last underscore character.</string>
 
 <string source="cal_evt_keyword_edit_link">Link to edit this event in Limbo (if user has permission)</string>
 <string source="cal_evt_keyword_delete_link">Link to delete this event altogether (if user has permission)</string>
