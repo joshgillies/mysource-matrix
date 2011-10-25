@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.230 2011/07/20 05:02:51 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.231 2011/10/25 00:59:11 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.230 $
+* @version $Revision: 1.231 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -808,7 +808,7 @@ class Metadata_Manager extends MySource_Object
 		}
 		
 		$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
-		
+
 		if (isset($metadata['values'])) {
 			$metadata_values = $metadata['values'];
 			
@@ -1098,7 +1098,7 @@ class Metadata_Manager extends MySource_Object
 		$updated_fields = Array('fieldids' => array_keys($metadata_updated));
 		$em->broadcastEvent($asset, 'MetadataUpdate', $broadcast_all_fields ? Array('all') : Array('fieldids' => array_keys($metadata)));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset, $updated_fields);
-
+                                                            
 		return TRUE;
 
 
@@ -1700,6 +1700,9 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_read_permission'  :
 					case 'asset_write_permission' :
 					case 'asset_admin_permission' :
+					case 'asset_read_permission_assetid'	:
+					case 'asset_write_permission_assetid' :
+					case 'asset_admin_permission_assetid' :
 					case 'asset_read_permission_email'	:
 					case 'asset_write_permission_email' :
 					case 'asset_admin_permission_email' :
@@ -1715,7 +1718,10 @@ class Metadata_Manager extends MySource_Object
 						echo '	if (is_null($user) || !$am->isTypeDecendant($user->type(), \'user\')) {'."\n";
 						echo '		continue;'."\n";
 						echo '	}'."\n";
-						if (preg_match('/.*_email$/', $keyword)) {
+						if (preg_match('/.*_assetid$/', $keyword)) {
+							echo '$metadata_'.$perm_type.'_perm_info[] = $user->id;'."\n";
+						}
+						else if (preg_match('/.*_email$/', $keyword)) {
 							echo '$metadata_'.$perm_type.'_perm_info[] = $user->attr(\'email\');'."\n";
 						} else if (preg_match('/.*_email_linked/', $keyword)) {
 							echo '$email = $user->attr(\'email\');'."\n";
