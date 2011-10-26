@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.32 2009/11/27 05:39:41 bpearson Exp $
+* $Id: calendar_event_cancellation.inc,v 1.33 2011/10/26 05:20:59 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -151,7 +151,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
-			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($sd) + $duration).substr($parent->attr('end_date'), 10));
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));			
 		}
 		// set our name based on the parent
 		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
