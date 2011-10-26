@@ -240,11 +240,16 @@ class InteractiveSqlTerminal
 		echo "\n\nYou are now connected.";
 		echo "\nDatabase type: " . $this->_db->getDbType() . $this->_db->getDbVersion() . ".\n\n";
 		ob_end_flush();
+		// Shorten the DB name if Oracle is using the full specifier
+		$db_name = $this->_db->getDbName();
+		if (preg_match("/SERVICE_NAME=/", $db_name)) {
+		    $db_name = preg_replace("/\A.*HOST=([\w.]+)\).*SERVICE_NAME=([\w.]+)\).*\z/",'$2 on $1',$db_name);
+		}
 		
 		while (1) {
 
 			// Prompt for input
-			$line = $this->_shell->readline($this->_db->getDbName() . $prompt);
+			$line = $this->_shell->readline($db_name . $prompt);
 
 			if ($line === "") {
 				echo "\n";
