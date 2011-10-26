@@ -242,8 +242,8 @@ class InteractiveSqlTerminal
 		ob_end_flush();
 		// Shorten the DB name if Oracle is using the full specifier
 		$db_name = $this->_db->getDbName();
-		if (preg_match("/SERVICE_NAME=/", $db_name)) {
-		    $db_name = preg_replace("/\A.*HOST=([\w.]+)\).*SERVICE_NAME=([\w.]+)\).*\z/",'$2 on $1',$db_name);
+		if (preg_match("/SERVICE_NAME=/i", $db_name)) {
+		    $db_name = preg_replace("/\A.*HOST\s*=\s*(.*?)\).*SERVICE_NAME\s*=\s*(.*?)\).*\z/i",'$2 on $1',$db_name);
 		}
 		
 		while (1) {
