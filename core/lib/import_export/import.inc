@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.25 2011/05/25 06:19:15 akarelia Exp $
+* $Id: import.inc,v 1.25.2.1 2011/10/27 04:51:20 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -182,7 +182,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 			foreach ($matches as $match) {
 				$str = str_replace('&#', '', $match);
 				$str= intval(str_replace(';', '', $str));
-				if ($str > 126) {
+				if ($str > 126 && $str < 256) {
 					$new_value = chr($str);
 				} else {
 					$new_value = $match;
