@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.21 2011/04/19 05:19:30 akarelia Exp $
+* $Id: mime_types.inc,v 1.21.4.1 2011/10/27 22:39:59 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.4.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -163,6 +163,7 @@ $standards_lists_mime_types = Array(
 									'sgml'		=> 'text/x-sgml',
 									'sgm'		=> 'text/x-sgml',
 									'xsl'		=> 'text/xsl',
+									'ics'		=> 'text/calendar',
 									'mpeg'		=> 'video/mpeg',
 									'mpg'		=> 'video/mpeg',
 									'mpe'		=> 'video/mpeg',
