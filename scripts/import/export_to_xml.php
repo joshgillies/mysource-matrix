@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.17.2.2 2011/10/24 06:16:33 akarelia Exp $
+* $Id: export_to_xml.php,v 1.17.2.3 2011/10/27 03:03:25 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix
 */
 
@@ -182,6 +182,9 @@ echo "</actions>\n\n";
 			// the design areas that are customised rest of the design areas
 			// will be generated once Matrix processes the parse file
 			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
 		}
 
 		foreach ($dependants as $link_info) {
@@ -313,6 +316,9 @@ echo "</actions>\n\n";
 			// the design areas that are customised rest of the design areas
 			// will be generated once Matrix processes the parse file
 			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
 		}
 
 		foreach ($dependants as $link_info) {
@@ -375,6 +381,9 @@ echo "</actions>\n\n";
 			// the design areas that are customised rest of the design areas
 			// will be generated once Matrix processes the parse file
 			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
 		}
 
 		foreach ($dependants as $link_info) {
@@ -527,6 +536,9 @@ echo "</actions>\n\n";
 			// the design areas that are customised rest of the design areas
 			// will be generated once Matrix processes the parse file
 			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
 		}
 
 		foreach ($dependants as $link_info) {
@@ -764,6 +776,9 @@ echo "</actions>\n\n";
 			// the design areas that are customised rest of the design areas
 			// will be generated once Matrix processes the parse file
 			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
 		}
 
 		foreach ($dependants as $link_info) {
