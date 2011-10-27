@@ -13,10 +13,10 @@
  * Licensed under the BSD license.
  * http://www.opensource.org/licenses/bsd-license.php
  *
- * 2011-02-15 (rev 108)
+ * 2011-10-28 (rev 113)
  *
  */
-$rev = "version 1.01, r108";
+$rev = "version 1.01, r113";
 
 define('UP', chr(27).chr(91).chr(65));
 define('DOWN', chr(27).chr(91).chr(66));
@@ -163,6 +163,7 @@ class InteractiveSqlTerminal
 		'timing' => "off",
 		'disable-completion' => "off",
 		'rowlimit' => 500,
+		'pager' => 'on',
 	);
 
 	/**
@@ -240,16 +241,11 @@ class InteractiveSqlTerminal
 		echo "\n\nYou are now connected.";
 		echo "\nDatabase type: " . $this->_db->getDbType() . $this->_db->getDbVersion() . ".\n\n";
 		ob_end_flush();
-		// Shorten the DB name if Oracle is using the full specifier
-		$db_name = $this->_db->getDbName();
-		if (preg_match("/SERVICE_NAME=/i", $db_name)) {
-		    $db_name = preg_replace("/\A.*HOST\s*=\s*(.*?)\).*SERVICE_NAME\s*=\s*(.*?)\).*\z/i",'$2 on $1',$db_name);
-		}
 		
 		while (1) {
 
 			// Prompt for input
-			$line = $this->_shell->readline($db_name . $prompt);
+			$line = $this->_shell->readline($this->_db->getDbName() . $prompt);
 
 			if ($line === "") {
 				echo "\n";
@@ -545,7 +541,7 @@ class InteractiveSqlTerminal
 			// Get current terminal size
 			$tty_size = $this->_getTtySize();
 
-			if (count($this->_output_buffer) < $tty_size[0]) {
+			if (!(bool)$this->_getOptionValue("pager") === true || count($this->_output_buffer) < $tty_size[0]) {
 
 				// Print all lines, if it fits on the tty
 				$this->_printLines(count($this->_output_buffer));
@@ -2256,7 +2252,13 @@ class DbBackend_MatrixDAL extends DbBackendPlugin
 	 */
 	public function getDbName()
 	{
-		return $this->_dsn['DSN'];
+		// Shorten the DB name if Oracle is using the full specifier
+		$dsn = trim($this->_dsn['DSN']);
+		if (preg_match("/SERVICE_NAME/i", $dsn)) {
+			return preg_replace("/\A.*HOST\s*=\s*(.*?)\).*SERVICE_NAME\s*=\s*(.*?)\).*\z/i", '$2 on $1', $dsn);
+		} else {
+			return $dsn;
+		}
 	}
 
 	/**
