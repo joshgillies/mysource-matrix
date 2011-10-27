@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.29 2011/10/26 05:20:59 mhaidar Exp $
+* $Id: calendar_event_modification.inc,v 1.30 2011/10/27 01:19:07 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -57,13 +57,6 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return FALSE;
-
-		if (!($link['value'] = $this->getStartDate())) {
-			trigger_localised_error('CAL0049', E_USER_ERROR);
-			return FALSE;
-		}
-
 		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
 			trigger_localised_error('CAL0052', E_USER_ERROR);
@@ -71,6 +64,13 @@ class Calendar_Event_Modification extends Calendar_Event
 		}
 
 		if (!$this->synchronizeWithParent($parent)) {
+			return FALSE;
+		}
+		
+		if (!parent::_preCreateCheck($link)) return FALSE;
+		
+		if (!($link['value'] = $this->getStartDate())) {
+			trigger_localised_error('CAL0049', E_USER_ERROR);
 			return FALSE;
 		}
 
