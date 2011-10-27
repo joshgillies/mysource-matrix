@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.17.2.2 2011/10/24 06:18:33 akarelia Exp $
+* $Id: import_from_xml.php,v 1.17.2.3 2011/10/27 00:25:43 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix
 */
 
@@ -87,6 +87,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $import_action_outputs = Array();
 $nest_content_to_fix = Array();
+$designs_to_fix = Array();
 // Loop through the Actions from the XML File
 foreach ($import_actions['actions'][0]['action'] as $action) {
 	// remember nest content to fix
