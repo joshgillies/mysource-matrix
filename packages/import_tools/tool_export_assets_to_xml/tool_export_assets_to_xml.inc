@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.2 2011/02/14 01:02:22 ewang Exp $
+* $Id: tool_export_assets_to_xml.inc,v 1.3 2011/10/28 03:58:32 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -90,8 +90,8 @@ class Tool_Export_Assets_To_Xml extends Tool
 			header('Content-Disposition: attachment; filename="export.tgz";');
 			header('Content-Length: '.filesize($export_dir.'/export.tgz'));
 	
-	        // Get the source file
-	        readfile($export_dir.'/export.tgz');
+		 // Get the source file
+		self::_readfile_chunked($export_dir.'/export.tgz');	
 			return;
 			@ob_flush();
 			return;
@@ -196,6 +196,43 @@ class Tool_Export_Assets_To_Xml extends Tool
 
 	}//end processTool()
 
+	
+
+	/**
+	* read file in chunks in case of memory exaust
+	*
+	* @param object	$filename	file name to read
+	* @param string	$retbytes	return int of bytes read
+	* @param string	$chunksize size of chunk in bytes
+	*
+	* @return boolean | int
+	* @access private
+	*/
+	 private static function _readfile_chunked($filename, $retbytes = TRUE, $chunksize = 1048576) {
+		$buffer = '';
+		$cnt =0;
+		// $handle = fopen($filename, 'rb');
+		$handle = fopen($filename, 'rb');
+		if ($handle === false) {
+		  return false;
+		}
+		while (!feof($handle)) {
+		  $buffer = fread($handle, $chunksize);
+		  echo $buffer;
+		  ob_flush();
+		  flush();
+		  if ($retbytes) {
+		    $cnt += strlen($buffer);
+		  }
+		}
+		$status = fclose($handle);
+		if ($retbytes && $status) {
+		  return $cnt; // return num. bytes delivered like readfile() does.
+		}
+		return $status;
+	  } // end _readfile_chunked()
+  
+  
 
 }//end class
 

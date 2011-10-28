@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2011/08/16 07:42:11 akarelia Exp $
+* $Id: lang_strings.xml,v 1.19 2011/10/28 03:58:32 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -95,14 +95,20 @@
 <!-- Import Assets from XML Tool -->
 <string source="tool_import_assets_from_xml_hipo_name">Hipo Job Import Assets From XML</string>
 <string source="tool_import_assets_from_xml_file_upload">Import XML File</string>
-<string source="tool_import_assets_from_xml_file_upload_note">Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <![CDATA[<a href="%s" target="_blank">example.xml</a>]]></string>
+<string source="tool_import_assets_from_xml_file_upload_note"><![CDATA[Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <a href="%s" target="_blank">example.xml</a>
+<br/>
+<strong>Note:</strong> Import of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#import_from_xml.php" target="_blank">manual</a> for details.
+]]></string>
 <string source="tool_import_assets_from_xml_create_under">Import Asset under (optional)</string>
 <string source="tool_import_assets_from_xml_create_under_note">If Asset is specified the assets are imported under that asset</string>
 
 <!-- Export Assets to XML Tool -->
 <string source="tool_export_assets_to_xml_hipo_name">Hipo Job Export Assets To XML</string>
 <string source="tool_export_assets_to_xml_root_node">Root Node</string>
-<string source="tool_export_assets_to_xml_root_node_note">Export all assets underneath root node to target parent node. Design, permission, linking can be maintained only if all involved assets are exported together. Use More button to select multiple root nodes.</string>
+<string source="tool_export_assets_to_xml_root_node_note"><![CDATA[Export all assets underneath root node to target parent node. Design, permission, linking can be maintained only if all involved assets are exported together. Use More button to select multiple root nodes.
+<br/>
+<strong>Note:</strong> Export of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#export_to_xml.php" target="_blank">manual</a> for details.
+]]></string>
 <string source="tool_export_assets_to_xml_target_parent">links to target parent asset id</string>
 
 </strings>
