@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.18.2.2 2011/10/27 03:03:11 akarelia Exp $
+* $Id: export_to_xml.php,v 1.18.2.3 2011/10/28 04:00:30 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix
 */
 
@@ -72,7 +72,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 $warned = FALSE;
 $asset_id_map = Array();
-
+echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 echo "<actions>\n";
 
 foreach($asset_infos as $asset_info) {

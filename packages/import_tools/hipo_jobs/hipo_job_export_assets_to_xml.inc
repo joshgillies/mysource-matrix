@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.8.1 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -158,7 +158,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset_infos = $this->_running_vars['root_node_mapping'];
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
-		ob_start();	
+		ob_start();
+		echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 		switch ($action) {
 			case 'create':
 				echo "<actions>\n";
