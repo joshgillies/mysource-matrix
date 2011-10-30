@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.107.4.1 2011/09/30 06:34:34 ewang Exp $
+* $Id: form_email_edit_fns.inc,v 1.107.4.2 2011/10/30 23:52:17 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.107.4.1 $
+* @version $Revision: 1.107.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1818,7 +1818,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// Get selected action, which may have changed last commit
 		if ($write_access) {
-			$selected_action = array_get_index($_POST, $prefix.'_new_selected_action', NULL);
+			$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 			if (!is_numeric($selected_action)) {
 				$selected_action = array_get_index($_POST, $prefix.'_selected_action', NULL);
 			}
@@ -1907,7 +1907,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// If we have selected "edit action", then we don't want this to run,
 		// because we only want active/delete changes to take effect upon
 		// hitting the commit button.
-		$edit_action = array_get_index($_POST, $prefix.'_new_selected_action', NULL);
+		$edit_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!empty($edit_action)) {
 			return $write_access;
 		}
@@ -2066,7 +2066,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	public function paintSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$selected_action = array_get_index($_POST, $prefix.'_new_selected_action', NULL);
+		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!is_numeric($selected_action)) {
 			$selected_action = array_get_index($_POST, $prefix.'_selected_action', NULL);
 		}
@@ -2136,7 +2136,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// If an "edit action" has been clicked, then we've lost the changes
 		// to the current rule.
-		$edit_action = array_get_index($_POST, $prefix.'_new_selected_action', NULL);
+		$edit_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (is_numeric($edit_action)) {
 			return FALSE;
 		}

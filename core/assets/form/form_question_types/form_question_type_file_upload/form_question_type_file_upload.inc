@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.46 2011/07/18 04:43:36 mhaidar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.46.2.1 2011/10/30 23:52:47 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,10 +255,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 					case 'filesystem_path' :
 						$filepath = $value;
-						$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
-						if (!empty($type)) $type = ', type '.$type;
-
-						$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
+						if (is_file($filepath)) {
+							$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
+							if (!empty($type)) $type = ', type '.$type;
+							$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
+						} else {
+							$new_summary = translate('core_form_file_upload_none');
+						}
 					break;
 
 					case 'new_file_assetid' :
