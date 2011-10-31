@@ -1,5 +1,135 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.6.0
+
+Featured Changes
+===================================
+
+
+Script to Export Form Submissions to CSV [ Feature Request #5337 ]
+-----------------------------------------------------
+
+A new script has been added to allow users to export form submissions to CSV. This script can be set to run automatically at regular intervals and is useful for integrating submissions into other systems.
+
+The export_form_submission_logs.php script takes the following arguments:
+
+- The asset ID of the form to export the submissions of.
+- A date range of submissions to export.
+- The path of the CSV file to export submissions to.
+
+An example of its usage is shown below:
+
+php scripts/export_form_submission_logs.php $PWD 1234 "yesterday 00:00:00" "yesterday 23:59:59" >~/submissions-export.csv
+
+Save File Response on Make SOAP Call Form and Trigger Action [ Feature Request #5356 ]
+-----------------------------------------------------
+
+The Make SOAP Call action sends a message to a remote SOAP server on the submission of a form or when a trigger is fired.
+
+Previously, this action was unable to save files that were returned as values on the SOAP response. This feature adds the ability to temporary download any files returned on the SOAP response.
+
+A new Response to download as file field on the Make SOAP Call settings allows you to specify the corresponding field keyword(s) of the file(s) on the SOAP response.
+
+When a file is returned on the SOAP response, Squiz Matrix will temporarily store this file on the server, replacing the field keyword with a relative URL to retrieve the file.
+
+A new Remove SOAP Response Files Cron Job is included with this feature. Set to run hourly, this cron job will clear the temporary files of SOAP responses stored on the server.
+
+Please note that this feature applies to the Make SOAP Call trigger action, form submission action and form step action.
+
+Upload YouTube Video Custom Form Submission Action [ Feature Request #5383 ]
+-----------------------------------------------------
+
+Submission actions on a Custom Form allow you to create custom actions that will be performed whenever a submission is made. This could involve, for example, sending an email, performing a database query or making a SOAP call.
+
+This feature introduces a new submission action to the Custom Form -- the Upload YouTube Video submission action. This submission action will take a video file on the submission and upload it to YouTube.
+
+OAuth authentication is granted via a YouTube-linked Google Account, allowing videos in submissions to be automatically uploaded to YouTube.
+
+You can specify the privacy setting of uploaded videos (public, private or unlisted) and provide default settings for the video, including the title, description and category. In addition to these default settings, you can specify the questions on your form to use submission responses as the details for the uploaded video. An upload file question type is specified as the source of the video to upload.
+
+Accompanying this new submission action, a number of new keyword replacements are available for use on the Thank You bodycopy:
+
+- %youtube_video_id%: the ID of the uploaded video. This ID is used within the YouTube link of the uploaded file (http://www.youtube.com/watch?v=xxxx).
+- %youtube_video_published_date%: the publish date of the YouTube video (yyyy-mm-dd).
+- %youtube_video_link%: the full link of the uploaded YouTube video.
+
+Permission Keyword Replacements to Print User IDs [ Feature Request #5399 ]
+-----------------------------------------------------
+
+New keyword replacements have been added to print a comma-separated list of asset IDs of users with Read, Write and Admin permissions on an asset.
+
+%asset_read_permission_assetid%
+%asset_write_permission_assetid%
+%asset_admin_permission_assetid%
+
+This is similar to the existing permission keywords that allow you to print the full name and email of users with permissions. For more information on these keywords, refer to the Squiz Matrix User Manual Library.
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5338: Remap Manager Never Delete Enhancements.
+Minor Enhancement #5339: Remap Manager CSV Parsing for Mac.
+Minor Enhancement #5359: Calendar Package Keyword Replacement Enhancements - iCal End Date.
+Minor Enhancement #5361: New Simple Edit Keywords for Recurring Event Modifications.
+Minor Enhancement #5363: Calendar Package Keyword Replacement Enhancements - iCal Format Instance Keywords.
+Minor Enhancement #5365: Calendar Package Keyword Replacement Enhancements - Event Calendar Date Keyword.
+Minor Enhancement #5369: Warning When Applying a Paint Layout on an Asset Without a Design.
+Minor Enhancement #5385: Funnelback Command Error Details.
+Minor Enhancement #5390: Performance Enhancement: Web Path Check on Asset Creation.
+Minor Enhancement #5398: Remote URL Keyword Replacement for Remote Content.
+Minor Enhancement #5400: IRC Calendar MIME Type.
+Minor Enhancement #5406: Export to XML Memory Enhancements.
+
+
+Core
+
+Fixed Bug #5265: Replace text tool list inconsistencies.
+Fixed Bug #5345: WYSIWYG Insert Link problem.
+Fixed Bug #5349: Deja Vu and Safe Editing.
+Fixed Bug #5351: Listing page with A-Z style; In single page mode, the group title of non A-Z pages printed as @.
+Fixed Bug #5353: Special chars in assetid causing problem in Asset Map when moving the asset.
+Fixed Bug #5358: Keyword Modifiers don't work with event keywords.
+Fixed Bug #5372: Online Quiz question spacing changes when using HTML.
+Fixed Bug #5373: Filter Front End User Input should disable in CLI mode.
+Fixed Bug #5374: Matrix throws strict errors even when configured not to.
+Fixed Bug #5378: Import asset from XML script/tool shows blank content for nested content type after import.
+Fixed Bug #5386: JS API getKeywordsReplacements un-terminated string literal.
+Fixed Bug #5388: Import/Export script issues with Design_Css asset.
+Fixed Bug #5391: Print IMG tag with Design Area nest content does not escape ALT and TITLE attributes.
+Fixed Bug #5395: Trigger Action Set Future Status complains for index not defined.
+Fixed Bug #5396: Proxy fails when using authentication.
+Fixed Bug #5403: Second level Design_Customisation issue with import/export script.
+Fixed Bug #5404: Double byte characters issue with import/export script.
+
+CMS
+
+Fixed Bug #5355: Custom Form Email - Time keyword not replaced.
+Fixed Bug #5380: %asset_metadata_<fieldname>_value% keyword doesn't work.
+
+LDAP
+
+Fixed Bug #5352: LDAP User Sorting under LDAP Groups not working.
+
+Calendar
+
+Fixed Bug #5332: Recurring Calendar Events don't show if they have a child modification.
+Fixed Bug #5360: iCal date keyword prints incorrect over a certain time period.
+
+Data
+
+Fixed Bug #5340: Invalid XML breaks XML Data Source asset.
+
+Google Maps
+
+Fixed Bug #5379: Google Maps doesn't respect proxies configured.
+
+
+
+
 VERSION 4.6.0 RC1
 
 Featured Changes
