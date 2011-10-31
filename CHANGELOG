@@ -1,5 +1,83 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.4.4
+
+Featured Changes
+===================================
+
+
+Script to Export Form Submissions to CSV [ Feature Request #5337 ]
+-----------------------------------------------------
+
+A new script has been added to allow users to export form submissions to CSV. This script can be set to run automatically at regular intervals and is useful for integrating submissions into other systems.
+
+The export_form_submission_logs.php script takes the following arguments:
+
+- The asset ID of the form to export the submissions of.
+- A date range of submissions to export.
+- The path of the CSV file to export submissions to.
+
+An example of its usage is shown below:
+
+php scripts/export_form_submission_logs.php $PWD 1234 "yesterday 00:00:00" "yesterday 23:59:59" >~/submissions-export.csv
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5359: Calendar Package Keyword Replacement Enhancements - iCal End Date.
+Minor Enhancement #5361: New Simple Edit Keywords for Recurring Event Modifications.
+Minor Enhancement #5369: Warning When Applying a Paint Layout on an Asset Without a Design.
+Minor Enhancement #5398: Remote URL Keyword Replacement for Remote Content.
+Minor Enhancement #5400: IRC Calendar MIME Type.
+
+
+Core
+
+Fixed Bug #5265: Replace text tool list inconsistencies.
+Fixed Bug #5345: WYSIWYG Insert Link problem.
+Fixed Bug #5349: Deja Vu and Safe Editing.
+Fixed Bug #5351: Listing page with A-Z style; In single page mode, the group title of non A-Z pages printed as @.
+Fixed Bug #5353: Special chars in assetid causing problem in Asset Map when moving the asset.
+Fixed Bug #5358: Keyword Modifiers don't work with event keywords.
+Fixed Bug #5372: Online Quiz question spacing changes when using HTML.
+Fixed Bug #5373: Filter Front End User Input should disable in CLI mode.
+Fixed Bug #5374: Matrix throws strict errors even when configured not to.
+Fixed Bug #5378: Import asset from XML script/tool shows blank content for nested content type after import.
+Fixed Bug #5386: JS API getKeywordsReplacements un-terminated string literal.
+Fixed Bug #5388: Import/Export script issues with Design_Css asset.
+Fixed Bug #5391: Print IMG tag with Design Area nest content does not escape ALT and TITLE attributes.
+Fixed Bug #5395: Trigger Action Set Future Status complains for index not defined.
+Fixed Bug #5396: Proxy fails when using authentication.
+Fixed Bug #5403: Second level Design_Customisation issue with import/export script.
+Fixed Bug #5404: Double byte characters issue with import/export script.
+
+CMS
+
+Fixed Bug #5355: Custom Form Email - Time keyword not replaced.
+Fixed Bug #5380: %asset_metadata_<fieldname>_value% keyword doesn't work.
+
+LDAP
+
+Fixed Bug #5352: LDAP User Sorting under LDAP Groups not working.
+
+Calendar
+
+Fixed Bug #5332: Recurring Calendar Events don't show if they have a child modification.
+Fixed Bug #5360: iCal date keyword prints incorrect over a certain time period.
+
+Data
+
+Fixed Bug #5340: Invalid XML breaks XML Data Source asset.
+
+Google Maps
+
+Fixed Bug #5379: Google Maps doesn't respect proxies configured.
+
+
 
 VERSION 4.4.3
 
