@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398.2.3 2011/10/24 07:27:39 akarelia Exp $
+* $Id: lang_strings.xml,v 1.398.2.4 2011/11/01 00:31:05 akarelia Exp $
 *
 */
 
@@ -27,6 +27,7 @@
 	<string source="0_is_unlimited_attempts">Zero (0) is unlimited attempts</string>
 	<string source="actions">Actions</string>
 	<string source="active_locks">Active Locks</string>
+	<string source="system_config_active_locks_no_support">Retrieving Active Locks information is not suppported by "%s" locking method.</string>
 	<string source="add_language">Add Language ?</string>
 	<string source="add_new_future_status">Add New Future Status</string>
 	<string source="add_new_future_permission">Add New Future Permission</string>
