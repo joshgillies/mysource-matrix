@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.27.6.1 2011/10/13 06:19:01 akarelia Exp $
+* $Id: calendar_event_modification.inc,v 1.27.6.2 2011/11/01 00:26:11 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27.6.1 $
+* @version $Revision: 1.27.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -57,13 +57,6 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return FALSE;
-
-		if (!($link['value'] = $this->getStartDate())) {
-			trigger_localised_error('CAL0049', E_USER_ERROR);
-			return FALSE;
-		}
-
 		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
 			trigger_localised_error('CAL0052', E_USER_ERROR);
@@ -71,6 +64,13 @@ class Calendar_Event_Modification extends Calendar_Event
 		}
 
 		if (!$this->synchronizeWithParent($parent)) {
+			return FALSE;
+		}
+		
+		if (!parent::_preCreateCheck($link)) return FALSE;
+		
+		if (!($link['value'] = $this->getStartDate())) {
+			trigger_localised_error('CAL0049', E_USER_ERROR);
 			return FALSE;
 		}
 
@@ -244,10 +244,13 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$res = Array();
 		$res['start'] = $date;
-		$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / 86400);
+		
 		if ($this->getStartTime()) {
 			$res['start'] .= ' '.$this->getStartTime();
 		}
+		
+		$res['end'] = date('Y-m-d', iso8601_ts($res['start']) + $this->getDuration());
+
 		if ($this->getEndTime()) {
 			$res['end'] .= ' '.$this->getEndTime();
 		}
