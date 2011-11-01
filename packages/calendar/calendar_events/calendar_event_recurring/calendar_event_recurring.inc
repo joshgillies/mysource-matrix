@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.97.2.3 2011/10/25 00:13:41 mhaidar Exp $
+* $Id: calendar_event_recurring.inc,v 1.97.2.4 2011/11/01 00:25:08 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.97.2.3 $
+* @version $Revision: 1.97.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -488,24 +488,25 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 				$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 			}
-			$duration = $this->getDuration() / 86400;
-			$res['end'] = add_days_to_iso($res['start'], $duration);
+			
+			if ($this->getStartTime()) $res['start'] .= ' '.$this->getStartTime();
+			
+			$duration = $this->getDuration();
+			$res['end'] = date('Y-m-d', iso8601_ts($res['start']) + $duration);
+			
 			if ($date > $res['end']){
 				$res['start'] = $this->getFirstOccurrenceAfter($date);
-				$res['end'] = add_days_to_iso($res['start'], $duration);
+				if ($this->getStartTime()) $res['start'] .= ' '.$this->getStartTime();
+				$res['end'] = date('Y-m-d', iso8601_ts($res['start']) + $duration);
 			}
-			if ($this->getStartTime()) {
-				$res['start'] .= ' '.$this->getStartTime();
-			}
-			if ($this->getEndTime()) {
-				$res['end'] .= ' '.$this->getEndTime();
-			}
+			
+			if ($this->getEndTime()) $res['end'] .= ' '.$this->getEndTime();
+			
 			$this->_tmp['instance_dates'][$date] = $res;
 		}
 		return $this->_tmp['instance_dates'][$date];
 
 	}//end getInstanceDates()
-
 
 	/**
 	* Returns this event's frequency in iCal Recurring Rule format
@@ -1148,14 +1149,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 				if ($this->hasOccurrenceOnDate($_REQUEST['SQ_CALENDAR_DATE'])) {
 					$occurrence_start_date = $_REQUEST['SQ_CALENDAR_DATE'];
 				} else {
-					$occurrence_start_date = $this->getNextOccurrenceAfter(add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE'], -($this->getDuration() / 86400)));
+					$occurrence_start_date = $this->getFirstOccurrenceAfter(date('Y-m-d', iso8601_ts($_REQUEST['SQ_CALENDAR_DATE']) - $this->getDuration()));
 				}
 				$occurrence_start = $occurrence_start_date.' ';
-				$occurrence_start .= ($this->getStartTime() ? $this->getStartTime() : '--:--:--');
+				$occurrence_start .= ($this->getStartTime() ? $this->getStartTime().':00' : '--:--:--');
 
-				if ($this->getDuration()) {
-					$occurrence_end = add_days_to_iso($occurrence_start_date, $this->getDuration() / 86400).' ';
-					$occurrence_end .= ($this->getEndTime() ? $this->getEndTime() : '--:--:--');
+				if ($duration = $this->getDuration()) {
+					$occurrence_end = date('Y-m-d', iso8601_ts($occurrence_start) + $duration).' ';
+					$occurrence_end .= ($this->getEndTime() ? $this->getEndTime().':00' : '--:--:--');
 				}
 
 				// Get the new details
@@ -1220,7 +1221,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$cancellation_event = new Calendar_Event_Cancellation();
 		}
 		$cancellation_event->setAttrValue('start_date', $date.' '.($this->getStartTime() ? $this->getStartTime().':00' : '--:--:--'));
-		$end_date = add_days_to_iso($date, $this->getDuration() / 86400);
+		$end_date = date('Y-m-d', iso8601_ts($cancellation_event->attr('start_date')) + $this->getDuration());
 		$cancellation_event->setAttrValue('end_date', $end_date.' '.($this->getEndTime() ? $this->getEndTime().':00' : '--:--:--'));
 		$cancellation_event->setAttrValue('description', $reason);
 		if (!$cancellation_event->id) {
