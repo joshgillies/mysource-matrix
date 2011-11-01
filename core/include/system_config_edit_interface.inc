@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.42 2010/05/18 00:41:57 cupreti Exp $
+* $Id: system_config_edit_interface.inc,v 1.42.6.1 2011/11/01 00:33:12 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.6.1 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -384,7 +384,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		try {
 			if (eval('return '.$class_name.'::supportsGetActiveLocks();') === FALSE) {
 				$o->openSection(translate('active_locks'));
-					$o->openField(translate('system_config_active_locks_no_support'));
+					$o->openField(translate('system_config_active_locks_no_support', SQ_CONF_LOCKING_METHOD));
 					$o->closeField();
 				$o->openSection();
 				return TRUE;
