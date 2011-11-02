@@ -10,11 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-<<<<<<< csv.inc
-* $Id: csv.inc,v 1.21 2011/11/02 23:04:27 cupreti Exp $
-=======
-* $Id: csv.inc,v 1.21 2011/11/02 23:04:27 cupreti Exp $
->>>>>>> 1.20
+* $Id: csv.inc,v 1.22 2011/11/02 23:05:36 cupreti Exp $
 *
 */
 
@@ -26,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package Fudge
 * @subpackage CSV
 */
