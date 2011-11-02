@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.59 2011/05/19 01:10:40 mhaidar Exp $
+* $Id: image_variety.inc,v 1.60 2011/11/02 22:44:56 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -799,14 +799,16 @@ class Image_Variety extends Asset
 				$ssl_connection = TRUE;
 			}
 
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
+
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-				&& empty($_POST) && current_protocol() != 'https' && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
-					header('Cache-Control: public');
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
+					header('Cache-Control: '.$cm->cacheControlLevel());
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
 					header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
-			} else if (!$ssl_connection) {
+			} else if (!$using_ie6 || !$ssl_connection) {
 					header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 					header('Pragma: no-cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
