@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.91 2011/11/02 22:51:59 cupreti Exp $
+* $Id: cache_manager.inc,v 1.92 2011/11/02 22:54:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -784,36 +784,36 @@ class Cache_Manager extends Asset
     }//end setAttrValue()
 
 
-    /**
-    * Returns TRUE if cache manager is configured to send cacheable
+	/**
+	* Returns TRUE if cache manager is configured to send cacheable
 	* headers over current protocol
-    *
-    * @return booleab
-    * @access public
-    */
-    public function cacheableHeadersEnabledForCurrentProtocol()
-    {
+	*
+	* @return booleab
+	* @access public
+	*/
+	public function cacheableHeadersEnabledForCurrentProtocol()
+	{
 		$protocol_setting = $this->attr('cacheale_header_protocol');
 		if ($protocol_setting != 'both') {
 			return current_protocol() == 'http' ? $protocol_setting == 'http' : $protocol_setting == 'https';
 		}//end if
 
-        return TRUE;
+		return TRUE;
 
 	}//end cacheableHeadersEnabledForCurrentProtocol()
 
 
-    /**
-    * Returns cache control level (public/private) based on current
+	/**
+	* Returns cache control level (public/private) based on current
 	* protocol and cache manager settings
-    *
-    * @return string
-    * @access public
-    */
-    public function cacheControlLevel()
-    {
-        return current_protocol() == 'http' ? $this->attr('cache_control_http') : $this->attr('cache_control_https');
-
+	*
+	* @return string
+	* @access public
+	*/
+	public function cacheControlLevel()
+	{
+		return current_protocol() == 'http' ? $this->attr('cache_control_http') : $this->attr('cache_control_https');
+	
 	}//end cacheControlLevel()
 
 
