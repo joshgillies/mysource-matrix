@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.8.1 $
+* @version $Revision: 1.1.8.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -98,6 +98,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
 					'message'		=> '',
+					'header_set'	=> FALSE,
 				),
 			  );
 
@@ -153,13 +154,15 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function processExportAsset(&$step_data, $prefix)
 	{
-		
 		$path = $this->_running_vars['export_path'];
 		$asset_infos = $this->_running_vars['root_node_mapping'];
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
 		ob_start();
-		echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
+		if (!$step_data['header_set']) {
+			echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
+			$step_data['header_set'] = TRUE;
+		}
 		switch ($action) {
 			case 'create':
 				echo "<actions>\n";
