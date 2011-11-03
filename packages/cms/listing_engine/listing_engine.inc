@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.336 2011/11/02 01:21:30 akarelia Exp $
+* $Id: listing_engine.inc,v 1.337 2011/11/03 05:07:31 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.336 $
+* @version $Revision: 1.337 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4466,8 +4466,10 @@ class Listing_Engine extends Page
 		} else if($replacement == '%'.$keyword.'%' && !empty($modifiers)) {
 			return $original_keyword;
 		}
-		
-		apply_keyword_modifiers($replacement, $modifiers);
+
+		if (!is_null($replacement)) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
 		return $replacement;
 
 	}//end getKeywordReplacement()
