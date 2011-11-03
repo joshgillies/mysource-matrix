@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_reindex.php,v 1.5 2011/02/11 04:29:54 akarelia Exp $
+* $Id: funnelback_reindex.php,v 1.5.2.1 2011/11/03 03:23:57 akarelia Exp $
 *
 */
 
@@ -47,7 +47,7 @@ if (!$fm->attr('indexing')) {
 }
 
 // stop the script if the root collection is not specified or the collection that is specified isn't set
-if (empty($root_collection) || !isset($collections[$root_collection])) {
+if (!empty($root_collection) && !isset($collections[$root_collection])) {
 	echo "\n\nInvalid Collection ID passed in\n";
 	exit();
 }//end if
