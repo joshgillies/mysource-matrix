@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.7 2011/07/04 00:44:47 cupreti Exp $
+* $Id: rollback_management.inc,v 1.7.2.1 2011/11/03 04:49:03 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -168,14 +168,14 @@ function delete_rollback_entries($table_name, $date)
 
 
 /**
-* Deletes the redundent rollback entries
+* Deletes the redundant rollback entries
 *
 * @param string	$table_name	the tablename to update
 *
 * @return int
 * @access public
 */
-function delete_redundent_rollback_entries($table_name)
+function delete_redundant_rollback_entries($table_name)
 {	
 	$relevant_tables = Array(
 			'ast' => Array(
@@ -289,7 +289,7 @@ function delete_redundent_rollback_entries($table_name)
 
 	return $affected_rows;
 
-}//end delete_redundent_rollback_entries()
+}//end delete_redundant_rollback_entries()
 
 
 /**

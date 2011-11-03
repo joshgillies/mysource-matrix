@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.23 2011/07/04 00:44:21 cupreti Exp $
+* $Id: rollback_management.php,v 1.23.2.1 2011/11/03 04:49:03 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -32,7 +32,7 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 'd:p:s:q::f:';
-$longopt = Array('enable-rollback', 'disable-rollback', 'reset-rollback', 'delete-redundent-entries');
+$longopt = Array('enable-rollback', 'disable-rollback', 'reset-rollback', 'delete-redundant-entries');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -50,7 +50,7 @@ $SYSTEM_ROOT = '';
 $ENABLE_ROLLBACK = FALSE;
 $DISABLE_ROLLBACK = FALSE;
 $RESET_ROLLBACK = FALSE;
-$DELETE_REDUNDENT_ENTRIES = FALSE;
+$DELETE_REDUNDANT_ENTRIES = FALSE;
 $QUIET = FALSE;
 
 foreach ($options[0] as $option) {
@@ -134,31 +134,31 @@ foreach ($options[0] as $option) {
 		break;
 
 		case '--enable-rollback':
-			if ($DISABLE_ROLLBACK || $RESET_ROLLBACK || $DELETE_REDUNDENT_ENTRIES) {
+			if ($DISABLE_ROLLBACK || $RESET_ROLLBACK || $DELETE_REDUNDANT_ENTRIES) {
 				usage();
 			}
 			$ENABLE_ROLLBACK = TRUE;
 		break;
 
 		case '--disable-rollback':
-			if ($ENABLE_ROLLBACK || $RESET_ROLLBACK || $DELETE_REDUNDENT_ENTRIES) {
+			if ($ENABLE_ROLLBACK || $RESET_ROLLBACK || $DELETE_REDUNDANT_ENTRIES) {
 				usage();
 			}
 			$DISABLE_ROLLBACK = TRUE;
 		break;
 
 		case '--reset-rollback':
-			if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK || $DELETE_REDUNDENT_ENTRIES) {
+			if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK || $DELETE_REDUNDANT_ENTRIES) {
 				usage();
 			}
 			$RESET_ROLLBACK = TRUE;
 		break;
 
-		case '--delete-redundent-entries':
+		case '--delete-redundant-entries':
 			if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK || $RESET_ROLLBACK) {
 				usage();
 			}
-			$DELETE_REDUNDENT_ENTRIES = TRUE;
+			$DELETE_REDUNDANT_ENTRIES = TRUE;
 		break;
 
 		case 'q':
@@ -199,9 +199,9 @@ $tables = get_rollback_table_names();
 $LIMIT_ROWS = 500;
 
 // Last chance to stop from removing redundnet rollback entries
-if ($DELETE_REDUNDENT_ENTRIES) {
-	echo "\nIMPORTANT: You have selected the option to remove all the redundent entries in the Rollback table.";
-	echo "\nThis will remove all the redundent entries for Cron Manager from the rollback tables.";
+if ($DELETE_REDUNDANT_ENTRIES) {
+	echo "\nIMPORTANT: You have selected the option to remove all the redundant entries in the Rollback table.";
+	echo "\nThis will remove all the redundant entries for Cron Manager from the rollback tables.";
 	echo "\nAre you sure you want to proceed (Y/N)? ";
 
 	$choice = rtrim(fgets(STDIN, 4094));
@@ -267,8 +267,8 @@ if ($PURGE_FV_DATE) {
 
 			continue;
 		}//end if
-		if ($DELETE_REDUNDENT_ENTRIES) {
-			$affected_rows = delete_redundent_rollback_entries($table);
+		if ($DELETE_REDUNDANT_ENTRIES) {
+			$affected_rows = delete_redundant_rollback_entries($table);
 			if (!$QUIET) {
 				echo $affected_rows.' ENTRIES REMOVED IN sq_rb_'.$table."\n";
 			}
@@ -288,11 +288,11 @@ $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 */
 function usage()
 {
-	echo "\nUSAGE: rollback_management.php -s <system_root> [-d <date>] [-p <period>] [--enable-rollback] [--disable-rollback] [--reset-rollback] [--delete-redundent-entries] [-q --quiet]\n".
+	echo "\nUSAGE: rollback_management.php -s <system_root> [-d <date>] [-p <period>] [--enable-rollback] [--disable-rollback] [--reset-rollback] [--delete-redundant-entries] [-q --quiet]\n".
 		"--enable-rollback  Enables rollback in MySource Matrix\n".
 		"--disable-rollback Disables rollback in MySource Matrix\n".
 		"--reset-rollback Removes all rollback information and enables rollback in MySource Matrix\n".
-		"--delete-redundent-entries Removes all the unnecessary Cron Manager asset rollback entries\n".
+		"--delete-redundant-entries Removes all the unnecessary Cron Manager asset rollback entries\n".
 		"-q No output will be sent\n".
 		"-d The date to set rollback entries to in the format YYYY-MM-DD HH:MM:SS\n".
 		"-p The period to purge rollback entries before\n".
