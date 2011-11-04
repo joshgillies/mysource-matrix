@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.74 2011/01/27 22:12:04 akarelia Exp $
+* $Id: messaging_service.inc,v 1.75 2011/11/04 02:55:59 csmith Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -509,6 +509,9 @@ class Messaging_Service extends MySource_Object
 		if (!empty($parameters)) {
 			foreach ($parameters as $param_key => $param_value) {
 				$where .= ' AND m.parameters LIKE '.MatrixDAL::quote('%'.$param_key.':'.$param_value.';%');
+			}
+			if (isset($parameters['assetid']) === TRUE) {
+				$where .= ' AND m.assetid='.MatrixDAL::quote($parameters['assetid']);
 			}
 		}
 		if (!is_null($from)) {

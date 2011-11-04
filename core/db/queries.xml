@@ -1096,28 +1096,6 @@
 
 	<!-- //		ASSET STATIC SCREENS		// -->
 
-
-
-
-	<!-- //		logs.inc		// -->
-	<query id="getLogs">
-		<!-- Return the a list of internal messages to appear on log screen.' -->
-		<primary>
-			<select distinct="true">
-				<fields>
-					<field table="sq_internal_msg" column="type" />
-				</fields>
-				<from>
-					<table>sq_internal_msg</table>
-				</from>
-				<where>
-					<equal table="sq_internal_msg" column="userto"><value>0</value></equal>
-					<like table="sq_internal_msg" column="type"><value>asset%</value></like>
-				</where>
-			</select>
-		</primary>
-	</query>
-
 	<!-- //     INTERNAL MESSAGE        // -->
 	<query id="getMessageInfoByMessageId">
 		<!-- Return the a list of internal messages to appear on log screen.' -->
@@ -1134,6 +1112,7 @@
 					<field table="sq_internal_msg" column="priority" />
 					<field table="sq_internal_msg" column="status" />
 					<field table="sq_internal_msg" column="parameters" />
+					<field table="sq_internal_msg" column="assetid" />
 				</fields>
 				<from>
 					<table>sq_internal_msg</table>

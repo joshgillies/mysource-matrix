@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.94 2011/08/05 02:04:46 ewang Exp $
+* $Id: install.inc,v 1.95 2011/11/04 02:55:59 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1570,8 +1570,12 @@ function build_locale_internal_messages_file($locale)
 
 	$strings = Array();
 
+	$message_types = array();
+
 	foreach ($files_to_parse['core'] as $file) {
-		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_internal_messages($file));
+		$msgs = extract_internal_messages($file);
+		$message_types = array_merge($message_types, array_keys($msgs));
+		$strings = array_merge(array_get_index($strings, 'core', Array()), $msgs);
 
 		if (!empty($strings)) {
 			create_directory(SQ_DATA_PATH.'/private/system/core');
@@ -1582,7 +1586,9 @@ function build_locale_internal_messages_file($locale)
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
 		$strings = Array();
 		foreach ($files as $file) {
-			$strings = array_merge($strings, extract_internal_messages($file));
+			$msgs          = extract_internal_messages($file);
+			$message_types = array_merge($message_types, array_keys($msgs));
+			$strings       = array_merge($strings, $msgs);
 		}
 
 		if ($package_name == '__core__') {
@@ -1595,6 +1601,14 @@ function build_locale_internal_messages_file($locale)
 			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$locale);
 		}
 	}
+
+	sort($message_types);
+	$message_type_string  = "<?php\n";
+	$message_type_string .= '$message_types = '.var_export($message_types, true).";\n";
+	$message_type_string .= 'return $message_types;'."\n";
+	// So we don't break syntax highlighting - break up the end of php tag.
+	$message_type_string .= "?".">";
+	string_to_file($message_type_string, SQ_DATA_PATH.'/private/system/core/internal_message_types.inc');
 
 }//end build_locale_internal_messages_file()
 

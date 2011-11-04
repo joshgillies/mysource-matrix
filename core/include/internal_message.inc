@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.99 2011/06/29 03:36:55 mhaidar Exp $
+* $Id: internal_message.inc,v 1.100 2011/11/04 02:55:59 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -82,6 +82,12 @@ class Internal_Message extends MySource_Object
 	* @var string
 	*/
 	var $status = SQ_MSG_UNREAD;
+
+	/**
+	 * The assetid the message relates to (if it is about an asset).
+	 * @var string
+	 */
+	var $assetid = NULL;
 
 	/**
 	* An array of params that may be used by the message depending on its type
@@ -147,6 +153,7 @@ class Internal_Message extends MySource_Object
 		$this->priority   = $result['priority'];
 		$this->status     = $result['status'];
 		$this->parameters = $result['parameters'];
+		$this->assetid    = $result['assetid'];
 
 		return true;
 
@@ -192,6 +199,11 @@ class Internal_Message extends MySource_Object
 			$param_string .= "$key:$value;";
 		}
 
+		$assetid = NULL;
+		if (isset($this->parameters['assetid']) === TRUE) {
+			$assetid = $this->parameters['assetid'];
+		}
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -209,7 +221,8 @@ class Internal_Message extends MySource_Object
 						priority,
 						status,
 						sent,
-						parameters
+						parameters,
+						assetid
 					)
 					VALUES
 					(
@@ -222,7 +235,8 @@ class Internal_Message extends MySource_Object
 						:priority,
 						:status,
 						:sent,
-						:parameters
+						:parameters,
+						:assetid
 					)';
 
 		  //////////////////////////////
@@ -292,6 +306,7 @@ class Internal_Message extends MySource_Object
 				MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'sent',       $this->sent,     PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'parameters', $param_string,   PDO::PARAM_LOB);
+				MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid,        PDO::PARAM_STR);
 				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
@@ -420,6 +435,7 @@ class Internal_Message extends MySource_Object
 						MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
 						MatrixDAL::bindValueToPdo($query, 'sent',       $this->sent,     PDO::PARAM_STR);
 						MatrixDAL::bindValueToPdo($query, 'parameters', $param_string,   PDO::PARAM_LOB);
+						MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid,        PDO::PARAM_STR);
 						MatrixDAL::execPdoQuery($query);
 					} catch (Exception $e) {
 						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.31 2011/04/18 06:34:46 mhaidar Exp $
+* $Id: logs.inc,v 1.32 2011/11/04 02:55:59 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -40,24 +40,10 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 {
 
-
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
-	$db = MatrixDAL::getDb();
-	try {
-		$sql = "SELECT DISTINCT 
-				    type
-				FROM
-				    ".SQ_TABLE_RUNNING_PREFIX."internal_msg
-				WHERE
-				    userto = '0'
-				    AND type LIKE 'asset%'
-				";
-		$log_types = MatrixDAL::executeSqlAssoc($sql, 0);
-	} catch (Exception $e) {
-		throw new Exception('Failed to get log messages due to database error: '.$e->getMessage());
-	}
+	$log_types = include SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
 
 	if (isset($_REQUEST['sq_backend_log_type'])) {
 		$active_log_type = $_REQUEST['sq_backend_log_type'];
@@ -70,11 +56,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
 
-
 	$o->openRaw();
 
 	$type_options = Array();
 	foreach ($log_types as $type) {
+		// We're only interested in log types starting with 'asset'
+		if (strpos($type, 'asset') !== 0) {
+			continue;
+		}
+
 		// html option fields contains complete url to call via javascript self.location
 		$base_url = replace_query_string_vars(Array('sq_backend_log_type' => $type, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
 		if ($type == $active_log_type) {
