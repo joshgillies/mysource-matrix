@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.22 2011/01/10 00:17:11 mhaidar Exp $
+* $Id: form_question_type_datetime.inc,v 1.23 2011/11/04 01:55:20 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,6 +105,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$null_params = $this->attr('null');
 
 		$parameters['allow_circa'] = $show_params['c'];
+		if ($show_params['a']) $parameters['show'][] = 'a';
 
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
@@ -143,6 +144,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$parameters['min'] = '01-00-1970 00:00:00';
 		$parameters['max'] = '31-12-2035 23:59:59';
 		$parameters['show']['c'] = 0;
+		$parameters['show']['a'] = 0;
 
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = 's';
@@ -470,7 +472,11 @@ class Form_Question_Type_Datetime extends Form_Question
 				$val .= '--';
 			}
 		} else {
-			$val .= str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
+			$hour = str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
+			if (!empty($_POST[$name.'value']['a']) && strpos($show, 'a') !== FALSE && $hour != '--'){
+				$hour = date('H', strtotime($hour.' '.$_POST[$name.'value']['a']));
+			}
+			$val .= $hour;
 		}
 
 		$val .= ':';
@@ -496,7 +502,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		} else {
 			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
 		}
-
+		
 		$this->setValue($val);
 
 		return TRUE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.5 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: form_question_type_datetime_management.inc,v 1.6 2011/11/04 01:55:20 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,7 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 															'i'	=> 1,
 															's'	=> 1,
 															'c'	=> 0,
+										   					'a' => 0,
 														   ),
 										   ),
 						'null'			=> Array(
@@ -131,6 +132,7 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 															'h'	=> '',
 															'i'	=> '',
 															's'	=> '',
+										   					'a' => '',
 														   ),
 										   ),
 					  );

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.5 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.6 2011/11/04 01:55:20 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		$show_params = $asset->attr('show');
 		$text_params = $asset->attr('text');
 		$null_params = $asset->attr('null');
+		
+		$default_params = $asset->getDefaultParameters();
 
 		$edit = FALSE;				// editing flag
 		if ($asset->writeAccess('attributes')) $edit = TRUE;
@@ -67,27 +69,30 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		?>
 			<table class="sq-backend-table">
 			<tr>
-				<td width="16%" align="center" class="sq-backend-table-header">&nbsp;</td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="12%" align="center" class="sq-backend-table-header">&nbsp;</td>
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('circa');
 				?></td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('day');
 				?></td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
 				</td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('year');
 				?></td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('hour');
 				?></td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('minute');
 				?></td>
-				<td width="12%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
 					echo translate('second');
+				?></td>
+				<td width="11%" align="center" class="sq-backend-table-header"><?php
+					echo translate('core_form_datetime_12_hour_format');
 				?></td>
 				</tr>
 				<tr>
@@ -143,6 +148,14 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 						echo $show_params['s'] ? 'X' : '';
 					}
 				?></td>
+				<td align="center" class="sq-backend-table-cell"><?php
+					$show_params['a'] = (isset($show_params['a'])) ?  $show_params['a'] : $default_params['show']['a'];
+					if ($edit) {
+						check_box($prefix.'_a', '1', $show_params['a']);
+					} else {
+						echo $show_params['a'] ? 'X' : '';
+					}
+				?></td>				
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
@@ -190,6 +203,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 						echo $null_params['s'] ? 'X' : '';
 					}
 				?></td>
+				<td align="center" class="sq-backend-table-cell">&nbsp;</td>
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
@@ -237,6 +251,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 						echo $text_params['s'] ? 'X' : '';
 					}
 				?></td>
+				<td align="center" class="sq-backend-table-cell">&nbsp;</td>
 			</tr>
 			</table>
 		<?php
@@ -287,6 +302,12 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		} else {
 			$show_params['c'] = '';
 		}
+		
+		if (isset($_POST[$prefix.'_a'])) {
+			$show_params['a'] = $_POST[$prefix.'_a'];
+		} else {
+			$show_params['a'] = '';
+		}
 
 		if (!$asset->setAttrValue('show', $show_params)) {
 			return FALSE;
@@ -322,7 +343,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		?>
 			<table class="sq-backend-table">
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('day');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
@@ -335,7 +356,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				</tr>
 
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
 				</td>
 				<td class="sq-backend-table-cell"><?php
@@ -347,7 +368,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				?></td>
 				</tr>
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('year');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
@@ -359,7 +380,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				?></td>
 				</tr>
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('hour');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
@@ -371,7 +392,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				?></td>
 				</tr>
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('minute');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
@@ -383,7 +404,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				?></td>
 				</tr>
 				<tr>
-				<td width="5%" class="sq-backend-table-header"><?php
+				<td width="8%" class="sq-backend-table-header"><?php
 					echo translate('second');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
@@ -391,6 +412,19 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 						text_box($prefix.'_s_extras', $extra_params['s']);
 					} else {
 						echo $extra_params['s'];
+					}
+				?></td>
+				</tr>
+				<tr>
+				<td width="8%" class="sq-backend-table-header"><?php
+					echo translate('core_form_datetime_12_hour_format');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					$extra_params['a'] = (isset($extra_params['a'])) ?  $extra_params['a'] : '';
+					if ($edit) {
+						text_box($prefix.'_a_extras', $extra_params['a']);
+					} else {
+						echo $extra_params['a'];
 					}
 				?></td>
 				</tr>
@@ -412,7 +446,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function processExtras(&$asset, &$o, $prefix)
 	{
-		$elements = Array('d', 'm', 'y', 'h', 'i', 's');
+		$elements = Array('d', 'm', 'y', 'h', 'i', 's', 'a');
 		$current_param = Array();
 
 		foreach ($elements as $e) {
