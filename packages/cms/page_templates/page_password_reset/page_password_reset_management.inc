@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset_management.inc,v 1.4 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_password_reset_management.inc,v 1.5 2011/11/04 03:52:51 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,6 +42,14 @@ class Page_Password_Reset_Management extends Asset_Management
 												'type'		=> 'email_format',
 												'default'	=> Array(),
 											  );
+		$this->vars['invalid_user_error']	= Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> 'false',
+													'parameters'    => Array( 'allow_empty' => FALSE,),
+													'description'	=> 'Whether to error out if an invalid username is supplied for password reset request',
+												   );
+											  
 
 	}//end constructor
 

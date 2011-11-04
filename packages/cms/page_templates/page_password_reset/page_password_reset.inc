@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.15 2007/12/16 23:05:12 bshkara Exp $
+* $Id: page_password_reset.inc,v 1.16 2011/11/04 03:52:51 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -277,7 +277,6 @@ class Page_Password_Reset extends Page
 			return $this->_buildContents('request', $replacements);
 		} else {
 			$username = $_POST['username'];
-
 			$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
 				trigger_localised_error('SYS0249', E_USER_ERROR);
@@ -300,8 +299,13 @@ class Page_Password_Reset extends Page
 
 			$failure = FALSE;
 			if (is_null($user)) {
-				// We don't want to go telling people what usernames exist and what don't...
 				$failure = TRUE;
+				// Shall we tell that the given user doesn't exits?
+				if ($this->attr('invalid_user_error')) {
+					$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_username');
+					return $this->_buildContents('request', $replacements);
+				}
+
 			} else {
 				foreach ($user->getAvailableKeywords() as $keyword => $description) {
 					$replacements[$keyword] = $user->getKeywordReplacement($keyword);
