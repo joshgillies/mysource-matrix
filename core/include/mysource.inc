@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.366.2.7 2011/09/22 01:20:10 cupreti Exp $
+* $Id: mysource.inc,v 1.366.2.8 2011/11/06 22:53:29 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.366.2.7 $
+* @version $Revision: 1.366.2.8 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4164,7 +4164,7 @@ class MySource extends MySource_Object
 	function _translateMatrixURL(&$content)
 	{
 		// Get all the matrix ./a=xx links in the content
-		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+(?:\:[^\$]+\$)?)'.'[^:"\']*?'.'(?:"|\')'.'[^>]*>!msi', $content, $matches);
+		preg_match_all('!<[^>]*'.'(?:(?:href)|(?:src))\s*=\s*'.'(?:"|\')'.'\./\?a=([0-9]+(?:\:[0-9a-z]+\$?)?)'.'[^:"\']*?'.'(?:"|\')'.'[^>]*>!msi', $content, $matches);
 		if (empty($matches[1])) return;
 
 		foreach($matches[1] as $key => $assetid) {
@@ -4175,7 +4175,7 @@ class MySource extends MySource_Object
 		// Replace each ./a=xx link by its respective full URL
 		foreach($matches[1] as $index => $assetid) {
 			if (isset($assets_url[$assetid]) && !empty($assets_url[$assetid])) {
-				$replacement = preg_replace('!\./\?a=[0-9]+(?:\:[^\$]+\$)?!i', $assets_url[$assetid], $matches[0][$index]);
+				$replacement = preg_replace('!\./\?a=[0-9]+(?:\:[0-9a-z]+\$?)?!i', $assets_url[$assetid], $matches[0][$index]);
 				$content = str_replace($matches[0][$index], $replacement, $content);
 			}
 		}
