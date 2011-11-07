@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.14 2011/09/20 03:30:05 akarelia Exp $
+* $Id: proxy_authentication_config.inc,v 1.15 2011/11/07 23:06:28 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -98,6 +98,7 @@ class Proxy_Authentication_Config extends Config
 					} else {
 						echo '<font color="green"><strong>'.translate('proxy_authentication_passed').'</strong></font>';
 					}
+					fclose($socket);
 				} else {
 					echo '<strong class="sq-backend-warning">'.translate('proxy_configuration_problem').'</font>';
 				}
