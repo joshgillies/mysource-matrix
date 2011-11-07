@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.23 2011/11/04 01:55:20 mhaidar Exp $
+* $Id: form_question_type_datetime.inc,v 1.24 2011/11/07 01:08:31 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$null_params = $this->attr('null');
 
 		$parameters['allow_circa'] = $show_params['c'];
-		if ($show_params['a']) $parameters['show'][] = 'a';
+		if (!empty($show_params['a'])) $parameters['show'][] = 'a';
 
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
