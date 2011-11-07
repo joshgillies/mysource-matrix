@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.7 2011/03/16 02:26:55 mhaidar Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.8 2011/11/07 22:55:00 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -60,6 +60,32 @@ class Tool_Clear_Squid_Cache extends Tool
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
+
+		include SQ_DATA_PATH.'/private/conf/preferences.inc';
+		$preferencesBroken = array();
+		$squid_hostnames = trim($preferences[$type_code]['SQ_SQUID_CACHE_HOSTNAMES']['default']);
+		if (empty($squid_hostnames) === TRUE) {
+			$preferencesBroken[] = 'squid_tool_no_hostnames';
+		}
+
+		$squidclient_path = trim($preferences[$type_code]['SQ_SQUID_CACHE_PATH']['default']);
+		if (empty($squidclient_path) === TRUE) {
+			$preferencesBroken[] = 'squid_tool_path_empty';
+		} else {
+			if (is_file($squidclient_path) === FALSE) {
+				$preferencesBroken[] = 'squid_tool_path_invalid';
+			}
+		}
+
+		if (empty($preferencesBroken) === FALSE) {
+			$o->openField(translate('squid_tool_not_configured'));
+			foreach ($preferencesBroken as $brokenItem) {
+				$o->note(translate($brokenItem));
+			}
+			$o->closeField();
+			$o->closeSection();
+			return;
+		}
 
 		// interface to get to asset using asset finder
 		$o->openField(translate('asset'));
@@ -188,6 +214,13 @@ class Tool_Clear_Squid_Cache extends Tool
 	*/
 	public static function processTool(Backend_Outputter $o, $type_code)
 	{
+		// If this isn't  set in the post array at all, then there was an error
+		// being shown (eg empty hostnames or invalid squidclient path).
+		// So don't process anything.
+		if (isset($_POST[$type_code.'_assetid']) === FALSE) {
+			return FALSE;
+		}
+
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_squid_cache_purge');
 

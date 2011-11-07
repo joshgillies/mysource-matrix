@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2011/02/09 22:08:57 akarelia Exp $
+* $Id: lang_strings.xml,v 1.8 2011/11/07 22:55:00 csmith Exp $
 *
 *
 * Squid Package Localised Strings File
@@ -52,4 +52,8 @@
 	<string source="squid_clear_this">Clear this cache %s </string>
 	<string source="squid_clear_at">at</string>
 	<string source="squid_clear_every">every</string>
+	<string source="squid_tool_not_configured">Squid Cache is not configured</string>
+	<string source="squid_tool_no_hostnames">Please make sure there is at least one hostname in the Clear Squid Cache Preferences section of Global Preferences.</string>
+	<string source="squid_tool_path_empty">Please make sure you set the path to squidclient in the Clear Squid Cache Preferences section of Global Preferences.</string>
+	<string source="squid_tool_path_invalid">The squidclient path is invalid. Please check it in the Clear Squid Cache Preferences section of Global Preferences.</string>
 </strings>
