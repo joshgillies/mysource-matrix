@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mollom.inc,v 1.2 2010/09/06 06:47:29 cupreti Exp $
+* $Id: mollom.inc,v 1.3 2011/11/07 22:49:33 csmith Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose: Allows Matrix to communicate with Mollom (http://mollom.com)
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 */
 
@@ -425,36 +425,22 @@ class Mollom
 		$requestBody .= '	</params>' ."\n";
 		$requestBody .= '</methodCall>' ."\n";
 
-		// create curl
-		$curl = @curl_init();
+		$options = array(
+				    'USERAGENT'      => self::$userAgent,
+					'HTTP_VERSION'   => CURL_HTTP_VERSION_1_0,
+					'POST'           => true,
+					'FOLLOWLOCATION' => true,
+					'HEADER'         => true,
+					'RETURNTRANSFER' => true,
+					'CONNECTTIMEOUT' => self::$timeout,
+					'TIMEOUT'        => self::$timeout,
+					'POSTFIELDS'     => $requestBody,
+				);
 
-		// set useragent
-		@curl_setopt($curl, CURLOPT_USERAGENT, self::$userAgent);
-
-		// set options
-		@curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-		@curl_setopt($curl, CURLOPT_POST, true);
-		@curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-		@curl_setopt($curl, CURLOPT_HEADER, true);
-		@curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, self::$timeout);
-		@curl_setopt($curl, CURLOPT_TIMEOUT, self::$timeout);
-
-		// set url
-		@curl_setopt($curl, CURLOPT_URL, $server .'/'. self::$version);
-
-		// set body
-		@curl_setopt($curl, CURLOPT_POSTFIELDS, $requestBody);
-
-		// get response
-		$response = @curl_exec($curl);
-
-		// get errors
-		$errorNumber = (int) @curl_errno($curl);
-		$errorString = @curl_error($curl);
-
-		// close
-		@curl_close($curl);
+		$details     = fetch_url($server.'/'.self::$version, $options);
+		$response    = $details['response'];
+		$errorNumber = $details['errornumber'];
+		$errorString = $details['errorstring'];
 
 		// validate response
 		if($response === false || $errorNumber != 0)

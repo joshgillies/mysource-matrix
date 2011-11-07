@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.8 2010/05/05 07:15:19 ewang Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.9 2011/11/07 22:49:43 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -311,17 +311,10 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 					'Pragma: cache',
 				   );
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_PROXY, $host.$port);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-		ob_start();
-			// grab URL and pass it to the browser
-			curl_exec($ch);
-		ob_end_clean();
-
-		curl_close($ch);
+		$options = array(
+				    'PROXY' => $host.$port,
+				   );
+		$response = fetch_url($url, $options, $headers, FALSE);
 
 	}//end requestPage()
 

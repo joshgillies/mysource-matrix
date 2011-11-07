@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.12 2011/03/30 03:44:00 csmith Exp $
+* $Id: suite_manager.inc,v 1.13 2011/11/07 22:49:47 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -1420,32 +1420,26 @@ class Suite_Manager extends Page
 		// Handle encyption
 		$msg = $this->encryptAPIData($url, $msg, $userAgent);
 
-		$ch  = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $msg);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, Array('Expect:'));
-
+		$options = array(
+				    'POST'           => 1,
+					'POSTFIELDS'     => $msg,
+					'RETURNTRANSFER' => 1,
+				   );
 		if (empty($userAgent) === FALSE) {
-			curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+			$options['USERAGENT'] = $userAgent;
 		}
 
-		$success = curl_exec($ch);
-		if ($success === FALSE) {
-			$errMsg = 'cURL failed:'.curl_error($ch);
+		$headers = array('Expect:');
+		$details = fetch_url($url, $options, $headers, FALSE);
+		if ($details['response'] === FALSE) {
+			$errMsg = 'cURL failed:'.$details['errorstring'];
 			log_dump($errMsg);
 		}
 
-		// As CURLOPT_RETURNTRANSFER is set on, $success will have
-		// the result of the request.
-		$curlinfo = curl_getinfo($ch);
 		$result   = Array(
-						'result'	=> $success,
-						'curlInfo' => $curlinfo,
+						'result'   => $details['response'],
+						'curlInfo' => $details['curlinfo'],
 					);
-		curl_close($ch);
 		return $result;
 
 	}//end sendCURLAPIRequest()

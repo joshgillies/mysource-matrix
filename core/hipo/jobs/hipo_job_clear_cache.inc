@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.27 2008/01/09 03:54:53 hnguyen Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.28 2011/11/07 22:49:32 csmith Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -428,16 +428,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 						'Pragma: cache',
 					   );
 			foreach ($urls as $url) {
-				$ch = curl_init();
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-				ob_start();
-					// grab URL and pass it to the browser
-					curl_exec($ch);
-				ob_end_clean();
-
-				curl_close($ch);
+				fetch_url($url, array('RETURNTRANSFER' => 1), $headers, array(), FALSE);
 			}
 
 			$this->_running_vars['done_repopulate'][] = $current_assetid;

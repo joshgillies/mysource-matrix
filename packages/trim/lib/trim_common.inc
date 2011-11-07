@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.16 2011/07/01 09:00:21 mhaidar Exp $
+* $Id: trim_common.inc,v 1.17 2011/11/07 22:49:44 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -1319,15 +1319,15 @@ class TRIM_Common
 
 		//test a cURL connection first otherwise the Soap constructor will crash and leave edit interfaces inaccessible or cause Cron deadlocks.
 		if (!isset($connection['authentication']['proxy_login'])){ //TODO: test cURL with proxies involved
-			$curl = curl_init();
-			curl_setopt($curl, CURLOPT_URL, $connection['wsdl']);
-			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl, CURLAUTH_BASIC, 1);
-			curl_setopt($curl, CURLOPT_TIMEOUT, 5);
-			curl_setopt($curl, CURLOPT_USERPWD, $connection['authentication']['login'].":".$connection['authentication']['password']);
-			$contents = curl_exec($curl);
-			curl_close($curl);
+			$options = array(
+						'FOLLOWLOCATION' => 1,
+						'RETURNTRANSFER' => 1,
+						'BASIC'          => 1,
+						'TIMEOUT'        => 5,
+						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
+					   );
+			$details  = fetch_url($connection['wsdl'], $options, array(), FALSE);
+			$contents = $details['response'];
 			if (strpos($contents, '?xml') === FALSE) return FALSE;
 		}
 		

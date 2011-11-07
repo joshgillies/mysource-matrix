@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.10 2011/05/03 01:50:47 cupreti Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.11 2011/11/07 22:49:35 csmith Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -113,42 +113,16 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 			$post_params .= '&'.$name.'='.$value;
 		}
 		
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $this->_url);
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_HEADER, FALSE); 
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
-		
-		// Set proxy parameters, if enabled
-		$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
-		if (file_exists($proxy_conf_file)) {
-			require_once($proxy_conf_file);
-
-			if (SQ_PA_ENABLED) {
-				$proxy_host = trim(SQ_PA_HOSTNAME) ? SQ_PA_HOSTNAME : FALSE;
-				$proxy_port = trim(SQ_PA_PORT) ? SQ_PA_PORT : FALSE;
-				$proxy_user = trim(SQ_PA_USERNAME) ? SQ_PA_USERNAME : FALSE;
-				$proxy_pass = trim(SQ_PA_PASSWORD) ? SQ_PA_PASSWORD : FALSE;				
-				
-				curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, TRUE);
-				curl_setopt($ch, CURLOPT_PROXY, $proxy_host);
-				if ($proxy_port) {
-					curl_setopt($ch, CURLOPT_PROXYPORT, $proxy_port);
-				}				
-				
-				if ($proxy_user && $proxy_pass) {
-					curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_user.':'.$proxy_pass);
-				}				
-			}//end if
-		}//end if	
-
-		$response = curl_exec($ch);
-		
-		// Get the CURL error, if any. Returns 0 for no errors		
-		$errno = curl_errno($ch);		
+		$options = array(
+				 'POST'           => 1,
+				 'POSTFIELDS'     => $post_params,
+				 'RETURNTRANSFER' => 1,
+				 'SSL_VERIFYPEER' => FALSE,
+				 'SSL_VERIFYHOST' => 1,
+				);
+		$details  = fetch_url($this->_url, $options);
+		$response = $details['response'];
+		$errno    = $details['errornumber'];
 
 		return $response;
 	

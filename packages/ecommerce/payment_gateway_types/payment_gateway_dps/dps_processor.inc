@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.4 2011/07/06 04:55:24 ewang Exp $
+* $Id: dps_processor.inc,v 1.5 2011/11/07 22:49:35 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -429,18 +429,18 @@ class Dps_Processor
 		$cmdDoTxnTransaction .= "<AvsAction>$this->_standard_policy</AvsAction>";
 		$cmdDoTxnTransaction .= "</Txn>";
 		
-		$ch = curl_init(); 
-		curl_setopt($ch, CURLOPT_URL,self::$_URL);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS,$cmdDoTxnTransaction);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1); //Needs to be included if no *.crt is available to verify SSL certificates
-		curl_setopt($ch,CURLOPT_SSLVERSION,3);	
-		$result = curl_exec ($ch); 
-		curl_close ($ch);
-					   
+		$options = array(
+				 'POST'           => 1,
+				 'POSTFIELDS'     => $cmdDoTxnTransaction,
+				 'RETURNTRANSFER' => 1,
+				 //'SSL_VERIFYPEER' => 1,//Needs to be included if no *.crt is available to verify SSL certificates
+				 'SSL_VERIFYHOST' => 1,
+				 'SSLVERSION'     => 3,
+				);
 
-		$this->_parse_xml($result);
+		$details = fetch_url(self::$_URL, $options);
+
+		$this->_parse_xml($details['response']);
 
 		//log the transaction response
 		$this->_logResponse();

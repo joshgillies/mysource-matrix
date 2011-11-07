@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.28 2011/09/30 06:52:43 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.29 2011/11/07 22:49:40 csmith Exp $
 *
 */
 
@@ -18,7 +18,6 @@
 require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once 'HTTP/Client.php';
 
 /**
 * Data_Source_Xml
@@ -27,7 +26,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -218,55 +217,38 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function openFeed($url)
 	{
-		// Using HTTP_Client PEAR package
-		// check whether or not the HTTP_Client object has already been
-		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
-		$HTTP_Client = NULL;
-
-		if (isset($_SESSION)) {
-			$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
-			if (!empty($HTTP_Client)) {
-				$HTTP_Client = unserialize($HTTP_Client);
-			}
-		}
-		if (is_null($HTTP_Client)) {
-			// parameters for HTTP_Request. See dPackage for description.
-			$request_parameters['useBrackets'] = FALSE;
-
-			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
-
-			// Add the Proxy authentication details if enabled
-			addProxyInfo($request_parameters, $default_headers, $url);
-
-			$HTTP_Client = new HTTP_Client($request_parameters, $default_headers);
-
-			$HTTP_Client->enableHistory(FALSE);
+		log_dump('in '.__FUNCTION__.' for url '.$url);
+		if (isset($this->_tmp['urlcontents'][$url]) === TRUE) {
+			return $this->_tmp['urlcontents'][$url];
 		}
 
-		$HTTP_Client->setRequestParameter('useBrackets', FALSE);
+		$options = array(
+					'RETURNTRANSFER' => 1,
+					'USERAGENT'      => SQ_SYSTEM_LONG_NAME,
+				   );
 
-		$result = $HTTP_Client->get($url);
+		$responseDetails = fetch_url($url, $options);
 
-		// exit on error
-		if (PEAR::isError($result)) {
-			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
-			unset($HTTP_Client);
+		log_dump(print_r($responseDetails, true));
+
+		if ($responseDetails['errornumber'] != 0) {
+			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $responseDetails['errorstring']);
 			return FALSE;
 		}
+		/**
 		if (preg_match('/^[45].*?/', $result)) {
 			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
 			unset($HTTP_Client);
 			return FALSE;
 		}
+		*/
 
-		$response = $HTTP_Client->currentResponse();
+		$response = $responseDetails['response'];
 
-		// wipe the response because we won't use it again and it could be too big to just ignore
-		$HTTP_Client->_responses = NULL;
-		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
-		unset($HTTP_Client);
+		$this->_tmp['urlcontents'][$url] = $response;
 
-		return $response['body'];
+		log_dump($response);
+		return $response;
 
 	}//end openFeed()
 

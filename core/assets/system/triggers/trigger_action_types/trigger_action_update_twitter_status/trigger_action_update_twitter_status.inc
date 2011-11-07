@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.5 2011/08/01 06:10:50 cupreti Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.6 2011/11/07 22:49:32 csmith Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -546,12 +546,9 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$url = 'http://api.twitter.com/1/account/verify_credentials.xml';
 		$header = $oauth_attr->getUserDataAuthHeader($url, $settings['access_token'], $settings['access_token_secret']);
 
-		$curl_res = curl_init($url);
-		curl_setopt($curl_res, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_res, CURLOPT_HTTPHEADER, Array($header));
-		$result = curl_exec($curl_res);
+		$details = fetch_url($url, array('RETURNTRANSFER' => 1), array($header));
 
-		return $result;
+		return $details['response'];
 
 	}//end processVerify()
 
@@ -615,37 +612,15 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 		$post_data = implode('&', $post_bits);
 
-		$curl_res = curl_init($url);
-		curl_setopt($curl_res, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_res, CURLOPT_POST, 1);
-		curl_setopt($curl_res, CURLOPT_POSTFIELDS, $post_data);
+		$curl_options = array(
+				'RETURNTRANSFER' => 1,
+				'POST'           => 1,
+				'POSTFIELDS'     => $post_data,
+		);
 
-		// Set proxy parameters, if enabled
-		$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
-		if (file_exists($proxy_conf_file)) {
-			require_once($proxy_conf_file);
+		$details = fetch_url($url, $curl_options);
 
-			if (SQ_PA_ENABLED) {
-				$proxy_host = trim(SQ_PA_HOSTNAME) ? SQ_PA_HOSTNAME : FALSE;
-				$proxy_port = trim(SQ_PA_PORT) ? SQ_PA_PORT : FALSE;
-				$proxy_user = trim(SQ_PA_USERNAME) ? SQ_PA_USERNAME : FALSE;
-				$proxy_pass = trim(SQ_PA_PASSWORD) ? SQ_PA_PASSWORD : FALSE;				
-				
-				curl_setopt($curl_res, CURLOPT_HTTPPROXYTUNNEL, TRUE);
-				curl_setopt($curl_res, CURLOPT_PROXY, $proxy_host);
-				if ($proxy_port) {
-					curl_setopt($curl_res, CURLOPT_PROXYPORT, $proxy_port);
-				}				
-				
-				if ($proxy_user && $proxy_pass) {
-					curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $proxy_user.':'.$proxy_pass);
-				}				
-			}//end if
-		}//end if
-		
-		$result = curl_exec($curl_res);
-
-		return $result;
+		return $details['response'];
 
 	}//end processUpdateStatus()
 

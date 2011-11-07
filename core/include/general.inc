@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.261 2011/10/11 02:04:29 akarelia Exp $
+* $Id: general.inc,v 1.262 2011/11/07 22:49:32 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix
 */
 
@@ -2434,5 +2434,192 @@ function file_mime_type($filename)
 	return $mime_type;
 	
 }//end file_mime_type()
+
+/**
+ * Open a url via curl.
+ *
+ * @param string $url        The url to open.
+ * @param array  $options    The curl options to set (eg 'RETURNTRANSFER' => 1). Don't include the 'CURLOPT_' prefix.
+ *                           It can also contain http_authentication information (username/password).
+ *                           You pass this as an array:
+ *                           $options['http_authentication'] = array('username' => 'x', 'password' => 'y');
+ * @param array  $headers    Any extra headers to send with the request. If it's not an array, it's turned into one.
+ *                           Only added to the curl options if it's required.
+ * @param boolean $use_proxy Whether to use the proxy authentication details (if they exist in matrix).
+ *                           The default is TRUE - use the proxy.
+ *
+ * @return mixed Either returns a curl resource if RETURNTRANSFER is not set, or the content from the resource
+ *               if RETURNTRANSFER is set. IE it returns the result of curl_exec
+ *               Then it's up to the calling code to deal with the response and curl_close() it.
+ */
+function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
+{
+	static $_proxies_loaded = FALSE;
+
+	$curl_res = curl_init($url);
+
+	foreach ($options as $option => $value) {
+		$option = strtolower($option);
+		if ($option == 'proxy' && is_array($value) === TRUE) {
+			continue;
+		}
+		if ($option == 'http_authentication' && is_array($value) === TRUE) {
+			continue;
+		}
+		curl_setopt($curl_res, constant('CURLOPT_'.strtoupper($option)), $value);
+	}
+
+	if (is_array($headers) === FALSE) {
+		$headers = array($headers);
+	}
+
+	if (empty($headers) === FALSE) {
+		curl_setopt($curl_res, CURLOPT_HTTPHEADER, $headers);
+	}
+
+	if (isset($options['http_authentication']) === TRUE) {
+		$auth = $options['http_authentication'];
+		if (isset($auth['username']) === TRUE && isset($auth['password']) === TRUE) {
+			curl_setopt($curl_res, CURLOPT_USERPWD, $auth['username'].':'.$auth['password']);
+		}
+	}
+
+	if ($use_proxy === TRUE) {
+		if ($_proxies_loaded === FALSE) {
+			$proxy_auth_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+			if (file_exists($proxy_auth_file) === TRUE) {
+				require_once $proxy_auth_file;
+				$_proxies_loaded = TRUE;
+			}
+		}
+
+		if ($_proxies_loaded === TRUE && defined('SQ_PA_ENABLED') && SQ_PA_ENABLED) {
+			$proxy = get_proxy_info_for_url($url);
+			if (empty($proxy['host']) === FALSE) {
+				// Only set this proxytunnel option if we're going to a https url.
+				// Otherwise you end up getting 405 errors.
+				if (substr($url, 0, 5) == 'https') {
+					curl_setopt($curl_res, CURLOPT_HTTPPROXYTUNNEL, TRUE);
+				}
+				curl_setopt($curl_res, CURLOPT_PROXY, $proxy['host']);
+				if ($proxy['port']) {
+					curl_setopt($curl_res, CURLOPT_PROXYPORT, $proxy['port']);
+				}
+				if (isset($options['proxy']) === TRUE) {
+					if (isset($options['proxy']['user']) === TRUE && 
+					isset($options['proxy']['password']) === TRUE) {
+						curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $options['proxy']['user'].':'.$options['proxy']['password']);
+					}
+				} else {
+					if ($proxy['user'] && $proxy['password']) {
+						curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $proxy['user'].':'.$proxy['password']);
+					}
+				}
+			}
+		}//end if
+	}
+	
+	$result = curl_exec($curl_res);
+
+	$info = array(
+			 'errornumber' => curl_errno($curl_res),
+			 'errorstring' => curl_error($curl_res),
+			 'response'    => $result,
+			 'curlinfo'    => curl_getinfo($curl_res),
+			);
+
+	// If we're not sending back a resource, make sure we close the connection.
+	// If we do, it'll be up to the calling code to deal with it.
+	if (is_resource($result) === FALSE) {
+		curl_close($curl_res);
+	}
+
+	return $info;
+}//end fetch_url()
+
+
+/**
+* Get the appropriate proxy (or alternative) for a certain URL
+*
+* Returns a four-element array, providing host, port, user name and password.
+* Should only use if SQ_PA_ENABLED is set to TRUE (1).
+*
+* @param string	$page_url	The target URL that is being retrieved through a proxy
+*
+* @return array
+* @access public
+*/
+function get_proxy_info_for_url($page_url)
+{
+	$alternatives = SQ_PA_ALTERNATIVES;
+
+	if (trim($alternatives) !== '') {
+		$alternatives = unserialize($alternatives);
+	} else {
+		$alternatives = Array();
+	}
+
+	// Back-up for if we don't have any alternatives
+	$match = FALSE;
+
+	foreach ($alternatives as $alternative) {
+		// if the $alternative was just added it will  not have any index defined so  no point going further
+		// and throw the PHP notices see bug #5326 trying to add an Alternative Proxy spits out PHP warnings
+		if (empty($alternative)) continue;
+
+		$pattern_url = $alternative['pattern_url'];
+		switch ($alternative['pattern_type']) {
+			case 'equals':
+				$match = ($page_url == $pattern_url);
+			break;
+
+			case 'begins':
+				// See if the pattern starts in exactly character 0
+				$match = (strpos($page_url, $pattern_url) === 0);
+			break;
+
+			case 'ends':
+				// See if the pattern starts at exactly the point where
+				// it would fill up the end of the string
+				$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
+			break;
+
+			case 'contains':
+				// All we need to see is if the pattern is included in the URL
+				$match = (strpos($page_url, $pattern_url) !== FALSE);
+			break;
+
+		}//end switch
+
+		// Invert if necessary
+		if ($alternative['pattern_not']) $match = !$match;
+
+		if ($match) {
+			// We have a match; we'll use this and break out
+			$proxy_host = $alternative['proxy_url'];
+			$proxy_port = $alternative['proxy_port'];
+			$proxy_user = $alternative['username'];
+			$proxy_pass = base64_decode($alternative['password']);
+			break;
+		}
+
+	}//end foreach
+
+	if (!$match) {
+		// Use the primary proxy if we can't find a match
+		$proxy_host = SQ_PA_HOSTNAME;
+		$proxy_port = SQ_PA_PORT;
+		$proxy_user = SQ_PA_USERNAME;
+		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+	}
+
+	return Array(
+			'host'		=> $proxy_host,
+			'port'		=> $proxy_port,
+			'user'		=> $proxy_user,
+			'password'	=> $proxy_pass,
+		   );
+
+}//end get_proxy_info_for_url()
 
 ?>

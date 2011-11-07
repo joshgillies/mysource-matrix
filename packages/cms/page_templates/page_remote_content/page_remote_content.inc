@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.86 2011/06/30 04:33:50 ewang Exp $
+* $Id: page_remote_content.inc,v 1.87 2011/11/07 22:49:38 csmith Exp $
 *
 */
 
@@ -19,14 +19,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-require_once 'HTTP/Client.php';
-require_once 'persistent_cookie_manager.inc';
-
 
 // Consider making these constants into attributes of this asset
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 define ('SQ_REMOTE_SOURCE', 'sq_content_src');
-define('SQ_REMOTE_INPUT_FILE_NAMES', 'sq_remote_input_file_names');
+define ('SQ_REMOTE_INPUT_FILE_NAMES', 'sq_remote_input_file_names');
 define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 
 
@@ -37,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,7 +86,7 @@ class Page_Remote_Content extends Page
 
 		$success = $this->_process();
 
-		if (!is_null($success)) {
+		if ($success === TRUE) {
 			$url = $this->_tmp['url'];
 			$this->_tmp['success'][$url] = $success;
 		}
@@ -149,16 +146,20 @@ class Page_Remote_Content extends Page
 				echo $this->attr('error_message');
 			}
 		} else {
-			$type = array_get_index($this->_tmp['headers'], 'content-type');
-			if (!empty($type) && (0 !== strpos($type, 'text/'))) {
-				// if we have got to this point and are trying to tunnel
-				// binary data, we must be nested and so we'll have to show
-				// a message instead of the content
-				$replacements['remote_url'] = $url;
-				echo replace_keywords($this->attr('binary_message'), $replacements);
-			} else {
-				// everything is good. get the page body.
-				echo $this->_tmp['content'][$url];
+			// if _process returns null, in some cases headers and content may not be set properly.
+			// So check they are available before trying to use them.
+			if (isset($this->_tmp['headers']) === TRUE && isset($this->_tmp['content']) === TRUE) {
+				$type = array_get_index($this->_tmp['headers'], 'content-type');
+				if (!empty($type) && (0 !== strpos($type, 'text/'))) {
+					// if we have got to this point and are trying to tunnel
+					// binary data, we must be nested and so we'll have to show
+					// a message instead of the content
+					$replacements['remote_url'] = $url;
+					echo replace_keywords($this->attr('binary_message'), $replacements);
+				} else {
+					// everything is good. get the page body.
+					echo $this->_tmp['content'][$url];
+				}
 			}
 		}
 		
@@ -214,7 +215,6 @@ class Page_Remote_Content extends Page
 			return FALSE;
 		}
 
-
 		//Implode the GET array to construct the query string.
 	   	//Avoid using $_SERVER['query_string'], because, some $_GET vars are passed indirectly.We have to trust $_GET[]
 		$first = true;
@@ -227,7 +227,6 @@ class Page_Remote_Content extends Page
         	    $query_string .= '&'.$key.'='.urlencode($value);   
        		}
    		}
-
 	
 		if (!empty($query_string) && !is_null($remote_source)) {
 			// we're preparing to pass all the query vars to the remote target
@@ -244,7 +243,10 @@ class Page_Remote_Content extends Page
 			replace_global_keywords($url_parts[1]);
 			$query_string = $url_parts[1].'&'.$query_string;
 		}
-		$url = $url_parts[0].'?'.$query_string;
+		$url = $url_parts[0];
+		if (empty($query_string) === FALSE) {
+			$url .= '?'.$query_string;
+		}
 
 		// If we have already handled this complete URL, mark it as such
 		$processed = array_get_index($this->_tmp, 'processed', Array());
@@ -261,12 +263,6 @@ class Page_Remote_Content extends Page
 
 		if ($is_post) {
 			unset($_POST[SQ_REMOTE_SOURCE]);
-
-			// Set this so that HTTP_Client does not respond to a 301 redirect with another POST
-			// request to the same location.  Refer to: http://pear.php.net/bugs/bug.php?id=1854
-			// Setting this constant means that HTTP_Client will follow common browser behaviour
-			// rather than RFC 2616 which means: always do a GET request on a 301 redirect.
-			define('HTTP_CLIENT_QUIRK_MODE', TRUE);
 
 			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', '');
 			if (strpos(strtolower($content_type), 'multipart/form-data') === FALSE) {
@@ -331,60 +327,30 @@ class Page_Remote_Content extends Page
 			}
 		}
 
-		////// Remote Communication Section. Using HTTP_Client PEAR package
-		// check whether or not the HTTP_Client object has already been
-		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
-		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
-		if (!empty($HTTP_Client)) {
-			$HTTP_Client = unserialize($HTTP_Client);
+		$cookie_filename = $this->data_path.'/.cookies';
 
-			if (!method_exists($HTTP_Client->_cookieManager, 'deleteSessionCookies')) {
-				// Reset the session. The client must have old HTTP_Client object before
-				// Persistent_Cookie_Manager was introduced. Potentially big problem since
-				// it ends up PHP Fatal Error!!!
-				$HTTP_Client = NULL;
-				$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = NULL;
-			} else {
-				if (!array_get_index($_COOKIE, SQ_REMOTE_SESSION_COOKIE_NAME)) {
-					$HTTP_Client->_cookieManager->deleteSessionCookies();
-					setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
-				}
-			}
+		$options = array(
+					'CONNECTTIMEOUT' => $this->attr('timeout'),
+					'COOKIEFILE'     => $cookie_filename,
+					'COOKIEJAR'      => $cookie_filename,
+					'TIMEOUT'        => $this->attr('timeout'),
+					'USERAGENT'      => SQ_SYSTEM_LONG_NAME,
+					'RETURNTRANSFER' => 1,
+				   );
+
+		// set HTTP authentication
+		$user = $this->attr('username');
+		if (!empty($user)) {
+			$options['http_authentication']['username'] = $user;
+			$options['http_authentication']['password'] = $this->attr('password');
 		}
 
-		if (is_null($HTTP_Client)) {
-			// parameters for HTTP_Request. See Package for description.
-			$request_parameters['timeout'] = $this->attr('timeout');
-			$request_parameters['useBrackets'] = FALSE;
-
-			// set HTTP authentication
-			$user = $this->attr('username');
-			if (!empty($user)) {
-				$request_parameters['user'] = $user;
-				$request_parameters['pass'] = $this->attr('password');
-			}
-
-			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
-
-			// Add the Proxy authentication details if enabled
-			addProxyInfo($request_parameters, $default_headers, $url);
-
-			// we need a persistent cookie manager for this
-			$cookie_man = $this->_getNewCookieManager();
-
-			$HTTP_Client = @new HTTP_Client($request_parameters, $default_headers, $cookie_man);
-		
-			setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
-
-			if ($this->attr('allow_redirect')) {
-				$HTTP_Client->setMaxRedirects(SQ_REMOTE_MAX_REDIRECTS);
-			} else {
-				$HTTP_Client->setMaxRedirects(0);
-			}
-			$HTTP_Client->enableHistory(FALSE);
+		if ($this->attr('allow_redirect')) {
+			$options['FOLLOWLOCATION'] = true;
+			$options['MAXREDIRS']      = SQ_REMOTE_MAX_REDIRECTS;
 		}
 
-		$HTTP_Client->setRequestParameter('useBrackets', FALSE);
+		setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
 
 		if ($is_post) {
 			$hidden_field_file_name = $this->getPrefix().'_'.SQ_REMOTE_INPUT_FILE_NAMES;
@@ -393,9 +359,7 @@ class Page_Remote_Content extends Page
 			} else {
 				$input_file_names = Array();
 			}
-			 
-			// Pass on uploaded files if necessary
-			$files = Array();
+
 			// Only send files to the remote URL if those files are in the remote content page
 			if (!empty($input_file_names)) {
 				foreach ($_FILES as $name => $details) {
@@ -405,21 +369,21 @@ class Page_Remote_Content extends Page
 								if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
 								$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
 								if (move_uploaded_file($tn, $new_name)) {
-									$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
+									$post_data[$name.'['.$i.']'] = '@'.$new_name;
 								}
 							}
 						} else {
 							if ($details['error'] != UPLOAD_ERR_OK) continue;
 							$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
 							if (move_uploaded_file($details['tmp_name'], $new_name)) {
-								$files[] = Array($name, $new_name, $details['type']);
+								$post_data[$name] = '@'.$new_name;
 							}
 						}
 					}//end if
 				}//end for
 			}//end if
 			
-			// a workaround for HTTP_Client's inability to handle empty post data
+			// a workaround for curl's inability to handle empty post data
 			if (empty($post_data) && empty($files)) {
 				if ($post_is_encoded) {
 					$random = md5(rand());
@@ -427,34 +391,25 @@ class Page_Remote_Content extends Page
 				}
 			}
 
-			if (!$post_is_encoded) {
-				$HTTP_Client->setRequestParameter('useBrackets', TRUE);
-			}
-
-			$result = $HTTP_Client->post($url, $post_data, $post_is_encoded, $files);
-
-		} else {
-			// fix a php 5 strict warning
-			$result = $HTTP_Client->get($url);
-			//$dummy_http = new HTTP_Client();
-			//$result = $dummy_http->get($url);
+			$options['POST']       = true;
+			$options['POSTFIELDS'] = $post_data;
 		}
 
-		// exit on error
-		if ($result instanceof PEAR_Error) {
+		$result = fetch_url($url, $options);
+
+		if ($result['errornumber'] != 0) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
-			unset($HTTP_Client);
-			return FALSE;
-		}
-		if (preg_match('/^[45].*?/', $result)) {
-			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
-			unset($HTTP_Client);
 			return FALSE;
 		}
 
-		$response = $HTTP_Client->currentResponse();
+		if (preg_match('/^[45].*?/', $result['curlinfo']['http_code'])) {
+			trigger_localised_error('CMS0064', E_USER_WARNING, $result['curlinfo']['http_code'], $url);
+			return FALSE;
+		}
 
-		$this->_tmp['url']  = $HTTP_Client->_defaultHeaders['Referer'];
+		$response = $result['response'];
+
+		$this->_tmp['url'] = $result['curlinfo']['url'];
 
 		// check if we were redirected to the bad destination
 		if ($this->_tmp['url'] != $url) {
@@ -464,14 +419,17 @@ class Page_Remote_Content extends Page
 			}
 		}
 
+		$keep_headers = array();
+		foreach (array('content_type', 'content_disposition') as $_header) {
+			if (isset($result['curlinfo'][$_header]) === TRUE) {
+				$keep_headers[str_replace('_', '-', $_header)] = $result['curlinfo'][$_header];
+			}
+		}
 		// prepare temporary variables for output
-		$this->_tmp['headers'][$this->_tmp['url']] = $response['headers'];
-		$this->_tmp['content'][$this->_tmp['url']] = $response['body'];
+		$this->_tmp['headers'][$this->_tmp['url']] = $keep_headers;
+		$this->_tmp['content'][$this->_tmp['url']] = $response;
 
 		// wipe the response because we won't use it again and it could be too big to just ignore
-		$HTTP_Client->_responses = NULL;
-		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
-		unset($HTTP_Client);
 
 		if ($this->_shouldPassStraightThrough($this->_tmp['headers'][$this->_tmp['url']])) {
 			foreach ($this->_tmp['transform_settings'] as $i => $v) {
@@ -482,7 +440,6 @@ class Page_Remote_Content extends Page
 		}
 
 		return TRUE;
-
 	}//end _process()
 
 
@@ -1268,21 +1225,6 @@ class Page_Remote_Content extends Page
 		return FALSE;
 
 	}//end isUrlAllowed()
-
-
-	/**
-	* Return a reference to a new HTTP_Client_CookieManager
-	*
-	* @return object
-	* @access private
-	*/
-	function &_getNewCookieManager()
-	{
-		$cookie_man = new Persistent_Cookie_Manager();
-
-		return $cookie_man;
-
-	}//end _getNewCookieManager()
 
 
 }//end class

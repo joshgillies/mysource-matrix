@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: sagepay_processor.inc,v 1.2 2009/07/13 11:43:08 ata Exp $
+* $Id: sagepay_processor.inc,v 1.3 2011/11/07 22:49:35 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('SAGEPAY_LOG_FILE_PREFIX', 'sagepay_transactions_account_');
 * Sage Pay payment gateway processing object
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -744,21 +744,20 @@ class SagePay_Processor
 		//log the request of the transaction
 		$this->_logRequest();
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->_post_string);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
-		curl_setopt($ch, CURLOPT_TIMEOUT, $this->_timeout); 
-	    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
-	
-		$response = curl_exec($ch);
+		$options = array(
+				 'POST'           => 1,
+				 'POSTFIELDS'     => $this->_post_string,
+				 'RETURNTRANSFER' => 1,
+				 'TIMEOUT'        => $this->_timeout,
+				 'SSL_VERIFYPEER' => FALSE,
+				 'SSL_VERIFYHOST' => 1,
+				);
+		$details  = fetch_url($url, $options);
+		$response = $details['response'];
 		
 		if ($response === FALSE) {
 			$success = FALSE;
-			$response = Array('CURL_ERROR' => TRUE, 'Status' => 'CURL_ERROR_'.curl_errno($ch), 'StatusDetail' => curl_error($ch));
+			$response = Array('CURL_ERROR' => TRUE, 'Status' => 'CURL_ERROR_'.$details['errornumber'], 'StatusDetail' => $details['errorstring']);
 		} else {
 			$lines = explode("\r\n", $response);
 			$response = Array();

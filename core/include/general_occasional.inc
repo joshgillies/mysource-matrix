@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.100 2011/10/24 02:55:20 csmith Exp $
+* $Id: general_occasional.inc,v 1.101 2011/11/07 22:49:32 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 
@@ -599,91 +599,6 @@ function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=
 	return $con;
 
 }//end open_socket_connection()
-
-
-/**
-* Get the appropriate proxy (or alternative) for a certain URL
-*
-* Returns a four-element array, providing host, port, user name and password.
-* Should only use if SQ_PA_ENABLED is set to TRUE (1).
-*
-* @param string	$page_url	The target URL that is being retrieved through a proxy
-*
-* @return array
-* @access public
-*/
-function get_proxy_info_for_url($page_url)
-{
-	$alternatives = SQ_PA_ALTERNATIVES;
-
-	if (trim($alternatives) !== '') {
-		$alternatives = unserialize($alternatives);
-	} else {
-		$alternatives = Array();
-	}
-
-	// Back-up for if we don't have any alternatives
-	$match = FALSE;
-
-	foreach ($alternatives as $alternative) {
-		// if the $alternative was just added it will  not have any index defined so  no point going further
-		// and throw the PHP notices see bug #5326 trying to add an Alternative Proxy spits out PHP warnings
-		if (empty($alternative)) continue;
-
-		$pattern_url = $alternative['pattern_url'];
-		switch ($alternative['pattern_type']) {
-			case 'equals':
-				$match = ($page_url == $pattern_url);
-			break;
-
-			case 'begins':
-				// See if the pattern starts in exactly character 0
-				$match = (strpos($page_url, $pattern_url) === 0);
-			break;
-
-			case 'ends':
-				// See if the pattern starts at exactly the point where
-				// it would fill up the end of the string
-				$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
-			break;
-
-			case 'contains':
-				// All we need to see is if the pattern is included in the URL
-				$match = (strpos($page_url, $pattern_url) !== FALSE);
-			break;
-
-		}//end switch
-
-		// Invert if necessary
-		if ($alternative['pattern_not']) $match = !$match;
-
-		if ($match) {
-			// We have a match; we'll use this and break out
-			$proxy_host = $alternative['proxy_url'];
-			$proxy_port = $alternative['proxy_port'];
-			$proxy_user = $alternative['username'];
-			$proxy_pass = base64_decode($alternative['password']);
-			break;
-		}
-
-	}//end foreach
-
-	if (!$match) {
-		// Use the primary proxy if we can't find a match
-		$proxy_host = SQ_PA_HOSTNAME;
-		$proxy_port = SQ_PA_PORT;
-		$proxy_user = SQ_PA_USERNAME;
-		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
-	}
-
-	return Array(
-			'host'		=> $proxy_host,
-			'port'		=> $proxy_port,
-			'user'		=> $proxy_user,
-			'password'	=> $proxy_pass,
-		   );
-
-}//end get_proxy_info_for_url()
 
 
 /**

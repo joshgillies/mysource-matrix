@@ -10,11 +10,9 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: connectivity.php,v 1.7 2011/02/21 04:36:40 cupreti Exp $
+* $Id: connectivity.php,v 1.8 2011/11/07 22:49:32 csmith Exp $
 *
 */
-
-require_once 'HTTP/Client.php';
 
 /**
 * Page to test remote connectivity
@@ -23,7 +21,7 @@ require_once 'HTTP/Client.php';
 *     Check if a remote page exists (returns 200 OK)
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 */
 
 
@@ -50,10 +48,6 @@ if (empty($url) || (!empty($current_url) && strpos($url, $current_url) !== FALSE
 }
 
 /**
- * Make sure the url is valid before passing it to Net_URL
- * It doesn't seem to handle invalid urls very well
- * getURL in some cases returns completely invalid url's.
- *
  * parse_url emits warnings for badly broken urls (eg 'http://')
  * so supress that here..
  */
@@ -63,16 +57,19 @@ if (!$url_ok) {
 	exit;
 }
 
-$Fetch_URL = new Net_URL($url);
-$url = $Fetch_URL->getURL();
+$options = array(
+		'FOLLOWLOCATION' => true,
+		'NOBODY'         => true,
+		'RETURNTRANSFER' => true,
+		'CONNECTTIMEOUT' => 5,
+		'MAXREDIRS'      => 5,
+		'TIMEOUT'        => 5,
+		);
 
-$request_parameters['timeout'] = 5;
-$HTTP_Client = new HTTP_Client($request_parameters);
-$HTTP_Client->setMaxRedirects(5);
-
-$result = $HTTP_Client->head($url);
-if (!PEAR::isError($result)) {
-	echo ($result == 200) ? 1 : 0;
+$response = fetch_url($url, $options, array(), FALSE);
+if ($response['errornumber'] === 0 && $response['curlinfo']['http_code'] == 200) {
+	echo 1;
 } else {
 	echo 0;
 }
+

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.39 2011/09/20 03:55:55 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.40 2011/11/07 22:49:42 csmith Exp $
 *
 */
 
@@ -18,7 +18,6 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once 'HTTP/Client.php';
 
 /**
 * Funnelback_Search_Page
@@ -28,7 +27,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2239,25 +2238,23 @@ class Funnelback_Search_Page extends Listing_Engine
 			return FALSE;
 		}//end if
 
-		$Fetch_URL = new Net_URL($url);
-		$url = $Fetch_URL->getURL();
+		$options = array(
+					'TIMEOUT' => 5,
+					'CONNECTTIMEOUT' => 5,
+					'MAXREDIRS' => 2,
+					'FOLLOWLOCATION' => true,
+					'RETURNTRANSFER' => true,
+				   );
 
-		// Get Proxy details for the url
-		addProxyInfo($request_parameters, $default_headers, $url);
-
-		$request_parameters['timeout'] = 5;
-		$HTTP_Client = new HTTP_Client($request_parameters, $default_headers);
-		$HTTP_Client->setMaxRedirects(2);
-
-		$result = $HTTP_Client->get($url);
-		if (PEAR::isError($result)) {
+		$urlResponse = fetch_url($url, $options);
+		if ($urlResponse['errornumber'] != 0) {
 			trigger_localised_error('FNB0002', E_USER_WARNING);
 			return FALSE;
 		}
-		$response = $HTTP_Client->currentResponse();
 
-		$code = array_get_index($response, 'code', '');
-		$xml = array_get_index($response, 'body', '');
+		$xml  = $urlResponse['response'];
+		$code = $urlResponse['curlinfo']['http_code'];
+
 		if (empty($xml) || empty($code) || $code != '200') {
 			return FALSE;
 		}//end if
