@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.24 2010/08/23 02:09:56 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.25 2011/11/08 23:21:07 csmith Exp $
 *
 */
 -->
@@ -224,4 +224,6 @@
 	<!-- Asset Listing Sorting of Asset without any attributes -->
 	<error code="CMS0110">The selected asset type does not have any attributes to be used for sorting.</error>
 
+	<!-- remote content -->
+	<error code="CMS0111">You cannot include or redirect to one of your own urls.</error>
 </errors>
