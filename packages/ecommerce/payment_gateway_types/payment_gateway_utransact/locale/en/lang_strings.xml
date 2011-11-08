@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2010/05/07 03:35:52 cupreti Exp $
+* $Id: lang_strings.xml,v 1.1.8.1 2011/11/08 23:43:36 ewang Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 		<td>%%credit_card_number%%  %%credit_card_ccv%%</td>
 	</tr>
 	<tr>
-		<td align="right">Expiry Date (MM/YY)</td>
+		<td align="right">Expiry Date (MMM/YYYY)</td>
 		<td>%%credit_card_expiry_month%% / %%credit_card_expiry_year%%</td>
 	</tr>
 	<tr>
@@ -55,7 +55,7 @@
 <string source="utransact_amount_not_specified">No amount is specified for the payment</string>
 <string source="utransact_card_name_not_specified">No name on card is specified for the payment</string>
 <string source="utransact_card_number_not_specified">No card number is specified for the payment</string>
-<string source="utransact_expiry_date_invalid">The expiry date (MM/YY) is not valid</string>
+<string source="utransact_expiry_date_invalid">The expiry date (MMM/YYYY) is not valid</string>
 <string source="utransact_issue_number_invalid">The issue number is invalid (must be one or two digits long)</string>
 <string source="utransact_card_type_not_specified">No card type is specified for the payment</string>
 <string source="utransact_card_cv2_not_specified">No CV2 is specified for the card</string>
