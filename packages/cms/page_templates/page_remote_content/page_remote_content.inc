@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.87 2011/11/07 22:49:38 csmith Exp $
+* $Id: page_remote_content.inc,v 1.88 2011/11/08 21:17:49 csmith Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1190,13 +1190,19 @@ class Page_Remote_Content extends Page
 		if ($options['all']) return TRUE;
 
 		if (!isset($this->_tmp['_white_list_'])) {
+			$url_parts = parse_url($this->attr('remote_url'));
+			$host      = $url_parts['host'];
+			$path      = '';
+			if (isset($url_parts['path']) === TRUE) {
+				$path = $url_parts['path'];
+			}
+
 			$this->_tmp['_white_list_'] = Array();
-			$Net_URL = new Net_URL($this->attr('remote_url'));
 			if ($options['remote_domain']) {
-				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+				$this->_tmp['_white_list_'][] = strtolower($host);
 			}
 			if ($options['remote_url']) {
-				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+				$this->_tmp['_white_list_'][] = strtolower($host.$path);
 			}
 			if ($options['white_list']) {
 				$this->_tmp['_white_list_'] = array_merge($this->attr('url_white_list'), $this->_tmp['_white_list_']);
@@ -1205,11 +1211,10 @@ class Page_Remote_Content extends Page
 
 		if (empty($this->_tmp['_white_list_'])) return FALSE;
 
-
-		$Net_URL = new Net_URL($url);
-		$url = $Net_URL->host;
-		if (!empty($Net_URL->path)) {
-			$url = $url.$Net_URL->path;
+		$url_parts = parse_url($url);
+		$url       = $url_parts['host'];
+		if (isset($url_parts['path']) === TRUE) {
+			$url .= $url_parts['path'];
 		}
 		$url = strtolower($url);
 
