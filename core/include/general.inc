@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.262 2011/11/07 22:49:32 csmith Exp $
+* $Id: general.inc,v 1.263 2011/11/08 23:22:26 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix
 */
 
@@ -2455,6 +2455,12 @@ function file_mime_type($filename)
 function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 {
 	static $_proxies_loaded = FALSE;
+	static $_redirects      = 0;
+
+	$maxredirects = 5;
+	if (isset($options['MAXREDIRS']) === TRUE) {
+		$maxredirects = $options['MAXREDIRS'];
+	}
 
 	$curl_res = curl_init($url);
 
@@ -2532,6 +2538,70 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 	// If we do, it'll be up to the calling code to deal with it.
 	if (is_resource($result) === FALSE) {
 		curl_close($curl_res);
+
+		// Let's check if the request has a meta http-equiv refresh tag in there.
+		// If it does, we need to handle that and possibly grab new content.
+
+		// There's no tag?
+		// Nice 'n easy.
+		preg_match('!<meta\\s+([^>]*http-equiv\\s*=\\s*("Refresh"|\'Refresh\'|Refresh)[^>]*)>!is', $result, $matches);
+		if (empty($matches) === TRUE) {
+			return $info;
+		}
+
+        // Just a refresh, no redirect
+		preg_match('!content\\s*=\\s*("[^"]+"|\'[^\']+\'|\\S+)!is', $matches[1], $urlMatches);
+		if (empty($urlMatches) === TRUE) {
+			return $info;
+		}
+
+		// Our redirect content should look like this:
+		// content="0;url=http://www.example.com"
+		// Get rid of quotes around the redirect content.
+		$redirectContent = rtrim($urlMatches[1], '"');
+		$redirectContent = rtrim($redirectContent, "'");
+
+		// If there's no ; in the content, return.
+		$parts = explode(';', $redirectContent);
+		if (isset($parts[1]) === FALSE) {
+			return $info;
+		}
+
+		// Check there's a url in the part we need.
+		preg_match('/url\\s*=\\s*("[^"]+"|\'[^\']+\'|\\S+)/is', $parts[1], $urlMatches);
+		if (empty($urlMatches) === TRUE) {
+			return $info;
+		}
+
+		$redirectUrl = rtrim($urlMatches[1], '"');
+		$redirectUrl = rtrim($redirectUrl, "'");
+
+		// Make sure we're not in a redirect loop.
+		// (page-1 redirects to page-2, which redirects to page-1).
+		$_redirects++;
+		if ($_redirects > $maxredirects || $redirectUrl == $url) {
+			$info['errornumber'] = CURLE_TOO_MANY_REDIRECTS;
+			$info['errorstring'] = 'Too many redirects. When following redirects, libcurl hit the maximum amount.';
+			$info['response']    = '';
+			$info['curlinfo']    = array();
+			return $info;
+		}
+
+		if (isset($options['FOLLOWLOCATION']) === TRUE) {
+			// If we're all good to go, get the new page and return it.
+			$info = fetch_url($redirectUrl, $options, $headers, $use_proxy);
+		}
+
+		// Set our own custom message only if we don't have a proper curl error.
+		// If we hit the redirect limit (or some other curl error), we need to preserve
+		// that information.
+		if ($info['errornumber'] === 0) {
+			$info['errornumber'] = -1;
+			$info['errorstring'] = 'The requested url has a redirect but you are not following redirects.';
+			$info['response']    = '';
+			$info['curlinfo']    = array();
+		}
+		return $info;
 	}
 
 	return $info;
