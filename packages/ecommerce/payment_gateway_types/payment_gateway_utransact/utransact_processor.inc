@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utransact_processor.inc,v 1.2 2011/04/14 00:31:56 cupreti Exp $
+* $Id: utransact_processor.inc,v 1.2.4.1 2011/11/08 23:18:11 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/transaction_dataset.inc';
 * UTransact payment processing object 
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -960,7 +960,7 @@ class Utransact_Processor
 	*/
 	public function setCardExpiryMonth($month)
 	{
-		$this->_expiry_month = $month;
+		$this->_expiry_month = strtoupper($month);
 		
 	}//end setExipryMonth
 
