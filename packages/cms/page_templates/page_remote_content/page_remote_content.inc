@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.88 2011/11/08 21:17:49 csmith Exp $
+* $Id: page_remote_content.inc,v 1.89 2011/11/08 23:19:28 csmith Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -395,10 +395,25 @@ class Page_Remote_Content extends Page
 			$options['POSTFIELDS'] = $post_data;
 		}
 
+		// Make sure we're not trying to include (or redirect) to ourselves.
+		$myUrls = $this->getURLs();
+		foreach ($myUrls as $urlInfo) {
+			foreach (array('http', 'https') as $schema) {
+				if ($urlInfo[$schema] == 0) {
+					continue;
+				}
+				$fullUrl = $schema.'://'.$urlInfo['url'];
+				if ($fullUrl == $url) {
+					trigger_localised_error('CMS0111', E_USER_WARNING);
+					return FALSE;
+				}
+			}
+		}
+
 		$result = fetch_url($url, $options);
 
 		if ($result['errornumber'] != 0) {
-			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
+			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result['errorstring']);
 			return FALSE;
 		}
 
