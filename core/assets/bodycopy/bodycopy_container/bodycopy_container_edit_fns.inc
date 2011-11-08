@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.73 2011/09/14 04:24:02 akarelia Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.74 2011/11/08 06:05:13 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -292,13 +292,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {
 			foreach ($keywords as $keyword) {
-				// If theres any keyword modifier in the keyword, escape it
-				$keyword = str_replace('^', '\^', $keyword);
+				// Escape the regex characters in the keyword
+				$regex_safe_keyword = escape_regex_chars($keyword);
 				
-				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
-			// Once replacement is finished, undo the '^' escaping
-			$output = str_replace('\^', '^', $output);
 
 		} else {
 			// if 'Disable Keywords' is checked, change '%' sign to '&#37;'
@@ -324,7 +322,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
-
+		
 		return string_to_file($output, $asset->data_path.'/'.$file_name);
 
 	}//end generateContentFile()
