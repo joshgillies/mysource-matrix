@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.263 2011/11/08 23:22:26 csmith Exp $
+* $Id: general.inc,v 1.264 2011/11/09 00:00:15 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix
 */
 
@@ -2590,17 +2590,12 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 		if (isset($options['FOLLOWLOCATION']) === TRUE) {
 			// If we're all good to go, get the new page and return it.
 			$info = fetch_url($redirectUrl, $options, $headers, $use_proxy);
+			return $info;
 		}
 
-		// Set our own custom message only if we don't have a proper curl error.
-		// If we hit the redirect limit (or some other curl error), we need to preserve
-		// that information.
-		if ($info['errornumber'] === 0) {
-			$info['errornumber'] = -1;
-			$info['errorstring'] = 'The requested url has a redirect but you are not following redirects.';
-			$info['response']    = '';
-			$info['curlinfo']    = array();
-		}
+		// Since it has a redirect in it, it'll be printed in the browser
+		// and the browser can deal with it.
+		// We don't need to deal with it ourselves.
 		return $info;
 	}
 
