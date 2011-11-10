@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_upload_youtube_video.inc,v 1.4.2.2 2011/10/30 23:51:23 mhaidar Exp $
+* $Id: form_action_upload_youtube_video.inc,v 1.4.2.3 2011/11/04 04:00:56 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -573,7 +573,7 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 	*/
 	public static function processUploadVideo($settings, $video_path, &$keywords)
 	{
-		$url = 'http://uploads.gdata.youtube.com/feeds/api/users/squizdev/uploads';
+		$url = 'http://uploads.gdata.youtube.com/feeds/api/users/default/uploads';
 
 		$xml_api = '<?xml version="1.0"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007">';
 		if ($settings['privacy'] == 'unlisted') $xml_api .= '<yt:accessControl action=\'list\' permission=\'denied\' />';
