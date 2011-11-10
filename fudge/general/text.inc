@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.60 2011/11/08 06:07:01 cupreti Exp $
+* $Id: text.inc,v 1.61 2011/11/10 22:11:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package Fudge
 * @subpackage Text
 */
@@ -794,7 +794,7 @@ function make_readable_list($string_array, $end_delimiter='and')
 /**
 * Escapes special regular expression chars
 *
-* @param string	&$text
+* @param string	$text
 *
 * @return void
 * @access public
