@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.333.2.1 2011/09/30 04:04:50 ewang Exp $
+* $Id: listing_engine.inc,v 1.333.2.2 2011/11/13 22:46:40 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.333.2.1 $
+* @version $Revision: 1.333.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -601,8 +601,21 @@ class Listing_Engine extends Page
 		// print the "No Results" bodycopy if available
 		if (!is_null($no_results_bodycopy)) {
 			foreach ($keywords as $word) {
+				if (isset($replacements[$word])) continue;
 				$replacements[$word] = $this->getKeywordReplacement($word);
 			}
+
+			// by this time we have all the replacements for our regular keywords
+			// check to see if there are any modifiers passed on to us
+			foreach ($replacements as $kw => $res) {
+				$plain_keyword = parse_keyword($kw, $modifiers);
+				if (!empty($modifiers)) {
+					$replacements[$kw] = $replacements[$plain_keyword];
+					// Apply modifiers
+					apply_keyword_modifiers($replacements[$kw], $modifiers);
+				}
+			}
+
 			$no_results_bodycopy->setKeywordReplacements($replacements);
 			$no_results_bodycopy->printBody();
 			$no_results_bodycopy_printed = TRUE;
@@ -641,7 +654,7 @@ class Listing_Engine extends Page
 		$children = $this->getAssetList();
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetList');
 
-		
+
 		/*
 		 * Performance Monitor
 		 * Log performance warnings when listing engine tries to list a large number of assets
@@ -686,12 +699,13 @@ class Listing_Engine extends Page
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'filterAssetList');
 		$this->filterAssetList($children);
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'filterAssetList');
-		
+
 		$num_kids = count($children);
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'replaceFormatKeywords');
 		foreach ($keywords as $word) {
 			$replacements[$word] = $this->getKeywordReplacement($word);
 		}
+
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'replaceFormatKeywords');
 
 
@@ -779,7 +793,7 @@ class Listing_Engine extends Page
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
-		
+
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still
 		// respect the 'per page' settings - but with only one page in random
@@ -858,8 +872,18 @@ class Listing_Engine extends Page
 		} else {
 			$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
 		}
-
 		$replacements['select_all_js_code'] = '%select_all_js_code%';
+
+		// by this time we have all the replacements for our regular keywords
+		// check to see if there are any modifiers passed on to us
+		foreach ($replacements as $kw => $res) {
+			$plain_keyword = parse_keyword($kw, $modifiers);
+			if (!empty($modifiers)) {
+				$replacements[$kw] = $replacements[$plain_keyword];
+				// Apply modifiers
+				apply_keyword_modifiers($replacements[$kw], $modifiers);
+			}
+		}
 
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
@@ -2397,6 +2421,7 @@ class Listing_Engine extends Page
 
 			} else {
 				foreach ($todo as $assetid => $type_code) {
+
 					$this->_printAsset($assetid, $list_position, $num_items);
 					$list_position++;
 				}
@@ -4410,12 +4435,12 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($keyword)
+	function getKeywordReplacement($original_keyword)
 	{
-		if (empty($keyword)) return '';
+		if (empty($original_keyword)) return '';
+		$keyword = parse_keyword($original_keyword, $modifiers);
 
 		// check the keyword against the dynamic keywords
-
 		// asset targets
 		if (preg_match('/^(.*)(_asset_target)$/', $keyword, $matches)) {
 			if (isset($matches[1]) && isset($matches[2])) {
@@ -4424,17 +4449,27 @@ class Listing_Engine extends Page
 			}
 		}
 
-
 		// setup the replacement function call
 		if (!empty($keyword_stem) && !empty($args)) {
 			$func_name = 'get'.ucwords_no_space($keyword_stem).'KeywordReplacement';
 			if (method_exists($this, $func_name)) {
-				return $this->$func_name($args);
+				$replacement = $this->$func_name($args);
+				apply_keyword_modifiers($replacement, $modifiers);
+				return $replacement;
 			}
 		}
-
 		// otherwise, fall back to the parent
 		$replacement = parent::getKeywordReplacement($keyword);
+
+		if ($replacement == '%'.$keyword.'%' && empty($modifiers)) {
+			return $replacement;
+		} else if($replacement == '%'.$keyword.'%' && !empty($modifiers)) {
+			return $original_keyword;
+		}
+
+		if (!is_null($replacement)) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
 		return $replacement;
 
 	}//end getKeywordReplacement()
