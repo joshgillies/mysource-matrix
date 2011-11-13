@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.25.2.1 2011/10/27 04:51:20 akarelia Exp $
+* $Id: import.inc,v 1.25.2.2 2011/11/13 22:53:57 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -41,26 +41,91 @@ function get_import_actions($import_file)
 		trigger_error('Import file "'.$import_file.'" does not exist', E_USER_ERROR);
 	}
 
-	$xml_file = file_to_string($import_file);
-	$p = xml_parser_create();
-	xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
-	xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
+	// bug fix #5410 "Import Assets from XML Tool" running out of memory
+	// if we are on command line then dont worry about memory exhaustion 
+	// issue do the whole XML file altogether if the request is coming from 
+	// the web interface as mentioned on the bug report then execute the 
+	// code block in else statment
+	if ((php_sapi_name() == 'cli')) {
+		$index				= Array();
+		$xml_import_vals	= Array();
+		$import_actions		= Array();
+		$p					= xml_parser_create();
 
-	$index = Array();
-	$xml_import_vals = Array();
-	xml_parse_into_struct($p, $xml_file, $xml_import_vals, $index);
+		xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
+		xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
 
-	// print an error if one occured
-	if ($error_code = xml_get_error_code($p)) {
-		echo 'XML Error: '.xml_error_string($error_code).' Line:'.xml_get_current_line_number($p).' Col:'.xml_get_current_column_number($p)."\n";
-		exit();
+		$xml_file = file_to_string($import_file);
+		xml_parse_into_struct($p, $xml_file, $xml_import_vals, $index);
+
+		// print an error if one occured
+		if ($error_code = xml_get_error_code($p)) {
+			echo 'XML Error: '.xml_error_string($error_code).' Line:'.xml_get_current_line_number($p).' Col:'.xml_get_current_column_number($p)."\n";
+			exit();
+		}
+
+		reset($xml_import_vals);
+		populate_import_action_array($import_actions, $xml_import_vals);
+
+	} else {
+		// get few actions at a time from the XML so that while perforing 
+		// populate_import_action_array() on it we dont run out of memory
+		$actions = Array();
+		$import_actions = Array();
+		$fh = fopen($import_file, 'r');
+		$old_exec_time = ini_get('max_execution_time');
+		// set higher execution time to allow matrix
+		// to read from the xml that might be quiet big
+		set_time_limit (200); 
+		while(!feof($fh)) {
+			$p	= xml_parser_create();
+			xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
+			xml_parser_set_option($p, XML_OPTION_SKIP_WHITE, 1);
+
+			$xml_import_vals = Array();
+			$chunk_import_action = Array();
+			$index = Array();
+			$content = '<actions>';
+			$count = 0;
+
+			// make Matrix read atleast 500 lines and the last line read must
+			// always be end tag </action> so that the xml constructed is valid
+			do {
+				if (!($line = fgets($fh, 9999))) break;
+
+				// skip the xml declaration and the starting tag for <actions>
+				// but if we are on the </actions> that means we are done with file
+				// break out or else there will be a infinite looping in this do...while
+				if (trim($line) == '') continue;
+				if (preg_match('/(<actions>)$/', $line)) continue;
+				if (preg_match('/(^<\?xml version)/', $line)) continue;
+				if (preg_match('/(<\/actions>)$/', $line)) break;
+
+				$content = $content.$line;
+				$count++;
+			} while (!preg_match('/(<\/action>)$/', $content) || $count < 500);
+			$content .= '</actions>';
+
+			if ($content != '<actions></actions>') {
+				xml_parse_into_struct($p, $content, $xml_import_vals, $index);
+
+				// print an error if one occured
+				if ($error_code = xml_get_error_code($p)) {
+					echo 'XML Error: '.xml_error_string($error_code).' Line:'.xml_get_current_line_number($p).' Col:'.xml_get_current_column_number($p)."\n";
+					exit();
+				}
+			}
+			xml_parser_free($p);
+
+			reset($xml_import_vals);
+			populate_import_action_array($chunk_import_action, $xml_import_vals);
+			if (!empty($chunk_import_action)) $actions = array_merge($actions, $chunk_import_action['actions'][0]['action']);
+		}
+
+		// restore the original max execution time
+		set_time_limit($old_exec_time);
+		$import_actions['actions'][0]['action'] = $actions;
 	}
-
-	xml_parser_free($p);
-
-	$import_actions = Array();
-	reset($xml_import_vals);
-	populate_import_action_array($import_actions, $xml_import_vals);
 
 	return $import_actions;
 
