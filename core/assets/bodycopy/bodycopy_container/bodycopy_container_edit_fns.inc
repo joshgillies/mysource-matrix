@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.74 2011/11/08 06:05:13 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.75 2011/11/14 00:28:47 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -608,7 +608,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// if there's no write access to the content
 		if (!$asset->writeAccess('content')) {
 			if ($asset->useSystemVersion()) {
-				$asset->printBody();
+				$keyword_replacements = Array(); //Do not want to replace keywords
+				$asset->printBody($keyword_replacements);
 			} else {
 				$this->paintContainer($asset, $o, $prefix);
 			}

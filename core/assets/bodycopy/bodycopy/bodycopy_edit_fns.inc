@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.68 2009/12/03 04:24:20 ewang Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.69 2011/11/14 00:28:47 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			foreach ($containers as $container_data) {
 				$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				if ($container->useSystemVersion()) {
-					$container->printBody();
+					$keyword_replacements = Array(); //Do not want to replace keywords
+					$container->printBody($keyword_replacements);
 				} else {
 					$container_edit = $container->getEditFns();
 					$container_edit->paintContainer($container, $o, $prefix);
