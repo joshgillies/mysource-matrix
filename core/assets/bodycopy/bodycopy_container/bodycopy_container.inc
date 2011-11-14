@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.49 2011/11/14 00:28:47 mhaidar Exp $
+* $Id: bodycopy_container.inc,v 1.50 2011/11/14 00:36:32 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -347,56 +347,14 @@ class Bodycopy_Container extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
-	* @param mixed(array|null)	$keyword_replacements	some replacements for keywords in the content,
-	* 													pass an array of replacements or 
-	* 													null for the container to attempt the replacements itself
+	* @param array	$keyword_replacements	some replacements for keywords in the content
 	*
 	* @return void
 	* @access public
 	*/
-	public function printBody($keyword_replacements=NULL)
+	public function printBody(Array $keyword_replacements=Array())
 	{
 		if (!$this->readAccess()) return;
-		
-		// if we don't have any keyword replacements passed as an argument,
-		// check if we really don't have any keywords in the contents because in some rare cases,
-		// such as an asset listing that lists bodycopies and use %asset_contents% in the type format, 
-		// this function is called without an array that contains keyword replacements which makes all the
-		// keywords disappear from the contents printed on the frontend
-		if (is_null($keyword_replacements)) {
-			$keyword_replacements = Array();
-			// find if we have any keywords in the content
-			ob_start();
-				$edit = $this->getEditFns();
-				$edit->paint($this, FALSE, TRUE);
-				$temp_raw_content = ob_get_contents();
-			ob_end_clean();
-			$keywords = retrieve_keywords_replacements($temp_raw_content);
-
-			// if we have keywords, attempt to get replacement values for them
-			if (!empty($keywords)) {
-				$dependant_parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, '', FALSE, FALSE);
-
-				// if we know the one and only dependant parent that itself is not a dependant
-				// then we can replace both global and asset keywords
-				if (count($dependant_parent_assetids) === 1) {
-					$dependant_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependant_parent_assetids));
-					foreach ($keywords as $keyword) {
-						$keyword_replacements[$keyword] = $dependant_parent_asset->getKeywordReplacement($keyword);
-					}
-				} else if (count($dependant_parent_assetids) > 1) {
-					// if we found multiple dependant parents (by new linking Content DIV, etc) then
-					// we can have global keywords later on by passing the keywords as they are but 
-					// not asset keyword as we don't know which asset to invoke getKeywordReplacement on.
-					foreach ($keywords as $keyword) {
-						if (0 === strpos($keyword, 'globals_')) {
-							$keyword_replacements[$keyword] = "%$keyword%";
-						}
-					}
-				}
-			}
-		}
-    
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_suffix = ($contextid === 0) ? '' : ('.'.$contextid);
 		$content_file_name = 'content_file'.$context_suffix.'.php';
