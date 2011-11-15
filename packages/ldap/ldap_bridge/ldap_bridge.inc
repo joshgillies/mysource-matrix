@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.100.2.2 2011/09/28 06:06:43 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.100.2.3 2011/11/15 06:47:13 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100.2.2 $
+* @version $Revision: 1.100.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -805,7 +805,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 				$children = Array();
 				foreach ($links as $link_data) {
-					$children[$link_data['minorid']] = $link_data['minor_type_code'];
+					$children[$link_data['minorid']][0]['type_code'] = $link_data['minor_type_code']
 				}
 				return $children;
 			}
