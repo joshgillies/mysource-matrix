@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.18.2.3 2011/10/28 04:00:30 ewang Exp $
+* $Id: export_to_xml.php,v 1.18.2.4 2011/11/15 07:17:38 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.18.2.3 $
+* @version $Revision: 1.18.2.4 $
 * @package MySource_Matrix
 */
 
@@ -72,6 +72,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 $warned = FALSE;
 $asset_id_map = Array();
+
 echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 echo "<actions>\n";
 
@@ -688,7 +689,7 @@ echo "</actions>\n\n";
 					//	- the asset exists on the system
 					//	- and also that we are importing it
 					// if any of the above fails we can be certain that it is something we do nto want
-					if ($assetid != '0' && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid) && array_key_exists($assetid, $asset_id_map)) {
+					if ($assetid != '0' && array_key_exists($assetid, $asset_id_map) && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 						$value = preg_replace('/'.$assetid.'/', '[[output://create_'.$asset_id_map[$assetid].'.assetid]]', $value);
 						$assetid_mapped[] = $assetid;
 					}
