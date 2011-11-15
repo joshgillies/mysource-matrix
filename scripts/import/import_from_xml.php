@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.20 2011/10/27 00:25:07 akarelia Exp $
+* $Id: import_from_xml.php,v 1.21 2011/11/15 01:12:20 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -97,7 +97,12 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {	
 		$designs_to_fix[] = $action['action_id'][0];
 	}
-
+	
+	// check if there is hard coded assetid reference which doesn't exist in the target system
+	if(!checkAssetExists($action, 'parentid') || !checkAssetExists($action, 'assetid') || !checkAssetExists($action, 'asset')) {
+		trigger_error('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
+		continue;
+	}
 	// Execute the action
 	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
@@ -163,5 +168,23 @@ function printStatus($status)
 	echo "[ $status ]\n";
 
 }//end printStatus()
+
+
+/**
+* Check if hard coded assetid reference is a valid assetid in target system
+*
+* @param array	$action	the action xml
+* @param string	$type	the type of asset id field asset | assetid | parentid
+*
+* @return void
+* @access public
+*/
+function checkAssetExists($action, $type='asset')
+{
+    	if(isset($action[$type][0]) && preg_match('/^[0-9]+$/', $action[$type][0])){
+	    return ($GLOBALS['SQ_SYSTEM']->am->assetExists ($action[$type][0]));
+	}	
+	return TRUE;
+}
 
 ?>
