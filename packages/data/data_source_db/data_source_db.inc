@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.48 2011/08/11 03:38:36 cupreti Exp $
+* $Id: data_source_db.inc,v 1.49 2011/11/15 05:19:22 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,6 +296,7 @@ class Data_Source_DB extends Data_Source
 		try {
 			$this->_tmp['db_connection'] = MatrixDAL::dbConnect($dsn, 'data_source_db_'.$this->id);
 		} catch (Exception $e) {
+			$this->_tmp['db_conection_exception'] = $e;			
 			return FALSE;
 		}
 

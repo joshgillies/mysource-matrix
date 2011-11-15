@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.8 2011/11/15 05:19:22 cupreti Exp $
 *
 */
 -->
@@ -56,6 +56,15 @@
 			</function_call>
 			<display_name>DB Connector Asset</display_name>
 			<note>If a DB connector is selected, the settings in the 'Connection Setup' section (above) have no effect. DB Connector allows the DB settings to be reused on other DB Data Source assets.</note>
+		</field>
+	</section>
+	<section name="Diagnostics">
+		<field>
+			<display_name>Connection Status</display_name>
+			<function_call>
+				<paint_function   name="paintDebugInfo"   />
+			</function_call>
+			<note></note>
 		</field>
 	</section>
 </contents>

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.39 2010/08/27 04:29:11 mhaidar Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.40 2011/11/15 05:19:22 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -617,6 +617,33 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		return TRUE;
 
 	}//end processDynamicData()
+
+
+	/**
+	* Paint Debug info for this asset
+	*
+	* @param object &$asset the asset
+	* @param object &$o             the backend outputter
+	* @param string $prefix prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDebugInfo(&$asset, &$o, $prefix)
+	{
+		if ($asset->connectToDB()) {
+			echo '<div style="color: green"><b>Connected</b></div>';
+		} else {
+			echo '<div style="color: red"><b>Not connected</b></div>';
+		}
+		
+		if (isset($asset->_tmp['db_conection_exception'])) {
+			echo "<div>Connection failed: ".$asset->_tmp['db_conection_exception']->getMessage()."</div>";
+		}
+
+		return TRUE;
+
+	}//end paintDebugInfo()
 
 
 }//end class
