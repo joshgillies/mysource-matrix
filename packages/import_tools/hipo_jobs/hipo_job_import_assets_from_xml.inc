@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.4.2.1 2011/10/11 04:48:52 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.4.2.2 2011/11/15 01:16:05 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -153,6 +153,13 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {
 				$this->_running_vars['nest_content_to_fix'] [] = $action['action_id'][0];
 			}
+			
+			// check if there is hard coded assetid reference which doesn't exist in the target system
+			if(!$this->checkAssetExists($action, 'parentid') || !$this->checkAssetExists($action, 'assetid') || !$this->checkAssetExists($action, 'asset')) {
+				$this->_addError('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
+				unset($import_actions['actions'][0]['action'][$id]);
+			}
+			
 		}
 		
 		$this->_running_vars['import_actions'] = $import_actions;
@@ -245,6 +252,24 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 
 	}//end processImport()
 
+	
+	/**
+	* Check if hard coded assetid reference is a valid assetid in target system
+	*
+	* @param array	$action	the action xml
+	* @param string	$type	the type of asset id field asset | assetid | parentid
+	*
+	* @return void
+	* @access public
+	*/
+	function checkAssetExists($action, $type='asset')
+	{
+		if(isset($action[$type][0]) && preg_match('/^[0-9]+$/', $action[$type][0])){
+		    return ($GLOBALS['SQ_SYSTEM']->am->assetExists ($action[$type][0]));
+		}	
+		return TRUE;
+	}
+	
 
 }//end class
 
