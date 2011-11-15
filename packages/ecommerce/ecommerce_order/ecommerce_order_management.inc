@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.15 2010/03/15 06:39:54 akarelia Exp $
+* $Id: ecommerce_order_management.inc,v 1.16 2011/11/15 23:27:57 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -91,6 +91,7 @@ class Ecommerce_Order_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The ID of the payment transaction returned by the Payment Gateway',
+													'is_admin'	=> FALSE,
 												   ),
 						'billing_name'		=> Array(
 													'added'			=> '0.2',
