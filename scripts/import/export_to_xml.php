@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.21 2011/10/28 03:59:24 ewang Exp $
+* $Id: export_to_xml.php,v 1.22 2011/11/15 07:16:55 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -689,7 +689,7 @@ echo "</actions>\n\n";
 					//	- the asset exists on the system
 					//	- and also that we are importing it
 					// if any of the above fails we can be certain that it is something we do nto want
-					if ($assetid != '0' && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid) && array_key_exists($assetid, $asset_id_map)) {
+					if ($assetid != '0' && array_key_exists($assetid, $asset_id_map) && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 						$value = preg_replace('/'.$assetid.'/', '[[output://create_'.$asset_id_map[$assetid].'.assetid]]', $value);
 						$assetid_mapped[] = $assetid;
 					}
