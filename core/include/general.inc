@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.264 2011/11/09 00:00:15 csmith Exp $
+* $Id: general.inc,v 1.265 2011/11/17 06:42:48 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.264 $
+* @version $Revision: 1.265 $
 * @package MySource_Matrix
 */
 
@@ -72,7 +72,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	if (count($bt) > 1) {
 		$real_bt_index = 0;
 
-		while (($real_bt_index < count($bt)-1) && (((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'Locale_Manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager'))) ||  ($real_bt_index === 0 &&  array_get_index($bt[$real_bt_index], 'function', '') == __FUNCTION__))) {
+		while (($real_bt_index < count($bt)-1) && (((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'Locale_Manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager'))) ||  ($real_bt_index === 0 && array_get_index($bt[$real_bt_index], 'function', '') == __FUNCTION__) && array_get_index($bt[$real_bt_index], 'function', '') == __FILE__)) {
 			$real_bt_index++;
 		}
 
