@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.13 2010/05/10 03:26:42 csmith Exp $
+* $Id: requirements.xml,v 1.14 2011/11/17 22:46:42 csmith Exp $
 *
 */
 -->
@@ -19,7 +19,7 @@
 	<package_name>__core__</package_name>
 	<requirement>
 		<php_extension>xsl</php_extension>
-		<description> - you only need to install this module, if you are going to use the XSL Transformation.</description>
+		<description> - you only need to install this module, if you are going to use the XSL Transformation. This normally comes from the php-xml (or php53-xml) package.</description>
 	</requirement>
 	<requirement>
 		<!--
