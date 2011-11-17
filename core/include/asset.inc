@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.752.2.2 2011/11/10 03:09:03 ewang Exp $
+* $Id: asset.inc,v 1.752.2.3 2011/11/17 03:41:03 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.752.2.2 $
+* @version $Revision: 1.752.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3919,100 +3919,95 @@ class Asset extends MySource_Object
 			$metadata_keyword = substr($keyword, 15);
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-
-			// Get "metadata field related asset" field names
-		   	if (!isset($this->_tmp['mm_related_asset_fields'])) {
-				$related_assetids = $mm->getMetadataFieldTypeValues($this->id, 'metadata_field_related_asset');
-				array_sort_by_length($related_assetids, FALSE, FALSE);
-				$this->_tmp['mm_related_asset_fields'] = $related_assetids;
-			} else {
-				$related_assetids = $this->_tmp['mm_related_asset_fields'];
+			$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
+			if ($current_context === NULL) {
+				$current_context = 0;
 			}
 
-			$related_asset_keyword = FALSE;
-			foreach($related_assetids as $field_name => $related_assetid) {
-				if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
-					if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
-						$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
-						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
-						$replacement = $related_asset->getKeywordReplacement($asset_keyword);
-					}
-					$related_asset_keyword = TRUE;
-					break;
-				}
-			} //end foreach
-			
-			if (!$related_asset_keyword) {
-				$current_context = $GLOBALS['SQ_SYSTEM']->getContextId();
-				if ($current_context === NULL) {
-					$current_context = 0;
-				}
+			if (!isset($this->_tmp['mm_replacements'][$current_context])) {
+				// generate all metadata keywords in one go
+				$this->_tmp['mm_replacements'][$current_context] = $mm->getMetadataFieldValues($this->id);
+			}
+			$additional_keyword = '';
+			$replacement = NULL;
 
-				if (!isset($this->_tmp['mm_replacements'][$current_context])) {
-					// generate all metadata keywords in one go
-					$this->_tmp['mm_replacements'][$current_context] = $mm->getMetadataFieldValues($this->id);
-				}
-				$additional_keyword = '';
-				$replacement = NULL;
-		
-				// With "additional" keywords, we don't know where our metadata
-				// field name ends and the additional keyword begins...so we will
-				// try and split it up by underscores
-				while (strlen($metadata_keyword) > 0) {
-					$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
+			// With "additional" keywords, we don't know where our metadata
+			// field name ends and the additional keyword begins...so we will
+			// try and split it up by underscores
+			while (strlen($metadata_keyword) > 0) {
+				$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 
-					if (isset($this->_tmp['mm_replacements'][$current_context][$metadata_keyword]) === TRUE) {
-						if ($additional_keyword !== '') {
-							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-							$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
+				if (isset($this->_tmp['mm_replacements'][$current_context][$metadata_keyword]) === TRUE) {
+					if ($additional_keyword !== '') {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
 							
-							if ($field_assetid !== FALSE) {
-								$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
-								$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
-								unset($field);
-							}
-						} else {
-							$replacement = $this->_tmp['mm_replacements'][$current_context][$metadata_keyword];
+						if ($field_assetid !== FALSE) {
+							$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+							$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+							unset($field);
 						}
-
-					} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
-						
-						// Try it with metadata keyword underscores replaced with spaces
-						// (additional keyword never has its spaces removed when
-						// sent to the metadata field)
-						if ($additional_keyword !== '') {
-							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-							$field_assetid = $mm->getFieldAssetIdFromName($this->id, $spaced_metadata_keyword);
-							if ($field_assetid !== FALSE) {
-								$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
-								$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
-								unset($field);
-							}
-						} else {
-							$replacement = $this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword];
-						}
-
-					}//end if
-
-					// Do we have a replacement?
-					if ($replacement !== NULL) break;
-
-					// There are no underscores to break apart, so we've run out of
-					// possibilities
-					$underscore_pos = strrpos($metadata_keyword, '_');
-					if ($underscore_pos === FALSE) break;
-
-					if (strlen($additional_keyword) > 0) {
-						$additional_keyword = '_'.$additional_keyword;
+					} else {
+						$replacement = $this->_tmp['mm_replacements'][$current_context][$metadata_keyword];
 					}
 
-					$additional_keyword = substr($metadata_keyword, $underscore_pos + 1).$additional_keyword;
-					$metadata_keyword = substr($metadata_keyword, 0, $underscore_pos);
-				}
-			}// end if NOT related asset keyword
+				} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
+						
+					// Try it with metadata keyword underscores replaced with spaces
+					// (additional keyword never has its spaces removed when
+					// sent to the metadata field)
+					if ($additional_keyword !== '') {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $spaced_metadata_keyword);
+						if ($field_assetid !== FALSE) {
+							$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+							$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+							unset($field);
+						}
+					} else {
+						$replacement = $this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword];
+					}
 
+				}//end if
+
+				// Do we have a replacement?
+				if ($replacement !== NULL) break;
+
+				// There are no underscores to break apart, so we've run out of
+				// possibilities
+				$underscore_pos = strrpos($metadata_keyword, '_');
+				if ($underscore_pos === FALSE) break;
+
+				if (strlen($additional_keyword) > 0) {
+					$additional_keyword = '_'.$additional_keyword;
+				}
+
+				$additional_keyword = substr($metadata_keyword, $underscore_pos + 1).$additional_keyword;
+				$metadata_keyword = substr($metadata_keyword, 0, $underscore_pos);
+			}
+			
+			// If no replacement yet, then perhaps its a related metadata field keyword
+			if ($replacement === NULL) {
+				$metadata_keyword = substr($keyword, 15);
+				// Related metadata fields names, if any, needs to be sorted out before doing the replacement
+				$related_assetids = $this->_tmp['mm_replacements'][$current_context];
+				array_sort_by_length($related_assetids, FALSE, FALSE);
+				
+				foreach($related_assetids as $field_name => $related_assetid) {
+					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
+						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
+						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
+							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);						
+							$replacement = $related_asset->getKeywordReplacement($asset_keyword);
+							$this->_tmp['mm_replacements'][$current_context][$metadata_keyword] = $replacement;
+						}
+						break;
+					}//end if
+				}//end foreach			
+			}//end if
+			
 			// No replacement? Oh well, back to square one
 			if ($replacement === NULL) {
 				unset($replacement);
