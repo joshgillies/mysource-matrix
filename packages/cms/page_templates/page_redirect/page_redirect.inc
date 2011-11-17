@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.41 2010/10/14 00:15:21 ewang Exp $
+* $Id: page_redirect.inc,v 1.42 2011/11/17 05:28:46 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,12 +85,23 @@ class Page_Redirect extends Page
 	function &getRedirectAsset()
 	{
 		$res = NULL;
-		if (!empty($this->id)) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
-			if (!empty($link)) {
-				$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if ($this->useSystemVersion()) {
+			$notice_links = unserialize(file_to_string($this->data_path.'/.sq_notice_links'));
+			foreach ($notice_links as $link) {
+				if ($link['value'] == 'redirect_asset') {
+					$redirect_link = $link;
+					break;
+				}
+			}
+		} else {
+			if (!empty($this->id)) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
 			}
 		}
+		if (!empty($link)) {
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		}
+
 		return $res;
 
 	}//end getRedirectAsset()
