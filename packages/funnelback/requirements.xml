@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.3 2011/03/22 00:25:01 csmith Exp $
+* $Id: requirements.xml,v 1.3.4.1 2011/11/17 22:49:20 csmith Exp $
 *
 */
 -->
@@ -23,5 +23,9 @@
 		<version>10.0.0.3</version>
 		<version_arguments>-V</version_arguments>
 		<expected_return_code>0</expected_return_code>
+	</requirement>
+	<requirement>
+		<php_extension>xml</php_extension>
+		<description>This normally comes from the php-xml (or php53-xml) package.</description>
 	</requirement>
 </requirement_info>
