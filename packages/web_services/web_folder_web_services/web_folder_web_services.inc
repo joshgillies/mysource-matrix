@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: web_folder_web_services.inc,v 1.5 2010/05/05 07:16:13 ewang Exp $
+* $Id: web_folder_web_services.inc,v 1.6 2011/11/20 22:13:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/web_folders/web_folder/web_folder.inc
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -70,7 +70,9 @@ class Web_Folder_Web_Services extends Web_Folder
 
     public function getDesignParseFile()
     {
-    	$parse_file = '<html><body style="margin-left:0px;margin-right:0px;margin-top:0px;">
+    	$parse_file = '<html>
+	<head></head>
+<body style="margin-left:0px;margin-right:0px;margin-top:0px;">
 <div style="height:100%;width:100%;border: 1px thin;">
    <div style="width:100%;height:70px; background-color:#003366;padding-top:30px;padding-left:20px;">
      <span style="color:#FFFFFF;font-weight:bold;font-family:verdana;font-size:20px;">
