@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.29 2010/08/12 01:23:36 mhaidar Exp $
+* $Id: tool_search_replace.inc,v 1.29.8.1 2011/11/21 00:32:26 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -232,7 +232,7 @@ class Tool_Search_Replace extends Tool
 	*/
 	function getFormattedResults($results, $search_string)
 	{
-		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}',$search_string);
+		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/])/i', '\\\${1}',$search_string);
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
