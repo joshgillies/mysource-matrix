@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session.php,v 1.6 2008/12/24 04:03:21 lwright Exp $
+* $Id: session.php,v 1.6.16.1 2011/11/21 00:32:54 ewang Exp $
 *
 */
 
@@ -56,7 +56,8 @@ if ($primary_url == sq_web_path('root_url')) {
 		trigger_localised_error('SYS0014', E_USER_ERROR);
 	}
 
-	eval($session_handler.'::syncSession(\''.$_GET['sessionid'].'\');');
+	$session_handler_instance = new $session_handler();
+	$session_handler_instance->syncSession($_GET['sessionid']);
 
 }//end if
 ?>
