@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2011/11/07 22:55:00 csmith Exp $
+* $Id: lang_strings.xml,v 1.9 2011/11/22 05:51:48 ewang Exp $
 *
 *
 * Squid Package Localised Strings File
@@ -28,7 +28,7 @@
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
 	<string source="squid_tool_asset_note">Squid cache will be cleared for all URLs applied to this asset.</string>
 	<string source="squid_tool_hostname">Host Names</string>
-	<string source="squid_tool_hostname_note">You may modify the settings in the Global Preferences System Configuration.</string>
+	<string source="squid_tool_hostname_note">You may modify the settings in the External Tools Configuration.</string>
 	<string source="squid_tool_path_field">Path</string>
 	<string source="squid_tool_port_field">Port Number</string>
 	<string source="squid_tool_option_field">Options</string>
@@ -53,7 +53,7 @@
 	<string source="squid_clear_at">at</string>
 	<string source="squid_clear_every">every</string>
 	<string source="squid_tool_not_configured">Squid Cache is not configured</string>
-	<string source="squid_tool_no_hostnames">Please make sure there is at least one hostname in the Clear Squid Cache Preferences section of Global Preferences.</string>
-	<string source="squid_tool_path_empty">Please make sure you set the path to squidclient in the Clear Squid Cache Preferences section of Global Preferences.</string>
-	<string source="squid_tool_path_invalid">The squidclient path is invalid. Please check it in the Clear Squid Cache Preferences section of Global Preferences.</string>
+	<string source="squid_tool_no_hostnames">Please make sure there is at least one hostname in the Squid Cache section of External Tools Configuration.</string>
+	<string source="squid_tool_path_empty">Please make sure you set the path to squidclient in the Squid Cache section of External Tools Configuration.</string>
+	<string source="squid_tool_path_invalid">The squidclient path is invalid. Please check it in the Squid Cache section of External Tools Configuration.</string>
 </strings>

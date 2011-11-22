@@ -10,12 +10,13 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.8 2011/11/07 22:55:00 csmith Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.9 2011/11/22 05:51:48 ewang Exp $
 *
 */
 
 
 require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 /**
 * Tool_Clear_Squid_Cache
@@ -25,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -61,14 +62,14 @@ class Tool_Clear_Squid_Cache extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
-		include SQ_DATA_PATH.'/private/conf/preferences.inc';
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 		$preferencesBroken = array();
-		$squid_hostnames = trim($preferences[$type_code]['SQ_SQUID_CACHE_HOSTNAMES']['default']);
+		$squid_hostnames = trim(SQ_TOOL_SQUID_CACHE_HOSTNAMES);
 		if (empty($squid_hostnames) === TRUE) {
 			$preferencesBroken[] = 'squid_tool_no_hostnames';
 		}
 
-		$squidclient_path = trim($preferences[$type_code]['SQ_SQUID_CACHE_PATH']['default']);
+		$squidclient_path = trim(SQ_TOOL_SQUID_CACHE_PATH);
 		if (empty($squidclient_path) === TRUE) {
 			$preferencesBroken[] = 'squid_tool_path_empty';
 		} else {
