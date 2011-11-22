@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_session_expiry_preferences.php,v 1.2 2009/01/13 22:45:07 bpearson Exp $
+* $Id: upgrade_session_expiry_preferences.php,v 1.1 2011/11/22 06:13:29 ewang Exp $
 *
 */
 
 /**
 *
 * @author Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
