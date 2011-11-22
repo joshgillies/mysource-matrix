@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.37.2.1 2011/11/17 23:03:22 csmith Exp $
+#* $Id: backup.sh,v 1.37.2.2 2011/11/22 20:10:37 csmith Exp $
 #*
 #*/
 #
@@ -181,7 +181,7 @@ pg_dbdump()
 
 	print_verbose "Finished creating pgpass file."
 
-	args="-i "
+	args=""
 	if [ "x${host}" != "x" ]; then
  		if [ "x${host}" != "xlocalhost" ]; then
 			args="${args} -h ${host} "
