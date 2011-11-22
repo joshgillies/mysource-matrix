@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_future_trigger_actions.php,v 1.1 2009/02/16 00:31:23 mbrydon Exp $
+* $Id: upgrade_future_trigger_actions.php,v 1.1.2.2 2011/11/22 07:26:22 ewang Exp $
 *
 */
 
 /**
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
