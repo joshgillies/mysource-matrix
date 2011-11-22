@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.3 2010/05/05 07:15:20 ewang Exp $
+* $Id: lang_errors.xml,v 1.3.10.1 2011/11/22 07:20:17 ewang Exp $
 *
 *
 * Squid Package Localised Error Strings File
@@ -19,6 +19,6 @@
 
 <errors>
 	<error code="SQUID0001">The Asset to be purged is not defined.</error>
-	<error code="SQUID0002">Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Global Preferences are valid.</error>
+	<error code="SQUID0002">Unable to purge Squid Cache. Please make sure that host name(s) and arguments supplied in the Squid Cache section of External Tools Configuration.</error>
 	<error code="SQUID0003">Unable to process tool, no admin access found, permission denied.</error>
 </errors>
