@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.8 2010/05/05 07:15:19 ewang Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.8.8.1 2011/11/22 08:09:07 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.8.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -131,20 +131,22 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	*/
 	public function prepare()
 	{
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+	    
 		// get the prefs setting for squidclient
-		$this->_running_vars['hostnames'] = explode("\n", trim($GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_HOSTNAMES')));
-		$this->_running_vars['path'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_PATH');
+		$this->_running_vars['hostnames'] = explode("\n", trim(SQ_TOOL_SQUID_CACHE_HOSTNAMES));
+		$this->_running_vars['path'] = SQ_TOOL_SQUID_CACHE_PATH;
 		if ($this->_running_vars['path'] == '') {
 			$this->_running_vars['path'] = '/usr/bin/squidclient';
 		}
-		$this->_running_vars['port'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_PORT');
+		$this->_running_vars['port'] = SQ_TOOL_SQUID_CACHE_PORT;
 		if ($this->_running_vars['port'] != '') {
 			$this->_running_vars['port'] = '-p '.$this->_running_vars['port'];
 		}
-		$this->_running_vars['option'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_OPTION');
-		$this->_running_vars['slash'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_SLASH');
-		$this->_running_vars['url_port'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_URL_PORT');
-
+		$this->_running_vars['option'] = SQ_TOOL_SQUID_CACHE_OPTION;
+		$this->_running_vars['slash'] = SQ_TOOL_SQUID_CACHE_SLASH;
+		$this->_running_vars['url_port'] = SQ_TOOL_SQUID_URL_PORT;
+		
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = Array($this->_running_vars['assetid']);
 		if ($this->_running_vars['cascade']) {

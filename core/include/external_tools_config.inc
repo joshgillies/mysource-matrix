@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.38 2010/09/20 23:31:22 cupreti Exp $
+* $Id: external_tools_config.inc,v 1.38.6.1 2011/11/22 08:07:50 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.6.1 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -66,6 +66,12 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_MOLLOM_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_MOLLOM_TEST_MODE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION'	=> Array('editable' => 1, 'default' => '1'),
+						'SQ_TOOL_SQUID_CACHE_HOSTNAMES'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SQUID_CACHE_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/squidclient'),
+						'SQ_TOOL_SQUID_CACHE_PORT'			=> Array('editable' => 1, 'default' => '3128'),
+						'SQ_TOOL_SQUID_CACHE_OPTION'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SQUID_CACHE_SLASH'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_SQUID_URL_PORT'				=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -253,11 +259,7 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('wysiwyg_editor_tools'));
 
 			$o->openField(translate('path_to_html_tidy'));
-				if ($write_access) {
-					text_box($class.'[SQ_TOOL_HTML_TIDY_PATH]', SQ_TOOL_HTML_TIDY_PATH, 30);
-				} else {
-					echo SQ_TOOL_HTML_TIDY_PATH;
-				}//end if
+				echo SQ_TOOL_HTML_TIDY_PATH;
 
 				if (!is_file(SQ_TOOL_HTML_TIDY_PATH)) {
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'HTML Tidy'); ?></span><?php
@@ -290,11 +292,8 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('keyword_extraction_tools'));
 
 			$o->openField(translate('path_to_pdftohtml'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_PDFTOHTML_PATH]', SQ_TOOL_PDFTOHTML_PATH, 30);
-			} else {
-				echo SQ_TOOL_PDFTOHTML_PATH;
-			}
+			echo SQ_TOOL_PDFTOHTML_PATH;
+
 
 			if (!is_file(SQ_TOOL_PDFTOHTML_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'PDFTOHTML'); ?></span><?php
@@ -303,11 +302,8 @@ class External_Tools_Config extends Config
 			}
 
 			$o->openField(translate('path_to_antiword'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_ANTIWORD_PATH]', SQ_TOOL_ANTIWORD_PATH, 30);
-			} else {
-				echo SQ_TOOL_ANTIWORD_PATH;
-			}
+			echo SQ_TOOL_ANTIWORD_PATH;
+
 
 			if (!is_file(SQ_TOOL_ANTIWORD_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Antiword');?></span><?php
@@ -316,11 +312,8 @@ class External_Tools_Config extends Config
 			}
 
 			$o->openField('Path to Antiword Mappings');
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_ANTIWORD_MAPPING_PATH]', SQ_TOOL_ANTIWORD_MAPPING_PATH, 30);
-			} else {
-				echo SQ_TOOL_ANTIWORD_MAPPING_PATH;
-			}
+			echo SQ_TOOL_ANTIWORD_MAPPING_PATH;
+			
 
 			if (!is_dir(SQ_TOOL_ANTIWORD_MAPPING_PATH)) {
 				?><br /><span class="sq-backend-warning">The path to Antiword Mappings is not valid</span><?php
@@ -332,11 +325,8 @@ class External_Tools_Config extends Config
 		$o->openSection('Photoshop Image Metadata Extraction');
 
 			$o->openField('Path to PHP JPEG Metadata Toolkit');
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_JPEG_TOOLKIT_PATH]', SQ_TOOL_JPEG_TOOLKIT_PATH, 60);
-			} else {
-				echo SQ_TOOL_JPEG_TOOLKIT_PATH;
-			}
+			echo SQ_TOOL_JPEG_TOOLKIT_PATH;
+
 
 			if (!is_dir(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
 				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
@@ -347,11 +337,8 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('markdown_tools'));
 		
 			$o->openField(translate('path_to_markdown'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_MARKDOWN_PATH]', SQ_TOOL_MARKDOWN_PATH, 60);
-			} else {
-				echo SQ_TOOL_MARKDOWN_PATH;
-			}//end if
+			echo SQ_TOOL_MARKDOWN_PATH;
+
 
 			if (!is_file(SQ_TOOL_MARKDOWN_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdown'); ?></span><?php
@@ -363,11 +350,8 @@ class External_Tools_Config extends Config
 			}//end if
 
 			$o->openField(translate('path_to_markdownify'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_MARKDOWNIFY_PATH]', SQ_TOOL_MARKDOWNIFY_PATH, 60);
-			} else {
-				echo SQ_TOOL_MARKDOWNIFY_PATH;
-			}//end if
+			echo SQ_TOOL_MARKDOWNIFY_PATH;
+
 
 			if (!is_file(SQ_TOOL_MARKDOWNIFY_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdownify'); ?></span><?php
@@ -384,11 +368,8 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('getid3_extraction'));
 
 			$o->openField(translate('path_to_getid3'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_GETID3_PATH]', SQ_TOOL_GETID3_PATH, 60);
-			} else {
-				echo SQ_TOOL_GETID3_PATH;
-			}
+			echo SQ_TOOL_GETID3_PATH;
+
 
 			if (!is_dir(SQ_TOOL_GETID3_PATH)) {
 				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
@@ -399,11 +380,8 @@ class External_Tools_Config extends Config
 		$o->openSection(translate('ogg_metadata_extraction'));
 
 			$o->openField(translate('path_to_ogg_metadata_extraction'));
-			if ($write_access) {
-				text_box($class.'[SQ_TOOL_OGG_METADATA_EXTRACTION_PATH]', SQ_TOOL_OGG_METADATA_EXTRACTION_PATH, 60);
-			} else {
-				echo SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
-			}
+			echo SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
+
 
 			$ogg_found = FALSE;
 			if (is_file(SQ_TOOL_OGG_METADATA_EXTRACTION_PATH)) {
@@ -436,11 +414,8 @@ class External_Tools_Config extends Config
 				}//end if
 
 			$o->openField(translate('path_to_virus_checker'));
-				if ($write_access) {
-					text_box($class.'[SQ_TOOL_VIRUS_CHECKER_PATH]', SQ_TOOL_VIRUS_CHECKER_PATH, 30);
-				} else {
-					echo SQ_TOOL_VIRUS_CHECKER_PATH;
-				}//end if
+				echo SQ_TOOL_VIRUS_CHECKER_PATH;
+
 
 				if (!is_file(SQ_TOOL_VIRUS_CHECKER_PATH)) {
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Virus Checker'); ?></span><?php
@@ -452,11 +427,8 @@ class External_Tools_Config extends Config
 		
 		$o->openSection(translate('javascript_configuration'));
 			$o->openField(translate('path_to_javascript'));
-				if ($write_access) {
-					text_box($class.'[SQ_TOOL_JS_PATH]', SQ_TOOL_JS_PATH, 30);
-				} else {
-					echo SQ_TOOL_JS_PATH;
-				}//end if
+				echo SQ_TOOL_JS_PATH;
+
 				?><br /><?php
 				echo translate('javascript_command_note');
 				if (!is_file(SQ_TOOL_JS_PATH)) {
@@ -521,6 +493,61 @@ class External_Tools_Config extends Config
 				echo translate('mollom_accept_bypassed_submission_note');
 		$o->closeSection();
 
+		
+		
+		
+		// Squid caching
+		$o->openSection(translate('squid_cache_section'));
+
+			$o->openField(translate('squid_tool_hostname'));
+				if ($write_access) {
+					text_area($class.'[SQ_TOOL_SQUID_CACHE_HOSTNAMES]', SQ_TOOL_SQUID_CACHE_HOSTNAMES, 80, 4);
+				} else {
+					echo nl2br(SQ_TOOL_SQUID_CACHE_HOSTNAMES);
+				}
+				 echo $o->note(translate('squid_tool_pref_note'));
+			$o->closeField();
+			$o->openField(translate('squid_tool_path_field'));
+				echo nl2br(SQ_TOOL_SQUID_CACHE_PATH);
+			$o->closeField();
+			$o->openField(translate('squid_tool_port_field'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_SQUID_CACHE_PORT]', SQ_TOOL_SQUID_CACHE_PORT, 30);
+				} else {
+					echo nl2br(SQ_TOOL_SQUID_CACHE_PORT);
+				}
+			$o->closeField();
+			$o->openField(translate('squid_tool_option_field'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_SQUID_CACHE_OPTION]', SQ_TOOL_SQUID_CACHE_OPTION, 30);
+					$o->note(translate('squid_tool_option_note'));
+				} else {
+					echo nl2br(SQ_TOOL_SQUID_CACHE_OPTION);
+				}
+			$o->closeField();
+			$o->openField(translate('squid_tool_slash_field'));
+				$val = SQ_TOOL_SQUID_CACHE_SLASH;
+				if ($write_access) {
+					$selection = Array(
+								1	=> translate('true'),
+								0	=> translate('false'),
+							 );
+				combo_box($class.'[SQ_TOOL_SQUID_CACHE_SLASH]', $selection, FALSE, $val);
+				} else {
+					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $val ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+				}
+			$o->closeField();
+			$o->openField(translate('squid_tool_url_port_field'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_SQUID_URL_PORT]', SQ_TOOL_SQUID_URL_PORT, 10);
+					$o->note(translate('squid_tool_url_port_note'));
+				} else {
+					echo nl2br(SQ_TOOL_SQUID_URL_PORT);
+				}
+			$o->closeField();
+		$o->closeSection();		
+				
+				
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
