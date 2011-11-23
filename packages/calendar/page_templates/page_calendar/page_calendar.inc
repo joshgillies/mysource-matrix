@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.245 2011/11/23 06:38:21 akarelia Exp $
+* $Id: page_calendar.inc,v 1.246 2011/11/23 22:09:02 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -948,6 +948,7 @@ class Page_Calendar extends Page
 	*/
 	function getMonthView($date, $format, &$events_array)
 	{
+		$popups_enabled = $this->attr('enable_description_popups');
 		if ($popups_enabled) $this->_printPopupsScript();
 		list($year, $month, $day) = explode('-', $date);
 		$enabled_views = $this->attr('enabled_views');
