@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.755 2011/11/15 03:43:16 cupreti Exp $
+* $Id: asset.inc,v 1.756 2011/11/23 22:30:31 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.755 $
+* @version $Revision: 1.756 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1125,8 +1125,14 @@ class Asset extends MySource_Object
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 
 		// preserve the nest content related notice links so that we can recreate the links when reverting to system version
+		$links_to_preserve = Array(
+								'nested_asset',
+								'paint_with_layout',
+								'root',
+								'redirect_asset'
+							 );
 		foreach ($notice_links as $link) {
-			if ($link['value'] == 'nested_asset' || $link['value'] == 'paint_with_layout' || $link['value'] == 'root') {
+			if (in_array($link['value'], $links_to_preserve)) {
 				$replace_assetids[] = $link;
 			}
 		}
@@ -1315,8 +1321,14 @@ class Asset extends MySource_Object
 			$system_ver_notice_links = unserialize($notice_links_file);
 			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 
+			$links_to_preserve = Array(
+									'nested_asset',
+									'paint_with_layout',
+									'root',
+									'redirect_asset'
+								 );
 			foreach ($notice_links as $index => $info) {
-				if ($info['value'] == 'nested_asset' || $info['value'] == 'paint_with_layout' || $info['value'] == 'root') {
+				if (in_array($info['value'], $links_to_preserve)) {
 					foreach($system_ver_notice_links as $prev_index => $prev_info) {
 						if (array_diff($info, $prev_info) == Array()) {
 							unset($system_ver_notice_links[$prev_index]); //not going to create
@@ -3897,10 +3909,10 @@ class Asset extends MySource_Object
 			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 		} else if (strcmp('asset_type_icon', $keyword) == 0) {
 			$replacement = sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type()), 16, 16, '');
+		} else if (strcmp('asset_type_icon_url', $keyword) == 0) {
+			$replacement = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type());
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
-		
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
-			  
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = $this->getAttribute($attr_name);
 				if (!is_null($attr) && !$attr->is_admin) {
@@ -5692,7 +5704,7 @@ class Asset extends MySource_Object
 		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 		$our_edit_layouts = $this->getLookupValues(FALSE, 'layout::');
-		
+
 		$tmp_old_urls = Array();
 
 		$current_urls = Array();
@@ -5838,7 +5850,7 @@ class Asset extends MySource_Object
 				}//end foreach
 			}//end foreach
 			unset($our_edit_layouts);
-			
+
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 
 			$done_urls    = Array();
