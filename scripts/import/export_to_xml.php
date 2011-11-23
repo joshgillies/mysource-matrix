@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.22 2011/11/15 07:16:55 akarelia Exp $
+* $Id: export_to_xml.php,v 1.23 2011/11/23 06:50:35 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -580,11 +580,13 @@ echo "</actions>\n\n";
 		if (!is_null($asset)) {
 			$file_info = $asset->getExistingFile();
 			$file_type = getAssetType($asset);
+			$assetid = $asset->id;
 		} else {
 			$file_info = $file;
 			$file_type = $file['type'];
+			$assetid = substr($file_info['filename'], 0 ,strpos($file_info['filename'], '_'));
 		}
-		$export_path = 'export/'.$file_type.'/'.$file_info['filename'];
+		$export_path = 'export/'.$file_type.'/'.$assetid.'/'.$file_info['filename'];
 
 		// check to see if an export/ directory exists. If not, create it.
 		if (!file_exists('export/')) {
@@ -595,7 +597,10 @@ echo "</actions>\n\n";
 		if (!file_exists('export/'.$file_type.'/')) {
 			mkdir('export/'.$file_type, 0775);
 		}
-
+		
+		// create a directory for this file based on the assetid
+		mkdir('export/'.$file_type.'/'.$assetid, 0775);
+		
 		if (copy($file_info['path'], $export_path)) {
 			return $export_path;
 		} else {
