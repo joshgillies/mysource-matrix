@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.205 2011/11/02 22:44:33 cupreti Exp $
+* $Id: file.inc,v 1.206 2011/11/23 06:48:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,10 +136,12 @@ class File extends Asset
 			$name = array_shift($valid_names);
 
 			// Make sure the new web path is not already is use
-			$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
-			if (!empty($bad_paths)) {
-				trigger_localised_error('CORE0086', E_USER_WARNING, $name);
-				return FALSE;
+			if (!defined('SQ_IN_IMPORT')) {
+				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
+				if (!empty($bad_paths)) {
+					trigger_localised_error('CORE0086', E_USER_WARNING, $name);
+					return FALSE;
+				}
 			}
 
 			$this->setAttrValue('name', $name);
