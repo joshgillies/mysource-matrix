@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.24 2009/11/09 00:12:36 ewang Exp $
+* $Id: page_poll.inc,v 1.25 2011/11/23 05:44:25 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -473,6 +473,7 @@ class Page_Poll extends Page
 		$keywords = Array();
 		$keywords['poll_option_label'] = translate('cms_poll_option_label');
 		$keywords['poll_option_number'] = translate('cms_poll_option_number');
+		$keywords['poll_option_id'] = translate('cms_poll_option_id');
 		$keywords['poll_option_vote_selection_button'] = translate('cms_poll_option_vote_selection_button');
 
 		return $keywords;
@@ -525,6 +526,7 @@ class Page_Poll extends Page
 	{
 		$keywords = Array();
 		$keywords['poll_option_number'] = translate('cms_poll_option_number');
+		$keywords['poll_option_id'] = translate('cms_poll_option_id');
 		$keywords['poll_option_label'] = translate('cms_poll_option_label');
 		$keywords['poll_option_bar'] = translate('cms_poll_option_bar');
 		$keywords['poll_option_votes_number'] = translate('cms_poll_option_votes_number');
@@ -728,6 +730,7 @@ class Page_Poll extends Page
 		foreach ($options as $option_id => $option_values ) {
 			$keywords['poll_option_label'] = $option_values['option_text'];
 			$keywords['poll_option_number'] = $option_id + 1;
+			$keywords['poll_option_id'] = $option_id;
 			ob_start();
 			if ($question->attr('allow_multiple')) {
 				check_box('option_id[]',$option_id);
@@ -965,6 +968,7 @@ class Page_Poll extends Page
 
 			$keywords['poll_option_label'] = $option_values['option_text'];
 			$keywords['poll_option_number'] = $option_id + 1;
+			$keywords['poll_option_id'] = $option_id;
 
 			ob_start();
 				?>
