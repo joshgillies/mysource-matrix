@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.17.2.4 2011/11/15 01:15:21 ewang Exp $
+* $Id: import_from_xml.php,v 1.17.2.5 2011/11/23 22:40:00 cupreti Exp $
 *
 */
 
@@ -21,9 +21,11 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.17.2.4 $
+* @version $Revision: 1.17.2.5 $
 * @package MySource_Matrix
 */
+
+define ('SQ_IN_IMPORT', 1);
 
 error_reporting(E_ALL);
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.95 2011/08/01 05:32:26 mhaidar Exp $
+* $Id: file_edit_fns.inc,v 1.95.2.1 2011/11/23 22:40:41 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.95.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -304,7 +304,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$name = current(make_valid_web_paths(Array($info['name'])));
 
 		// make sure the new web path is not already in use
-		if ($asset->name != $name) {
+		if (!defined('SQ_IN_IMPORT') && $asset->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
 				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
@@ -373,7 +373,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// hipo_job_clone_asset will call saveWebPaths after it is sure the links have been established
 		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
-		if (!($asset_cloned) && !($asset->saveWebPaths(Array($name),$auto_add_remaps))) {
+		if (!defined('SQ_IN_IMPORT') && !($asset_cloned) && !($asset->saveWebPaths(Array($name),$auto_add_remaps))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
 			return FALSE;
 		}//end if
