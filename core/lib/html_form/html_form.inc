@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.157.2.2 2011/09/08 01:22:48 akarelia Exp $
+* $Id: html_form.inc,v 1.157.2.3 2011/11/23 05:08:26 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157.2.2 $
+* @version $Revision: 1.157.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1073,7 +1073,7 @@ function print_accessible_captcha_interface()
     ?>
 <span style="display: none; visibility: hidden;" id="sq_accessible_captcha">
 <?php
-    echo 'Please enter your email address: ';
+    echo '<label for="SQ_SYSTEM_SECURITY_KEY_EMAIL">Please enter your email address: </label>';
     echo text_box('SQ_SYSTEM_SECURITY_KEY_EMAIL', '', 40, '', FALSE, 'onkeypress="enable_submission_button();"');
 ?>
 	<input type="button" id="sq_submit_accessible_captcha" value="Submit address" onclick="submit_email_captcha('<?php echo sq_web_path('lib'); ?>');" />
