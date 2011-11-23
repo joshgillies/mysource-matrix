@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.752.2.3 2011/11/17 03:41:03 cupreti Exp $
+* $Id: asset.inc,v 1.752.2.4 2011/11/23 22:34:50 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.752.2.3 $
+* @version $Revision: 1.752.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3378,7 +3378,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
-		
+
 		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
 			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
 			//Any identified attributes that shouldn't be filtered
@@ -3897,6 +3897,8 @@ class Asset extends MySource_Object
 			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 		} else if (strcmp('asset_type_icon', $keyword) == 0) {
 			$replacement = sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type()), 16, 16, '');
+		} else if (strcmp('asset_type_icon_url', $keyword) == 0) {
+			$replacement = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type());
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			if (array_key_exists($attr_name, $this->vars)) {
@@ -5690,7 +5692,7 @@ class Asset extends MySource_Object
 		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 		$our_edit_layouts = $this->getLookupValues(FALSE, 'layout::');
-		
+
 		$tmp_old_urls = Array();
 
 		$current_urls = Array();
@@ -5836,7 +5838,7 @@ class Asset extends MySource_Object
 				}//end foreach
 			}//end foreach
 			unset($our_edit_layouts);
-			
+
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 
 			$done_urls    = Array();
