@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pre_session.php,v 1.9 2009/07/10 00:14:31 bpearson Exp $
+* $Id: pre_session.php,v 1.9.14.1 2011/11/23 06:57:13 ewang Exp $
 *
 */
 
@@ -24,19 +24,20 @@ if (!isset($_SESSION['PRIMARY_SESSIONID'])) {
 } else {
 	// Set up the session handler
 	$session_handler = $GLOBALS['SQ_SYSTEM']->getSessionHandlerClassName();
-	$session_exists = eval('return '.$session_handler.'::sessionExists(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
+	$session_handler_instance = new $session_handler();
+	$session_exists = $session_handler_instance->sessionExists($_SESSION['PRIMARY_SESSIONID']);
 
 	if (!$session_exists) {
 		unset($_SESSION['PRIMARY_SESSIONID']);
 		reload_browser(FALSE, $SQ_SITE_NETWORK);
 	}
 
-	$pri_session = eval('return '.$session_handler.'::unserialiseSession(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
+	$pri_session = $session_handler_instance->unserialiseSession($_SESSION['PRIMARY_SESSIONID']);
 	$pri_timestamp = (isset($pri_session['SQ_SESSION_TIMESTAMP'])) ? $pri_session['SQ_SESSION_TIMESTAMP'] : -1;
 	$sec_timestamp = (isset($_SESSION['SQ_SESSION_TIMESTAMP'])) ? $_SESSION['SQ_SESSION_TIMESTAMP'] : -1;
 
 	if ($pri_timestamp > $sec_timestamp) {
-		eval($session_handler.'::syncSession(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
+		$session_handler_instance->syncSession($_SESSION['PRIMARY_SESSIONID']);
 		reload_browser(FALSE, $SQ_SITE_NETWORK);
 	}
 }
