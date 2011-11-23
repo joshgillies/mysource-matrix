@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session.php,v 1.6.14.1 2011/11/21 00:33:22 ewang Exp $
+* $Id: session.php,v 1.6.14.2 2011/11/23 06:57:31 ewang Exp $
 *
 */
 
@@ -48,7 +48,7 @@ if ($primary_url == sq_web_path('root_url')) {
 
 } else {
 
-	if (!isset($_GET['sessionid'])) {
+	if (!isset($_GET['sessionid']) || !preg_match('/^[a-z0-9]+$/i', $_GET['sessionid'])) {
 		// something is definately wrong
 		trigger_localised_error('SYS0013', E_USER_ERROR);
 	}
