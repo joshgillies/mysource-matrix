@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2007/11/23 02:58:30 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.4.20.1 2011/11/23 05:45:26 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -38,6 +38,7 @@
 <string source="cms_poll_active_question_date">A link to Active Question with creation date</string>
 <string source="cms_poll_active_question_date_results">A link to Active Question Results with creation date</string>
 <string source="cms_poll_option_number">Option Number</string>
+<string source="cms_poll_option_id">Option Id</string>
 <string source="cms_poll_option_label">Option Label</string>
 <string source="cms_poll_option_bar">Option Graph Bar</string>
 <string source="cms_poll_option_votes_number">Option Votes (Number)</string>
