@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.2.4.1 2011/10/28 03:59:58 ewang Exp $
+* $Id: tool_export_assets_to_xml.inc,v 1.2.4.2 2011/11/23 01:28:00 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.4.1 $
+* @version $Revision: 1.2.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -61,18 +61,57 @@ class Tool_Export_Assets_To_Xml extends Tool
 	*/
 	public static function paintTool(&$o, $type_code)
 	{
+		// do a lock check, only allows one user at a time
+		$import_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
+		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($import_mgr->id, 'attributes', TRUE, TRUE);
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$userHasLockId = '';
+		$hasLock = TRUE;
+		
+		foreach ($locks as $lock) {
+		    if(empty($lock)) continue;
+		    if($lock['lock_type'] == 'attributes' && $lock['userid'] == $userid) {
+			$hasLock = TRUE;
+		    }
+		    else if ($lock['lock_type'] == 'attributes' ) {
+			$hasLock = FALSE;
+			$userHasLockId = $lock['userid'];
+		    }
+		}
+		
+	    	if(!$hasLock) {
+			$o->openRaw();
+			echo (translate('tool_export_assets_to_xml_can_not_acquire_lock', $userHasLockId));
+			$o->closeRaw();
+			return FALSE;
+			
+		}
+		
 		$show_download = FALSE;
 		if(isset($_REQUEST['show_download'])) {
 			$show_download = TRUE;
 		}
 		else if (isset($_REQUEST['download'])) {
 			$export_dir = SQ_DATA_PATH.'/private/export_assets';
-			$command = '
-			cd '.$export_dir.'
-			tar -czf export.tgz * --remove-files';
-			system($command);
-		
+			$command = "cd $export_dir ; tar -czf export.tgz * --remove-files";
+			exec($command, $output, $return);
+
+			// exec populate $return with 0 if successful. If not successful, $return will be an exit status code and 
+			// we don't have a usable compressed file for the user to download
+			if ($return !== 0) {
+				trigger_localised_error('EXP0001', E_USER_ERROR, $return);
+				return;
+			}
 			
+			
+			// if we don't have a valid filesize, there isn't much point going fruther as the user will end up downloading an unusable file
+			$filesize = filesize($export_dir.'/export.tgz');
+			if (!$filesize) {
+				trigger_localised_error('EXP0002', E_USER_ERROR);
+				return;
+			}
+
+
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			$ext = 'tgz';
 			$type	= (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
@@ -88,10 +127,13 @@ class Tool_Export_Assets_To_Xml extends Tool
 	
 			// Set the name of the file
 			header('Content-Disposition: attachment; filename="export.tgz";');
-			header('Content-Length: '.filesize($export_dir.'/export.tgz'));
+			header('Content-Length: '.$filesize);
 	
-		// Get the source file
-		self::_readfile_chunked($export_dir.'/export.tgz');
+			 // Get the source file
+			self::_readfile_chunked($export_dir.'/export.tgz');
+			
+			// release lock after user downloads the tarball, otherwise locks will be left to lock system to decide
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($import_mgr->id, 'attributes');
 			return;
 			@ob_flush();
 			return;
@@ -102,6 +144,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 		$o->openSection($tool_info['name']);
 
 		$o->openField(translate('tool_export_assets_to_xml_root_node'));
+		
 			asset_finder($type_code.'_root_node[0]', 0, Array('asset' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 			echo '<span id ="tool_export_assets_to_xml_mapping" style="margin-left:10px;">';
 			echo translate('tool_export_assets_to_xml_target_parent');
@@ -154,7 +197,12 @@ class Tool_Export_Assets_To_Xml extends Tool
 	*/
 	public static function processTool(&$o, $type_code)
 	{
-
+		$import_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
+		if(!$GLOBALS['SQ_SYSTEM']->am->acquireLock($import_mgr->id, 'attributes')) {
+			trigger_localised_error('EXP0003', E_USER_ERROR);
+			return FALSE;
+		}
+		
 		// make export temp directory
 		$export_dir = SQ_DATA_PATH.'/private/export_assets';
 		if (!is_dir($export_dir))
@@ -196,6 +244,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 
 	}//end processTool()
 
+	
 
 	/**
 	* read file in chunks in case of memory exaust
@@ -231,6 +280,8 @@ class Tool_Export_Assets_To_Xml extends Tool
 		return $status;
 	  } // end _readfile_chunked()
   
+  
+
 }//end class
 
 

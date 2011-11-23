@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.1 2011/10/28 03:59:58 ewang Exp $
+* $Id: lang_strings.xml,v 1.18.2.2 2011/11/23 01:28:00 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -111,5 +111,6 @@
 ]]></string>
 <string source="tool_export_assets_to_xml_target_parent">links to target parent asset id</string>
 
+<string source="tool_export_assets_to_xml_can_not_acquire_lock">The locks on the Import Tools Manager are currently held by user #%s Only one user is allowed use of this screen at a time.</string>
 
 </strings>
