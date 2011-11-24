@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.14 2008/09/24 05:01:25 mbrydon Exp $
+* $Id: tool_asset_sorter.inc,v 1.15 2011/11/24 00:39:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -182,8 +182,16 @@ class Tool_Asset_Sorter extends Tool
 			$sort_asset_attribute = $_POST[$type_code.'_asset_attribute'];
 		}
 
+
 		$direction = $_REQUEST[$type_code.'_direction'];
 		$direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
+
+		// sanitize parameters for SQL injection attack
+		if(!empty($sort_field) && !preg_match('/^[a-z_]+$/i', $sort_field))
+			return FALSE;
+		if(!empty($sort_asset_type) && !preg_match('/^[a-z_]+$/i', $sort_asset_type))
+			return FALSE;
+		
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
