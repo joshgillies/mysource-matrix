@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.29.2.1 2011/08/04 03:19:03 mhaidar Exp $
+* $Id: trigger_action_send_email.inc,v 1.29.2.2 2011/11/25 01:27:26 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,6 +135,10 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$email_format_value = serialize($unserialised);
 		}
 
+		// Set the current asset temporaily to one that fired this trigger action
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
 		if ($settings['email_recipient_map']) {
 			// paramater map parameters
 			$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
@@ -197,9 +201,6 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
 
-		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
-		
 		$email_format_attr->sendMail($replacements);
 
 		if (is_null($old_current_asset)) {
