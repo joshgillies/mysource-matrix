@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.39 2011/01/13 07:05:03 akarelia Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.39.4.1 2011/11/25 03:07:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,31 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
+
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+				return FALSE;
+			} else {
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		// get the asset
+		$asset = $state['asset'];
+
+		// verify the fieldid
+		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
+		if (!$success) {
+			$GLOBALS['SQ_SYSTEM']->restoreContext();
+			return FALSE;
+		}
+
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
+
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('metadata_value');
@@ -99,28 +124,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			return FALSE;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->changeContext($settings['contextid']);
-
-		if (empty($state['asset'])) {
-			// grab the asset if assetid is given, but not the asset.
-			if (empty($state['assetid'])) {
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
-				return FALSE;
-			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
-			}
-		}
-
-		// verify the fieldid
-		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
-		if (!$success) {
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-			return FALSE;
-		}
-
-		// get the asset
-		$asset = $state['asset'];
-
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
 
@@ -133,16 +136,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		//if the replace keywords checkbox is checked, do keyword replacement here before setting the value to metadata field
 		if (array_get_index($settings, 'replace_keywords_in_set_value', 0)) {
 			// replace global keywords
-			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
-			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $asset);
-
 			replace_global_keywords($value);
-
-			if (is_null($old_current_asset)) {
-				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
-			} else {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
-			}
 
 			// replace broadcasting asset keywords
 			$keywords = retrieve_keywords_replacements($value);
@@ -178,6 +172,12 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
 
 		// all done very smoothly like an ice cream
 		if ($success) {
