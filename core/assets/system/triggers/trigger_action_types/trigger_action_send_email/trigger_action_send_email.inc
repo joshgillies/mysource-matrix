@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.31 2011/11/25 01:20:29 cupreti Exp $
+* $Id: trigger_action_send_email.inc,v 1.32 2011/11/25 03:38:30 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,12 +82,12 @@ class Trigger_Action_Send_Email extends Trigger_Action
 					$member_type = reset($group_result);
 
 					// check shadow assets
-					if (stristr($member_id, ':') && empty($member_type)) {
+					if (stristr($member_id, ':') && empty($member_type[0]['type_code'])) {
 						$group_result = array_merge($group_result, $GLOBALS['SQ_SYSTEM']->am->getChildren($member_id, 'user', FALSE));
 					}
 
 					// this is a user we can send to
-					if (!empty($member_type)) {
+					if (!empty($member_type[0]['type_code'])) {
 						$group_members[$member_id] = $member_type;
 					}
 					unset($group_result[$member_id]);
