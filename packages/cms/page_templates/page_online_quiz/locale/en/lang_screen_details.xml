@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2011/01/18 02:37:08 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.12 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -28,6 +28,10 @@
 	</section>
 
 	<section name="Quiz Settings" write_access="write:attributes">
+		<field attribute="interactive_mode">
+			<display_name>Interactive Mode</display_name>
+			<note>If enabled, bypasses the listing engine, displaying one question per page, providing feedback and allowing retries.</note>
+		</field>
 		<field>
 			<display_name>Quiz repeatable?</display_name>
 			<note>Determines whether or not the quiz can be retaken once the user has started the test once.</note>
@@ -52,8 +56,47 @@
 			<display_name>Log submissions?</display_name>
 			<note>When enabled, User Details and Quiz responses will be logged. These logs will then be available for export from the &quot;Submission Logs&quot; screen.</note>
 		</field>
+		<field attribute="score_format">
+			<display_name>Score Format</display_name>
+			<note>Score format used for %quiz_score% keyword and for Score field in Submission Logs. Availabe keywords: &lt;br /&gt;
+			For Thank You Bodycopy and Submission Logs: &lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%quiz_total_points% - The total points obtained for the Quiz&lt;/li&gt;
+			&lt;li&gt;%quiz_total_available_points% - The total points available (ie; maximum score) for the Quiz&lt;/li&gt;
+			&lt;/ul&gt;
+			For Thank You and Page Contents Bodycopies and Submission Logs (Interactive Mode only): &lt;br /&gt;
+			&lt;ul&gt; 
+			&lt;li&gt;%correct_answers% - The number of questions answered correctly.&lt;/li&gt;
+			&lt;li&gt;%total_questions% - The total number of questions answered.&lt;/li&gt;
+			&lt;li&gt;%total_questions_plus_retries% - The total number of questions answered including retry questions.&lt;/li&gt;
+			&lt;li&gt;%total_retries% - The total number of question retries.&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+		</field>
 	</section>
 
+	<section name="Question Pooling">
+		<field>
+			<display_name>Question Pools</display_name>
+			<note>Select the root nodes to extract Online Quiz Multiple-Choice Questions from. Note that the feedback system does not support the Drop Down List Option Style. Please refer to manuals on how feedback in generated.</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Question Pool Setup</display_name>
+			<note>
+			Number of questions under each 'Pool Node' should be greater than or equal to the 'Pool Size' plus ('Pool Size' times the 'Retries per Question'). &lt;br /&gt;
+			The question order is randomised under each pool but the (Pool Order) can be specified. All fields must be integers.
+			</note>
+			<function_call>
+				<paint_function   name="paintQuestionPoolSetup"   />
+				<process_function name="processQuestionPoolSetup" />
+			</function_call>
+		</field>
+	</section>
+	
 	<section name="Question Selection">
 		<field attribute="num_questions">
 			<display_name>Number of questions</display_name>
@@ -136,6 +179,7 @@
 			&lt;li&gt;%result_[assetid]_[keyword]% - Result details of a Question (keyword: answer_text, response_supplement etc.)&lt;/li&gt;
 			&lt;li&gt;%quiz_total_points% - The total points obtained for the Quiz&lt;/li&gt;
 			&lt;li&gt;%quiz_total_available_points% - The total points available (ie; maximum score) for the Quiz&lt;/li&gt;
+			&lt;li&gt;%quiz_score% - The score displayed according to the Quiz Score Format setting.&lt;/li&gt;
 			&lt;/ul&gt;
 			&lt;br /&gt;
 			Note that a user taking this quiz will either be using their user details OR the form, which means keywords from both can be placed side-by-side with no chance of any ill effects, eg. in the To: field, this is perfectly legitimate: "%user_details_form_123-q1%%user_details_current_user_attribute_email%".
@@ -212,6 +256,18 @@
 		</field>
 		<field attribute="reset_button_text">
 			<display_name>Reset Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="submit_question_button_text">
+			<display_name>Submit Question Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="retry_button_text">
+			<display_name>Retry Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="next_button_text">
+			<display_name>Next Button Text</display_name>
 			<note />
 		</field>
 	</section>

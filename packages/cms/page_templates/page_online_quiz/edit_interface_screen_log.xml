@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.1 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: edit_interface_screen_log.xml,v 1.2 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -48,6 +48,11 @@
 		<field keyword="submission_count">
 			<function_call>
 				<paint_function   name="paintSubmissionCount"   />
+			</function_call>
+		</field>
+		<field keyword="expand_sections">
+			<function_call>
+				<paint_function   name="paintExpandSections"   />
 			</function_call>
 		</field>
 		<field keyword="submission_list">

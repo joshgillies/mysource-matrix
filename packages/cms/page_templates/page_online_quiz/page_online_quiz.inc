@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.37 2011/08/18 01:57:18 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.38 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -491,6 +491,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE) && !$this->attr('can_retake')) {
 			$this->printBodycopy('already_taken');
+		} else if ($this->attr('interactive_mode')){
+			$this->printContents();
 		} else {
 			parent::printBody();
 		}
@@ -767,8 +769,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		}
 
 		if ($can_take_quiz) {
-			$this->processQuestions();
-			$this->processAssetSelections();
+			if ($this->attr('interactive_mode')){
+				$this->processInteractiveQuestions();
+			} else {
+				$this->processQuestions();
+				$this->processAssetSelections();
+			}
 		}
 		parent::printFrontend();
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -820,6 +826,28 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			// sort the results by question number
 			ksort($results['questions'], SORT_NUMERIC);
+			
+			if ($this->attr('interactive_mode')){
+				//we need to adjust the points such that the retried questions don't count
+				foreach (array_keys($results['questions']) as $position){
+					if (strpos($position, ' retry ') !== FALSE){
+						$components = explode(' retry ', $position);
+						if ($components[1] > 1){
+							$previous_position = $components[0].' retry '.--$components[1];
+						} else {
+							$previous_position = $components[0];
+						}
+
+						if (isset($results['questions'][$previous_position])){
+							$results['totals']['points'] -= $results['questions'][$previous_position]['points'];
+							$results['questions'][$previous_position]['points'] = 0;
+							$results['totals']['available_points'] -= $results['questions'][$previous_position]['available_points'];
+							$results['questions'][$previous_position]['available_points'] = 0;
+						}
+					}
+				}
+				ksort($results['questions'], SORT_STRING);
+			}
 
 			// set up the results for the thank you page and email later
 			$this->setResults($results);
@@ -855,6 +883,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset);
 				}
 
+				$submission_asset->setScore($this->getScoreKeywordReplacement());
 				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
 				$submission_asset->setAttrValue('complete', TRUE);
 				$submission_asset->saveAttributes();
@@ -905,6 +934,23 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$this->setFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE, FALSE, TRUE);
 		}
 
+		if ($this->attr('interactive_mode')){
+			$question_pagination = $this->loadQuestionPagination();
+			if (empty($question_pagination['pages_to_questions'])){
+				$this->printBodycopy('no_results');
+			} else {
+				// Make a clean URL to submit to
+				$form_method = strtolower($this->_getFormSubmitMethod());
+				$form_url_components = $this->_getFormUrlComponents();
+				$form_url			 = htmlspecialchars($form_url_components['url']);
+				?> <form id="<?php echo $this->getPrefix() ?>" method="<?php echo $form_method ?>" action="<?php echo $form_url; ?>"> <?php
+				$this->printBodycopy('page_contents');
+				?> </form> <?php
+			}
+			
+			return;
+		}
+		
 		//// print the listing ////
 
 		// print the old_result_page, so we can keep track of which page we just came from when changing page
@@ -985,14 +1031,34 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	* If $refresh is TRUE, the question list will be refreshed regardless of whether it currently exists or not
 	* If FALSE, the list will not be generated if it doesn't exist
 	* If NULL, the list will only be generated if it doesn't already exist
+	* In Interactive Mode, the question list is always refreshed.
 	*
-	* @param boolean	$refresh	Determines whether or not the question list will be refreshed (see above)
-	*
+	* @param boolean	$refresh			Determines whether or not the question list will be refreshed (see above)
+	* @param boolean	$all_interactive	In interactive mode, whether to return all quiz questions under the root nodes,
+	* 										otherwise only the relevant subset of questions loaded into the user quiz session.
+	* 										See Page_Online_Quiz::loadQuestionPagination().
+	* 
 	* @return array
 	* @access public
 	*/
-	function getQuestions($refresh=NULL)
+	function getQuestions($refresh=NULL, $all_interactive=FALSE)
 	{
+		
+		if ($this->attr('interactive_mode')){
+			if ($all_interactive){
+				//used by the edit interface
+				$interactive_questions = $this->getInteractiveQuestions();
+			} else {
+				//while undertaking the quiz, need to always refresh the question list to add the retry questions
+				$question_pagination = $this->loadQuestionPagination();
+				$interactive_questions = $question_pagination['questions_to_pages'];
+			}
+			
+			$this->saveQuestionList(array_keys($interactive_questions));
+			$questions = $this->loadQuestions();
+			return $questions;
+		}
+				
 		// if $refresh is TRUE, pretend we have no questions to force the regeneration of questions
 		if ($refresh === TRUE) {
 			$questions = Array();
@@ -1000,11 +1066,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$questions = $this->loadQuestions();
 		}
 
-		$assets_to_list = $this->getManuallyConfiguredQuestions();
-		$manually_configured_questions = !empty($assets_to_list);
-
 		// only refresh if $refresh is TRUE or NULL
 		if (empty($questions) && $refresh !== FALSE) {
+			
+			$assets_to_list = $this->getManuallyConfiguredQuestions();
+			$manually_configured_questions = !empty($assets_to_list);
 
 			if (empty($assets_to_list)) {
 				$assets_to_list = parent::getAssetList();
@@ -1091,6 +1157,53 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	}//end getQuestions()
 
 
+	/**
+	* Get all the online_quiz_question_multichoice questions that can be used for the interactive mode.
+	*
+	* @param boolean $grouped group by root node (pool)?
+	*
+	* @return array
+	* @access public
+	*/
+	function getInteractiveQuestions($grouped = FALSE)
+	{
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
+	
+		$interactive_questions = Array ();
+		
+		$pool_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		foreach ($pool_links as $link){
+			$questions = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], 'online_quiz_question_multichoice', TRUE, NULL, NULL, SQ_PERMISSION_READ);
+			$questions = dal_array_flatten($questions);
+			
+			//filter out what we don't have read access to
+			foreach ($questions as $question_id => $type_code){
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+				if (is_null($question) || !$question->readAccess()) {
+					unset($questions[$question_id]);
+				}
+			}
+			
+			//randomising
+			$keys = array_rand($questions, count($questions));
+			if (!is_array($keys)) $keys = Array($keys);
+			$randomised_questions = Array();
+			foreach ($keys as $key){
+				$randomised_questions[$key] = $questions[$key];
+			}
+			
+			if ($grouped){
+				$interactive_questions[$link['minorid']] = $randomised_questions;
+			} else {
+				$interactive_questions += $randomised_questions;
+			}
+		}
+
+		return $interactive_questions;
+		
+	}//end getInteractiveQuestions()
+	
+	
 	/**
 	* Checks whether the questions were supplied via an asset listing (by using the '%asset_listing%' keyword), or manually.
 	* If the questions were supplied manually, the asset IDs and types returned will consist of these assets instead of using the Listing Engine.
@@ -1522,7 +1635,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
-	* Load the question pagination cache (containing the questions_to_pages and pages_to_questions indices)
+	* Load the question pagination cache containing the 'questions_to_pages' and 'pages_to_questions' indices.
+	* Additionally containing 'pages_to_status' and 'pages_to_retry_questions' indices in interactive mode.
 	*
 	* @return array
 	* @access public
@@ -1536,53 +1650,105 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		if (empty($question_pagination) || empty($question_pagination['pages_to_questions'])) {
 			// regenerate the question pagination cache
+			if ($this->attr('interactive_mode')){
+				 /**
+				 * This mode heavily depends on this question pagination cache, and is updated frequently while undertaking the quiz.
+				 * 
+				 * 'pages_to_questions' index will always contain up to date information on which question is to be displayed on each page
+				 * and each page will only contain one question at any one time. This question may be the initial question or the retry question.
+				 * 
+				 * 'questions_to_pages' index initially contains all questions to be displayed and is updated by adding the questions used on a retry.
+				 * 
+				 * 'pages_to_retry_questions' index contains the retry reserve available for each page.
+				 * 
+				 * 'pages_to_status' index contains each page status used to control what is to be displayed on each page & to combat browser navigation.
+				 * 
+				 */
+				$question_pool = $this->getInteractiveQuestions(TRUE);
+				$pool_setup = $this->attr('question_pool_setup');
 
-			// grab the list of question assets for chunking later
-			$children = $this->getAssetList();
-			$this->filterAssetList($children);
-			$replacements = Array();
-			$question_pagination = Array(
-									'pages_to_questions'	=> Array(),
-									'questions_to_pages'	=> Array(),
-								   );
-
-			// as an initial attempt, load the current page of assets, and store it in the question pagination array
-			// check $replacements['total_pages'] to see how many more chunks we have to get
-
-			// assumption: any assets that are of interest to us (online_quiz_questions) will never be parents
-			// of other assets that interest us (other quiz questions)
-			// eg. the following code will break if the below is encountered:
-			// [quiz:1]
-			//    |--- [quiz:2]
-			//    '--- [quiz:3]
-			$current_result_page = $this->getCurrentPage();
-			require_once SQ_FUDGE_PATH.'/general/general.inc';
-			$current_page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $current_result_page), 'type_code');
-			$total_pages = $replacements['total_pages'];
-
-			if (!empty($current_page_assets)) {
-				$question_pagination['pages_to_questions'][$current_result_page] = $current_page_assets;
-
-				// load all the pages, skipping over anything that's already been loaded (ie. the current page)
-				for ($ii = 1; $ii <= $total_pages; $ii++) {
-					if (isset($question_pagination['pages_to_questions'][$ii])) {
-						$page_assets = $question_pagination['pages_to_questions'][$ii];
-					} else {
-						$page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $ii), 'type_code');
-						$question_pagination['pages_to_questions'][$ii] = $page_assets;
+				$page_no = 1;
+				foreach ($pool_setup as $pool_id => $info){
+					$questions = $question_pool[$pool_id];
+					//give one question per page upto the pool size
+					for ($size = 0; $size < $info['size']; $size++){
+						reset($questions);
+						$question_id = key($questions);
+						if (empty($question_id)) {
+							trigger_localised_error('CMS0112', E_USER_WARNING, $pool_id);
+							break;	
+						}
+						$question_pagination['pages_to_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];
+						$question_pagination['questions_to_pages'][$question_id] = Array(
+																			'page'			=> $page_no,
+																			'list_position'	=> $page_no
+																		 	);
+						$question_pagination['pages_to_status'][$page_no] = 'submit_question';
+						unset($questions[$question_id]);
+						
+						//give this page the required retry questions
+						for ($retries = 0; $retries < $info['retries']; $retries++){
+							reset($questions);
+							$question_id = key($questions);
+							if (empty($question_id)) {
+								trigger_localised_error('CMS0112', E_USER_WARNING, $pool_id);
+								break;	
+							}
+							$question_pagination['pages_to_retry_questions'][$page_no][$question_id] = $questions[$question_id]['type_code'];
+							unset($questions[$question_id]);
+						}
+						$page_no++;
 					}
+				}				
 
-					$asset_count  = 1;
-					$num_per_page = $this->_getNumPerPage();
-					foreach ($page_assets as $assetid => $type) {
-						$question_pagination['questions_to_pages'][$assetid] = Array(
-																				'page'			=> $ii,
-																				'list_position'	=> ($ii - 1) * $num_per_page + $asset_count,
-																			   );
-						$asset_count++;
+			} else {
+				// grab the list of question assets for chunking later
+				$children = $this->getAssetList();
+				$this->filterAssetList($children);
+				$replacements = Array();
+				$question_pagination = Array(
+										'pages_to_questions'	=> Array(),
+										'questions_to_pages'	=> Array(),
+									   );
+	
+				// as an initial attempt, load the current page of assets, and store it in the question pagination array
+				// check $replacements['total_pages'] to see how many more chunks we have to get
+	
+				// assumption: any assets that are of interest to us (online_quiz_questions) will never be parents
+				// of other assets that interest us (other quiz questions)
+				// eg. the following code will break if the below is encountered:
+				// [quiz:1]
+				//    |--- [quiz:2]
+				//    '--- [quiz:3]
+				$current_result_page = $this->getCurrentPage();
+				require_once SQ_FUDGE_PATH.'/general/general.inc';
+				$current_page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $current_result_page), 'type_code');
+				$total_pages = $replacements['total_pages'];
+	
+				if (!empty($current_page_assets)) {
+					$question_pagination['pages_to_questions'][$current_result_page] = $current_page_assets;
+	
+					// load all the pages, skipping over anything that's already been loaded (ie. the current page)
+					for ($ii = 1; $ii <= $total_pages; $ii++) {
+						if (isset($question_pagination['pages_to_questions'][$ii])) {
+							$page_assets = $question_pagination['pages_to_questions'][$ii];
+						} else {
+							$page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $ii), 'type_code');
+							$question_pagination['pages_to_questions'][$ii] = $page_assets;
+						}
+	
+						$asset_count  = 1;
+						$num_per_page = $this->_getNumPerPage();
+						foreach ($page_assets as $assetid => $type) {
+							$question_pagination['questions_to_pages'][$assetid] = Array(
+																					'page'			=> $ii,
+																					'list_position'	=> ($ii - 1) * $num_per_page + $asset_count,
+																				   );
+							$asset_count++;
+						}
 					}
 				}
-			}
+			}//end else (not interactive mode)
 
 			$this->saveQuestionPagination($question_pagination);
 
@@ -1594,7 +1760,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
-	* Load the question pagination cache (containing the questions_to_pages and pages_to_questions indices)
+	* Save the question pagination cache containing the 'questions_to_pages' and' pages_to_questions' indices.
+	* Additionally containing 'pages_to_status' and 'pages_to_retry_questions' indices in interactive mode.
 	*
 	* @param array	$question_pagination	the question pagination details to save
 	*
@@ -1611,6 +1778,117 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	}//end saveQuestionPagination()
 
 
+	/**
+	* Process the interactive questions before later displaying or submitting the quiz.
+	* Save the question answers and update all session data.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processInteractiveQuestions()
+	{
+
+		// figure out which assets are on what pages
+		$question_pagination = $this->loadQuestionPagination();
+		if (empty($question_pagination['pages_to_questions'])) return TRUE;
+
+		// figure out which assets are on the current page
+		$current_result_page = $this->getCurrentPage();
+		$current_question_id = key($question_pagination['pages_to_questions'][$current_result_page]);
+		
+		$current_status = $question_pagination['pages_to_status'][$current_result_page];
+		
+		$prefix = $this->getPrefix();
+		
+		if (isset($_POST[$prefix.'_submit_next_button']) && $current_status == 'feedback_next'){
+			$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_page'] = $current_result_page + 1;
+			$question_pagination['pages_to_status'][$current_result_page] = 'answered';
+		} else if (isset($_POST[$prefix.'_submit_retry_button']) && $current_status == 'feedback_retry'){
+			//shouldn't be empty, just double checking
+			if (!empty($question_pagination['pages_to_retry_questions'][$current_result_page])) {
+				//grab the next question in the same pool
+				$question_id = key($question_pagination['pages_to_retry_questions'][$current_result_page]);
+				$question_type = $question_pagination['pages_to_retry_questions'][$current_result_page][$question_id];
+				unset($question_pagination['pages_to_retry_questions'][$current_result_page][$question_id]);
+				$question_pagination['pages_to_questions'][$current_result_page] = Array ($question_id => $question_type);
+				
+				//add the retry question to the 'questions_to_pages' and give it its retry position.
+				$question_pagination['questions_to_pages'][$question_id] = $question_pagination['questions_to_pages'][$current_question_id];
+				$question_list_position = $question_pagination['questions_to_pages'][$question_id]['list_position'];
+				if (strpos($question_list_position, ' retry ') !== FALSE){
+					$components = explode(' retry ', $question_list_position);
+					$question_list_position = $components[0].' retry '.++$components[1];
+				} else {
+					$question_list_position .= ' retry 1';
+				}
+				$question_pagination['questions_to_pages'][$question_id]['list_position'] = $question_list_position;
+				
+				//update the page status
+				$question_pagination['pages_to_status'][$current_result_page] = 'submit_question_retry';
+			} else {
+				$question_pagination['pages_to_status'][$current_result_page] = 'feedback_next';	
+			}
+		} else if (isset($_POST[$prefix.'_submit_question_button']) && strpos($current_status, 'submit_question') === 0){
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_question_id);
+			if (!is_null($question)) {
+				if ($current_status == 'submit_question_retry'){
+					if (isset($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['retries'])){
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['retries']++;	
+					} else {
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['retries'] = 1;
+					}
+				} else {
+					if (isset($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['total_questions'])){
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['total_questions']++;	
+					} else {
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['total_questions'] = 1;
+					}	
+				}
+				
+				$errors = $question->processResponseForm();
+				if ($current_result_page == count($question_pagination['pages_to_questions'])) {
+					$question_pagination['pages_to_status'][$current_result_page] = 'feedback_last';
+				} else {
+					$question_pagination['pages_to_status'][$current_result_page] = 'feedback_next';	
+				}
+				
+				$value = $question->getValue();
+				if (!is_array($value)) $value = Array($value);
+				if (array_intersect($value, $question->getCorrectValue()) === Array()){
+					if(!empty($question_pagination['pages_to_retry_questions'][$current_result_page])){
+						$question_pagination['pages_to_status'][$current_result_page] = 'feedback_retry';
+					}
+				} else {
+					if (isset($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['correct_answers'])){
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['correct_answers']++;	
+					} else {
+						$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['correct_answers'] = 1;
+					}
+				}
+			}
+		}
+		
+		$this->saveQuestionPagination($question_pagination);
+		
+		//set and save the position of the current page question. Need to use up to date data.
+		$question_pagination = $this->loadQuestionPagination();
+		$current_result_page = $this->getCurrentPage();
+		$current_question_id = key($question_pagination['pages_to_questions'][$current_result_page]);
+
+		if (!empty($question_pagination['questions_to_pages'][$current_question_id]['list_position'])) {
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_question_id);
+			if (!is_null($question)) {
+				// set the asset position
+				$question->setPosition($question_pagination['questions_to_pages'][$current_question_id]['list_position']);
+				$question->saveQuestion();
+			}
+		}
+
+		return TRUE;
+
+	}//end processInteractiveQuestions()
+	
+	
 	/**
 	* Process the questions (validating, saving answers) before later displaying or submitting the quiz
 	*
@@ -1804,6 +2082,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			if (isset($parents[$page_contents_link['minorid']])) {
 				$vars['keywords'] += $this->_getContentsKeywords();
 				$vars['keywords'] += $this->_getQuestionKeywords();
+				if ($this->attr('interactive_mode')){
+					$vars['keywords'] += $this->_getInteractiveKeywords();
+				}
 				return;
 			}
 		}
@@ -1816,6 +2097,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$vars['keywords'] += $this->_getUserDetailsKeywords();
 				$vars['keywords'] += $this->_getQuestionResultKeywords();
 				$vars['keywords'] += $this->_getQuestionGroupResultKeywords();
+				$vars['keywords'] += Array ('quiz_score' => translate('online_quiz_keyword_quiz_score'));
 				return;
 			}
 		}
@@ -1965,6 +2247,28 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $keywords;
 
 	}//end _getResultsKeywords()
+	
+	
+	/**
+	* Returns a list of keywords that can be used in the page contents bodycopy in interactive mode.
+	*
+	* @return array
+	* @access public
+	*/
+	function _getInteractiveKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['interactive_question_response_form']   = translate('online_quiz_keyword_interactive_question_response_form');
+		$keywords['interactive_question_text'] = translate('online_quiz_keyword_interactive_question_text');
+		$keywords['interactive_question_note'] = translate('online_quiz_keyword_interactive_question_note');
+		$keywords['interactive_question_number'] = translate('online_quiz_keyword_interactive_question_number');
+		$keywords['interactive_button'] = translate('online_quiz_keyword_interactive_button');
+		$keywords['quiz_score'] = translate('online_quiz_keyword_quiz_score');
+
+		return $keywords;
+
+	}//end _getInteractiveKeywords()
 
 
 	/**
@@ -2084,6 +2388,24 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		if (empty($keyword)) return '';
 
+		$keyword = parse_keyword($keyword, $modifiers);
+		
+		if ($this->attr('interactive_mode') && strpos($keyword, 'interactive_') === 0){
+			if ($keyword == 'interactive_button'){
+				$replacement =  $this->getInteractiveButtonKeywordReplacement();
+			} else {
+				$replacement = $this->getInteractiveQuestionKeywordReplacement(substr($keyword, strlen('interactive_')));
+			}
+			if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers);
+			return $replacement;
+		}
+		
+		if ($keyword == 'quiz_score'){
+			$replacement = $this->getScoreKeywordReplacement();
+			apply_keyword_modifiers($replacement, $modifiers);
+			return $replacement;
+		} 
+		
 		// check the keyword against the dynamic keywords
 		// in this case - user details:
 
@@ -2161,10 +2483,146 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// otherwise, fall back to the parent
 		$replacement = parent::getKeywordReplacement($keyword);
+		if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers);
+		
 		return $replacement;
 
 	}//end getKeywordReplacement()
 
+	
+	/**
+	* Returns a replacement for interactive_question_X keywords using the current page question.
+	* 
+	* @param string	$keyword Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getInteractiveQuestionKeywordReplacement($keyword)
+	{
+		$replacement = NULL;
+		
+		$question_pagination = $this->loadQuestionPagination();
+		$current_result_page  =  $this->getCurrentPage();
+		
+		$question_id = key($question_pagination['pages_to_questions'][$current_result_page]);
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id, 'online_quiz_question_multichoice');
+		if ((is_null($question))) return $replacement;
+		
+		switch ($keyword){
+			case 'question_response_form':
+				$current_status = $question_pagination['pages_to_status'][$current_result_page];
+				if (strpos($current_status, 'feedback') !== FALSE){
+					//print the question but with disabled fields and add special classes & tags.
+					$replacement = $question->getResponseFormKeywordReplacement(TRUE);
+				} else {
+					$replacement = $question->getResponseFormKeywordReplacement();
+				}
+				break;
+			case 'question_note':
+				$replacement = $question->getQuestionNoteKeywordReplacement();
+				break;
+			case 'question_text':
+				$replacement = $question->getQuestionTextKeywordReplacement();
+				break;	
+			case 'question_number':
+				$replacement = $question->getQuestionNumberKeywordReplacement();
+				break;					
+		}
+		
+		return $replacement;
+		
+	}//end getInteractiveQuestionKeywordReplacement()
+	
+	
+	/**
+	* Return a keyword replacement for 'interactive_button' keyword.
+	* Prints the appropriate interactive mode submission button based on the pages current status.
+	* 
+	* @return string
+	* @access public
+	*/
+	function getInteractiveButtonKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$current_result_page = $this->getCurrentPage();
+		$question_pagination = $this->loadQuestionPagination();
+					  
+		ob_start();
+		
+		$current_status = $question_pagination['pages_to_status'][$current_result_page];
+		if ($current_status == 'feedback_retry'){
+			submit_button($prefix.'_submit_retry_button', $this->attr('retry_button_text'));
+		} else if ($current_status == 'feedback_last'){
+			submit_button($prefix.'_submit_button', $this->attr('submit_button_text'));
+		} else if ($current_status == 'feedback_next'){
+			submit_button($prefix.'_submit_next_button', $this->attr('next_button_text'));
+		} else if (strpos($current_status, 'submit_question') === 0){
+			//using this so we can have JS validation for the currently displayed question.
+			echo $this->getSubmitButtonKeywordReplacement($prefix.'_submit_question_button', $this->attr('submit_question_button_text'));
+		}
+
+		return ob_get_clean();
+		
+		
+	}//end getInteractiveButtonKeywordReplacement()
+
+	
+	/**
+	* Return a keyword replacement for 'quiz_score' keyword in the format given by 'score_format' attribute.
+	* Also used for submission log records.
+	* 
+	* @return string
+	* @access public
+	*/
+	function getScoreKeywordReplacement()
+	{
+		$replacement = $this->attr('score_format');
+		
+		if ($this->attr('interactive_mode')) {
+				
+			//Number of questions done so far
+			$total_questions = 0;
+			if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['total_questions'])){
+			    $total_questions = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['total_questions'];
+			}
+			
+			//Don't display the score if we havn't answered any questions yet. i.e first page.
+			if ($total_questions < 1) return NULL;
+			
+			//Number of questions answered correctly.
+			$correct_answers = 0;
+			if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['correct_answers'])){
+			    $correct_answers = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['correct_answers'];
+			}
+			
+			//Number of question retries so far
+			$retries = 0;
+			if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['retries'])){
+			    $retries = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_score']['retries'];
+			}
+		
+			$total_questions_plus_retries = $total_questions + $retries;
+
+			$replacement = str_replace('%correct_answers%', $correct_answers, $replacement);
+			$replacement = str_replace('%total_questions%', $total_questions, $replacement);
+			$replacement = str_replace('%total_questions_plus_retries%', $total_questions_plus_retries, $replacement);
+			$replacement = str_replace('%total_retries%', $retries, $replacement);
+		}
+			
+		//these only work in the thank you bodycopy.
+		$question_results = $this->getResults();
+		if (isset($question_results['totals']['points'])){
+			$replacement = str_replace('%quiz_total_points%', $question_results['totals']['points'], $replacement);
+		}
+		if (isset($question_results['totals']['available_points'])){
+			$replacement = str_replace('%quiz_total_available_points%', $question_results['totals']['available_points'], $replacement);
+		}
+		
+		return $replacement;
+		
+	}//end getScoreKeywordReplacement()
+	
 
 	/**
 	* Returns the keyword replacements for any 'user_details_form_[##-q##]' keywords
@@ -2208,16 +2666,24 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*
 	* Overridden so we can have the list of warnings appear when the user clicks the submit button
 	*
+	* @param string	$field_name
+	* @param string	$button_text
+	*
 	* @return string
 	* @access public
 	*/
-	function getSubmitButtonKeywordReplacement()
+	function getSubmitButtonKeywordReplacement($field_name = '', $button_text = '')
 	{
-		$prefix = $this->getPrefix();
-		$field_name = $prefix.'_submit_button';
+		if (empty($field_name)){
+			$prefix = $this->getPrefix();
+			$field_name = $prefix.'_submit_button';
+		}
+		
 		$this->registerFormField($field_name);
 
-		$button_text = $this->attr('submit_button_text');
+		if (empty($button_text)) {
+			$button_text = $this->attr('submit_button_text');
+		}
 
 		// construct the javascript here
 		$button_js = '';
@@ -2409,7 +2875,13 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getQuestionCountKeywordReplacement()
 	{
-		return count($this->getQuestions());
+		if ($this->attr('interactive_mode')){
+			$question_pagination = $this->loadQuestionPagination();
+			//one question per page so number of questions = number of pages.
+		    return count($question_pagination['pages_to_questions']);
+		} else {
+			return count($this->getQuestions());
+		}
 
 	}//end getQuestionCountKeywordReplacement()
 
@@ -2998,21 +3470,34 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getCurrentPage()
 	{
-		$asset_result_page_var   = 'quiz_'.$this->id.'_result_page';
-		$generic_result_page_var = 'result_page';
-
-		// have [assetid]_result_page take precedence over result_page
-		$result_page = 1;
-		if (isset($_REQUEST[$generic_result_page_var])) {
-			$result_page = (int)$_REQUEST[$generic_result_page_var];
+		if ($this->attr('interactive_mode')){
+			//using sessions
+			$result_page = 1;
+			if (isset($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_page'])) {
+				$result_page = (int)$_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['interactive_page'];
+			}
+			
+			if ($result_page <= 0) $result_page = 1;
+			
+			return $result_page;
+				
+		} else {
+			$asset_result_page_var   = 'quiz_'.$this->id.'_result_page';
+			$generic_result_page_var = 'result_page';
+	
+			// have [assetid]_result_page take precedence over result_page
+			$result_page = 1;
+			if (isset($_REQUEST[$generic_result_page_var])) {
+				$result_page = (int)$_REQUEST[$generic_result_page_var];
+			}
+			if (isset($_REQUEST[$asset_result_page_var])) {
+				$result_page = (int)$_REQUEST[$asset_result_page_var];
+			}
+	
+			if ($result_page <= 0) $result_page = 1;
+	
+			return $result_page;
 		}
-		if (isset($_REQUEST[$asset_result_page_var])) {
-			$result_page = (int)$_REQUEST[$asset_result_page_var];
-		}
-
-		if ($result_page <= 0) $result_page = 1;
-
-		return $result_page;
 
 	}//end getCurrentPage()
 

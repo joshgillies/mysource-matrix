@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.8 2007/12/06 05:03:07 rong Exp $
+* $Id: page_online_quiz_management.inc,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -128,6 +128,44 @@ class Page_Online_Quiz_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
+						'score_format'		 	=> Array(
+													'added'			 => '0.1',
+													'type'			 => 'text',
+													'default'		 => '',
+												   	'description'	 => 'Used for %quiz_score% keyword and submission logs.',
+													),												   
+						'interactive_mode'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'If enabled, bypasses the listing engine, displaying one question per page, providing feedback and allowing retries.',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'question_pool_setup'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'serialise',
+													'default'		=> Array(),
+												   ),										   												   
+						'retry_button_text' 	=> Array(
+													'added'			 => '0.1',
+													'type'			 => 'text',
+													'default'		 => 'Retry',
+													'is_contextable' => TRUE,
+													),
+						'next_button_text' 		=> Array(
+													'added'			 => '0.1',
+													'type'			 => 'text',
+													'default'		 => 'Next',
+													'is_contextable' => TRUE,
+													),
+						'submit_question_button_text'	=> Array(
+															'added'			=> '0.1',
+															'type'			=> 'text',
+															'default'		=> 'Submit Answer',
+															'is_contextable' => TRUE,
+														   ),												   
 					  );
 
 	}//end constructor

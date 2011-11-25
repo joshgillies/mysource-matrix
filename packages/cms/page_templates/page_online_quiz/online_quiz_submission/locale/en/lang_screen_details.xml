@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2007/05/31 06:47:48 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.2 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -27,6 +27,12 @@
 			<display_name>Time Submitted</display_name>
 			<function_call>
 				<paint_function name="paintSubmissionTime" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Score</display_name>
+			<function_call>
+				<paint_function name="paintSubmissionScore" />
 			</function_call>
 		</field>
 	</section>

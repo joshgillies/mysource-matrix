@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2009/08/20 06:08:03 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -25,6 +25,9 @@
 	</section>
 
 	<section name="Quiz Settings" write_access="write:attributes">
+		<field attribute="interactive_mode">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintCanRetake"   />
@@ -43,9 +46,27 @@
 		<field attribute="log_submissions">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="score_format">
+			<text width="90" />
+		</field>
 	</section>
 
-	<section name="Question Selection" write_access="write:attributes">
+	<section name="Question Pooling" write_access="write:attributes" show_if="isInteractiveMode">
+		<field>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintQuestionPoolSetup"   />
+				<process_function name="processQuestionPoolSetup" />
+			</function_call>
+		</field>
+	</section>
+	
+	<section name="Question Selection" write_access="write:attributes" show_if="isListingMode">
 		<field attribute="num_questions">
 			<int width="5" />
 		</field>
@@ -99,7 +120,7 @@
 		</field>
 	</section>
 
-	<section name="List Formatting" write_access="write:content">
+	<section name="List Formatting" write_access="write:content" show_if="isListingMode">
 		<field attribute="group_by">
 			<selection style="list" />
 		</field>
@@ -130,7 +151,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="List Position Settings" write_access="write:attributes">
+	<section name="List Position Settings" write_access="write:attributes" show_if="isListingMode">
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetPositions"   />
@@ -138,7 +159,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Dynamic Parameters" write_access="write:attributes">
+	<section name="Dynamic Parameters" write_access="write:attributes" show_if="isListingMode">
 		<field attribute="parameter_map" format="new_line">
 			<parameter_map />
 		</field>
@@ -147,7 +168,16 @@
 		<field attribute="submit_button_text">
 			<text width="25" height="1" />
 		</field>
-		<field attribute="reset_button_text">
+		<field attribute="reset_button_text" show_if="isListingMode">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="submit_question_button_text" show_if="isInteractiveMode">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="retry_button_text" show_if="isInteractiveMode">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="next_button_text" show_if="isInteractiveMode">
 			<text width="25" height="1" />
 		</field>
 	</section>

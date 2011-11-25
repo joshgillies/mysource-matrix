@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission_edit_fns.inc,v 1.3 2008/11/06 22:18:05 ewang Exp $
+* $Id: online_quiz_submission_edit_fns.inc,v 1.4 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Online Quiz Submission edit functions
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,6 +57,23 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 	}//end paintSubmissionIpAddress()
 
 
+	/**
+	* Paint Submission Score
+	*
+	* @param object	&$asset	asset being edited
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for html elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSubmissionScore(&$asset, &$o, $prefix)
+	{
+		echo $asset->getScore();
+
+	}//end paintSubmissionScore()
+	
+	
 	/**
 	* Paint interface to edit form submission answers
 	*

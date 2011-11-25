@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.25 2011/11/08 23:21:07 csmith Exp $
+* $Id: lang_errors.xml,v 1.26 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -226,4 +226,11 @@
 
 	<!-- remote content -->
 	<error code="CMS0111">You cannot include or redirect to one of your own urls.</error>
+	
+	<error code="CMS0112">Shortage of questions for pool root node (Id: #%s). Check for correct pool size or user read access.</error>
+	<!-- packages/cms/page_templates/page_online_quiz/page_online_quiz.inc:loadQuestionPagination() -->
+		
+	<error code="CMS0113">Not enough questions in the pool for pool root node (Id: #%s).</error>
+	<!-- packages/cms/page_templates/page_online_quiz/page_online_quiz_edit_fns.inc:processQuestionPoolSetup() -->
+	
 </errors>

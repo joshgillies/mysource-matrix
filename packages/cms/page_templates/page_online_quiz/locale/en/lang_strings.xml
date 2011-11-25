@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.13 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -23,6 +23,12 @@
 <string source="online_quiz_keyword_results_table_simple">Results Table (Simple)</string>
 <string source="online_quiz_keyword_question_range">Question Range (which questions are currently being displayed)</string>
 <string source="online_quiz_keyword_question_count">Question Count (number of questions in this quiz)</string>
+<string source="online_quiz_keyword_interactive_question_response_form">Interactive Question Response Form</string>
+<string source="online_quiz_keyword_interactive_question_text">Interactive Question Text</string>
+<string source="online_quiz_keyword_interactive_question_note">Interactive Question Note</string>
+<string source="online_quiz_keyword_interactive_question_number">Interactive Question Number</string>
+<string source="online_quiz_keyword_interactive_button">Interactive Button</string>
+<string source="online_quiz_keyword_quiz_score">Quiz Score (using Quiz Score Format setting)</string>
 
 <string source="online_quiz_bodycopy_thank_you">Thank You Bodycopy</string>
 <string source="online_quiz_bodycopy_thank_you_desc">This format defines the layout of the "Thank You" page that (optionally) appears when the quiz is completed.</string>
@@ -67,6 +73,7 @@
 
 <string source="online_quiz_user_id">User ID</string>
 <string source="online_quiz_ip_address">IP Address</string>
+<string source="online_quiz_score">Score</string>
 <string source="online_quiz_form_submission_lock_required">Please acquire the lock before exporting.</string>
 
 <!-- A hack to make an empty column cell appear on all browsers -->
@@ -81,6 +88,11 @@
 <string source="online_quiz_submissions_go_to_last">Go to the last page of submissions</string>
 <string source="online_quiz_submissions_go_to_next">Go to the next page of submissions</string>
 <string source="online_quiz_submissions_go_to_previous">Go to the previous page of submissions</string>
+
+<string source="online_quiz_pool_node">Pool Node</string>
+<string source="online_quiz_pool_size">Pool Size</string>
+<string source="online_quiz_pool_retries_per_q">Retries per Question</string>
+<string source="online_quiz_pool_order">Pool Order</string>
 
 </strings>
 

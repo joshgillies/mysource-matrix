@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission.inc,v 1.2 2009/11/22 22:51:32 ewang Exp $
+* $Id: online_quiz_submission.inc,v 1.3 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Online Quiz Submission
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,7 +90,7 @@ class Online_Quiz_Submission extends Asset
 	function setIP($ip)
 	{
 		$a = $this->attr('attributes');
-		if (empty($a['mics'])) $a['misc'] = Array();
+		if (empty($a['misc'])) $a['misc'] = Array();
 
 		$a['misc']['ip'] = $ip;
 
@@ -103,6 +103,48 @@ class Online_Quiz_Submission extends Asset
 	}//end setIP()
 
 
+	/**
+	* Returns the score of this submission
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function getScore()
+	{
+		$a = $this->attr('attributes');
+		if (isset($a['misc']['score'])) {
+			return $a['misc']['score'];
+		}
+		
+		return FALSE;
+
+	}//end getScore()
+
+
+	/**
+	* Sets the score of this submission
+	*
+	* @param string	$score
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setScore($score)
+	{
+		$a = $this->attr('attributes');
+		if (empty($a['misc'])) $a['misc'] = Array();
+
+		$a['misc']['score'] = $score;
+
+		if (!$this->setAttrValue('attributes', $a)) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setScore()
+	
+	
 	/**
 	* Obtain the answer logged for User Details Form question
 	*
@@ -226,27 +268,32 @@ class Online_Quiz_Submission extends Asset
 	/**
 	* Obtain a summary of question names and answers for the User Details Form and Online Quiz
 	*
+	* @param boolean 	$incl_user_details		include summary for User Details Form?
+	* @param boolean 	$incl_quiz_responses	include summary for Online Quiz?
+	* 
 	* @return array
 	* @access public
 	*/
-	function getSummary()
+	function getSummary($incl_user_details=TRUE, $incl_quiz_responses=TRUE)
 	{
 		$summary = Array();
 
-		$user_details_questions = $this->getUserDetailsQuestions();
-		$user_details_answers = $this->getUserDetailsAnswers();
-
-		$quiz_questions = $this->getQuizQuestions();
-		$quiz_answers = $this->getQuizAnswers();
-
-		foreach ($user_details_answers as $question_id => $answer_details) {
-			$summary[$question_id]['name'] = $user_details_questions[$question_id];
-			$summary[$question_id]['answer'] = $answer_details['answer'];
+		if ($incl_user_details){
+			$user_details_questions = $this->getUserDetailsQuestions();
+			$user_details_answers = $this->getUserDetailsAnswers();
+			foreach ($user_details_answers as $question_id => $answer_details) {
+				$summary[$question_id]['name'] = $user_details_questions[$question_id];
+				$summary[$question_id]['answer'] = $answer_details['answer'];
+			}
 		}
-
-		foreach ($quiz_answers as $question_id => $answer_details) {
-			$summary[$question_id]['name'] = $quiz_questions[$question_id];
-			$summary[$question_id]['answer'] = $answer_details['summary'];
+		
+		if ($incl_quiz_responses){
+			$quiz_questions = $this->getQuizQuestions();
+			$quiz_answers = $this->getQuizAnswers();
+			foreach ($quiz_answers as $question_id => $answer_details) {
+				$summary[$question_id]['name'] = $quiz_questions[$question_id];
+				$summary[$question_id]['answer'] = $answer_details['summary'];
+			}
 		}
 
 		return $summary;
@@ -356,6 +403,7 @@ class Online_Quiz_Submission extends Asset
 		$res['user_asset_id'] = 'The User who created the Submission,';
 		$res['quiz_responses'] = 'Summary of responses nad points awarded and maximum points per answer';
 		$res['quiz_total'] = 'Total points awarded and available';
+		$res['quiz_score'] = 'Quiz Score';
 		return $res;
 
 	}//end getAvailableKeywords()
@@ -481,7 +529,10 @@ class Online_Quiz_Submission extends Asset
 			return $string;
 		}
 		
-				
+		if (preg_match('/quiz_score/', $keyword, $matches)) {
+			return $this->getScore();
+		}
+		
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()

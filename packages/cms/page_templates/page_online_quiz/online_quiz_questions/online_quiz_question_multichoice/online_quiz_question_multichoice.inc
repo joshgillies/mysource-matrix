@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.8 2011/08/15 05:56:46 mhaidar Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -217,7 +217,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 				<?php
 			}
 			?>
-			<?php echo $this->type(); ?>_validate(error_stack, <?php echo $this->getPosition(); ?>, selected);
+			<?php echo $this->type(); ?>_validate(error_stack, "<?php echo $this->getPosition(); ?>", selected);
 			<?php
 
 		return ob_get_clean();
@@ -480,10 +480,13 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	*
 	* To be overridden by the children
 	*
+	* @param boolean $feedback_mode used by Page_Online_Quiz interactive mode, will disable fields and add special classes & tags,
+	* 								does not support the Drop Down List Option Style.
+	*
 	* @return string
 	* @access public
 	*/
-	function getResponseFormKeywordReplacement()
+	function getResponseFormKeywordReplacement($feedback_mode=FALSE)
 	{
 		$prefix = $this->getPrefix();
 
@@ -491,6 +494,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		$use_html_options = $this->attr('use_html_options');
 
 		$value = $this->getValue();
+		$correct_value = $this->getCorrectValue();
 
 		ob_start();
 			?><div class="sq-<?php echo str_replace('_', '-', $this->type()); ?>"><?php
@@ -504,19 +508,36 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 						foreach ($options as $option_key => $option) {
 							$selection_contents[$option_key] = htmlentities($option['text']);
 						}
-						combo_box($prefix.'_response', $selection_contents, ($this->attr('max_option_selections') > 1), $value);
+						$extras = ($feedback_mode) ? 'disabled="disabled"' : ''; //best we can do for list style
+						combo_box($prefix.'_response', $selection_contents, ($this->attr('max_option_selections') > 1), $value, 0, $extras);
 					break;
 
 					case 'radio':
 					default:
 						?><ul><?php
 						foreach ($options as $option_key => $option) {
-							?><li><?php
+							
+							$is_selected = ((is_array($value) && in_array($option_key, $value)) || $option_key == $value);
+							if ($feedback_mode && in_array($option_key, $correct_value)){
+								if ($is_selected){
+									?><li class="online_quiz_user_correct_selection"><?php
+								} else {
+									?><li class="online_quiz_correct_answer"><?php
+								}
+							} else if ($feedback_mode && $is_selected) {
+								?><li class="online_quiz_user_incorrect_selection"><?php
+							} else {
+								?><li><?php
+							}
+							
+							$extras = 'id="'.$prefix.'_response_'.$option_key.'"';
+							if ($feedback_mode) $extras .= ' disabled="disabled"';
+							
 							if ($this->attr('max_option_selections') <= 1) {
-								radio_button($prefix.'_response', $option_key, ($value == $option_key), '', 'id="'.$prefix.'_response_'.$option_key.'"');
+								radio_button($prefix.'_response', $option_key, ($value == $option_key), '', $extras);
 							} else {
 								if (!is_array($value)) $value = Array();
-								check_box($prefix.'_response['.$option_key.']', '1', (in_array($option_key, $value)), '', 'id="'.$prefix.'_response_'.$option_key.'"');
+								check_box($prefix.'_response['.$option_key.']', '1', (in_array($option_key, $value)), '', $extras);
 							}
 
 							if ($use_html_options) {
@@ -530,6 +551,10 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 								label($option['text'], $prefix.'_response_'.$option_key);
 							} else {
 								label(htmlentities($option['text']), $prefix.'_response_'.$option_key);
+							}
+							
+							if ($feedback_mode && in_array($option_key, $correct_value)) {
+								?><span class="online_quiz_response_supplement"><?php echo $this->getResponseSupplement($option_key) ?></span><?php
 							}
 
 							?></li><?php
@@ -549,17 +574,22 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	/**
 	* Get the Response Supplement content for the selected option
 	*
+	* @param  string $selected_option override the selected option with another key
+	* 
 	* @return string
 	* @access public
 	*/
-	function getResponseSupplement()
+	function getResponseSupplement($selected_option=NULL)
 	{
 		$response_supplement = '';
 		$option = Array();
 
 		$response_options = $this->attr('response_form');
-		$selected_option = $this->getValue();
-		if (isset($selected_option)) {
+		if (empty($selected_option)) {
+			$selected_option = $this->getValue();
+		}
+		//we can only provide the response supplement for one selection
+		if (!is_array($selected_option) && isset($response_options[$selected_option])) {
 			$option = $response_options[$selected_option];
 		}
 

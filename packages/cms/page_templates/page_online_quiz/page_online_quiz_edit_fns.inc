@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.11 2008/11/06 03:16:25 ewang Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.12 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -371,7 +371,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// Grab all available questions
 		$user_details_form = $asset->getForm();
 		$user_details_form_questions = $user_details_form->getQuestions();
-		$quiz_questions = $asset->getQuestions(TRUE);
+		$quiz_questions = $asset->getQuestions(TRUE, TRUE);
 
 		echo check_box($prefix.'_export_fields_select_all', '1', '', 'sq_set_check_all(this.form, "'.$prefix.'_export_fields[]", this.checked);').'<b>'.translate('select_all').'</b>';
 		echo '<br><br>';
@@ -380,6 +380,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		echo check_box($prefix.'_export_fields[]', '__time__', '1').translate('submission_time').'<br/>';
 		echo check_box($prefix.'_export_fields[]', '__user__', '1').translate('online_quiz_user_id').'<br/>';
 		echo check_box($prefix.'_export_fields[]', '__ipaddress__', '1').translate('online_quiz_ip_address').'<br/>';
+		echo check_box($prefix.'_export_fields[]', '__score__', '1').translate('online_quiz_score').'<br/>';
 		echo '</p>';
 
 
@@ -523,6 +524,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('links');
 		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
+		$expand_sections = isset($_POST[$prefix.'_expand_sections']) ? $_POST[$prefix.'_expand_sections'] : Array();
 		$num_subs = 0;
 
 		// grab the number of assets per page, defaulting to 50 at a time
@@ -720,7 +722,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				?></b>
 			</td>
-			<td class="sq-form-sub-header" colspan="4" align="right"><?php echo translate('online_quiz_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
+			<td class="sq-form-sub-header" colspan="5" align="right"><?php echo translate('online_quiz_submissions_during_period', $submission_offset + 1, min($asset_count, $submission_offset + $num_per_page), $asset_count) ?>
 			</td>
 			</tr>
 			<tr>
@@ -732,6 +734,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				</th>
 				<th>
 					<?php echo translate('user') ?>
+				</th>
+				<th>
+					<?php echo translate('online_quiz_score') ?>
 				</th>
 				<th>
 					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('expand_question') ?>
@@ -799,6 +804,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						}
 						?>
 					</td>
+					<td> <?php echo $sub_asset->getScore(); ?></td>
 					<td>
 						<input type="checkbox" name="<?php echo $prefix ?>_expand[]" value="<?php echo $assetid ?>" <?php if ($sub_expanded) echo ' checked="checked"'; ?> onclick="sq_test_check_all(this.form, '<?php echo $prefix ?>_expand[]', '<?php echo $prefix ?>_expand_all');">
 					</td>
@@ -823,7 +829,10 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 								<tr>
 									<?php
 									$i = 0;
-									$elements = $sub_asset->getSummary();
+									$incl_user_details = in_array('__user_details__',$expand_sections) ? TRUE : FALSE;
+									$incl_quiz_responses = in_array('__quiz_responses__', $expand_sections) ? TRUE : FALSE;
+									
+									$elements = $sub_asset->getSummary($incl_user_details, $incl_quiz_responses);
 									if (count($elements) % 2 != 0) {
 										$elements[] = Array('name' => '', 'answer' => '');
 									}
@@ -1020,6 +1029,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$export_time_field = in_array('__time__', $export_fields);
 		$export_user_field = in_array('__user__', $export_fields);
 		$export_ipaddress_field = in_array('__ipaddress__', $export_fields);
+		$export_score_field = in_array('__score__', $export_fields);
 
 		if ($export_time_field) {
 			$headers['__time__'] = translate('submission_time');
@@ -1029,6 +1039,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 		if ($export_ipaddress_field) {
 			$headers['__ipaddress__'] = translate('online_quiz_ip_address');
+		}
+		if ($export_score_field) {
+			$headers['__score__'] = translate('online_quiz_score');
 		}
 
 		$sub_folder = $asset->getSubmissionsFolder();
@@ -1073,6 +1086,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 				// get the submission ip
 				$ipaddress = $sub_asset->getIP();
+				$score = $sub_asset->getScore();
 
 				// get the summary
 				$logs[$assetid] = Array();
@@ -1085,6 +1099,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				}
 				if ($export_ipaddress_field) {
 					$logs[$assetid]['__ipaddress__'] = $ipaddress;
+				}
+				if ($export_score_field) {
+					$logs[$assetid]['__score__'] = $score;
 				}
 
 				$submission_summary = $sub_asset->getSummary();
@@ -1121,6 +1138,162 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 
 	/**
+	* Paint Question Pool Setup
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintQuestionPoolSetup(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		// get existing root links (pools)
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		$pool_setup = $asset->attr('question_pool_setup');
+		
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header" >
+					<?php echo translate('online_quiz_pool_node'); ?>
+				</td>
+				<td class="sq-backend-table-header">
+					<?php echo translate('online_quiz_pool_size'); ?>
+				</td>
+				<td class="sq-backend-table-header">
+					<?php echo translate('online_quiz_pool_retries_per_q'); ?>
+				</td>
+				<td class="sq-backend-table-header">
+					<?php echo translate('online_quiz_pool_order'); ?>
+				</td>
+			</tr>
+		<?php
+		$order = 1;
+		foreach ($root_links as $link){
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">
+				<?php
+					echo get_asset_tag_line($link['minorid'], 'details');
+				?>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+				$size = (!empty($pool_setup[$link['minorid']]['size'])) ? $pool_setup[$link['minorid']]['size'] : 0;
+				if ($write_access){
+					text_box($prefix.'_size_'.$link['minorid'], $size);
+				} else {
+					echo $size;
+				}
+				?>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+				$retries = (!empty($pool_setup[$link['minorid']]['retries'])) ? $pool_setup[$link['minorid']]['retries'] : 0;
+				if ($write_access){
+					text_box($prefix.'_retries_'.$link['minorid'], $retries);
+				} else {
+					echo $retries;
+				}
+				?>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+				if ($write_access){
+					text_box($prefix.'_order_'.$link['minorid'], $order);
+				} else {
+					echo $order;
+				}
+				?>
+				</td>
+			</tr>
+		<?php 
+			$order++;
+		}
+		?> 
+		</table> 
+		<?php
+		hidden_field($prefix.'_interactive_mode', '1');
+		
+		return TRUE;
+		
+	}//end paintQuestionPoolSetup()
+	
+	
+	/**
+	* Process Question Pool Setup
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processQuestionPoolSetup(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!isset($_POST[$prefix.'_interactive_mode'])) return TRUE;
+		
+		//adjust the order first
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		foreach ($root_links as $link){
+			$order = (isset($_POST[$prefix.'_order_'.$link['minorid']])) ? (int)$_POST[$prefix.'_order_'.$link['minorid']] : $link['sort_order'];
+			$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $link['link_type'], $link['value'], $order, $link['locked']);	
+		}
+		
+		$pool_setup = Array();
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+		foreach ($root_links as $link){
+			$retries = (isset($_POST[$prefix.'_retries_'.$link['minorid']])) ? (int)$_POST[$prefix.'_retries_'.$link['minorid']] : 0;
+			$size = (isset($_POST[$prefix.'_size_'.$link['minorid']])) ? (int)$_POST[$prefix.'_size_'.$link['minorid']] : 0;
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], 'online_quiz_question_multichoice', TRUE);
+			if (($size + ($size*$retries)) > (count($children))){
+				trigger_localised_error('CMS0113', E_USER_WARNING, $link['minorid']);
+			}
+			
+			$pool_setup[$link['minorid']] = Array (
+												'retries' => $retries,
+												'size'	  => $size,
+											);								
+		}
+		
+		$asset->setAttrValue('question_pool_setup', $pool_setup);
+		$asset->saveAttributes();
+			
+		return TRUE;
+		
+	}//end processQuestionPoolSetup()
+	
+	
+	/**
+	* Paints the submission asset sections available for expanding in the submission list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExpandSections(&$asset, &$o, $prefix)
+	{
+		
+		$expand_sections = isset($_POST[$prefix.'_expand_sections']) ? $_POST[$prefix.'_expand_sections'] : Array();
+		
+		//default is both checked and if you uncheck both, they'll be rechecked
+		$checked = ($expand_sections) ? in_array('__user_details__', $expand_sections) : TRUE;
+		echo check_box($prefix.'_expand_sections[]', '__user_details__', $checked).'User Details Form Questions<br/>';
+		$checked = ($expand_sections) ? in_array('__quiz_responses__', $expand_sections) : TRUE;
+		echo check_box($prefix.'_expand_sections[]', '__quiz_responses__', $checked).'Quiz Questions<br/>';	
+
+	}//end paintExpandSections()
+	
+	
+	/**
 	* Returns TRUE if the attribute lock is acquired
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -1134,6 +1307,36 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return $asset->writeAccess('attributes');
 
 	}//end hasAttributeWriteAccess()
+	
+	
+	/**
+	* Show-if conditional: isListingMode
+	*
+	* @param object &$asset asset being painted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isListingMode(&$asset)
+	{
+		return ($asset->attr('interactive_mode')) ? FALSE : TRUE;
+
+	}//end isListingMode()
+	
+	
+	/**
+	* Show-if conditional: isInteractiveMode
+	*
+	* @param object &$asset asset being painted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isInteractiveMode(&$asset)
+	{
+		return ($asset->attr('interactive_mode')) ? TRUE : FALSE;
+
+	}//end isInteractiveMode()
 
 
 }//end class

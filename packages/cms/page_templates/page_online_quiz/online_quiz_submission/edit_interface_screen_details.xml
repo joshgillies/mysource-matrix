@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2011/11/25 02:22:35 mhaidar Exp $
 *
 */
 -->
@@ -25,6 +25,11 @@
 		<field>
 			<function_call>
 				<paint_function name="paintSubmissionTime" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintSubmissionScore" />
 			</function_call>
 		</field>
 	</section>
