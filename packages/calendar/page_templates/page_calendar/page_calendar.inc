@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.244 2011/06/30 04:49:13 ewang Exp $
+* $Id: page_calendar.inc,v 1.244.2.1 2011/11/25 03:20:20 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.244.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -303,7 +303,7 @@ class Page_Calendar extends Page
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
-		
+
 		$root_node_ids = array_keys($this->attr('root_nodes'));
 		$res = '';
 		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
@@ -415,7 +415,6 @@ class Page_Calendar extends Page
 			}//end else no cache
 
 		}//end if
-
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 	}//end printBody()
@@ -949,7 +948,8 @@ class Page_Calendar extends Page
 	*/
 	function getMonthView($date, $format, &$events_array)
 	{
-		$this->_printPopupsScript();
+		$popups_enabled = $this->attr('enable_description_popups');
+		if ($popups_enabled) $this->_printPopupsScript();
 		list($year, $month, $day) = explode('-', $date);
 		$enabled_views = $this->attr('enabled_views');
 		$drill_down_views = Array('week', 'day');
