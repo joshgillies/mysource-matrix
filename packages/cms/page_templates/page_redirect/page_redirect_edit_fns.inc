@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.20 2009/06/12 05:58:18 bpearson Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.20.14.1 2011/11/27 22:17:22 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,7 +83,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRedirectAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid'])) {
+		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
 			return TRUE;
 		}
 
