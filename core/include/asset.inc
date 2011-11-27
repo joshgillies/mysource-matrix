@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.748.2.8 2011/11/23 22:36:01 akarelia Exp $
+* $Id: asset.inc,v 1.748.2.9 2011/11/27 22:32:54 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.748.2.8 $
+* @version $Revision: 1.748.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1125,8 +1125,14 @@ class Asset extends MySource_Object
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 
 		// preserve the nest content related notice links so that we can recreate the links when reverting to system version
+		$links_to_preserve = Array(
+								'nested_asset',
+								'paint_with_layout',
+								'root',
+								'redirect_asset'
+							 );
 		foreach ($notice_links as $link) {
-			if ($link['value'] == 'nested_asset' || $link['value'] == 'paint_with_layout' || $link['value'] == 'root') {
+			if (in_array($link['value'], $links_to_preserve)) {
 				$replace_assetids[] = $link;
 			}
 		}
@@ -1315,8 +1321,14 @@ class Asset extends MySource_Object
 			$system_ver_notice_links = unserialize($notice_links_file);
 			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 
+			$links_to_preserve = Array(
+									'nested_asset',
+									'paint_with_layout',
+									'root',
+									'redirect_asset'
+								 );
 			foreach ($notice_links as $index => $info) {
-				if ($info['value'] == 'nested_asset' || $info['value'] == 'paint_with_layout' || $info['value'] == 'root') {
+				if (in_array($info['value'], $links_to_preserve)) {
 					foreach($system_ver_notice_links as $prev_index => $prev_info) {
 						if (array_diff($info, $prev_info) == Array()) {
 							unset($system_ver_notice_links[$prev_index]); //not going to create
@@ -1507,7 +1519,7 @@ class Asset extends MySource_Object
 			
 			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
 
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);	
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
 
 		}//end if $this->id
 
