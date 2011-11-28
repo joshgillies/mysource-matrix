@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.23 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.24 2011/11/28 04:31:17 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -167,5 +167,72 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 	}//end constructor
 
 
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			echo('UPGRADING BULKMAIL POST OFFICE FROM '.$current_version."\n");
+			// Version 0.2 ownwards the sendmail path and arguments are retrieved from External tools config (tools.inc)
+			// rather than stored in attribute
+
+			$count = 0;
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			pre_echo('Updating Bulkmail Post Offices...');
+			
+			// Get all Search Page assets
+			$bulkmail_post_offices = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('bulkmail_post_office', FALSE, TRUE);
+
+			$sendmail_path = '';
+			$sendmail_args = '';
+			
+			// Update assets
+			foreach ($bulkmail_post_offices as $id => $type) {
+				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);				
+				
+				$server_details = $post_office->attr('server_details');
+				if(isset($server_details['sendmail_path']) && !empty($server_details['sendmail_path']))
+					$sendmail_path = $server_details['sendmail_path'];
+				if(isset($server_details['sendmail_args']) && !empty($server_details['sendmail_args']))
+					$sendmail_args = $server_details['sendmail_args'];
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($post_office, TRUE);
+				unset($post_office);
+				
+				$count++;
+			}//end foreach search pages
+
+			
+			$vars['SQ_TOOL_SENDMAIL_PATH'] = $sendmail_path;
+			$vars['SQ_TOOL_SENDMAIL_ARGS'] = $sendmail_args;
+	    
+			require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
+			$cfg = new External_Tools_Config();
+			if (!$cfg->save($vars, FALSE, TRUE)) {
+			    echo "Sendmail path and arguments for bulkmail can not be saved\n";
+			    return FALSE;
+			}
+		
+		
+			pre_echo('Updated - '.$count.' bulkmail post office(s)...');
+
+			pre_echo('BULKMAIL POST OFFICE SUCCESSFULLY UPGRADED TO VERSION 0.2');
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
+	
 }//end class
 ?>

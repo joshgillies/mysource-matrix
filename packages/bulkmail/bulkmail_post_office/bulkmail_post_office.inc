@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.22 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: bulkmail_post_office.inc,v 1.23 2011/11/28 04:31:17 ewang Exp $
 *
 */
 
@@ -18,6 +18,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_constant.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'Mail.php';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 @require_once 'Mail/mime.php';
 
 
@@ -30,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -158,6 +159,33 @@ class Bulkmail_Post_Office extends Asset
 
 	}//end canMoveLink()
 
+	
+	/**
+	* Use tools config file for sendmail path
+	*
+	* @param string	$name	the name of the attribute whose value you want to get
+	*
+	* @return mixed string|NULL
+	* @access public
+	*/
+	public function attr($name)
+	{
+		$value = parent::attr($name);
+		if($name === 'server_details' ) {
+		    $driver = array_get_index($value, 'driver', '');
+		    if($driver === 'sendmail') {
+			if(SQ_TOOL_SENDMAIL_PATH !== '') {
+			    $value['sendmail_path'] = SQ_TOOL_SENDMAIL_PATH;
+			}
+			 if(SQ_TOOL_SENDMAIL_ARGS !== '') {
+			    $value['sendmail_args'] = SQ_TOOL_SENDMAIL_ARGS;
+			}
+		    }
+		}
+		
+		return $value;
+
+	}//end attr()
 
 }//end class
 ?>

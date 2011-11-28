@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.39 2011/11/22 05:54:57 ewang Exp $
+* $Id: external_tools_config.inc,v 1.40 2011/11/28 04:32:42 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -71,7 +71,9 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_SQUID_CACHE_PORT'			=> Array('editable' => 1, 'default' => '3128'),
 						'SQ_TOOL_SQUID_CACHE_OPTION'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_SQUID_CACHE_SLASH'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_SQUID_URL_PORT'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SQUID_URL_PORT'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SENDMAIL_PATH'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SENDMAIL_ARGS'				=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -545,7 +547,19 @@ class External_Tools_Config extends Config
 					echo nl2br(SQ_TOOL_SQUID_URL_PORT);
 				}
 			$o->closeField();
-		$o->closeSection();		
+		$o->closeSection();
+		
+		// Sendmail for bulkmail
+		$o->openSection(translate('sendmail'));
+			$o->openField(translate('sendmail_path'));
+				echo SQ_TOOL_SENDMAIL_PATH;
+				echo $o->note(translate('sendmail_path_note'));
+			$o->closeField();
+			$o->openField(translate('sendmail_arguments'));
+				echo SQ_TOOL_SENDMAIL_ARGS;
+				echo $o->note(translate('sendmail_arguments_note'));
+			$o->closeField();
+		$o->closeSection();	
 				
 				
 		if ($write_access) $o->commitButton('', TRUE);

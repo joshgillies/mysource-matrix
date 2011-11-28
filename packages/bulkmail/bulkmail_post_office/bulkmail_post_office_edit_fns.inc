@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.36 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.37 2011/11/28 04:31:17 ewang Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 
 /**
@@ -26,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -210,24 +211,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 		$field_name = translate('bulkmail_server_detail_path_field_name');
 		$name = $prefix.'_server_detail_sendmail_sendmail_path';
-		$o->openField($field_name, '', 'The path to your sendmail binary. Eg. /usr/sbin/sendmail', !$smtp, $name.'_field');
-			$value = array_get_index($server_details, 'sendmail_path', '');
-			if ($write_access) {
-				text_box($name, $value);
-			} else {
-				echo $value;
-			}
+		$o->openField($field_name, '', 'The path to your sendmail binary. Use config file data/private/conf/tools.inc.', !$smtp, $name.'_field');
+			echo SQ_TOOL_SENDMAIL_PATH;
 		$o->closeField();
 
 		$field_name = translate('bulkmail_server_detail_arg_field_name');
 		$name = $prefix.'_server_detail_sendmail_sendmail_args';
-		$o->openField($field_name, '', 'Eg. -t will run sendmail as \'sendmail -t\'', !$smtp, $name.'_field');
-			$value = array_get_index($server_details, 'sendmail_args', '');
-			if ($write_access) {
-				text_box($name, $value);
-			} else {
-				echo $value;
-			}
+		$o->openField($field_name, '', 'Use config file data/private/conf/tools.inc.', !$smtp, $name.'_field');
+			echo SQ_TOOL_SENDMAIL_ARGS;
 		// $o->closeField(); This field is closed in the edit interface
 
 		?>
