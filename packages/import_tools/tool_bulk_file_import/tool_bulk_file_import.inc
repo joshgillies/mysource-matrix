@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.13 2010/08/16 23:36:40 akarelia Exp $
+* $Id: tool_bulk_file_import.inc,v 1.13.8.1 2011/11/28 05:44:23 ewang Exp $
 *
 */
 
@@ -19,6 +19,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 
 /**
 * Tool_Bulk_File_Import
@@ -28,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -64,7 +65,7 @@ class Tool_Bulk_File_Import extends Tool
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$itm = $am->getSystemAsset('import_tools_manager');
 		$import_option = $itm->attr('allowed_import_type');
-		$import_dir = $itm->attr('bulk_file_import_dir');
+		$import_dir = BULK_FILE_IMPORT_DIR;
 		$process_local = ($import_option != 'Server Only');
 		$process_server = ($import_option != 'Local Only');
 
@@ -556,7 +557,7 @@ class Tool_Bulk_File_Import extends Tool
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$vars = Array();
 		$itm = $am->getSystemAsset('import_tools_manager');
-		$import_dir = $itm->attr('bulk_file_import_dir');
+		$import_dir = BULK_FILE_IMPORT_DIR;
 		$import_option = $itm->attr('allowed_import_type');
 		$process_local = ($import_option != 'Server Only');
 		$process_server = ($import_option != 'Local Only');
