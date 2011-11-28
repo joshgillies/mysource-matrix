@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.38.8.1 2011/11/22 07:23:49 ewang Exp $
+* $Id: external_tools_config.inc,v 1.38.8.2 2011/11/28 06:29:52 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.38.8.1 $
+* @version $Revision: 1.38.8.2 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -67,11 +67,13 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_MOLLOM_TEST_MODE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION'	=> Array('editable' => 1, 'default' => '1'),
 						'SQ_TOOL_SQUID_CACHE_HOSTNAMES'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_TOOL_SQUID_CACHE_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/squidclient'),
-						'SQ_TOOL_SQUID_CACHE_PORT'				=> Array('editable' => 1, 'default' => '3128'),
+						'SQ_TOOL_SQUID_CACHE_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/squidclient'),
+						'SQ_TOOL_SQUID_CACHE_PORT'			=> Array('editable' => 1, 'default' => '3128'),
 						'SQ_TOOL_SQUID_CACHE_OPTION'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_TOOL_SQUID_CACHE_SLASH'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_SQUID_CACHE_SLASH'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_SQUID_URL_PORT'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SENDMAIL_PATH'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SENDMAIL_ARGS'				=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -545,7 +547,19 @@ class External_Tools_Config extends Config
 					echo nl2br(SQ_TOOL_SQUID_URL_PORT);
 				}
 			$o->closeField();
-		$o->closeSection();		
+		$o->closeSection();
+		
+		// Sendmail for bulkmail
+		$o->openSection(translate('sendmail'));
+			$o->openField(translate('sendmail_path'));
+				echo SQ_TOOL_SENDMAIL_PATH;
+				echo $o->note(translate('sendmail_path_note'));
+			$o->closeField();
+			$o->openField(translate('sendmail_arguments'));
+				echo SQ_TOOL_SENDMAIL_ARGS;
+				echo $o->note(translate('sendmail_arguments_note'));
+			$o->closeField();
+		$o->closeSection();	
 				
 				
 		if ($write_access) $o->commitButton('', TRUE);
