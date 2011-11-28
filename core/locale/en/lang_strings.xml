@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.391.2.10 2011/11/22 08:07:50 ewang Exp $
+* $Id: lang_strings.xml,v 1.391.2.11 2011/11/28 23:47:21 ewang Exp $
 *
 */
 
@@ -2894,5 +2894,13 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_tool_no_hostnames">Please make sure there is at least one hostname in the Squid Cache section of External Tools Configuration.</string>
 	<string source="squid_tool_path_empty">Please make sure you set the path to squidclient in the Squid Cache section of External Tools Configuration.</string>
 	<string source="squid_tool_path_invalid">The squidclient path is invalid. Please check it in the Squid Cache section of External Tools Configuration.</string>
+
+	<!-- sendmail for bulkmail -->
+	<string source="sendmail">Sendmail</string>
+	<string source="sendmail_path">Path</string>
+	<string source="sendmail_path_note">The path to your sendmail binary. Eg. /usr/sbin/sendmail. Use config file data/private/conf/tools.inc.</string>
+	<string source="sendmail_arguments">Arguments</string>
+	<string source="sendmail_arguments_note">Eg. -t will run sendmail as 'sendmail -t'. Use config file data/private/conf/tools.inc.</string>
+
 
 </strings>

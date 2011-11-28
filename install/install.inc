@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.91.8.3 2011/08/05 02:07:42 ewang Exp $
+* $Id: install.inc,v 1.91.8.4 2011/11/28 23:47:21 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.91.8.3 $
+* @version $Revision: 1.91.8.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -761,6 +761,41 @@ function generate_file_bridge_config()
 	return TRUE;
 
 }//end generate_file_bridge_config()
+
+/**
+* Generate import tools manager config file
+*
+* @return boolean
+* @access public
+*/
+function generate_import_tools_manager_config()
+{
+	if(is_file(SQ_DATA_PATH.'/private/conf/import_tools_manager.inc')) return TRUE;
+	$structured_import_dir = '';
+	$bulk_file_import_dir = '';
+	if( $GLOBALS['SQ_SYSTEM']->am->installed('import_tools_manager')) {
+	    $itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');			
+	    $structured_import_dir = $itm->attr('import_dir');
+	    $bulk_file_import_dir = $itm->attr('bulk_file_import_dir');
+	}
+	
+	$str = "<?php\n";
+	
+	$str .= "#path of structured file import directory \n";
+	$str .= "define('STRUCTURED_FILE_IMPORT_DIR', '$structured_import_dir');\n";
+	
+	$str .= "#path of bulk file import directory \n";
+	$str .= "define('BULK_FILE_IMPORT_DIR', '$bulk_file_import_dir');\n";
+	
+	$str .= "?>";
+	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/import_tools_manager.inc')) {
+		return FALSE;
+	}
+
+	return TRUE;
+
+}//end generate_import_tools_manager_config()
+
 
 
 /**

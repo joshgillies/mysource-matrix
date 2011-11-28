@@ -12,15 +12,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2008/05/26 22:34:39 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.8.16.1 2011/11/28 23:47:32 ewang Exp $
 *
 */
 -->
 <contents>
 	<section name="Structured File Import Tool Settings" write_access="write:attributes">
-		<field attribute="import_dir">
+		<field>
 			<display_name>Import Directory</display_name>
-			<note>Directory on the Unix system to import processed HTML files from.</note>
+			<note>Directory on the Unix system to import processed HTML files from. Use config file data/private/conf/import_tools_manager.inc.</note>
+			<function_call>
+				<paint_function   name="paintStructuredFileImportDirectory"   />
+			</function_call>
 		</field>
 		<field attribute="max_file_size">
 			<display_name>Maximum File Size</display_name>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.17.2.1 2011/08/16 07:42:44 akarelia Exp $
+* $Id: lang_strings.xml,v 1.17.2.2 2011/11/28 23:47:32 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -21,7 +21,7 @@
 <!--string source="import_tools_manager_"></string-->
 <string source="import_tools_manager_allowed_import_type">Allowed Import Type</string>
 <string source="import_tools_manager_server_import_dir">Server Import Directory</string>
-<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.</string>
+<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc.</string>
 <string source="import_tools_manager_local_file_max_size">Local Max File Size</string>
 <string source="import_tools_manager_local_file_max_size_msg">Maximum File Size of local file upload (In bytes, 0 = no limit)</string>
 
@@ -95,14 +95,22 @@
 <!-- Import Assets from XML Tool -->
 <string source="tool_import_assets_from_xml_hipo_name">Hipo Job Import Assets From XML</string>
 <string source="tool_import_assets_from_xml_file_upload">Import XML File</string>
-<string source="tool_import_assets_from_xml_file_upload_note">Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <![CDATA[<a href="%s" target="_blank">example.xml</a>]]></string>
+<string source="tool_import_assets_from_xml_file_upload_note"><![CDATA[Select the XML file or a tar file containing xml file and physical files to import Assets from. Structure should be as in <a href="%s" target="_blank">example.xml</a>
+<br/>
+<strong>Note:</strong> Import of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#import_from_xml.php" target="_blank">manual</a> for details.
+]]></string>
 <string source="tool_import_assets_from_xml_create_under">Import Asset under (optional)</string>
 <string source="tool_import_assets_from_xml_create_under_note">If Asset is specified the assets are imported under that asset</string>
 
 <!-- Export Assets to XML Tool -->
 <string source="tool_export_assets_to_xml_hipo_name">Hipo Job Export Assets To XML</string>
 <string source="tool_export_assets_to_xml_root_node">Root Node</string>
-<string source="tool_export_assets_to_xml_root_node_note">Export all assets underneath root node to target parent node. Design, permission, linking can be maintained only if all involved assets are exported together. Use More button to select multiple root nodes.</string>
+<string source="tool_export_assets_to_xml_root_node_note"><![CDATA[Export all assets underneath root node to target parent node. Design, permission, linking can be maintained only if all involved assets are exported together. Use More button to select multiple root nodes.
+<br/>
+<strong>Note:</strong> Export of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#export_to_xml.php" target="_blank">manual</a> for details.
+]]></string>
 <string source="tool_export_assets_to_xml_target_parent">links to target parent asset id</string>
+
+<string source="tool_export_assets_to_xml_can_not_acquire_lock">The locks on the Import Tools Manager are currently held by user #%s Only one user is allowed use of this screen at a time.</string>
 
 </strings>
