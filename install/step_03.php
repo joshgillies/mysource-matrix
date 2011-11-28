@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.81.2.1 2011/09/28 08:48:56 ewang Exp $
+* $Id: step_03.php,v 1.81.2.2 2011/11/28 05:44:49 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81.2.1 $
+* @version $Revision: 1.81.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -145,6 +145,8 @@ if (!isset($package_list)) $package_list = Array();
 
 // generate the char map first, creating asset will need this
 generate_lang_char_map();
+
+generate_import_tools_manager_config();
 
 uninstall_asset_types();
 uninstall_packages();
