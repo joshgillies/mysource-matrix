@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.24 2011/11/28 04:31:17 ewang Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.25 2011/11/28 06:50:01 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -202,7 +202,8 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 			foreach ($bulkmail_post_offices as $id => $type) {
 				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);				
 				
-				$server_details = $post_office->attr('server_details');
+				$server_details = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('server_details', 'bulkmail_post_office', Array($post_office->id));
+				$server_details = unserialize($server_details[$post_office->id]);
 				if(isset($server_details['sendmail_path']) && !empty($server_details['sendmail_path']))
 					$sendmail_path = $server_details['sendmail_path'];
 				if(isset($server_details['sendmail_args']) && !empty($server_details['sendmail_args']))
