@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.12 2011/11/28 04:26:13 ewang Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.13 2011/11/28 04:44:30 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -232,7 +232,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 
 			$o->openField(translate('import_tools_manager_server_import_dir'));
-				echo $server_import_dir;
+				echo STRUCTURED_FILE_IMPORT_DIR;
 				$o->note(translate('import_tools_manager_server_import_dir_msg'));
 			$o->closeField();
 		}
