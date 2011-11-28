@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.96 2011/11/28 04:28:40 ewang Exp $
+* $Id: install.inc,v 1.97 2011/11/28 05:41:03 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -774,9 +774,13 @@ function generate_file_bridge_config()
 function generate_import_tools_manager_config()
 {
 	if(is_file(SQ_DATA_PATH.'/private/conf/import_tools_manager.inc')) return TRUE;
-	$itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');			
-	$structured_import_dir = $itm->attr('import_dir');
-	$bulk_file_import_dir = $itm->attr('bulk_file_import_dir');
+	$structured_import_dir = '';
+	$bulk_file_import_dir = '';
+	if( $GLOBALS['SQ_SYSTEM']->am->installed('import_tools_manager')) {
+	    $itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');			
+	    $structured_import_dir = $itm->attr('import_dir');
+	    $bulk_file_import_dir = $itm->attr('bulk_file_import_dir');
+	}
 		
 	
 	$str = "<?php\n";
