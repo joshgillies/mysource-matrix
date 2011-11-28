@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.83 2011/11/28 04:28:40 ewang Exp $
+* $Id: step_03.php,v 1.84 2011/11/28 05:12:29 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -145,6 +145,8 @@ if (!isset($package_list)) $package_list = Array();
 // generate the char map first, creating asset will need this
 generate_lang_char_map();
 
+generate_import_tools_manager_config();
+
 uninstall_asset_types();
 uninstall_packages();
 
@@ -167,7 +169,6 @@ install_event_listeners();
 cache_asset_types();
 generate_performance_config();
 generate_file_bridge_config();
-generate_import_tools_manager_config();
 minify_css_files();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
