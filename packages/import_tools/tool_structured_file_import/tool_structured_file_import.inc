@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.16 2011/09/20 03:37:03 mhaidar Exp $
+* $Id: tool_structured_file_import.inc,v 1.17 2011/11/28 04:26:13 ewang Exp $
 *
 */
 
@@ -19,6 +19,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 
 /**
 * Tool_Structured_File_Import
@@ -29,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -65,7 +66,7 @@ class Tool_Structured_File_Import extends Tool
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$itm = $am->getSystemAsset('import_tools_manager');
 
-		$import_dir = $itm->attr('import_dir');
+		$import_dir = STRUCTURED_FILE_IMPORT_DIR;
 		if (empty($import_dir)) {
 
 			$o->openSection('Warning');
@@ -283,7 +284,7 @@ class Tool_Structured_File_Import extends Tool
 		$vars['root_assetid'] = $_POST[$type_code.'_root_assetid']['assetid'];
 		$vars['use_headings'] = isset($_POST[$type_code.'_no_headings']) ? FALSE : TRUE;
 		$vars['headings'] = array_keys($_POST['structured_file_import_headings']);
-		$vars['import_dir'] = $itm->attr('import_dir');
+		$vars['import_dir'] = STRUCTURED_FILE_IMPORT_DIR;
 		$vars['create_css'] = isset($_POST[$type_code.'_create_css_file']);
 		$vars['create_site_map'] = isset($_POST[$type_code.'_create_new_map']);
 		$vars['leading_create'] = isset($_POST[$type_code.'_leading_text']);
@@ -298,7 +299,7 @@ class Tool_Structured_File_Import extends Tool
 		}
 
 		// Any deletion?
-		$import_dir = $itm->attr('import_dir');
+		$import_dir = STRUCTURED_FILE_IMPORT_DIR;
 		$files_array = list_files($import_dir, TRUE);
 		$remove_list = Array();
 		foreach ($files_array as $id => $file_name) {

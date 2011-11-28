@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.11 2010/04/13 06:17:56 mhaidar Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.12 2011/11/28 04:26:13 ewang Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 
 /**
 * Import_Tools_Manager_Edit_Fns
@@ -24,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -56,6 +57,23 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
+	
+	/**
+	* Paint Structureed file import directory path
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredFileImportDirectory(&$asset, &$o, $prefix)
+	{
+		echo STRUCTURED_FILE_IMPORT_DIR;
+	}
+	
+	
 	/**
 	* Paint Headings
 	*
@@ -171,7 +189,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 				trigger_error('Error Uploading HTML File', E_USER_WARNING);
 			} else {
 				if (!empty($html_upload)) {
-					$import_dir = $asset->attr('import_dir');
+					$import_dir = STRUCTURED_FILE_IMPORT_DIR;
 					$compatible_types = $asset->attr('valid_file_types');
 					$overwrite = isset($_POST['structured_file_import_html_upload_overwrite']);
 					commit_file_upload('structured_file_import_html_upload', $import_dir, $overwrite, $max_size, TRUE, $compatible_types);
@@ -196,7 +214,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$allowed_import_type = $asset->attr('allowed_import_type');
-		$server_import_dir = $asset->attr('bulk_file_import_dir');
+
 
 		if ($write_access) {
 			$o->openField(translate('import_tools_manager_allowed_import_type'));
@@ -204,7 +222,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 
 			$o->openField(translate('import_tools_manager_server_import_dir'));
-				text_box($prefix.'_server_import_directory', $server_import_dir, '50', '', FALSE);
+				echo STRUCTURED_FILE_IMPORT_DIR;
 				$o->note(translate('import_tools_manager_server_import_dir_msg'));
 			$o->closeField();
 
@@ -239,10 +257,8 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
 			$allowed_import_type = array_get_index($_POST, $prefix.'_allowed_import_type', '');
-			$server_import_dir = array_get_index($_POST, $prefix.'_server_import_directory', '');
 
 			$asset->setAttrValue('allowed_import_type', $allowed_import_type);
-			$asset->setAttrValue('bulk_file_import_dir', $server_import_dir);
 		}
 
 		return $write_access;

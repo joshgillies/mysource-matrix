@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.20 2011/11/23 01:25:37 ewang Exp $
+* $Id: lang_strings.xml,v 1.21 2011/11/28 04:26:13 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -21,7 +21,7 @@
 <!--string source="import_tools_manager_"></string-->
 <string source="import_tools_manager_allowed_import_type">Allowed Import Type</string>
 <string source="import_tools_manager_server_import_dir">Server Import Directory</string>
-<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.</string>
+<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc.</string>
 <string source="import_tools_manager_local_file_max_size">Local Max File Size</string>
 <string source="import_tools_manager_local_file_max_size_msg">Maximum File Size of local file upload (In bytes, 0 = no limit)</string>
 
@@ -35,6 +35,7 @@
 <string source="import_tools_new_html_file_select">Select HTML File to Upload</string>
 <string source="import_tools_available_files">Available Files</string>
 <string source="import_tools_import_dir">Import Directory</string>
+<string source="import_tools_import_dir_note">Directory on the Unix system to import processed HTML files from. Use config file data/private/conf/import_tools_manager.inc.</string>
 <string source="import_tools_select_file">Select a file to import into the system</string>
 <string source="import_tools_select_for_import">Select For Import</string>
 <string source="import_tools_select_for_removal">Delete?</string>

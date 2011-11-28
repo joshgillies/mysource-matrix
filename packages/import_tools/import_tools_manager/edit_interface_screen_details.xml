@@ -10,14 +10,16 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2008/05/26 22:34:39 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2011/11/28 04:26:13 ewang Exp $
 *
 */
 -->
 <contents>
 	<section name="Structured File Import Tool Settings" write_access="write:attributes">
-		<field attribute="import_dir">
-			<text width="30" height="1" />
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredFileImportDirectory"   />
+			</function_call>
 		</field>
 		<field attribute="max_file_size">
 			<int width="30" height="1" />
