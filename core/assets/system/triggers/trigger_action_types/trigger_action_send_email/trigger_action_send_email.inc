@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.29.2.3 2011/11/25 03:45:22 cupreti Exp $
+* $Id: trigger_action_send_email.inc,v 1.29.2.4 2011/11/29 07:00:48 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.29.2.3 $
+* @version $Revision: 1.29.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,6 +84,10 @@ class Trigger_Action_Send_Email extends Trigger_Action
 					// check shadow assets
 					if (stristr($member_id, ':') && empty($member_type[0]['type_code'])) {
 						$group_result = array_merge($group_result, $GLOBALS['SQ_SYSTEM']->am->getChildren($member_id, 'user', FALSE));
+						$member_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($member_id, Array('user'), FALSE, 'type_code');
+						if (!empty($member_info) && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($member_info[$member_id], 'user')) {
+							$member_type[0]['type_code'] = $member_info[$member_id];
+						}//end if						
 					}
 
 					// this is a user we can send to
