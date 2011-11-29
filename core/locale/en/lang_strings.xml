@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398.2.7 2011/11/28 06:28:15 ewang Exp $
+* $Id: lang_strings.xml,v 1.398.2.8 2011/11/29 00:32:50 ewang Exp $
 *
 */
 
@@ -2853,8 +2853,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<!-- Trigger - Remove future lineage cron -->
 	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>
 
-	<!-- Squid Cacching -->
-	<string source="squid_cache_section">Squid Cache</string>
+	<!-- Squid Caching -->
+	<string source="squid_cache_section">Clear Squid Cache</string>
 
 	<string source="squid_hipo_name_clear_squid_cache">Clear Squid Cache</string>
 	<string source="squid_hipo_clearing_squid_cache">Clearing Squid Cache</string>
