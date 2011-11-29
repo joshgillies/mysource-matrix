@@ -1,5 +1,78 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.6.1
+
+Featured Changes
+===================================
+
+Keyword Modifiers Available on Page Contents Bodycopies [ Feature Request #5138 ]
+-----------------------------------------------------
+
+Keyword replacements within Squiz Matrix can be modified using a variety of keyword modifiers to further configure the returned values. For example, the keyword %asset_contents^maxwords:10% uses the maxwords modifier to display the first ten words of the body of the asset.
+
+Previously, keyword modifiers were not available for use on the Page Contents and Page Contents (No Results) bodycopies of Asset Listing and Search Page assets.
+
+This feature allows keyword modifiers to be used on these bodycopies, enabling the further configuration of your Asset Listings and Search pages.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5415: Non-Existent Username Error Message Option on Password Reset Page.
+Minor Enhancement #5423: Calendar Page Performance Enhancement Printing JavaScript.
+Minor Enhancement #5432: Import Assets From XML Ignores Non-Existent Asset IDs.
+Minor Enhancement #5433: Related Asset Metadata Performance Enhancement.
+Minor Enhancement #5446: New Asset Type Icon URL Keyword Replacement.
+Minor Enhancement #5448: New Online Poll Option ID Keyword Replacement. 
+Minor Enhancement #5453: Export Assets to XML Tool Error Handling Enhancements. 
+
+Core
+
+Fixed Bug #5366: Error handler does not correctly filter out Locale Manager.
+Fixed Bug #5412: Replace modifier changes scope on %asset_name% in Asset Listing Type Format Bodycopy.
+Fixed Bug #5421: Using Design asset's Styles option can break the HTML validation in the frontend.
+Fixed Bug #5424: Admin Interface Quick Search button image broken.
+Fixed Bug #5426: Performance issue for 4.6.0 release downloaded between 7-10th Oct.
+Fixed Bug #5430: export_to_xml.php complains about assetid passed not being valid.
+Fixed Bug #5437: Email trigger action on workflow events.
+Fixed Bug #5449: Custom form - "Provide Accessible CAPTCHA" is not accessible under WCAG.
+Fixed Bug #5451: pg_dump doesn't support the -i parameter any more.
+Fixed Bug #5454: Issues with import/export scripts when dealing with file assets with same filename.
+Fixed Bug #5457: Current asset parameters failing on set metadata value trigger action.
+
+CMS
+
+Fixed Bug #5431: Redirect page and safe editing issue.
+
+Search
+
+Fixed Bug #5445: Global Search and Replace Tool returns errors. 
+
+LDAP
+
+Fixed Bug #5439: Send email trigger not sending to recipients in LDAP group.  
+
+Import Tools
+
+Fixed Bug #5410: Import Assets from XML Tool running out of memory. 
+
+E-Commerce
+
+Fixed Bug #5394: UTransact payment gateway invalid expiry date. 
+
+Web Services
+
+Fixed Bug #5444: SOAP Server design bug.
+
+Funnelback Search
+
+Fixed Bug #5411: check_requirements should describe xsl/xml better.
+Fixed Bug #5413: funnelback_reindex.php breaking backward compatibility.
+
+
+
 
 VERSION 4.6.0
 
