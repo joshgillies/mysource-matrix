@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.23.18.2 2011/11/28 06:50:25 ewang Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.23.18.3 2011/11/29 08:18:33 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.23.18.2 $
+* @version $Revision: 1.23.18.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -186,9 +186,6 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 			// rather than stored in attribute
 
 			$count = 0;
-
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			pre_echo('Updating Bulkmail Post Offices...');
 			
