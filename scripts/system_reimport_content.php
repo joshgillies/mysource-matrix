@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.2 2011/11/29 22:20:50 csmith Exp $
+* $Id: system_reimport_content.php,v 1.3 2011/11/29 22:26:44 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -77,7 +77,10 @@ usage();
  * check) so the updates happen no matter what.
  */
 $checkUtf8 = FALSE;
-$encoding = $db_conf['db']['encoding'];
+$encoding = '(empty)';
+if (isset($db_conf['db']['encoding']) === TRUE) {
+	$encoding = $db_conf['db']['encoding'];
+}
 if ($db_conf['db']['type'] == 'oci' && strtolower($encoding) == 'al32utf8') {
 	$checkUtf8 = TRUE;
 }
