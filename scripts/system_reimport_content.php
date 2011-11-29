@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.1 2011/11/08 03:00:16 csmith Exp $
+* $Id: system_reimport_content.php,v 1.2 2011/11/29 22:20:50 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -63,6 +63,25 @@ function usage()
 
 usage();
 
+/*
+ * Most commonly this script will be used to allow utf-8 chars, but in case it's not:
+ * Further down where it loads the content, it can check if the content contains utf-8 chars
+ * If it doesn't contain utf-8 chars, the database content is *not* updated.
+ * If it does contain utf-8 chars, the content is updated.
+ *
+ * If checkUtf8 is FALSE, the update happens (the utf-8 character check is skipped).
+ * If it's TRUE, the update is skipped IF there are no utf-8 chars in the content.
+ *
+ * If you're converting to something other than al32utf8, then the update will happen.
+ * You can also overwrite this setting if you need to (small code change to comment out the encoding
+ * check) so the updates happen no matter what.
+ */
+$checkUtf8 = FALSE;
+$encoding = $db_conf['db']['encoding'];
+if ($db_conf['db']['type'] == 'oci' && strtolower($encoding) == 'al32utf8') {
+	$checkUtf8 = TRUE;
+}
+
 // Make sure the person running the script understands
 // the consequences. Content *WILL* be overwritten.
 echo "OK to proceed (type 'yes' to continue): ";
@@ -93,18 +112,6 @@ MatrixDAL::changeDb('db');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 /**
- * See init.inc for other statuses,
- * but we only want live or under construction assets.
- * If they are in workflow or safe-edit (or something else)
- * they may have content changes already, and we don't want
- * to touch those.
- */
-$asset_statuses = array(
-						2, // under construction
-						16, // live
-					);
-
-/**
  * We need the attribute id for the content so we can update it correctly.
  */
 $query = "select attrid from sq_ast_attr where type_code='content_type_wysiwyg' and name='html'";
@@ -115,6 +122,15 @@ $attributeid = $results[0]['attrid'];
  * The query includes ast_attr_val and ast_attr so we can get the contextid.
  * We need to include ast_attr so we can restrict the type code and name of the
  * attribute we're including, otherwise we end up with a row for each attribute id.
+ *
+ * See init.inc for other statuses,
+ * but we only want live or under construction assets.
+ * If they are in workflow or safe-edit (or something else)
+ * they may have content changes already, and we don't want
+ * to touch those.
+ *
+ * status 2  = under construction
+ * status 16 = live
  */
 $query = <<<EOT
 select l.majorid, l.minorid, a.type_code, av.contextid from sq_ast_lnk l inner join sq_ast a on (a.assetid=l.majorid)
@@ -159,6 +175,17 @@ foreach ($results as $assetInfo) {
 		continue;
 	}
 	$content = file_get_contents($filename);
+
+	// If we're checking for utf-8 chars, do it here (and also log the outcome).
+	if ($checkUtf8 === TRUE) {
+		// If we don't find any utf-8 chars, we don't need to update the content.
+		$foundUtf8 = preg_match('%([\xc2-\xf4][\x80-\xbf]{1,3})%', $content);
+		log_write('Found utf8 characters in file '.$filename.': '.($foundUtf8 == TRUE ? 'yes' : 'no'), 'reimport_content');
+		if ($foundUtf8 == FALSE) {
+			log_write('Updating of assetid '.$assetInfo['minorid'].' (context '.$contextid.') skipped', 'reimport_content');
+			continue;
+		}
+	}
 
 	log_write('Updating assetid '.$assetInfo['minorid'].' (context '.$contextid.') with content from '.$filename, 'reimport_content');
 	try {
