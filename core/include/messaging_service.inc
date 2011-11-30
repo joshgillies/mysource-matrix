@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.74 2011/01/27 22:12:04 akarelia Exp $
+* $Id: messaging_service.inc,v 1.74.4.1 2011/11/30 03:53:10 csmith Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.74.4.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -470,13 +470,15 @@ class Messaging_Service extends MySource_Object
 			$select_clause = 'COUNT(msgid) AS message_count';
 		}
 
+		$bindVars = array();
 		$sql = 'SELECT ' . $select_clause;
 
 		$sql  .= ' FROM sq_internal_msg m';
 		if (is_null($userid)) {
 			$where = 'm.userto != \'0\'';
 		} else {
-			$where = 'm.userto = '.MatrixDAL::quote($userid);
+			$where = 'm.userto = :userto';
+			$bindVars['userto'] = $userid;
 		}
 
 		if (is_string($get_user_name)) {
@@ -530,8 +532,15 @@ class Messaging_Service extends MySource_Object
 
 		// Begin try block
 		try {
-			$result = MatrixDAL::executeSqlAll($sql);
-
+			if (empty($bindVars) === TRUE) {
+				$result = MatrixDAL::executeSqlAll($sql);
+			} else {
+				$prepare = MatrixDAL::preparePdoQuery($sql);
+				foreach ($bindVars as $bindVar => $bindValue) {
+					MatrixDAL::bindValueToPdo($prepare, $bindVar, $bindValue);
+				}
+				$result = MatrixDAL::executePdoAll($prepare);
+			}
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
 		}//end try catch
