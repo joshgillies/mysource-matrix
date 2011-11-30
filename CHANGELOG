@@ -35,6 +35,9 @@ Fixed Bug #5430: export_to_xml.php complains about assetid passed not being vali
 Fixed Bug #5437: Email trigger action on workflow events.
 Fixed Bug #5449: Custom form - "Provide Accessible CAPTCHA" is not accessible under WCAG.
 Fixed Bug #5457: Current asset parameters failing on set metadata value trigger action.
+Fixed Bug #5455: Escaped LDAP DNs break top-bar in Admin interface.
+Fixed Bug #5439: Send email trigger not sending to recipients in LDAP group.
+
 
 CMS
 
