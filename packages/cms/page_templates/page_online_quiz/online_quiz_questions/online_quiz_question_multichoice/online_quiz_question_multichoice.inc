@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.10 2011/11/30 00:32:43 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,8 +254,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		}
 
 	}//end getSummary()
-
-
+	
+	
 	/**
 	* Returns the option keys of the correct answers
 	*
@@ -480,8 +480,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	*
 	* To be overridden by the children
 	*
-	* @param boolean $feedback_mode used by Page_Online_Quiz interactive mode, will disable fields and add special classes & tags,
-	* 								does not support the Drop Down List Option Style.
+	* @param boolean $feedback_mode used by Page_Online_Quiz interactive mode, will disable fields and add special classes & tags
 	*
 	* @return string
 	* @access public
@@ -508,8 +507,20 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 						foreach ($options as $option_key => $option) {
 							$selection_contents[$option_key] = htmlentities($option['text']);
 						}
-						$extras = ($feedback_mode) ? 'disabled="disabled"' : ''; //best we can do for list style
+						$extras = ($feedback_mode) ? 'disabled="disabled"' : '';
 						combo_box($prefix.'_response', $selection_contents, ($this->attr('max_option_selections') > 1), $value, 0, $extras);
+						if ($feedback_mode) {
+							foreach ($options as $option_key => $option) {
+								$response_supplement = $this->getResponseSupplement($option_key);
+								if (!empty($response_supplement)){
+									if (in_array($option_key, $correct_value)){
+										?><span class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></span><?php
+									} else {
+										?><span class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></span><?php	
+									}
+								}
+							}
+						}
 					break;
 
 					case 'radio':
@@ -517,15 +528,21 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 						?><ul><?php
 						foreach ($options as $option_key => $option) {
 							
-							$is_selected = ((is_array($value) && in_array($option_key, $value)) || $option_key == $value);
-							if ($feedback_mode && in_array($option_key, $correct_value)){
-								if ($is_selected){
-									?><li class="online_quiz_user_correct_selection"><?php
+							if ($feedback_mode){
+								$is_selected = ((is_array($value) && in_array($option_key, $value)) || $option_key == $value);
+								if (in_array($option_key, $correct_value)){
+									if ($is_selected){
+										?><li class="online_quiz_correct_answer online_quiz_user_selection"><?php
+									} else {
+										?><li class="online_quiz_correct_answer"><?php
+									}
 								} else {
-									?><li class="online_quiz_correct_answer"><?php
+									if ($is_selected){
+										?><li class="online_quiz_incorrect_answer online_quiz_user_selection"><?php
+									} else {
+										?><li class="online_quiz_incorrect_answer"><?php
+									}
 								}
-							} else if ($feedback_mode && $is_selected) {
-								?><li class="online_quiz_user_incorrect_selection"><?php
 							} else {
 								?><li><?php
 							}
@@ -553,8 +570,15 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 								label(htmlentities($option['text']), $prefix.'_response_'.$option_key);
 							}
 							
-							if ($feedback_mode && in_array($option_key, $correct_value)) {
-								?><span class="online_quiz_response_supplement"><?php echo $this->getResponseSupplement($option_key) ?></span><?php
+							if ($feedback_mode) {
+								$response_supplement = $this->getResponseSupplement($option_key);
+								if (!empty($response_supplement)){
+									if (in_array($option_key, $correct_value)){
+										?><span class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></span><?php
+									} else {
+										?><span class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></span><?php	
+									}
+								}
 							}
 
 							?></li><?php
