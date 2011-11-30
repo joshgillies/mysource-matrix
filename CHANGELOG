@@ -41,6 +41,8 @@ Fixed Bug #5449: Custom form - "Provide Accessible CAPTCHA" is not accessible un
 Fixed Bug #5451: pg_dump doesn't support the -i parameter any more.
 Fixed Bug #5454: Issues with import/export scripts when dealing with file assets with same filename.
 Fixed Bug #5457: Current asset parameters failing on set metadata value trigger action.
+Fixed Bug #5455: Escaped LDAP DNs break top-bar in Admin interface.
+Fixed Bug #5439: Send email trigger not sending to recipients in LDAP group.
 
 CMS
 
