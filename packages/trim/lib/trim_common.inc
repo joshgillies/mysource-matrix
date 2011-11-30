@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.17 2011/11/07 22:49:44 csmith Exp $
+* $Id: trim_common.inc,v 1.18 2011/11/30 05:10:06 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -1322,7 +1322,7 @@ class TRIM_Common
 			$options = array(
 						'FOLLOWLOCATION' => 1,
 						'RETURNTRANSFER' => 1,
-						'BASIC'          => 1,
+						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 5,
 						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
 					   );
