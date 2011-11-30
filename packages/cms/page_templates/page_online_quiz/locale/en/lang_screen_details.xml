@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.13 2011/11/30 00:32:43 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.14 2011/11/30 00:55:41 mhaidar Exp $
 *
 */
 -->
@@ -78,7 +78,7 @@
 	<section name="Question Pooling">
 		<field>
 			<display_name>Question Pools</display_name>
-			<note>Select the root nodes to extract Online Quiz Multiple-Choice Questions from. Please refer to manuals on how feedback in generated per Option Style.</note>
+			<note>Select the root nodes to extract Online Quiz Multiple-Choice Questions from. Please refer to manuals on how feedback is generated per Option Style.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
