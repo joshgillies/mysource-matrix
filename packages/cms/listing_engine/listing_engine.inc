@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.337 2011/11/03 05:07:31 akarelia Exp $
+* $Id: listing_engine.inc,v 1.338 2011/11/30 05:55:49 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.337 $
+* @version $Revision: 1.338 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -654,7 +654,7 @@ class Listing_Engine extends Page
 		$children = $this->getAssetList();
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetList');
 
-		
+
 		/*
 		 * Performance Monitor
 		 * Log performance warnings when listing engine tries to list a large number of assets
@@ -699,7 +699,7 @@ class Listing_Engine extends Page
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'filterAssetList');
 		$this->filterAssetList($children);
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'filterAssetList');
-		
+
 		$num_kids = count($children);
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'replaceFormatKeywords');
 		foreach ($keywords as $word) {
@@ -793,7 +793,7 @@ class Listing_Engine extends Page
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
-		
+
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still
 		// respect the 'per page' settings - but with only one page in random
@@ -878,7 +878,10 @@ class Listing_Engine extends Page
 		// check to see if there are any modifiers passed on to us
 		foreach ($replacements as $kw => $res) {
 			$plain_keyword = parse_keyword($kw, $modifiers);
-			if (!empty($modifiers)) {
+			// check to see if the keyword is actually replaced and 
+			// the replacement isn't just the keyword itself
+			$keywords_is_replaced = ($replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword);
+			if (!empty($modifiers) && $keywords_is_replaced) {
 				$replacements[$kw] = $replacements[$plain_keyword];
 				// Apply modifiers
 				apply_keyword_modifiers($replacements[$kw], $modifiers);
@@ -1712,7 +1715,7 @@ class Listing_Engine extends Page
 				$other_letter_value = $this->attr('other_page_text');
 
 				// '@' symbol is chosen here out of the blue, this is used only as a value of the request var
-				$other_letter = '@' ;
+				$other_letter = '@';
 				foreach (range('A','Z') as $one_letter) {
 					$all_letters[$one_letter] = $one_letter;
 				}
@@ -2421,7 +2424,7 @@ class Listing_Engine extends Page
 
 			} else {
 				foreach ($todo as $assetid => $type_code) {
-				    
+
 					$this->_printAsset($assetid, $list_position, $num_items);
 					$list_position++;
 				}
@@ -4464,7 +4467,7 @@ class Listing_Engine extends Page
 		if ($replacement == '%'.$keyword.'%' && empty($modifiers)) {
 			return $replacement;
 		} else if($replacement == '%'.$keyword.'%' && !empty($modifiers)) {
-			return $original_keyword;
+			return '%'.$original_keyword.'%';
 		}
 
 		if (!is_null($replacement)) {
