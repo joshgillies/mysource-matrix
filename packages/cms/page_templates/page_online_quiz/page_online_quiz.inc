@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.38 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.39 2011/12/05 01:45:28 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -961,6 +961,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$this->registerFormField('result_page');
 		hidden_field('quiz_'.$this->id.'_result_page', '');
 
+		//provide the listing engine with the current page to display.
+		$_REQUEST['result_'.$this->id.'_result_page'] = $this->getCurrentPage();
+		
 		// Alrighty, if we're not using the %asset_listing% keyword, we have to make sure that the appropriate keywords are replaced, as Listing Engine will not do this for us
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($page_contents_link)) {
@@ -1584,6 +1587,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				if (!is_null($question)) {
 					$questions[$assetid] = $question->setValue($question_data['value']);
 					$questions[$assetid] = $question->setPosition($question_data['position']);
+					$question->saveQuestion();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 				}
 			}
@@ -2000,7 +2004,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					  .'frm.submit(); return false;" ';
 
 		// we have the luxury of assuming that #_result_page will always exist if a link is present
-		$link_regex =  '|(<a href=")(([^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*))([^"]*")(>[^<]*</a>)|';
+		$link_regex =  '|(<a href=")(([^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*))([^"]*")(>[^<]*</a>)|';
 
 		$url_reps   = Array(
 						$this->id.'_formid'	=> NULL,
@@ -2035,12 +2039,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// do some trickery with the keyword replacements - replace %d in $link_js with a regex special character,
 		// to get preg_replace to sub in the target page number for us
 		$replacements['page_list'] = preg_replace(
-										'|(<a href="[^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
+										'|(<a href="[^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
 										'$1$2$3'.sprintf($link_js, '$2').'$4',
 										$replacements['page_list']
 									 );
 		$replacements['page_list_without_unused'] = preg_replace(
-														'|(<a href="[^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
+														'|(<a href="[^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
 														'$1$2$3'.sprintf($link_js, '$2').'$4',
 														$replacements['page_list']
 													);
