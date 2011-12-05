@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.35.10.1 2011/08/18 05:53:25 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.35.10.2 2011/12/05 02:54:32 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.35.10.1 $
+* @version $Revision: 1.35.10.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -914,6 +914,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// print the result_page as a hidden form, so that it shows up in $_REQUEST when the form is submitted by the pagination vars
 		$this->registerFormField('result_page');
 		hidden_field('quiz_'.$this->id.'_result_page', '');
+		
+		//provide the listing engine with the current page to display.
+		$_REQUEST['result_'.$this->id.'_result_page'] = $this->getCurrentPage();
 
 		// Alrighty, if we're not using the %asset_listing% keyword, we have to make sure that the appropriate keywords are replaced, as Listing Engine will not do this for us
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
@@ -1722,7 +1725,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					  .'frm.submit(); return false;" ';
 
 		// we have the luxury of assuming that #_result_page will always exist if a link is present
-		$link_regex =  '|(<a href=")(([^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*))([^"]*")(>[^<]*</a>)|';
+		$link_regex =  '|(<a href=")(([^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*))([^"]*")(>[^<]*</a>)|';
 
 		$url_reps   = Array(
 						$this->id.'_formid'	=> NULL,
@@ -1757,12 +1760,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// do some trickery with the keyword replacements - replace %d in $link_js with a regex special character,
 		// to get preg_replace to sub in the target page number for us
 		$replacements['page_list'] = preg_replace(
-										'|(<a href="[^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
+										'|(<a href="[^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
 										'$1$2$3'.sprintf($link_js, '$2').'$4',
 										$replacements['page_list']
 									 );
 		$replacements['page_list_without_unused'] = preg_replace(
-														'|(<a href="[^"]*quiz_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
+														'|(<a href="[^"]*result_'.$this->id.'_result_page=)([[:alnum:]]*)([^"]*")([^>]*>)|',
 														'$1$2$3'.sprintf($link_js, '$2').'$4',
 														$replacements['page_list']
 													);
