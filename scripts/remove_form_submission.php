@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.9.8.1 2011/12/06 00:08:28 cupreti Exp $
+* $Id: remove_form_submission.php,v 1.9.8.2 2011/12/06 04:38:30 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.9.8.1 $
+* @version $Revision: 1.9.8.2 $
 * @package MySource_Matrix
 */
 
@@ -110,6 +110,8 @@ if (empty($assetids)) {
 }
 echo 'Found '.count($assetids)." form submission(s) for '$asset->name' (#$assetid)\n(Date range: $from_value to $to_value)\n";
 
+$unquoted_assetids = $assetids;
+
 // quote the assetids to be used in the IN clause
 foreach ($assetids as $key => $assetid) {
 	$assetids[$key] = MatrixDAL::quote((String)$assetid);
@@ -180,5 +182,26 @@ MatrixDAL::executeSql($sql);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+echo "\tDeleting asset data directories...\n";
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+foreach ($unquoted_assetids as $sub_assetid){
+	
+	$data_path_suffix = asset_data_path_suffix('form_submission', $sub_assetid);
+	$data_path = SQ_DATA_PATH.'/private/'.$data_path_suffix;
+	$data_path_public = SQ_DATA_PATH.'/public/'.$data_path_suffix;
+	
+	if (is_dir($data_path)) {
+		if (!delete_directory($data_path)) {
+			trigger_error("Could not delete private data directory for Form Submission (Id: #$assetid)", E_USER_WARNING);
+		}
+	}
+	
+	if (is_dir($data_path_public)) {
+		if (!delete_directory($data_path_public)) {
+			trigger_error("Could not delete public data directory for Form Submission (Id: #$assetid)", E_USER_WARNING);
+		}
+	}
+}
 
 echo "Done\n";
