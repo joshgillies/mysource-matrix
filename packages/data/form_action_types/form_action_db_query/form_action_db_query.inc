@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.6 2011/12/06 02:27:27 mhaidar Exp $
+* $Id: form_action_db_query.inc,v 1.7 2011/12/06 03:22:52 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -334,9 +334,9 @@ class Form_Action_DB_Query extends Form_Action
 		// (eg. submission assetid, time, IP address)
 		$matches = Array();
 		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $sql, $set_matches, PREG_SET_ORDER);
-		$matches += $set_matches;
+		$matches = array_merge($matches, $set_matches);
 		$found = preg_match_all('/%(form_submission_.*)%/U', $sql, $set_matches, PREG_SET_ORDER);
-		$matches += $set_matches;
+		$matches = array_merge($matches, $set_matches);
 
 		$i = 1;
 		$bind_vars = Array();
