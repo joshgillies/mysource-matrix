@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.165 2011/06/30 04:27:47 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.166 2011/12/06 07:04:08 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -734,48 +734,6 @@ class Page_Asset_Builder extends Page
 							}
 						}
 						
-						// Carryout Mollom spam verification
-						if ($this->attr('use_mollom')) {
-							$mollom_result = Mollom::verifySubmission($this->id, $mollom_parameters);
-							switch ($mollom_result) {
-								case SQ_MOLLOM_SPAM:
-									// Mollom has identified this submission as spam
-									$error_text = $this->attr('mollom_spam_submission_text'); 
-									if ($error_text) {
-										$this->_errors[] = $error_text;
-									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_spam_submission_message');
-									}
-								break;
-
-								case SQ_MOLLOM_UNSURE:
-									// Mollom is not sure about the submission
-									$error_text = $this->attr('mollom_unsure_submission_text');
-									if ($error_text) {
-										$this->_errors[] = $error_text;
-									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_unsure_spam_submission_message');
-									}
-								break;
-
-								case SQ_MOLLOM_HAM:
-									// Everything cool
-								break;
-
-								case SQ_MOLLOM_UNKNOWN:
-									// No response from Mollom
-								break;
-
-								case SQ_MOLLOM_INCORRECT_CAPTCHA:
-									$error_text = $this->attr('mollom_captcha_incorrect_text');
-									if($error_text) {
-										$this->_errors[] = $error_text;
-									} else {
-										$this->_errors[] = translate('cms_asset_builder_mollom_invalid_captcha_message');
-									}
-								break;
-							}//end switch
-						}//end if use mollom
 					
 						// locks need to be acquired here in case any attribute values change above
 						// saveAttributes() is smart enough to only run queries if values have changed since creation, i.e. a value gets escaped above
@@ -826,10 +784,64 @@ class Page_Asset_Builder extends Page
 							if ($metadata_run_level_changed) {
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 							}
+
+							// Set metadata values for Mollom check, if any
+							foreach($metadata_values as $fieldid => $m_data) {
+								$attr_content_type = array_get_index($attr_to_verify, $this->getPrefix().'_metadata_'.$fieldid, -1);
+								if ($attr_content_type >= 0) {
+									$m_value = array_get_index($m_data[0], 'value', '');
+									if (!empty($m_value)) {
+										$mollom_parameters[$attr_content_type] = $m_value;
+									}
+								}
+							}//end foreach
 						}
 
 						// stop performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processMetadata');
+
+						// Carryout Mollom spam verification
+						if ($this->attr('use_mollom') && !empty($mollom_parameters)) {
+							$mollom_result = Mollom::verifySubmission($this->id, $mollom_parameters);
+							switch ($mollom_result) {
+								case SQ_MOLLOM_SPAM:
+									// Mollom has identified this submission as spam
+									$error_text = $this->attr('mollom_spam_submission_text'); 
+									if ($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_spam_submission_message');
+									}
+								break;
+
+								case SQ_MOLLOM_UNSURE:
+									// Mollom is not sure about the submission
+									$error_text = $this->attr('mollom_unsure_submission_text');
+									if ($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_unsure_spam_submission_message');
+									}
+								break;
+
+								case SQ_MOLLOM_HAM:
+									// Everything cool
+								break;
+
+								case SQ_MOLLOM_UNKNOWN:
+									// No response from Mollom
+								break;
+
+								case SQ_MOLLOM_INCORRECT_CAPTCHA:
+									$error_text = $this->attr('mollom_captcha_incorrect_text');
+									if($error_text) {
+										$this->_errors[] = $error_text;
+									} else {
+										$this->_errors[] = translate('cms_asset_builder_mollom_invalid_captcha_message');
+									}
+								break;
+							}//end switch
+						}//end if use mollom
 						
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processLayouts');
@@ -1440,7 +1452,6 @@ class Page_Asset_Builder extends Page
 		 // CREATE FORM KEYWORD //
 		////////////////////////
 		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
-
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
