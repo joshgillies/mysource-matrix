@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.406 2011/11/29 00:31:46 ewang Exp $
+* $Id: lang_strings.xml,v 1.407 2011/12/07 04:27:10 mhaidar Exp $
 *
 */
 
@@ -770,6 +770,7 @@
 
 	<string source="to">To</string>
 	<string source="from">From</string>
+	<string source="reply_to">Reply-To</string>
 	<string source="subject">Subject</string>
 	<string source="body">Body</string>
 	<string source="text_email_version">Text Email Version</string>

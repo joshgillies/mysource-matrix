@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.52 2011/08/02 01:43:06 mhaidar Exp $
+* $Id: email_format.inc,v 1.53 2011/12/07 04:27:10 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -48,6 +48,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$this->Asset_Attribute_WYSIWYG($attributeid, $value);
 		$this->_edit_params['with_asset_finder'] = FALSE;
 		$this->_edit_params['show_from'] = TRUE;
+		$this->_edit_params['show_reply_to'] = TRUE;
 		$this->_edit_params['show_to'] = TRUE;
 		$this->_edit_params['show_inc_attachments'] = FALSE;
 		$this->_edit_params['show_asset_to_send'] = FALSE;
@@ -104,6 +105,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '';
+		}
+		if (!isset($current_value['reply_to'])) {
+			$current_value['reply_to'] = '';
 		}
 		if (!isset($current_value['subject'])) {
 			$current_value['subject'] = '';
@@ -168,6 +172,22 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						echo htmlspecialchars($current_value['from']);
 					} else {
 						text_box($prefix.'_from', $current_value['from'], 50);
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		if ($this->_edit_params['show_reply_to']) {
+			?>
+			<tr>
+				<th><?php echo translate('reply_to'); ?></th>
+				<td>
+					<?php
+					if ($read_only) {
+						echo htmlspecialchars($current_value['reply_to']);
+					} else {
+						text_box($prefix.'_reply_to', $current_value['reply_to'], 50);
 					}
 					?>
 				</td>
@@ -327,6 +347,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
+		$value['reply_to']    = (isset($_REQUEST[$prefix.'_reply_to'])) ? $_REQUEST[$prefix.'_reply_to'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
 		$value['inc_attachments'] = (isset($_REQUEST[$prefix.'_inc_attachments'])) ? $_REQUEST[$prefix.'_inc_attachments'] : FALSE;
 		$value['asset_to_send'] = (isset($_REQUEST[$prefix.'_asset_to_send']['assetid'])) ? $_REQUEST[$prefix.'_asset_to_send']['assetid'] : '0';
@@ -365,27 +386,42 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 
 		if (!is_array($value)) return FALSE;
-		if (!isset($value['to'])) $test_value['to'] = Array();
-		if (!isset($value['from'])) $test_value['from'] = '';
+		
+		if (!isset($value['to'])) {
+			$value['to'] = Array();
+		}
+		if (!isset($value['to_assetids'])) {
+			$value['to_assetids'] = Array();
+		}
+		if (!isset($value['from'])) {
+			$value['from'] = '';
+		}
+		if (!isset($value['reply_to'])) {
+			$value['reply_to'] = '';
+		}
 		if (!isset($value['subject'])) {
-			$test_value['subject'] = '';
+			$value['subject'] = '';
 		}
 		if (!isset($value['html_format'])) {
-			$test_value['html_format'] = '';
+			$value['html_format'] = '';
 		}
 		if (!isset($value['text_format'])) {
-			$test_value['text_format'] = '';
+			$value['text_format'] = '';
 		}
-		if (!isset($current_value['asset_to_send'])) {
-			$test_value['asset_to_send'] = '';
-		} /*else {
-			$test_value['subject'] = '';
-		}*/
-		if (!isset($current_value['design_to_apply'])) {
-			$test_value['design_to_apply'] = '';
+		if (!isset($value['inc_attachments'])) {
+			$value['inc_attachments'] = Array();
 		}
-		if (!isset($current_value['layout_to_apply'])) {
-			$test_value['layout_to_apply'] = '';
+		if (!isset($value['attachments'])) {
+			$value['attachments'] = Array();
+		}
+		if (!isset($value['asset_to_send'])) {
+			$value['asset_to_send'] = '';
+		}
+		if (!isset($value['design_to_apply'])) {
+			$value['design_to_apply'] = '';
+		}
+		if (!isset($value['layout_to_apply'])) {
+			$value['layout_to_apply'] = '';
 		}
 
 		$value = serialize($value);
@@ -447,6 +483,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$to 	   = replace_keywords($current_value['to'], 		 $replacements);
 		$from      = replace_keywords($current_value['from'],        $replacements);
+		$reply_to  = replace_keywords($current_value['reply_to'],    $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
@@ -472,6 +509,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				replace_global_keywords($to_str);
 			}
 			replace_global_keywords($from);
+			replace_global_keywords($reply_to);
 			replace_global_keywords($subject);
 			replace_global_keywords($html_body);
 
@@ -494,6 +532,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				replace_global_keywords($to_str);
 			}
 			replace_global_keywords($from);
+			replace_global_keywords($reply_to);
 			replace_global_keywords($subject);
 			replace_global_keywords($text_body);
 			replace_global_keywords($html_body);
@@ -528,6 +567,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					'From'		=> $from,
 					'Subject'	=> $subject,
 				);
+		
+		$reply_to = trim($reply_to);
+		if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
 
 		foreach ($to as $to_email) {
 
@@ -592,6 +634,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$keyword_fields = Array(
 							'to',
 							'from',
+							'reply_to',
 							'subject',
 							'text_format',
 							'html_format',
