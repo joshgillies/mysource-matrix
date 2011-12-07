@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.57 2011/03/14 00:40:51 mhaidar Exp $
+* $Id: form_ecommerce.inc,v 1.57.4.1 2011/12/07 06:18:30 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -707,7 +707,11 @@ class Form_Ecommerce extends Form_Email
 				case 'response':
 					$value = $q_asset->getSummary();
 				break;
-
+				
+				case 'name':
+					$value = $q_asset->attr('name');
+				break;
+				
 				default:
 					$value = $unreplaced_value;
 			}
