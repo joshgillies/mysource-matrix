@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.1 2011/10/18 05:24:45 akarelia Exp $
+* $Id: js_api.inc,v 1.93.2.2 2011/12/07 03:55:48 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.1 $
+* @version $Revision: 1.93.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3588,6 +3588,7 @@ class JS_Api extends Page
 						$this->returnError($output);
 					}
 				} else {
+					$data = $this->array_utf8_encode_recursive($data);
 					$output = json_encode($data);
 					if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
 						switch (json_last_error()) {
@@ -3705,6 +3706,40 @@ class JS_Api extends Page
 	    return $array;
 
 	}// end object2Array
+
+
+	/**
+	* Purpose : converts the passed multidimensional array to urf8_encoded
+	*
+	* @param array	$data	the array whos content we want to utf8 encode
+	*
+	* @return array
+	* @access public
+	*/
+	function array_utf8_encode_recursive($dat) 
+	{
+		if (is_string($dat)) {
+			return utf8_encode($dat);
+		}
+
+		if (is_object($dat)) {
+			$ovs= get_object_vars($dat);
+			$new=$dat;
+			foreach ($ovs as $k =>$v) {
+				$new->$k= $this->array_utf8_encode_recursive($new->$k);
+			}
+			return $new;
+		} 
+
+		if (!is_array($dat)) return $dat; 
+		$ret = array(); 
+		foreach($dat as $i=>$d) {
+			$ret[$i] = $this->array_utf8_encode_recursive($d);
+		}
+
+		return $ret;
+
+	}//end array_utf8_encode_recursive
 
 
 }//end class
