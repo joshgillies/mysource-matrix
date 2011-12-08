@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.18 2011/11/30 05:10:06 ewang Exp $
+* $Id: trim_common.inc,v 1.19 2011/12/08 00:26:40 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -905,6 +905,7 @@ class TRIM_Common
 			$Execute['req']		= array_merge($Execute['req'], $operations);
 
 			$object_list = Array();		// Result List
+		
 			// Get the soapclient object.
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
@@ -922,7 +923,7 @@ class TRIM_Common
 				return Array();
 			}
 
-	
+
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
 			// come first in the soap request, otherwise TRIM wont know where the Fetch object should get the
 			// result from.
@@ -1133,6 +1134,11 @@ class TRIM_Common
 			trigger_error($error_message, E_USER_WARNING);
 			return 0;
 		}//end try catch
+
+		if(isset($data['error']) && !empty ($data['error'])) {
+		    	trigger_error($data['error'], E_USER_WARNING);
+			return 0;
+		}
 
 		$new_record_uri	= 0;
 		if (!empty($data)) {
