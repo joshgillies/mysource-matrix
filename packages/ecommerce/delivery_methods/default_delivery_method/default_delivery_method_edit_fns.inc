@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: default_delivery_method_edit_fns.inc,v 1.10 2010/07/14 23:16:46 csmith Exp $
+* $Id: default_delivery_method_edit_fns.inc,v 1.11 2011/12/09 02:01:34 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_me
 * Purpose
 *
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -76,6 +76,7 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 			echo '<tr><td>%form_summary%</td><td>print the form summary</td></tr>';
 			echo '<tr><td>%form_summary_text%</td><td>print the form summary in a text format</td></tr>';
 			echo '<tr><td>%order_id%</td><td>print the order id</td></tr>';
+			echo '<tr><td>%transaction_id%</td><td>print the unique transaction reference id</td></tr>';
 			echo '<tr><td>%negative_quantity_product_list%</td><td>print products which have negative quantities after purchasing</td></tr>';
 			echo '<tr><td>%negative_quantity_message%</td><td>print negative quantity products message if there are any negative quantities</td></tr>';
 			echo '</table>';

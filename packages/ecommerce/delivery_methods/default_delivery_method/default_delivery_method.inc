@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -709,6 +709,10 @@ HEREDOC;
 			// get order id keyword replacements
 			$keywords_to_replace[] = 'order_id';
 			$keywords_replacements[] =  $this->state['transaction_id'];
+			
+			// get transaction reference id keyword replacements
+			$keywords_to_replace[] = 'transaction_id';
+			$keywords_replacements[] =  $order->attr('transaction_id');
 
 			// get keyword replacements for order receipt
 			$keywords_to_replace[] = 'order_receipt';
