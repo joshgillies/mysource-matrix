@@ -25,7 +25,7 @@ require_once 'HTTP/Client.php';
 * Purpose
 *
 *
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -710,6 +710,10 @@ HEREDOC;
 			// get order id keyword replacements
 			$keywords_to_replace[] = 'order_id';
 			$keywords_replacements[] =  $this->state['transaction_id'];
+
+			// get transaction reference id keyword replacements
+			$keywords_to_replace[] = 'transaction_id';
+			$keywords_replacements[] =  $order->attr('transaction_id');
 
 			// get keyword replacements for order receipt
 			$keywords_to_replace[] = 'order_receipt';
