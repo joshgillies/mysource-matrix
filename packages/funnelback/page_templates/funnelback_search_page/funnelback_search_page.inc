@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.38.2.1 2011/09/26 00:00:19 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.38.2.2 2011/12/09 00:53:24 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'HTTP/Client.php';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1205,7 +1205,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									if (strpos($queries, '&') === 0) {
 										$queries = substr($queries, 1);
 									}//end if
-									$url = $this->getSearchUrl().'?'.$queries.'&'.$cluster_query;
+									$url = $this->getSearchUrl().'?'.htmlspecialchars($queries.'&'.$cluster_query, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 									// Here we are to print the more... flag
 									echo '<a href="'.$url.'">'.htmlspecialchars($cluster_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
@@ -1238,7 +1238,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									if (strpos($queries, '&') === 0) {
 										$queries = substr($queries, 1);
 									}//end if
-									$url = $this->getSearchUrl().'?'.$queries;
+									$url = $this->getSearchUrl().'?'.htmlspecialchars($queries, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 									// Here we are to print the more... flag
 									if ($show_link) {
@@ -1288,6 +1288,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
+							$get_vars = htmlspecialchars($get_vars, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
 					} else if (!empty($query)) {
@@ -1319,6 +1320,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
+							$get_vars = htmlspecialchars($get_vars, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
 					}//end if
