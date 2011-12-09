@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.378 2011/12/05 05:42:33 cupreti Exp $
+* $Id: mysource.inc,v 1.379 2011/12/09 02:34:26 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.378 $
+* @version $Revision: 1.379 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -696,7 +696,46 @@ class MySource extends MySource_Object
 				exit(1);
 
 			}//end if is_null(asset)
-			
+
+			// we need to check if the asset is being requested by Funnelback for Indexing Purpose
+			// if the condition matches then we need to send few extra headers along with regular contents
+			$fbm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
+			if (!is_null($fbm)) {
+				$fb_user = $fbm->attr('user');
+				if ($GLOBALS['SQ_SYSTEM']->currentUserId() == $fb_user || (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Funnelback') !== FALSE)) {
+					$security_keys = $fbm->getAccessLocks($asset);
+					header('X-Funnelback-Locks: '.$security_keys);
+
+					// Some definitions
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+					header('X-Funnelback-SQUIZASSETYPE: '.$asset->type());
+					header('X-Funnelback-last_modified: '.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated));
+					if ($asset instanceof File) {
+						header('X-Funnelback-file-title: '.$asset->attr('title'));
+						header('X-Funnelback-file-name: '.$asset->name);
+					}
+
+					// Add in the metadata
+					$metadata = $mm->getMetadata($asset->id);
+					foreach ($metadata as $info) {
+						$name = $info[0]['name'];
+
+						$value = $info[0]['value'];
+						require_once SQ_FUDGE_PATH.'/general/text.inc';
+						$keywords = retrieve_keywords_replacements($value);
+						$replacements = Array();
+						foreach ($keywords as $keyword) {
+							$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+						}//end foreach
+						replace_keywords($value, $replacements);
+						$name = $fbm->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						$value = $fbm->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+						header('X-Funnelback-metadata-'.$name.': '.$value);
+					}//end foreach
+				}//end if
+			}//end if
+
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
