@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.407 2011/12/07 04:27:10 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.408 2011/12/09 04:03:44 akarelia Exp $
 *
 */
 
@@ -2804,6 +2804,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="http_request_convert_to_utf8">Convert to UTF-8</string>
 	<string source="http_request_document_encoding">Document Encoding</string>
 	<string source="http_request_run_test">Run Test</string>
+	<string source="http_request_append_get_vars">Append query string to the request URL</string>
+	<string source="http_request_forward_user_keys">Forward user information</string>
 	<string source="oauth_asset">OAuth Asset</string>
 	<string source="oauth_consumer_secret">Consumer Secret</string>
 	<string source="oauth_consumer_key">Consumer Key</string>
