@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2011/11/30 00:55:41 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.15 2011/12/09 05:23:30 ewang Exp $
 *
 */
 -->
@@ -58,7 +58,7 @@
 		</field>
 		<field attribute="score_format">
 			<display_name>Score Format</display_name>
-			<note>Score format used for %quiz_score% keyword and for Score field in Submission Logs. Availabe keywords: &lt;br /&gt;
+			<note>Score format used for %quiz_score% keyword and for Score field in Submission Logs. Available keywords: &lt;br /&gt;
 			For use of %quiz_score% in Thank You Bodycopy and for Submission Logs: &lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%quiz_total_points% - The total points obtained for the Quiz&lt;/li&gt;
