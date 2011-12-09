@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.41 2011/12/09 00:49:58 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.42 2011/12/09 03:36:01 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -626,6 +626,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				}//end if
 			break;
 
+			case 'hosted':
 			case 'web':
 				// Web Search ie. Using a funnelback search engine
 				$url = $this->parseURL($search);
@@ -2137,7 +2138,7 @@ class Funnelback_Search_Page extends Listing_Engine
 		$site_max = array_get_index($search, 'site_max', 0);
 		$valid_sort = Array ('date' , 'adate' , 'title' , 'dtitle' , 'size' , 'dsize' , 'url' , 'durl' , 'coll' , 'dcoll' , 'shuffle');	
 		$sort = array_get_index($search, 'sort', 'rank');
-		
+
 		// Check for required information
 		if (empty($funnelback_url) || empty($collection)) {
 			// No server set
@@ -2215,8 +2216,14 @@ class Funnelback_Search_Page extends Listing_Engine
 		if (!empty($sort) && $sort !== 'rank' && in_array($sort, $valid_sort)) {
 			$url .= '&sort='.$sort;
 		}
-		
-		
+
+		// get the current user and also the assetid
+		// of all the groups the user is in
+		$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
+		$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
+
+		$url .= '&userkeys='.implode(',', $user_info);
+
 		return $funnelback_url.$url;
 
 	}//end parseURL()

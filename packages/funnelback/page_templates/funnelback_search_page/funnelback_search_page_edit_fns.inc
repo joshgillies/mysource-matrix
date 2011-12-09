@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.7 2011/03/04 02:55:18 bpearson Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.8 2011/12/09 03:36:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -370,7 +370,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			?>
 			<script type="text/javascript">
 				function chooseFunnelbackSearchType(type, url1, url2, url3, coll1, coll2, coll3) {
-					if (type == 'web') {
+					if (type == 'web' || type == 'hosted') {
 						url1.style.display='block';
 						url1.disabled=false;
 						url2.style.display='none';
