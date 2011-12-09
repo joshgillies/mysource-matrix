@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.11 2011/09/20 04:21:39 akarelia Exp $
+* $Id: http_request.inc,v 1.12 2011/12/09 03:56:25 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -120,6 +120,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['request_headers'])) $current_value['request_headers'] = Array();
 		if (!isset($current_value['request_body'])) $current_value['request_body'] = '';
 		if (!isset($current_value['convert_to_utf8'])) $current_value['convert_to_utf8'] = FALSE;
+		if (!isset($current_value['append_get_vars'])) $current_value['append_get_vars'] = FALSE;
+		if (!isset($current_value['forward_user_keys'])) $current_value['forward_user_keys'] = FALSE;
 		if (!isset($current_value['document_encoding'])) $current_value['document_encoding'] = 'Auto';
 		if (!isset($current_value['run_test'])) $current_value['run_test'] = FALSE;
 		if (!isset($current_value['oauth_asset']['assetid'])) $current_value['oauth_asset'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
@@ -349,6 +351,30 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 			?>
 			<tr>
+				<th><?php echo translate('http_request_append_get_vars'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo $current_value['append_get_vars'] ? 'Yes' : 'No';
+						} else {
+							check_box($prefix.'_append_get_vars', 1, $current_value['append_get_vars']);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_forward_user_keys'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo $current_value['forward_user_keys'] ? 'Yes' : 'No';
+						} else {
+							check_box($prefix.'_forward_user_keys', 1, $current_value['forward_user_keys']);
+						}
+					?>
+				</td>
+			</tr
+			<tr>
 				<th><?php echo translate('http_request_run_test'); ?></th>
 				<td>
 					<?php
@@ -421,6 +447,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['request_headers'] = trim($hl->value) ? explode($hl->delimiter, $hl->value) : NULL;
 
 		$value['convert_to_utf8'] = (isset($_REQUEST[$prefix.'_convert_to_utf8'])) ? $_REQUEST[$prefix.'_convert_to_utf8'] : FALSE;
+		$value['append_get_vars'] = (isset($_REQUEST[$prefix.'_append_get_vars'])) ? $_REQUEST[$prefix.'_append_get_vars'] : FALSE;
+		$value['forward_user_keys'] = (isset($_REQUEST[$prefix.'_forward_user_keys'])) ? $_REQUEST[$prefix.'_forward_user_keys'] : FALSE;
 		$value['document_encoding'] = (isset($_REQUEST[$prefix.'_document_encoding'])) ? $_REQUEST[$prefix.'_document_encoding'] : 'Auto';
 		$value['run_test'] = (isset($_REQUEST[$prefix.'_run_test'])) ? trim($_REQUEST[$prefix.'_run_test']) : FALSE;
 		$value['http_auth_options']['username'] = (isset($_REQUEST[$prefix.'_http_auth_user'])) ? $_REQUEST[$prefix.'_http_auth_user'] : '';
@@ -482,7 +510,36 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		foreach ($this->_res['request']['urls'] as &$url) {
 			$this->_replaceKeywords($url);
 		}
-		
+
+		if ($this->_config['append_get_vars']) {
+			$query_vars = $collection_var = '';
+			foreach ($_GET as $query => $param) {
+				if ($query == 'collection') {
+					$collection_var .= '&'.$query.'='.$param;
+					continue;
+				}
+				$query_vars .= '&'.$query.'='.$param;
+			}
+			foreach ($this->_res['request']['urls'] as $index => $url) {
+				if (strpos($url, '?') === FALSE) $url .= '?';
+				if (strpos($url, 'collection=') === FALSE) $url .= $collection_var;
+				$this->_res['request']['urls'][$index] = $url.$query_vars;
+			}
+		}
+
+		// if we are configured to forward the user information
+		// send the user ip address and also the user keys
+		if ($this->_config['forward_user_keys']) {
+			$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
+			$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
+			$user_keys = '&userkeys='.implode(',', $user_info);
+			foreach ($this->_res['request']['urls'] as $index => $url) {
+				$this->_res['request']['urls'][$index] = $url.$user_keys;
+			}
+			// also forward the ip the user request is coming from
+			$this->_res['request']['headers'][] = 'X-Forwarded-For: '.$_SERVER['REMOTE_ADDR'];
+		}
+
 		// Replace keywords in each Header.
 		for ($i = 0; $i < count($this->_res['request']['headers']); $i++) {
 			$this->_replaceKeywords($this->_res['request']['headers'][$i]);
@@ -495,7 +552,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		// Replace keywords in the body.
 		$this->_replaceKeywords($this->_res['request']['body']);
-		
+
 		// Auth options.
 		switch ($this->_res['request']['auth']['type']) {
 			case 'HTTP_Basic':
@@ -798,7 +855,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			// restart session which was closed previously
 			if ($this->_res['request']['auth']['type'] === 'Matrix')
 				session_start();
-				
+
 			// Attempt to cache this response.
 			if ($this->_canCacheResponses()) {
 				$this->_setCacheExpiry($response);
