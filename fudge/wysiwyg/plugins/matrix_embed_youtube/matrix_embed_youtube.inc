@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.6 2010/06/17 04:41:28 cupreti Exp $
+* $Id: matrix_embed_youtube.inc,v 1.6.6.1 2011/12/09 03:27:36 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -221,6 +221,10 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			$match = substr($match, 0, -1);
 			$match = str_replace('src="'.$this->_img_url.'"', '', $match);
 			$match = preg_replace('/style="(.*?("))/im ', '', $match);
+			// IE7/8 strips off the quotes of attributes "height" and "weight" of "img" tag 
+			// when inserting the html in the given range (Range.pasteHTML())
+			$match = preg_replace('/ height=([0-9]+)/', ' height="$1"', $match);
+			$match = preg_replace('/ width=([0-9]+)/', ' width="$1"', $match);
 
 			$pieces = Array();
 			preg_match_all('|\s+([^=]+)="([^"]+)"|', $match, $pieces);
