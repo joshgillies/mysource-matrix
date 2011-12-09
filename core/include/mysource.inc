@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.379 2011/12/09 02:34:26 akarelia Exp $
+* $Id: mysource.inc,v 1.380 2011/12/09 02:57:20 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.379 $
+* @version $Revision: 1.380 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -715,6 +715,13 @@ class MySource extends MySource_Object
 						header('X-Funnelback-file-title: '.$asset->attr('title'));
 						header('X-Funnelback-file-name: '.$asset->name);
 					}
+					if ($asset->created_userid != 0) {
+						$created_by = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->created_userid);
+						header('X-Funnelback-author-name: '.$created_by->name);
+						header('X-Funnelback-author-id: '.$created_by->id);
+					}
+					header('X-Funnelback-created: '.date('Y-m-d', $asset->created).'T'.date('H:i:s', $asset->created));
+					header('X-Funnelback-ancestors: '.implode(' ', array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id))));
 
 					// Add in the metadata
 					$metadata = $mm->getMetadata($asset->id);
