@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.374.2.2 2011/11/06 22:59:49 cupreti Exp $
+* $Id: mysource.inc,v 1.374.2.3 2011/12/09 02:25:59 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374.2.2 $
+* @version $Revision: 1.374.2.3 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1279,12 +1279,10 @@ class MySource extends MySource_Object
 			// There is a serialised user object in the session; if it's not stale, unserialise and use it
 			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), $_SESSION['user_type_code'], TRUE, 'updated');
 			$user_updated_date = array_get_index($user_info, $userid, FALSE);
-			if ($user_updated_date) {
-				if ($_SESSION['user_serialised_ts'] > iso8601_ts($user_updated_date)) {
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($_SESSION['user_type_code']);
-					$this->user = unserialize($_SESSION['user']);
-					$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this->user);
-				}
+			if ($user_updated_date && $_SESSION['user_serialised_ts'] > iso8601_ts($user_updated_date) || (!$user_updated_date && SQ_ROLLBACK_VIEW)) {
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($_SESSION['user_type_code']);
+				$this->user = unserialize($_SESSION['user']);
+				$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this->user);
 			}
 		}
 
