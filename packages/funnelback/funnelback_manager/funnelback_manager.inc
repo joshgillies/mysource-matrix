@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.38 2011/10/20 00:10:59 ewang Exp $
+* $Id: funnelback_manager.inc,v 1.39 2011/12/09 02:45:49 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -498,13 +498,57 @@ class Funnelback_Manager extends Asset
 		}//end if
 
 		// Some definitions
-		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$xml  = '<url>';
 		$xml .= '<loc>'.$url.'</loc>';
 		$xml .= '<lastmod>'.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated).'</lastmod>';
 
+		$access_locks = $this->getAccessLocks($asset);
+		if (!empty($access_locks)) {
+			$xml .= '<fbmeta name="access_locks" content="'.$access_locks.'" />';
+		}
+		// Add in the metadata
+		$metadata = $mm->getMetadata($asset->id);
+		foreach ($metadata as $info) {
+			$name = $info[0]['name'];
+
+			// Fall back, if a metadata field is name "access_locks", it will be ignored.
+			// The name "access_locks" are reserved for passing in the permissions
+			if ($name == 'access_locks') continue;
+
+			$value = $info[0]['value'];
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = retrieve_keywords_replacements($value);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}//end foreach
+			replace_keywords($value, $replacements);
+			$name = $this->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
+		}//end foreach
+
+		$xml .= '</url>';
+
+		return $xml;
+
+	}//end _generateXML()
+
+
+	/**
+	 * generates the comma seperated list for all the permission
+	 * the passed asset has
+	 *
+	 * @param object	$asset  The broadcasting asset
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function getAccessLocks($asset)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		/*
 		 * Add in the permissions, with the following logic:
 		 *	- No permissions, return nothing
@@ -539,52 +583,11 @@ class Funnelback_Manager extends Asset
 			$all_permissions[] = "'".$this->encodeText(htmlspecialchars($sys_admin_folder_id, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET))."'";
 		}//end if
 
-		$xml .= '<fbmeta name="access_locks" content="'.rtrim(implode(',', $all_permissions), ',').'" />';
-
-		// Add in the metadata
-		// get schemas first using just getMetadata() but it wont get us the default value on the asset
-		// which is not good enough for us so get the default values later again and merge it
-		$metadata = $mm->getMetadata($asset->id);
-
-		// now the default values
-		$schemas_applied = $mm->getSchemas($asset->id, TRUE);
-		$default_values = Array();
-		foreach($schemas_applied as $schemaid) {
-			$defaults = $mm->getSchemaDefaultValues($schemaid);
-			// get the correct format of the array
-			foreach ($defaults as $field_id => $field_info) {
-				if(isset($metadata[$field_id])) continue;
-				$metadata[$field_id][0] = $field_info;
-			}
-		}
-
-		foreach ($metadata as $info) {
-			$name = $info[0]['name'];
-
-			// Fall back, if a metadata field is name "access_locks", it will be ignored.
-			// The name "access_locks" are reserved for passing in the permissions
-			if ($name == 'access_locks') continue;
-
-			$value = $info[0]['value'];
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$keywords = retrieve_keywords_replacements($value);
-			$replacements = Array();
-			foreach ($keywords as $keyword) {
-				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
-			}//end foreach
-			replace_keywords($value, $replacements);
-			$name = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-			$value = htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
-		}//end foreach
-		$xml .= '<fbmeta name="SQUIZASSETID" content="'.$asset->id.'" />';
-		$xml .= '<fbmeta name="SQUIZASSETTYPE" content="'.$asset->type().'" />';
-
-		$xml .= '</url>';
+		$xml = rtrim(implode(',', $all_permissions), ',');
 
 		return $xml;
 
-	}//end _generateXML()
+	}//end getAccessLocks()
 
 
 	/**
