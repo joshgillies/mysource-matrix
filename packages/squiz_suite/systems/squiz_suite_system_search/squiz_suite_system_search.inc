@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_search.inc,v 1.5 2011/03/31 23:23:20 akarelia Exp $
+* $Id: squiz_suite_system_search.inc,v 1.6 2011/12/09 04:02:08 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -255,6 +255,199 @@ class Squiz_Suite_System_Search extends Squiz_Suite_System
         return $info;
 
     }//end getAssetInfo()
+
+
+    /**
+     * The API function for returning the following for the passed url of the file type asset:
+     *      - metadata information
+     *      - security keys (see funnelback_manager.inc::getAccessLocks)
+     *      - author name, Matrix file asset title, actualy file name
+     *
+     * @param string/array	$urls	An array of the URLs to get the info for.
+     *
+     * @return json
+     */
+    public static function getFileIndexingComponents($urls)
+    {
+        $info = Array();
+		if (!is_array($urls)) $urls = Array($urls);
+
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
+
+        foreach ($urls as $real_url) {
+
+            $url_parts = parse_url($real_url);
+            $protocol  = array_get_index($url_parts, 'scheme', '');
+			if (empty($protocol) === FALSE) {
+	            $url = str_replace($protocol.'://', '', $real_url);
+			}
+
+            $asset = $am->getAssetFromUrl($protocol, $url, TRUE, TRUE);
+            if ($asset !== NULL && strpos($url, '__data') !== FALSE) {
+				// found the asset?
+				// get all we want
+				$metadata = $mm->getMetadata($asset->id);
+				foreach ($metadata as $meta) {
+					$name = $meta[0]['name'];
+
+					$value = $meta[0]['value'];
+					require_once SQ_FUDGE_PATH.'/general/text.inc';
+					$keywords = retrieve_keywords_replacements($value);
+					$replacements = Array();
+					foreach ($keywords as $keyword) {
+						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+					}//end foreach
+					replace_keywords($value, $replacements);
+					$name = $fm->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$value = $fm->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+					$info[$real_url]['metadata'][$name] = $value;
+				}//end foreach
+
+				// get the security keys
+				$info[$real_url]['security_locks'] = $fm->getAccessLocks($asset);
+
+				$info[$real_url]['SQUIZASSETYPE'] = $asset->type();
+				$info[$real_url]['last_modified'] = date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated);
+
+				// get author, title, file name
+				$info[$real_url]['file_title'] = $asset->attr('title');
+				$info[$real_url]['file_name'] = $asset->name;
+				if ($asset->created_userid != 0) {
+					$created_by = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->created_userid);
+					$info[$real_url]['author_name'] = $created_by->name;
+					$info[$real_url]['author_id'] = $created_by->id;
+				}
+				$info[$real_url]['created'] = date('Y-m-d', $asset->created).'T'.date('H:i:s', $asset->created);
+
+
+                $am->forgetAsset($asset, TRUE);
+                unset($asset);
+            } else {
+                $info[$real_url] = NULL;
+            }
+        }//end foreach
+
+        return json_encode($info);
+
+    }//end getFileIndexingComponents()
+
+
+    /**
+     * The API function for Funnelback system to activate (set LIVE)
+     * or deactivate (set UNDER CONSTRUCTION) the funnelback user configured on funnelback manager
+     *
+     * @param string	$userid	Id of user funnelback manager is configured
+     * @param string	$set_to	activate/deactivate string
+     *
+     * @return boolean
+     */
+    public static function changeStatusFunnelbackUser($userid, $set_to='activate')
+    {
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$status = SQ_STATUS_UNDER_CONSTRUCTION;
+		if ($set_to != 'activate' && $set_to != 'deactivate') {
+			return Array('success' => FALSE);
+		} else {
+			if ($set_to == 'activate') $status = SQ_STATUS_LIVE;
+		}
+		// if the userid isnt provided
+		// or it doesn't exist on system
+		// return FALSE but no errors
+		if (empty($userid)) return Array('success' => FALSE);
+		if (!$am->assetExists($userid)) return Array('success' => FALSE);
+
+		// passed userid doesnt match 
+		// the user configured return false
+		$fm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
+		if ($fm->attr('user') != $userid) return Array('success' => FALSE);
+
+		// if the user is already live, less work for us
+		$fb_user = $am->getAsset($userid);
+		if ($fb_user->status === $status) return Array('success' => TRUE);
+
+		// all checks done and now we sure we need to 
+		// change the status of the user asset passed
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_status.inc';
+		$init_hipo = new HIPO_Job_Edit_Status();
+		$running_vars = Array(
+                            'assetid'           => $fb_user->id,
+                            'new_status'        => $status,
+                            'dependants_only'   => 0,
+                        );
+
+		$init_hipo->setRunningVars($running_vars);
+		$init_hipo->_steps = $init_hipo->getInitialStepData();
+		if (!$init_hipo->prepare()) {
+			error_log('Could not initialise HIPO job');
+			return Array('success' => FALSE);
+		}
+		$init_hipo->freestyle();
+		
+		$errors = $init_hipo->getErrors();
+		if(!empty($errors)) {
+			error_log($errors);
+			return Array('success' => FALSE);
+		}
+
+		return Array('success' => TRUE);
+
+	}//end activateFunnelbackUser()
+
+
+    /**
+     * The API function to validate if the user is active or not by
+     * passing in the username and optionally password. If the flag
+     * to return user keys is set will return array or returns boolean
+     *
+     * @param string	$username		username to validate
+     * @param string	$password		password to validate the username against (optional)
+     * @param boolean	$return_keys	flag option if userkeys are to be returned (optional)
+     *
+     * @return mixed
+     */
+    public static function validateActiveUser($username, $password='', $return_keys=FALSE)
+    {
+		if (empty($username)) return FALSE;
+		$res = FALSE;
+
+		$user = NULL;
+		// Get a list of all the installed authentication systems
+		$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+
+		$auth_systems = $auth_folder->getAuthSystems();
+		foreach ($auth_systems as $systemid) {
+			$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+			if (is_null($system)) continue;
+
+			if (empty($password)) {
+				$user = $system->locateUser($username);
+			} else {
+				// okie seems like we are passed a password too
+				$user = $system->authenticateUser($username, $password);
+			}
+
+			if (!is_null($user)) {
+				$res = TRUE;
+				break;
+			}
+		}//end forach
+
+		// okie so we have found the user and we want to sent back
+		// the user id and id of all the groups it belongs to
+		if ($return_keys && $res) {
+			$res = array_merge(Array($user->id), $user->getUserGroups());
+		}
+
+		return $res;
+
+	}//end activateFunnelbackUser()
 
 
 }//end class
