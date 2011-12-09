@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.40 2011/11/07 22:49:42 csmith Exp $
+* $Id: funnelback_search_page.inc,v 1.41 2011/12/09 00:49:58 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -645,6 +645,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			default:
 				// Integrated Search ie. OEM Funnelback is installed
 				$xml_results = $this->_searchFunnelback($search);
+
 				if ($xml_results === FALSE) {
 					// An error occurred in the search
 					trigger_localised_error('FNB0003', E_USER_WARNING);
@@ -771,6 +772,7 @@ class Funnelback_Search_Page extends Listing_Engine
 	function getInitialBodyReplacements($extra=Array())
 	{
 		$bodycopy =& $this->getBodycopy('initial');
+	
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
@@ -1204,7 +1206,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									if (strpos($queries, '&') === 0) {
 										$queries = substr($queries, 1);
 									}//end if
-									$url = $this->getSearchUrl().'?'.$queries.'&'.$cluster_query;
+									$url = $this->getSearchUrl().'?'.htmlspecialchars($queries.'&'.$cluster_query, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 									// Here we are to print the more... flag
 									echo '<a href="'.$url.'">'.htmlspecialchars($cluster_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</a>';
@@ -1237,7 +1239,7 @@ class Funnelback_Search_Page extends Listing_Engine
 									if (strpos($queries, '&') === 0) {
 										$queries = substr($queries, 1);
 									}//end if
-									$url = $this->getSearchUrl().'?'.$queries;
+									$url = $this->getSearchUrl().'?'.htmlspecialchars($queries, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 									// Here we are to print the more... flag
 									if ($show_link) {
@@ -1287,6 +1289,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
+							$get_vars = htmlspecialchars($get_vars, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
 					} else if (!empty($query)) {
@@ -1318,6 +1321,7 @@ class Funnelback_Search_Page extends Listing_Engine
 							}//end foreach
 
 							$get_vars = substr($get_vars, 1);
+							$get_vars = htmlspecialchars($get_vars, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 							$cluster_url = $this->getSearchURL().'?'.$get_vars;
 						}//end if
 					}//end if
@@ -1337,6 +1341,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				case 'navigation_url':
 					$replacement = '';
 					$navigation = array_get_index($summary['fluster'], 'navigation', Array());
+					
 					$current_element = array_get_index($navigation, $index, Array());
 					// Process the URL to Matrix format
 					$url = array_get_index($current_element, 'url', '');
