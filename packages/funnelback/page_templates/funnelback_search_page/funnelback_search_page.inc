@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.43 2011/12/12 00:13:03 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.44 2011/12/12 00:47:02 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2251,14 +2251,18 @@ class Funnelback_Search_Page extends Listing_Engine
 		}//end if
 
 		$options = array(
-					'TIMEOUT' => 5,
-					'CONNECTTIMEOUT' => 5,
-					'MAXREDIRS' => 2,
-					'FOLLOWLOCATION' => true,
-					'RETURNTRANSFER' => true,
+					'TIMEOUT'			=> 5,
+					'CONNECTTIMEOUT'	=> 5,
+					'MAXREDIRS'			=> 2,
+					'FOLLOWLOCATION'	=> true,
+					'RETURNTRANSFER'	=> true,
 				   );
 
-		$urlResponse = fetch_url($url, $options);
+        $headers = Array(
+					'X-Forwarded-For'	=> $_SERVER['REMOTE_ADDR'],
+				   );
+
+		$urlResponse = fetch_url($url, $options, $headers);
 		if ($urlResponse['errornumber'] != 0) {
 			trigger_localised_error('FNB0002', E_USER_WARNING);
 			return FALSE;
