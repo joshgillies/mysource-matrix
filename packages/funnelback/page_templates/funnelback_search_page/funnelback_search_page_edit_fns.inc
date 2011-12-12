@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.8 2011/12/09 03:36:01 akarelia Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.9 2011/12/12 00:07:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -361,15 +361,17 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$object_url1  = 'this.form.'.$prefix.'_search_url_web';
 		$object_url2  = 'document.getElementById(\''.$prefix.'_search_url_local\')';
 		$object_url3  = 'this.form.'.$prefix.'_search_url_squiz';
+		$object_url4  = 'document.getElementById(\''.$prefix.'_search_mode_hosted\')';
 		$object_coll1 = 'this.form.'.$prefix.'_search_collection_web';
 		$object_coll2 = 'this.form.'.$prefix.'_search_collection_local';
 		$object_coll3 = 'this.form.'.$prefix.'_search_collection_squiz';
-		$js = 'onChange="chooseFunnelbackSearchType('.$object_type.', '.$object_url1.', '.$object_url2.', '.$object_url3.', '.$object_coll1.', '.$object_coll2.', '.$object_coll3.');"';
+		$object_coll4 = 'this.form.'.$prefix.'_search_mode';
+		$js = 'onChange="chooseFunnelbackSearchType('.$object_type.', '.$object_url1.', '.$object_url2.', '.$object_url3.', '.$object_url4.', '.$object_coll1.', '.$object_coll2.', '.$object_coll3.', '.$object_coll4.');"';
 
 		$o->openField('Search Type');
 			?>
 			<script type="text/javascript">
-				function chooseFunnelbackSearchType(type, url1, url2, url3, coll1, coll2, coll3) {
+				function chooseFunnelbackSearchType(type, url1, url2, url3, url4, coll1, coll2, coll3, coll4) {
 					if (type == 'web' || type == 'hosted') {
 						url1.style.display='block';
 						url1.disabled=false;
@@ -383,6 +385,12 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						coll2.disabled=true;
 						coll3.style.display='none';
 						coll3.disabled=true;
+                        if (type == 'hosted') {
+                            url4.style.display='block';
+	    					url4.disabled=false";
+	    					coll4.style.display='block';
+		    				coll4.disabled=false;
+                        }
 					} else if (type == 'squiz') {
 						url1.style.display='none';
 						url1.disabled=true;
@@ -421,6 +429,18 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				echo $type_options[$search_type];
 			}
 		$o->note(translate('funnelback_search_type_note'));
+		$o->closeField();
+		$o->openField('Mode to use');
+            $mode = $asset->attr('hosted_mode');
+            $modes = Array('0' => 'Classic', '1' => 'Advanced');
+            if($wa) {
+				echo combo_box($prefix.'_search_mode', $modes, FALSE, $mode, 0, $hidden_web);
+				echo '<span id="'.$prefix.'_search_mode_hosted" '.$hidden_local.'>';
+                echo 'Not Available';
+                echo '</span>';
+            } else {
+                echo $modes[$mode];
+            }
 		$o->closeField();
 		$o->openField('Search URL');
 			if ($wa) {
@@ -508,7 +528,12 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if (!array_key_exists($collection, $collections)) {
 					$collection = '';
 				}
-			} else {
+			} else if ($type == 'hosted') {
+				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
+				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
+                $mode = array_get_index($_POST, $prefix.'_search_mode', 0);
+				$suiteid = '';
+            } else {
 				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
 				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
 				$suiteid = '';
@@ -517,6 +542,7 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$asset->setAttrValue('funnelback_url', $url);
 			$asset->setAttrValue('systemid', $suiteid);
 			$asset->setAttrValue('collection', $collection);
+			$asset->setAttrValue('hosted_mode', $mode);
 			$status = $asset->saveAttributes();
 		}//end if
 

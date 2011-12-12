@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_management.inc,v 1.9 2011/12/09 03:36:01 akarelia Exp $
+* $Id: funnelback_search_page_management.inc,v 1.10 2011/12/12 00:07:33 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -247,6 +247,23 @@ class Funnelback_Search_Page_Management extends Asset_Management
 										'description'	=> 'If true, will not replace any keywords from the user input',
 										'parameters'	=> Array('allow_empty' => FALSE),
 									   );
+
+
+	$this->vars['hosted_mode'] = Array(
+										'added'			=> '0.2',
+										'type'			=> 'selection',
+										'default'		=> 1,
+										'parameters'	=> Array(
+															'multiple'		=> FALSE,
+															'allow_empty'	=> FALSE,
+															'options'		=> Array(
+																				0 => 'Classic',
+																				1 => 'Advanced',
+																			),
+											),
+									   );
+
+
 }//end constructor
 
 
