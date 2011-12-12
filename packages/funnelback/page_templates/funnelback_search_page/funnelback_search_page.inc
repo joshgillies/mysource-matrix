@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.42 2011/12/09 03:36:01 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.43 2011/12/12 00:13:03 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2784,6 +2784,13 @@ class Funnelback_Search_Page extends Listing_Engine
 	{
 		$default_fluster = Array('category' => Array('type' => Array(), 'topic' => Array(), 'site' => Array()));
 		$results = Array('summary' => Array(), 'fluster' => $default_fluster, 'spell' => Array(), 'featured' => Array());
+
+        $adv_hosted_search = FALSE;
+        if ($this->attr('search_type') == 'hosted' && $this->attr('hosted_mode')) {
+            $response = $xml->getElementsByTagName('response');
+            $result_packet = $response->item(0)->getElementsByTagName('resultPacket');
+            $adv_hosted_search = TRUE;
+        }
 		/**
 		 * <results_summary>
 		 *		<fully_matching></fully_matching>
@@ -2795,16 +2802,33 @@ class Funnelback_Search_Page extends Listing_Engine
 		 *		<nextstart></nextstart>
 		 * </results_summary>
 		 */
-		$result_summary = $xml->getElementsByTagName('results_summary');
+        if ($adv_hosted_search) {
+            $mapping_array = Array(
+                                'fullyMatching'=> 'fully_matching',
+                                'estimatedHits'=> 'estimated_hits',
+                                'partiallyMatching'=> 'partially_matching',
+                                'totalMatching'=> 'total_matching',
+                                'numRanks'=> 'num_ranks',
+                                'currStart'=> 'currstart',
+                                'currEnd'=> 'currend',
+                                'prevStart'=> 'prevstart',
+                                'nextStart'=> 'nextstart',
+                             );
+            $result_summary = $result_packet->item(0)->getElementsByTagName('resultsSummary');
+        } else {
+    		$result_summary = $xml->getElementsByTagName('result_summary');
+        }
+
 		for ($i=0; $i<$result_summary->length; $i++) {
 			if ($result_summary->item($i)->hasChildNodes()) {
 				foreach ($result_summary->item($i)->childNodes as $summary) {
-					$name = $summary->nodeName;
+					$name = isset($mapping_array[$summary->nodeName]) ? $mapping_array[$summary->nodeName] : $summary->nodeName;
 					$value = $summary->nodeValue;
 					$results['summary'][$name] = (string) $value;
 				}//end foreach
 			}//end if
 		}//end for
+
 
 		/**
 		 * 
@@ -2817,12 +2841,22 @@ class Funnelback_Search_Page extends Listing_Engine
 		 * 	</bb>
 		 * </best_bets>
 		 */
-		$feature_pages = $xml->getElementsByTagName('best_bets');
+        if ($adv_hosted_search) {
+            $mapping_array = Array(
+                                'trigger'=> 'bb_trigger',
+                                'link'=> 'bb_link',
+                                'title'=> 'bb_title',
+                                'description'=> 'bb_desc',
+                             );
+            $feature_pages = $result_packet->item(0)->getElementsByTagName('bestBets');
+        } else {
+		    $feature_pages = $xml->getElementsByTagName('best_bets');
+        }
 		// before FB v9.1, we call it featured_pages
-		if($feature_pages->length == 0) 
-			$feature_pages = $xml->getElementsByTagName('featured_pages');
+		if($feature_pages->length == 0) $feature_pages = $xml->getElementsByTagName('featured_pages');
 		
 		if ($feature_pages->length >= 1) {
+            $tag_name = ($adv_hosted_search) ? 'com.funnelback.publicui.search.model.padre.BestBet' : 'bb';
 			$featured_pages = $feature_pages->item(0)->getElementsByTagName('bb');
 			// before FB v9.1, we call it fp
 			if($featured_pages->length == 0) 
@@ -2831,7 +2865,7 @@ class Funnelback_Search_Page extends Listing_Engine
 				$bb = Array();
 				if ($featured_pages->item($j)->hasChildNodes()) {
 					foreach ($featured_pages->item($j)->childNodes as $entry) {
-						$name = $entry->nodeName;
+						$name = (isset($array_mapping[$entry->nodeName])) ? $array_mapping[$entry->nodeName] : $entry->nodeName;
 						// before FB v9.1, we call it fp_xx, so to make sure it doesn't break existing keywords etc, we have to stick with old names.
 						switch ($name) {
 							case 'bb_trigger':
@@ -2877,14 +2911,23 @@ class Funnelback_Search_Page extends Listing_Engine
 		 *	 </category>
 		 * </contextual_navigation>
 		 */
-		$fluster = $xml->getElementsByTagName('contextual_navigation');
+        if ($adv_hosted_search) {
+            $mapping_array = Array(
+                                'clusterNav'=> 'cluster_nav',
+                                'moreLink'=> 'more_link',
+                                'fewerLink'=> 'fewer_link',
+                             );
+            $fluster = $result_packet->item(0)->getElementsByTagName('contextualNavigation');
+        } else {
+    		$fluster = $xml->getElementsByTagName('contextual_navigation');
+        }
 		// before FB v9.1, we call it fluster
-		if($fluster->length == 0) 
-			$fluster = $xml->getElementsByTagName('fluster');
+		if($fluster->length == 0) $fluster = $xml->getElementsByTagName('fluster');
 			
 		for ($l=0; $l<$fluster->length; $l++) {
 			// Process the cluster_nav elements
-			$cluster_nav = $fluster->item($l)->getElementsByTagName('cluster_nav');
+            $tag_name =  $adv_hosted_search ? 'clusterNav' : 'cluster_nav';
+			$cluster_nav = $fluster->item($l)->getElementsByTagName($tag_name);
 			for ($m=0; $m<$cluster_nav->length; $m++) {
 				$current_nav = Array();
 				$current_nav['name'] = $cluster_nav->item($m)->nodeValue;
@@ -2902,7 +2945,8 @@ class Funnelback_Search_Page extends Listing_Engine
 			}//end foreach
 
 			// Process the category elements
-			$category = $fluster->item($l)->getElementsByTagName('category');
+            $tag_name = $adv_hosted_search ? 'com.funnelback.publicui.search.model.padre.Category' : 'category';
+			$category = $fluster->item($l)->getElementsByTagName($tag_name);
 			for ($n=0; $n<$category->length; $n++) {
 				$value = $category->item($n)->getAttribute('name');
 				$more  = (int) $category->item($n)->getAttribute('more');
@@ -2914,12 +2958,14 @@ class Funnelback_Search_Page extends Listing_Engine
 				if ($category->item($n)->hasChildNodes()) {
 					foreach ($category->item($n)->childNodes as $cluster) {
 						// For Funnelback 9.0 and higher, this is the more link
-						if ($cluster->nodeName == 'more_link') {
+                        $tag_name = isset($mapping_array[$cluster->nodeName]) ? $mapping_array[$cluster->nodeName] : $cluster->nodeName;
+						if ($tag_name == 'more_link') {
 							$results['fluster']['category'][$value]['more'] = TRUE;
 						}//end if
 
 						// Process the rest
-						if ($cluster->nodeName != 'cluster') continue;
+                        $tag_name = $adv_hosted_search ? 'com.funnelback.publicui.search.model.padre.Cluster' : 'cluster';
+						if ($cluster->nodeName != $tag_name) continue;
 						$fluster_cluster = Array();
 						if ($cluster->hasAttributes()) {
 							foreach ($cluster->attributes as $attr) {
@@ -2989,50 +3035,71 @@ class Funnelback_Search_Page extends Listing_Engine
 	public function processSearchResults(&$xml)
 	{
 		$results = Array();
-		$result = $xml->getElementsByTagName('results');
-		for ($p=0; $p<$result->length; $p++) {
-			if ($result->item($p)->hasChildNodes()) {
-				foreach ($result->item($p)->childNodes as $single_result) {
-					$name = $single_result->nodeName;
-					if ($name == 'result') {
-						$each_result = Array();
-						/**
-						 * Result Node
-						 * <result>
-						 *		<rank></rank>
-						 *		<score></score>
-						 *		<title></title>
-						 *		<collection></collection>
-						 *		<component></component>
-						 *		<live_url></live_url>
-						 *		<cache_url></cache_url>
-						 *		<date></date>
-						 *		<filesize></filesize>
-						 *		<filetype></filetype>
-						 *		<tier></tier>
-						 *		<docnum></docnum>
-						 *		<md f="T"></md>
-						 * </result>
-						 */
-						if ($single_result->hasChildNodes()) {
-							foreach ($single_result->childNodes as $value) {
-								$nodeName = $value->nodeName;
-								if ($nodeName == 'md' && $value->hasAttribute('f')) {
-									$nodeName = 'meta_'.$value->getAttribute('f');
-								}
-								$each_result[$nodeName] = utf8_decode($value->nodeValue);
-							}//end foreach
-						}//end if
 
-						// Return a result TODO Unsure about this yet!
-						$rank = array_get_index($each_result, 'rank', 0);
-						if (!empty($rank)) {
-							$results[$rank] = $each_result;
-						}//end if
-					}//end if
-				}//end foreach
-			}//end if
-		}//end for
+        $adv_hosted_search = FALSE;
+        if ($this->attr('search_type') == 'hosted' && $this->attr('hosted_mode')) {
+            $mapping_array = Array(
+                                'liveUrl'           => 'live_url',
+                                'cacheUrl'          => 'cache_url',
+                                'fileSize'          => 'filesize',
+                                'fileType'          => 'filetype',
+                                'docNum'            => 'docnum',
+                                'clickTrackingUrl'  => 'click_tracking_url',
+                              );
+            $response = $xml->getElementsByTagName('response');
+            $resultPacket = $response->item(0)->getElementsByTagName('resultPacket');
+            $result = $resultPacket->item(0)->getElementsByTagName('results');
+            $adv_hosted_search = TRUE;
+        } else {
+            $result = $xml->getElementsByTagName('results');
+        }
+
+        for ($p=0; $p<$result->length; $p++) {
+            if ($result->item($p)->hasChildNodes()) {
+                foreach ($result->item($p)->childNodes as $single_result) {
+                    $expected_tag = $adv_hosted_search ? 'com.funnelback.publicui.search.model.padre.Result' : 'result';
+                    $name = $single_result->nodeName;
+                    if ($name == $expected_tag) {
+                        $each_result = Array();
+                        /**
+                         * Result Node
+                         * <result>
+                         *		<rank></rank>
+                         *		<score></score>
+                         *		<title></title>
+                         *		<collection></collection>
+                         *		<component></component>
+                         *		<live_url></live_url>
+                         *		<cache_url></cache_url>
+                         *		<date></date>
+                         *		<filesize></filesize>
+                         *		<filetype></filetype>
+                         *		<tier></tier>
+                         *		<docnum></docnum>
+                         *		<md f="T"></md>
+                         * </result>
+                         */
+                        if ($single_result->hasChildNodes()) {
+                            foreach ($single_result->childNodes as $value) {
+                                $nodeName = $value->nodeName;
+                                if ($nodeName == 'md' && $value->hasAttribute('f')) {
+                                    $nodeName = 'meta_'.$value->getAttribute('f');
+                                }
+                                if ($adv_hosted_search) 
+                                    $nodeName = (isset($mapping_array[$nodeName])) ? $mapping_array[$nodeName] : $nodeName;
+                                $each_result[$nodeName] = utf8_decode($value->nodeValue);
+                            }//end foreach
+                        }//end if
+
+                        // Return a result TODO Unsure about this yet!
+                        $rank = array_get_index($each_result, 'rank', 0);
+                        if (!empty($rank)) {
+                            $results[$rank] = $each_result;
+                        }//end if
+                    }//end if
+                }//end foreach
+            }//end if
+        }//end for
 
 		return $results;
 
