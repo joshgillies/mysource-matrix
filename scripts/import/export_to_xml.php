@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.18.2.5 2011/11/23 22:40:00 cupreti Exp $
+* $Id: export_to_xml.php,v 1.18.2.6 2011/12/13 22:53:21 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.18.2.5 $
+* @version $Revision: 1.18.2.6 $
 * @package MySource_Matrix
 */
 
@@ -579,6 +579,9 @@ echo "</actions>\n\n";
 	{
 		if (!is_null($asset)) {
 			$file_info = $asset->getExistingFile();
+			if (empty($file_info)) {
+				trigger_error('File not found in data directory for the file asset #'.$asset->id, E_USER_ERROR);
+			}			
 			$file_type = getAssetType($asset);
 			$assetid = $asset->id;
 		} else {
