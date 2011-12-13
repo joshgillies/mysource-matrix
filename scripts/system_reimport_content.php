@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.4 2011/12/13 05:51:04 csmith Exp $
+* $Id: system_reimport_content.php,v 1.5 2011/12/13 05:52:29 csmith Exp $
 *
 */
 
@@ -26,13 +26,20 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
 if (php_sapi_name() != 'cli') {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
+
+if (function_exists('iconv') === FALSE) {
+	echo "This script uses the iconv module to convert character sets from one type to another.\n";
+	echo "This module was not found on your server. Please install it and try again.\n";
+	exit(1);
+}
+
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
