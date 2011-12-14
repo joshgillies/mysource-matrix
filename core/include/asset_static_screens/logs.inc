@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.32 2011/11/04 02:55:59 csmith Exp $
+* $Id: logs.inc,v 1.33 2011/12/14 03:35:40 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -46,36 +46,33 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$log_types = include SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
 
 	if (isset($_REQUEST['sq_backend_log_type'])) {
-		$active_log_type = $_REQUEST['sq_backend_log_type'];
+		$active_log_types = $_REQUEST['sq_backend_log_type'];
 	} else {
-		$active_log_type = (!empty($log_types) && isset($log_types[0])) ? $log_types[0] : '';
+		$active_log_types = (!empty($log_types) && isset($log_types[0])) ? Array($log_types[0]) : Array();
 	}
 
 	$selected_key = NULL;
-	$selected_base_url = '';
-	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
+	$selected_based_url = '';
+	$selected_types = Array();
 	$o->openSection(translate('logged_messages'));
-
-	$o->openRaw();
-
+	
 	$type_options = Array();
 	foreach ($log_types as $type) {
 		// We're only interested in log types starting with 'asset'
 		if (strpos($type, 'asset') !== 0) {
 			continue;
 		}
-
+		
 		// html option fields contains complete url to call via javascript self.location
-		$base_url = replace_query_string_vars(Array('sq_backend_log_type' => $type, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
-		if ($type == $active_log_type) {
-			$selected_base_url = $base_url;
+		if (in_array($type, $active_log_types)) {
+			$selected_types[] = $type;
 		}
-		$type_options[$base_url] = ucwords(str_replace(Array('.', '_'), ' ', $type));
+		$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 	}
 
-	if (!( empty($type_options) && empty($selected_base_url) )) {
+	if (!( empty($type_options) && empty($selected_types) )) {
 
-		echo '<b>'.translate('log_type').'</b>&nbsp;';
+		$o->openField(translate('log_type'));
 
 		// if it is in limbo mode there will be already an element with sq_backend_log_type id
 		$_combo_box_name = 'sq_backend_log_type';
@@ -86,53 +83,66 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			$_combo_box_name = 'sq_backend_log_type2';
 		}
 
-		combo_box($_combo_box_name, $type_options, FALSE, $selected_base_url);
+		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
 
-		normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
+		normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
+
+		$o->closeField();
 	}
 
-	$o->closeRaw();
 
 	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+	
+	$all_logs = Array();
+	foreach($selected_types as $active_log_type) {
 
-	if (strpos($active_log_type, 'asset.linking') === 0) {
+		if (strpos($active_log_type, 'asset.linking') === 0) {
 
-		$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
-		$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
-		$logs = array_merge($minor_logs, $major_logs);
-		usort($logs, Array('Messaging_Service', 'sortMessages'));
+			$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
+			$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
+			$logs = array_merge($minor_logs, $major_logs);
 
-	} else if (strpos($active_log_type, 'asset.workflow') === 0) {
+		} else if (strpos($active_log_type, 'asset.workflow') === 0) {
 
-		// for workflow we want to show the user log messages as well
-		if (isset($_REQUEST['sq_workflow_log_version'])) {
-			$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
-			$logs = $ms->getLogs($active_log_type, Array(
-													'assetid'	=> $owner->id,
-													'version'	=> $_REQUEST['sq_workflow_log_version'],
-												   )
-								 );
-			$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
-																	'assetid'	=> $owner->id,
-																	'version'	=> $_REQUEST['sq_workflow_log_version'],
-																   )
-									  );
+			// for workflow we want to show the user log messages as well
+			if (isset($_REQUEST['sq_workflow_log_version'])) {
+				$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
+				$logs = $ms->getLogs($active_log_type, Array(
+														'assetid'	=> $owner->id,
+														'version'	=> $_REQUEST['sq_workflow_log_version'],
+													   )
+									 );
+				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
+																		'assetid'	=> $owner->id,
+																		'version'	=> $_REQUEST['sq_workflow_log_version'],
+																	   )
+										  );
+			} else {
+				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
+			}
+
+			$logs = array_merge($logs, $user_logs);
+
 		} else {
+
 			$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-			$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
-		}
 
-		$logs = array_merge($logs, $user_logs);
-		usort($logs, Array('Messaging_Service', 'sortMessages'));
+		}//end if ($active_log_type)
 
-	} else {
+		$all_logs = array_merge($all_logs, $logs);
+	}//end foreach ($active_log_types)
 
-		$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-
-	}//end if ($active_log_type)
-
-	if (empty($logs)) {
+	// Sort the logs
+	usort($all_logs, Array('Messaging_Service', 'sortMessages'));
+	
+	if (!empty($selected_types)) {
+		$selected_base_url = replace_query_string_vars(Array('sq_backend_log_type[]' => NULL));
+		$selected_base_url .= '&sq_backend_log_type[]='.implode('&sq_backend_log_type[]=', $selected_types);
+	}
+	
+	if (empty($all_logs)) {
 		$o->openRaw();
 			if (!( empty($type_options) && empty($selected_base_url) )) {
 				echo '<b>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
@@ -153,13 +163,13 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				<?php
 				$num_printed  = 0;
 				$num_per_page = 10;
-				$num_logs = count($logs);
+				$num_logs = count($all_logs);
 				$start_printing_at = 0;
 				if (isset($_REQUEST[$prefix.'_start_at'])) {
 					$start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
 				}
 				for ($i = $start_printing_at; $i < $num_logs; $i++) {
-					$log_data = $logs[$i];
+					$log_data = $all_logs[$i];
 
 					?>
 					<tr>
