@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.51.2.1 2011/06/30 06:36:53 ewang Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.51.2.2 2011/12/14 02:38:03 akarelia Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,7 +228,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		 *
 		 */
 		// start performance mode timer
-        $GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		$ret = '';
 
 		$this->asset_to_paint = $asset;
@@ -265,7 +265,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$paint_layout_keywords = Array();
 		if (file_exists($this->data_path.'/keywords')) {
 			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/keywords')));
-			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
+			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords, TRUE);
 		}
 
 		// Read in content file, find keyword replacements, spit out the results
@@ -274,6 +274,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_start();
 				include($content_path);
 				$content = ob_get_contents();
+				$keywords_in_condition = extract_keywords($content);
+				$paint_layout_keywords = array_merge($paint_layout_keywords, $this->_getAssetKeywordReplacements($asset, $keywords_in_condition));
 				replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
 		} else {
@@ -284,7 +286,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_end_clean();
 		}
 		// end performance mode timer
-        $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $content;
 
 	}//end paintAsset()
@@ -360,79 +362,114 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* Returns the values of a list of keywords.
 	* The returned array may contain more keywords than needed.
 	*
-	* @param Asset	$asset				the asset which will provide the values for the keywords
-	* @param array	$required_keywords	keyword names that must be replaced
+	* @param Asset		$asset						the asset which will provide the values for the keywords
+	* @param array		$required_keywords			keyword names that must be replaced
+	* @param boolean	$evaluate_condition_only	if we just want toevaluate conditional keywords or all
 	*
 	* @return array
 	* @access private
 	*/
-	protected function &_getAssetKeywordReplacements(Asset &$asset, Array $required_keywords)
+	protected function &_getAssetKeywordReplacements(Asset &$asset, Array $required_keywords, $evaluate_condition_only=FALSE)
 	{
 		$ret = Array();
 
-		foreach ($required_keywords as $required_keyword) {
-			$full_keyword = $required_keyword;
-			$required_keyword = parse_keyword($required_keyword, $modifiers);
-			$context_array = extract_context_modifier($modifiers, 'both');
-			$contextid = $context_array['id'];
-			
-			if ($contextid !== NULL) {
-				// Save the required keyword with the context name
-				$required_keyword .= '^context:'.$context_array['name'];
-				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
-				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
-			} else {
-				$contexted_asset = $asset;
-			}
-
-			// 1. asset content
-			if ($required_keyword == 'asset_contents') {
-				if (!isset($ret['asset_contents'])) {
-					ob_start();
-						$contexted_asset->printBody();
-						$ret['asset_contents'] = ob_get_contents();
-					ob_end_clean();
+		if (!$evaluate_condition_only) {
+			foreach ($required_keywords as $required_keyword) {
+				$full_keyword = $required_keyword;
+				$required_keyword = parse_keyword($required_keyword, $modifiers);
+				$context_array = extract_context_modifier($modifiers, 'both');
+				$contextid = $context_array['id'];
+				
+				if ($contextid !== NULL) {
+					// Save the required keyword with the context name
+					$required_keyword .= '^context:'.$context_array['name'];
+					$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+					$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				} else {
+					$contexted_asset = $asset;
 				}
-			} else {
-				$ret[$required_keyword] = $contexted_asset->getKeywordReplacement($required_keyword);
-			}//end else
 
-			if ($contextid !== NULL) {
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
-			}
-			
-			unset($contexted_asset);
+				// 1. asset content
+				if ($required_keyword == 'asset_contents') {
+					if (!isset($ret['asset_contents'])) {
+						ob_start();
+							$contexted_asset->printBody();
+							$ret['asset_contents'] = ob_get_contents();
+						ob_end_clean();
+					}
+				} else if (substr($required_keyword, 0, 21) == 'asset_contents_paint_') {
+					$paint_layout_name = substr($required_keyword, 21);
+				
+					// If a paint layout name has been specified, change that to an id
+					if (assert_valid_assetid($paint_layout_name, '', TRUE, FALSE)) {
+						$paint_layout_id = $paint_layout_name;
+					} else {
+						$paint_layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getURL()), 'paint_layout::user::'.$paint_layout_name);
+					}
+				
+					if (assert_valid_assetid($paint_layout_id, 'Invalid paint layout specified in bodycopy #' . $this->id . ': ' . $paint_layout_name, FALSE, FALSE)) {
+						$paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_id, 'paint_layout_page');
+						if (!empty($paint_layout)) {
+							// A safeguard to mitigate users from easily creating a loop: check that the
+							// paint layout we're painting with is not the current one. If it is, just print
+							// the contents without painting again.
+							$type_formats = $paint_layout->getFormats();
+							if (!isset($type_formats[$this->id])) {
+								ob_start();
+								$contexted_asset->printBodyWithPaintLayout($paint_layout_id);
+								$ret[$required_keyword] = ob_get_contents();
+								ob_end_clean();
+							} else {
+								ob_start();
+								$contexted_asset->printBody();
+								$ret[$required_keyword] = ob_get_contents();
+								ob_end_clean();
+							}
+						}
+					}
+				} else {
+					$ret[$required_keyword] = $contexted_asset->getKeywordReplacement($required_keyword);
+				}//end else
 
-			// If we have keyword modifiers AND
-		    // the keyword is not starting with 'globals_' which will be taken care at the end of execution of start() in mysource.ini
-		    if (($full_keyword != $required_keyword)  && (0 !== strpos($required_keyword, 'globals_'))) {
-		 		// Start with the plain keyword without modifier
-				$ret[$full_keyword] = $ret[$required_keyword];
-				apply_keyword_modifiers($ret[$full_keyword], $modifiers);
-			}			
-		}//end foreach
 
-		// asset lineage
-		if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
-			
-			preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
-			$url = !empty($matches[1]) ? $matches[1] : NULL;
-			$protocol = !empty($matches[2]) ? $matches[2] : NULL;
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
-			
-			$ret['asset_lineage'] = '';
-			$ret['asset_lineage_linked'] = '';
-			$lineage_separator = ' > ';
-			$lineage_separator = $this->attr('lineage_separator');
-
-			foreach ($asset_lineage as $asset_lineage_item) {
-				if (!empty($ret['asset_lineage'])) {
-					$ret['asset_lineage'] .= $lineage_separator;
-					$ret['asset_lineage_linked'] .= $lineage_separator;
+						
+				if ($contextid !== NULL) {
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contexted_asset);
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
 				}
-				$ret['asset_lineage'] .= $asset_lineage_item['short_name'];
-				$ret['asset_lineage_linked'].='<a href="'.$asset_lineage_item['protocol'].'://'.$asset_lineage_item['url'].'">'.$asset_lineage_item['short_name'].'</a>';
+				
+				unset($contexted_asset);
+
+				// If we have keyword modifiers AND
+				// the keyword is not starting with 'globals_' which will be taken care at the end of execution of start() in mysource.ini
+				if (($full_keyword != $required_keyword)  && (0 !== strpos($required_keyword, 'globals_'))) {
+					// Start with the plain keyword without modifier
+					$ret[$full_keyword] = $ret[$required_keyword];
+					apply_keyword_modifiers($ret[$full_keyword], $modifiers);
+				}			
+			}//end foreach
+
+			// asset lineage
+			if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
+				
+				preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
+				$url = !empty($matches[1]) ? $matches[1] : NULL;
+				$protocol = !empty($matches[2]) ? $matches[2] : NULL;
+				$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
+				
+				$ret['asset_lineage'] = '';
+				$ret['asset_lineage_linked'] = '';
+				$lineage_separator = ' > ';
+				$lineage_separator = $this->attr('lineage_separator');
+
+				foreach ($asset_lineage as $asset_lineage_item) {
+					if (!empty($ret['asset_lineage'])) {
+						$ret['asset_lineage'] .= $lineage_separator;
+						$ret['asset_lineage_linked'] .= $lineage_separator;
+					}
+					$ret['asset_lineage'] .= $asset_lineage_item['short_name'];
+					$ret['asset_lineage_linked'].='<a href="'.$asset_lineage_item['protocol'].'://'.$asset_lineage_item['url'].'">'.$asset_lineage_item['short_name'].'</a>';
+				}
 			}
 		}
 
