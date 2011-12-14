@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.33 2011/12/14 03:35:40 cupreti Exp $
+* $Id: logs.inc,v 1.34 2011/12/14 04:32:03 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -39,14 +39,21 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 {
-
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
 	$log_types = include SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
 
-	if (isset($_REQUEST['sq_backend_log_type'])) {
-		$active_log_types = $_REQUEST['sq_backend_log_type'];
+	// if it is in limbo mode there will be already an element with sq_backend_log_type id
+	// therefore we use differnet name for the combo box in limbo mode
+	if (SQ_IN_LIMBO) {
+		$_combo_box_name = 'sq_backend_log_type2';
+	} else {
+		$_combo_box_name = 'sq_backend_log_type';
+	}
+
+	if (isset($_REQUEST[$_combo_box_name])) {
+		$active_log_types = $_REQUEST[$_combo_box_name];
 	} else {
 		$active_log_types = (!empty($log_types) && isset($log_types[0])) ? Array($log_types[0]) : Array();
 	}
@@ -73,15 +80,6 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	if (!( empty($type_options) && empty($selected_types) )) {
 
 		$o->openField(translate('log_type'));
-
-		// if it is in limbo mode there will be already an element with sq_backend_log_type id
-		$_combo_box_name = 'sq_backend_log_type';
-
-		// if it is in limbo mode there will be already an element with sq_backend_log_type id
-		// therefore we will change the name of the combo box
-		if (SQ_IN_LIMBO) {
-			$_combo_box_name = 'sq_backend_log_type2';
-		}
 
 		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
@@ -138,8 +136,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	usort($all_logs, Array('Messaging_Service', 'sortMessages'));
 	
 	if (!empty($selected_types)) {
-		$selected_base_url = replace_query_string_vars(Array('sq_backend_log_type[]' => NULL));
-		$selected_base_url .= '&sq_backend_log_type[]='.implode('&sq_backend_log_type[]=', $selected_types);
+		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL));
+		$selected_base_url .= '&'.$_combo_box_name.'[]='.implode('&'.$_combo_box_name.'[]=', $selected_types);
 	}
 	
 	if (empty($all_logs)) {
