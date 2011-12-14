@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.44 2011/12/12 00:47:02 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.45 2011/12/14 00:04:18 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -2820,7 +2820,7 @@ class Funnelback_Search_Page extends Listing_Engine
                              );
             $result_summary = $result_packet->item(0)->getElementsByTagName('resultsSummary');
         } else {
-    		$result_summary = $xml->getElementsByTagName('result_summary');
+    		$result_summary = $xml->getElementsByTagName('results_summary');
         }
 
 		for ($i=0; $i<$result_summary->length; $i++) {
