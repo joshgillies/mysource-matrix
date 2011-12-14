@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.34 2011/12/14 04:32:03 cupreti Exp $
+* $Id: logs.inc,v 1.35 2011/12/14 04:36:13 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -136,7 +136,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	usort($all_logs, Array('Messaging_Service', 'sortMessages'));
 	
 	if (!empty($selected_types)) {
-		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL));
+		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
 		$selected_base_url .= '&'.$_combo_box_name.'[]='.implode('&'.$_combo_box_name.'[]=', $selected_types);
 	}
 	
