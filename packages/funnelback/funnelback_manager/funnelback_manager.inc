@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager.inc,v 1.39 2011/12/09 02:45:49 akarelia Exp $
+* $Id: funnelback_manager.inc,v 1.40 2011/12/15 02:49:57 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -509,7 +509,22 @@ class Funnelback_Manager extends Asset
 			$xml .= '<fbmeta name="access_locks" content="'.$access_locks.'" />';
 		}
 		// Add in the metadata
+		// get schemas first using just getMetadata() but it wont get us the default value on the asset
+		// which is not good enough for us so get the default values later again and merge it
 		$metadata = $mm->getMetadata($asset->id);
+
+		// now the default values
+		$schemas_applied = $mm->getSchemas($asset->id, TRUE);
+		$default_values = Array();
+		foreach($schemas_applied as $schemaid) {
+			$defaults = $mm->getSchemaDefaultValues($schemaid);
+			// get the correct format of the array
+			foreach ($defaults as $field_id => $field_info) {
+				if(isset($metadata[$field_id])) continue;
+				$metadata[$field_id][0] = $field_info;
+			}
+		}
+
 		foreach ($metadata as $info) {
 			$name = $info[0]['name'];
 
@@ -525,10 +540,12 @@ class Funnelback_Manager extends Asset
 				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 			}//end foreach
 			replace_keywords($value, $replacements);
-			$name = $this->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-			$value = $this->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+			$name = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+			$value = htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 			$xml .= '<fbmeta name="'.$name.'" content="'.$value.'" />';
 		}//end foreach
+		$xml .= '<fbmeta name="SQUIZASSETID" content="'.$asset->id.'" />';
+		$xml .= '<fbmeta name="SQUIZASSETTYPE" content="'.$asset->type().'" />';
 
 		$xml .= '</url>';
 
