@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_replace_attribute_content.php,v 1.2 2007/02/23 05:25:21 arailean Exp $
+* $Id: search_replace_attribute_content.php,v 1.3 2011/12/19 01:20:27 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 echo 'Comment the code that stops this script from working. Protection against accidental execution.';
@@ -69,12 +69,32 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 $am =& $GLOBALS['SQ_SYSTEM']->am;
 
-
+$start = microtime(TRUE);
+$done = 0;
+$total = count($to_process);
 foreach ($to_process as $assetid) {
+	// display progress
+	$done++;
+	if ($done % 50 == 0) {
+		$elapsed = microtime(TRUE) - $start;
+		if ($elapsed > 0) {
+			$frac = $done / $total;
+			$remain = $elapsed / $frac - $elapsed;
+			$pct = $frac * 100;
+			printf("%.2f%%: %d assets checked in %.2f seconds, %.2f remaining.\n", $pct, $done, $elapsed, $remain);
+		}
+	}
+
 	$asset =& $am->getAsset($assetid);
 	$attr_content = $asset->attr($attribute_name);
 
 	$result_content = preg_replace($search_for, $replace_with, $attr_content);
+	if ($result_content === $attr_content) {
+		// No change - don't bother saving.
+		echo "No change: $assetid\n";
+		$am->forgetAsset($asset);
+		continue;
+	}
 
 	$lock_success = $am->acquireLock($assetid, 'attributes');
 	if (!$lock_success) {
