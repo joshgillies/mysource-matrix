@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.9 2010/11/24 04:52:07 csmith Exp $
+* $Id: convert_database.php,v 1.10 2011/12/19 01:05:55 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -126,8 +126,15 @@ require_once $SYSTEM_ROOT.'/core/include/general.inc';
 require_once $SYSTEM_ROOT.'/core/lib/DAL/DAL.inc';
 require_once $SYSTEM_ROOT.'/core/lib/MatrixDAL/MatrixDAL.inc';
 
-$dest_db = $destination_dsn['type'];
-$source_db = $source_dsn['type'];
+/**
+ * So we can use the same database type as the source and dest, serialize
+ * the whole array up.
+ * If we just used the db type, we couldn't read from and write to the same type.
+ * This is actually quite handy - reading from oracle encoding 8859p1, then
+ * writing to utf8.
+ */
+$dest_db = serialize($destination_dsn);
+$source_db = serialize($source_dsn);
 
 $db_error = false;
 try {
