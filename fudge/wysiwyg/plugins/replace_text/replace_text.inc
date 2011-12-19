@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.12 2011/10/20 23:16:36 mhaidar Exp $
+* $Id: replace_text.inc,v 1.13 2011/12/19 02:57:41 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -73,6 +73,16 @@ class Replace_Text extends WYSIWYG_Plugin
 						alert("Selected text is not defined. Replace Text action aborted.");
 						return false;
 					}
+					if (HTMLArea.is_ie) {
+						// IE removes the qoutes from some speical attribute values. Hence we add quotes here to the 
+						// unquoted attribute values so that the "replacement text" feature here works expectedly.
+					    var tags = curHTML.match(/<(?!\/)[^>]+>/g);
+						for(var i=0; i<tags.length; i++) {
+							var tag = tags[i];
+							curHTML = curHTML.replace(tag, tag.replace(/(\s[^\s<>="'`]+\s*=\s*)([^\s<>"\'`]+)/g, '$1"$2"'));
+						}//end for
+					}
+
 					var HTMLtags = "!--|a|abbr|above|acronym|address|applet|array|area|b|base|basefont|bdo|bgsound|big|blink|blockquote|body|box|br|blink|button|caption|center|cite|code|col|colgroup|comment|dd|del|dfn|dir|div|dl|dt|em|embed|fieldset|fig|font|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|hr|html|i|id|iframe|ilayer|img|input|ins|isindex|kbd|label|layer|legend|li|link|listing|map|marquee|menu|meta|multicol|nextid|nobr|noframes|nolayer|note|noscript|object|ol|option|keygen|optgroup|p|param|pre|q|quote|range|root|s|samp|script|select|small|sound|spacer|span|sqrt|strike|strong|style|sub|sup|table|tbody|td|text|textarea|tfoot|th|thead|title|tr|tt|u|ul|var|wbr|xmp";
 					var bullet = unescape("%B7");
 					var shy    = unescape("%AD");
