@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.82.4.1 2011/10/10 22:06:11 akarelia Exp $
+* $Id: cron_manager.inc,v 1.82.4.2 2011/12/19 06:33:15 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82.4.1 $
+* @version $Revision: 1.82.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -574,7 +574,6 @@ class Cron_Manager extends Asset
 				while (!empty($jobs)) {
 
 					$ms->openQueue();
-					$remove_jobs = Array();
 					foreach ($jobs as $job_info) {
 
 						$cron_job	= $am->getAsset($job_info['assetid'], $job_info['type_code']);
@@ -611,7 +610,7 @@ class Cron_Manager extends Asset
 
 						// we have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
-							$remove_jobs[] = $job_info;
+							$this->removeJob($cron_job);
 							$ignore_jobs[] = $cron_job->id;
 
 						} else if ($result & SQ_CRON_JOB_RETRY) {
@@ -628,7 +627,7 @@ class Cron_Manager extends Asset
 
 								// if they have had their fair share, get rid of them
 								if ($failed_runs[$cron_job->id] >= (int) $this->attr('num_failed_attempts')) {
-									$remove_jobs[] = $job_info;
+									$this->removeJob($cron_job);
 									$ignore_jobs[] = $cron_job->id;
 
 									$user       = $cron_job->getRunningUser();
@@ -682,14 +681,6 @@ class Cron_Manager extends Asset
 					if ($acquired) {
 
 						$this->setAttrValue('run_check', 0);
-						if (!empty($remove_jobs)) {
-							foreach ($remove_jobs as $job_info) {
-								$cron_job	= $am->getAsset($job_info['assetid'], $job_info['type_code']);
-								$this->removeJob($cron_job);
-								$am->forgetAsset($cron_job);
-							}
-						}
-
 						$this->saveAttributes();
 
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attr_links');
@@ -989,7 +980,6 @@ class Cron_Manager extends Asset
 	*/
 	public function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
-
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
