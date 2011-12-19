@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.68 2009/12/03 04:24:20 ewang Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.68.12.1 2011/12/19 00:21:40 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.68.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -489,6 +489,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$asset_type = 'bodycopy_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
 		$new_container = new $asset_type();
+		// Bug #5460 New DIVs created in Safe Edit showing on front end before going Live. See Bodycopy_Container::saveSystemVersion().
+		$new_container->_tmp['skip_save_system_version_content_file'] = TRUE;
+		
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);

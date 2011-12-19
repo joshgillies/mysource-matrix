@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.48 2010/07/22 04:44:08 ewang Exp $
+* $Id: bodycopy_container.inc,v 1.48.8.1 2011/12/19 00:21:41 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,21 +156,28 @@ class Bodycopy_Container extends Asset
 	{
 		if (!parent::saveSystemVersion()) return FALSE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// save a version of the container as it appears now
-		$edit = $this->getEditFns();
-		if (!$edit->generateContentFile($this)) {
-			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
-
-		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-		foreach ($contexts as $contextid => $context_data) {
-			$filename_suffix = ((int)$contextid === 0) ? '' : '.'.$contextid;
-			if (file_exists($this->data_path.'/content_file'.$filename_suffix.'.php') === TRUE) {
-				$copy_usv = copy_file($this->data_path.'/content_file'.$filename_suffix.'.php', $this->data_path.'/.sq_system/.content_file'.$filename_suffix.'.php');
-
+		
+		// Bug #5460: New DIVs created in Safe Edit showing on front end before going Live.
+		// There is no content yet but the DIV markup shows up and can cause issues if CSS is applied.
+		// So lets not copy the content file over to .sq_system directory.
+		if (!isset($this->_tmp['skip_save_system_version_content_file'])) {
+			// save a version of the container as it appears now
+			$edit = $this->getEditFns();
+			if (!$edit->generateContentFile($this)) {
+				trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
+				return FALSE;
 			}
+
+			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			foreach ($contexts as $contextid => $context_data) {
+				$filename_suffix = ((int)$contextid === 0) ? '' : '.'.$contextid;
+				if (file_exists($this->data_path.'/content_file'.$filename_suffix.'.php') === TRUE) {
+					$copy_usv = copy_file($this->data_path.'/content_file'.$filename_suffix.'.php', $this->data_path.'/.sq_system/.content_file'.$filename_suffix.'.php');
+
+				}
+			}
+		} else {
+			unset($this->_tmp['skip_save_system_version_content_file']);
 		}
 		
 		// save the current notice links
