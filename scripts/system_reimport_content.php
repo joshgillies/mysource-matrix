@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.5 2011/12/13 05:52:29 csmith Exp $
+* $Id: system_reimport_content.php,v 1.6 2011/12/19 02:48:27 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -40,26 +40,40 @@ if (function_exists('iconv') === FALSE) {
 	exit(1);
 }
 
-
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
 }
 $db_conf = require $SYSTEM_ROOT.'/data/private/conf/db.inc';
+array_shift($_SERVER['argv']);
 
 $reportOnly = FALSE;
-if (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == '--report') {
+$verbose = FALSE;
+if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '--report') {
 	$reportOnly = TRUE;
+	array_shift($_SERVER['argv']);
+}
+if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '--verbose') {
+	$verbose = TRUE;
+	array_shift($_SERVER['argv']);
 }
 
+/**
+ * Prints out a usage message to let the user know what's happening.
+ * This always shows up - because we are changing content without
+ * any sort of validation apart from a confirmation message required.
+ * It also shows the current encoding set in the db.inc file,
+ * and shows the current encoding of the database.
+ * It's up to the user to take the appropriate action.
+ */
 function usage()
 {
-	global $db_conf;
+	global $db_conf, $db_encoding;
 	$encoding = '(empty)';
 	if (isset($db_conf['db']['encoding']) === TRUE) {
 		$encoding = $db_conf['db']['encoding'];
 	}
-	echo $_SERVER['argv'][0]." SYSTEM_ROOT [--report]\n";
+	echo $_SERVER['argv'][0]." SYSTEM_ROOT [--report] [--verbose]\n";
 	echo "This script will re-import content from files into the database.\n";
 	echo "This is mainly useful for oracle systems where the wrong database\n";
 	echo "encoding has been used and needs to be changed.\n";
@@ -70,10 +84,27 @@ function usage()
 	if ($db_conf['db']['type'] == 'oci') {
 		echo "Make sure the correct encoding has been set in db.inc before you start.\n";
 		echo "It is currently set to:".$encoding."\n";
+		echo "The database has this encoding: ".$db_encoding."\n";
 		echo "\n";
 	}
 	echo "If you pass --report to the script, a report will be generated based on the\n";
 	echo "number of pages this script will affect.\n\n";
+	echo "If you pass --verbose to the script, it will show what happens per asset\n";
+	echo "and also the asset name, attribute, context that is affected.\n";
+}
+
+/**
+ * Prints a message out to the screen if verbose mode is enabled.
+ * @param string $message The message to print out.
+ *
+ * @return void
+ */
+function printVerbose($message)
+{
+	global $verbose;
+	if ($verbose) {
+		print $message."\n";
+	}
 }
 
 /*
@@ -98,19 +129,6 @@ if ($db_conf['db']['type'] == 'oci' && strtolower($encoding) == 'al32utf8') {
 	$encodeToUtf8 = TRUE;
 }
 
-if ($reportOnly === FALSE) {
-	usage();
-	// Make sure the person running the script understands
-	// the consequences. Content *WILL* be overwritten.
-	echo "OK to proceed (type 'yes' to continue): ";
-	$response = trim(fgets(STDIN));
-
-	if ($response != 'yes') {
-		echo "Aborting.\n";
-		exit(1);
-	}
-}
-
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/core/lib/DAL/DAL.inc';
 require_once $SYSTEM_ROOT.'/core/lib/MatrixDAL/MatrixDAL.inc';
@@ -128,12 +146,40 @@ if ($db_error) {
 }
 
 MatrixDAL::changeDb('db');
+
+$db_encoding = NULL;
+if ($db_conf['db']['type'] == 'oci') {
+	$query = "SELECT VALUE FROM NLS_DATABASE_PARAMETERS WHERE PARAMETER = 'NLS_CHARACTERSET'";
+	$results = MatrixDAL::executeSqlAll($query);
+	$db_encoding = $results[0]['value'];
+}
+
+if ($reportOnly === FALSE) {
+	usage();
+	// Make sure the person running the script understands
+	// the consequences. Content *WILL* be overwritten.
+	echo "OK to proceed (type 'yes' to continue): ";
+	$response = trim(fgets(STDIN));
+
+	if ($response != 'yes') {
+		echo "Aborting.\n";
+		exit(1);
+	}
+}
+
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 /**
  * We need the attribute id for the content so we can update it correctly.
  */
-$query = "select attrid from sq_ast_attr where type_code='content_type_wysiwyg' and name='html'";
+$query = "select
+  attrid
+from
+  sq_ast_attr
+where
+  type_code='content_type_wysiwyg'
+  and name='html'
+  ";
 $results = MatrixDAL::executeSqlAll($query);
 $attributeid = $results[0]['attrid'];
 
@@ -152,8 +198,17 @@ $attributeid = $results[0]['attrid'];
  * status 16 = live
  */
 $query = <<<EOT
-select l.majorid, l.minorid, a.type_code, av.contextid from sq_ast_lnk l inner join sq_ast a on (a.assetid=l.majorid)
-	inner join sq_ast_attr_val av on (a.assetid=av.assetid) inner join sq_ast_attr atr on (av.attrid=atr.attrid)
+select
+  l.majorid,
+  l.minorid,
+  a.type_code,
+  a.name,
+  av.contextid,
+  av.attrid
+from
+  sq_ast_lnk l inner join sq_ast a on (a.assetid=l.majorid)
+  inner join sq_ast_attr_val av on (a.assetid=av.assetid)
+  inner join sq_ast_attr atr on (av.attrid=atr.attrid)
 WHERE
   (a.status = 2 OR a.status = 16)
   AND
@@ -175,10 +230,10 @@ echo "Processing ".$count." assets .. \n";
 // ascii
 // Windows-1252
 $charsetReport = array(
-		'ascii'        => 0,
-		'iso-8859-1'   => 0,
-		'utf-8'        => 0,
-		'windows-1252' => 0,
+		'ascii'        => array(),
+		'iso-8859-1'   => array(),
+		'utf-8'        => array(),
+		'windows-1252' => array(),
 );
 
 $start = time();
@@ -214,38 +269,48 @@ foreach ($results as $assetInfo) {
 	}
 	$oldContent = file_get_contents($filename);
 
-	$contentIsUpdated = FALSE;
+	$contentIsUpdated = FALSE; $fileIsUpdated = FALSE;
 	// If we're checking for utf-8 chars, do it here (and also log the outcome).
 	if ($encodeToUtf8 === TRUE) {
 		// If we don't find any utf-8 chars, we don't need to update the content.
+		$assetName = 'Asset '.$assetInfo['minorid']
+		            .' (child of asset '.$assetInfo['majorid']
+		            .'): '.$assetInfo['name']
+		            ;
 		if (preg_match('%([\xc2-\xf4][\x80-\xbf]{1,3})%', $oldContent)) {
 			# No need to convert content into UTF-8, but we do need to save it.
 			$contentIsUpdated = TRUE;
 			$content = $oldContent;
-			$charsetReport['utf-8']++;
+			$charsetReport['utf-8'][] = $assetName;
 		} else if (preg_match('%([\x80-\x9f])%', $oldContent)) {
-			$charsetReport['windows-1252']++;
 			# Convert content from Windows-1252 to UTF-8
 			$content = iconv('Windows-1252','UTF-8',$oldContent);
 			if ($content !== $oldContent) {
 				$contentIsUpdated = TRUE;
+				$fileIsUpdated = TRUE;
 			}
+			$charsetReport['windows-1252'][] = $assetName;
 		} else if (preg_match('%([\xa0-\xff])%', $oldContent)) {
-			$charsetReport['iso-8859-1']++;
 			# Convert content from ISO-8859-1 to UTF-8
 			$content = iconv('ISO-8859-1','UTF-8',$oldContent);
 			if ($content !== $oldContent) {
 				$contentIsUpdated = TRUE;
+				$fileIsUpdated = TRUE;
 			}
+			$charsetReport['iso-8859-1'][] = $assetName;
 		} else {
 			# else it's 7-bit ASCII which we can ignore, but we need for our report.
-			$charsetReport['ascii']++;
+			$charsetReport['ascii'][] = $assetName;
 		}
 	} # Handle other encoding scenarios here.
 
 	if ($reportOnly === FALSE) {
 		if ($contentIsUpdated) { # We need up update the content in the database
-			log_write('Updating assetid '.$assetInfo['minorid'].' (context '.$contextid.') with content from '.$filename, 'reimport_content');
+			$message = 'Updating assetid '.$assetInfo['minorid'].' (context '.$contextid.') with content from '.$filename
+				 .' (assetid='.$assetInfo['minorid'].',main attrid='.$attributeid.',this attrid='.$assetInfo['attrid'].")";
+			log_write($message, 'reimport_content');
+			printVerbose($message);
+
 			try {
 				$sql   = "UPDATE sq_ast_attr_val SET custom_val=:custom_val WHERE assetid=:assetid AND attrid=:attrid AND contextid=:contextid";
 				$query = MatrixDAL::preparePdoQuery($sql);
@@ -258,21 +323,50 @@ foreach ($results as $assetInfo) {
 				throw new Exception('Unable to update asset '.$assetInfo['minorid'].' with content from '.$filename.': '.$e->getMessage());
 			}
 		} else {
-			log_write('Updating of assetid '.$assetInfo['minorid'].' (context '.$contextid.') skipped', 'reimport_content');
+			$message = 'Updating of assetid '.$assetInfo['minorid'].' (context '.$contextid.') skipped';
+			log_write($message, 'reimport_content');
+			printVerbose($message);
+		}
+		if ($fileIsUpdated) {
+			$message = 'File contents have changed in re-encoding: saving file'.$filename;
+			log_write($message, 'reimport_content');
+			printVerbose($message);
+
+			$fh = @fopen($filename, 'w');
+			if ($fh === FALSE) {
+				$message = 'Unable to open file '.$filename.' for writing - check permissions and try again.';
+				log_write($message, 'reimport_content');
+				printVerbose($message);
+			} else {
+				fwrite($fh, $content);
+				fclose($fh);
+			}
 		}
 	}
 }
 
 $elapsed = time() - $start;
-printf("%.2f%%: %d assets processed in %d seconds, 0 remaining.\n", 100, $done, $elapsed);
+printf("100.0%%: %d assets processed in %d seconds, 0 remaining.\n", $done, $elapsed);
 
-foreach ($charsetReport as $charset => $count) {
-	if ($count > 0) {
-		echo "Found ".number_format($count)." pages with character set ".$charset.".";
+foreach ($charsetReport as $charset => $assetList) {
+	if (count($assetList) > 0) {
+		echo "Found ".number_format(count($assetList))." pages with character set ".$charset.".";
 		if ($reportOnly === FALSE) {
-			echo " These were converted to UTF-8.";
+			if ($charset == 'utf-8') {
+				echo " These were re-saved in UTF-8.";
+			} else if ($charset != 'ascii') {
+				echo " These were converted to UTF-8.";
+			} else {
+				echo " These did not need conversion.";
+			}
 		}
 		echo "\n";
+		if ($verbose) {
+			# Print out the list of actual assets converted.
+			foreach ($assetList as $assetName) {
+				echo ' -> ', $assetName, "\n";
+			}
+		}
 	}
 }
 
