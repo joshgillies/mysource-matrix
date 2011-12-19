@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.71.6.3 2011/11/10 22:19:45 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.71.6.4 2011/12/19 04:32:31 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71.6.3 $
+* @version $Revision: 1.71.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -369,7 +369,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// only matches './?a=(normal or shadow id)'
-		$shadow_reg = '|\./\?a=(\d+:[^"]*)\$|';
+		$shadow_reg = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$|';
 		$normal_reg = '|\./\?a=(\d+)|';
 		$shadow_matches = Array();
 		$normal_matches = Array();
