@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.5 2010/03/16 06:40:19 cupreti Exp $
+* $Id: form_action_db_query.inc,v 1.5.10.1 2011/12/19 00:43:55 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -334,9 +334,9 @@ class Form_Action_DB_Query extends Form_Action
 		// (eg. submission assetid, time, IP address)
 		$matches = Array();
 		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $sql, $set_matches, PREG_SET_ORDER);
-		$matches += $set_matches;
+		$matches = array_merge($matches, $set_matches);
 		$found = preg_match_all('/%(form_submission_.*)%/U', $sql, $set_matches, PREG_SET_ORDER);
-		$matches += $set_matches;
+		$matches = array_merge($matches, $set_matches);
 
 		$i = 1;
 		$bind_vars = Array();
@@ -345,8 +345,10 @@ class Form_Action_DB_Query extends Form_Action
 			$count = 0;
 			do {
 				$sql = preg_replace('/%'.$match[1].'%/U', ':response_'.$i, $sql, 1, $count);
-				$bind_vars['response_'.$i] = html_entity_decode($form->_getThankYouKeywordReplacement($match[1]));
-				$i++;
+				if ($count > 0) {
+					$bind_vars['response_'.$i] = html_entity_decode($form->_getThankYouKeywordReplacement($match[1]));
+					$i++;
+				}
 			} while ($count > 0);
 		}
 
