@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.170 2011/09/25 22:51:27 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.171 2011/12/20 06:03:26 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1091,6 +1091,7 @@ class Workflow_Manager extends MySource_Object
 			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
 				$workflow =& $schema_workflows[$schemaid];
 				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+				$publishers_step = array_merge($publishers_step, Array($workflow['started_by']));
 				if (in_array($publisher, $publishers_step)) {
 					// Does this step have a custom message?
 					if (isset($current_step['message_approve']) && trim($current_step['message_approve']) !== '' ) {
