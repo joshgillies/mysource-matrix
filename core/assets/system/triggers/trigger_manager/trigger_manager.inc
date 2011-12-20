@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.73 2011/07/19 04:04:20 akarelia Exp $
+* $Id: trigger_manager.inc,v 1.74 2011/12/20 02:23:58 mhaidar Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1081,6 +1081,10 @@ class Trigger_Manager extends Asset implements Bridge
 
 		// lookup triggers
 		$candidate_trigger_ids = $this->_lookupCandidateTriggers($state_hash);
+		
+		// Enhancement #5488: Trigger Batching Specify Trigger Ids
+		$specified_trigger_ids = !empty($parameters['specified_trigger_ids']) ? $parameters['specified_trigger_ids'] : $candidate_trigger_ids;
+		$candidate_trigger_ids = array_intersect($candidate_trigger_ids, $specified_trigger_ids);
 
 		// execute each trigger
 		foreach ($candidate_trigger_ids as $trigger_id) {

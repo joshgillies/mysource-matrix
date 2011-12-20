@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.25 2007/11/30 02:55:54 hnguyen Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.26 2011/12/20 02:23:58 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,13 +194,17 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $tm->writeAccess('attributes');
 		if ($write_access) {
+			$o->openField(translate('trigger_ids'));
+			multiple_asset_finder($prefix.'[trigger_ids]', array_get_index($this->_tmp, 'trigger_ids', Array()), Array('trigger' => 'I'));
+			$o->note(translate('trigger_ids_note'));
+			
 			$o->openField(translate('target_node'));
 			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
-
+			
 			$o->openField(translate('children'));
 			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', TRUE));
 			label(translate('include_children_question'), $prefix.'[include_children]');
-
+			
 			$o->openField(translate('events'));
 			$event_type_list = $tm->_getEventList();
 			$events = array_get_index($this->_tmp, 'selected_events');
@@ -244,10 +248,20 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$target_node = array_get_index($request_data, 'target_node');
 		$target_id   = array_get_index($target_node,  'assetid');
+		
+		$triggers = array_get_index($request_data, 'trigger_ids');
+		$trigger_ids = Array();
+		foreach ($triggers as $trigger_id) {
+			if ($trigger_id['assetid']) {
+				$trigger_ids[] = substr($trigger_id['assetid'], strpos($trigger_id['assetid'], ':') + 1);
+			}
+		}
+		
 		$events      = array_get_index($request_data, 'selected_events', Array());
 		$propagate   = isset($request_data['include_children']);
 
 		$this->_tmp['target_id']        = $target_id;
+		$this->_tmp['trigger_ids'] = $trigger_ids;
 		$this->_tmp['selected_events']  = $events;
 		$this->_tmp['include_children'] = $propagate;
 
@@ -279,6 +293,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$vars = Array(
 					'assets'				=> $all_targets,
 					'events'				=> $events,
+					'event_parameters'		=> Array('specified_trigger_ids' => $trigger_ids),
 					'codename_target'		=> $target_id,
 					'codename_propagate'	=> ($propagate ? '1' : '0'),
 				);

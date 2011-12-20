@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.14 2007/11/30 03:45:50 bshkara Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.15 2011/12/20 02:23:58 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,6 +204,8 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$this->_running_vars['total_steps'] = count($this->_running_vars['assets']) * count($this->_running_vars['events']);
 		$this->_running_vars['step_value']  = (int) (100 / $this->_running_vars['total_steps']);
 
+		if (empty($this->_running_vars['event_parameters'])) $this->_running_vars['event_parameters'] = NULL;
+		
 		return parent::prepare();
 
 	}//end prepare()
@@ -233,7 +235,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 
 		$current_event = array_pop($this->_running_vars['current_events']);
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset, $this->_running_vars['event_parameters']);
 
 		$step_data['message'] = translate('hipo_broadcast_event', $current_event, $this->_running_vars['current_assetid']);
 		$step_data['percent_done'] += $this->_running_vars['step_value'];

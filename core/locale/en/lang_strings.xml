@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.408 2011/12/09 04:03:44 akarelia Exp $
+* $Id: lang_strings.xml,v 1.409 2011/12/20 02:23:58 mhaidar Exp $
 *
 */
 
@@ -1221,6 +1221,8 @@
 	<string source="new_trigger_name">New Trigger Name</string>
 	<string source="include_children_question">Include Children ?</string>
 	<string source="link">Link</string>
+	<string source="trigger_ids">Trigger Ids</string>
+	<string source="trigger_ids_note">Specify the Triggers that may only be executed. Leave blank to allow any Trigger.</string>
 
 	<string source="trigger_clone_asset_missing">The asset to clone is missing and cloning broadcasting asset is not selected</string>
 	<string source="trigger_clone_parent_missing">Parent to clone under is missing and linking to broadcasting asset is not selected</string>
