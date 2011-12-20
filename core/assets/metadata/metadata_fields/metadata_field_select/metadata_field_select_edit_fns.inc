@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.48 2011/10/20 03:53:27 mhaidar Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.49 2011/12/20 03:30:52 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,6 +238,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				// Base this on the default values because then any new
 				// option not already in a modified context can be set to the
 				// default context's value for it
+
 				foreach ($select_options as $option_key => $option_value) {
 					?>
 					<tr>
@@ -452,6 +453,48 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
 
 	}//end generateMetadata()
+
+
+	/**
+	* Print the interface for uploading a CSV file containing a mass list of options
+	*
+	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function paintOptionUpload(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess();
+		file_upload($prefix.'_option_upload');
+		return $write_access;
+
+	}//end paintOptionUpload()
+
+
+	/**
+	* Print the interface for uploading a CSV file containing a mass list of options
+	*
+	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function processOptionUpload(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
+	{
+		if (isset($_FILES[$prefix.'_option_upload'])) {
+			$file = $_FILES[$prefix.'_option_upload'];
+
+			if ($file['error'] === UPLOAD_ERR_OK) {
+				$asset->importOptionsFromCSV($file['tmp_name']);
+			}
+		}
+
+	}//end processOptionUpload()
 
 
 }//end class
