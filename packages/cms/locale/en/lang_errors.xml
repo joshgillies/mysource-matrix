@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.26 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.27 2011/12/21 02:28:40 mhaidar Exp $
 *
 */
 -->
@@ -232,5 +232,12 @@
 		
 	<error code="CMS0113">Not enough questions in the pool for pool root node (Id: #%s).</error>
 	<!-- packages/cms/page_templates/page_online_quiz/page_online_quiz_edit_fns.inc:processQuestionPoolSetup() -->
+	
+	<!-- Decision Tree -->
+	<error code="CMS0114">The Points Value field must be numeric for Answer Destinations.</error>
+	<error code="CMS0115">Min and Max values must be numeric for the bodycopy points range.</error>
+	<error code="CMS0116">The Min value can not be greater than the Max in the Points Range.</error>
+	<error code="CMS0117">Failed to create the required number of result bodycopies.</error>
+	<error code="CMS0118">The Decision Tree Page Id: #%s does not have a first question!.</error>
 	
 </errors>
