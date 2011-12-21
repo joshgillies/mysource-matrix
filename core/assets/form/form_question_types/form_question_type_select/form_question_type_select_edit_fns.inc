@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.14 2010/11/01 00:28:29 ewang Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.15 2011/12/21 00:10:29 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -466,7 +466,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 			lastOrder = <?php echo $order; ?>;
 
 			function sListMoveMe(first, second) {
-				var l = document.getElementById('option-list-<?=$prefix ?>');
+				var l = document.getElementById('option-list-<?php echo $prefix; ?>');
 				var f = l.getElementsByTagName('INPUT');
 				var tempkey = f[first-1].value;
 
