@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.95 2011/12/07 04:21:32 akarelia Exp $
+* $Id: js_api.inc,v 1.96 2011/12/21 05:17:53 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2131,18 +2131,24 @@ class JS_Api extends Page
 								  );
 
 				$all_errors	= Array();
+				$cloned_assets = Array();
 				for ($i = 0; $i < $clone_num; $i++) {
 					// Need to reset the running vars again as it is passed by reference to the hipo job
 					$running_vars_copy	= $running_vars;
 					$errors	= $hh->freestyleHipo('hipo_job_clone_assets', $running_vars_copy);
-
+					if(isset($running_vars_copy['cloned_asset'])) {
+					    $cloned_asset_id = array_pop(array_keys($running_vars_copy['cloned_asset']));
+					    $cloned_asset_id = '#'.$cloned_asset_id;
+					    $cloned_assets[] = $cloned_asset_id;
+					}
 					$all_errors	+= $errors;
 				}//end for
 				if (empty($all_errors)) {
-					$data['success'] = 'Cloning of Asset "'.$asset->name.'(#'.$asset->id.')" completed successfully';
+					$cloned_assets_string = implode($cloned_assets, ', ');
+					$data['success'] = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
 				} else {
 					$data['error'] = $all_errors;
-				}
+				}	
 			} else {
 				$data['error'] = 'Asset to clone was not provided';
 			}
