@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.5 2010/05/05 07:16:13 ewang Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.6 2011/12/22 16:48:50 mmaruyama Exp $
 *
 */
 
@@ -182,11 +182,16 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	 * Get Authorization Headers for user data access
 	 *
 	 * @param	Array	urls	urls that needs Authrization Headers for user data acess
+	 * @param	Array	args	http request config values such as http method and request body
+	 *							3 legged does not require these values to be passed but 2 legged OAuth does.
+	 *							Since this asset is designed to use 3 legged OAuth, the parameter exists
+	 *							but it is not used by this function
+	 *							
 	 *
 	 * @return	Array	key: urls passed  value: an Authorization Header for OAuth	
 	 * @access	public
 	 */
-	public function getUserDataRequestAuthHeaders($urls=Array())
+	public function getUserDataRequestAuthHeaders($urls=Array(), $args=Array())
 	{
 		$auth_headers = Array();
 		if (empty($urls)) return Array();

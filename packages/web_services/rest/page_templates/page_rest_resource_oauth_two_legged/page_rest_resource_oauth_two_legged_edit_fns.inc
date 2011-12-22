@@ -10,41 +10,33 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session_management.inc,v 1.4 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: page_rest_resource_oauth_two_legged_edit_fns.inc,v 1.1 2011/12/22 16:48:50 mmaruyama Exp $
 *
 */
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
-require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/rest/page_templates/page_rest_resource/page_rest_resource_edit_fns.inc';
 
 /**
-* Page_REST_Resource_OAuth_Session_Management
+* Page_REST_Resource_OAuth_Two_Legged_Edit_Fns
 *
-* @see Asset_Management
+* Purpose
+*
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
 * @version $ $
-* @package Squiz_UK_Clients
+* @package web_services
 * @subpackage rest
 */
-class Page_REST_Resource_OAuth_Session_Management extends Asset_Management
+class Page_REST_Resource_OAuth_Two_Legged_Edit_Fns extends Page_REST_Resource_Edit_Fns
 {
 	/**
 	* Constructor
 	*
 	*/
-	function __construct(&$pm)
+	function __construct()
 	{
-		$this->Asset_Management($pm);
-		$this->vars = Array(
-			'oauth'  => Array(
-				'added'		=> '0.1',
-				'type'		=> 'oauth',
-				'default'   => Array(
-					'type' => 'THREE_LEGGED',
-				),
-			),
-		);
+		parent::__construct();
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 

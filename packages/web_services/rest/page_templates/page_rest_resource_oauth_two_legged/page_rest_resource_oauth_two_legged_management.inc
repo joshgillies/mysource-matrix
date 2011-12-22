@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session_management.inc,v 1.4 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: page_rest_resource_oauth_two_legged_management.inc,v 1.1 2011/12/22 16:48:50 mmaruyama Exp $
 *
 */
 
@@ -18,16 +18,16 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 require_once SQ_ATTRIBUTES_PATH.'/oauth/oauth.inc';
 
 /**
-* Page_REST_Resource_OAuth_Session_Management
+* Page_REST_Resource_OAuth_Two_Legged_Management
 *
 * @see Asset_Management
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
 * @version $ $
-* @package Squiz_UK_Clients
+* @package web_services
 * @subpackage rest
 */
-class Page_REST_Resource_OAuth_Session_Management extends Asset_Management
+class Page_REST_Resource_OAuth_Two_Legged_Management extends Asset_Management
 {
 	/**
 	* Constructor
@@ -41,7 +41,7 @@ class Page_REST_Resource_OAuth_Session_Management extends Asset_Management
 				'added'		=> '0.1',
 				'type'		=> 'oauth',
 				'default'   => Array(
-					'type' => 'THREE_LEGGED',
+					'type' => 'TWO_LEGGED',
 				),
 			),
 		);

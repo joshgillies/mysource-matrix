@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.4 2011/05/13 01:51:19 mhaidar Exp $
+* $Id: oauth.inc,v 1.5 2011/12/22 16:48:09 mmaruyama Exp $
 *
 */
 
@@ -39,6 +39,10 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		'HMAC-SHA1' => 'HMAC-SHA1',
 		//'RSA-SHA1' => 'RSA-SHA1',
 		'PLAINTEXT' => 'PLAINTEXT',
+	);
+	private $_type = Array(
+		'THREE_LEGGED' => '3 legged',
+		'TWO_LEGGED' => '2 legged',
 	);
 
 	private $_header_params = Array();
@@ -114,6 +118,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                     ?>
                 </td>
             </tr>
+			<?php if (!isset($current_value['type']) || $current_value['type'] == 'THREE_LEGGED') {?>
 			<tr>
 				<th width="20%"><?php echo translate('http_request_method'); ?></th>
 				<td>
@@ -174,6 +179,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                     ?>
                 </td>
 			</tr>
+			<?php }?>
 			<tr>
                 <th><?php echo translate('oauth_signature_method'); ?></th>
                 <td>
@@ -186,6 +192,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 					?>
 				</td>
 			</tr>
+			<?php if (!isset($current_value['type']) || $current_value['type'] == 'THREE_LEGGED') {?>
 			<tr>
 				<th><?php echo translate('http_request_request_headers'); ?></th>
 				<td>
@@ -198,6 +205,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 				</td>
 			</tr>
 			<?php 
+			}
 			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
 			?>
 			<tr>
@@ -249,7 +257,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		$value = Array();
 		
-		if (!isset($_REQUEST[$prefix.'_method'])) return FALSE;
+		if ($this->getType() != 'TWO_LEGGED' && !isset($_REQUEST[$prefix.'_method'])) return FALSE;
 		
 		// Assign values
 		$value['consumer_key'] 		= (isset($_REQUEST[$prefix.'_consumer_key'])) ? trim($_REQUEST[$prefix.'_consumer_key']) : '';
@@ -272,6 +280,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$hl = new Asset_Attribute_Option_List();
 		$hl->process($prefix.'_request_headers');
 		$value['request_headers'] = trim($hl->value) ? explode($hl->delimiter, $hl->value) : NULL;
+		
+		$value['type']			  = $this->getType();	// the type is controlled by calling asset(which sets the type as default), not the user
 		
 		$value['run_test'] = FALSE;
 
@@ -418,6 +428,10 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (empty($url)) return NULL;
 		
 		$query_parameters = Array();
+
+		// the url might already be url encoded - decode it to avoid double encoding later on 
+		// so that it'll work whehter the url has been encoded or not        
+        $url = urldecode($url);
 
 		// if the url has the parameters part, return the parameters as an array
 		$url_param = explode('?', $url);
@@ -812,13 +826,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	 * @access public
 	 * @return void
 	 */
-	public function getUserDataAuthHeader($url='', $access_token, $access_token_secret, $url_encode = TRUE)
+	public function getUserDataAuthHeader($url='', $access_token='', $access_token_secret='', $url_encode = TRUE)
 	{
 		$this->_config = @unserialize($this->value);
 		if (empty($this->_config)) return;
 
 		// we need feed url, access token and access secret
-		if (empty($url) || empty($access_token) || empty($access_token_secret)) {
+		if (empty($url) || ($this->getType() == 'THREE_LEGGED' && (empty($access_token) || empty($access_token_secret)))) {
 			$this->_errors[] = translate('oauth_user_data_missing_params', $url);
 			return;
 		}
@@ -838,7 +852,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// gather parameters reuired for signature and encode them before signing the signature
 		// but don't encode the access token as it's already been encoded
 		$all_params = $this->_header_params = $this->_encodeParam($this->_header_params);
-		$all_params['oauth_token'] = $this->_header_params['oauth_token'] = $access_token;
+		if ($this->getType() == 'THREE_LEGGED') $all_params['oauth_token'] = $this->_header_params['oauth_token'] = $access_token;
 		$query_params = $this->_getQueryParameterArray($url, $url_encode);
 		if (!empty($query_params)) { 
 			// if query parameters exist, they have to be included in the signature
@@ -874,5 +888,50 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		return $this->_errors;
 
 	}//end getErrors()
+	
+	
+	/**
+	 * Get the type of this OAuth authentication - 2 legged or 3 legged
+	 *
+	 * @param	none
+	 *
+	 * @return	String
+	 * @access	public
+	 */
+	public function getType()
+	{
+		$value = @unserialize($this->value);
+		return isset($value['type']) ? $value['type'] : 'THREE_LEGGED';
+	}
+
+	
+	/**
+	 * Set a config value
+	 *
+	 * @param	String	$config_name	the name of the config to set
+	 * @param	mixed	$config_value	the value of the config to set
+	 *
+	 * @access	public
+	 */
+	public function setConfig($config_name, $config_value)
+	{
+		$value = @unserialize($this->value);
+		if ($value[$config_name] == $config_value) return;
+		switch ($config_name) {
+			// if the config to set is 'method' check the value is valid
+			case 'method':
+				if (isset($this->_methods[$config_value])) {
+					$value['method'] = $config_value;
+				}
+				break;
+			// otherwise set the config to this asset's attribute
+			default:
+				$value[$config_name] = $config_value;
+		}
+
+		$this->setValue($value);
+
+	}
+
 }
 ?>
