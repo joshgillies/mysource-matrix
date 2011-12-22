@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.15 2011/12/20 02:23:58 mhaidar Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.16 2011/12/22 04:46:48 mhaidar Exp $
 *
 */
 
@@ -23,13 +23,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Initial Running Vars :
 *	Array(int)      assets                - the asset IDs of the assets that will broadcast events
 *	Array(string)   events                - an array of event types that each asset will broadcast
+*	Array			event_parameters	  - extra parameters to pass to 3rd argument of Mysouce::broadcastTriggerEvent().
 *   int             codename_target       - the id of the target asset, for use in the codename
 *   int             codename_propagate    - shows whether the descendants of the target were also processed by the HIPO. Used by getCodeName()
 * </pre>
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
