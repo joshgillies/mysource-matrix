@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.857 2011/10/24 02:21:43 csmith Exp $
+* $Id: asset_manager.inc,v 1.858 2011/12/22 03:54:41 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.857 $
+* @version $Revision: 1.858 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2050,7 +2050,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		//// clone non-link-based components ////
+		//// clone non-link-based and non-event-triggering (#5486) components.
 
 		// cascade various components from parent asset to new child
 		// unless the parent is the root folder or system management folder;
@@ -2064,14 +2064,14 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 				// remove content_tags from the array, if present; munge array, then give it to cloneComponents
-				$nonlink_parent_components = $parent_components;
-				foreach ($nonlink_parent_components as $idx => $component) {
+				$pre_link_parent_components = $parent_components;
+				foreach ($pre_link_parent_components as $idx => $component) {
 					if ($component == 'content_tags') {
-						unset($nonlink_parent_components[$idx]);
+						unset($pre_link_parent_components[$idx]);
 					}
 				}
 
-				if (!$link['asset']->cloneComponents($clone, $nonlink_parent_components)) {
+				if (!$link['asset']->cloneComponents($clone, $pre_link_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					
@@ -2084,17 +2084,16 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		// now that we (might) have permission, copy all the schemas, attributes,
-		// etc. from the original asset
+		// now that we (might) have permission, copy non-link-based and non-event-triggering (#5486) components
 		// (will throw errors but return TRUE if the user doesn't have sufficient permissions
 		// to cascade everything)
-		$nonlink_components = $components;
-		foreach ($nonlink_components as $idx => $component) {
-			if ($component == 'content_tags') {
-				unset($nonlink_components[$idx]);
+		$pre_link_components = $components;
+		foreach ($pre_link_components as $idx => $component) {
+			if (in_array($component, Array('content_tags', 'attributes', 'metadata'))) {
+				unset($pre_link_components[$idx]);
 			}
 		}
-		if (!$source->cloneComponents($clone, $nonlink_components, TRUE)) {
+		if (!$source->cloneComponents($clone, $pre_link_components, TRUE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
@@ -2118,7 +2117,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		//// go back and clone link-based components ////
+		//// go back and clone link-based and event-triggering (#5486) components ////
 
 		// as per above, cascade components from parent asset to new
 		// child, regardless of permission
@@ -2130,9 +2129,9 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 				// only clone content_tags this time (only link-based component so far)
-				$link_parent_components = (in_array('content_tags', $parent_components) ? Array('content_tags') : Array());
+				$post_link_parent_components = (in_array('content_tags', $parent_components) ? Array('content_tags') : Array());
 
-				if (!empty($link_parent_components) && !$link['asset']->cloneComponents($clone, $link_parent_components)) {
+				if (!empty($post_link_parent_components) && !$link['asset']->cloneComponents($clone, $post_link_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					
@@ -2145,14 +2144,14 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		// copy all link-based components from the original asset
-		$link_components = $components;
-		foreach ($link_components as $idx => $component) {
-			if ($component != 'content_tags') {
-				unset($link_components[$idx]);
+		// copy all link-based and event-triggering (#5486) components from the original asset
+		$post_link_components = $components;
+		foreach ($post_link_components as $idx => $component) {
+			if (!in_array($component, Array('content_tags', 'attributes', 'metadata'))) {
+				unset($post_link_components[$idx]);
 			}
 		}
-		if (!empty($link_components) && !$source->cloneComponents($clone, $link_components, TRUE)) {
+		if (!empty($post_link_components) && !$source->cloneComponents($clone, $post_link_components, TRUE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
