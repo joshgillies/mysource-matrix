@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question_type_numeric_edit_fns.inc,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: decision_tree_question_type_numeric_edit_fns.inc,v 1.2 2011/12/22 04:19:06 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_decision_tree/decision_t
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -206,7 +206,7 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 				?><tr><?php
 				?><td><?php 
 				
-				combo_box($prefix.'[RULES][default]['.$key.'][logic]', $contents);
+				combo_box($prefix.'[RULES][default]['.$key.'][logic]', $contents, FALSE, $item['logic']);
 
 				?></td><?php
 				?><td><?php 
