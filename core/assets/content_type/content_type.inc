@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.29 2011/07/19 06:12:45 ewang Exp $
+* $Id: content_type.inc,v 1.30 2011/12/23 04:35:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,7 +171,8 @@ class Content_Type extends Asset
 	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		$contents_changed = isset($this->_tmp['vars_set']['html']);
-
+		$success = parent::saveAttributes($dont_run_updated);
+		
 		// Want to see if the content has been changed.
 		if ($contents_changed) {
 			// Yep, so we need to (re)generate our bodycopy container's content file
@@ -197,18 +198,16 @@ class Content_Type extends Asset
 			}		
 		}
 
-		$success = parent::saveAttributes($dont_run_updated);
-
 		if ($contents_changed && $success) {
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'ContentsUpdated');
                                                                                                 
-                                                                                                // broadcast conetnt chnaged trigger event for its top level parent
-                                                                                                $top_level_parents = $GLOBALS['SQ_SYSTEM']->am-> getDependantParents($this->id, '', TRUE, FALSE);
-                                                                                                foreach ($top_level_parents as $parentid) {
-                                                                                                    $parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
-                                                                                                     $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_content_changed', $parent);
-                                                                                                }
+            // broadcast conetnt chnaged trigger event for its top level parent
+            $top_level_parents = $GLOBALS['SQ_SYSTEM']->am-> getDependantParents($this->id, '', TRUE, FALSE);
+            foreach ($top_level_parents as $parentid) {
+            	$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+            	$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_content_changed', $parent);
+            }
 		}
 
 		return $success;
