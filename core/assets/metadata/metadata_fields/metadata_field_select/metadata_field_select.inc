@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.35.4.1 2011/10/25 01:13:35 mhaidar Exp $
+* $Id: metadata_field_select.inc,v 1.35.4.2 2011/12/23 00:51:59 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35.4.1 $
+* @version $Revision: 1.35.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,7 @@ class Metadata_Field_Select extends Metadata_Field
 
 		// trim the last separator
 		$value_str = substr($value_str, 0, -2);
-        $value_str = Metadata_Field::encodeValueString($value_str, Array());
+		$value_str = Metadata_Field::encodeValueString($value_str, Array());
 
 		return $value_str;
 
@@ -397,6 +397,90 @@ class Metadata_Field_Select extends Metadata_Field
 		}
 
 	}//end getAdditionalKeywordReplacement()
+
+
+	/**
+	* Replace options with an imported CSV file.
+	*
+	* If 1 column: value only - key is sequentially assigned (from 0)
+	* If 2 columns: key, value
+	* If 3 columns: key, value, default [1|0]
+	*
+	* @param string	$filename	The (temp) file name to import
+	*
+	* @return void
+	*/
+	public function importOptionsFromCSV($filename)
+	{
+		$csv = new CSV($filename);
+		$csv->import();
+
+		$values = $csv->values;
+		$options = Array();
+		$defaults = Array();
+
+		if (!empty($values)) {
+			// We will assume that the number of columns in the first row
+			// is representative of the entire list
+			$num_columns = count($values[0]);
+			$index = 0;
+
+			foreach ($values as $row) {
+				// if the very first bit for us is not populated
+				/// it means its a empty line, discard it !!!
+				if (trim($row[0]) === '') continue;
+				if ($num_columns === 1) {
+					// If we haven't provided a first column, then key and value
+					// are the same
+					$value = htmlentities($row[0], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$options[$index] = $value;
+					$index++;
+				} else {
+					$key = htmlentities($row[0], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$value = htmlentities($row[1], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$options[$key] = $value;
+
+					if ($num_columns === 3) {
+						if ($row[2] == 1) {
+							$defaults[] = $key;
+						}
+					}
+				}
+			}
+
+			$this->setAttrValue('select_options', $options);
+			if ($num_columns === 3) {
+				if (!$this->attr('multiple')) {
+					if (count($defaults) > 1) {
+						trigger_localised_error('CORE0309', E_USER_NOTICE);
+					}
+					if (count($defaults) > 0) {
+						$defaults = Array($defaults[0]);
+					} else {
+						$defaults = Array();
+					}
+				}
+
+				$this->setAttrValue('default', implode('; ', $defaults));
+			} else {
+				// What happens if it gets overwritten?
+				$current_default = $this->attr('default');
+				if (!is_array($current_default)) {
+					$current_default = Array($current_default);
+				}
+				foreach ($current_default as $default_key) {
+					// Remove any default options that are not choices in this
+					// particular situation
+					if (!isset($options[$default_key])) {
+						unset($current_default[$default_key]);
+					}
+				}
+				$this->setAttrValue('default', implode('; ', $current_default));
+			}
+			$this->saveAttributes();
+		}
+
+	}//end importOptionsFromCSV()
 
 
 }//end class
