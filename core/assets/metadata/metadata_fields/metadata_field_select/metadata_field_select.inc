@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.37 2011/12/20 03:52:54 akarelia Exp $
+* $Id: metadata_field_select.inc,v 1.38 2011/12/23 00:00:47 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,6 +427,9 @@ class Metadata_Field_Select extends Metadata_Field
 			$index = 0;
 
 			foreach ($values as $row) {
+				// if the very first bit for us is not populated
+				/// it means its a empty line, discard it !!!
+				if (trim($row[0]) === '') continue;
 				if ($num_columns === 1) {
 					// If we haven't provided a first column, then key and value
 					// are the same
