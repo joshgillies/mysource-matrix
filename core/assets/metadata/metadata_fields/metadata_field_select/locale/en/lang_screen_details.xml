@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2011/07/21 04:59:59 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.8.2.1 2011/12/23 00:44:53 akarelia Exp $
 *
 */
 -->
@@ -69,6 +69,23 @@
 			<function_call>
 				<paint_function   name="paintSelection"   />
 				<process_function name="processSelection" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Upload from CSV file</display_name>
+			<note><![CDATA[<p>Use this option to upload a mass list of options from a file of comma-separated values (CSV). Note that your existing options <strong>will be erased</strong> and completely replaced with the options listed in the file. The CSV file can contain one, two or three fields, which are interpreted as follows:</p>
+
+			<ul>
+				<li><strong>One field:</strong> the field will determine the value of each option. The assigned key will be numeric and sequentially assigned, starting from zero (0).</li>
+				<li><strong>Two fields:</strong> first field will denote the key of each option, the second field the value.</li>
+				<li><strong>Three fields:</strong> first field will denote the key, second field the value. The third field should be either numeric '1' or '0', with '1' indicating that this option should be the default value (or a default value, in the case of multiple selections being possible).</li>
+			</ul>
+
+			<p>The number of fields in each row should be consistent: the number of fields in the first row determines how all rows are processed. If less than three fields are specified, the default will not change, except that any default(s) that do not exist in the new set of options (compared by their key) will be removed.</p>
+			]]></note>
+			<function_call>
+				<paint_function   name="paintOptionUpload"   />
+				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>
 	</section>
