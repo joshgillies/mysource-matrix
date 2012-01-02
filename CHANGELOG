@@ -1,5 +1,62 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.6.2
+
+Featured Changes
+===================================
+
+
+Metadata Select Field: Upload Options from CSV File [ Feature Request #5489 ]
+-----------------------------------------------------
+
+The Select question type, used on a Custom Form, allows you to specify a CSV file from your computer to automatically input the options for the select question. This is useful for batch uploading a number of options or if you are importing an existing question's options.
+
+Previously, this functionality was not available on the Metadata Select Field. This feature introduces this addition, allowing you to specify a CSV file when configuring the Metadata Select Field's options.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5462: Paint Layout: Conditional Keywords Performance Enhancement.
+Minor Enhancement #5473: Email Form Reply-To Address.
+Minor Enhancement #5477: E-Com Default Delivery Method: New Keyword to Print Transaction Ref ID.
+Minor Enhancement #5487: Cron Manager: Improved Handling for Fatal Error/Memory Limit Caused by Deadlock.
+Minor Enhancement #5493: JS API's cloneAsset Function Returns Cloned Asset IDs in Response.
+
+Core
+
+Fixed Bug #5460: New DIVs created in Safe Edit showing on front end before going Live.
+Fixed Bug #5468: remove_form_submission.php corrupts sq_ast_lnk_tree.
+Fixed Bug #5469: remove_form_submission.php doesn't clean up metadata on file system.
+Fixed Bug #5470: Rollback view throw errors if the rollback date is older than the user currently logged.
+Fixed Bug #5471: Mollom CAPTCHA throws fatal error when checking metadata fields value in Asset Builder.
+Fixed Bug #5476: Missing file causes empty array to be returned from getExistingFile.
+Fixed Bug #5478: Inserting Youtube video in wysiwyg using "Embed Youtube video" plugin does not resize properly in IE7/8.
+Fixed Bug #5480: AssetID attribute doesn't work with multiple type codes.
+Fixed Bug #5492: Form Select Question option list can not be reordered.
+
+CMS
+
+Fixed Bug #5420: Online Quiz pagination does not work.
+
+E-Commerce
+
+Fixed Bug #5474: E-commerce form input names keywords.
+
+Data
+
+Fixed Bug #5465: Execute DB Query Form Submission Action creating too many bind vars.
+
+Web Services
+
+Fixed Bug #5472: Non-UTF8 characters in response from JS API can break the output.
+
+
+
+
 VERSION 4.6.1
 
 Featured Changes
