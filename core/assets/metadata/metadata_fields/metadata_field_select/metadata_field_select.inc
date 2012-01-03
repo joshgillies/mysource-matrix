@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.35.4.2 2011/12/23 00:51:59 akarelia Exp $
+* $Id: metadata_field_select.inc,v 1.35.4.3 2012/01/03 06:03:31 ewang Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
+require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 
 /**
 * Metadata_Field_Select
@@ -24,7 +25,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35.4.2 $
+* @version $Revision: 1.35.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
