@@ -17,7 +17,7 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -27,7 +27,7 @@ if ((php_sapi_name() != 'cli')) {
 }//end if
 
 if (count($argv) < 3) {
-    echo "Usage: php scripts/regen_metadata_by_root_nodes.php <SYSTEM_ROOT> <ASSETID[, ASSETID]> <MAX_THREAD_NUM> <BATCH_SIZE> <--skip-asset-update> \n";
+    echo "Usage: php scripts/regen_metadata_by_root_nodes.php <SYSTEM_ROOT> <ASSETID[, ASSETID]> <MAX_THREAD_NUM> <BATCH_SIZE> <--skip-asset-update> <--direct-children-only> \n";
     exit();
 }//end if
 
@@ -47,11 +47,19 @@ if (empty($max_thread_num) || ($max_thread_num > 5)) $max_thread_num = 3;
 $batch_size = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
 if (empty($batch_size)) $batch_size = 50;
 
-$skip_assets = (isset($_SERVER['argv'][5])) ? $_SERVER['argv'][5] : '';
 $update_assets = TRUE;
-if ($skip_assets == '--skip-asset-update') {
-	$update_assets = FALSE;
-}//end if
+$max_asset_depth = NULL;
+if (isset($_SERVER['argv'][5])) {
+	$options = array_slice($_SERVER['argv'], 5);
+	foreach ($options as $option) {
+		if ($option == '--skip-asset-update') {
+			$update_assets = FALSE;
+		} else if ($option == '--direct-children-only') {
+			$max_asset_depth = 1;
+		}//end if
+	}
+}
+
 
 define('LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.log');			// This is the log file
 define('SYNCH_FILE', $SYSTEM_ROOT.'/data/private/logs/regen_metadata_by_root_nodes.assetid');		// We need this file to store the assetids of those to be regenerated
@@ -102,7 +110,7 @@ $pid_prepare    = pcntl_fork();
 			
             $children = Array();
             foreach ($rootnodes as $rootnode_id) {
-                $children    += array_merge($children, array_keys(($GLOBALS['SQ_SYSTEM']->am->getChildren($rootnode_id))));
+                $children    += array_merge($children, array_keys(($GLOBALS['SQ_SYSTEM']->am->getChildren($rootnode_id, '', TRUE, NULL, NULL, NULL, TRUE, 1, $max_asset_depth))));
             }//end foreach
 
 			// Save the list into a file so we can access the list from the parent process
