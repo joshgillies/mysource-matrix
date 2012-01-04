@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.49 2009/10/14 00:11:51 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.49.10.1 2012/01/04 23:46:52 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1344,7 +1344,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 			$csv = new CSV();
-			$csv->setFilename($asset->name.'_report.csv');
+			$csv->setFilename(str_replace(' ', '_', $asset->name).'_report.csv');
 			$csv->setDeliminator(',');
 
 			$am = $GLOBALS['SQ_SYSTEM']->am;
