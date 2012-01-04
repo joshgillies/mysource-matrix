@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.41 2011/10/04 06:51:36 ewang Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.42 2012/01/04 00:01:20 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -471,6 +471,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2').'<br />'.translate('csv_upload_instructions_example_3'));
 		$o->closeField();
 
+		$o->openField(translate('csv_upload_header'));
+			check_box($prefix.'_csv_header');
+			$o->note(translate('csv_upload_header_example'));
+		$o->closeField();
+
 	}//end paintAddRemapURLs()
 
 
@@ -493,7 +498,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($file_info)) {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 			$csv = new CSV($file_info['tmp_name']);
-			$csv->import();
+			$csv_start = 1;
+			if (isset($_POST[$prefix.'_csv_header'])) {
+				$csv_start = 2;
+			}
+			$csv->import($csv_start);
 
 			foreach ($csv->values as $line_value) {
 				$old_url     = trim($line_value[0]);
