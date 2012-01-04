@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.17.18.2 2011/12/23 00:12:25 mhaidar Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.17.18.3 2012/01/04 01:39:36 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17.18.2 $
+* @version $Revision: 1.17.18.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,8 +81,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		// note that new state is modified and new data is available to other conditions
 		if (empty($state['treeid'])) {
 			// not stored, need to retrieve
-			$assetid = 0;
 			$state['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetid);
+			if (empty($state['treeid'])) trigger_localised_error('TRIG0006', E_USER_WARNING);
 		}
 
 		if (!is_array($state['treeid'])) {
