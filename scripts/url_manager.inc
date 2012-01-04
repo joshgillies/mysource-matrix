@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ class URL_Manager
 	public static function cliInterfaceAddUrl()
 	{
 		global $SYSTEM_ROOT;
-		bam("To use this script, you would need the following information\n
+		pre_echo("To use this script, you would need the following information\n
 Site Assetid
 Protocol to be used
 New URL
@@ -254,9 +254,9 @@ Make sure you have all you information you need before Proceeding\n");
 		MatrixDAL::execPdoQuery($query);
 
 		if (!$quiet) {
-			bam($sql_update_sq_ast_url);
-			bam($sql_update_sq_ast_lookup_value);
-			bam($sql_update_sq_ast_lookup);
+			pre_echo($sql_update_sq_ast_url);
+			pre_echo($sql_update_sq_ast_lookup_value);
+			pre_echo($sql_update_sq_ast_lookup);
 		}//end if
 
 		$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public);
@@ -329,7 +329,7 @@ Make sure you have all you information you need before Proceeding\n");
 						$new_url_public .= '/';
 					}//end if
 
-					if (!$quiet) bam($sql_update_sq_ast_lookup_public_file);
+					if (!$quiet) pre_echo($sql_update_sq_ast_lookup_public_file);
 					$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public_file);
 					MatrixDAL::bindValueToPdo($query, 'http',					$http);
 					MatrixDAL::bindValueToPdo($query, 'https',					$https);
@@ -364,7 +364,7 @@ Make sure you have all you information you need before Proceeding\n");
 		global $SYSTEM_ROOT;
 		// For Removing, need to take in
 		// -removeurl
-		bam("!Important: Please make sure that you know how to use this script, and remember to back up the database before proceeding\n
+		pre_echo("!Important: Please make sure that you know how to use this script, and remember to back up the database before proceeding\n
 (Press Ctrl+C to terminate the script)\n");
 
 		$remove_url = NULL;
@@ -489,7 +489,7 @@ Make sure you have all you information you need before Proceeding\n");
 				 	$sql_update_sq_ast_lookup_public        .= ' AND url NOT LIKE ' . MatrixDAL::quote($data['url'].'%');
 				 }//end foreach
 
-				if (!$quiet) bam($sql_update_sq_ast_lookup_public);
+				if (!$quiet) pre_echo($sql_update_sq_ast_lookup_public);
 				$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public);
 				MatrixDAL::bindValueToPdo($query, 'remove_url_wildcard', $remove_url_public.'%');
 				MatrixDAL::bindValueToPdo($query, 'data_url', '%/__data/%');
@@ -525,9 +525,9 @@ Make sure you have all you information you need before Proceeding\n");
 		MatrixDAL::executeSql($sql_update_sq_ast_url);
 
 		if (!$quiet) {
-			bam($sql_update_sq_ast_lookup_value);
-			bam($sql_update_sq_ast_lookup);
-			bam($sql_update_sq_ast_url);
+			pre_echo($sql_update_sq_ast_lookup_value);
+			pre_echo($sql_update_sq_ast_lookup);
+			pre_echo($sql_update_sq_ast_url);
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -616,10 +616,14 @@ Make sure you have all you information you need before Proceeding\n");
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL,  strip_url($new_url), TRUE, TRUE);
 		if($asset != NULL) return FALSE;
 
-		$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE :new_url';
+		$sql_check_new_url = '(SELECT url FROM sq_ast_url WHERE url LIKE :new_url)';
+		
+		$sql_check_new_url .= ' UNION (SELECT url FROM sq_ast_lookup WHERE url LIKE :new_url)';
+		
+		$sql_check_new_url .= ' UNION (SELECT url FROM sq_ast_lookup_value WHERE url LIKE :new_url)';
 
 		$query = MatrixDAL::preparePdoQuery($sql_check_new_url);
-		MatrixDAL::bindValueToPdo($query, 'new_url', strip_url($new_url));
+		MatrixDAL::bindValueToPdo($query, 'new_url', strip_url($new_url).'%');
 		$new_url_check = MatrixDAL::executePdoOne($query);
 		if (!empty($new_url_check)) {
 			return FALSE;
