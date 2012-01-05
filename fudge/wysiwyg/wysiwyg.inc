@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.91.2.1 2011/08/10 03:42:46 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.91.2.2 2012/01/05 05:17:07 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91.2.1 $
+* @version $Revision: 1.91.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1127,6 +1127,16 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 // Don't replace entities on UTF8 systems
 if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 	echo 'retVal = this.replace_entities(retVal);';
+} else {
+// Exceptions. See #5051
+?>
+	var entities_array = {
+		173 : '&shy;' //soft hyphen
+	};
+
+	retVal = this.replace_entities(retVal, entities_array);
+	
+<?php	
 }
 ?>
 
@@ -1202,8 +1212,9 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 
 				// We want to replace actual entities in the html(like �) with
 				// Their correct &bla; representations
-				HTMLArea.prototype.replace_entities = function(html_code) {
+				HTMLArea.prototype.replace_entities = function(html_code, entities_array) {
 
+				if (entities_array == undefined){
 					var entities_array = {
 						160 : '&nbsp;',		// non-breaking space
 						161 : '&iexcl;',	// inverted exclamation mark
@@ -1448,6 +1459,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 						9829 : '&hearts;',	// black heart suit, valentine
 						9830 : '&diams;'	// black diamond suit
 					};
+				}
 
 					// Carry out replacement for each entities (see bug #4182)
 					for(var code in entities_array) {
