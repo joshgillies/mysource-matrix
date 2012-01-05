@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.18.16.1 2011/12/12 06:11:56 cupreti Exp $
+* $Id: assetid.inc,v 1.18.16.2 2012/01/05 00:52:33 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *	based on lineage. (A|D|I) -> Ancestors, Descendants or Only Itself
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.16.1 $
+* @version $Revision: 1.18.16.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -124,7 +124,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 		}
 		$value = $_REQUEST[$prefix]['assetid'];
 		if ($value != 0) {
-			$type_code_flag = FALSE;
+			$type_code_flag = empty($this->_edit_params['type_codes']) ? TRUE : FALSE;
 			$value_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
 			foreach ($this->_edit_params['type_codes'] as $type_accepted => $inheritance) {
 				if ($value_asset instanceof $type_accepted) {
