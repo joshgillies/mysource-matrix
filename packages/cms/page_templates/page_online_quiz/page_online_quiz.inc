@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.39 2011/12/05 01:45:28 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.40 2012/01/09 02:58:02 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1177,28 +1177,30 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$pool_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		foreach ($pool_links as $link){
 			$questions = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], 'online_quiz_question_multichoice', TRUE, NULL, NULL, SQ_PERMISSION_READ);
-			$questions = dal_array_flatten($questions);
-			
-			//filter out what we don't have read access to
-			foreach ($questions as $question_id => $type_code){
-				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
-				if (is_null($question) || !$question->readAccess()) {
-					unset($questions[$question_id]);
+			if (!empty($questions)){
+				$questions = dal_array_flatten($questions);
+				
+				//filter out what we don't have read access to
+				foreach ($questions as $question_id => $type_code){
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+					if (is_null($question) || !$question->readAccess()) {
+						unset($questions[$question_id]);
+					}
 				}
-			}
-			
-			//randomising
-			$keys = array_rand($questions, count($questions));
-			if (!is_array($keys)) $keys = Array($keys);
-			$randomised_questions = Array();
-			foreach ($keys as $key){
-				$randomised_questions[$key] = $questions[$key];
-			}
-			
-			if ($grouped){
-				$interactive_questions[$link['minorid']] = $randomised_questions;
-			} else {
-				$interactive_questions += $randomised_questions;
+				
+				//randomising
+				$keys = array_rand($questions, count($questions));
+				if (!is_array($keys)) $keys = Array($keys);
+				$randomised_questions = Array();
+				foreach ($keys as $key){
+					$randomised_questions[$key] = $questions[$key];
+				}
+				
+				if ($grouped){
+					$interactive_questions[$link['minorid']] = $randomised_questions;
+				} else {
+					$interactive_questions += $randomised_questions;
+				}
 			}
 		}
 
@@ -1673,7 +1675,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				$page_no = 1;
 				foreach ($pool_setup as $pool_id => $info){
-					$questions = $question_pool[$pool_id];
+					if (isset($question_pool[$pool_id])){
+						$questions = $question_pool[$pool_id];
+					} else {
+						continue;
+					}
 					//give one question per page upto the pool size
 					for ($size = 0; $size < $info['size']; $size++){
 						reset($questions);
