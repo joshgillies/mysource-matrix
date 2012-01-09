@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.35.6.3 2012/01/03 06:01:29 ewang Exp $
+* $Id: metadata_field_select.inc,v 1.35.6.4 2012/01/09 00:37:05 csmith Exp $
 *
 */
 
-
 require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 require_once SQ_FUDGE_PATH.'/csv/csv.inc';
+
 
 /**
 * Metadata_Field_Select
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35.6.3 $
+* @version $Revision: 1.35.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -407,14 +407,20 @@ class Metadata_Field_Select extends Metadata_Field
 	* If 2 columns: key, value
 	* If 3 columns: key, value, default [1|0]
 	*
-	* @param string	$filename	The (temp) file name to import
+	* @param string	 $filename	The (temp) file name to import
+	* @param boolean $header    Whether the file has a csv header or not
 	*
 	* @return void
 	*/
-	public function importOptionsFromCSV($filename)
+	public function importOptionsFromCSV($filename, $header=FALSE)
 	{
 		$csv = new CSV($filename);
-		$csv->import();
+
+		$start_line = 1;
+		if ($header == TRUE) {
+			$start_line = 2;
+		}
+		$csv->import($start_line);
 
 		$values = $csv->values;
 		$options = Array();
