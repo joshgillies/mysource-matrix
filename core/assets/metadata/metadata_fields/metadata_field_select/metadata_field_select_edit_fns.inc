@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.49 2011/12/20 03:30:52 akarelia Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.50 2012/01/09 00:34:09 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -475,6 +475,25 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
+	* Print the interface for the csv header checkbox
+	*
+	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function paintOptionUploadHeader(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess();
+		check_box($prefix.'_csv_header', '1');
+		return $write_access;
+
+	}//end paintOptionUploadHeader()
+
+
+	/**
 	* Print the interface for uploading a CSV file containing a mass list of options
 	*
 	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
@@ -489,8 +508,13 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (isset($_FILES[$prefix.'_option_upload'])) {
 			$file = $_FILES[$prefix.'_option_upload'];
 
+			$header = FALSE;
+			if (isset($_POST[$prefix.'_csv_header'])) {
+				$header = TRUE;
+			}
+
 			if ($file['error'] === UPLOAD_ERR_OK) {
-				$asset->importOptionsFromCSV($file['tmp_name']);
+				$asset->importOptionsFromCSV($file['tmp_name'], $header);
 			}
 		}
 

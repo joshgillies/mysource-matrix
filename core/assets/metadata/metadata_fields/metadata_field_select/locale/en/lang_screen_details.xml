@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2011/12/20 03:30:53 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.10 2012/01/09 00:34:09 csmith Exp $
 *
 */
 -->
@@ -85,6 +85,14 @@
 			]]></note>
 			<function_call>
 				<paint_function   name="paintOptionUpload"   />
+				<process_function name="processOptionUpload" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Column Headings in CSV File?</display_name>
+			<note>If the first row of your CSV file contains column headings, select this field to ensure Matrix correctly imports the CSV file.</note>
+			<function_call>
+				<paint_function   name="paintOptionUploadHeader" />
 				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.38 2011/12/23 00:00:47 akarelia Exp $
+* $Id: metadata_field_select.inc,v 1.39 2012/01/09 00:34:09 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -407,14 +407,20 @@ class Metadata_Field_Select extends Metadata_Field
 	* If 2 columns: key, value
 	* If 3 columns: key, value, default [1|0]
 	*
-	* @param string	$filename	The (temp) file name to import
+	* @param string	 $filename	The (temp) file name to import
+	* @param boolean $header    Whether the file has a csv header or not
 	*
 	* @return void
 	*/
-	public function importOptionsFromCSV($filename)
+	public function importOptionsFromCSV($filename, $header=FALSE)
 	{
 		$csv = new CSV($filename);
-		$csv->import();
+
+		$start_line = 1;
+		if ($header == TRUE) {
+			$start_line = 2;
+		}
+		$csv->import($start_line);
 
 		$values = $csv->values;
 		$options = Array();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.16 2011/12/20 03:30:52 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17 2012/01/09 00:34:09 csmith Exp $
 *
 */
 -->
@@ -61,6 +61,12 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintOptionUpload"   />
+				<process_function name="processOptionUpload" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintOptionUploadHeader"   />
 				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>
