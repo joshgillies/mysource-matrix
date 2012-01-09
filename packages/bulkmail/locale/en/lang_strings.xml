@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.42 2011/06/21 23:38:22 akarelia Exp $
+* $Id: lang_strings.xml,v 1.43 2012/01/09 01:33:08 csmith Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -138,6 +138,8 @@ Your email address is already subscribed, therefore no action has been taken.</s
 	<string source="bm_tool_import_bmail_user_create_in">Create Users in</string>
 	<string source="bm_tool_import_bmail_user_create_in_note">Select the User Group to create Bulkmail Users in</string>
 	<string source="bm_tool_import_bmail_user_hipo_job_import_threshold">Bulkmail User Import Threshold</string>
+	<string source="bm_tool_import_bmail_user_file_upload_header">Column Headings in CSV File?</string>
+	<string source="bm_tool_import_bmail_user_file_upload_header_example">If the first row of your CSV file contains column headings, select this field to ensure Matrix correctly imports the CSV file.</string>
 
 	<string source="bm_hipo_name_import_bmail_user">Import Bulkmail User</string>
 	<string source="bm_hipo_importing_bmail_users">Importing Bulkmail Users</string>
