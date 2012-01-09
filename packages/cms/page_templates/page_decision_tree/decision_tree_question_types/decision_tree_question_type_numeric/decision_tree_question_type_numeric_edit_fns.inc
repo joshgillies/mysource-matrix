@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question_type_numeric_edit_fns.inc,v 1.2 2011/12/22 04:19:06 mhaidar Exp $
+* $Id: decision_tree_question_type_numeric_edit_fns.inc,v 1.3 2012/01/09 23:09:46 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_decision_tree/decision_t
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -312,12 +312,14 @@ class Decision_Tree_Question_Type_Numeric_Edit_Fns extends Decision_Tree_Questio
 			}
 			
 			$processed_rules = Array();
-			foreach ($rules as $key => $value) {
+			foreach ($rules as &$value) {
+				$value['value_1'] = trim($value['value_1']);
+				$value['value_2'] = trim($value['value_2']);
 				if ($value['value_1'] == '' && $value['value_2'] == '') continue;
 				$new_key = strtolower($value['logic'].'_'.$value['value_1'].'_'.$value['value_2']);
 				$processed_rules[$new_key] = $value;
-				
 			}
+			unset($value);
 			
 			$asset->setAttrValue('rules', $processed_rules);
 			$asset->saveAttributes();
