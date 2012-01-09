@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_bmail_user.inc,v 1.9 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: tool_import_bmail_user.inc,v 1.9.18.1 2012/01/09 01:39:59 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.18.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -66,6 +66,11 @@ class Tool_Import_Bmail_User extends Tool
 			$o->note(translate('bm_tool_import_bmail_user_file_upload_note'));
 		$o->closeField();
 
+		$o->openField(translate('bm_tool_import_bmail_user_file_upload_header'));
+			check_box($type_code.'_csv_header');
+			$o->note(translate('bm_tool_import_bmail_user_file_upload_header_example'));
+		$o->closeField();
+
 		$o->openField(translate('bm_tool_import_bmail_user_create_in'));
 			asset_finder($type_code.'_create_in_assetid', 0, Array('user_group' => 'D'));
 			$o->note(translate('bm_tool_import_bmail_user_create_in_note'));
@@ -98,10 +103,16 @@ class Tool_Import_Bmail_User extends Tool
 			trigger_localised_error('BML0011', E_USER_NOTICE);
 			return FALSE;
 		}
+
 		// error: user group not specified
 		if (!$_REQUEST[$type_code.'_create_in_assetid']['assetid']) {
 			trigger_localised_error('BML0012', E_USER_NOTICE);
 			return FALSE;
+		}
+
+		$vars['csv_header'] = 0;
+		if (isset($_REQUEST[$type_code.'_csv_header'])) {
+			$vars['csv_header'] = 1;
 		}
 
 		// set HIPO running_vars

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.9 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.9.18.1 2012/01/09 01:39:59 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.18.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -195,7 +195,12 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 		// import the csv file
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV($this->_running_vars['file_info']['tmp_name']);
-		$csv->import();
+
+		$csv_start = 1;
+		if (isset($this->_running_vars['csv_header']) && $this->_running_vars['csv_header'] == TRUE) {
+			$csv_start = 2;
+		}
+		$csv->import($csv_start);
 
 		// add users into the 'todo' array
 		$i = 0;
