@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.96.4.4 2011/11/01 00:26:11 mhaidar Exp $
+* $Id: calendar_event_recurring.inc,v 1.96.4.5 2012/01/10 04:35:04 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.96.4.4 $
+* @version $Revision: 1.96.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -156,141 +156,149 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		$seconds_per_day = 60 * 60 * 24;
 		if ($after <= $start) return $start;
+		$result = '';
 
-		list($res_year,$res_month,$res_day) = sscanf($after, '%04d-%02d-%02d');
-		list($after_year,$after_month,$after_day) = sscanf($after, '%04d-%02d-%02d');
-		list($start_year,$start_month,$start_day) = sscanf($start, '%04d-%02d-%02d');
-		$month_diff = (12 * ($after_year - $start_year)) + $after_month - $start_month;
+		while ($result == '') {
+			list($res_year,$res_month,$res_day) = sscanf($after, '%04d-%02d-%02d');
+			list($after_year,$after_month,$after_day) = sscanf($after, '%04d-%02d-%02d');
+			list($start_year,$start_month,$start_day) = sscanf($start, '%04d-%02d-%02d');
+			$month_diff = (12 * ($after_year - $start_year)) + $after_month - $start_month;
 
-		switch ($freq_type) {
-			case 'DED':
-				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
-				$result = add_days_to_iso($start, $interval * $periods_so_far);
-			break;
+			switch ($freq_type) {
+				case 'DED':
+					$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+					$result = add_days_to_iso($start, $interval * $periods_so_far);
+				break;
 
-			case 'DWD':
-				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
-				$result = add_days_to_iso($start, $interval * $periods_so_far);
-				while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
-					$result = add_days_to_iso($result, 1);
-				}
-			break;
-
-			case 'DWE':
-				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
-				$result = add_days_to_iso($start, $interval * $periods_so_far);
-				while (!in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
-					$result = add_days_to_iso($result, 1);
-				}
-			break;
-
-			case 'WEW':
-				$periods_so_far = ceil(days_between_isos($after, $start) / ($interval*7));
-				$result = add_days_to_iso($start, $interval * 7 * $periods_so_far);
-			break;
-
-			// Every 'x' months on the 'y'th day of the month
-			case 'MFN':
-				if (($month_diff % $interval) != 0) {
-					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
-				} else if ($res_day > $start_day) {
-					increment_month($res_month, $res_year, $interval);
-				}
-				while ($start_day > days_in_month($res_month, $res_year)) {
-					increment_month($res_month, $res_year, $interval);
-				}
-				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$start_day);
-			break;
-
-			// Every 'x' months on the 'y'th weekday of the month (eg. 2nd Thursday)
-			case 'MFW':
-				$target_week_of_month = (int)(($start_day - 1) / 7);
-				$target_day_of_week = date('w', iso8601_ts($start));
-				$res_day = ($target_week_of_month * 7) + 1;
-
-				if (($month_diff % $interval) != 0) {
-					// go to the next valid month
-					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} else if ((int)($after_day / 7) > $target_week_of_month) {
-					// we're in a valid month, but too late in it, so go to next valid month
-					increment_month($res_month, $res_year, $interval);
-				} else if ((int)($after_day / 7) == $target_week_of_month) {
-					$res_day = max($res_day, $after_day);
-				}
-
-				$month_length = days_in_month($res_month, $res_year);
-
-				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				while (date('w', iso8601_ts($result)) != $target_day_of_week) {
-					$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)) - 1)  % 7 + 1;
-
-					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-					if (($res_day > $month_length) || ($res_day > (($target_week_of_month+1) * 7))) {
-
-						// run out of days, so we'll have to start again in the next valid month
-						increment_month($res_month, $res_year, $interval);
-						$month_length = days_in_month($res_month, $res_year);
-						$res_day = ($target_week_of_month * 7)+1;
+				case 'DWD':
+					$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+					$result = add_days_to_iso($start, $interval * $periods_so_far);
+					while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
+						$result = add_days_to_iso($result, 1);
 					}
+				break;
+
+				case 'DWE':
+					$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+					$result = add_days_to_iso($start, $interval * $periods_so_far);
+					while (!in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
+						$result = add_days_to_iso($result, 1);
+					}
+				break;
+
+				case 'WEW':
+					$periods_so_far = ceil(days_between_isos($after, $start) / ($interval*7));
+					$result = add_days_to_iso($start, $interval * 7 * $periods_so_far);
+				break;
+
+				// Every 'x' months on the 'y'th day of the month
+				case 'MFN':
+					if (($month_diff % $interval) != 0) {
+						increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
+					} else if ($res_day > $start_day) {
+						increment_month($res_month, $res_year, $interval);
+					}
+					while ($start_day > days_in_month($res_month, $res_year)) {
+						increment_month($res_month, $res_year, $interval);
+					}
+					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$start_day);
+				break;
+
+				// Every 'x' months on the 'y'th weekday of the month (eg. 2nd Thursday)
+				case 'MFW':
+					$target_week_of_month = (int)(($start_day - 1) / 7);
+					$target_day_of_week = date('w', iso8601_ts($start));
+					$res_day = ($target_week_of_month * 7) + 1;
+
+					if (($month_diff % $interval) != 0) {
+						// go to the next valid month
+						increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
+					} else if ((int)($after_day / 7) > $target_week_of_month) {
+						// we're in a valid month, but too late in it, so go to next valid month
+						increment_month($res_month, $res_year, $interval);
+					} else if ((int)($after_day / 7) == $target_week_of_month) {
+						$res_day = max($res_day, $after_day);
+					}
+
+					$month_length = days_in_month($res_month, $res_year);
+
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				}
-			break;
+					while (date('w', iso8601_ts($result)) != $target_day_of_week) {
+						$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)) - 1)  % 7 + 1;
 
-			// Every 'x' months on the 'y'th last day of the month
-			case 'MRN':
-				$target_days_from_end = days_in_month($start_month, $start_year) - $start_day;
+						$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+						if (($res_day > $month_length) || ($res_day > (($target_week_of_month+1) * 7))) {
 
-				if (($month_diff % $interval) != 0) {
-					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} else if ((days_in_month($res_month, $res_year) - $after_day) < $target_days_from_end) {
-					increment_month($res_month, $res_year, $interval);
-				}
+							// run out of days, so we'll have to start again in the next valid month
+							increment_month($res_month, $res_year, $interval);
+							$month_length = days_in_month($res_month, $res_year);
+							$res_day = ($target_week_of_month * 7)+1;
+						}
+						$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+					}
+				break;
 
-				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
+				// Every 'x' months on the 'y'th last day of the month
+				case 'MRN':
+					$target_days_from_end = days_in_month($start_month, $start_year) - $start_day;
 
-				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0) {
-					increment_month($res_month, $res_year, $interval);
+					if (($month_diff % $interval) != 0) {
+						increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
+					} else if ((days_in_month($res_month, $res_year) - $after_day) < $target_days_from_end) {
+						increment_month($res_month, $res_year, $interval);
+					}
 
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
-				}
-			break;
 
-			// Every 'x' months on the 'y'th last weekday of the month
-			case 'MRW':
-				$min_day = 1;
-				$target_weeks_from_end = (int)((days_in_month($start_month, $start_year) - $start_day) / 7);
-				$target_day_of_week = (date('w', iso8601_ts($start)));
-
-				if (($month_diff % $interval) != 0) {
-					// go to the next valid month
-					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) < $target_weeks_from_end) {
-					// we're too far into this month, so go to the next valid month
-					increment_month($res_month, $res_year, $interval);
-				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
-					// we're in the right week so start from 'now', not the begining of the week,
-				}
-				$min_day = $after_day;
-
-				$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
-				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-
-				while (date('w', iso8601_ts($result)) != $target_day_of_week) {
-					// if ($res_month - $start_month > 2) die;
-					$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
-
-					if (($res_day < $min_day) || ($result < $after)) {
-						// can't get the nth-last xday in this month, either because
-						// it's already passed or because it doesn't exist, so goto next month
+					while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0) {
 						increment_month($res_month, $res_year, $interval);
-						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
-						$min_day = 1;
 
+						$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
 					}
+				break;
+
+				// Every 'x' months on the 'y'th last weekday of the month
+				case 'MRW':
+					$min_day = 1;
+					$target_weeks_from_end = (int)((days_in_month($start_month, $start_year) - $start_day) / 7);
+					$target_day_of_week = (date('w', iso8601_ts($start)));
+
+					if (($month_diff % $interval) != 0) {
+						// go to the next valid month
+						increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
+					} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) < $target_weeks_from_end) {
+						// we're too far into this month, so go to the next valid month
+						increment_month($res_month, $res_year, $interval);
+					} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
+						// we're in the right week so start from 'now', not the begining of the week,
+					}
+					$min_day = $after_day;
+
+					$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				}
-			break;
-		}//end switch
+
+					while (date('w', iso8601_ts($result)) != $target_day_of_week) {
+						// if ($res_month - $start_month > 2) die;
+						$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
+
+						if (($res_day < $min_day) || ($result < $after)) {
+							// can't get the nth-last xday in this month, either because
+							// it's already passed or because it doesn't exist, so goto next month
+							increment_month($res_month, $res_year, $interval);
+							$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
+							$min_day = 1;
+
+						}
+						$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+					}
+				break;
+			}//end switch
+
+			if (isset($this) && is_a($this, 'Calendar_Event_Recurring') && $exception_link = $this->getExceptionLink($result, $this->id)) {
+				$after  = add_days_to_iso($result);
+				$result = '';
+			}
+		}//end while
 
 		if (!empty($stop) && ($result > $stop)) {
 			return FALSE;

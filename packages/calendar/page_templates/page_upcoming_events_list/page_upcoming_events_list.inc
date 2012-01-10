@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.30.6.1 2011/10/13 06:40:49 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.30.6.2 2012/01/10 04:35:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30.6.1 $
+* @version $Revision: 1.30.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -453,11 +453,11 @@ class Page_Upcoming_Events_List extends Page
 				$current_date = $events[$shadow_id]['current_date'];
 
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
-				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date)	{
+				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date) {
 					$current_date = add_days_to_iso($current_date, 1);
 				}
-
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
+
 				foreach($events as $temp_id => $temp_event) {
 					$original_id = strtok($temp_id, ':');
 					if ($original_id == $id) {
@@ -470,8 +470,9 @@ class Page_Upcoming_Events_List extends Page
 
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
-				$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
-				$current_date = add_days_to_iso($current_date, 1);
+				$pattern = '/( [0-9\-]{2}:[0-9\-]{2}:[0-9\-]{2})/';
+
+				$occurance_date = preg_replace($pattern, '', $asset->attr('start_date'));
 				// for the modification event we ned to find what recurring 
 				// event we are modifying and update that events instances
 				$link = $GLOBALS['SQ_SYSTEM']->am->getParents($id, 'calendar_event_recurring', NULL, NULL, TRUE, 1, 1);
@@ -479,8 +480,9 @@ class Page_Upcoming_Events_List extends Page
 				foreach($events as $temp_id => $temp_event) {
 					$original_id = strtok($temp_id, ':');
 					if (array_key_exists($original_id, $link)) {
-						$events[$temp_id]['current_date'] = $current_date;
-						$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
+						$events[$temp_id]['current_date'] = $occurance_date;
+						$recuring_event_last_occurance_date = $_REQUEST['SQ_CALENDAR_DATE'];
+						$_REQUEST['SQ_CALENDAR_DATE'] = $occurance_date;
 					}
 				}
 			}
@@ -524,6 +526,9 @@ class Page_Upcoming_Events_List extends Page
 			$entry = $type_formats[$format_type];
 			replace_keywords($entry, $replacements);
 			$event_list .= $entry;
+
+			if ($asset && $asset->type() == 'calendar_event_modification') 
+				$_REQUEST['SQ_CALENDAR_DATE'] = $recuring_event_last_occurance_date;
 
 		}//end foreach events
 
@@ -646,8 +651,16 @@ class Page_Upcoming_Events_List extends Page
 			}//end
 			$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
-			$new_events = $single_result + $recur_result;
-			$new_events = Calendar_Common::expandEventList($new_events, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
+			foreach ($single_result as $event_id => $single_event) {
+				// don't expand the single events but the event
+				// cancellations and modification needs to be expanded 
+				if ($single_event['type_code'] == 'calendar_event_single') continue;
+				$recur_result[$event_id] = $single_event;
+				unset($single_result[$event_id]);
+			}
+
+			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
+			$new_events	  = $single_result + $recur_result;
 			Calendar_Common::processExceptions($new_events);
 
 			$all_events += $new_events;
