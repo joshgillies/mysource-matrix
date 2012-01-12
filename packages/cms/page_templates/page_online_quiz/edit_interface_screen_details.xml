@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 -->
@@ -51,7 +51,7 @@
 		</field>
 	</section>
 
-	<section name="Question Pooling" write_access="write:attributes" show_if="isInteractiveMode">
+	<section name="Question Setup" write_access="write:attributes" show_if="isInteractiveMode">
 		<field>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
@@ -62,6 +62,12 @@
 			<function_call>
 				<paint_function   name="paintQuestionPoolSetup"   />
 				<process_function name="processQuestionPoolSetup" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintQuestionOptionFormat"   />
+				<process_function name="processQuestionOptionFormat" />
 			</function_call>
 		</field>
 	</section>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.10 2011/11/30 00:32:43 mhaidar Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.11 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -480,12 +480,13 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	*
 	* To be overridden by the children
 	*
-	* @param boolean $feedback_mode used by Page_Online_Quiz interactive mode, will disable fields and add special classes & tags
+	* @param text	 $option_format used by Page_Online_Quiz Interactive Mode, control print format of radio/checkbox options.
+	* @param boolean $feedback_mode used by Page_Online_Quiz Interactive Mode, will disable fields and add special classes & tags
 	*
 	* @return string
 	* @access public
 	*/
-	function getResponseFormKeywordReplacement($feedback_mode=FALSE)
+	function getResponseFormKeywordReplacement($option_format='', $feedback_mode=FALSE)
 	{
 		$prefix = $this->getPrefix();
 
@@ -514,9 +515,9 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 								$response_supplement = $this->getResponseSupplement($option_key);
 								if (!empty($response_supplement)){
 									if (in_array($option_key, $correct_value)){
-										?><span class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></span><?php
+										?><div class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></div><?php
 									} else {
-										?><span class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></span><?php	
+										?><div class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></div><?php	
 									}
 								}
 							}
@@ -526,6 +527,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 					case 'radio':
 					default:
 						?><ul><?php
+						$option_number = 1;
 						foreach ($options as $option_key => $option) {
 							
 							if ($feedback_mode){
@@ -550,13 +552,16 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 							$extras = 'id="'.$prefix.'_response_'.$option_key.'"';
 							if ($feedback_mode) $extras .= ' disabled="disabled"';
 							
+							ob_start();
 							if ($this->attr('max_option_selections') <= 1) {
 								radio_button($prefix.'_response', $option_key, ($value == $option_key), '', $extras);
 							} else {
 								if (!is_array($value)) $value = Array();
 								check_box($prefix.'_response['.$option_key.']', '1', (in_array($option_key, $value)), '', $extras);
 							}
-
+							$option_input_field = ob_get_clean();
+							
+							ob_start();
 							if ($use_html_options) {
 								$matches = Array();
 								preg_match_all('|\./\?a=([0-9]+)|', $option['text'], $matches);
@@ -569,19 +574,34 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 							} else {
 								label(htmlentities($option['text']), $prefix.'_response_'.$option_key);
 							}
+							$option_label = ob_get_clean();
 							
+							ob_start();
 							if ($feedback_mode) {
 								$response_supplement = $this->getResponseSupplement($option_key);
 								if (!empty($response_supplement)){
 									if (in_array($option_key, $correct_value)){
-										?><span class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></span><?php
+										?><div class="online_quiz_response_supplement_correct"><?php echo $response_supplement ?></div><?php
 									} else {
-										?><span class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></span><?php	
+										?><div class="online_quiz_response_supplement_incorrect"><?php echo $response_supplement ?></div><?php	
 									}
 								}
 							}
-
+							$option_response_supplement = ob_get_clean();
+							
+							if (!empty($option_format)){
+								$option_format_output = $option_format;
+								$option_format_output = str_replace('%option_number%', $option_number, $option_format_output);
+								$option_format_output = str_replace('%option_input_field%', $option_input_field, $option_format_output);
+								$option_format_output = str_replace('%option_label%', $option_label, $option_format_output);
+								$option_format_output = str_replace('%option_text%', $option['text'], $option_format_output);
+								$option_format_output = str_replace('%option_response_supplement%', $option_response_supplement, $option_format_output);
+								echo $option_format_output;
+							} else {
+								echo $option_input_field.$option_label.$option_response_supplement;
+							}
 							?></li><?php
+							$option_number++;
 						}
 						?></ul><?php
 					break;
@@ -593,8 +613,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		return ob_get_clean();
 
 	}//end getResponseFormKeywordReplacement()
-
-
+	
+	
 	/**
 	* Get the Response Supplement content for the selected option
 	*

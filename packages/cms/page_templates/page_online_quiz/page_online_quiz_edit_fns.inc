@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.12 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.13 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1291,6 +1291,55 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		echo check_box($prefix.'_expand_sections[]', '__quiz_responses__', $checked).'Quiz Questions<br/>';	
 
 	}//end paintExpandSections()
+	
+	
+	/**
+	* Paint the question option format interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintQuestionOptionFormat(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			text_area($prefix.'_question_option_format', $asset->attr('question_option_format'), 0, 0, 0, 'style="width: 300px; height: 100px;"');
+		} else {
+			echo htmlentities($asset->attr('question_option_format'));
+		}
+
+		return TRUE;
+
+	}//end paintQuestionOptionFormat()
+
+
+	/**
+	* Process the question option format interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processQuestionOptionFormat(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		if (isset($_REQUEST[$prefix.'_question_option_format']) === TRUE) {
+			$question_option_format = array_get_index($_REQUEST, $prefix.'_question_option_format', '');
+			$asset->setAttrValue('question_option_format', trim($question_option_format));
+		}
+
+		return TRUE;
+
+	}//end processQuestionOptionFormat()
 	
 	
 	/**

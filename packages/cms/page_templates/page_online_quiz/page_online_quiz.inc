@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.40 2012/01/09 02:58:02 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.41 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2524,9 +2524,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$current_status = $question_pagination['pages_to_status'][$current_result_page];
 				if (strpos($current_status, 'feedback') !== FALSE){
 					//print the question but with disabled fields and add special classes & tags.
-					$replacement = $question->getResponseFormKeywordReplacement(TRUE);
+					$replacement = $question->getResponseFormKeywordReplacement($this->attr('question_option_format'), TRUE);
 				} else {
-					$replacement = $question->getResponseFormKeywordReplacement();
+					$replacement = $question->getResponseFormKeywordReplacement($this->attr('question_option_format'));
 				}
 				break;
 			case 'question_note':

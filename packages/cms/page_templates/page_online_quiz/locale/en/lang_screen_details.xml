@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.15 2011/12/09 05:23:30 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.16 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 -->
@@ -75,10 +75,10 @@
 		</field>
 	</section>
 
-	<section name="Question Pooling">
+	<section name="Question Setup">
 		<field>
 			<display_name>Question Pools</display_name>
-			<note>Select the root nodes to extract Online Quiz Multiple-Choice Questions from. Please refer to manuals on how feedback is generated per Option Style.</note>
+			<note>Select the root nodes to extract Online Quiz Multiple-Choice Questions from.</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
@@ -93,6 +93,25 @@
 			<function_call>
 				<paint_function   name="paintQuestionPoolSetup"   />
 				<process_function name="processQuestionPoolSetup" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Question Option Format</display_name>
+			<note><![CDATA[This is an <b>optional</b> format which only applies to the Online Quiz Multiple-Choice Question Radio Button/Checkbox Option Style.<br />
+			This will affect the output of the %interactive_question_response_form% keyword in the Page Contents Bodycopy as it will control the format of the contents within each of the option list &amp;lt;li&amp;gt; tags. Leave this field empty to use a default format.<br />
+			Available keywords: <br />
+			<ul>
+			<li>%option_number% - The option order number.</li>
+			<li>%option_input_field% - The &amp;lt;input&amp;gt; tag for the radio/checkbox.</li>
+			<li>%option_text% - The option text.</li>
+			<li>%option_label% - The option text wrapped with a &amp;lt;label&amp;gt; tag.</li>
+			<li>%option_response_supplement% - The option response supplement wrapped with a &amp;lt;div&amp;gt; tag. Printed on the feedback page only.</li>
+			</ul>
+			Please refer to the manuals on how feedback is generated per Option Style.
+			]]></note>
+			<function_call>
+				<paint_function   name="paintQuestionOptionFormat"   />
+				<process_function name="processQuestionOptionFormat" />
 			</function_call>
 		</field>
 	</section>

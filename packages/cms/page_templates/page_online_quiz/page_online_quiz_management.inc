@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.9 2011/11/25 02:22:35 mhaidar Exp $
+* $Id: page_online_quiz_management.inc,v 1.10 2012/01/12 01:33:35 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -132,6 +132,7 @@ class Page_Online_Quiz_Management extends Asset_Management
 													'added'			 => '0.1',
 													'type'			 => 'text',
 													'default'		 => '',
+												    'is_contextable' => TRUE,
 												   	'description'	 => 'Used for %quiz_score% keyword and submission logs.',
 													),												   
 						'interactive_mode'		=> Array(
@@ -147,7 +148,14 @@ class Page_Online_Quiz_Management extends Asset_Management
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
 													'default'		=> Array(),
-												   ),										   												   
+												   ),
+						'question_option_format'=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+												    'is_contextable'=> TRUE,
+												   	'description'	=> 'Online Quiz Question Multichoice radio/checkbox option print format.'
+												 	),							   												   
 						'retry_button_text' 	=> Array(
 													'added'			 => '0.1',
 													'type'			 => 'text',
