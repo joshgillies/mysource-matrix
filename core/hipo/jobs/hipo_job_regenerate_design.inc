@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_design.inc,v 1.3 2011/09/26 07:54:20 ewang Exp $
+* $Id: hipo_job_regenerate_design.inc,v 1.3.2.1 2012/01/12 06:48:29 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -188,16 +188,16 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 		$type = $asset->type();
 
 		// first of first, generate parse file for itself
-		if($type === 'design' || $type === 'design_css') {
-		    $asset->generateDesignFile(FALSE);
-		}
-		else if ($type === 'design_customisation' || $type === 'design_css_customisation') {
+		if ($type === 'design_customisation' || $type === 'design_css_customisation') {
 		    if(empty ($parentid)) {
 			trigger_error('To regenerate a design customisation, parentid is required', E_USER_WARNING);
 			return FALSE;
 		    }
 		    $parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 		    $asset->updateFromParent($parent, FALSE);
+		}
+		else {
+		    $asset->generateDesignFile(FALSE);
 		}
 		
 
