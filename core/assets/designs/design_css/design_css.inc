@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.45 2011/05/26 06:45:15 mhaidar Exp $
+* $Id: design_css.inc,v 1.46 2012/01/13 03:33:12 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -354,6 +354,11 @@ class Design_Css extends Design
 	*/
 	public function printFrontend()
 	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			return;
+		}
+
 		$this->paint($this);
 
 	}//end printFrontend()
