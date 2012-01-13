@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.27 2011/05/05 04:39:11 akarelia Exp $
+* $Id: asset_map.js,v 1.27.2.1 2012/01/13 06:35:55 mhaidar Exp $
 *
 */
 
@@ -392,17 +392,14 @@ window.onunload = asset_finder_onunload;
 * @access public
 */
 function resizeAssetMap() {
-	var frameWidth = document.body.clientWidth;
 	var frameHeight = document.body.clientHeight;
 	var assetMap = document.getElementById('sq_asset_map');
-	var newWidth = frameWidth - 5;
 	var newHeight = frameHeight - 70;
 
 	// no point throwing a js error if the assetMap isn't defined (maybe java isn't installed)
 	if (assetMap) {
 		// negative size = badness
-		if (newWidth > 0 && newHeight > 0) {
-			assetMap.style.width = newWidth;
+		if (newHeight > 0) {
 			assetMap.style.height = newHeight;
 		}
 	}
