@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.51 2010/10/19 06:15:40 mhaidar Exp $
+* $Id: remap_manager.inc,v 1.51.8.1 2012/01/13 03:05:53 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -422,9 +422,9 @@ class Remap_Manager extends Asset
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
 			header('HTTP/1.1 301 Moved Permanently');
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			// Send Cacheable Header based on cache manager default setting
-			if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
-				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			if (SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
 				header('Pragma: cache');
 
 				$browser_cache_expiry = $cm->attr('browser_cache_expiry');
@@ -432,7 +432,7 @@ class Remap_Manager extends Asset
 					$browser_cache_expiry = $cm->attr('expiry');
 				}
 
-				header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');			
 			}
 			header('Location: '.$remap_url);

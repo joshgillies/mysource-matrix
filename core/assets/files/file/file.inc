@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.204.2.1 2011/11/23 22:40:41 cupreti Exp $
+* $Id: file.inc,v 1.204.2.2 2012/01/13 03:04:59 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.204.2.1 $
+* @version $Revision: 1.204.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1281,10 +1281,11 @@ class File extends Asset
 				$ssl_connection = TRUE;
 			}
 
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager'); 
+			$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
+
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-				&& empty($_POST) && current_protocol() != 'https' && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
-				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 
 				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
 				if (empty($browser_cache_expiry)) {
@@ -1293,10 +1294,10 @@ class File extends Asset
 
 				$last_updated = $this->getEffectiveLastUpdatedTime(Array());
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
-				header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 				header('Pragma: cache');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
-			} else if (!$ssl_connection) {
+			} else if (!$using_ie6 || !$ssl_connection) {
 				// Internet Explorer must forcibly reload some file types from the server for correct inline operation in popup windows. (ref. http://support.microsoft.com/default.aspx?scid=kb;EN-US;q297822)
 				// If such files do not load as expected, "Send no-cache header option for HTTP requests" should be set to "No" on the System Configuration screen. The default operation is to send this header (i.e; set to "Yes").
 

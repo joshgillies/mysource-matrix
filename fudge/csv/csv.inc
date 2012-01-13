@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.19.8.1 2011/10/10 23:50:14 ewang Exp $
+* $Id: csv.inc,v 1.19.8.2 2012/01/13 03:06:53 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.8.1 $
+* @version $Revision: 1.19.8.2 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -213,8 +213,9 @@ class CSV
 			// get protocol information
         	$url_info = parse_url(current_url());
         	$protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
-        
-			if (!is_null($protocol) && $protocol == 'https') {
+      		$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
+
+			if (!is_null($protocol) && $protocol == 'https' && $using_ie6) {
 				header('Cache-Control: private, max-age=0, must-revalidate');
             	header('Pragma: private');
              	header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');

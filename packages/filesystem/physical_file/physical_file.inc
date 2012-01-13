@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: physical_file.inc,v 1.2 2011/07/22 06:49:00 ewang Exp $
+* $Id: physical_file.inc,v 1.2.2.1 2012/01/13 03:11:37 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -124,10 +124,12 @@ class Physical_File extends Asset
 			$ssl_connection = TRUE;
 		}
 
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
+
 		// send cacheable headers if file asset meets the credentials
 		if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-			&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
-			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
 
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
 			if (empty($browser_cache_expiry)) {
@@ -139,7 +141,7 @@ class Physical_File extends Asset
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 			header('Pragma: cache');
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$QWERTY).' GMT');
-		} else if (!$ssl_connection) {
+		} else if (!$using_ie6 || !$ssl_connection) {
 			// Internet Explorer must forcibly reload some file types from the server for correct inline operation in popup windows. (ref. http://support.microsoft.com/default.aspx?scid=kb;EN-US;q297822)
 			// If such files do not load as expected, "Send no-cache header option for HTTP requests" should be set to "No" on the System Configuration screen. The default operation is to send this header (i.e; set to "Yes").
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.374.2.3 2011/12/09 02:25:59 cupreti Exp $
+* $Id: mysource.inc,v 1.374.2.4 2012/01/13 03:04:43 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374.2.3 $
+* @version $Revision: 1.374.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -671,8 +671,9 @@ class MySource extends MySource_Object
 						if (!$rm->paintPageNotFoundRemap()) {
 							header('HTTP/1.0 404 Not Found');
 
+							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 							// Send Cacheable Header based on cache manager default setting
-							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && current_protocol() != 'https') {
+							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
 								$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 								header('Pragma: cache');
 
@@ -681,7 +682,7 @@ class MySource extends MySource_Object
 									$browser_cache_expiry = $cm->attr('expiry');
 								}
 
-								header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+								header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 								header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 							}
 
@@ -770,7 +771,7 @@ class MySource extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https' && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -778,9 +779,7 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-					&& empty($_POST) && current_protocol() != 'https' && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() 
-					&& !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() && !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 					$this->_sendHTTPHeaders($asset);
 				
 				} else {
@@ -891,7 +890,7 @@ class MySource extends MySource_Object
 			$browser_cache_expiry = $cache_expiry;
 		}
 		if (!$recache) {
-			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 		}
 
 		// not cached or has expired
@@ -4026,7 +4025,7 @@ class MySource extends MySource_Object
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
 
-			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 

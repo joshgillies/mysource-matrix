@@ -10,15 +10,26 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_send_cacheable_header.xml,v 1.1 2010/10/18 05:24:28 ewang Exp $
+* $Id: edit_interface_screen_send_cacheable_header.xml,v 1.1.8.1 2012/01/13 03:04:05 cupreti Exp $
 *
 */
 -->
 <contents>
-	<section name="Send Cacheable Headers Settings" read_access="write:" >
-		<function_call>
-			<paint_function name="paintCacheableHeadersSettings" />
-        </function_call>
+	<section name="Send Cacheable Headers Settings" read_access="write:" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintCacheableHeadersSettings" />
+			</function_call>		
+		</field>
+		<field attribute="cacheale_header_protocol">
+			<selection style="list" />
+		</field>
+		<field attribute="cache_control_http">
+			<selection style="list" />
+		</field>
+		<field attribute="cache_control_https">
+			<selection style="list" />
+		</field>
 	</section>
 	<section name="Root URLs to Send Cacheable Headers" read_access="write:" write_access="write:attributes">
 		<field>
