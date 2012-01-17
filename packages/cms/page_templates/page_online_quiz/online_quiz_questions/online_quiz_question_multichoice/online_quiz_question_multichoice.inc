@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.11 2012/01/12 01:33:35 mhaidar Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.12 2012/01/17 02:41:13 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -497,7 +497,9 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		$correct_value = $this->getCorrectValue();
 
 		ob_start();
-			?><div class="sq-<?php echo str_replace('_', '-', $this->type()); ?>"><?php
+			$class = 'sq-'.str_replace('_', '-', $this->type());
+			$class = $feedback_mode ? $class.' '.$class.'-feedback' : $class;
+			?><div class="<?php echo $class; ?>"><?php
 
 			if (empty($options)) {
 				echo translate('online_quiz_question_multichoice_empty_options');
