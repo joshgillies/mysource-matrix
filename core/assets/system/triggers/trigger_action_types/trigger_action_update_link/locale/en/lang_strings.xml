@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2012/01/17 05:29:24 mhaidar Exp $
+*
+*/
+
+-->
+
+<strings>
+	<string source="link_characteristics">Link Characteristics</string>
+	<string source="link_characteristics_note">
+	You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. &lt;br /&gt; 
+	This trigger action will only be executed if exactly one link is found. Leave 'Link Value' blank to match any link value.</string>
+	<string source="new_link_characteristics">New Link Characteristics</string>
+	<string source="new_link_characteristics_note">Note that you cannot change a link from being a significant link to a non-significant link or vice versa.</string>
+	<string source="link_type">Link Type</string>
+	<string source="link_value">Link Value</string>
+	<string source="side_of_link">Side of Link</string>
+	<string source="asset_type">Asset Type</string>
+</strings>
