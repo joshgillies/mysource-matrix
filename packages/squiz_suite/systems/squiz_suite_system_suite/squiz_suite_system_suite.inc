@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.8.2.1 2011/07/21 23:53:42 akarelia Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.8.2.2 2012/01/17 05:20:48 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -511,16 +511,26 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$markedAdded   = array();
 			$suite_manager->syncProductDetails($product_info, $new_request_info);
 
+			$result = array(
+						'systemid'	=> $current_product['systemid'],
+						'type'		=> $current_product['type'],
+						'apiurl'	=> $current_product['url'],
+						'name'		=> $current_product['connection']['name'],
+						'cert'		=> $current_product['connection']['cert'],
+						'added'		=> array(),
+						'deleted' 	=> array(),
+						'connected'	=> array(),
+					  );
+
 			if ($current_product['type'] !== 'Squiz Update' && $product_info['type'] !== 'Squiz Update') {
 				$suite_manager->syncDeletedProducts($new_request_info['deleted'], $markedDeleted, $markedAdded);
+				$result = $suite_manager->getSuiteProductInfo($current_product);
 				$suite_manager->syncConnectedProducts($product_info['suiteid'], $new_request_info['connected'], $markedDeleted, $markedAdded);
 			}
 
 			$suite_manager->updateProduct($product_info['suiteid'], 'last_contacted', date('c'));
-
-			$result = $suite_manager->getSuiteProductInfo($current_product);
-
 			return $result;
+
 		} catch (Exception $e) {
 			$errMsg  = 'suiteSyncProduct failed.'."\n";
 			$errMsg .= $e->getMessage()."\n";
