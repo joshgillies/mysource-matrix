@@ -10,14 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2012/01/18 02:03:10 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.3 2012/01/18 02:15:51 mhaidar Exp $
 *
 */
 
 -->
 
 <strings>
-	<string source="trigger_action_update_link_note">For advanced users only. Use with caution!</string>
 	<string source="link_characteristics">Link Characteristics</string>
 	<string source="link_characteristics_note">
 	You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. &lt;br /&gt; 
