@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_link.inc,v 1.4 2012/01/18 02:15:51 mhaidar Exp $
+* $Id: trigger_action_update_link.inc,v 1.5 2012/01/18 02:44:36 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that updates a link matching specified characteristics.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,11 +163,12 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						}
 						?></td>
 						<th><?php echo translate('side_of_link'); ?>:</th>
-						<td><?php 
+						<td><?php
+						$side_of_link_options = Array('major' => 'Parent', 'minor' => 'Child');
 						if ($write_access) {
-							combo_box($prefix.'[side_of_link]',  Array('major' => 'Parent', 'minor' => 'Child'), FALSE, $side_of_link); 
+							combo_box($prefix.'[side_of_link]', $side_of_link_options, FALSE, $side_of_link); 
 						} else {
-							echo ucwords($side_of_link);
+							echo $side_of_link_options[$side_of_link];
 						}
 						?></td>
 					</tr>
