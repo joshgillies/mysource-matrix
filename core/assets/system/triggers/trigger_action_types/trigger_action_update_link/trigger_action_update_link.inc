@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_link.inc,v 1.1 2012/01/17 05:29:24 mhaidar Exp $
+* $Id: trigger_action_update_link.inc,v 1.2 2012/01/18 00:36:32 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that updates a link matching specified characteristics.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,16 +68,6 @@ class Trigger_Action_Update_Link extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$type_code = array_get_index($settings, 'type_code', '');
-		if (empty($type_code)) return FALSE;
-		
-		$link_type = array_get_index($settings, 'link_type', 0);
-		if (empty($link_type)) return FALSE;
-		
-		$side_of_link = array_get_index($settings, 'side_of_link', '');
-		if (!in_array($side_of_link, Array('minor', 'major'))) return FALSE;
-		
-		$value = array_get_index($settings, 'value', NULL);
 		$linkid = array_get_index($settings, 'linkid', '');
 		
 		$new_value = array_get_index($settings, 'new_value', NULL);
@@ -87,6 +77,17 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		if (!empty($linkid)){
 			$result = $am->updateLink($linkid, $new_link_type, $new_value);
 		} else {
+			$type_code = array_get_index($settings, 'type_code', '');
+			if (empty($type_code)) return FALSE;
+			
+			$link_type = array_get_index($settings, 'link_type', 0);
+			if (empty($link_type)) return FALSE;
+			
+			$side_of_link = array_get_index($settings, 'side_of_link', '');
+			if (!in_array($side_of_link, Array('minor', 'major'))) return FALSE;
+			
+			$value = array_get_index($settings, 'value', NULL);
+			
 			$links = $am->getLinks($state['asset']->id, $link_type, $type_code, TRUE, $side_of_link, $value, FALSE, FALSE);
 			if (count($links) == 1){
 				$linkid = $links[0]['linkid'];
