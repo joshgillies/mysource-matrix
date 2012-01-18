@@ -10,17 +10,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2012/01/17 05:29:24 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.2 2012/01/18 02:03:10 mhaidar Exp $
 *
 */
 
 -->
 
 <strings>
+	<string source="trigger_action_update_link_note">For advanced users only. Use with caution!</string>
 	<string source="link_characteristics">Link Characteristics</string>
 	<string source="link_characteristics_note">
 	You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. &lt;br /&gt; 
-	This trigger action will only be executed if exactly one link is found. Leave 'Link Value' blank to match any link value.</string>
+	This trigger action will be executed if exactly one link is found, otherwise will fail. Leave 'Link Value' blank to match any link value.</string>
 	<string source="new_link_characteristics">New Link Characteristics</string>
 	<string source="new_link_characteristics_note">Note that you cannot change a link from being a significant link to a non-significant link or vice versa.</string>
 	<string source="link_type">Link Type</string>

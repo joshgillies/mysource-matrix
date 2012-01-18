@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_link.inc,v 1.2 2012/01/18 00:36:32 mhaidar Exp $
+* $Id: trigger_action_update_link.inc,v 1.3 2012/01/18 02:03:09 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that updates a link matching specified characteristics.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,6 +92,9 @@ class Trigger_Action_Update_Link extends Trigger_Action
 			if (count($links) == 1){
 				$linkid = $links[0]['linkid'];
 				$result = $am->updateLink($linkid, $new_link_type, $new_value);
+			} else {
+				trigger_localised_error('TRIG0007', E_USER_NOTICE);
+				return FALSE;
 			}
 		}
 
@@ -129,6 +132,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		ob_start();
 			?>
 			<div style="padding: 10px">
+				<p><?php echo translate('trigger_action_update_link_note');?></p>
 				<p class="sq-backend-section-subheading"><?php echo translate('link_characteristics'); ?></p>
 				<p><?php echo translate('link_characteristics_note');?></p>
 				<?php 

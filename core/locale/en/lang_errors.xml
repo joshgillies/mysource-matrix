@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.139 2012/01/04 01:37:39 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.140 2012/01/18 02:03:10 mhaidar Exp $
 *
 */
 
@@ -1843,6 +1843,7 @@ Full Node Contents :
 
 	<error code="TRIG0005">Unable to select context #%1$s for use in trigger, the context no longer exists</error>
 	<error code="TRIG0006">Unable to determine Tree ID of the asset the trigger condition: 'Tree Location' is executing on. Revise your Trigger setup.</error>
+	<error code="TRIG0007">More than one link found with the characteristics specified in 'Update Link' Trigger Action.</error>
 	
 	<!-- CTX = Context/multi-lingual related errors -->
 	<error code="CTX0001">Cannot create context "%1$s" in database: %2$s</error>
