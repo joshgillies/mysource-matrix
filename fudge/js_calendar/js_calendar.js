@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.15 2008/05/05 04:30:13 mbrydon Exp $
+* $Id: js_calendar.js,v 1.15.16.1 2012/01/18 06:23:54 cupreti Exp $
 *
 */
 
@@ -120,7 +120,7 @@ function c_show(e)
 
 	if (document.getElementById('ie_'+this.divname+'_iframe') == null && (typeof document.body.insertAdjacentHTML != 'undefined')) {
 		var shadow = '<span id="ie_'+this.divname+'_shadow" style="background:#000000;position:absolute;top:0px;left:0px;filter:progid:DXImageTransform.Microsoft.blur(pixelradius=6, enabled=\'true\', makeshadow=\'true\', ShadowOpacity=0.7)"></span>';
-		var iframe = '<iframe id="ie_'+this.divname+'_iframe" scrolling="no" border="0" frameborder="0" style="filter:alpha(opacity=0);position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden;z-index:9999" src="about:blank"></iframe>' + shadow + div.outerHTML;
+		var iframe = '<iframe id="ie_'+this.divname+'_iframe" scrolling="no" border="0" frameborder="0" style="filter:alpha(opacity=0);position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden;z-index:9999" src="about:blank"></iframe>' + shadow + outerHTML(div);
 		document.body.insertAdjacentHTML('beforeEnd', iframe);
 		div.id = this.divname + "_old";
 		div.innerHTML = "";
@@ -721,4 +721,26 @@ function addStyle(css)
 	} else {
 		myStyle.styleSheet.cssText = css;
 	}
+}
+
+
+/**
+* Returns the node's outer html
+*
+* @para node
+*
+* @return void
+* @access public
+*/
+function outerHTML(node)
+{
+    // If browser doesn't has internal method to get outer HTML
+    return node.outerHTML || (
+        function(n){
+            var div = document.createElement('div'), h;
+            div.appendChild( n.cloneNode(true) );
+            h = div.innerHTML;
+            div = null;
+            return h;
+        })(node);
 }
