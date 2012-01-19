@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.57 2009/09/24 06:38:25 bpearson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.58 2012/01/19 00:37:13 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,8 +209,6 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
 			$this->_running_vars['purge_root_treeid'] = $this->_running_vars['trash_treeid'];
 		}
-		$this->_running_vars['to_check'] = $purge_root_children;
-		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
 
 		$db = MatrixDAL::getDb();
 		try {
@@ -219,6 +217,16 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		} catch (Exception $e) {
 			throw new Exception('Failed to get delete order for purge trash HIPO: '.$e->getMessage());
 		}
+		
+		// Sort the 'to_check' assetid list by asset tree level. The parent assets will come on top of the array.
+		$ordered_to_check_list = Array();
+		foreach ($this->_running_vars['delete_order'] as $assetid) {
+			if (isset($purge_root_children[$assetid])) {
+				$ordered_to_check_list[$assetid] = $purge_root_children[$assetid];
+			}
+		}
+		$this->_running_vars['to_check'] = $ordered_to_check_list;
+		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
 
 		return parent::prepare();
 
@@ -266,7 +274,6 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function buildListToDelete(&$step_data, $prefix)
 	{
 		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
-
 		if (!empty($this->_running_vars['to_check'])) {
 			reset($this->_running_vars['to_check']);
 			list($assetid, $type_code) = each($this->_running_vars['to_check']);
@@ -287,6 +294,15 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 				if ($num_external_links == 0) {
 					$this->_running_vars['to_delete'][$assetid] = $type_code;
+				} else if ($num_external_links > 0) {
+					// This asset has links outside the Trash, therefore all of its children have external links as well.
+					// We remove its children's assetids from the 'to_check' list so that we do not have to check them later.
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+					foreach ($children as $child_assetid => $type_code) {
+						if (isset($this->_running_vars['to_check'][$child_assetid])) {
+							unset($this->_running_vars['to_check'][$child_assetid]);
+						}
+					}
 				}
 			}
 		}
