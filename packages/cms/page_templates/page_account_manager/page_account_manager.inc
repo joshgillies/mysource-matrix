@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.76 2011/05/24 04:03:53 mhaidar Exp $
+* $Id: page_account_manager.inc,v 1.77 2012/01/19 01:25:09 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -752,6 +752,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					return FALSE;
 				}
+				
+				// Bug #5509: Account Manager User asset webpath conflict.
+				$current_paths = $user->getWebPaths();
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				$valid_paths = make_valid_web_paths($current_paths, $user->id);
+				$valid_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link_parent, $valid_paths, $user->id, TRUE);
+				if (!$user->saveWebPaths($valid_paths, FALSE)){
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					return FALSE;
+				}
 			}
 
 			// remove the selectable create location notice links, if they exist
@@ -785,7 +797,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			// if we move an asset, we need to update the urls (lookups) as well.
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
- 			$vars = Array('assetids' => Array($user->id));
+ 			$vars = Array('assetids' => Array($user->id), 'auto_add_remaps' => FALSE);
 			$hipo_empty_array = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 			// Here after moving the asset away from pending accounts folder we check for the
