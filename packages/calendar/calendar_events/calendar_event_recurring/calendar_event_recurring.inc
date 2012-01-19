@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.103 2011/12/08 22:55:39 akarelia Exp $
+* $Id: calendar_event_recurring.inc,v 1.104 2012/01/19 00:59:20 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -735,6 +735,65 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 	}//end getFriendlyFrequency()
 
+	
+	/**
+	* Returns recurring event's frequency in days
+	*
+	* @param array $event	Event data (needs to supplied when called statically)
+	*
+	* @return int|boolean
+	* @access public
+	*/	
+	function getEventFrequency($event=NULL)
+	{	
+		// If called statically, make sure we have relevant arguments
+		if (isset($this) && is_a($this, 'Calendar_Event_Recurring')) {
+			$freq_type = substr($this->attr('frequency'), 0, 3);
+			$interval = substr($this->attr('frequency'), 3);			
+		} else {
+			if (is_null($event)) {
+				return FALSE;
+			} else {
+				$freq_type = array_get_index($event, 'frequency', '');;
+				$interval = array_get_index($event, 'period', '');
+			}		
+		}
+		
+		if (empty($interval)) {
+			$interval = 1;
+		}
+		
+		$frequency = FALSE;		
+		switch ($freq_type) {
+			case 'DED':
+				$frequency = 1*$interval; // Daily, 1 day gap between the events
+			break;
+
+			case 'DWD':
+				$frequency = 2*$interval; // Weekdays, 2 days gap on weekends
+			break;
+
+			case 'DWE':
+				$frequency = 5*$interval; // Weekends, 5 days gap on weekdays
+			break;
+
+			case 'WEW':
+				$frequency = 7*$interval; // Weekly, 7 days gap
+			break;
+
+			case 'MFN':
+			case 'MFW':
+			case 'MRN':
+			case 'MRW':
+				$frequency = 30*$interval; // Monthly, 30 days gap
+			break;
+		
+		}//end switch
+		
+		return $frequency;
+	
+	}//end getEventFrequency()
+	
 
 	/**
 	* Checks for cancellations and creates the iCalendar exception string for each one
@@ -880,6 +939,13 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			case 'event_frequency':
 				$replacement = $this->getFriendlyFrequency();
+				break;
+
+			case 'event_frequency_summary':
+				$frequency_threshold = $GLOBALS['SQ_SYSTEM']->getUserPrefs('calendar_event_recurring', 'SQ_CALENDAR_EVENTS_FREQUENCY');
+				$event_frequency = $this->getEventFrequency();
+				// If the event's frequency less than the predefined frequency threshold, display the event's recurrance summary
+				$replacement = ($event_frequency < $frequency_threshold) ? $this->getFriendlyFrequency() : '';
 				break;
 
 			case 'event_ical_frequency':
@@ -1430,6 +1496,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$our_keywords[] = 'event_stop_date_';
 		$our_keywords[] = 'event_ical_frequency';
 		$our_keywords[] = 'event_ical_exceptions';
+		$our_keywords[] = 'event_frequency_summary';
 
 		foreach ($our_keywords as $keyword) {
 			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);

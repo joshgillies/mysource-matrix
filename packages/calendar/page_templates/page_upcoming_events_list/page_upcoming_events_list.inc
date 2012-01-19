@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.32 2011/12/08 22:55:39 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.33 2012/01/19 01:01:07 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -428,6 +428,8 @@ class Page_Upcoming_Events_List extends Page
 			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
 		}
 
+		$events_frequency = $GLOBALS['SQ_SYSTEM']->getUserPrefs('page_calendar', 'SQ_CALENDAR_EVENTS_FREQUENCY');
+		
 		foreach ($events as $id => $event) {
 			$shadow_id = $id;
 			$id = strtok($id, ':');
@@ -658,8 +660,13 @@ class Page_Upcoming_Events_List extends Page
 				$recur_result[$event_id] = $single_event;
 				unset($single_result[$event_id]);
 			}
-
+			$recur_events = $recur_result;
 			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
+
+			// If the recurring event's frequency is less than global frequency threshold set,
+			// limit the recurring event instances to the first instance only
+			$recur_result = Calendar_Common::limitRecurringEventInstances($recur_events, $recur_result);
+
 			$new_events	  = $single_result + $recur_result;
 			Calendar_Common::processExceptions($new_events);
 

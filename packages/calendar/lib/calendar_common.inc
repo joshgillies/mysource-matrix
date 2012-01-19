@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.74 2011/10/05 06:02:58 akarelia Exp $
+* $Id: calendar_common.inc,v 1.75 2012/01/19 01:00:05 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1292,5 +1292,48 @@ class Calendar_Common
 	}//end _getTypeDescendantsQuoted()
 
 
+	/**
+	* Removes the recurring events instances all but first one if event's
+	* frequency is less than the predefined event frequency threshold
+	*
+	* @param array	$events			Array of Events
+	* @param string	$first_day		Events instances
+	*
+	* @return array
+	* @access public
+	*/
+	function limitRecurringEventInstances($events, $instances)
+	{		
+		$frequency_threshold = $GLOBALS['SQ_SYSTEM']->getUserPrefs('calendar_event_recurring', 'SQ_CALENDAR_EVENTS_FREQUENCY');
+		
+		if ($frequency_threshold <= 0) {
+			return $instances;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_recurring');
+		
+		$limit_events = Array();
+		foreach($events as $event) {
+			$recurring_descandants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring');
+			if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $recurring_descandants)) {				
+				$event_frequency = Calendar_Event_Recurring::getEventFrequency($event);
+				if ($event_frequency < $frequency_threshold) {
+					$limit_events[$event['assetid']] = 1;
+				}			
+			}//end if		
+		}//end foreach
+		
+		// If the events frequnecy is less than the defined frequency threshold,
+		// remove all the instances but the first one
+		foreach($instances as $key => $instance) {
+
+			if (isset($limit_events[$instance['assetid']]) && $key != $instance['assetid'].':0') {			
+				unset($instances[$key]);
+			}		
+		}//end foreach
+		
+		return $instances;
+
+	}//end limitRecurringEventInstances()
+	
 }//end class
 ?>
