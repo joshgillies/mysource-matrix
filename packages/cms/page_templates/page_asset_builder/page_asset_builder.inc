@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.167 2012/01/20 06:14:45 mhaidar Exp $
+* $Id: page_asset_builder.inc,v 1.168 2012/01/20 06:21:19 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1420,6 +1420,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
+		
+		  ////////////////////////////
+		 // CREATE CAPTCHA KEYWORD //
+		////////////////////////////
+		
+		// Moved to Page_Asset_Builder::_printContents() as per Bug #5518: CAPTCHA settings conflict.
+		
 		  ////////////////////////////////
 		 // CREATE MOLLOM SPAM KEYWORD //
 		////////////////////////////////
