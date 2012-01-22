@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.48 2011/06/02 06:57:08 mhaidar Exp $
+* $Id: insert_link.php,v 1.49 2012/01/22 22:14:55 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -227,14 +227,24 @@ if (!isset($_GET['new_window'])) {
 				if (link     != null) {
 					f.url_link.value = link;
 				} else {
-					var assetid = f.elements["assetid[assetid]"].value;
+					if (f.elements["assetid[assetid]"].value != undefined && f.elements["assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
+						var assetid = f.elements["assetid[assetid]"].value;
+					} else if (f.elements["link_assetid[assetid]"].value != undefined && f.elements["link_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
+						var assetid = '%globals_asset_attribute_link_url:'+ f.elements["link_assetid[assetid]"].value +'%';
+					} else if (f.elements["page_redirect_assetid[assetid]"].value != undefined && f.elements["page_redirect_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
+						var assetid = '%globals_asset_attribute_redirect_url:'+ f.elements["page_redirect_assetid[assetid]"].value +'%';
+					}
 
 					if (assetid != '') {
 						// shadow asset
-						if (assetid.search(/:/) != -1) {
-							f.url_link.value = './?a=' + assetid + '$';
+						if (assetid.search('globals_asset_attribute') != -1) {
+							f.url_link.value = assetid;
 						} else {
-							f.url_link.value = './?a=' + assetid;
+							if (assetid.search(/:/) != -1) {
+								f.url_link.value = './?a=' + assetid + '$';
+							} else {
+								f.url_link.value = './?a=' + assetid;
+							}
 						}
 						highlight_combo_value(f.url_protocol, '');
 					}
@@ -495,7 +505,7 @@ if (!isset($_GET['new_window'])) {
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map =& new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
+							$asset_map->embedAssetMap('simple', 200, 400);
 						?>
 					</td>
 					<td valign="top">
@@ -516,8 +526,66 @@ if (!isset($_GET['new_window'])) {
 															<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
 														</tr>
 														<tr>
+															<td class="lable"><?php echo translate('asset_type').':'; ?></td>
+															<td colspan="3">
+																<?php
+																	$asset_selector = Array(
+																						'all_assets'	=> 'Any Asset',
+																						'link_manager'	=> 'Link Asset',
+																						'redirect'		=> 'Redirect Page Asset',
+																					  );
+
+																	$object_type  = 'this.form.asset_type_selector.value';
+																	$object_span1 = 'document.getElementById(\'asset_finder_all\')';
+																	$object_span2 = 'document.getElementById(\'asset_finder_link_asset\')';
+																	$object_span3 = 'document.getElementById(\'asset_finder_redirect_asset\')';
+																	$js = 'onChange="chooseSourceType('.$object_type.', '.$object_span1.', '.$object_span2.', '.$object_span3.');"';
+																	?>
+																	<script type="text/javascript">
+																		function chooseSourceType(type, span_all, span_link_manager, span_redirect_page) {
+																			if (type == 'all_assets') {
+																				span_all.style.display='block';
+																				span_all.disabled=false;
+																				span_link_manager.style.display='none';
+																				span_link_manager.disabled=true;
+																				span_redirect_page.style.display='none';
+																				span_redirect_page.disabled=true;
+																			} else if (type == 'link_manager') {
+																				span_all.style.display='none';
+																				span_all.disabled=true;
+																				span_link_manager.style.display='block';
+																				span_link_manager.disabled=false;
+																				span_redirect_page.style.display='none';
+																				span_redirect_page.disabled=true;
+																			} else {
+																				span_all.style.display='none';
+																				span_all.disabled=true;
+																				span_link_manager.style.display='none';
+																				span_link_manager.disabled=true;
+																				span_redirect_page.style.display='block';
+																				span_redirect_page.disabled=false;
+																			}
+																		}
+																	</script>
+																	<?php
+																	combo_box('asset_type_selector', $asset_selector, FALSE, 'all_assets', 0, $js);
+
+																?>
+															</td>
+														</tr>
+														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', FALSE, 'setUrl'); ?></td>
+															<td colspan="3">
+																<span id="asset_finder_all" style="display:block">
+																	<?php asset_finder('assetid', $_GET['assetid'], Array(), '', FALSE, 'setUrl'); ?>
+																</span>
+																<span id="asset_finder_link_asset" style="display:none">
+																	<?php asset_finder('link_assetid', $_GET['assetid'], Array('link' => 'I'), '', FALSE, 'setUrl'); ?>
+																</span>
+																<span id="asset_finder_redirect_asset" style="display:none">
+																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), '', FALSE, 'setUrl'); ?>
+																</span>
+															</td>
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('anchor_name'); ?>:</td>
