@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: asset.xml,v 1.7 2012/01/23 03:07:59 akarelia Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>paint_layout_bodycopy</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Paint Layout Bodycopy</name>
 	<description>HTML Template for assets</description>
 	<instantiable>yes</instantiable>
