@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2010/05/27 05:08:21 ewang Exp $
+* $Id: asset.xml,v 1.2 2012/01/23 23:20:53 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>ees_login_design</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>EES Login Design</name>
 	<description>This is the design that is used for the Mini feel and look login screens in the system</description>
 	<instantiable>yes</instantiable>
