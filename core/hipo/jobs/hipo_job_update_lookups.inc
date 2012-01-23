@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.54 2011/06/27 04:47:31 akarelia Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.54.2.1 2012/01/23 04:28:51 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -286,7 +286,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
 
 		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
-		$this->_running_vars['auto_add_remaps'] = $auto_add_remaps;
+		if (!isset($this->_running_vars['auto_add_remaps'])) $this->_running_vars['auto_add_remaps'] = $auto_add_remaps;
 		$this->_running_vars['done_assetids'] = Array();
 		return parent::prepare();
 
