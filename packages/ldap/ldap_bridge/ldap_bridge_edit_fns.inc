@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.30 2011/10/17 04:46:28 akarelia Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.31 2012/01/25 01:05:01 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -284,8 +284,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('user_attributes');
-		$array_flipped = array_flip(array_merge($current['show'], $current['hide']));
-		$sort_by = array_get_index($array_flipped, $current['sort_by'], '');
+		$sort_by = (isset($current['sort_by'])) ? $current['sort_by'] : '';
 
 		// connect through the bridge and find out what type of information
 		// we get back for the users
@@ -294,6 +293,11 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 			trigger_localised_error('LDAP0001', E_USER_WARNING);
 			return;
 		}
+		
+		$user_type = $asset->attr('user_type');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+		$ldap_asset = new $user_type();
+		$ldap_asset_attrs = array_keys($ldap_asset->vars);
 
 		?>
 		<table class="sq-backend-table">
@@ -338,7 +342,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-cell">
 				<?php
 					if ($write_access) {
-						radio_button($prefix.'_sort_by', $field_name, ($field_name == $sort_by));
+						if (!in_array($field_name, $ldap_asset_attrs)){
+							radio_button($prefix.'_sort_by', $field_name, ($field_name == $sort_by));
+						}
 					} else {
 						echo ($sort_by == $field_name) ? translate('yes') : '';
 					}
@@ -376,14 +382,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 			$show_hide = (isset($field_data['show']) && $field_data['show']) ? 'show' : 'hide';
 			$user_attributes[$show_hide][$field_name] = $field_data['name'];
 		}
-		$user_attributes['sort_by'] = '';
-		if (isset($_POST[$prefix.'_sort_by'])) {
-			if (isset($user_attributes['show'][$_POST[$prefix.'_sort_by']])) {
-				$user_attributes['sort_by'] = $user_attributes['show'][$_POST[$prefix.'_sort_by']];
-			} else if (isset($user_attributes['hide'][$_POST[$prefix.'_sort_by']])) {
-				$user_attributes['sort_by'] = $user_attributes['hide'][$_POST[$prefix.'_sort_by']];
-			}
-		}
+		$user_attributes['sort_by'] = (isset($_POST[$prefix.'_sort_by'])) ? $_POST[$prefix.'_sort_by'] : '';
 
 		return $asset->setAttrValue('user_attributes', $user_attributes);
 

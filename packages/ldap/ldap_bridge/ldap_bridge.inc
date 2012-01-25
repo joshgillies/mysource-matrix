@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.103 2011/11/15 06:46:28 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.104 2012/01/25 01:05:01 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -447,6 +447,9 @@ class LDAP_Bridge extends Asset implements Bridge
 				$entries = NULL;
 				
 				$attr = $this->attr('attributes');
+				$user_attrs = $this->attr('user_attributes');
+				$sort_by = (!empty($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
+					
 				// If the group defines its own members, use the "Group Members" attribute to
 				// provide links to its members. Note that this is mandatory in Active Directory
 				// so if nothing is provided, the default "member" will be used.
@@ -464,6 +467,20 @@ class LDAP_Bridge extends Asset implements Bridge
 							if (!is_null($user)){
 								$user->vars['dn'] = $dn;
 								$entries[$dn] = $user->vars;
+							}
+						}
+						if (!empty($sort_by) && !empty($entries)){
+							$entry_test = reset($entries);
+							if (isset($entry_test[$sort_by]['value'])){
+								uasort($entries, create_function('$a,$b',
+													'$a = $a[\''.$sort_by.'\'][\'value\'];
+													$b = $b[\''.$sort_by.'\'][\'value\'];
+													if ($a == $b) {
+														return 0;
+													}
+													return ($a < $b) ? -1 : 1;'
+												)
+										);
 							}
 						}
 					}
@@ -495,13 +512,11 @@ class LDAP_Bridge extends Asset implements Bridge
 						}
 					}
 
-					$user_attrs = $this->attr('user_attributes');
-					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
-
 					$base_dn = $this->decodeString($base_dn);
 					
-					// Attributes represnting the objectclass values are always required
-					$required_attrs = array_values(array_unique(array_merge($attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
+					// Attributes representing the objectclass values are always required + attribute used for sorting
+					$sort_attr = (!empty($sort_by)) ? Array($sort_by) : Array();
+					$required_attrs = array_values(array_unique(array_merge($attr, $sort_attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
 					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
 
 					if (!$result) {
