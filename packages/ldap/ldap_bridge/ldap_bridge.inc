@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.104 2012/01/25 01:05:01 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.105 2012/01/25 02:15:12 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -225,9 +225,12 @@ class LDAP_Bridge extends Asset implements Bridge
 			$shadowid = $this->decodeString($shadowid);
 
 			if (!$get_all_attr) {
+				$user_attrs = $this->attr('user_attributes');
+				$sort_attr = (!empty($user_attrs['sort_by'])) ? Array($user_attrs['sort_by']) : Array();
 				$attr_req = array_merge(
 										array_values(array_get_index($this->attr('user_attributes'), 'show', Array())),
 										array_values($required_attrs),
+										$sort_attr,
 										Array('objectclass')
 							);
 
