@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.164.2.2 2011/12/06 07:13:38 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.164.2.3 2012/01/25 05:42:11 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.164.2.2 $
+* @version $Revision: 1.164.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1423,10 +1423,8 @@ class Page_Asset_Builder extends Page
 		  ////////////////////////////
 		 // CREATE CAPTCHA KEYWORD //
 		////////////////////////////
-		$this->_replacements['form_captcha'] = $this->getFormCaptchaKeywordReplacement();
-		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();
-		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();
-		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();
+
+		// Moved to Page_Asset_Builder::_printContents() as per Bug #5518: CAPTCHA settings conflict.
 
 		  ////////////////////////////////
 		 // CREATE MOLLOM SPAM KEYWORD //
@@ -1574,9 +1572,27 @@ class Page_Asset_Builder extends Page
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
 
-		//pick up any global keywords and replace them
 		$keywords = $bodycopy->getKeywords();
 		foreach($keywords as $word) {
+		
+			// Bug #5518: CAPTCHA settings conflict. Only replace if keyword exists in the content.
+			if ($word == 'create_form' && isset($this->_replacements['create_form'])){
+				$create_form_keywords = extract_keywords($this->_replacements['create_form']);
+				$captcha_keywords = Array('form_captcha', 'form_captcha_image', 'form_captcha_field', 'form_captcha_link');
+				$captcha_replacements = Array();
+				foreach ($captcha_keywords as $captcha_word){
+					if (in_array($captcha_word, $create_form_keywords)){
+						$captcha_replacements[$captcha_word] = $this->getKeywordReplacement($captcha_word);
+					}	
+				}
+				replace_keywords($this->_replacements['create_form'], $captcha_replacements);
+			}
+			
+			if ((strpos($word, 'form_captcha') === 0)){
+				$this->_replacements[$word] = $this->getKeywordReplacement($word);
+			}
+			
+			//pick up any global keywords and replace them
 			if(!isset($this->_replacements[$word]) && (strpos($word, 'globals_') === 0 )){
 				$this->_replacements[$word] = $this->getKeywordReplacement($word);
 				// replace them here, it's not good enough to leave it to mysource.inc for replacement
