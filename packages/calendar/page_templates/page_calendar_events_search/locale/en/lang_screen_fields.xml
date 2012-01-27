@@ -10,16 +10,26 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fields.xml,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: lang_screen_fields.xml,v 1.2 2012/01/27 05:41:33 cupreti Exp $
 *
 */
 -->
 <contents>
+	<section name="Date Filters and Search Fields Grouping Logic">
+		<field attribute="main_logic">
+			<display_name>Logical Grouping</display_name>
+			<note>Logic to combine the Date Filters and Search Fields results</note>
+		</field>
+	</section>
 	<section name="Events Date Filter Configuration">
 		<field attribute="events_filter_logic">
 			<display_name>Logical Grouping</display_name>
 			<note></note>
 		</field>
+		<field attribute="events_filter_allow_empty_search">
+			<display_name>Allow Empty Searches?</display_name>
+			<note>When enabled, an empty date search will act as a wildcard and return all the event instances possible.</note>
+		</field>		
 		<field>
 			<display_name>Events Filter Fields</display_name>
 			<note></note>

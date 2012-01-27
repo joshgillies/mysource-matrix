@@ -10,7 +10,7 @@ sf<?php
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_management.inc,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: page_calendar_events_search_management.inc,v 1.2 2012/01/27 05:41:33 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -76,6 +76,30 @@ class Page_Calendar_Events_Search_Management extends Asset_Management
 																					   ),
 																   ),
 											   );
+		
+		$this->vars['main_logic'] = Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'AND',
+												'description'	=> 'Whether to include all or any events date filter fields.',
+												'parameters'	=> Array(
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																	'options'		=> Array(
+																						'AND'	=> 'Match on both Date Filters and Search Fields result',
+																						'OR'	=> 'Match on either of Date Filters and Search Fields result',
+																					   ),
+																   ),
+											   );
+		
+		$this->vars['events_filter_allow_empty_search']	= Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'description'	=> 'If true, empty date filter query will search for everything',
+												'parameters'	=> Array('allow_empty' => FALSE),
+											  );
+											   
 									 
 	}//end constructor
 	

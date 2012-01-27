@@ -10,14 +10,23 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.2 2012/01/27 05:41:33 cupreti Exp $
 *
 */
 -->
 <contents>
+	<section name="Date Filters and Search Fields Grouping Logic">
+		<field write_access="write:attributes" attribute="main_logic">
+			<selection />
+		</field>
+	</section>
+
 	<section name="Events Date Filter Configuration">
 		<field write_access="write:attributes" attribute="events_filter_logic">
 			<selection />
+		</field>
+		<field write_access="write:attributes" attribute="events_filter_allow_empty_search">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
 			<function_call>

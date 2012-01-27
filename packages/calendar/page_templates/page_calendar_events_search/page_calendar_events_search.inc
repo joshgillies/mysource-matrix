@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.2 2012/01/27 05:41:33 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -101,21 +101,63 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 			}//end foreach			
 		}//end foreach		
-		$sm_result_assetids = array_keys($sm_result);
+		$sm_result_assetids = array_keys($sm_result);		
 		
-		$events_result = $this->processEventSearch($search);		
+		// Process and get the event instances based on the date filters
+		$date_filter_result = array_keys($this->processEventSearch($search));		
 		
-		$result = Array();		
-		foreach($events_result as $event => $val) {
-			$assetid = substr($event, 0, strpos($event, ':'));
-			if (in_array($assetid, $sm_result_assetids) && !isset($result[$event]))  {
-				$result[$event] = $sm_result[$assetid];
-			}
-		}//end foreach		
+		// Grouping logic for combing date filters and search field results		
+		$result = Array();
+		if ($this->attr('main_logic') == 'AND') {			
+			foreach($date_filter_result as $event) {
+				$assetid = substr($event, 0, strpos($event, ':'));
+				if (in_array($assetid, $sm_result_assetids) && !isset($result[$event]))  {
+					$result[$event] = $sm_result[$assetid];
+				}
+			}//end foreach
+		} else {
+			// Get the event instances for the events in the regular search result
+			$sm_fields_result = array_keys($this->getEventInstances($sm_result_assetids));
+			$combined_result = array_merge($sm_fields_result, $date_filter_result);
+			foreach($combined_result as $event) {
+				$assetid = substr($event, 0, strpos($event, ':'));
+				$result[$event] = array_get_index($sm_result, $assetid, 1);
+			}//end foreach
+		}
 
 		return $result;
 
 	}//end processSearch()
+	
+	/*
+	* Get all the instances for supplied events
+	*
+	* @param array	$event_assetids		Event assetids
+	*
+	* @return array
+	* @access public
+	*/		
+	function getEventInstances($event_assetids)
+	{
+		$events = $this->_getEvents();
+		
+		$relevent_events = Array();
+		foreach($events as $event) {
+			if (isset($event['assetid']) && in_array($event['assetid'], $event_assetids)) {
+				$relevent_events[] = $event;
+			}
+		}//end foreach
+		
+		$instances = Calendar_Common::getWholeEventInstances($relevent_events, '1970-01-01', '2030-12-31');
+		
+		// Sort the events by event start timestamp
+		if (!empty($instances)) {
+			asort($instances);
+		}
+		
+		return $instances ? $instances : Array();
+	
+	}//end getEventInstances()
 	
 	
 	/*
@@ -135,7 +177,20 @@ class Page_Calendar_Events_Search extends Search_Page
 		// Save the search terms into the session so that we can use them for
 		// search within search results
 		// NOTE: This session var is initialised in parent::processSearch()
-		$_SESSION['SQ_LAST_SEARCH'][$this->id] = array_merge($_SESSION['SQ_LAST_SEARCH'][$this->id], $query);		
+		$_SESSION['SQ_LAST_SEARCH'][$this->id] = array_merge($_SESSION['SQ_LAST_SEARCH'][$this->id], $query);
+		
+		// If empty Date search is allowed then search needs to be carried out 
+		// in all the event instances, regardless of date filter query submitted
+		if ($this->attr('events_filter_allow_empty_search')) {
+			$query = Array(
+						'default_field' => Array(
+											0 => Array(													
+													'from' => '1970-01-01',
+													'to' => '2030-12-31',
+												)
+											)
+				);
+		}//end if		
 		
 		if (empty($events) || empty($query)) {
 			return Array();
@@ -188,9 +243,9 @@ class Page_Calendar_Events_Search extends Search_Page
 	{
 		if (isset($this->_tmp['searched_fqueries'])) {
 			return $this->_tmp['searched_fqueries'];
-		}
+		}		
 
-		$filters = $this->attr('events_filters');		
+		$filters = $this->attr('events_filters');
 		$queries = Array();		
 		foreach ($filters as $field_name => $field_details) {
 
