@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.2 2012/01/27 05:41:33 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.3 2012/01/30 05:39:26 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -73,6 +73,48 @@ class Page_Calendar_Events_Search extends Search_Page
 	
 
 	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printContents()
+	{
+		if (isset($_REQUEST[$this->getPrefix().'_submit_button']) && empty($_REQUEST['mode'])) {
+			$_REQUEST['mode'] = 'results';
+		}
+
+		$mode = array_get_index($_REQUEST, 'mode', '');
+
+		if (empty($mode)) {
+			// we dont know what button was pressed, so see if we have any query vars
+			// that show evidence that a search has been performed without submitting
+			// the button value
+			$queries = $this->_getEventSearchQuery();
+			foreach ($queries as $field_name => $value) {
+				if (!empty($value)) {
+					$mode = 'results';
+					break;
+				} else {
+					unset($queries[$field_name]);
+				}
+			}
+			$this->_tmp['searched_fqueries'] = $queries;
+		}
+
+		if (empty($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id])) {
+			$_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id] = Array();
+		} else if ($mode=='results') {
+				// preserve the previous query
+				$this->_tmp['potential_searched_fqueries'] = $_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id];
+		}
+		
+		parent::printContents();
+		
+	}//end printContents()
+	
+
+	/**
 	* Processes a search request
 	*
 	* Note that all search queries are constructed and run in the Search Manager
@@ -86,10 +128,18 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/
 	function processSearch($search=Array())
 	{	
-		$sm_result = parent::processSearch($search);		
+		$sm_result = parent::processSearch($search);
+		$sm_queries = $this->_getSearchedQueries();
+
+		// Pick the multi-date assets from the root node
+		$multi_date_assets = Array();
+		$root_nodes = $this->getRootNodes(FALSE);
+		foreach($root_nodes as $root_node) {
+			$multi_date_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($root_node, 'calendar_event_multi_date', TRUE);
+		}
 		
-		// Pick the multi-date assets from the search result
-		$multi_date_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sm_result), Array('calendar_event_multi_date'), TRUE, 'type_code');		
+		// Map the "single" and "recurring" events to their respective multi-date event asset
+		$multi_date_events = Array();		
 		foreach($multi_date_assets as $event_assetid => $val) {
 			// Include the events assoicated with the multi-date event into the search result
 			$multi_events = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($event_assetid, 'calendar_event', FALSE, TRUE));
@@ -98,7 +148,8 @@ class Page_Calendar_Events_Search extends Search_Page
 					$sm_result[$multi_event_id]++;
 				} else {
 					$sm_result[$multi_event_id] = 1;
-				}
+				}				
+				$multi_date_events[$multi_event_id] = $event_assetid;
 			}//end foreach			
 		}//end foreach		
 		$sm_result_assetids = array_keys($sm_result);		
@@ -108,26 +159,36 @@ class Page_Calendar_Events_Search extends Search_Page
 		
 		// Grouping logic for combing date filters and search field results		
 		$result = Array();
-		if ($this->attr('main_logic') == 'AND') {			
+		if ($this->attr('main_logic') == 'AND') {
+		
 			foreach($date_filter_result as $event) {
 				$assetid = substr($event, 0, strpos($event, ':'));
-				if (in_array($assetid, $sm_result_assetids) && !isset($result[$event]))  {
-					$result[$event] = $sm_result[$assetid];
+				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
+					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
+				}
+				if (!isset($result[$event]) && (empty($sm_queries) || in_array($assetid, $sm_result_assetids)))  {
+					$result[$event] = array_get_index($sm_result, $assetid, 1);
 				}
 			}//end foreach
 		} else {
+		
 			// Get the event instances for the events in the regular search result
 			$sm_fields_result = array_keys($this->getEventInstances($sm_result_assetids));
+			
 			$combined_result = array_merge($sm_fields_result, $date_filter_result);
 			foreach($combined_result as $event) {
 				$assetid = substr($event, 0, strpos($event, ':'));
+				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
+					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
+				}
 				$result[$event] = array_get_index($sm_result, $assetid, 1);
 			}//end foreach
-		}
+		}		
 
 		return $result;
 
 	}//end processSearch()
+	
 	
 	/*
 	* Get all the instances for supplied events
@@ -148,7 +209,37 @@ class Page_Calendar_Events_Search extends Search_Page
 			}
 		}//end foreach
 		
-		$instances = Calendar_Common::getWholeEventInstances($relevent_events, '1970-01-01', '2030-12-31');
+		if (empty($relevant_events)) {
+			return Array();
+		}
+		
+		$grouping_logic = $this->attr('events_filter_logic');		
+		$result = FALSE;
+		$query = $this->_getEventSearchQuery();
+		if ($this->isEmptyQuery($query)) {
+			$instances = Calendar_Common::getWholeEventInstances($relevent_events, '1970-01-01', '2030-12-31');
+		} else {
+			foreach($query as $query_field => $query_data) {
+				if (empty($query_data)) {
+					continue;
+				}				
+				// Get event result for each filter
+				$field_result = Array();			
+				foreach($query_data as $query_date) {
+					if (empty($query_date['from']) || empty($query_date['to'])) {
+						continue 2;
+					}
+					$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($relevent_events, $query_date['from'], $query_date['to']));				
+				}//end foreach				
+
+				// Combine the submitted field result based on the selected logical grouping
+				if ($instances === FALSE) {
+					$instances = $field_result;
+				} else {
+					$instances = $grouping_logic == 'AND' ? array_intersect($result, $field_result) : array_merge($result, $field_result);
+				}			
+			}//end foreach
+		}
 		
 		// Sort the events by event start timestamp
 		if (!empty($instances)) {
@@ -176,12 +267,11 @@ class Page_Calendar_Events_Search extends Search_Page
 	
 		// Save the search terms into the session so that we can use them for
 		// search within search results
-		// NOTE: This session var is initialised in parent::processSearch()
-		$_SESSION['SQ_LAST_SEARCH'][$this->id] = array_merge($_SESSION['SQ_LAST_SEARCH'][$this->id], $query);
+		$_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id] = $query;
 		
 		// If empty Date search is allowed then search needs to be carried out 
 		// in all the event instances, regardless of date filter query submitted
-		if ($this->attr('events_filter_allow_empty_search')) {
+		if ($this->attr('events_filter_allow_empty_search') && $this->isEmptyQuery($query)) {
 			$query = Array(
 						'default_field' => Array(
 											0 => Array(													
@@ -214,6 +304,8 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 				$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($events, $query_date['from'], $query_date['to']));				
 			}//end foreach			
+			
+			
 
 			// Combine the submitted field result based on the selected logical grouping
 			if ($result === FALSE) {
@@ -232,6 +324,31 @@ class Page_Calendar_Events_Search extends Search_Page
 	
 	}//end processEventSearch()
 	
+
+	/*
+	* Check if the submitted date filter query is empty
+	*
+	* @param array $query
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isEmptyQuery($query)
+	{
+		$empty = TRUE;
+		foreach($query as $field => $val) {
+			foreach($val as $query_data) {
+				if (!empty($query_data['from']) && !empty($query_data['to'])) {
+					$empty = FALSE;
+					break 2;
+				}
+			}
+		}
+		
+		return $empty;
+		
+	}//end isEmptyQuery()
+	
 	
 	/*
 	* Get "date" query data submitted in Event Search page
@@ -240,7 +357,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access private
 	*/	
 	function _getEventSearchQuery()
-	{
+	{	
 		if (isset($this->_tmp['searched_fqueries'])) {
 			return $this->_tmp['searched_fqueries'];
 		}		
@@ -259,8 +376,8 @@ class Page_Calendar_Events_Search extends Search_Page
 		
 		// if it seems that nothing is submitted, check if there was a previous query
 		// and use its details
-		if (empty($queries) && !empty($this->_tmp['potential_searched_queries'])) {
-			$queries = $this->_tmp['potential_searched_queries'];
+		if (empty($queries) && !empty($this->_tmp['potential_searched_fqueries'])) {
+			$queries = $this->_tmp['potential_searched_fqueries'];
 		}
 
 		return $queries;
@@ -352,6 +469,18 @@ class Page_Calendar_Events_Search extends Search_Page
 
 		$asset_info_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 		$bodycopy = NULL;
+		
+		// we can get the type code from the asset info array
+		// if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
+		// so we load the asset and get its typecode
+		$type_code = NULL;
+		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
+		if (!empty($info['type_code'])) {
+			$type_code = $info['type_code'];
+		} else {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$type_code = $asset->type();
+		}		
 
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
@@ -370,8 +499,36 @@ class Page_Calendar_Events_Search extends Search_Page
 				$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$negative_offset], 'bodycopy');
 			}
 		}//end else
+		
+		// if we can't find a position format
+		// search for type format, if we don't already know that default format should be used
+		if (is_null($bodycopy) && !in_array($type_code, $this->_tmp['is_default'])) {
+			// is there previous information about type format?
+			if (isset($this->_tmp['type_formats']) && array_key_exists($type_code, $this->_tmp['type_formats'])) {
+				$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+				$type_code = $this->_tmp['type_formats'][$type_code];
+			} else {
+				$parent = NULL;
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 
-		// if we can't find a position format, use the default format
+				if (($type_key = array_search($type_code, $customised)) === FALSE) {
+					foreach ($parents as $parent) {
+						// any of parent in the custom format?
+						if (array_search($parent, $customised) !== FALSE) {
+							$this->_tmp['type_formats'][$type_code] = $parent;
+							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+							$type_code = $parent;
+						}
+					}
+				}
+			}
+			if (isset($type_key) && $type_key !== FALSE) {
+				$bodycopy = $this->_getTypeFormatBodycopy($type_code);
+			}
+
+		}		
+
+		// if no bodycopy found, try the default format
 		if (is_null($bodycopy)) {
 			if (!isset($this->_tmp['default_format_bc'])) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
@@ -437,7 +594,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			}
 		}
 		
-		$this_needs_asset = FALSE;
+		$this_needs_asset = FALSE;		
 		foreach ($bc_keywords as $keyword) {
 			if (in_array($keyword, Array('asset_url', 'asset_name_linked', 'asset_short_name_linked')) && !SQ_ROLLBACK_VIEW) {
 				continue;
@@ -510,7 +667,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			}
 
 			// stuff carried over results body replacements
-			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
+			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $asset->id, './?a='.$asset->id);
 			$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->name).'</a>';
 			$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->short_name).'</a>';
 
@@ -552,14 +709,14 @@ class Page_Calendar_Events_Search extends Search_Page
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
-		} else {			
+		} else {
 			$keywords = Array();
 			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 				$keywords['asset_'.$field] = htmlspecialchars($value);
 			}
-			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
+			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid_parts[0], './?a='.$assetid_parts[0]);
 			$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_name'].'</a>';
-			$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_short_name'].'</a>';
+			$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_short_name'].'</a>';			
 
 		}//end if needs asset
 		
@@ -879,8 +1036,8 @@ class Page_Calendar_Events_Search extends Search_Page
 		$this->registerFormField('queries_'.$query_var.'%');
 		$query = '';
 
-		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
-			$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $filter_name, '');
+		if (isset($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id])) {
+			$query = array_get_index($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id], $filter_name, '');
 		}
 		$read_only = FALSE;
 
@@ -903,7 +1060,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			replace_global_keywords($query);
 		}
 		
-		$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $filter_name, Array());
+		$current_value = $query;
 		
 		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());		
 		foreach($fuzzy_date_options as $key => $val) {
@@ -923,7 +1080,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				break;
 				
 				case 'fuzzy_dropdown':					
-					combo_box('queries_'.$query_var, $fuzzy_date_options, FALSE, array_get_index($current_value[0], 'fuzzy_type', ''));
+					combo_box('queries_'.$query_var, $fuzzy_date_options, FALSE, isset($current_value[0]) ? array_get_index($current_value[0], 'fuzzy_type', '') : '');
 				break;
 				
 				case 'fuzzy_checkboxes':
@@ -1281,7 +1438,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					$month = 1;
 					$year = date('Y')+1;
 				} else {
-					$month = date('m');
+					$month = date('m')+1;
 					$year = date('Y');
 				}
 				$from = date("Y-m-d", strtotime($month.'/01/'.$year));
