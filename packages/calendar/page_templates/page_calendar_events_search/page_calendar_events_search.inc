@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.3 2012/01/30 05:39:26 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.4 2012/01/30 22:10:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -136,7 +136,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		$root_nodes = $this->getRootNodes(FALSE);
 		foreach($root_nodes as $root_node) {
 			$multi_date_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($root_node, 'calendar_event_multi_date', TRUE);
-		}
+		}		
 		
 		// Map the "single" and "recurring" events to their respective multi-date event asset
 		$multi_date_events = Array();		
@@ -144,15 +144,16 @@ class Page_Calendar_Events_Search extends Search_Page
 			// Include the events assoicated with the multi-date event into the search result
 			$multi_events = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($event_assetid, 'calendar_event', FALSE, TRUE));
 			foreach($multi_events as $multi_event_id) {
-				if (isset($sm_result[$multi_event_id])) {
-					$sm_result[$multi_event_id]++;
-				} else {
-					$sm_result[$multi_event_id] = 1;
-				}				
+				if (isset($sm_result[$event_assetid])) {
+					if (!isset($sm_result[$multi_event_id])) {
+						$sm_result[$multi_event_id] = Array('weight' => 1);
+					}
+				}
 				$multi_date_events[$multi_event_id] = $event_assetid;
 			}//end foreach			
 		}//end foreach		
-		$sm_result_assetids = array_keys($sm_result);		
+		
+		$sm_result_assetids = array_keys($sm_result);
 		
 		// Process and get the event instances based on the date filters
 		$date_filter_result = array_keys($this->processEventSearch($search));		
@@ -167,7 +168,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
 				}
 				if (!isset($result[$event]) && (empty($sm_queries) || in_array($assetid, $sm_result_assetids)))  {
-					$result[$event] = array_get_index($sm_result, $assetid, 1);
+					$result[$event] = array_get_index($sm_result, $assetid, Array('weight' => 1));
 				}
 			}//end foreach
 		} else {
@@ -176,14 +177,15 @@ class Page_Calendar_Events_Search extends Search_Page
 			$sm_fields_result = array_keys($this->getEventInstances($sm_result_assetids));
 			
 			$combined_result = array_merge($sm_fields_result, $date_filter_result);
+			
 			foreach($combined_result as $event) {
 				$assetid = substr($event, 0, strpos($event, ':'));
 				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
 					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
 				}
-				$result[$event] = array_get_index($sm_result, $assetid, 1);
+				$result[$event] = array_get_index($sm_result, $assetid, Array('weight' => 1));
 			}//end foreach
-		}		
+		}
 
 		return $result;
 
