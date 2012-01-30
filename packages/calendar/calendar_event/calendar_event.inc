@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.100 2011/10/24 23:41:45 mhaidar Exp $
+* $Id: calendar_event.inc,v 1.101 2012/01/30 05:33:13 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1009,6 +1009,122 @@ class Calendar_Event extends Asset
 		return $replacement;
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Get keyword replacement for event instance based on the given data
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	* @param array 	$data		Event data
+	*
+	* @return string
+	* @access public
+	*/
+	function getEventInstanceKeywordReplacement($keyword, $data)
+	{
+		$keyword = parse_keyword($keyword, $modifiers);
+
+		$replacment = '';
+		if (preg_match('|^instance_start_datetime$|', $keyword)) {
+			$replacement = date('Y-m-d H:i', $data['start_date_ts']);
+		} else if (preg_match('|^instance_end_datetime$|', $keyword)) {
+			$replacement = empty($data['end_date_ts']) ? '' : date('Y-m-d H:i', $data['end_date_ts']);
+		} else {
+			$matches = Array();
+			preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
+			if (!empty($matches)) {
+				if ($matches[1] == 'ical') {
+					$replacement = date('Ymd\THis', $data['start_date_ts']);
+				} else {
+					$replacement = date($matches[1], $data['start_date_ts']);
+				}
+			}//end if
+
+			$matches = Array();
+			preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
+			if (!empty($matches)) {
+				if ($matches[1] == 'ical') {
+					$replacement = empty($data['end_date_ts']) ? '' : date('Ymd\THis', $data['end_date_ts']);
+				} else {
+					$replacement = empty($data['end_date_ts']) ? '' : date($matches[1], $data['end_date_ts']);
+				}
+			}//end if
+		}
+
+		apply_keyword_modifiers($replacement, $modifiers);
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Returns an array of information about assets of the passed codes
+	*
+	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
+	*
+	* @param array		$assetids			an array of assets to limit
+	* @param mixed		$type_code			an asset type code, or array of typecodes, to limit results to
+	* @param boolean	$strict_type_code	ensure returned assets are of the passed type codes
+	* @param string		$field				single field from the asset table to return (along with the assetid)
+	*										Default is all fields
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAssetInfo(Array $assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
+	{
+		$info = Array();
+		foreach ($assetids as $whole_assetid) {
+			$assetid_parts = explode(':', $whole_assetid);
+			$assetid = $assetid_parts[0];
+			if (empty($assetid_parts[1])) {
+				$asset_type = $this->type();
+			} else {
+				$event_data_raw = explode(',', $assetid_parts[1]);
+				$event_data = Array();
+				foreach($event_data_raw as $event) {
+					list($key, $val) = explode("=", $event);
+					$event_data[$key] = $val;
+				}
+				$asset_type = $event_data['type_code'];
+			}
+			
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			// if a sort field is specified then return only that field value else return all of the fields
+			if (!empty($field)) {
+				if (isset($event_data[$field])) {
+					$info[$whole_assetid] = $event_data[$field];
+				} else if (isset($asset->{$field})) {
+					$info[$whole_assetid] = $asset->{$field};
+				} else {
+					trigger_error('Invalid field for the asset type Calendar Event asset', E_USER_ERROR);
+				}
+			} else {
+				$info[$whole_assetid] = Array(
+									'type_code'				=> $asset_type,
+									'version'				=> $asset->version,
+									'name'					=> $asset->name,
+									'short_name'			=> $asset->short_name,
+									'status'				=> $asset->status,
+									'languages'				=> '',
+									'charset'				=> '',
+									'force_secure'			=> '0',
+									'created'				=> $asset->getKeywordReplacement('asset_created'),
+									'created_userid'		=> $asset->created_userid,
+									'updated'				=> $asset->getKeywordReplacement('asset_updated'),
+									'updated_userid'		=> $asset->updated_userid,
+									'published'				=> $asset->getKeywordReplacement('asset_published'),
+									'published_userid'		=> $asset->published_userid,
+									'status_changed'		=> $asset->getKeywordReplacement('asset_status_changed'),
+									'status_changed_userid'	=> $asset->status_changed_userid,
+								  );
+			}//end if field not empty
+		}//end foreach of assetids
+		
+		return $info;
+
+	}//end getAssetInfo()
 
 
 }//end class
