@@ -1215,7 +1215,7 @@ class DAL
 	 * @return object
 	 * @throws DALException If db connection fails.
 	 */
-	public static function dbConnect(array $dsn=NULL, $conn_id='db', $oci_force_new = FALSE)
+	public static function dbConnect(array &$dsn=NULL, $conn_id='db', $oci_force_new = FALSE)
 	{
 		try {
 			if ($dsn === NULL) {
@@ -1224,68 +1224,104 @@ class DAL
 				$dsn = self::getDsnFromConfig($conn_id);
 			}
 
-			$user = NULL;
-			$pass = NULL;
-			if (isset($dsn['user']) === TRUE) {
-				$user = $dsn['user'];
-			}
+			// Add the DSN which can be a single DSN or a DSN array (pool) to the DSN Manager's list
+			require_once dirname(__FILE__).'/DSNManager.inc';
+			DSNManager::addDSN($conn_id, $dsn);
 
-			if (isset($dsn['password']) === TRUE) {
-				$pass = $dsn['password'];
-			}
-
-			$persistent = false;
-			if (isset($dsn['persistent']) && $dsn['persistent'] == true) {
-				$persistent = true;
-			}
-
-			if ($dsn['type'] === 'oci') {
-				// OCI: Oracle in PDO is far too buggy to be considered usable (tested
-				// in 5.1.x to 5.3dev). Therefore we'll be resigned to using
-				// legacy OCI8 extension functions.
-				// use @ to suppress warning/error messages, it will be handled by ourself.
-
-				$oci_connect_fn = 'oci_connect';
-				if ($persistent) {
-					$oci_connect_fn = 'oci_pconnect';
+			$new_dbh = FALSE;
+			do {
+				// Get a single DSN from the DSN Manager
+				$dsn = DSNManager::getDSN($conn_id);
+				// If we can not get a single DSN from the DSN Pool, throw an exception
+				if (is_null($dsn) && DSNManager::isDSNPool($conn_id)) {
+					throw new Exception("Unable to connect to database '$conn_id': Fail to connect to any DB in the DSN Pool.");
 				}
-				if($oci_force_new){
-						$oci_connect_fn = 'oci_new_connect';
+
+				$user = NULL;
+				$pass = NULL;
+				if (isset($dsn['user']) === TRUE) {
+					$user = $dsn['user'];
 				}
-				// Connect to the database with the specified character encoding (if supplied).
-				$new_dbh = FALSE;
-				if (isset($dsn['encoding'])) {
-					$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
+
+				if (isset($dsn['password']) === TRUE) {
+					$pass = $dsn['password'];
+				}
+
+				$persistent = false;
+				if (isset($dsn['persistent']) && $dsn['persistent'] == true) {
+					$persistent = true;
+				}
+
+				if ($dsn['type'] === 'oci') {
+					// OCI: Oracle in PDO is far too buggy to be considered usable (tested
+					// in 5.1.x to 5.3dev). Therefore we'll be resigned to using
+					// legacy OCI8 extension functions.
+					// use @ to suppress warning/error messages, it will be handled by ourself.
+
+					$oci_connect_fn = 'oci_connect';
+					if ($persistent) {
+						$oci_connect_fn = 'oci_pconnect';
+					}
+					if($oci_force_new){
+							$oci_connect_fn = 'oci_new_connect';
+					}
+					// Connect to the database with the specified character encoding (if supplied).
+					if (isset($dsn['encoding'])) {
+						$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
+					} else {
+						$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN']);
+					}
+
+					if ($new_dbh === FALSE) {
+						$oci_error = oci_error();
+
+						$err_msg = 'Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message'];
+						// If we can not connect to the DB specified by the single DSN in the DSN pool, log the error and try another DSN
+						if (DSNManager::isDSNPool($conn_id)) {
+							log_error($err_msg, E_USER_WARNING);
+							DSNManager::registerDSNFailure($conn_id); // Mark the current DSN so that it will not be selected by the DSN Pool again
+							continue;
+						} else {
+							throw new Exception($err_msg);
+						}
+					}
 				} else {
-					$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN']);
+
+					$extra_params = array();
+
+					if ($persistent) {
+						$extra_params[PDO::ATTR_PERSISTENT] = true;
+					}
+
+					if (isset($dsn['timeout']) && is_int($dsn['timeout'])) {
+						$extra_params[PDO::ATTR_TIMEOUT] = (int)$dsn['timeout'];
+					}
+					
+					try {
+						$new_dbh = new PDO($dsn['DSN'], $user, $pass, $extra_params);
+					} catch (Exception $conn_e) {
+						// If we can not connect to the DB specified by the single DSN in the DSN pool, log the error and try another DSN
+						if (DSNManager::isDSNPool($conn_id)) {
+							log_error("Unable to connect to database '$conn_id': ".$conn_e->getMessage(), E_USER_WARNING);
+							DSNManager::registerDSNFailure($conn_id); // Mark the current DSN so that it will not be selected by the DSN Pool again
+							continue;
+						} else {
+							throw $conn_e;
+						}
+					}
+
+					$new_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					$new_dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+					$new_dbh->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
+
+					if ($dsn['type'] === 'mysql') {
+						$new_dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, TRUE);
+						$new_dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
+					}
+
 				}
-
-				if ($new_dbh === FALSE) {
-					$oci_error = oci_error();
-
-					throw new Exception('Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message']);
-				}
-			} else {
-
-				$extra_params = array();
-
-				if ($persistent) {
-					$extra_params[PDO::ATTR_PERSISTENT] = true;
-				}
-
-				$new_dbh = new PDO($dsn['DSN'], $user, $pass, $extra_params);
-
-				$new_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-				$new_dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-				$new_dbh->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
-
-				if ($dsn['type'] === 'mysql') {
-					$new_dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, TRUE);
-					$new_dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
-				}
-
-			}
-
+			} while ($new_dbh === FALSE);
+			
 			self::$_dbhPool[$conn_id] = array(
 											 'dbh'		=> $new_dbh,
 											 'dsn'		=> $dsn['DSN'],

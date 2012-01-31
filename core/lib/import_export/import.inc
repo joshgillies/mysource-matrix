@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.27 2011/11/03 04:04:01 akarelia Exp $
+* $Id: import.inc,v 1.28 2012/01/31 18:56:23 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -417,9 +417,14 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 			include SQ_DATA_PATH.'/private/conf/db.inc';
 			if (isset($db_conf[$matches[1][0]])) {
 				// DB name is correct
-				if (isset($db_conf[$matches[1][0]][$matches[2][0]])) {
+				$dsn = $db_conf[$matches[1][0]];
+				// 'db' connection can be configured with multiple DSNs. But we only get the first DSN in the list for now.
+				if (($matches[1][0] == 'db') && !isset($dsn['DSN']) && isset($dsn[0])) {
+					$dsn = $dsn[0];
+				}
+				if (isset($dsn[$matches[2][0]])) {
 					// DSN section name is correct
-					$value = $db_conf[$matches[1][0]][$matches[2][0]];
+					$value = $dsn[$matches[2][0]];
 				}
 			}
 			

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.69 2011/06/22 02:16:53 csmith Exp $
+* $Id: db_install.inc,v 1.70 2012/01/31 18:55:58 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -671,7 +671,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 	if (DAL::getDbType() == 'pgsql') {
 		$db_conf = require(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
 
-		$primary_dsn   = $db_conf['db'];
+		// 'db' connection can be configured with multiple DSNs. But we only get the first DSN in the list for now.
+		$primary_dsn   = !isset($db_conf['db']['DSN']) && isset($db_conf['db'][0]) ? $db_conf['db'][0] : $db_conf['db'];
 		$secondary_dsn = $db_conf['db2'];
 		$tertiary_dsn  = $db_conf['db3'];
 		$cache_dsn     = $db_conf['dbcache'];
