@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.6 2011/12/19 02:48:27 csmith Exp $
+* $Id: system_reimport_content.php,v 1.7 2012/02/01 01:10:18 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -70,8 +70,8 @@ function usage()
 {
 	global $db_conf, $db_encoding;
 	$encoding = '(empty)';
-	if (isset($db_conf['db']['encoding']) === TRUE) {
-		$encoding = $db_conf['db']['encoding'];
+	if (isset($db_conf['db2']['encoding']) === TRUE) {
+		$encoding = $db_conf['db2']['encoding'];
 	}
 	echo $_SERVER['argv'][0]." SYSTEM_ROOT [--report] [--verbose]\n";
 	echo "This script will re-import content from files into the database.\n";
@@ -81,7 +81,7 @@ function usage()
 	echo "\n";
 	echo "This will overwrite existing content with no warning.\n";
 	echo "\n";
-	if ($db_conf['db']['type'] == 'oci') {
+	if ($db_conf['db2']['type'] == 'oci') {
 		echo "Make sure the correct encoding has been set in db.inc before you start.\n";
 		echo "It is currently set to:".$encoding."\n";
 		echo "The database has this encoding: ".$db_encoding."\n";
@@ -122,10 +122,10 @@ function printVerbose($message)
  */
 $encodeToUtf8 = FALSE;
 $encoding = '(empty)';
-if (isset($db_conf['db']['encoding']) === TRUE) {
+if (isset($db_conf['db2']['encoding']) === TRUE) {
 	$encoding = $db_conf['db']['encoding'];
 }
-if ($db_conf['db']['type'] == 'oci' && strtolower($encoding) == 'al32utf8') {
+if ($db_conf['db2']['type'] == 'oci' && strtolower($encoding) == 'al32utf8') {
 	$encodeToUtf8 = TRUE;
 }
 
@@ -133,22 +133,11 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/core/lib/DAL/DAL.inc';
 require_once $SYSTEM_ROOT.'/core/lib/MatrixDAL/MatrixDAL.inc';
 
-$db_error = false;
-try {
-	$db_connection = MatrixDAL::dbConnect($db_conf['db']);
-} catch (Exception $e) {
-	echo "Unable to connect to the db: " . $e->getMessage() . "\n";
-	$db_error = true;
-}
-
-if ($db_error) {
-	exit;
-}
-
-MatrixDAL::changeDb('db');
+$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+MatrixDAL::changeDb('db2');
 
 $db_encoding = NULL;
-if ($db_conf['db']['type'] == 'oci') {
+if ($db_conf['db2']['type'] == 'oci') {
 	$query = "SELECT VALUE FROM NLS_DATABASE_PARAMETERS WHERE PARAMETER = 'NLS_CHARACTERSET'";
 	$results = MatrixDAL::executeSqlAll($query);
 	$db_encoding = $results[0]['value'];

@@ -1605,7 +1605,8 @@ class DAL
 		// connecting to it using DALConf settings; otherwise, fail.
 		if (isset(self::$_dbhPool[$conn_id]) === FALSE) {
 			try {
-				self::dbConnect(NULL, $conn_id);
+				$dsn = NULL;
+				self::dbConnect($dsn, $conn_id);
 			} catch (DALException $e) {
 				throw new DALException($e->getMessage());
 			}

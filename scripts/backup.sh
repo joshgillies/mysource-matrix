@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.39 2011/11/22 20:10:10 csmith Exp $
+#* $Id: backup.sh,v 1.40 2012/02/01 01:10:18 ewang Exp $
 #*
 #*/
 #
@@ -371,12 +371,13 @@ function splitdsn(\$input_dsn, \$prefix='DB_')
 	echo 'export ' . \$var.';';
 }
 
+\$db = isset(\$db_conf['db']['DSN']) ? \$db_conf['db'] : \$db_conf['db'][0];
 \$var = 'DB_TYPE';
-echo \$var . '=\"'.\$db_conf['db']['type'].'\";';
+echo \$var . '=\"'.\$db['type'].'\";';
 echo 'export ' . \$var.';';
 
-if (\$db_conf['db']['type'] === 'pgsql') {
-	splitdsn(\$db_conf['db']);
+if (\$db['type'] === 'pgsql') {
+	splitdsn(\$db);
 
 	if (\$db_conf['dbcache'] !== null) {
 		splitdsn(\$db_conf['dbcache'], 'CACHE_DB_');
@@ -394,7 +395,7 @@ if (\$db_conf['db']['type'] === 'pgsql') {
 	);
 
 	foreach (\$vars as \$var => \$dsn_var) {
-		echo 'DB_' . \$var . '=\"' . addslashes(\$db_conf['db'][\$dsn_var]) . '\";';
+		echo 'DB_' . \$var . '=\"' . addslashes(\$db[\$dsn_var]) . '\";';
 		echo 'export ' . \$var.';';
 	}
 
