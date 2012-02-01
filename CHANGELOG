@@ -1,5 +1,72 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.6.3
+
+Featured Changes
+===================================
+
+
+Cache Manager: Additional Send Cacheable Header Settings  [ Feature Request #5409 ]
+-----------------------------------------------------
+
+Previously, Squiz Matrix did not send cacheable headers for SSL encrypted requests.
+
+This feature addresses this issue by adding new settings to the Cache Manager's Send Cacheable Header screen, allowing you to specify the protocol when cacheable headers will be sent (HTTP, HTTPS or both). Additional options allow you to configure the cache-control level for both HTTP and HTTPS protocols.
+
+WYSIWYG Insert Link Tool: Direct Links to Asset External Target URLs [ Feature Request #5517 ]
+-----------------------------------------------------
+
+The WYSIWYG's Insert Link tool allows you to insert a hyperlink to an external site or an internal asset. Previously, however, this tool, when creating links to Link and Redirect Page assets, would create a link directly to that asset (e.g. "./?a=123").
+
+This features introduces new functionality that allows you to link directly to the target URLs of Link and Redirect Page assets.
+
+A new Asset Type field has been added to the Insert Link tool. This field allows you to specify whether the link is to a Link or Redirect Page asset or, if not, any other asset.
+
+When a user selects ether the Link Asset or Redirect Page Asset options, only assets of those types will be able to be selected in the Select Asset field. Once an asset is selected, and a global keyword replacement will be automatically printed in the Link field, linking directly to the target URL of the asset, as follows: 
+
+	- %globals_asset_attribute_link_url:123%
+	- %glob als_asset_attribute_redirect_url:123%  
+
+This feature has been added to aid editors and simply the process of linking to external urls on Matrix assets.
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5498: Remap Manager: Option to Ignore Headers in Imported CSV Files.
+Minor Enhancement #5503: Metadata Select Field: Option to Ignore Headers in Imported CSV Files.
+Minor Enhancement #5504: Bulkmail Import User Tool: Option to Ignore Headers in Imported CSV Files.
+
+Core
+
+Fixed Bug #5051: WYSIWYG converts HTML/XML entities into characters.
+Fixed Bug #5485: IE8 WYSIWYG quotation marks missing from attributes.
+Fixed Bug #5486: Trigger Condition to check asset treeID fails with fatal error.
+Fixed Bug #5499: Links Report CSV Export File Broken.
+Fixed Bug #5501: Cannot save selected asset in Asset Finder in File Upload question; Link Manager.
+Fixed Bug #5505: Resize of Image Insert window prompts asset tree pane resize to full window width.
+Fixed Bug #5507: CSS Design File asset ignores permission.
+Fixed Bug #5508: System design assets don't regenerate Design files.
+Fixed Bug #5513: Javascript date picker in JS_Calendar class not working in Firefox.
+Fixed Bug #5520: Paint Layout conditional keywords don't work as expected with Condition Keyword Regexp.
+
+CMS
+
+Fixed Bug #5509: Account Manager User asset web path conflict.
+Fixed Bug #5518: CAPTCHA settings conflict.
+
+Calendar
+
+Fixed Bug #5459: Upcoming Events list displays multiple results for Single Calendar Events that run for more than one day.
+
+Web Services
+
+Fixed Bug #5536: SOAP API's GetMetadataFieldValues Function, if empty field names are passed, doesn't return all values.
+
+
+
 VERSION 4.6.2
 
 Featured Changes
