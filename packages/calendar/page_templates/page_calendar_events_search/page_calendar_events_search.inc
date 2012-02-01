@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.4 2012/01/30 22:10:56 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.5 2012/02/01 00:28:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1036,10 +1036,10 @@ class Page_Calendar_Events_Search extends Search_Page
 			return '';
 		}
 		$this->registerFormField('queries_'.$query_var.'%');
-		$query = '';
+		$query = Array();
 
 		if (isset($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id])) {
-			$query = array_get_index($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id], $filter_name, '');
+			$query = array_get_index($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id], $filter_name, Array());
 		}
 		$read_only = FALSE;
 
