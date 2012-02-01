@@ -1,5 +1,39 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.4.7
+
+Bug Fixes
+=================================== 
+
+
+Core
+
+Fixed Bug #5051: WYSIWYG converts HTML/XML entities into characters.
+Fixed Bug #5485: IE8 WYSIWYG quotation marks missing from attributes.
+Fixed Bug #5486: Trigger Condition to check asset treeID fails with fatal error.
+Fixed Bug #5499: Links Report CSV Export File Broken.
+Fixed Bug #5501: Cannot save selected asset in Asset Finder in File Upload question; Link Manager.
+Fixed Bug #5505: Resize of Image Insert window prompts asset tree pane resize to full window width.
+Fixed Bug #5507: CSS Design File asset ignores permission.
+Fixed Bug #5508: System design assets don't regenerate Design files.
+Fixed Bug #5513: Javascript date picker in JS_Calendar class not working in Firefox.
+Fixed Bug #5520: Paint Layout conditional keywords don't work as expected with Condition Keyword Regexp.
+
+CMS
+
+Fixed Bug #5509: Account Manager User asset web path conflict.
+Fixed Bug #5518: CAPTCHA settings conflict.
+
+Calendar
+
+Fixed Bug #5459: Upcoming Events list displays multiple results for Single Calendar Events that run for more than one day.
+
+Web Services
+
+Fixed Bug #5536: SOAP API's GetMetadataFieldValues Function, if empty field names are passed, doesn't return all values.
+
+
+
 VERSION 4.4.6
 
 Featured Changes
