@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.380 2011/12/09 02:57:20 akarelia Exp $
+* $Id: mysource.inc,v 1.381 2012/02/01 05:18:22 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.380 $
+* @version $Revision: 1.381 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1643,10 +1643,8 @@ class MySource extends MySource_Object
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
 				$vars = &$_SESSION['SQ_SYSTEM_SECURITY_KEY'];
 
-				// are we regenerating the security key?
-				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
-					$vars['key'] = generate_security_key(strlen($vars['key']), $vars['include_uppercase'], $vars['include_numbers']);
-				}
+				// always regenerating the security key to stop painting same text for same session
+				$vars['key'] = generate_security_key(strlen($vars['key']), $vars['include_uppercase'], $vars['include_numbers']);
 
 				security_key_image(
 									$vars['key_len'],
@@ -2080,6 +2078,7 @@ class MySource extends MySource_Object
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$old_session_id = session_id();
+		
 		// regenerate the session id to protect against session fixation attacks
 		session_regenerate_id();
 		// when logging in we wipe the previous session file
