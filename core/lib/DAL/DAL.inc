@@ -1207,7 +1207,9 @@ class DAL
 	 *
 	 * Throws DALException if cannot connect to db else returns PDO object.
 	 *
-	 * @param array  $dsn	   DSN array.
+	 * @param array  $dsn      DSN array. This argument has been changed to "pass by reference" type to keep backward
+	 *                         compatibility since the support of multiple DSNs (feature #5541) because there are a few
+	 *                         places where this DSN array is used as a single DSN after invoking this method, e.g. MySource's changeDatabaseConnection() method.
 	 * @param string $conn_id  Unique connection ID
 	 * @param boolean $oci_force_new  force a new connection for oci
 	 *
@@ -1282,6 +1284,7 @@ class DAL
 							DSNManager::registerDSNFailure($conn_id); // Mark the current DSN so that it will not be selected by the DSN Pool again
 							continue;
 						} else {
+							// Throw exception immediately if this connection only has a single DSN
 							throw new Exception($err_msg);
 						}
 					}
@@ -1306,6 +1309,7 @@ class DAL
 							DSNManager::registerDSNFailure($conn_id); // Mark the current DSN so that it will not be selected by the DSN Pool again
 							continue;
 						} else {
+							// Throw exception immediately if this connection only has a single DSN
 							throw $conn_e;
 						}
 					}
