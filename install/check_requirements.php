@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.19 2010/09/13 01:42:24 csmith Exp $
+* $Id: check_requirements.php,v 1.20 2012/02/01 22:36:37 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -541,11 +541,51 @@ function check_requirement($requirement_check, $package_name='core')
 				case 'pdftohtml':
 					$check_ok = true;
 
+					/**
+					 * Since the versions are wildly different, we'll do our own checks here.
+					 */
+					$check_version = false;
+
 					$version_line = $cmd_output[0];
 					/**
 					 * The version number is the 3rd column (based on space separated values)
 					 */
 					list($intro, $version_kw, $version_found) = explode(' ', $version_line);
+
+					$version_info = explode('.', $version_found);
+
+					// If it's 'a.b' we can directly check that.
+					if (count($version_info) == 2) {
+						$version_check = version_compare($version_found, $version_required, '>=');
+						if ($version_check !== true) {
+							$missing_modules['external_program']['out_of_date'][] = array(
+								'name' => $external_program,
+								'version_found' => $version_found,
+								'version_required' => $version_required,
+								'required_by' => $package_name,
+							);
+						}
+					} else {
+						// It's 'a.b.c', we'll check ourselves.
+						// We'll check the copyright line, make sure it mentions 2009.
+						// If it does, we're good to go, if it doesn't, we're out of date.
+						$_found = FALSE;
+						foreach ($cmd_output as $output_line) {
+							if (strpos($output_line, 'Copyright 2005-2009') !== FALSE) {
+								$_found = TRUE;
+								break;
+							}
+						}
+
+						if ($_found === FALSE) {
+							$missing_modules['external_program']['out_of_date'][] = array(
+								'name' => $external_program,
+								'version_found' => $version_found,
+								'version_required' => $version_required,
+								'required_by' => $package_name,
+							);
+						}
+					}
 				break;
 
 				/**
@@ -682,7 +722,7 @@ function check_requirement($requirement_check, $package_name='core')
 				/**
 				 * $ padre-iw -V
 				 *
-				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.19 $ 
+				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.20 $ 
 				 * ....
 				 *
 				 */
