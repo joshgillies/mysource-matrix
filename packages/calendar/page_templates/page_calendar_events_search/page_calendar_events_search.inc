@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.5 2012/02/01 00:28:56 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.6 2012/02/02 22:18:05 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -130,7 +130,6 @@ class Page_Calendar_Events_Search extends Search_Page
 	{	
 		$sm_result = parent::processSearch($search);
 		$sm_queries = $this->_getSearchedQueries();
-
 		// Pick the multi-date assets from the root node
 		$multi_date_assets = Array();
 		$root_nodes = $this->getRootNodes(FALSE);
@@ -146,7 +145,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			foreach($multi_events as $multi_event_id) {
 				if (isset($sm_result[$event_assetid])) {
 					if (!isset($sm_result[$multi_event_id])) {
-						$sm_result[$multi_event_id] = Array('weight' => 1);
+						$sm_result[$multi_event_id] = 1;
 					}
 				}
 				$multi_date_events[$multi_event_id] = $event_assetid;
@@ -156,37 +155,33 @@ class Page_Calendar_Events_Search extends Search_Page
 		$sm_result_assetids = array_keys($sm_result);
 		
 		// Process and get the event instances based on the date filters
-		$date_filter_result = array_keys($this->processEventSearch($search));		
+		$date_filter_result = $this->processEventSearch($search);
 		
 		// Grouping logic for combing date filters and search field results		
 		$result = Array();
 		if ($this->attr('main_logic') == 'AND') {
-		
-			foreach($date_filter_result as $event) {
+			foreach($date_filter_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
 				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
 					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
 				}
 				if (!isset($result[$event]) && (empty($sm_queries) || in_array($assetid, $sm_result_assetids)))  {
-					$result[$event] = array_get_index($sm_result, $assetid, Array('weight' => 1));
+					$result[$event] = array_get_index($sm_result, $assetid, 1);
 				}
 			}//end foreach
 		} else {
-		
 			// Get the event instances for the events in the regular search result
-			$sm_fields_result = array_keys($this->getEventInstances($sm_result_assetids));
-			
+			$sm_fields_result = $this->getEventInstances($sm_result_assetids);
 			$combined_result = array_merge($sm_fields_result, $date_filter_result);
-			
-			foreach($combined_result as $event) {
+			foreach($combined_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
 				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
 					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
 				}
-				$result[$event] = array_get_index($sm_result, $assetid, Array('weight' => 1));
+				$result[$event] = array_get_index($sm_result, $assetid, 1);
 			}//end foreach
 		}
-
+		
 		return $result;
 
 	}//end processSearch()
@@ -204,13 +199,12 @@ class Page_Calendar_Events_Search extends Search_Page
 	{
 		$events = $this->_getEvents();
 		
-		$relevent_events = Array();
+		$relevant_events = Array();
 		foreach($events as $event) {
 			if (isset($event['assetid']) && in_array($event['assetid'], $event_assetids)) {
-				$relevent_events[] = $event;
+				$relevant_events[] = $event;
 			}
 		}//end foreach
-		
 		if (empty($relevant_events)) {
 			return Array();
 		}
@@ -218,8 +212,9 @@ class Page_Calendar_Events_Search extends Search_Page
 		$grouping_logic = $this->attr('events_filter_logic');		
 		$result = FALSE;
 		$query = $this->_getEventSearchQuery();
+		$instances = FALSE;
 		if ($this->isEmptyQuery($query)) {
-			$instances = Calendar_Common::getWholeEventInstances($relevent_events, '1970-01-01', '2030-12-31');
+			$instances = Calendar_Common::getWholeEventInstances($relevant_events, '1970-01-01', '2030-12-31');
 		} else {
 			foreach($query as $query_field => $query_data) {
 				if (empty($query_data)) {
@@ -231,7 +226,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					if (empty($query_date['from']) || empty($query_date['to'])) {
 						continue 2;
 					}
-					$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($relevent_events, $query_date['from'], $query_date['to']));				
+					$field_result = array_merge($field_result, Calendar_Common::getWholeEventInstances($relevant_events, $query_date['from'], $query_date['to']));				
 				}//end foreach				
 
 				// Combine the submitted field result based on the selected logical grouping
@@ -976,7 +971,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				continue;
 			}
 			$event_assetid = substr($event_instance, 0, strpos($event_instance, ':'));
-			$event_assetids[$event_assetid]=$weight;			 
+			$event_assetids[$event_assetid] = $weight;			 
 		}
 		
 		// Sort the event assets based on sort settings
