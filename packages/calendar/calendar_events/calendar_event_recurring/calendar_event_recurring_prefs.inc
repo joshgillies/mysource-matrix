@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_prefs.inc,v 1.1 2012/01/19 00:59:20 cupreti Exp $
+* $Id: calendar_event_recurring_prefs.inc,v 1.1.2.1 2012/02/02 23:52:36 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 * Purpose
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 class Calendar_Event_Recurring_Prefs extends Prefs
@@ -32,7 +32,7 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 	var $pref_vars = Array (
 						'SQ_CALENDAR_EVENTS_FREQUENCY'	=> Array(
 														'name'			=> 'calendar_events_frequency',
-														'description'	=> 'Recurrance event frequecy threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequecy is less than the specified threshold value',
+														'description'	=> 'Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value',
 														'default'		=> 0,
 														'protected'		=> FALSE,
 														),
