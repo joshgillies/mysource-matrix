@@ -1,5 +1,201 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.8.0 RC1
+
+Featured Changes
+===================================
+
+
+Cache Manager: Additional Send Cacheable Header Settings [ Feature Request #5409 ]
+-----------------------------------------------------
+
+Previously, Squiz Matrix did not send cacheable headers for SSL encrypted requests.
+
+This feature addresses this issue by adding new settings to the Cache Manager's Send Cacheable Header screen, allowing you to specify the protocol when cacheable headers will be sent (HTTP, HTTPS or both). Additional options allow you to configure the cache-control level for both HTTP and HTTPS protocols.
+
+Asset Logs Screen: Internal Messages Performance Enhancement[ Feature Request #5414 ]
+-----------------------------------------------------
+
+Previously, loading on the Asset Logs screen could be potentially slow on systems containing large numbers of internal messages. This feature refines the process of retrieving the list of valid asset types and the saving of internal messages, to improve the performance of the Asset Logs screen.
+
+Online Quiz Interactive Mode [ Feature Request #5456 ]
+-----------------------------------------------------
+
+A new Interactive Mode has been added to the Online Quiz asset. This mode transforms the regular listed quiz format into a one question per page format, with the option of allowing users to retry incorrectly answered questions.
+
+Interactive Mode is enabled via a new field on the Details screen of the Online Quiz asset.
+
+Enabling Interactive Mode will display the Question Pooling settings. These settings allow you to select the root node(s) to extract the multiple-choice questions from, as well as set the number of retries available to users for each question.
+
+Interactive Mode utilises a new feedback page on completion of each question. Response feedback can be specified for each response on the Details screen of an Online Quiz Multiple-Choice Question.
+
+When a user answers a question on the form, the Online Quiz will display whether or not the user selected the correct answer and present any feedback that has been configured. If the user has given an incorrect answer, they will able to retry the question, with another selected from the question pool and presented to them.
+
+Listing item classes are allocated for each option on the feedback form, as well as span tags for the response feedback. These can be used to stylise (CSS etc.) the feedback information and listed options, for example, a tick or cross for the option the user has selected.
+
+New keyword replacements have been added to format the layout of the Online Quiz in Interactive Mode:
+
+	- %interactive_question_number%
+	- %interactive_question_note%
+	- %interactive_question_text%
+	- %interactive_question_response_form%
+	- %interactive_button% 
+
+In addition to these changes, a new scoring system has been implemented for the Online Quiz. Scores will now be stored in the submission assets of the Online Quiz.
+
+You are also able to specify the format of the %quiz_score% keyword replacement, used in the submission logs, and the Thank You and Page Contents bodycopies. This format is configured on a new Score Format field on the Details screen of the Online Quiz asset. 
+
+User IP Forwarding on http_request Attributes [ Feature Request #5479 ]
+-----------------------------------------------------
+
+This feature introduces the additional option of User IP forwarding on the HTTP request of REST Resource assets (incl. the Call REST Resource Trigger and Form Submission actions).
+
+An additional "Append Query String to the Request URL" option is also available, allowing you to append the query variables passed to the Squiz Matrix URL on the HTTP request.
+
+Brand New: Decision Tree Asset [ Feature Request #5494 ]
+-----------------------------------------------------
+
+A new Decision Tree asset has been developed for Squiz Matrix, leading users through a dynamic series of questions and displaying a final result based on the responses given. By engaging your users through an interactive decision process, the Decision Tree asset allows you to provide information and content that caters specifically on an individual user basis.
+
+The Decision Tree asset is essentially comprised of:
+
+	- Questions: the questions your users will answer on the decision tree. Questions can be formatted as either select or numeric question types and are similar in configuration to existing questions in form assets.
+	- Results: result bodycopies are created to display to users based on their answers. 
+	- Answer Destinations: response-based destinations for questions on your Decision Tree. An answer destination can be either another question or a result bodycopy. This allows you to cater the questions and results displayed specifically based on the responses your users give.
+
+Decision Tree assets can also implement a points-based system where point values are accumulated based on the responses given. Response bodycopies can then be allocated a points range and are dynamically displayed based on the accumulation of points once users reach a question that does not have an allocated answer destination (ie. the end of the Decision Tree).
+
+A number of new keyword replacements are available when formatting the content of the Decision Tree asset. These include:
+
+Page Contents Bodycopy:
+
+	- %decision_tree_contents%
+	- %reset_button%
+
+Decision Tree Question Bodycopy:
+
+	- %question_title%
+	- %question_field%
+	- %question_note%
+	- %accumulated_points%
+	- %question_button% (numeric only)
+
+Result Bodycopy:
+	
+	- %accumulated_points%
+
+Additionally, question and result bodycopies on the Decision Tree are wrapped with division tags and classes for easy design implementation and CSS styling.
+
+The introduction of this new Decision Tree asset aims to provide Matrix users with an alternative to complex graphs and diagrams which can be confusing to site users. The interactive decision process allows you to present information tailored specific to users in a simple and accessible manner.
+
+2-Legged OAuth Authentication Available on REST Resource Assets [ Feature Request #5497 ]
+-----------------------------------------------------
+
+This feature introduces 2-legged OAuth authentication on the REST Resource assets, in addition to the existing 3-legged OAuth.
+
+2-legged OAuth, allows users to simplify the authentication procedure by eliminating the user authorisation process of 3-legged OAuth, establishing a direct client-server scenario.
+
+This new authentication method is available through a new "REST Resource OAuth 2 Legged" asset. The OAuth parameters available on this asset include the Consumer Key, Secret and Signature Method (HMAC-SHA1 or PLAINTEXT).
+
+Update Link Trigger Action [ Feature Request #5511 ]
+-----------------------------------------------------
+
+Trigger actions allow you to specify tasks that will be performed when a fired trigger meets a specified set of conditions. Squiz Matrix boasts an extensive array of trigger actions that are available, from creating new assets to updating your status on twitter.
+
+This feature introduces a brand new trigger action to update the type and value of a specified link. 
+
+The Update Link trigger action allows you to update a single link. This link can be specified by link ID or, alternatively, you can identify attributes to match a link on the firing asset, including the link type and value, the side of the link to look on (parent or child) and the asset type of the linked asset.
+
+This trigger action has been added to strengthen the functionality of the Squiz Matrix trigger system and expand on the trigger set-ups available to users.
+
+Recurring Calendar Event Frequency Threshold Global Preference [ Feature Request #5515 ]
+-----------------------------------------------------
+
+A new Global Preference has been added to limit the frequency that Recurring Calendar Events appear on Upcoming Events List and Event Search Page assets.
+
+This is configured by an Event Frequency Threshold option, that allows you to set a minimum threshold (in days) for Recurring Calendar Events. If the frequency of the Calendar Event falls within this threshold, the event will only appear once on the listing.
+
+WYSIWYG Insert Link Tool: Direct Links to Asset External Target URLs [ Feature Request #5517 ]
+-----------------------------------------------------
+
+The WYSIWYG's Insert Link tool allows you to insert a hyperlink to an external site or an internal asset. Previously, however, this tool, when creating links to Link and Redirect Page assets, would create a link directly to that asset (e.g. "./?a=123").
+
+This features introduces new functionality that allows you to link directly to the target URLs of Link and Redirect Page assets.
+
+A new Asset Type field has been added to the Insert Link tool. This field allows you to specify whether the link is to a Link or Redirect Page asset or, if not, any other asset.
+
+When a user selects ether the Link Asset or Redirect Page Asset options, only assets of those types will be able to be selected in the Select Asset field. Once an asset is selected, and a global keyword replacement will be automatically printed in the Link field, linking directly to the target URL of the asset, as follows: 
+
+	- %globals_asset_attribute_link_url:123%
+	- %globals_asset_attribute_redirect_url:123%  
+
+This feature has been added to aid editors and simply the process of linking to external urls on Matrix assets.
+
+Load Balancing "Read" Database Connection Support [ Feature Request #5541 ]
+-----------------------------------------------------
+
+This feature introduces load balancing when distributing connections to multiple database servers, enabling support of multiple 'read' databases.
+
+Databases are configured in the system's db.inc file and can be specified weight and timeout values to des gnat when/how the system will make a connection to these servers. The use of multiple 'read' databases is expected to significantly improve performance on complex systems that experience issues with a single connection setup.
+
+Please note that modification of the db.inc file should only be performed by a system administrator.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5401: 12 Hour Time Option on Custom Form's Date/Time Question Type.
+Minor Enhancement #5408: Asset Content Keywords on Listed Bodycopy DIVs.
+Minor Enhancement #5419: Clear Squid Cache Tool Won't Run When Not Correctly Configured.
+Minor Enhancement #5434: Connection Status and Error Information on a DB Data Source.
+Minor Enhancement #5483: Logs Screen: Select Multiple Log Types to View. 
+Minor Enhancement #5488: Specify Triggers to Execute on the Trigger Manager's Batching Screen.
+Minor Enhancement #5498: Remap Manager: Option to Ignore Headers in Imported CSV Files.
+Minor Enhancement #5503: Metadata Select Field: Option to Ignore Headers in Imported CSV Files.
+Minor Enhancement #5504: Bulkmail Import User Tool: Option to Ignore Headers in Imported CSV.
+Minor Enhancement #5514: Purge Trash Performance Enhancement.
+
+
+Core
+
+Fixed Bug #5051: WYSIWYG converts HTML/XML entities into characters.
+Fixed Bug #5418: Combine curl/http_client requests into one library/function.
+Fixed Bug #5461: Re-import content from data/files improvements.
+Fixed Bug #5485: IE8 WYSIWYG quotation marks missing from attributes.
+Fixed Bug #5486: Trigger Condition to check asset treeID fails with fatal error.
+Fixed Bug #5499: Links Report CSV Export File Broken.
+Fixed Bug #5501: Cannot save selected asset in Asset Finder in File Upload question; Link Manager.
+Fixed Bug #5505: Resize of Image Insert window prompts asset tree pane resize to full window width.
+Fixed Bug #5507: CSS Design File asset ignores permission.
+Fixed Bug #5508: System design assets don't regenerate Design files.
+Fixed Bug #5513: Javascript date picker in JS_Calendar class not working in Firefox.
+Fixed Bug #5520: Paint Layout conditional keywords don't work as expected with Condition Keyword Regexp.
+Fixed Bug #5530: Undefined index on Workflow screen.
+
+CMS
+
+Fixed Bug #5509: Account Manager User asset web path conflict.
+Fixed Bug #5518: CAPTCHA settings conflict.
+
+Calendar
+
+Fixed Bug #5459: Upcoming Events list displays multiple results for Single Calendar Events that run for more than one day.
+
+Web Services
+
+Fixed Bug #5522: GetAsset method doesn't return valid XML on all Assets.
+Fixed Bug #5536: SOAP API's GetMetadataFieldValues Function, if empty field names are passed, doesn't return all values.
+
+LDAP
+
+Fixed Bug #5519: LDAP User sorting under LDAP Groups not working.
+Fixed Bug #5524: LDAP attributes missing on User Details screen.
+
+
 VERSION 4.6.0 RC1
 
 Featured Changes
