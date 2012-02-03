@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.106 2012/01/25 03:07:44 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.107 2012/02/03 05:20:15 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -472,19 +472,16 @@ class LDAP_Bridge extends Asset implements Bridge
 								$entries[$dn] = $user->vars;
 							}
 						}
-						if (!empty($sort_by) && !empty($entries)){
-							$entry_test = reset($entries);
-							if (isset($entry_test[$sort_by]['value'])){
-								uasort($entries, create_function('$a,$b',
-													'$a = $a[\''.$sort_by.'\'][\'value\'];
-													$b = $b[\''.$sort_by.'\'][\'value\'];
-													if ($a == $b) {
-														return 0;
-													}
-													return ($a < $b) ? -1 : 1;'
-												)
-										);
-							}
+						if (!empty($sort_by)){
+							uasort($entries, create_function('$a,$b',
+												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
+												$b = (isset($b[\''.$sort_by.'\'][\'value\'])) ? $b[\''.$sort_by.'\'][\'value\'] : "";
+												if ($a == $b) {
+													return 0;
+												}
+												return ($a < $b) ? -1 : 1;'
+											)
+									);
 						}
 					}
 				}
