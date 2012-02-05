@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.101 2012/01/30 05:33:13 cupreti Exp $
+* $Id: calendar_event.inc,v 1.102 2012/02/05 22:56:57 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -954,7 +954,6 @@ class Calendar_Event extends Asset
 				}
 				break;
 
-
 			case 'event_start_datetime':
 				$replacement = $this->getFriendlyStart();
 				break;
@@ -981,6 +980,21 @@ class Calendar_Event extends Asset
 			case 'delete_link':
 				$replacement = $this->_getDeleteLink();
 				break;
+				
+			case 'instance_start_datetime':
+			
+				$start_ts = isset($this->vars['start_date_ts']) ? $this->attr('start_date_ts') : '';					
+				if (!empty($start_ts)) {
+					$replacement = date('Y-m-d H:i', $start_ts);
+				}
+				break;
+			
+			case 'instance_end_datetime':
+				$end_ts = isset($this->vars['end_date_ts']) ? $this->attr('end_date_ts') : '';
+				if (!empty($end_ts)) {
+					$replacement = empty($end_ts) ? '' : date('Y-m-d H:i', $end_ts);
+				}					
+				break;
 
 			default:
 				// if the keyword at this point starts with event_start_datetime_ or event_end_datetime_
@@ -999,6 +1013,30 @@ class Calendar_Event extends Asset
 					$replacement = date($matches[1], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
 				}
 				
+				// Event instance keywords
+				if (isset($this->vars['start_date_ts'])) {
+					$start_ts = $this->attr('start_date_ts');
+					preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
+					if (!empty($matches)) {
+						if ($matches[1] == 'ical') {
+							$replacement = empty($start_ts) ? '' : date('Ymd\THis', $start_ts);
+						} else {
+							$replacement = empty($start_ts) ? '' : date($matches[1], $start_ts);
+						}
+					}//end if
+				}
+				if (isset($this->vars['end_date_ts'])) {
+					$end_ts = $this->attr('end_date_ts');
+					preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
+					if (!empty($matches)) {
+						if ($matches[1] == 'ical') {
+							$replacement = empty($end_ts) ? '' : date('Ymd\THis', $end_ts);
+						} else {
+							$replacement = empty($end_ts) ? '' : date($matches[1], $end_ts);
+						}
+					}//end if
+				}
+				
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 				break;
 
@@ -1010,52 +1048,48 @@ class Calendar_Event extends Asset
 
 	}//end getKeywordReplacement()
 
-
+	
 	/**
-	* Get keyword replacement for event instance based on the given data
+	* Returns a reference to the event asset instance represented by the passed assetid
 	*
-	* @param string	$keyword	Keyword to find a replacement for
-	* @param array 	$data		Event data
+	* @param int	$assetid	the entire asset id of the asset to be loaded
 	*
-	* @return string
+	* @return mixed object|NULL
 	* @access public
+	* @see Asset_Manager::getAsset()
 	*/
-	function getEventInstanceKeywordReplacement($keyword, $data)
+	public function getAsset($whole_assetid)
 	{
-		$keyword = parse_keyword($keyword, $modifiers);
+		$asset = NULL;
+		$assetid_parts = explode(':', $whole_assetid);
 
-		$replacment = '';
-		if (preg_match('|^instance_start_datetime$|', $keyword)) {
-			$replacement = date('Y-m-d H:i', $data['start_date_ts']);
-		} else if (preg_match('|^instance_end_datetime$|', $keyword)) {
-			$replacement = empty($data['end_date_ts']) ? '' : date('Y-m-d H:i', $data['end_date_ts']);
+		$assetid = $assetid_parts[0];
+		if (empty($assetid_parts[1])) {
+			return $asset;
 		} else {
-			$matches = Array();
-			preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
-			if (!empty($matches)) {
-				if ($matches[1] == 'ical') {
-					$replacement = date('Ymd\THis', $data['start_date_ts']);
-				} else {
-					$replacement = date($matches[1], $data['start_date_ts']);
-				}
-			}//end if
-
-			$matches = Array();
-			preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
-			if (!empty($matches)) {
-				if ($matches[1] == 'ical') {
-					$replacement = empty($data['end_date_ts']) ? '' : date('Ymd\THis', $data['end_date_ts']);
-				} else {
-					$replacement = empty($data['end_date_ts']) ? '' : date($matches[1], $data['end_date_ts']);
-				}
-			}//end if
+			$shdw_part_data = explode(',', $assetid_parts[1]);
+			$instance_data = Array();
+			foreach($shdw_part_data as $data) {
+				list($key, $val) = explode("=", $data);
+				$instance_data[$key] = $val;
+			}
+			if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid)) {
+				return $asset;
+			}
+			$event_asset = clone $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			
+			$event_asset->id = $whole_assetid;
+			foreach($instance_data as $attr => $value) {
+				$event_asset->vars[$attr]['attrid'] = 0;
+				$event_asset->vars[$attr]['type'] = 'text';
+				$event_asset->vars[$attr]['value'] = $value;
+				$event_asset->vars[$attr]['is_contextable'] = 0;
+			}
 		}
 
-		apply_keyword_modifiers($replacement, $modifiers);
+		return $event_asset;
 
-		return $replacement;
-
-	}//end getKeywordReplacement()
+	}//end getAsset()
 
 
 	/**

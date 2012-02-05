@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_edit_fns.inc,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: page_calendar_events_search_edit_fns.inc,v 1.2 2012/02/05 22:56:06 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_PACKAGES_PATH.'/search/search_page/search_page_edit_fns.inc';
 * Page_Calendar_Events_Search_Page_Edit_Fns
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -191,6 +191,47 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		return $asset->setAttrValue('events_filters', $new_filters);
 
 	}//end processFields()
+	
+
+//--        SAVED SEARCH        --//
+
+
+	/**
+	* Paint the inteface for configuring saved search
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function paintSavedSearch(&$asset, &$o, $prefix)
+	{
+		// Not much extra functionality here, just need to add the search fields to the _params
+		// of parameter map, then show the results
+		$wa = $asset->writeAccess('attributes');
+		$pmap = $asset->getAttribute('stored_query_session');
+		$current_params = $pmap->_params;
+		// Add in the search fields
+		$fields = $asset->attr('fields');
+		foreach ($fields as $fieldname => $fieldvalue) {
+			$current_params['parameters'][$fieldname] = 'Search Field: '.$fieldname;
+		}
+		// Add in the date filters
+		$fields = $asset->attr('events_filters');
+		foreach ($fields as $fieldname => $fieldvalue) {
+			$current_params['parameters']['f:'.$fieldname] = 'Date Filter: '.$fieldname;
+		}		
+		$pmap->_params = $current_params;
+		if ($wa) {
+			$pmap->paint($prefix);
+		} else {
+			$pmap->paint($prefix, TRUE);
+		}
+
+	}//end paintSavedSearch()
+	
 
 }//end class
 ?>
