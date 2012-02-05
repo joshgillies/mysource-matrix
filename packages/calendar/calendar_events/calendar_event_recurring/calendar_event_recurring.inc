@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.104 2012/01/19 00:59:20 cupreti Exp $
+* $Id: calendar_event_recurring.inc,v 1.104.2.1 2012/02/05 23:11:25 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -966,12 +966,22 @@ class Calendar_Event_Recurring extends Calendar_Event
 							// we are showing a normal instance of this event
 							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
 							switch ($keyword) {
-								case 'instance_start_datetime':
-									$replacement = $instance_dates['start'];
+								case 'instance_start_datetime':								
+									if (!isset($this->vars['start_date_ts'])) {
+										$replacement = $instance_dates['start'];
+									} else {
+										// If the event is the shadow asset, then instance data is available as asset attribute
+										$replacement = parent::getKeywordReplacement($keyword);
+									}
 									break;
 
 								case 'instance_end_datetime':
-									$replacement = $instance_dates['end'];
+									if (!isset($this->vars['start_end_ts'])) {
+										$replacement = $instance_dates['end'];
+									} else {
+										// If the event is the shadow asset, then instance data is available as asset attribute
+										$replacement = parent::getKeywordReplacement($keyword);
+									}
 									break;
 
 								case 'cancel_link':
@@ -985,7 +995,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 									break;
 							}
 						}
+					} else if ($keyword == 'instance_start_datetime' || $keyword == 'instance_end_datetime') {
+						// If the event is the shadow asset, then instance data is available as asset attribute
+						$replacement = parent::getKeywordReplacement($keyword);
 					} else {
+
 						// somehow we're just viewing the event by itself, so set the instance-specific
 						// keywords to blank for tidiness's sake
 						$replacement = '';
@@ -996,53 +1010,60 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 				$matches = Array();
 				preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
-				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
-					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
-						// exception today
-						$replacement = '';
-					} else {
-						// we are showing a normal instance of this event
-						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						switch ($matches[1]){
-							case 'ical':
-								// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
-								if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['start'])) {
-									$replacement = date('Ymd', iso8601_ts($instance_dates['start']));
-								} else {
-									$replacement = date('Ymd\THis', iso8601_ts($instance_dates['start']));
-								}
-								break;
-							default:
-								$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
+				if (!empty($matches)) {
+					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+							// exception today
+							$replacement = '';
+						} else {
+							// we are showing a normal instance of this event
+							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+							switch ($matches[1]){
+								case 'ical':
+									// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
+									if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['start'])) {
+										$replacement = date('Ymd', iso8601_ts($instance_dates['start']));
+									} else {
+										$replacement = date('Ymd\THis', iso8601_ts($instance_dates['start']));
+									}
+									break;
+								default:
+									$replacement = date($matches[1], iso8601_ts($instance_dates['start']));
+							}							
 						}
-						
+					} else {
+						// If the event is the shadow asset, then instance data is available as asset attribute
+						$replacement = parent::getKeywordReplacement($keyword);
 					}
-
 					// break outta switch block
 					break;
 				}
 				$matches = Array();
 				preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
-				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
-					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
-						// exception today
-						$replacement = '';
-					} else {
-						// we are showing a normal instance of this event
-						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
-						switch ($matches[1]){
-							case 'ical':
-								if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['end'])) {
-									$replacement = date('Ymd', iso8601_ts($instance_dates['end']));
-								} else {
-									$replacement = date('Ymd\THis', iso8601_ts($instance_dates['end']));
-								}
-								break;
-							default:
-								$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
+				if (!empty($matches)) { 
+					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+							// exception today
+							$replacement = '';
+						} else {
+							// we are showing a normal instance of this event
+							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+							switch ($matches[1]){
+								case 'ical':
+									if (preg_match("/^(.*?) (--):(--):(--)$/", $instance_dates['end'])) {
+										$replacement = date('Ymd', iso8601_ts($instance_dates['end']));
+									} else {
+										$replacement = date('Ymd\THis', iso8601_ts($instance_dates['end']));
+									}
+									break;
+								default:
+									$replacement = date($matches[1], iso8601_ts($instance_dates['end']));
+							}
 						}
+					} else {
+						// If the event is the shadow asset, then instance data is available as asset attribute
+						$replacement = parent::getKeywordReplacement($keyword);					
 					}
-
 					// break outta switch block
 					break;
 				}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.5.2.1 2012/02/02 22:49:43 ewang Exp $
+* $Id: page_calendar_events_search.inc,v 1.5.2.2 2012/02/05 23:10:19 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -128,8 +128,18 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/
 	function processSearch($search=Array())
 	{	
+		// Get the stored search parameters relevant to the event filters
+		$event_search = Array();
+		foreach($search as $key => $val) {
+			if (strpos($key, 'f:') === 0) {
+				unset($search[$key]);
+				$event_search[substr($key, 2)] = $val;
+			}
+		}
+		
 		$sm_result = parent::processSearch($search);
-		$sm_queries = $this->_getSearchedQueries();
+		$sm_queries = $this->_getSearchedQueries();		
+		
 		// Pick the multi-date assets from the root node
 		$multi_date_assets = Array();
 		$root_nodes = $this->getRootNodes(FALSE);
@@ -152,10 +162,9 @@ class Page_Calendar_Events_Search extends Search_Page
 			}//end foreach			
 		}//end foreach		
 		
-		$sm_result_assetids = array_keys($sm_result);
+		$sm_result_assetids = array_keys($sm_result);		
 		
-		// Process and get the event instances based on the date filters
-		$date_filter_result = $this->processEventSearch($search);
+		$date_filter_result = $this->processEventSearch($event_search);
 		
 		// Grouping logic for combing date filters and search field results		
 		$result = Array();
@@ -197,6 +206,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/		
 	function getEventInstances($event_assetids)
 	{
+		$query = $this->_getEventSearchQuery();
 		$events = $this->_getEvents();
 		
 		$relevant_events = Array();
@@ -209,9 +219,8 @@ class Page_Calendar_Events_Search extends Search_Page
 			return Array();
 		}
 		
-		$grouping_logic = $this->attr('events_filter_logic');		
-		$result = FALSE;
-		$query = $this->_getEventSearchQuery();
+		$grouping_logic = $this->attr('events_filter_logic');
+		$result = FALSE;		
 		$instances = FALSE;
 		if ($this->isEmptyQuery($query)) {
 			$instances = Calendar_Common::getWholeEventInstances($relevant_events, '1970-01-01', '2030-12-31');
@@ -238,11 +247,6 @@ class Page_Calendar_Events_Search extends Search_Page
 			}//end foreach
 		}
 		
-		// Sort the events by event start timestamp
-		if (!empty($instances)) {
-			asort($instances);
-		}
-		
 		return $instances ? $instances : Array();
 	
 	}//end getEventInstances()
@@ -258,10 +262,19 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/	
 	function processEventSearch($search=Array())
 	{	
+		$query = $this->_getEventSearchQuery($search);
+		
+		// See if we have result in the cache
+		$cache_key = md5(serialize($query).$this->attr('main_logic').$this->attr('events_filter_logic'));
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');		
+		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key);
+		if ($result !== FALSE) {
+			return unserialize($result);
+		}
+		
 		// Get all the relevant events for the searching
-		$events = $this->_getEvents();		
-		$query = $this->_getEventSearchQuery();
-	
+		$events = $this->_getEvents();
+		
 		// Save the search terms into the session so that we can use them for
 		// search within search results
 		$_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id] = $query;
@@ -312,11 +325,10 @@ class Page_Calendar_Events_Search extends Search_Page
 			}			
 		}//end foreach
 		
-		// Sort the events by event start timestamp
-		if (!empty($result)) {
-			asort($result);
+		if (is_array($result)) {
+			$cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		}
-
+		
 		return $result ? $result : Array();
 	
 	}//end processEventSearch()
@@ -353,21 +365,46 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @return array
 	* @access private
 	*/	
-	function _getEventSearchQuery()
+	function _getEventSearchQuery($search=Array())
 	{	
 		if (isset($this->_tmp['searched_fqueries'])) {
 			return $this->_tmp['searched_fqueries'];
 		}		
-
-		$filters = $this->attr('events_filters');
-		$queries = Array();		
+		
+		$filters = $this->attr('events_filters');		
+		$queries = Array();
+		
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();		
+		
 		foreach ($filters as $field_name => $field_details) {
-
-			$queries[$field_name] = '';
+			$queries[$field_name] = Array();
 			$query_var = 'queries_'.$field_name.'_fquery';
 			$clean_query_var = str_replace('.', '_', $query_var);
 
 			$queries[$field_name] = $this->_processDateFilter($query_var, $field_details['type']);
+			
+			if (empty($queries[$field_name])) {
+				$query = Array();
+				if (is_array($pmap_params) && !empty($pmap_params)) {
+					// Check for current field
+					if (in_array('f:'.$field_name, $pmap_params)) {
+						$key_field = array_search('f:'.$field_name, $pmap_params);
+						$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);				
+						replace_global_keywords($raw_val);
+						
+						$pq_data = explode(',', trim($raw_val));				
+						if (count($pq_data) == 2) {
+							list($from, $to) = $pq_data;
+							$query[] = Array(
+										'from' => trim($from),
+										'to' => trim($to),
+									);
+						}						
+					}
+				}				
+				$queries[$field_name] = $query;				
+			}
 
 		}//end foreach fields
 		
@@ -379,531 +416,7 @@ class Page_Calendar_Events_Search extends Search_Page
 
 		return $queries;
 	
-	}//end _getEventSearchQuery()
-	
-	
-	/**
-	* Prints the individual asset in the asset list
-	*
-	* This is being overridden to cache the results of each asset, and add
-	* the score and result number keyword replacements
-	*
-	* @param string	$assetid		The assetid of the asset we are printing
-	* @param int	$list_position	Asset's position in the list
-	* @param int	$num_items		the number of items in the current list (required by Listing Engine)
-	*
-	* @return void
-	* @access protected
-	*/
-	function _printAsset($assetid, $list_position, $num_items=0)
-	{		
-		$cache_key = $assetid;
-
-		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
-		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$element_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
-
-		if ($element_contents === FALSE) {
-			// keyword replacements for %result_number% and %score% are now handled
-			// by the "extended asset" keywords replacements defined in getExtendedAssetKeywordReplacements()
-
-			ob_start();
-			$this->_printEventAsset($assetid, $list_position, $num_items);
-
-			$element_contents = ob_get_contents();
-			ob_end_clean();
-			$cm->saveToCache($this->id, $this->type(), $cache_key, $element_contents);
-		}
-
-		// summon the scores at this point. and work with new DAL result format
-		$score =& $this->_tmp['search_results'];
-		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
-		$weight = (is_array($score[$assetid])) ? $score[$assetid][0]['weight'] : $score[$assetid];
-
-		$element_replacements = Array(
-									'score'			=> $weight,
-									'result_number'	=> $this->_tmp['start_element'] + $list_position,
-
-								);
-
-		replace_keywords($element_contents, $element_replacements);
-
-		echo $element_contents;
-
-	}//end _printAsset()
-	
-	
-	/**
-	* Prints the individual event asset in the asset list
-	*
-	* @param string	$assetid		The assetid of the asset we are printing
-	* @param int	$list_position	Asset's position in the list
-	* @param int	$num_items		the number of items in the current list (required by Listing Engine)
-	*
-	* @return void
-	* @access private
-	*/	
-	function _printEventAsset($assetid, $list_position, $num_items=0)
-	{	
-		$assetid_parts = explode(':', $assetid);
-		
-		if (!isset($assetid_parts[1])) {
-			return;
-		}		
-		
-		// allows for asset listings within asset listings, see #2727
-		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
-			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
-		} else {
-			$prev_list_current_asset_id = null;
-		}
-		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $assetid;
-
-		$mm			= NULL;
-		$contents	= '';
-		$keywords	= Array();
-		$customised = $this->getFormats('type_formats');
-
-		$asset_info_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
-		$bodycopy = NULL;
-		
-		// we can get the type code from the asset info array
-		// if the asset info array is empty then there is a possibility that we are trying to print a shadow asset
-		// so we load the asset and get its typecode
-		$type_code = NULL;
-		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
-		if (!empty($info['type_code'])) {
-			$type_code = $info['type_code'];
-		} else {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			$type_code = $asset->type();
-		}		
-
-		// check to see if there is a specific position format for us
-		if (isset($this->_tmp['position_formats'][$list_position])) {
-			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
-		} else if ($num_items > 0) {
-			/*
-			* Secondly, check if there is a "negative position" that is applicable.
-			* Negative position values are used to dynamically control display of list entries by using an offset from the last list element.
-			* For example: -1 is a position format for the last entry, -2 is for the second-last entry.
-			*
-			* Positive position formats take precedence over "negative" ones.
-			* Ok, now back to the code...
-			*/
-			$negative_offset = -1 + ($list_position - $num_items);
-			if (isset($this->_tmp['position_formats'][$negative_offset])) {
-				$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$negative_offset], 'bodycopy');
-			}
-		}//end else
-		
-		// if we can't find a position format
-		// search for type format, if we don't already know that default format should be used
-		if (is_null($bodycopy) && !in_array($type_code, $this->_tmp['is_default'])) {
-			// is there previous information about type format?
-			if (isset($this->_tmp['type_formats']) && array_key_exists($type_code, $this->_tmp['type_formats'])) {
-				$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
-				$type_code = $this->_tmp['type_formats'][$type_code];
-			} else {
-				$parent = NULL;
-				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-
-				if (($type_key = array_search($type_code, $customised)) === FALSE) {
-					foreach ($parents as $parent) {
-						// any of parent in the custom format?
-						if (array_search($parent, $customised) !== FALSE) {
-							$this->_tmp['type_formats'][$type_code] = $parent;
-							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
-							$type_code = $parent;
-						}
-					}
-				}
-			}
-			if (isset($type_key) && $type_key !== FALSE) {
-				$bodycopy = $this->_getTypeFormatBodycopy($type_code);
-			}
-
-		}		
-
-		// if no bodycopy found, try the default format
-		if (is_null($bodycopy)) {
-			if (!isset($this->_tmp['default_format_bc'])) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
-				if ($link) {
-					$this->_tmp['default_format_bc'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				} else {					
-					trigger_error('Cannot Find the Default Bodycopy');
-					return;
-				}
-			}
-			$bodycopy = $this->_tmp['default_format_bc'];
-		}
-
-
-		// by the time we reach this point we already have a bodycopy for this asset
-		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-		if (isset($this->_tmp['bc_keywords'][$bodycopy->id][$contextid])) {
-			$bc_keywords = $this->_tmp['bc_keywords'][$bodycopy->id][$contextid];
-		} else {
-			$bc_keywords = $bodycopy->getKeywords();
-			$this->_tmp['bc_keywords'][$bodycopy->id][$contextid] = $bc_keywords;
-		}
-		
-		$keywords    = Array();
-		// Asset contents keywords that we want contexted versions thereof
-		// These will be stored in the keywords array as "keyword^context:contextid"
-		// and accessed later on when we replace the keyword.
-		$context_bc_keywords      = Array();
-		$paint_layouts_to_resolve = Array();
-		$all_contexts             = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-
-		// For each keyword starting with 'asset_contents', ensure there is an entry
-		// in $bc_keywords for both the plain keyword and any equivalents with modifiers.
-		//
-		// This way plain replacement works as expected, and the modifiers can be run
-		// later in this method
-		foreach ($bc_keywords as $kw) {
-			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
-				$kw = parse_keyword($kw, $modifiers);
-				$contextid = extract_context_modifier($modifiers);
-
-				if (!in_array($kw, $bc_keywords)) {
-					array_push($bc_keywords, $kw);
-				}
-
-				// Store which context we need to get this keyword for
-				if (array_key_exists($kw, $context_bc_keywords) === FALSE) {
-					$context_bc_keywords[$kw] = Array();
-				}
-
-				if ($contextid === NULL) {
-					$context_bc_keywords[$kw]['current'] = NULL;
-				} else {
-					$context_bc_keywords[$kw][$contextid] = $all_contexts[$contextid]['name'];
-				}
-
-				// Contents being generated with a paint layout - work out which ones
-				// we have to resolve (to get around bug #4374, which previously limited
-				// support to one arbitrary paint layout per bodycopy)
-				if (substr($kw, 0, strlen('asset_contents_paint_')) == 'asset_contents_paint_') {
-					$paint_layouts_to_resolve[] = substr($kw, strlen('asset_contents_paint_'));
-				}
-			}
-		}
-		
-		$this_needs_asset = FALSE;		
-		foreach ($bc_keywords as $keyword) {
-			if (in_array($keyword, Array('asset_url', 'asset_name_linked', 'asset_short_name_linked')) && !SQ_ROLLBACK_VIEW) {
-				continue;
-			}
-			if (!isset($this->_tmp['assets_info'][$assetid][substr($keyword, 6)])) {
-				$this_needs_asset = TRUE;
-				break;
-			}
-		}
-
-		if ($this_needs_asset) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid_parts[0]);
-			if (is_null($asset)) return;
-			
-			// Get the event instance data from the shadow bit of the assetid
-			$event_data_raw = explode(',', $assetid_parts[1]);
-			$event_data = Array();
-			
-			foreach($event_data_raw as $event_key_val) {			
-				list($key, $val) = explode("=", $event_key_val);
-				$event_data[$key] = $val;
-			}
-			
-			foreach ($bc_keywords as $keyword) {
-				if (strpos($keyword, "instance_start_datetime") !== 0 && strpos($keyword, "instance_end_datetime") !== 0) {
-					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
-				} else {
-					$keywords[$keyword] = $asset->getEventInstanceKeywordReplacement($keyword, $event_data);
-
-				}
-			}//end foreach
-
-			// Body with paint layout applied, if any (inherited from the
-			// listing engine asset, usually)
-			if (array_key_exists('asset_contents', $keywords)) {
-				foreach ($context_bc_keywords['asset_contents'] as $contextid => $context_name) {
-					$kw = 'asset_contents';
-					if ($context_name !== NULL) {
-						$kw .= '^context:'.$context_name;
-					}
-
-					$keywords[$kw] = $this->_getAssetContentsBCKeywordReplacement($asset, $contextid);
-				}
-			}
-
-			// Body with paint layout(%asset_contents_paint_ASSETID%) or user-defined paint layout(%asset_contents_paint_NAME%) applied
-			foreach ($paint_layouts_to_resolve as $paint_layout) {
-				$base_kw = 'asset_contents_paint_'.$paint_layout;
-				foreach ($context_bc_keywords[$base_kw] as $contextid => $context_name) {
-					$kw = $base_kw;
-					if ($context_name !== NULL) {
-						$kw .= '^context:'.$context_name;
-					}
-					$keywords[$kw] = $this->_getAssetContentsPaintBCKeywordReplacement($asset, $paint_layout, $contextid);
-				}
-
-			}
-
-			// %asset_contents_raw% will print the asset's body WITHOUT a
-			// paint layout
-			if (array_key_exists('asset_contents_raw', $keywords)) {
-				foreach ($context_bc_keywords['asset_contents_raw'] as $contextid => $context_name) {
-					$kw = 'asset_contents_raw';
-					if ($context_name !== NULL) {
-						$kw .= '^context:'.$context_name;
-					}
-
-					$keywords[$kw] = $this->_getAssetContentsRawBCKeywordReplacement($asset, $contextid);
-				}
-			}
-
-			// stuff carried over results body replacements
-			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $asset->id, './?a='.$asset->id);
-			$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->name).'</a>';
-			$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->short_name).'</a>';
-
-			if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
-				preg_match('/(http[s]?:\/\/)(.*)/', $keywords['asset_url'], $matches);
-				$lineage_array = Array();
-				if (isset($matches[2])) {
-					$lineage_array = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $matches[2]);
-				}//end if
-
-				$lineage = '';
-				$linked_lineage = '';
-
-				if (!empty($lineage_array)) {
-					$show_root = $this->attr('root_in_lineage');
-					$show_self = $this->attr('self_in_lineage');
-					$first = TRUE;
-
-					foreach ($lineage_array as $lineage_item) {
-						if ($first && !$show_root) {
-							$first = FALSE;
-							continue;
-						}//end if
-
-						if (!$first && $lineage != '') {
-							$lineage .= $this->attr('lineage_seperator');
-							$linked_lineage .= $this->attr('lineage_seperator');
-						}//end if
-						$lineage .= $lineage_item['short_name'];
-						$linked_lineage .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
-						$first = FALSE;
-					}//end if
-				}//end if
-				$keywords['asset_lineage'] = htmlspecialchars($lineage);
-				$keywords['asset_lineage_linked'] = $linked_lineage;
-			}//end if
-
-				// end results body stuff
-
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
-		} else {
-			$keywords = Array();
-			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
-				$keywords['asset_'.$field] = htmlspecialchars($value);
-			}
-			$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid_parts[0], './?a='.$assetid_parts[0]);
-			$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_name'].'</a>';
-			$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_short_name'].'</a>';			
-
-		}//end if needs asset
-		
-		$group_keywords = preg_grep('/group[0-9]+.*/', $bc_keywords);
-		foreach ($group_keywords as $group_keyword) {
-			preg_match('/group([0-9]+)_(.*)/', $group_keyword, $matches);
-			if (isset($this->_tmp['group_levels'][$matches[1] - 1])) {
-				$parent_id = $this->_tmp['group_levels'][$matches[1] - 1];
-				if (assert_valid_assetid($parent_id, '', TRUE, FALSE)) {
-					// we have an assetid, so do what we want with the parent
-					switch ($matches[2]) {
-						case 'link_value':
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent_id, $assetid);
-							$keywords[$group_keyword] = array_get_index($link, 'value', '');
-						break;
-						case 'link_type':
-						case 'dependant':
-						case 'exclusive':
-						default:
-							// other possible uses
-						break;
-					}
-				}
-			}//end if
-		}
-
-		$keywords['page_href'] = $this->getHref();
-
-		if ($this->attr('group_by') == 'letter') {
-			$keywords['asset_position'] = $list_position;
-		} else {
-			$keywords['asset_position']  = (array_get_index($this->_tmp, 'result_page', 1) - 1) * $this->_getNumPerPage() + $list_position;
-		}
-
-		if (($list_position % 2) == 0) {
-			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_even');
-		} else {
-			$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd');
-		}
-
-		// asset selections
-		$selections			= $this->attr('asset_selections');
-		$selection_defaults = $this->getAssetSelectionDefaults();
-
-		if (is_array($selections) && !empty($selections)) {
-
-			foreach ($selections as $selection_name => $settings) {
-
-				$buffering = in_array($selection_name.'_asset_selection', $bc_keywords);
-				$selection_prefix = $this->_getSelectionFieldNamePrefix($selection_name);
-
-				if ($buffering) {
-					ob_start();
-					$this->registerFormField($selection_prefix);
-				}
-
-				// predefine some commonly used settings, for brevity's sake
-				$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
-				$selection_restrict = array_get_index($selection_options, 'restrict_range', $selection_defaults['options']['restrict_range']);
-				$selection_restrict_enable = array_get_index($selection_restrict, 'enable', $selection_defaults['options']['restrict_range']['enable']);
-				$selection_restrict_min = array_get_index($selection_restrict, 'min', $selection_defaults['options']['restrict_range']['min']);
-				$selection_restrict_max = array_get_index($selection_restrict, 'max', $selection_defaults['options']['restrict_range']['max']);
-				$selection_allow_negative = array_get_index($selection_options, 'allow_negative', $selection_defaults['options']['allow_negative']);
-				$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
-
-				// grab the values for the field to display
-				$selection_value = $this->getAssetSelectionValue($selection_name, $assetid);
-
-				if ($selection_restrict_enable) {
-					$selection_value = ($selection_restrict_min > $selection_value ? $selection_restrict_min : $selection_value);
-				}
-
-				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
-					case 'textbox':
-						$selection_name_field = $selection_prefix.'['.$assetid.']';
-						$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
-
-						if ($buffering) {
-							if ($selection_restrict_enable) {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', FALSE, FALSE, 'id="'.$selection_id.'"');
-							} else {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, NULL, NULL, '', FALSE, FALSE, 'id="'.$selection_id.'"');
-							}
-						}
-					break;
-
-					case 'selection':
-						$selection_name_field = $selection_prefix.'['.$assetid.']';
-						$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
-
-						if ($buffering) {
-							// list contents
-							$selection_list = Array();
-							if (!empty($settings['options']['restrict_range']['enable'])) {
-								for ($ii = $selection_restrict_min; $ii <= $selection_restrict_max; $ii++) {
-									$selection_list[$ii] = $ii;
-								}
-							} else {
-								$selection_list = Array('0');
-							}
-
-							// check that the value is on the list
-							if (!isset($selection_list[$selection_value])) {
-								$selection_value = reset($selection_list);
-							}
-
-							// list display
-							combo_box($selection_name_field, $selection_list, $selection_allow_multiple, $selection_value, 0, 'id="'.$selection_id.'"');
-						}
-					break;
-
-					case 'radio':
-					default:
-						if ($selection_allow_multiple) {
-							$selection_name_field = $selection_prefix.'['.$assetid.']';
-							$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
-
-							if ($buffering) {
-								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_prefix."')", 'id="'.$selection_id.'"');
-								$this->registerFormField($selection_name_field);
-
-								// the flag is used to determine whether a checkbox is
-								// present and not ticked, or not present at all
-								// only print this once, otherwise it ends up bloating the query string
-								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
-										hidden_field('selection_flag_'.$selection_prefix, '1');
-										$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
-								}
-							}
-						} else {
-							$selection_name_field = $selection_prefix;
-							$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
-
-							if ($buffering) {
-								radio_button($selection_name_field, $assetid, ($selection_value == $assetid ? TRUE : FALSE), '', 'id="'.$selection_id.'"');
-							}
-						}
-					break;
-				}//end switch
-
-				// set selection and its ids keywords
-				if ($buffering) {
-					$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
-				}
-				$keywords[$selection_name.'_selection_name'] = $selection_name_field;
-				$keywords[$selection_name.'_selection_id'] = $selection_id;
-			}//end foreach
-		}//end if
-
-		// print asset ID always
-		$keywords['asset_assetid'] = $assetid;		
-
-		// kept for backwards compatibility
-		$keywords['result_no']	=& $keywords['asset_position'];
-		$keywords['root_nodes'] = $this->getRootNodesKeywordReplacement();
-
-		$keywords += $this->getExtendedAssetKeywordReplacements();
-		// For every keyword with modifiers starting with 'asset_contents', apply the modifiers..
-		foreach ($keywords as $kw => $val) {
-			if (substr($kw, 0, strlen('asset_contents')) == 'asset_contents') {
-				$plain_keyword = parse_keyword($kw, $modifiers);
-				if (!empty($modifiers)) {
-						// If this is a keyword with modifiers, first see if context
-						// is one of them, and if so, augment the plain keyword
-						// so we get the version in the correct context
-						$contextid = extract_context_modifier($modifiers);
-
-						if ($contextid !== NULL) {
-							$plain_keyword .= '^context:'.$all_contexts[$contextid]['name'];
-						}
-
-						// Start the modified keyword off with the plain replaced value
-						$keywords[$kw] = $keywords[$plain_keyword];
-
-						// Apply modifiers
-						apply_keyword_modifiers($keywords[$kw], $modifiers);
-				}//end if
-			}//end if
-		}//end foreach		
-		
-		$bodycopy->setKeywordReplacements($keywords);
-		$bodycopy->printBody();
-
-		if ($prev_list_current_asset_id) {
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $prev_list_current_asset_id;
-		} else {
-			unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']);
-		}
-		
-	}//end _printEventAsset()
+	}//end _getEventSearchQuery()	
 	
 	
 	/*
@@ -941,55 +454,6 @@ class Page_Calendar_Events_Search extends Search_Page
 		return array_merge($single_result, $recurring_result);	
 	
 	}//end _getEvents()	
-	
-
-	/**
-	* Sort the event instances. Event assets are sorted based sorting settings 
-	* while each event instances are sorted in ascending order based on the 
-	* instance start time
-	*
-	* @param array	$asset_list	an array of assets to be sorted
-	* @param array	$sort_info	sorting information as provided by getSortInfo()
-	*
-	* @return array
-	* @access public
-	* @see Listing_Engine::sortAssetList()
-	* @see Listing_Engine::getSortInfo()
-	*/
-	function sortAssetList($asset_list, $sort_info)
-	{
-		if (count($asset_list) == 1 || empty($sort_info)) {
-			return $asset_list;
-		}
-		
-		// Get the events assetids in the result
-		$event_assetids = Array();
-		foreach($asset_list as $event_instance => $weight) {
-			// Event instances in search result are represnted as shadow assets
-			if (strpos($event_instance, ':') === FALSE) {
-				unset($asset_list[$event_instance]);
-				continue;
-			}
-			$event_assetid = substr($event_instance, 0, strpos($event_instance, ':'));
-			$event_assetids[$event_assetid] = $weight;			 
-		}
-		
-		// Sort the event assets based on sort settings
-		$sorted_events = parent::sortAssetList($event_assetids, $sort_info);
-		
-		// Sort each instances based on instance's start time		
-		$sorted_event_instances = Array();
-		foreach($sorted_events as $event_assetid => $val) {
-			foreach($asset_list as $event_instance => $weight) {
-				if (strpos($event_instance, $event_assetid.':') === 0) {
-					$sorted_event_instances[$event_instance] = $weight;
-				}//end if
-			}//end foreach
-		}//end foreach
-		
-		return $sorted_event_instances;
-
-	}//end sortAssetList()	
 	
 	
 	/**
@@ -1042,19 +506,29 @@ class Page_Calendar_Events_Search extends Search_Page
 		// But don't touch it if there was some SESSION var already set
 		$pmap = $this->getAttribute('stored_query_session');
 		$pmap_params = $pmap->getParameters();
+		
 		if (is_array($pmap_params) && !empty($pmap_params)) {
-			// Check for all fields
-			if (in_array('stored_query', $pmap_params)) {
-				$key_field = array_search('stored_query', $pmap_params);
-				$query = $pmap->getParameterValue($pmap_params[$key_field]);
-			}
-
 			// Check for current field
-			if (in_array($filter_name, $pmap_params)) {
-				$key_field = array_search($filter_name, $pmap_params);
-				$query = $pmap->getParameterValue($pmap_params[$key_field]);
+			if (in_array('f:'.$filter_name, $pmap_params)) {
+				$key_field = array_search('f:'.$filter_name, $pmap_params);
+				$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);				
+				replace_global_keywords($raw_val);
+				
+				// Values are expected to be in following format:
+				// [FROM_DATE],[TO_DATE], where date are in YYYY-MM-DD format				
+				$pq_data = explode(',', trim($raw_val, '() '));				
+				if (count($pq_data) == 2) {
+					list($from, $to) = $pq_data;
+					$query[] = Array(
+								'from' => trim($from),
+								'to' => trim($to),
+							);
+				}				
+				
+				if ($filters[$filter_name]['type'] == 'single_date' || $filters[$filter_name]['type'] == 'date_range') {
+					$query = array_get_index($query, 0, Array());
+				}
 			}
-			replace_global_keywords($query);
 		}
 		
 		$current_value = $query;
@@ -1068,7 +542,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		ob_start();
 			
 			switch($filters[$filter_name]['type']) {
-				case 'single_date':				
+				case 'single_date':	
 					$this->_printDateRange('queries_'.$query_var, $current_value, TRUE, $filters[$filter_name]['use_picker']);
 				break;
 				
@@ -1122,7 +596,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access private
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $single_field=TRUE, $use_picker=TRUE, $read_only=FALSE)
-	{
+	{	
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
 		}
@@ -1156,7 +630,9 @@ class Page_Calendar_Events_Search extends Search_Page
 					} else {
 						$field = $this->_getDateField($field_name.'_from');
 						if (!$field->processField() || $field->value == '---------- --:--:--') {
-							$field->setValue($current_value['from']);
+							$field->setValue($current_value['from']);							
+						} else {
+						
 						}
 						$field->printField();
 					}
@@ -1597,7 +1073,6 @@ class Page_Calendar_Events_Search extends Search_Page
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
-
 	
 }//end class
 ?>
