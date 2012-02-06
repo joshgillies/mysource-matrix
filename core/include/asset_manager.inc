@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.853.2.2 2011/10/27 02:46:01 csmith Exp $
+* $Id: asset_manager.inc,v 1.853.2.3 2012/02/06 04:06:32 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.853.2.2 $
+* @version $Revision: 1.853.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8744,7 +8744,16 @@ class Asset_Manager extends MySource_Object
 				$where    = $baseWhere;
 				if (empty($pathToFix) === FALSE) {
 					$where .= ' AND p.path LIKE :pathToFix';
-					$bindVars['pathToFix'] = $pathToFix.'%';
+										
+					// if it's a file name, digits is added to file name part before extension
+					$extension = strrchr($pathToFix,'.');
+					if($extension === FALSE) {
+					    $bindVars['pathToFix'] = $pathToFix.'%';
+					}
+					else {
+					    $pathToFix = str_replace($extension,'',  $pathToFix);
+					    $bindVars['pathToFix'] = $pathToFix.'%'.$extension;
+					}
 				}
 
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
