@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.29.2.1 2012/02/06 23:27:50 cupreti Exp $
+* $Id: authentication_ldap.inc,v 1.29.2.2 2012/02/06 23:43:44 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -321,7 +321,7 @@ class Authentication_LDAP extends Authentication
 		}//end if
 
 		$required_attrs = array_merge(
-			array_values(array_get_index($bridge->attr('user_attributes'), 'show', Array())),
+			array_keys(array_get_index($bridge->attr('user_attributes'), 'show', Array())),
 			array_values($attrs),
 			Array('objectclass')
 		);
