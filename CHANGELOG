@@ -175,6 +175,7 @@ Fixed Bug #5508: System design assets don't regenerate Design files.
 Fixed Bug #5513: Javascript date picker in JS_Calendar class not working in Firefox.
 Fixed Bug #5520: Paint Layout conditional keywords don't work as expected with Condition Keyword Regexp.
 Fixed Bug #5530: Undefined index on Workflow screen.
+Fixed Bug #5553: Custom form file upload, renaming rule doesn't rename it properly.
 
 CMS
 
