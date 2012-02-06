@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.52 2011/02/15 02:18:14 cupreti Exp $
+* $Id: insert_image.php,v 1.52.6.1 2012/02/06 05:50:05 mhaidar Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.6.1 $
 * @package MySource_Matrix
 */
 
@@ -661,7 +661,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('name'); ?>:</td>
+											<td class="label"><?php echo translate('id_name_text'); ?>:</td>
 											<td>
 												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo htmlspecialchars($_REQUEST['f_image_id']) ?>" />
 											</td>
