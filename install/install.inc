@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.97 2011/11/28 05:41:03 ewang Exp $
+* $Id: install.inc,v 1.98 2012/02/06 23:05:47 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -651,7 +651,19 @@ function generate_lang_char_map()
 										'Ż' => 'z',
 										'Ź' => 'z',
 									),
-					 );
+						'en'	=>  Array (
+										'ā' => 'a',
+										'ē' => 'e',
+										'ī' => 'i',
+										'ō' => 'o',
+										'ū' => 'u',
+										'Ā' => 'A',
+										'Ē' => 'E',
+										'Ī' => 'I',
+										'Ō' => 'O',
+										'Ū' => 'U',
+									  ),
+			 );
 
 	$str = '<'.'?php $lang_char_map = '.var_export($lang_char_map, TRUE).'; ?'.'>';
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/lang_char_map.inc')) {
