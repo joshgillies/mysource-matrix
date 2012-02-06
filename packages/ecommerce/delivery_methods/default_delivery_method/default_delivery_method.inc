@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -694,7 +694,7 @@ HEREDOC;
 		$this->state['transaction_id']  = $order->id;
 
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
-
+		
 		if ($this->attr('send_emails')) {
 			$email_receipt_attr = $this->getAttribute('receipt_emails_format');
 			$email_recipient_attr = $this->getAttribute('recipient_emails_format');
@@ -714,6 +714,10 @@ HEREDOC;
 			$keywords_to_replace[] = 'transaction_id';
 			$keywords_replacements[] =  $order->attr('transaction_id');
 
+			// get merchant transaction reference id keyword replacements
+			$keywords_to_replace[] = 'merchant_transaction_id';
+			$keywords_replacements[] =  $order->attr('ecom_ref_no');
+			
 			// get keyword replacements for order receipt
 			$keywords_to_replace[] = 'order_receipt';
 
