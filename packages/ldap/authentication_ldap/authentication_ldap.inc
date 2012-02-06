@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.29 2011/09/06 01:59:59 akarelia Exp $
+* $Id: authentication_ldap.inc,v 1.30 2012/02/06 23:27:15 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -320,7 +320,12 @@ class Authentication_LDAP extends Authentication
 			$filter = '('.$attrs['uid'].'='.$username.')';
 		}//end if
 
-		$result = $ldap->search($auth_base_dn, $filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+		$required_attrs = array_merge(
+			array_values(array_get_index($bridge->attr('user_attributes'), 'show', Array())),
+			array_values($attrs),
+			Array('objectclass')
+		);
+		$result = $ldap->search($auth_base_dn, $filter, NULL, TRUE, TRUE, $required_attrs);
 
 		if (!$result) return $null;
 		$entry = $ldap->getEntries($result);
