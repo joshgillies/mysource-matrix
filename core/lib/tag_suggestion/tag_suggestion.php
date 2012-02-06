@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.11 2011/06/02 06:56:51 mhaidar Exp $
+* $Id: tag_suggestion.php,v 1.11.2.1 2012/02/06 05:47:54 mhaidar Exp $
 *
 */
 
@@ -159,6 +159,7 @@ if (empty($sm)) {
 
 
 	<?php
+	uasort($keywords_info, create_function('$a,$b', 'return strcasecmp($a[\'name\'], $b[\'name\']);'));
 	foreach ($keywords_info as $keyword_info) {
 		// reject any suggested tags that are not from the tagging thesaurus
 		if ($tm->isFromTaggingThesaurus($keyword_info['assetid'])) {
