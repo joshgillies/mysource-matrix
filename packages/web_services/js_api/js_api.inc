@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.3 2011/12/21 05:46:19 ewang Exp $
+* $Id: js_api.inc,v 1.93.2.4 2012/02/07 06:53:17 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.3 $
+* @version $Revision: 1.93.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1996,84 +1996,94 @@ class JS_Api extends Page
 	*									are dealing with with respect to current user
 	* @param boolean	$write_access	write access check for the asset we 
 	*									are dealing with with respect to current user
-	* @param boolean	$internal_call	
 	*
 	* @return array
 	* @access private
 	*/
-	private function _getLineage($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE, $internal_call=FALSE)
+	private function _getLineage($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		// we have the url in the args, lets get it and get the asset are dealing with
-		$url = array_get_index($args, 'asset_url', '');
-		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);
+		$url = trim(array_get_index($args, 'asset_url', ''));
+		if (empty($url)) {
+			return Array(
+					'error' => 'No URL supplied'
+					);
+		}		
+		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);		
+			
+		// cant get lineage of root_folder, DUHH !
+		if ($url == '1') return Array();
 
-		if (!empty($url)) {
-			// cant get lineage of root_folder, DUHH !
-			if ($url == '1') return Array();
-
-			// now if we have url we have a ready made function in asset_manager.inc we can use
-			// although we manipulate the results as it not the elements/format we want
-			$url_bits = parse_url($url);
-			if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
-				if (!is_null($asset)) {
-					return $this->_getLineage(Array('asset_url' => $asset->id, 'significant_link_only' => $significant_link_only));
-				} else {
-					$data['error'] = 'URL supplied does not point to asset in Matrix';
-				}
-
-			}// end if url
-			// could be an assetid, yes people do that !
-			else if (is_numeric($url) || (preg_match('/^[0-9]*:/i', $url) != FALSE)) {
-				$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
-				$lineages	= $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($url, 0, NULL, Array('name', 'type_code'), $significant_link_only);
-
-				$data = Array();
-				$asset_id_done = Array();
-				// do this just for the immidiate parent
-				foreach ($lineages as $index => $lineage) {
-					$treeid_array 			= $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($lineage['linkid']);
-					$asset_id_done[]		= $asset->id;
-					$info['tree_id']		= $treeid_array[$lineage['linkid']][0][0];
-					$info['assetid']		= $url;
-					$info['name']			= $asset->name;
-					$info['type_code']		= $asset->type();
-					$info['link_type']		= $lineage['link_type'];
-					$info['link_value']		= $lineage['link_value'];
-					$info['linkid']			= $lineage['linkid'];
-					// now if we have just one element in 'lineage' we are golden
-					// else we need to work out more
-					$parents_ids = array_keys($lineage['lineage']);
-					if (count($lineage['lineage']) == 1) {
-						$info['parent_assetid']		= $parents_ids[0];
-						$info['parent_type_code']	= $lineage['lineage'][$parents_ids[0]]['type_code'];
-						if ($internal_call) return $info;
-					} else {
-						$parent_id = end($parents_ids);
-						$info['parent_assetid']		= $parent_id;
-						$info['parent_type_code']	= $lineage['lineage'][$parent_id]['type_code'];
-						if ($internal_call) return $info;
-					}
-
-					foreach ($parents_ids as $parent_id) {
-						if ($parent_id == '1' || in_array($parent_id, $asset_id_done)) continue;
-						$higher_parent_info = $this->_getLineage(Array('asset_url' => $parent_id, 'significant_link_only' => $significant_link_only), NULL, FALSE, FALSE, TRUE);
-						$asset_id_done[] = $parent_id;
-						$data[] = $higher_parent_info;
-					}
-					$data[] = $info;
-				}
-			}else {
-				$data['error'] = 'URL supplied is invalid';
+		// now if we have url we have a ready made function in asset_manager.inc we can use
+		// although we manipulate the results as it not the elements/format we want
+		$url_bits = parse_url($url);
+		log_dump($url_bits);
+		if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
+			if (is_null($asset)) {
+				return Array(
+						'error' => 'URL supplied does not point to asset in Matrix'
+						);
 			}
+		} else if (preg_match('|^[0-9]+(?:\:.+)?|', $url)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($url)) {
+				return Array(
+						'error' => 'Supplied assetid #'.$url.' does not exist'
+						);
+			}
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
 		} else {
-			$data['error'] = 'No URL supplied';
+			return Array(
+					'error' => 'URL supplied is invalid'
+					);
 		}
+		
+		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
+		
+		$result_lineages = Array();
+		$linkid_done = Array();		
+		
+		foreach ($raw_lineages as $index => $val) {
+			$data = Array();
+			$minorid = $asset->id;
+			$parent_lineage_assetids = array_reverse(array_keys($val['lineage']));
+			foreach($parent_lineage_assetids as $majorid) {
+				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
+				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
+				
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($major_asset->id, $minor_asset->id);				
+				
+				if (!in_array($link['linkid'], $linkid_done)) {
+				
+					$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+					
+					$info = Array();
+					$info['tree_id']			= $treeid_data[$link['linkid']][0][0];
+					$info['assetid']			= $minor_asset->id;
+					$info['name']				= $minor_asset->name;
+					$info['type_code']			= $minor_asset->type();
+					$info['link_type']			= $link['link_type'];
+					$info['link_value']			= $link['value'];
+					$info['linkid']				= $link['linkid'];					
+					$info['parent_assetid']		= $major_asset->id;
+					$info['parent_type_code']	= $major_asset->type();
+					
+					$data[] = $info;
+					$linkid_done[] = $link['linkid'];
+				}
+				
+				// Get the link info for the next lineage, one level up, if any
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minorid);
+				$minorid = $majorid;				
+			}//end foreach
+			
+			$result_lineages = array_merge($result_lineages, array_reverse($data));
+		}//end foreach
 
-		return $data;
+		return $result_lineages;
 
-	}// end _getLineage
-
+	}// end _getLineage()
+	
 
 	/**
 	* clone the given asset under a new parent
