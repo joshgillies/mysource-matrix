@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.42 2011/07/19 04:04:20 akarelia Exp $
+* $Id: simple_form.inc,v 1.43 2012/02/07 23:17:07 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -444,7 +444,7 @@ class Simple_Form extends Asset implements Bridge
 					foreach ($bind_vars as $bind_var => $bind_value) {
 						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 					}
-					$result = MatrixDal::executePdoAssoc($query);
+					$result = MatrixDal::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}
