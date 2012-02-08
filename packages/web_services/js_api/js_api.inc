@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.97 2012/02/07 06:52:17 cupreti Exp $
+* $Id: js_api.inc,v 1.98 2012/02/08 00:11:53 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2336,13 +2336,21 @@ class JS_Api extends Page
 			foreach($array_to_check_in as $user_group_id) {
 				if ($asset->adminAccess('', Array($user_group_id))) {
 					$effective_permission = 'Admin Access';
+					// if admin permission is granted
+					// no need to check on other groups
 					break;
-				} else if ($asset->writeAccess('', Array($user_group_id), FALSE)) {
+
+				} else if ($effective_permission != 'Write Access' && $asset->writeAccess('', Array($user_group_id), FALSE)) {
 					$effective_permission = 'Write Access';
-					break;
-				} else if ($asset->readAccess(Array($user_group_id))) {
+					// do not break out here as other usergroup
+					// might have admin perm
+
+					// go in the following block only if the effective permission isn't determined
+					// if the write permission is already found no need to change the perm to read access
+				} else if ($effective_permission == '' && $asset->readAccess(Array($user_group_id))) {
 					$effective_permission = 'Read Access';
-					break;
+					// do not break out here as other usergroup
+					// might have admin/write perm
 				}
 			}
 		}
