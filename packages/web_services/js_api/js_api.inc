@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.2 2012/02/08 00:29:36 akarelia Exp $
+* $Id: js_api.inc,v 1.96.2.3 2012/02/08 03:47:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.2 $
+* @version $Revision: 1.96.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2498,15 +2498,18 @@ class JS_Api extends Page
 					$data['success'] = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " has been sucessfully removed';
 					return $data;
 				} else {
-					$this->returnError('Unable to delete link');
+					$data['error'] = 'Unable to delete link';
+					return $data;
 				}//end else
 
 			} else {
-				$this->returnError('The link id that was provided is invalid');
+				$data['error'] = 'The link id that was provided is invalid';
+				return $data;
 			}//end else
 
 		} else {
-			$this->returnError('The link id provided is empty');
+			$data['error'] = 'The link id provided is empty';
+			return $data;
 		}//end else
 
 		return FALSE;
