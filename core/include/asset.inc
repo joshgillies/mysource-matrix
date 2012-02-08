@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.756 2011/11/23 22:30:31 akarelia Exp $
+* $Id: asset.inc,v 1.757 2012/02/08 00:52:02 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.756 $
+* @version $Revision: 1.757 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4044,7 +4044,7 @@ class Asset extends MySource_Object
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($temp_asset);
 			}
-		} else if (0 === strpos($keyword, 'asset_workflow_current_step_')) {
+		} else if (0 === strpos($keyword, 'asset_workflow_')) {
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			
 			if (!isset($this->_tmp['wfm_schema_workflows'])) {
@@ -4053,45 +4053,82 @@ class Asset extends MySource_Object
 			} else {
 				$schema_workflows = $this->_tmp['wfm_schema_workflows'];
 			}
-			
-			if (!isset($this->_tmp['wfm_workflow_current_steps'])) {
-				$current_workflow_steps = $wfm->getWorkflowCurrentSteps($this->id);
-				$this->_tmp['wfm_workflow_current_steps'] = $current_workflow_steps;
-			} else {
-				$current_workflow_steps = $this->_tmp['wfm_workflow_current_steps'];
-			}
 
-			$workflow_keyword = substr($keyword, strlen('asset_workflow_current_step_'));
-			$schemaid = explode(':', $workflow_keyword);
-			if (isset($schemaid[1])) {
-				$schemaid = $schemaid[1];
-				if (!empty($current_workflow_steps[$schemaid]) && !empty($schema_workflows[$schemaid])) {	
-					if (!isset($this->_tmp['wfm_current_step'][$schemaid])) {
-						$current_step = $wfm->getCurrentStep($schema_workflows[$schemaid]);
-						$this->_tmp['wfm_current_step'][$schemaid] = $current_step;
+			if (0 === strpos($keyword, 'asset_workflow_current_')){
+				$workflow_keyword = substr($keyword, strlen('asset_workflow_current_'));
+				$workflow_keyword_parts = explode(':', $workflow_keyword);
+				
+				$schema_ids = Array();
+				$wf_replacements = Array();
+				
+				if (isset($workflow_keyword_parts[1])) {
+					$workflow_keyword = $workflow_keyword_parts[0];
+					$schema_ids[] = $workflow_keyword_parts[1];
+				} else {
+					$schema_ids = array_keys($schema_workflows);
+				}
+
+				foreach($schema_ids as $schema_id) {
+					//filter out non-running schemas
+					if (empty($schema_workflows[$schema_id])) continue;
+					
+					if (0 === strpos($workflow_keyword, 'step_')){
+						//filter out schemas with no steps/no current step(complete)
+						if (empty($schema_workflows[$schema_id]['steps']) || empty($schema_workflows[$schema_id]['current_step'])) continue;
+						
+						$current_step = $wfm->getCurrentStep($schema_workflows[$schema_id]);
+						switch ($workflow_keyword) {
+							case 'step_name':
+								$wf_replacements[] = $current_step['step_name'];
+								break;
+							case 'step_start_time':
+								$wf_replacements[] = date('d-m-Y H:i:s', $current_step['started']);
+								break;
+							case 'step_expiry_time':
+								$wf_replacements[] = (!empty($current_step['expiry_time'])) ? date('d-m-Y H:i:s', $current_step['started'] + $current_step['expiry_time']) : '';
+								break;
+							case 'step_conditions':
+								$asset_names = Array();
+								foreach (array_keys($current_step['conditions']) as $assetid){
+									$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+									if ($asset instanceof User) {
+										$asset_names[] = $asset->_getName();
+									} else {
+										$asset_names[] = $asset->name;
+									}
+									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+									unset($asset);
+								}
+								$wf_replacements[] = implode(', ', $asset_names);
+								break;
+							case 'step_condition_ids':
+								$wf_replacements[] = implode(', ', array_keys($current_step['conditions']));
+								break;
+						}
 					} else {
-						$current_step = $this->_tmp['wfm_current_step'][$schemaid];
+						switch ($workflow_keyword) {
+						    case 'start_time':
+						        $wf_replacements[] = date('d-m-Y H:i:s', $schema_workflows[$schema_id]['started']);
+						        break;
+						    case 'stream_name':
+						         $wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
+						        break;
+						}
 					}
 				}
-			}
-			
-			if (empty($current_step)) return $replacement;
-			
-			if (strpos($workflow_keyword, 'name:') === 0) {	
-				$replacement = $current_step['step_name'];
-			} else if (strpos($workflow_keyword, 'start_time:') === 0) {
-				$replacement = date('d-m-Y H:i:s', $current_step['started']);
-			} else if (strpos($workflow_keyword, 'expiry_time:') === 0) {
-				if (empty($current_step['expiry_time'])) return $replacement;
-				$replacement = date('d-m-Y H:i:s', $current_step['started'] + $current_step['expiry_time']);
-			} else if (strpos($workflow_keyword, 'conditions:') === 0) {
-				$asset_names = Array();
-				foreach (array_keys($current_step['conditions']) as $assetid){
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$asset_names[] = $asset->_getName();
-					unset($asset);
-				}
-				$replacement = implode(', ', $asset_names);
+				
+				$replacement = implode(', ', $wf_replacements);
+				if (empty($replacement)) return $replacement;
+				
+			} else 	{
+				$workflow_keyword = substr($keyword, strlen('asset_workflow_'));
+				switch ($workflow_keyword) {
+					case 'applied_schemas':
+						$replacement = implode(', ', array_keys($schema_workflows));
+						break;
+					default:
+						return $replacement;	
+				}		
 			}
 			
 		} else {
