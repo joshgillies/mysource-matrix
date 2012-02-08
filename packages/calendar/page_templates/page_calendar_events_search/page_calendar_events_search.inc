@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.5.2.3 2012/02/07 22:57:43 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.5.2.4 2012/02/08 01:28:40 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5.2.3 $
+* @version $Revision: 1.5.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -395,7 +395,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($queries) && !empty($this->_tmp['potential_searched_fqueries'])) {
 			$queries = $this->_tmp['potential_searched_fqueries'];
 		}
-
+		
 		return $queries;
 	
 	}//end _getEventSearchQuery()	
@@ -494,7 +494,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				
 				switch ($filter_type) {
 					case 'single_date':
-						$query = Array(
+						$query[] = Array(
 									'from' => trim($raw_val),
 									'to' => trim($raw_val),
 								);
@@ -503,7 +503,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					case 'date_range':
 						$pq_data = explode(',', $raw_val);						
 						list($from, $to) = $pq_data;
-						$query = Array(
+						$query[] = Array(
 									'from' => trim($from),
 									'to' => trim($to),
 								);
@@ -562,7 +562,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($current_value)) {
 			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]['type']);
 		}
-		
+
 		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());		
 		foreach($fuzzy_date_options as $key => $val) {
 			$fuzzy_date_options[$val] = str_replace('_', ' ', ucfirst($val));
@@ -573,11 +573,11 @@ class Page_Calendar_Events_Search extends Search_Page
 			
 			switch($filters[$filter_name]['type']) {
 				case 'single_date':	
-					$this->_printDateRange('queries_'.$query_var, $current_value, TRUE, $filters[$filter_name]['use_picker']);
+					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), TRUE, $filters[$filter_name]['use_picker']);
 				break;
 				
 				case 'date_range':				
-					$this->_printDateRange('queries_'.$query_var, $current_value, FALSE, $filters[$filter_name]['use_picker']);
+					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), FALSE, $filters[$filter_name]['use_picker']);
 				break;
 				
 				case 'fuzzy_dropdown':					
@@ -626,7 +626,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access private
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $single_field=TRUE, $use_picker=TRUE, $read_only=FALSE)
-	{	
+	{		
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
 		}
