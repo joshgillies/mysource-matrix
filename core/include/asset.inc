@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.757 2012/02/08 00:52:02 mhaidar Exp $
+* $Id: asset.inc,v 1.758 2012/02/08 02:54:58 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.757 $
+* @version $Revision: 1.758 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4118,7 +4118,7 @@ class Asset extends MySource_Object
 				}
 				
 				$replacement = implode(', ', $wf_replacements);
-				if (empty($replacement)) return $replacement;
+				if (empty($replacement)) return NULL;
 				
 			} else 	{
 				$workflow_keyword = substr($keyword, strlen('asset_workflow_'));
