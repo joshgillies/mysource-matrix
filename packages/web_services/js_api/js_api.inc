@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.98 2012/02/08 00:11:53 akarelia Exp $
+* $Id: js_api.inc,v 1.99 2012/02/08 00:22:04 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2017,7 +2017,6 @@ class JS_Api extends Page
 		// now if we have url we have a ready made function in asset_manager.inc we can use
 		// although we manipulate the results as it not the elements/format we want
 		$url_bits = parse_url($url);
-		log_dump($url_bits);
 		if (!empty($url_bits['scheme']) && !empty($url_bits['host'])) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
 			if (is_null($asset)) {
