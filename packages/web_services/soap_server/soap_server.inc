@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.13 2010/07/01 01:49:28 bpearson Exp $
+* $Id: soap_server.inc,v 1.14 2012/02/09 00:50:14 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -327,7 +327,7 @@ class Soap_Server extends Page
 				}//end if
 				echo $this->_printFuncInfo('Return type: ', NULL, 'margin-left:15px;').$this->_printFuncInfo(NULL, $func_info['return_type']).'<br /><br />';
 					?>
-				<a href="javascript:revealEntry('<? echo sq_web_path('lib'); ?>','requestenvelope')" style="text-decoration:none;"><img name="expandrequestenvelope" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/del.png" border="0" /><span style="border:0;font-size:13px;font-family:tahoma;color:#0099FF;font-weight:bold;"> View Request Envelope</span></a><br /><br />
+				<a href="javascript:revealEntry('<?php echo sq_web_path('lib'); ?>','requestenvelope')" style="text-decoration:none;"><img name="expandrequestenvelope" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/del.png" border="0" /><span style="border:0;font-size:13px;font-family:tahoma;color:#0099FF;font-weight:bold;"> View Request Envelope</span></a><br /><br />
 
 					<div id="requestenvelope" style="display:;margin-top:10px;margin-left:12px;margin-bottom:10px;">
 					<?php
@@ -343,7 +343,7 @@ class Soap_Server extends Page
 					}//end if
 					?></div>
 
-				<a href="javascript:revealEntry('<? echo sq_web_path('lib'); ?>','returnenvelope')" style="text-decoration:none;"><img name="expandreturnenvelope" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/del.png" border="0" /><span style="border:0;font-size:13px;font-family:tahoma;color:#0099FF;font-weight:bold"> View Response Envelope</span></a><br />
+				<a href="javascript:revealEntry('<?php echo sq_web_path('lib'); ?>','returnenvelope')" style="text-decoration:none;"><img name="expandreturnenvelope" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/del.png" border="0" /><span style="border:0;font-size:13px;font-family:tahoma;color:#0099FF;font-weight:bold"> View Response Envelope</span></a><br />
 
 						<div id="returnenvelope" style="display:;margin-top:10px;margin-left:12px;margin-bottom:10px;">
 						<?php
