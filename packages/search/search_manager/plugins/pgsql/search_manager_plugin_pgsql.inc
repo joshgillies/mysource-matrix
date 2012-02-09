@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.38 2011/02/08 03:08:53 cupreti Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.39 2012/02/09 03:06:11 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -495,7 +495,7 @@ class Search_Manager_Plugin_PgSQL
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
 			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
-				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON (p.userid = r.roleid AND r.assetid=a.assetid) ';
 			}
 
 			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
