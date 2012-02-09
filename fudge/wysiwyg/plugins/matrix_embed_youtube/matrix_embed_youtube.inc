@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.7 2011/12/09 03:25:45 cupreti Exp $
+* $Id: matrix_embed_youtube.inc,v 1.7.2.1 2012/02/09 02:51:18 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -245,10 +245,10 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			$movie_url = '';
 			$add_suffix_vars = TRUE;
 			if (isset($movie_vars['video_url']) && !empty($movie_vars['video_url'])) {
-				if (preg_match('/youtube(.*)v[\/|=](.+?)&/', $movie_vars['video_url'], $v_match)) {
-					if (isset($v_match[2]) && !empty($v_match[2])) {
+				if (preg_match('/youtu(\.?)be(.*)(v?)[\/|=](.+?)&/', $movie_vars['video_url'], $v_match)) {
+					if (isset($v_match[4]) && !empty($v_match[4])) {
 						// I found the video id
-						$movie_url = $movie_url_prefix.$v_match[2];
+						$movie_url = $movie_url_prefix.$v_match[4];
 					} else {
 						// Pray, the url is correct
 						$movie_url = $movie_vars['video_url'];
