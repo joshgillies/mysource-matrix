@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.127 2011/09/09 03:51:57 cupreti Exp $
+* $Id: site.inc,v 1.128 2012/02/09 04:29:57 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -848,6 +848,12 @@ class Site extends Folder
 			$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
 		}
 
+		// ignore current url, use assetid as cache key, to globally cache the 404 page
+		if($this->attr('not_found_page_cache_globally') == TRUE) {
+		    $cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		    $cm->global_cache = TRUE;
+		}
+		
 		if (!is_null($design)) {
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
@@ -872,6 +878,10 @@ class Site extends Folder
 		} else {
 			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
+		}
+		
+		if($this->attr('not_found_page_cache_globally') === TRUE) {
+		      $cm->global_cache = FALSE;
 		}
 
 	}//end paintAsset()

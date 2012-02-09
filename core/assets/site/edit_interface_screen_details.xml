@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2011/08/04 05:12:25 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.21 2012/02/09 04:29:57 ewang Exp $
 *
 */
 -->
@@ -53,6 +53,9 @@
 				<paint_function   name="paintNotFoundPagePaintLayout"   />
 				<process_function name="processNotFoundPagePaintLayout" />
 			</function_call>
+		</field>
+		<field  attribute="not_found_page_cache_globally">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>
