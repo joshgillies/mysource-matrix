@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.61 2011/11/10 22:11:56 cupreti Exp $
+* $Id: text.inc,v 1.62 2012/02/09 05:19:41 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package Fudge
 * @subpackage Text
 */
@@ -674,7 +674,7 @@ function remove_silent_chars($text, $not_indexing=FALSE, $oracle_keyword=FALSE)
 		// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
 		// The following pattern matches most email addresses, but it will need to be review to match all email addresses
 		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
-		$text = preg_replace($email_pattern, '"$1".str_replace(".", "", "$2")', $text);
+		$text = preg_replace($email_pattern, 'str_replace(".", "", "$1").str_replace(".", "", "$2")', $text);
 
 		// Remove apostrophe ('), e.g. you've => youve
 		$text = str_replace('\'', '', $text);
