@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.860 2012/02/06 04:05:22 ewang Exp $
+* $Id: asset_manager.inc,v 1.861 2012/02/09 02:40:45 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.860 $
+* @version $Revision: 1.861 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3497,7 +3497,7 @@ class Asset_Manager extends MySource_Object
 				$group_by = 'GROUP BY t.treeid, l.linkid, l.minorid, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive, a.assetid, a.short_name, a.type_code, a.name';
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
+					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
 
 					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
