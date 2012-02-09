@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.92 2011/11/02 22:54:35 cupreti Exp $
+* $Id: cache_manager.inc,v 1.92.2.1 2012/02/09 05:08:58 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.92.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,14 @@ class Cache_Manager extends Asset
 	*/
 	protected $_storage;
 
+	/**
+	* Ignore current url, use assetid as cache key to create a global cache enrty
+	*
+	* @var boolean
+	*/
+	public $global_cache = FALSE;
+	
+	
 
 	/**
 	* Constructor
@@ -184,7 +192,7 @@ class Cache_Manager extends Asset
 
 		if (empty($perm_key)) return FALSE;
 
-		if ($use_url) {
+		if ($use_url && !$this->global_cache) {
 			$url = current_url();
 			// append the query string (if any)
 			if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
@@ -224,7 +232,7 @@ class Cache_Manager extends Asset
 		
 		if (empty($perm_key)) return FALSE;
 
-		if ($use_url) {
+		if ($use_url && !$this->global_cache) {
 			$url = current_url();
 			// append the query string (if any)
 			if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2011/08/04 05:12:25 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.6.4.1 2012/02/09 05:08:58 ewang Exp $
 *
 */
 -->
@@ -64,6 +64,11 @@
 				<paint_function   name="paintNotFoundPagePaintLayout"   />
 				<process_function name="processNotFoundPagePaintLayout" />
 			</function_call>			
+		</field>
+		<field  attribute="not_found_page_cache_globally">
+		    	<display_name>Cache Globally</display_name>
+			<note>When enabled this Not Found Page will share a common cache entry everywhere it is used, irrespective of the URL. Enable if you can guarantee the Not Found Page content is not dynamic based on URL. </note>
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>
