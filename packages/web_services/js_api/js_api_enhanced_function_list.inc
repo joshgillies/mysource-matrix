@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.13 2011/08/30 03:00:07 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.13.2.1 2012/02/09 00:11:03 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1033,7 +1033,7 @@ class Js_Api_Enhanced_Function_List
 				['sort_order', options.sort_order],
 				['is_dependant', options.is_dependant],
 				['is_exclusive', options.is_exclusive],
-				['extra_attributes', options.extra_attributes + '&' + options.attributes],
+				['extra_attributes', options.extra_attributes + '&' + options.attributes]
 			],options);
 
 		},// end createAsset
