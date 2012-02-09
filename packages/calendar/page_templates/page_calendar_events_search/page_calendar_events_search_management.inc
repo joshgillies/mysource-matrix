@@ -1,4 +1,4 @@
-sf<?php
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
@@ -10,7 +10,7 @@ sf<?php
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_management.inc,v 1.2 2012/01/27 05:41:33 cupreti Exp $
+* $Id: page_calendar_events_search_management.inc,v 1.3 2012/02/09 00:32:48 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
