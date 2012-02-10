@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.9 2012/02/08 01:28:08 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.10 2012/02/10 01:23:58 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -344,16 +344,22 @@ class Page_Calendar_Events_Search extends Search_Page
 	*/
 	function isEmptyQuery($query)
 	{
-		$empty = TRUE;
+		// Date filter queries grouping logic
+		$grouping_logic = $this->attr('events_filter_logic');
+		
+		$empty = $grouping_logic == 'AND' ? TRUE : FALSE;
 		foreach($query as $field => $val) {
 			foreach($val as $query_data) {
-				if (!empty($query_data['from']) && !empty($query_data['to'])) {
+				if ($grouping_logic == 'AND' && !empty($query_data['from']) && !empty($query_data['to'])) {
 					$empty = FALSE;
+					break 2;
+				} else if ($grouping_logic == 'OR' && empty($query_data['from']) && empty($query_data['to'])) {
+					$empty = TRUE;
 					break 2;
 				}
 			}
 		}
-		
+			
 		return $empty;
 		
 	}//end isEmptyQuery()
@@ -383,8 +389,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			$clean_query_var = str_replace('.', '_', $query_var);
 
 			$queries[$field_name] = $this->_processDateFilter($query_var, $field_details['type']);
-			
-			if (empty($queries[$field_name])) {
+			if (!isset($queries[$field_name][0]['from'])) {
 				$queries[$field_name] = $this->_getStoredQueryValue($field_name, $filters[$field_name]['type']);
 			}
 
@@ -558,12 +563,11 @@ class Page_Calendar_Events_Search extends Search_Page
 		$read_only = FALSE;
 		
 		$current_value = $this->_processDateFilter('queries_'.$query_var, $filters[$filter_name]['type']);
-		
-		if (empty($current_value)) {
+		if (!isset($current_value[0]['from'])) {
 			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]['type']);
 		}
 
-		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());		
+		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());
 		foreach($fuzzy_date_options as $key => $val) {
 			$fuzzy_date_options[$val] = str_replace('_', ' ', ucfirst($val));
 			unset($fuzzy_date_options[$key]);
@@ -580,7 +584,10 @@ class Page_Calendar_Events_Search extends Search_Page
 					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), FALSE, $filters[$filter_name]['use_picker']);
 				break;
 				
-				case 'fuzzy_dropdown':					
+				case 'fuzzy_dropdown':
+					$fuzzy_date_options = array_reverse($fuzzy_date_options, TRUE);
+					$fuzzy_date_options['none'] = '';
+					$fuzzy_date_options = array_reverse($fuzzy_date_options, TRUE);
 					combo_box('queries_'.$query_var, $fuzzy_date_options, FALSE, isset($current_value[0]) ? array_get_index($current_value[0], 'fuzzy_type', '') : '');
 				break;
 				
@@ -990,7 +997,12 @@ class Page_Calendar_Events_Search extends Search_Page
 			case 'anytime':
 				$from = '1970-01-01';
 				$to = '2030-12-31';
-			break;			
+			break;
+
+			case 'none':
+				$from = '';
+				$to = '';
+			break;
 		
 		}//end switch		
 		
