@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.35 2011/12/14 04:36:13 cupreti Exp $
+* $Id: logs.inc,v 1.36 2012/02/13 00:48:38 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -56,6 +56,12 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		$active_log_types = $_REQUEST[$_combo_box_name];
 	} else {
 		$active_log_types = (!empty($log_types) && isset($log_types[0])) ? Array($log_types[0]) : Array();
+	}
+
+    // Make sure it's an array - in case the user has clicked a link that's setting
+    // the log type to a particular value.
+	if (!is_array($active_log_types)) {
+		$active_log_types = array($active_log_types);
 	}
 
 	$selected_key = NULL;
