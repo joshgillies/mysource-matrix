@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.26 2007/05/08 02:28:37 rong Exp $
+* $Id: AssetMap.java,v 1.27 2012/02/12 23:51:25 ewang Exp $
 *
 */
 
@@ -115,7 +115,6 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 	 */
 	public void start() {
 
-		javaVersionCheck();
 		initAssetMap();
 		startPolling();
 	}
