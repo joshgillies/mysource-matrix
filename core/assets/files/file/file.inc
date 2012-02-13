@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.207 2012/02/13 00:19:19 cupreti Exp $
+* $Id: file.inc,v 1.208 2012/02/13 00:23:59 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1321,7 +1321,7 @@ class File extends Asset
 			header('Content-Type: '.$type);
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Content-Length: '.$existing['size']);
-			ob_end_clean();
+			ob_end_flush();
 			
 			readfile($existing['path']);
 
