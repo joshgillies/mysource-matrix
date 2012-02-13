@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.338 2011/11/30 05:55:49 akarelia Exp $
+* $Id: listing_engine.inc,v 1.339 2012/02/13 05:19:10 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.338 $
+* @version $Revision: 1.339 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -608,11 +608,13 @@ class Listing_Engine extends Page
 			// by this time we have all the replacements for our regular keywords
 			// check to see if there are any modifiers passed on to us
 			foreach ($replacements as $kw => $res) {
-				$plain_keyword = parse_keyword($kw, $modifiers);
-				if (!empty($modifiers)) {
-					$replacements[$kw] = $replacements[$plain_keyword];
-					// Apply modifiers
-					apply_keyword_modifiers($replacements[$kw], $modifiers);
+				if ($res == '%'.$kw.'%') {
+					$plain_keyword = parse_keyword($kw, $modifiers);
+					if (isset($replacements[$plain_keyword]) && !empty($modifiers)) {
+						$replacements[$kw] = $replacements[$plain_keyword];
+						// Apply modifiers
+						apply_keyword_modifiers($replacements[$kw], $modifiers);
+					}
 				}
 			}
 
@@ -873,21 +875,23 @@ class Listing_Engine extends Page
 			$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
 		}
 		$replacements['select_all_js_code'] = '%select_all_js_code%';
-
+		
 		// by this time we have all the replacements for our regular keywords
 		// check to see if there are any modifiers passed on to us
 		foreach ($replacements as $kw => $res) {
-			$plain_keyword = parse_keyword($kw, $modifiers);
-			// check to see if the keyword is actually replaced and 
-			// the replacement isn't just the keyword itself
-			$keywords_is_replaced = ($replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword);
-			if (!empty($modifiers) && $keywords_is_replaced) {
-				$replacements[$kw] = $replacements[$plain_keyword];
-				// Apply modifiers
-				apply_keyword_modifiers($replacements[$kw], $modifiers);
+			if ($res == '%'.$kw.'%') {
+				$plain_keyword = parse_keyword($kw, $modifiers);
+				// check to see if the keyword is actually replaced and 
+				// the replacement isn't just the keyword itself
+				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword;
+				if (!empty($modifiers) && $keywords_is_replaced) {
+					$replacements[$kw] = $replacements[$plain_keyword];
+					// Apply modifiers
+					apply_keyword_modifiers($replacements[$kw], $modifiers);
+				}
 			}
 		}
-
+		
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
 		if (!in_array('select_all_js_code', $keywords)) {
