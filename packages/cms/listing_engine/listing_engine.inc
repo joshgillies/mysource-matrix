@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.322.2.8 2011/11/30 05:58:36 akarelia Exp $
+* $Id: listing_engine.inc,v 1.322.2.9 2012/02/13 06:48:09 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.322.2.8 $
+* @version $Revision: 1.322.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -608,11 +608,13 @@ class Listing_Engine extends Page
 			// by this time we have all the replacements for our regular keywords
 			// check to see if there are any modifiers passed on to us
 			foreach ($replacements as $kw => $res) {
-				$plain_keyword = parse_keyword($kw, $modifiers);
-				if (!empty($modifiers)) {
-					$replacements[$kw] = $replacements[$plain_keyword];
-					// Apply modifiers
-					apply_keyword_modifiers($replacements[$kw], $modifiers);
+				if ($res == '%'.$kw.'%') {
+					$plain_keyword = parse_keyword($kw, $modifiers);
+					if (isset($replacements[$plain_keyword]) && !empty($modifiers)) {
+						$replacements[$kw] = $replacements[$plain_keyword];
+						// Apply modifiers
+						apply_keyword_modifiers($replacements[$kw], $modifiers);
+					}
 				}
 			}
 
@@ -864,14 +866,16 @@ class Listing_Engine extends Page
 		// by this time we have all the replacements for our regular keywords
 		// check to see if there are any modifiers passed on to us
 		foreach ($replacements as $kw => $res) {
-			$plain_keyword = parse_keyword($kw, $modifiers);
-			// check to see if the keyword is actually replaced and 
-			// the replacement isn't just the keyword itself
-			$keywords_is_replaced = ($replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword);
-			if (!empty($modifiers) && $keywords_is_replaced) {
-				$replacements[$kw] = $replacements[$plain_keyword];
-				// Apply modifiers
-				apply_keyword_modifiers($replacements[$kw], $modifiers);
+			if ($res == '%'.$kw.'%') {
+				$plain_keyword = parse_keyword($kw, $modifiers);
+				// check to see if the keyword is actually replaced and 
+				// the replacement isn't just the keyword itself
+				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword;
+				if (!empty($modifiers) && $keywords_is_replaced) {
+					$replacements[$kw] = $replacements[$plain_keyword];
+					// Apply modifiers
+					apply_keyword_modifiers($replacements[$kw], $modifiers);
+				}
 			}
 		}
 
