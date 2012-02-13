@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.5.2.2 2012/02/05 23:10:19 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.5.2.4 2012/02/08 01:28:40 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5.2.2 $
+* @version $Revision: 1.5.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -385,25 +385,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			$queries[$field_name] = $this->_processDateFilter($query_var, $field_details['type']);
 			
 			if (empty($queries[$field_name])) {
-				$query = Array();
-				if (is_array($pmap_params) && !empty($pmap_params)) {
-					// Check for current field
-					if (in_array('f:'.$field_name, $pmap_params)) {
-						$key_field = array_search('f:'.$field_name, $pmap_params);
-						$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);				
-						replace_global_keywords($raw_val);
-						
-						$pq_data = explode(',', trim($raw_val));				
-						if (count($pq_data) == 2) {
-							list($from, $to) = $pq_data;
-							$query[] = Array(
-										'from' => trim($from),
-										'to' => trim($to),
-									);
-						}						
-					}
-				}				
-				$queries[$field_name] = $query;				
+				$queries[$field_name] = $this->_getStoredQueryValue($field_name, $filters[$field_name]['type']);
 			}
 
 		}//end foreach fields
@@ -413,7 +395,7 @@ class Page_Calendar_Events_Search extends Search_Page
 		if (empty($queries) && !empty($this->_tmp['potential_searched_fqueries'])) {
 			$queries = $this->_tmp['potential_searched_fqueries'];
 		}
-
+		
 		return $queries;
 	
 	}//end _getEventSearchQuery()	
@@ -478,6 +460,79 @@ class Page_Calendar_Events_Search extends Search_Page
 
 	}//end getGeneralReplacement()	
 	
+	/*
+	* Get the value of a stored stored session variable 
+	* for the given field, if any
+	*
+	* @param string $filter_name
+	* @param string $filter_type
+	*
+	* @return array
+	* @access private
+	*/	
+	function _getStoredQueryValue($filter_name, $filter_type)
+	{
+		$query = Array();		
+		
+		// Don't touch it if there was some SESSION var already set
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();
+		
+		if (is_array($pmap_params) && !empty($pmap_params)) {
+			// Check for current field
+			if (in_array('f:'.$filter_name, $pmap_params)) {
+				$key_field = array_search('f:'.$filter_name, $pmap_params);
+				$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);
+				replace_global_keywords($raw_val);	
+				// Values are expected to be in following format:
+				//
+				// Single date: [DATE]
+				// Range date: [FROM_DATE],[TO_DATE]
+				// Fuzzy dropdown: fuzzy_type
+				// Fuzzy checkbox: fuzzy_type1,fuzzy_type2,...
+				// where date are in YYYY-MM-DD format
+				
+				switch ($filter_type) {
+					case 'single_date':
+						$query[] = Array(
+									'from' => trim($raw_val),
+									'to' => trim($raw_val),
+								);
+					break;
+					
+					case 'date_range':
+						$pq_data = explode(',', $raw_val);						
+						list($from, $to) = $pq_data;
+						$query[] = Array(
+									'from' => trim($from),
+									'to' => trim($to),
+								);
+					break;
+			
+					case 'fuzzy_dropdown':
+					$raw_val = trim($raw_val);
+					if (isset($this->fuzzy_date_types[$raw_val])) {
+						$query[] = $this->_processFuzzyDate($raw_val);
+					}
+					break;
+			
+					case 'fuzzy_checkboxes':
+						$fuzzy_types = explode(',', $raw_val);
+						foreach($fuzzy_types as $fuzzy_type) {
+							$fuzzy_type = trim($fuzzy_type);
+							if (isset($this->fuzzy_date_types[$fuzzy_type])) {
+								$query[] = $this->_processFuzzyDate($fuzzy_type);
+							}
+						}
+					break;
+				}
+			}
+		}
+		
+		return $query;
+	
+	}//end _getStoredQueryValue()
+	
 
 	/**
 	* Get the html content for the given event filter field
@@ -501,38 +556,13 @@ class Page_Calendar_Events_Search extends Search_Page
 			$query = array_get_index($_SESSION['SQ_LAST_EVENT_SEARCH'][$this->id], $filter_name, Array());
 		}
 		$read_only = FALSE;
-
-		// Check if a stored stored session variable is set and set query to match
-		// But don't touch it if there was some SESSION var already set
-		$pmap = $this->getAttribute('stored_query_session');
-		$pmap_params = $pmap->getParameters();
 		
-		if (is_array($pmap_params) && !empty($pmap_params)) {
-			// Check for current field
-			if (in_array('f:'.$filter_name, $pmap_params)) {
-				$key_field = array_search('f:'.$filter_name, $pmap_params);
-				$raw_val = $pmap->getParameterValue($pmap_params[$key_field]);				
-				replace_global_keywords($raw_val);
-				
-				// Values are expected to be in following format:
-				// [FROM_DATE],[TO_DATE], where date are in YYYY-MM-DD format				
-				$pq_data = explode(',', trim($raw_val, '() '));				
-				if (count($pq_data) == 2) {
-					list($from, $to) = $pq_data;
-					$query[] = Array(
-								'from' => trim($from),
-								'to' => trim($to),
-							);
-				}				
-				
-				if ($filters[$filter_name]['type'] == 'single_date' || $filters[$filter_name]['type'] == 'date_range') {
-					$query = array_get_index($query, 0, Array());
-				}
-			}
+		$current_value = $this->_processDateFilter('queries_'.$query_var, $filters[$filter_name]['type']);
+		
+		if (empty($current_value)) {
+			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]['type']);
 		}
-		
-		$current_value = $query;
-		
+
 		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());		
 		foreach($fuzzy_date_options as $key => $val) {
 			$fuzzy_date_options[$val] = str_replace('_', ' ', ucfirst($val));
@@ -543,11 +573,11 @@ class Page_Calendar_Events_Search extends Search_Page
 			
 			switch($filters[$filter_name]['type']) {
 				case 'single_date':	
-					$this->_printDateRange('queries_'.$query_var, $current_value, TRUE, $filters[$filter_name]['use_picker']);
+					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), TRUE, $filters[$filter_name]['use_picker']);
 				break;
 				
-				case 'date_range':
-					$this->_printDateRange('queries_'.$query_var, $current_value, FALSE, $filters[$filter_name]['use_picker']);
+				case 'date_range':				
+					$this->_printDateRange('queries_'.$query_var, array_get_index($current_value, 0, Array()), FALSE, $filters[$filter_name]['use_picker']);
 				break;
 				
 				case 'fuzzy_dropdown':					
@@ -563,7 +593,7 @@ class Page_Calendar_Events_Search extends Search_Page
 					}//end foreach
 					foreach($fuzzy_date_options as $key => $val) {
 						echo "<br />";
-						check_box('queries_'.$query_var.'[]', $key, in_array($key, $selected_opts));
+						check_box('queries_'.$query_var.'_raw[]', $key, in_array($key, $selected_opts));
 						echo "&nbsp;$val";
 					}//end foreach
 				
@@ -596,7 +626,7 @@ class Page_Calendar_Events_Search extends Search_Page
 	* @access private
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $single_field=TRUE, $use_picker=TRUE, $read_only=FALSE)
-	{	
+	{		
 		if (!isset($current_value['from'])) {
 			$current_value['from'] = '---------- --:--:--';
 		}
@@ -811,13 +841,22 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 			break;
 			
-			case 'fuzzy_checkboxes':
-				if (isset($_REQUEST[$field_name])) {
-					foreach($_REQUEST[$field_name] as $index => $selected_date_type) {
-						$result[$index] = $this->_processFuzzyDate($selected_date_type);
+			case 'fuzzy_checkboxes':			
+				$fuzzy_types = Array();
+				if (isset($_REQUEST[$field_name.'_raw'])) {
+					// submitted via form
+					$fuzzy_types = $_REQUEST[$field_name.'_raw'];
+				} else if (isset($_REQUEST[$field_name])) {
+					// submitted via stored search
+					$fuzzy_types = explode(',', $_REQUEST[$field_name]);
+				}
+				
+				if (!empty($fuzzy_types)) {
+					foreach($fuzzy_types as $index => $selected_date_type) {
+						$result[$index] = $this->_processFuzzyDate(trim($selected_date_type));
 					}//end foreach
 				}
-			break;			
+			break;
 		
 		}//end switch			
 
