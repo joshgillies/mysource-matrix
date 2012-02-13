@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.3 2012/02/08 03:47:14 akarelia Exp $
+* $Id: js_api.inc,v 1.96.2.4 2012/02/13 23:33:10 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.3 $
+* @version $Revision: 1.96.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2038,14 +2038,15 @@ class JS_Api extends Page
 		}
 		
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
-		
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+
 		$result_lineages = Array();
 		$linkid_done = Array();		
 		
 		foreach ($raw_lineages as $index => $val) {
 			$data = Array();
 			$minorid = $asset->id;
-			$parent_lineage_assetids = array_reverse(array_keys($val['lineage']));
+			$parent_lineage_assetids = array_merge(array_reverse(array_keys($val['lineage'])), Array($root_folder->id));
 			foreach($parent_lineage_assetids as $majorid) {
 				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
@@ -2078,6 +2079,8 @@ class JS_Api extends Page
 			
 			$result_lineages = array_merge($result_lineages, array_reverse($data));
 		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_folder);
 
 		return $result_lineages;
 
