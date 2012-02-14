@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.15 2011/11/07 23:06:28 csmith Exp $
+* $Id: proxy_authentication_config.inc,v 1.16 2012/02/14 22:58:42 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -369,6 +369,8 @@ class Proxy_Authentication_Config extends Config
 
 	public function processAlternativeProxies(&$vars)
 	{
+
+	    
 		if (defined('SQ_PA_ALTERNATIVES')) {
 			$all_proxies = SQ_PA_ALTERNATIVES;
 			if (trim($all_proxies) !== '') {
@@ -436,6 +438,11 @@ class Proxy_Authentication_Config extends Config
 	*/
 	function save($vars, $backup_existing=FALSE)
 	{
+	    	// attempt to load the config file to make sure we get any current settings
+		if (file_exists($this->config_file)) {
+			require_once $this->config_file;
+		}
+		
 		$this->processAlternativeProxies($vars);
 
 		// encode password
