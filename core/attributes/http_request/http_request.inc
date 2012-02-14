@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.13 2011/12/22 16:48:09 mmaruyama Exp $
+* $Id: http_request.inc,v 1.13.2.1 2012/02/14 23:45:20 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -515,6 +515,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if ($this->_config['append_get_vars']) {
 			$query_vars = $collection_var = '';
 			foreach ($_GET as $query => $param) {
+				$param = str_replace(' ', '+', $param);
 				if ($query == 'collection') {
 					$collection_var .= '&'.$query.'='.$param;
 					continue;
@@ -533,8 +534,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if ($this->_config['forward_user_keys']) {
 			$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
 			$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
-			$user_keys = '&userkeys='.implode(',', $user_info);
+			$user_keys = 'userkeys='.implode(',', $user_info);
 			foreach ($this->_res['request']['urls'] as $index => $url) {
+				$url .= (strpos($url, '?') === FALSE) ? '?' : '&';
 				$this->_res['request']['urls'][$index] = $url.$user_keys;
 			}
 			// also forward the ip the user request is coming from
