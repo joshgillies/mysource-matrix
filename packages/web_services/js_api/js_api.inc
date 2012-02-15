@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.7 2012/02/13 23:33:45 cupreti Exp $
+* $Id: js_api.inc,v 1.93.2.8 2012/02/15 00:13:24 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.7 $
+* @version $Revision: 1.93.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2053,22 +2053,22 @@ class JS_Api extends Page
 				
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($major_asset->id, $minor_asset->id);				
 				
-				if (!in_array($link['linkid'], $linkid_done)) {
-				
+				if (!in_array($link['linkid'], $linkid_done)) {				
 					$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
-					
-					$info = Array();
-					$info['tree_id']			= $treeid_data[$link['linkid']][0][0];
-					$info['assetid']			= $minor_asset->id;
-					$info['name']				= $minor_asset->name;
-					$info['type_code']			= $minor_asset->type();
-					$info['link_type']			= $link['link_type'];
-					$info['link_value']			= $link['value'];
-					$info['linkid']				= $link['linkid'];					
-					$info['parent_assetid']		= $major_asset->id;
-					$info['parent_type_code']	= $major_asset->type();
-					
-					$data[] = $info;
+					foreach($treeid_data[$link['linkid']] as $treeid) {					
+						$info = Array();
+						$info['tree_id']			= $treeid[0];
+						$info['assetid']			= $minor_asset->id;
+						$info['name']				= $minor_asset->name;
+						$info['type_code']			= $minor_asset->type();
+						$info['link_type']			= $link['link_type'];
+						$info['link_value']			= $link['value'];
+						$info['linkid']				= $link['linkid'];					
+						$info['parent_assetid']		= $major_asset->id;
+						$info['parent_type_code']	= $major_asset->type();
+						
+						$data[] = $info;
+					}
 					$linkid_done[] = $link['linkid'];
 				}
 				
