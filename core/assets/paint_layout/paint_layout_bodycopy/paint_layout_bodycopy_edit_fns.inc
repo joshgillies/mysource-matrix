@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.12 2007/12/03 01:11:45 lwright Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.13 2012/02/15 04:42:34 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,12 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 		$allowed_keywords = Array();
 		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
 		$allowed_keywords = array_keys($allowed_keywords);
+
+		if ($asset->getAssociatedAssetType() == 'form_submission') {
+			foreach ($allowed_keywords as $idx => $allowed_keyword) {
+				$allowed_keywords[$idx] = preg_replace('/(.*_)(X_qY)$/', '$1', $allowed_keyword);
+			}
+		}
 
 		$write_access = $asset->writeAccess('attributes');
 		$condition_list = new Conditions_List($asset, 'conditional_keywords');
