@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.160 2011/11/23 05:07:36 akarelia Exp $
+* $Id: html_form.inc,v 1.161 2012/02/15 23:39:00 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1410,7 +1410,7 @@ function get_url_tester_url($name)
 */
 function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE, $permission=NULL)
 {
-	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id, 0, $permission);
+	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id, 0, $permission, TRUE, 'gc_', $max_depth);
 
 	$child_links = $all_child_links;
 	$search_tree = Array();
