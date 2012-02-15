@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.1 2012/02/15 04:17:08 mhaidar Exp $
+* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.2 2012/02/15 05:51:38 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -92,7 +92,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 				Array(
 					'name'			=> 'Initialising Export',
 					'function_call'	=> Array(
-										'process_function'	=> 'initialisingExport',
+										'process_function'	=> 'initialiseExport',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
@@ -118,7 +118,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 				Array(
 					'name'			=> 'Finalising Export',
 					'function_call'	=> Array(
-										'process_function'	=> 'finalisingExport',
+										'process_function'	=> 'finaliseExport',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
@@ -179,10 +179,18 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 	*/
 	function freestyle()
 	{
+		if (!$this->initialiseExport($this->_steps[0], get_class($this))) {
+			return FALSE;
+		}
+			
 		while (!empty($this->_running_vars['todo_export_assets'])) {
-			if (!$this->generateAssetDataXML($this->_steps[0], get_class($this))) {
+			if (!$this->generateXML($this->_steps[1], get_class($this))) {
 				return FALSE;
 			}
+		}
+		
+		if (!$this->finaliseExport($this->_steps[2], get_class($this))) {
+			return FALSE;
 		}
 		
 		return TRUE;
@@ -191,7 +199,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 
 	
 	/**
-	* Initialising Export
+	* Initialise Export
 	*
 	* @param array	&$step_data	step data
 	* @param string	$prefix		unique prefix
@@ -199,7 +207,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function initialisingExport(&$step_data, $prefix)
+	function initialiseExport(&$step_data, $prefix)
 	{
 		ob_start();
 		echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
@@ -212,7 +220,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		
 		return TRUE;
 		
-	}//end initialisingExport()
+	}//end initialiseExport()
 	
 	
 	/**
@@ -283,7 +291,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 
 	
 	/**
-	* Finalising Export
+	* Finalise Export
 	*
 	* @param array	&$step_data	step data
 	* @param string	$prefix		unique prefix
@@ -291,7 +299,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function finalisingExport(&$step_data, $prefix)
+	function finaliseExport(&$step_data, $prefix)
 	{
 		ob_start();
 		
@@ -318,7 +326,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		
 		return TRUE;
 		
-	}//end finalisingExport()
+	}//end finaliseExport()
 	
 	
 	/**
@@ -334,7 +342,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		$settings = isset($this->_running_vars['export_settings'][$asset->type()]) ? $this->_running_vars['export_settings'][$asset->type()] : Array();
 		
 		$start_tag = array_get_index($settings, 'start_tag', '');
-		$end_tag = array_get_index($settings, 'start_tag', '');
+		$end_tag = array_get_index($settings, 'end_tag', '');
 		$paint_method = array_get_index($settings, 'paint_method', 'raw');
 		
 		echo "<name><![CDATA[".trim($asset->attr('name'))."]]></name>";
