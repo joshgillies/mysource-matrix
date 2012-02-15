@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_online_quiz_to_xml.inc,v 1.1 2012/02/15 04:17:08 mhaidar Exp $
+* $Id: tool_export_online_quiz_to_xml.inc,v 1.2 2012/02/15 23:38:35 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Export Online Quiz Assets to XML File for utilisation in SCORM development.
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,10 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			$ext = 'tgz';
 			$type	= (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
-	
+			
+			// We are about to get our download so let go of the lock
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($import_mgr->id, 'attributes');
+			
 			// Fix for IE caching
 			header("Pragma: public");
 			header("Expires: 0");
@@ -129,8 +132,7 @@ class Tool_Export_Online_Quiz_To_XML extends Tool
 			header('Content-Length: '.$filesize);
 
 			readfile($export_dir.'/export.tgz');
-			@ob_flush();
-			return;
+			exit;
 		}
 		
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
