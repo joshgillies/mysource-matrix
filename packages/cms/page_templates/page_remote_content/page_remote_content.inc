@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.89 2011/11/08 23:19:28 csmith Exp $
+* $Id: page_remote_content.inc,v 1.89.2.1 2012/02/15 01:06:01 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.89.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -250,13 +250,13 @@ class Page_Remote_Content extends Page
 
 		// If we have already handled this complete URL, mark it as such
 		$processed = array_get_index($this->_tmp, 'processed', Array());
-		if (array_get_index($processed, $url, FALSE)) {
-			return NULL;
+		if (isset($processed[$url])) {
+			return $processed[$url];
 		}
 
-		// here we mark that we've attempted processing of this request and that it failed
-		// requires explicit override on success
-		$this->_tmp['processed'][$url] = TRUE;
+		// here we mark that we've attempted processing of this request
+		// if the processing turns out to successfull later, we will set as "null" then
+		$this->_tmp['processed'][$url] = FALSE;
 
 		$post_data = NULL;
 		$post_is_encoded = FALSE;
@@ -454,7 +454,11 @@ class Page_Remote_Content extends Page
 			$this->_transformContent($this->_tmp['content'][$this->_tmp['url']]);
 		}
 
+		// Mark the successful processing of this url
+		$this->_tmp['processed'][$url] = NULL;
+
 		return TRUE;
+
 	}//end _process()
 
 
