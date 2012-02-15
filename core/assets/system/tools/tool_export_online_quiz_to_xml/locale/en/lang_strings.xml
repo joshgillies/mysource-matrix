@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2012/02/15 04:17:08 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.2 2012/02/15 23:36:54 mhaidar Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 
 <strings>
 	<string source="tool_export_online_quiz_to_xml_root_node">Root Node</string>
-	<string source="tool_export_online_quiz_to_xml_root_node_note">Select the Root Node to export child assets from.</string>
+	<string source="tool_export_online_quiz_to_xml_root_node_note">Select the Root Node to export from.</string>
 	<string source="tool_export_online_quiz_to_xml_type_codes">Asset Types</string>
 	<string source="tool_export_online_quiz_to_xml_type_codes_note"><![CDATA[
 	The Online Quiz export includes Online Quiz Multi-choice Questions and Online Quiz Question Groups. See the manual for details of the export format. <br />
@@ -32,5 +32,5 @@
 	<string source="tool_export_online_quiz_to_xml_standard_page_settings">Standard Page Export Settings</string>
 	<string source="tool_export_online_quiz_to_xml_standard_page_settings_note">These settings control what will be placed
 	in the contents tag for Standard Page assets. You may optionally extract the contents between the start and end tags.</string>
-	<string source="tool_export_online_quiz_to_xml_can_not_acquire_lock">The locks on the Import Tools Manager are currently held by user #%s Only one user is allowed use of this screen at a time.</string>
+	<string source="tool_export_online_quiz_to_xml_can_not_acquire_lock">The locks on the Import Tools Manager are currently held by user #%s. Only one user is allowed use of this screen at a time.</string>
 </strings>

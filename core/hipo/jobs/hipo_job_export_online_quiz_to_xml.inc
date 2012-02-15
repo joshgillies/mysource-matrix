@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.2 2012/02/15 05:51:38 mhaidar Exp $
+* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.3 2012/02/15 23:36:53 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -164,6 +164,15 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		
 		//Important that we do not filter the asset types, link types or permissions here so the asset map hierarchy can be tracked fully.
 		$children = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->_running_vars['root_node'], SQ_SC_LINK_SIGNIFICANT);
+		//Add the root node
+		$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_node']);
+		array_unshift($children, Array (
+									"lvl" => "0",
+									"assetid" => $root_asset->id,
+									"type_code" => $root_asset->type(),
+									"link_type" => "1",
+									"is_dependant" => "0",
+								));
 		$this->_running_vars['todo_export_assets'] = $children;
 
 		return parent::prepare();
@@ -380,20 +389,21 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 	*/
 	function generatePageOnlineQuizXML(Page_Online_Quiz $asset)
 	{
-		echo "<name><![CDATA[".trim($asset->name)."]]></name>\n";
+		echo "<name><![CDATA[".trim($asset->attr('name'))."]]></name>\n";
 		
 		$pool_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 		
 		$question_group_ids = Array();
 		foreach ($pool_links as $link){
+			//the pool is a question group itself
 			$pool_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 			if ($pool_asset && $pool_asset->type() == 'online_quiz_question_group'){
 				$question_group_ids[$link['minorid']][] = $link['minorid'];
-			} else {
-				$question_groups = $GLOBALS['SQ_SYSTEM']->am->getParents($link['minorid'], 'online_quiz_question_group', TRUE, NULL, SQ_PERMISSION_READ);
-				foreach (array_keys($question_groups) as $question_group_id) {
-					$question_group_ids[$question_group_id][] = $link['minorid'];
-				}
+			}
+			//the pool has a parent question group
+			$question_groups = $GLOBALS['SQ_SYSTEM']->am->getParents($link['minorid'], 'online_quiz_question_group', TRUE, NULL, SQ_PERMISSION_READ);
+			foreach (array_keys($question_groups) as $question_group_id) {
+				$question_group_ids[$question_group_id][] = $link['minorid'];
 			}
 		}
 
@@ -402,7 +412,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 			if (is_null($question_group)) continue;
 			//need to do referencing in the XML because coming up with a nested XML structure for this is very messy!
 			echo "<".$question_group->type()." pool_nodes=\"".implode(',', $pool_nodes)."\">\n";
-			echo "<name><![CDATA[".trim($question_group->name)."]]></name>\n";
+			echo "<name><![CDATA[".trim($question_group->attr('name'))."]]></name>\n";
 			$score_categories = $question_group->attr('score_categories');
 			foreach ($score_categories as $category){
 				echo "<score_category>\n";
