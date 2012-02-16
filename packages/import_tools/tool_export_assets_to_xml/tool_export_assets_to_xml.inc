@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.2.4.2 2011/11/23 01:28:00 ewang Exp $
+* $Id: tool_export_assets_to_xml.inc,v 1.2.4.3 2012/02/16 03:56:49 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2.4.2 $
+* @version $Revision: 1.2.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -93,6 +93,8 @@ class Tool_Export_Assets_To_Xml extends Tool
 		}
 		else if (isset($_REQUEST['download'])) {
 			$export_dir = SQ_DATA_PATH.'/private/export_assets';
+			if (!create_directory($export_dir)) return FALSE;
+			
 			$command = "cd $export_dir ; tar -czf export.tgz * --remove-files";
 			exec($command, $output, $return);
 
@@ -205,10 +207,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 		
 		// make export temp directory
 		$export_dir = SQ_DATA_PATH.'/private/export_assets';
-		if (!is_dir($export_dir))
-		{
-			mkdir($export_dir);
-		} 
+		if (!create_directory($export_dir)) return FALSE;
 		
 		// clean up before export				
 		$command = "rm -rf $export_dir/*"; 
