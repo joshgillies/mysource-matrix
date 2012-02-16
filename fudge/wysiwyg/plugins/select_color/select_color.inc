@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: select_color.inc,v 1.13 2009/01/27 04:41:28 mbrydon Exp $
+* $Id: select_color.inc,v 1.13.16.1 2012/02/16 04:04:46 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     set text and background colours
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.16.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -60,6 +60,12 @@ class Select_Color extends WYSIWYG_Plugin
 		case "forecolor":
 		case "backcolor":
 			this._popupDialog("selectColor", "<?php echo $this->get_popup_href('select_color.html')?>", 248, 190, true, function(color) {
+			// color span can not be wrapped on block elements.
+			var blockRegex = /<(address|blockquote|body|center|dir|div|dl|fieldset|form|h[1-6]|hr|isindex|menu|noframes|noscript|ol|p|pre|table|ul|dd|dt|frameset|li|tbody|td|tfoot|th|thead|tr|html)/i;
+			if(blockRegex.test(editor.getSelectedHTML())) {
+			    alert("Font color can not be applied to block elements");
+			    return;
+			}
 				if (color) {
 					var current_span = editor.getClosest("span");
 					if (current_span) {
