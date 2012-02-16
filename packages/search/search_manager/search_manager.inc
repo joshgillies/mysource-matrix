@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.249 2011/09/20 01:03:27 mhaidar Exp $
+* $Id: search_manager.inc,v 1.249.4.1 2012/02/16 00:50:19 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.249 $
+* @version $Revision: 1.249.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -3088,7 +3088,7 @@ class Search_Manager extends Asset
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
-				$permission_check_query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON (p.userid = r.roleid)';
+				$permission_check_query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON (p.userid = r.roleid AND r.assetid=p.assetid)';
 			}
 
 			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
