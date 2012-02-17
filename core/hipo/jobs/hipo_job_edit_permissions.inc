@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.73 2011/08/01 05:30:37 cupreti Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.74 2012/02/17 04:11:24 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -315,12 +315,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				 if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'permissions')) {
 					if ($asset->adminAccess('permissions')) {
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+						$this->_running_vars['done_changes']++;
 
 						foreach ($perm_changes as $set_data) {
 							$perm = $set_data['permission'];
 							$perm_name = permission_type_name($perm);
 
-							$this->_running_vars['done_changes']++;
 							if ($set_data['userid']) {
 								// use getAssetInfo() because deleting permissions
 								// held by deleted users (eg.LDAP) will cause an assertion
