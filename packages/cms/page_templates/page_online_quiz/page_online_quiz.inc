@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.41 2012/01/12 01:33:35 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.41.2.1 2012/02/20 04:36:30 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -654,6 +654,31 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 	}//end getFormContentsKeywordReplacement()
 
+	
+	/**
+	* Get the replacement for the form_errors keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormErrorsKeywordReplacement()
+	{
+		if (!empty($this->_tmp['form_errors'])) {
+			ob_start();
+			echo '<ul>';
+			foreach ($this->_tmp['form_errors'] as $error) {
+				echo '<li>';
+				echo $error;
+				echo '</li>';
+			}
+			echo '</ul>';
+			return ob_get_clean();
+		}
+
+		return '';
+
+	}//end getFormErrorsKeywordReplacement()
+	
 
 //--        Type-Format Auto-creation        --//
 
@@ -1395,6 +1420,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 						$this->setUserDetails($form->getAnswerSummaries());
 					} else {
 						// either not processed or details missing, so display the form again and bail out
+						$this->_tmp['form_errors'] = $form->getErrors();
 						$this->printBodycopy('user_details');
 						return FALSE;
 					}
@@ -2202,6 +2228,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$keywords = Array();
 
 		$keywords['form_contents'] = translate('cms_form_contents');
+		$keywords['form_errors'] = translate('cms_form_errors');
 
 		return $keywords;
 
