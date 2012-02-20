@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_rest_search_page.inc,v 1.1 2011/12/09 04:24:47 akarelia Exp $
+* $Id: funnelback_rest_search_page.inc,v 1.2 2012/02/20 05:32:22 akarelia Exp $
 *
 */
 
@@ -21,12 +21,23 @@ require_once SQ_PACKAGES_PATH.'/web_services/rest/page_templates/page_rest_resou
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
 class Funnelback_REST_Search_Page extends Page_REST_Resource
 {
+
+	// These are the headers to be sent if send_headers is true. 
+	// Only those with values found in the first response will be forwarded.
+	private $_response_headers = Array(
+									'Content-Type',
+									'Content-Length',
+									'Last-Modified',
+									'Cache-Control',
+									'Expires',
+								 );
+
 
 	/**
 	* Constructor
