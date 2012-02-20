@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.101 2011/11/07 22:49:32 csmith Exp $
+* $Id: general_occasional.inc,v 1.102 2012/02/20 23:13:53 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 
@@ -650,5 +650,42 @@ function parse_self_links($content)
 
 }
 
+
+/**
+* Returns the given file size value in bytes
+*
+* @param string $size	file size string (e.g. 10b, 2mb, 3k)
+* 
+* @return string
+* @access public
+*/
+function sizeInBytes($size)
+{
+	$size = strtolower(str_replace(' ', '', $size));	
+	preg_match('/^([0-9]+)([a-z]+)$/', $size, $matches);
+
+	$value = (int) array_get_index($matches, 1, $size);
+	$unit_type = array_get_index($matches, 2, '');
+
+	switch($unit_type) {
+		case 'g':
+		case 'gb':
+			$value = $value * 1024 * 1024 * 1024;
+		break;
+		
+		case 'm':
+		case 'mb':
+			$value = $value * 1024 * 1024;
+		break;
+
+		case 'k':
+		case 'kb':
+			$value = $value * 1024;
+		break;		
+	}
+
+	return $value;
+
+}//end sizeInBytes()
 
 ?>
