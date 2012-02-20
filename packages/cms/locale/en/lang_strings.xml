@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.19 2009/10/27 05:08:12 bpearson Exp $
+* $Id: lang_strings.xml,v 1.20 2012/02/20 04:31:03 mhaidar Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -23,6 +23,7 @@
 <string source="cms_no_assets_excluded">No assets are currently excluded</string>
 <string source="schema_name">Schema Name</string>
 <string source="cms_form_contents">Form Contents</string>
+<string source="cms_form_errors">List of Submission Errors</string>
 <string source="cms_site_map_asset_name">Site Map</string>
 <string source="cms_cannot_delete_link">You cannot delete the link between the page contents and the %s page</string>
 <string source="select_asset_type">Select Asset Type</string>
