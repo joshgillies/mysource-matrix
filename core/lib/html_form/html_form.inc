@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.162 2012/02/20 07:12:11 akarelia Exp $
+* $Id: html_form.inc,v 1.163 2012/02/20 23:12:22 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -553,11 +553,12 @@ function file_upload($name, $extras='')
 * if a file was uploaded successfully
 *
 * @param string	$name	the form name from the file upload box
+* @param boolean    $pre_uploaded   TRUE if the pre-uploaded file info is passed
 *
 * @return mixed boolean|array
 * @access public
 */
-function get_file_upload_info($name)
+function get_file_upload_info($name, $pre_uploaded=FALSE)
 {
 	// browsers of handheld iOS devices disables the file upload
 	// input so the _FILES var will be totally empty but this 
@@ -568,6 +569,26 @@ function get_file_upload_info($name)
 
 	$nice_name = $_FILES[$name]['name'];
 
+	// Matrix file preference limits
+	require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+	$pref_max_filesize = sizeInBytes($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', $pre_uploaded ? 'SQ_FILE_PREUPLOADED_MAX_SIZE' : 'SQ_FILE_MAX_SIZE'));
+	$filesize_limits = Array();
+	// Relevant limits set in php.ini
+	foreach(Array('upload_max_filesize', 'post_max_size', 'memory_limit') as $param) {
+		$param_val = ini_get($param);
+		if ($param_val) {
+			$filesize_limits[] = sizeInBytes(($param_val));
+		}
+	}
+	$max_size = min($filesize_limits);
+	if ($pref_max_filesize && $pref_max_filesize < $max_size) {
+		$settings_type = "Matrix";
+		$max_allowed_size = $pref_max_filesize/(1024*1024);
+	} else {
+		$settings_type = "PHP";
+		$max_allowed_size = $max_size/(1024*1024);
+	}
+
 	// if something went wrong, sorry bad luck
 	switch ($_FILES[$name]['error']) {
 
@@ -576,12 +597,12 @@ function get_file_upload_info($name)
 		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, ini_get('upload_max_filesize'));
+			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, ini_get('upload_max_filesize'), $settings_type, $max_allowed_size);
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
-			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']));
+			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']), $settings_type, $max_allowed_size);
 			return FALSE;
 		break;
 
@@ -589,7 +610,7 @@ function get_file_upload_info($name)
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
-
+	
 	}//end switch
 
 	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {

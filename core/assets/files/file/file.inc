@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.208 2012/02/13 00:23:59 cupreti Exp $
+* $Id: file.inc,v 1.209 2012/02/20 23:11:31 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -101,7 +101,7 @@ class File extends Asset
 	
 		if (empty($info)) {
 			// Try getting the uploaded file details
-			$info = get_file_upload_info($this->getPrefix());
+			$info = get_file_upload_info($this->getPrefix(), isset($info['non_uploaded_file']) && $info['non_uploaded_file']);
 		}
 
 		if ($info === FALSE || empty($info)) {
