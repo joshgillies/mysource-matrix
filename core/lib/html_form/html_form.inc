@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.161 2012/02/15 23:39:00 akarelia Exp $
+* $Id: html_form.inc,v 1.162 2012/02/20 07:12:11 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -559,6 +559,11 @@ function file_upload($name, $extras='')
 */
 function get_file_upload_info($name)
 {
+	// browsers of handheld iOS devices disables the file upload
+	// input so the _FILES var will be totally empty but this 
+	// doesn't mean there was error uploading the file. see more 
+	// on bug #5574 Form file upload problem with  iOS device
+	if (empty($_FILES)) return Array();
 	if (empty($_FILES[$name])) return FALSE;
 
 	$nice_name = $_FILES[$name]['name'];
