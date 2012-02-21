@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.17 2011/11/02 22:42:55 cupreti Exp $
+* $Id: cache_manager_management.inc,v 1.18 2012/02/21 02:56:06 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $ - 0.1
+* @version $Revision: 1.18 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,23 @@ class Cache_Manager_Management extends Asset_Management
 																							),
 																		),
 
-												   ),												   
+												   ),
+						'send_headers_for'			=> Array(
+													'added'			=> '0.4',
+													'type'			=> 'selection',
+													'default'		=> 'public_only',
+													'description'	=> 'Send Cacheable Headers for',
+													'parameters'	=> Array(
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
+																		'options'		=> Array(
+																							'public_only' => 'Public Users Only',
+																							'all_user' => 'All Users',
+																							),
+																		),
+
+												   ),
+
 					  );
 					  
 	}//end constructor
