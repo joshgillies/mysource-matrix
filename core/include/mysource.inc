@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.381.2.1 2012/02/09 02:57:23 ewang Exp $
+* $Id: mysource.inc,v 1.381.2.2 2012/02/21 03:06:23 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.381.2.1 $
+* @version $Revision: 1.381.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -806,6 +806,17 @@ class MySource extends MySource_Object
 			// See if caching is enabled for the asset
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
+			// According to Feature 5578 Cacheable headers for logged in users
+			// we can send the cacheable headers for logged in users too
+			// so get the settings from the cache manager for what needs done
+			$send_headers_current_user = FALSE;
+			// if its public user, you can blindly send the cacheable headers
+			if ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) {
+				$send_headers_current_user = TRUE;
+			} else if ($cm->attr('send_headers_for') == 'all_user') {
+				$send_headers_current_user = TRUE;
+			}
+
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -824,7 +835,15 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $asset->status >= SQ_STATUS_LIVE && $asset->readAccess() && !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && 
+						 SQ_CONF_SEND_CACHEABLE_HEADER && 
+						 $send_headers_current_user && 
+						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE && 
+						 $asset->readAccess() && 
+						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && 
+						 $cm->cacheableHeadersEnabledForCurrentProtocol() && 
+						 $cm->sendCacheableHeaders($asset->type(), $asset->id)
+						) {
 					$this->_sendHTTPHeaders($asset);
 				
 				} else {
