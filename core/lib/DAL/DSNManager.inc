@@ -35,7 +35,7 @@ class DSNManager
 	 * 
 	 * @var array
 	 */
-	private static $_dsnpool_supported_conns = Array('db');
+	private static $_dsnpool_supported_conns = Array('db', 'dbsearch');
 	
 	/**
 	 * The list of DSN objects which can be both DSN and DSNPool objects
