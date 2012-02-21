@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_management.inc,v 1.2.2.1 2012/02/09 00:33:35 cupreti Exp $
+* $Id: page_calendar_events_search_management.inc,v 1.2.2.2 2012/02/21 03:07:29 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -86,8 +86,8 @@ class Page_Calendar_Events_Search_Management extends Asset_Management
 																	'multiple'		=> FALSE,
 																	'allow_empty'	=> FALSE,
 																	'options'		=> Array(
-																						'AND'	=> 'Match on both Date Filters and Search Fields result',
-																						'OR'	=> 'Match on either of Date Filters and Search Fields result',
+																						'AND'	=> 'Match on both the Date Filter and Search Field settings',
+																						'OR'	=> 'Match on either the Date Filter or Search Field settings',
 																					   ),
 																   ),
 											   );

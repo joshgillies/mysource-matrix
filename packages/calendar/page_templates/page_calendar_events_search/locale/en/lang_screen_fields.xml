@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fields.xml,v 1.2 2012/01/27 05:41:33 cupreti Exp $
+* $Id: lang_screen_fields.xml,v 1.2.2.1 2012/02/21 03:07:39 cupreti Exp $
 *
 */
 -->
@@ -18,7 +18,7 @@
 	<section name="Date Filters and Search Fields Grouping Logic">
 		<field attribute="main_logic">
 			<display_name>Logical Grouping</display_name>
-			<note>Logic to combine the Date Filters and Search Fields results</note>
+			<note>Logic to combine the Date Filter and Search Field settings</note>
 		</field>
 	</section>
 	<section name="Events Date Filter Configuration">
