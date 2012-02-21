@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.169 2012/01/23 00:30:21 mhaidar Exp $
+* $Id: page_asset_builder.inc,v 1.170 2012/02/21 03:21:55 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -906,6 +906,7 @@ class Page_Asset_Builder extends Page
 							$success = TRUE;
 							$this->_setCreateStatus($new_asset);
 							$this->_tmp['created_asset'] = $new_asset;
+						
 							// if we have reached so far the asset has been built, even with regards to Account Manager Asset, 
 							// user is created already, so lets celebrate firing (trigger) !!! 
 							$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_asset_built', $new_asset);
@@ -1940,8 +1941,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetidKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->id;
-
+		if(isset($this->_replacements['created_assetid'] )) {
+		    return $this->_replacements['created_assetid'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return $this->_tmp['created_asset']->id;
+		}
+		return '';
 	}//end getCreatedAssetidKeywordReplacement()
 
 
@@ -1953,7 +1959,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetNameKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->name;
+		if(isset($this->_replacements['created_asset_name'] )) {
+		    return $this->_replacements['created_asset_name'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return $this->_tmp['created_asset']->name;
+		}
+		return '';
 
 	}//end getCreatedAssetNameKeywordReplacement()
 
@@ -1966,8 +1978,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetShortNameKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->short_name;
-
+		if(isset($this->_replacements['created_asset_short_name'] )) {
+		    return $this->_replacements['created_asset_short_name'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return $this->_tmp['created_asset']->short_name;
+		}
+		return '';
 	}//end getCreatedAssetShortNameKeywordReplacement()
 
 
@@ -1979,8 +1996,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetUrlKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->getURL();
-
+		if(isset($this->_replacements['created_asset_url'] )) {
+		    return $this->_replacements['created_asset_url'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return $this->_tmp['created_asset']->getURL();
+		}
+		return '';
 	}//end getCreatedAssetUrlKeywordReplacement()
 
 
@@ -1992,8 +2014,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetEditKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->getURL().'/'.SQ_CONF_LIMBO_SUFFIX;
-
+		if(isset($this->_replacements['created_asset_edit'] )) {
+		    return $this->_replacements['created_asset_edit'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return $this->_tmp['created_asset']->getURL().'/'.SQ_CONF_LIMBO_SUFFIX;
+		}
+		return '';
 	}//end getCreatedAssetEditKeywordReplacement()
 
 
@@ -2005,8 +2032,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetBackendKeywordReplacement()
 	{
-		return sq_web_path('root_url').'/'.$this->_tmp['created_asset']->getBackendHref('contents');
-
+		if(isset($this->_replacements['created_asset_backend'] )) {
+		    return $this->_replacements['created_asset_backend'];
+		}
+		else if (isset($this->_tmp['created_asset'])) {
+		    return sq_web_path('root_url').'/'.$this->_tmp['created_asset']->getBackendHref('contents');
+		}
+		return '';
 	}//end getCreatedAssetBackendKeywordReplacement()
 
 
