@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.39 2012/02/21 00:42:16 mhaidar Exp $
+* $Id: core.js,v 1.40 2012/02/21 00:57:34 mhaidar Exp $
 *
 */
 
@@ -218,9 +218,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 				this._docContent.innerText = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
-				var text_node = document.createTextNode("");
-				this._docContent.appendChild(text_node);
-				this._docContent.removeChild(text_node);
+				this._docContent.removeChild(this._docContent.appendChild(document.createTextNode("")));
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
@@ -234,9 +232,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 				this._docContent.innerHTML = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
-				var text_node = document.createTextNode("");
-				this._docContent.appendChild(text_node);
-				this._docContent.removeChild(text_node);
+				this._docContent.removeChild(this._docContent.appendChild(document.createTextNode("")));
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = '';
