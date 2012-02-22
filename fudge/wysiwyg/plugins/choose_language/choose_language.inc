@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: choose_language.inc,v 1.6 2012/02/22 02:44:31 cupreti Exp $
+* $Id: choose_language.inc,v 1.7 2012/02/22 03:53:35 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -225,13 +225,15 @@ class Choose_Language extends WYSIWYG_Plugin
 											}
 										}
 									} else if (HTMLArea.is_ie) {
-										var new_child = this._doc.createTextNode(child_node.innerHTML);
+										var inner_html = child_node.innerHTML
+										var new_child = this._doc.createTextNode('');
 										if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
 											var e = '<span id=wysiwyg-visual-aid-plugin-lang[^>]*>[^>]*<\/span>';
 											var re = new RegExp(e, "ig");
-											new_child.nodeValue = new_child.nodeValue.replace(re, '');
+											inner_html = inner_html.replace(re, '');
 										}
 										span_parent.replaceChild(new_child, child_node);
+										range.pasteHTML(inner_html);
 									}
 								}
 							}
