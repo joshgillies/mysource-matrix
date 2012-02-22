@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: choose_language.inc,v 1.5 2006/12/06 05:11:08 bcaldwell Exp $
+* $Id: choose_language.inc,v 1.5.26.1 2012/02/22 02:47:10 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.26.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -203,15 +203,22 @@ class Choose_Language extends WYSIWYG_Plugin
 											// we only remove lang attribute from the tag
 											var attrs = child_node.attributes;
 											var lang_found = false;
+											var xml_lang_found = false;
 											var tmp_span = "<span ";
 											for (var j = 0; j < attrs.length; j++) {
 												if (attrs[j].name == "lang") {
 													lang_found = true;
-												} else {
+												} else if (attrs[j].name == "xml:lang") {
+													xml_lang_found = true;
+												}else {
 													tmp_span = tmp_span + attrs[j].name + "=\"" + attrs[j].value +"\" ";
 												}
 											}
-											if (lang_found) {
+
+											if (lang_found && xml_lang_found && attrs.length == 2) {
+												range.selectNode(child_node);
+												this.insertHTML(child_node.innerHTML, range);
+											} else if (lang_found || xml_lang_found) {
 												tmp_span += ">";
 												range.selectNode(child_node);
 												this.insertHTML(tmp_span + child_node.innerHTML + "</span>", range)
