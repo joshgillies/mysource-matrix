@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.756.2.1 2012/02/13 00:56:56 mhaidar Exp $
+* $Id: asset.inc,v 1.756.2.2 2012/02/22 22:20:54 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.756.2.1 $
+* @version $Revision: 1.756.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1241,7 +1241,6 @@ class Asset extends MySource_Object
 				}
 			}
 
-			if (!$this->revertNoticeLinksToSystemVersion()) return FALSE;
 
 			if (!$contexted_asset->saveAttributes()) {
 				trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
@@ -1256,6 +1255,9 @@ class Asset extends MySource_Object
 			}
 
 		}//end foreach
+		
+		
+		if (!$this->revertNoticeLinksToSystemVersion()) return FALSE;
 
 		// If we have metadata, load the old version so we can revert the values
 		$metadata_filename = $this->data_path.'/.sq_system/metadata_field_values.php';
