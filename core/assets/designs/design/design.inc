@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.159 2011/08/04 04:14:44 ewang Exp $
+* $Id: design.inc,v 1.160 2012/02/22 22:50:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,6 +496,7 @@ class Design extends Design_Area
 	*/
 	public function getStylesheets()
 	{
+
 		// first get all files which end with .css
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
@@ -900,21 +901,43 @@ echo '/*
 
 			case 'asset_thumbnail' :
 					echo '<', '?php ';
-					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-					echo 'if (!empty($link)) {'."\n";
-					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo 'echo $thumbnail->printImageTag(\'\', \'\', TRUE);'."\n";
+					echo '$thumbnail = NULL;'."\n";
+					echo 'if ($ASSET->useSystemVersion()) {'."\n";
+					echo '    $notice_links = unserialize(file_to_string($ASSET->data_path.\'/.sq_notice_links\'));'."\n";
+					echo '    foreach ($notice_links as $link) {'."\n";
+					echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+					echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '			  break;'."\n";
+					echo '		  }'."\n";
+					echo '	  }'."\n";
+					echo '} else {'."\n";
+					echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+					echo '    if (!empty($link)) {'."\n";
+					echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '    }'."\n";
 					echo '}'."\n";
+					echo 'if ($thumbnail) echo $thumbnail->printImageTag(\'\', \'\', TRUE);'."\n";
 					echo '?', '>';
 			break;
 
 			case 'asset_thumbnail_url' :
 					echo '<', '?php ';
-					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n;";
-					echo 'if (!empty($link)) {'."\n";
-					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
+					echo '$thumbnail = NULL;'."\n";
+					echo 'if ($ASSET->useSystemVersion()) {'."\n";
+					echo '    $notice_links = unserialize(file_to_string($ASSET->data_path.\'/.sq_notice_links\'));'."\n";
+					echo '    foreach ($notice_links as $link) {'."\n";
+					echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+					echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '			  break;'."\n";
+					echo '		  }'."\n";
+					echo '	  }'."\n";
+					echo '} else {'."\n";
+					echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n;";
+					echo '    if (!empty($link)) {'."\n";
+					echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '    }'."\n";
 					echo '}'."\n";
+					echo 'if ($thumbnail) echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
 					echo '?', '>';
 			break;
 

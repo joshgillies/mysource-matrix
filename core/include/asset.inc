@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.759 2012/02/22 22:19:33 ewang Exp $
+* $Id: asset.inc,v 1.760 2012/02/22 22:50:33 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.759 $
+* @version $Revision: 1.760 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1129,7 +1129,8 @@ class Asset extends MySource_Object
 								'nested_asset',
 								'paint_with_layout',
 								'root',
-								'redirect_asset'
+								'redirect_asset',
+								'thumbnail',
 							 );
 		foreach ($notice_links as $link) {
 			if (in_array($link['value'], $links_to_preserve)) {
@@ -1327,7 +1328,8 @@ class Asset extends MySource_Object
 									'nested_asset',
 									'paint_with_layout',
 									'root',
-									'redirect_asset'
+									'redirect_asset',
+									'thumbnail',
 								 );
 			foreach ($notice_links as $index => $info) {
 				if (in_array($info['value'], $links_to_preserve)) {

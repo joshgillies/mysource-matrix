@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.49 2010/04/21 07:19:58 hnguyen Exp $
+* $Id: details.inc,v 1.50 2012/02/22 22:54:50 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -840,14 +840,28 @@ function _paintDetailsThumbnailChange(Asset $owner, Backend_Outputter $o, $prefi
 */
 function _paintDetailsThumbnailCurrent(Asset $owner, Backend_Outputter $o, $prefix)
 {
-	$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
-	if (!empty($link)) {
+	$thumbnail = NULL;
+	if ($owner->useSystemVersion()) {
+	    $notice_links = unserialize(file_to_string($owner->data_path.'/.sq_notice_links'));
+	    foreach ($notice_links as $link) {
+		 if ($link['value'] == 'thumbnail') {
+		     $thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		     break;
+		 }
+	    }
+	}
+	else {
+	    $link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
+	    if (!empty($link)) {
 		$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		$edit_fns = $thumbnail->getEditFns();
-		$edit_fns->printExistingFileInfo($thumbnail);
-
+	    }
+	}
+	
+	if($thumbnail) {
+	    $edit_fns = $thumbnail->getEditFns();
+	    $edit_fns->printExistingFileInfo($thumbnail);
 	} else {
-		echo translate('no_thumbnail_attatched');
+	    echo translate('no_thumbnail_attatched');
 	}
 
 	return FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.231 2011/10/25 00:59:11 ewang Exp $
+* $Id: metadata_manager.inc,v 1.232 2012/02/22 22:50:33 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.232 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1596,11 +1596,21 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_thumbnail_name' :
 						if (!$thumbnail_generated) {
 							echo '$thumbnail = null;';
-							echo 'if ($metadata_asset->id) {';
-							echo '	  $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-							echo '	  if (!empty($link)) {'."\n";
-							echo '		  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+							echo 'if ($metadata_asset->useSystemVersion()) {'."\n";
+							echo '    $notice_links = unserialize(file_to_string($metadata_asset->data_path.\'/.sq_notice_links\'));'."\n";
+							echo '    foreach ($notice_links as $link) {'."\n";
+							echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+							echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+							echo '			  break;'."\n";
+							echo '		  }'."\n";
 							echo '	  }'."\n";
+							echo '} else {'."\n";
+							echo '    if ($metadata_asset->id) {';
+							echo '	      $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+							echo '	      if (!empty($link)) {'."\n";
+							echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+							echo '	      }'."\n";
+							echo '    }'."\n";
 							echo '}'."\n";
 						}
 						switch ($keyword) {
@@ -1777,11 +1787,21 @@ class Metadata_Manager extends MySource_Object
 							$variety_name = substr($keyword, 18);
 							if (!$thumbnail_generated) {
 								echo '$thumbnail = null;'."\n";
-								echo 'if ($metadata_asset->id) {'."\n";
-								echo '	  $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-								echo '	  if (!empty($link)) {'."\n";
-								echo '		  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+								echo 'if ($metadata_asset->useSystemVersion()) {'."\n";
+								echo '    $notice_links = unserialize(file_to_string($metadata_asset->data_path.\'/.sq_notice_links\'));'."\n";
+								echo '    foreach ($notice_links as $link) {'."\n";
+								echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+								echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+								echo '			  break;'."\n";
+								echo '		  }'."\n";
 								echo '	  }'."\n";
+								echo '} else {'."\n";
+								echo '    if ($metadata_asset->id) {'."\n";
+								echo '	      $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+								echo '	      if (!empty($link)) {'."\n";
+								echo '		      $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+								echo '	      }'."\n";
+								echo '    }'."\n";
 								echo '}'."\n";
 							}
 
