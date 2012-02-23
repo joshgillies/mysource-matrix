@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.22 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.23 2012/02/23 05:22:07 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,10 +110,6 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function paintValueInterface(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
-		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
-			return;
-		}
-
 		$thesaurus = $asset->getThesaurusRef();
 
 		if ($thesaurus == FALSE) {
