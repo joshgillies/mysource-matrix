@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.49 2012/01/22 22:14:55 akarelia Exp $
+* $Id: insert_link.php,v 1.50 2012/02/23 04:52:01 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -93,6 +93,18 @@ if (!isset($_GET['new_window'])) {
 	$_GET['new_window_options'] = var_unserialise($_GET['new_window_options']);
 }
 
+// we have the assetid lets try to get the asset
+$option_selected = 'all_asset';
+if (isset($_GET['assetid']) && $_GET['assetid']) {
+	$asset_linked = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	if (!is_null($asset_linked)) {
+		if ($asset_linked instanceof Link) {
+			$option_selected = 'link_manager';
+		} else if ($asset_linked instanceof Page_Redirect) {
+			$option_selected = 'redirect';
+		}
+	}
+}
 ?>
 
 <html style="width: 750px; height: 488px; ">
@@ -173,7 +185,11 @@ if (!isset($_GET['new_window'])) {
 				var f = document.main_form;
 
 				// check for the manual entering in the asset picker
-				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && (f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) {
+				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && 
+					(((f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) ||
+					 ((f.elements["page_redirect_assetid[assetid]"].value != '') && (f.elements["page_redirect_assetid[assetid]"].value != 0)) ||
+					 ((f.elements["link_assetid[assetid]"].value != '') && (f.elements["link_assetid[assetid]"].value != 0))
+					 )) {
 					setUrl();
 				}
 
@@ -568,7 +584,7 @@ if (!isset($_GET['new_window'])) {
 																		}
 																	</script>
 																	<?php
-																	combo_box('asset_type_selector', $asset_selector, FALSE, 'all_assets', 0, $js);
+																	combo_box('asset_type_selector', $asset_selector, FALSE, $option_selected, 0, $js);
 
 																?>
 															</td>
