@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_safe_editing_for_thumbnails.php,v 1.1 2012/02/22 23:32:47 akarelia Exp $
+* $Id: upgrade_safe_editing_for_thumbnails.php,v 1.2 2012/02/23 00:56:24 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -69,8 +69,18 @@ foreach ($results as $result) {
 	// if file exists, write to it else create new one
 	if (file_exists($asset->data_path.'/.sq_system/.sq_notice_links')) {
 		$content = unserialize(file_to_string($asset->data_path.'/.sq_system/.sq_notice_links'));
+
+		$thumbnail_exists = FALSE;
+		foreach ($content as $link) {
+			if ($link['value'] == 'thumbnail') {
+				$thumbnail_exists = TRUE;
+				break;
+			}
+		}
+
 		$content[] = $notice_link;
-		if (!string_to_file(serialize($content), $asset->data_path.'/.sq_system/.sq_notice_links')) {
+		if (!$thumbnail_exists && !string_to_file(serialize($content), $asset->data_path.'/.sq_system/.sq_notice_links')) {
+			print_r('Still writing :(');
 			$count++;
 			$bad_assetids[] = $assetid;
 		}
