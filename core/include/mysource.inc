@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.383 2012/02/21 02:58:46 akarelia Exp $
+* $Id: mysource.inc,v 1.384 2012/02/23 00:00:01 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.383 $
+* @version $Revision: 1.384 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1541,6 +1541,11 @@ class MySource extends MySource_Object
 					foreach ($auth_systems as $systemid) {
 						$system = $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
+
+						// if we are loging in as root user dont worry about other authentication system
+						// roadmap issue #811 Logging in as root should not interrogate any ldap bridges
+						if ($login_username === 'root' && $system->name != 'Default Authentication') continue;
+
 						$user = $system->authenticateUser($login_username, $login_password);
 						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
@@ -1828,7 +1833,7 @@ class MySource extends MySource_Object
 
 				exit(1);
 			break;
-			
+
 
 		}//end switch
 
@@ -2097,7 +2102,7 @@ class MySource extends MySource_Object
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$old_session_id = session_id();
-		
+
 		// regenerate the session id to protect against session fixation attacks
 		session_regenerate_id();
 		// when logging in we wipe the previous session file
