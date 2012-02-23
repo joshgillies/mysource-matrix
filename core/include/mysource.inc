@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.374.2.6 2012/02/09 02:58:34 ewang Exp $
+* $Id: mysource.inc,v 1.374.2.7 2012/02/23 00:02:43 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374.2.6 $
+* @version $Revision: 1.374.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -674,7 +674,6 @@ class MySource extends MySource_Object
 							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 							// Send Cacheable Header based on cache manager default setting
 							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
-								$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 								header('Pragma: cache');
 
 								$browser_cache_expiry = $cm->attr('browser_cache_expiry');
@@ -697,7 +696,7 @@ class MySource extends MySource_Object
 				exit(1);
 
 			}//end if is_null(asset)
-			
+
 			// In _performance view mode
 			if (SQ_IN_PERFORMANCE) {
 				if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || !$asset->writeAccess()) {
@@ -1477,6 +1476,11 @@ class MySource extends MySource_Object
 					foreach ($auth_systems as $systemid) {
 						$system = $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
+
+						// if we are loging in as root user dont worry about other authentication system
+						// roadmap issue #811 Logging in as root should not interrogate any ldap bridges
+						if ($login_username === 'root' && $system->name != 'Default Authentication') continue;
+
 						$user = $system->authenticateUser($login_username, $login_password);
 						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
@@ -1600,7 +1604,6 @@ class MySource extends MySource_Object
 
 				// always regenerating the security key to stop painting same text for same session
 				$vars['key'] = generate_security_key(strlen($vars['key']), $vars['include_uppercase'], $vars['include_numbers']);
-
 
 				security_key_image(
 									$vars['key_len'],
@@ -2034,6 +2037,7 @@ class MySource extends MySource_Object
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$old_session_id = session_id();
+
 		// regenerate the session id to protect against session fixation attacks
 		session_regenerate_id();
 		// when logging in we wipe the previous session file
