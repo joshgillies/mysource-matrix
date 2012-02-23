@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.10 2012/02/10 01:23:58 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.11 2012/02/23 03:56:32 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -417,10 +417,15 @@ class Page_Calendar_Events_Search extends Search_Page
 		$root_nodes = $this->getRootNodes();
 		
 		// Get single calendar events
-		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_single');		
+		$bind_vars = Array();
+		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_single', TRUE, $bind_vars);		
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}
+
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 				throw new Exception($e->getMessage());
@@ -428,10 +433,14 @@ class Page_Calendar_Events_Search extends Search_Page
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 	
 		// Get recurring calendar events
-		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_recurring');
+		$bind_vars = Array();
+		$sql = Calendar_Common::getSingleEventQueryBase($root_nodes, 'calendar_event_recurring', TRUE, $bind_vars);
 		$recurring_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach($bind_vars as $bind_value => $bind_var) {
+				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
+			}
 			$recurring_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 				throw new Exception($e->getMessage());
