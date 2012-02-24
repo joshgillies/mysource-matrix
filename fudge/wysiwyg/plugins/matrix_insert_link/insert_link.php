@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.49 2012/01/22 22:14:55 akarelia Exp $
+* $Id: insert_link.php,v 1.49.2.1 2012/02/24 00:52:40 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.2.1 $
 * @package MySource_Matrix
 */
 
@@ -93,6 +93,18 @@ if (!isset($_GET['new_window'])) {
 	$_GET['new_window_options'] = var_unserialise($_GET['new_window_options']);
 }
 
+// we have the assetid lets try to get the asset
+$option_selected = 'all_asset';
+if (isset($_GET['assetid']) && $_GET['assetid']) {
+	$asset_linked = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	if (!is_null($asset_linked)) {
+		if ($asset_linked instanceof Link) {
+			$option_selected = 'link_manager';
+		} else if ($asset_linked instanceof Page_Redirect) {
+			$option_selected = 'redirect';
+		}
+	}
+}
 ?>
 
 <html style="width: 750px; height: 488px; ">
@@ -173,7 +185,11 @@ if (!isset($_GET['new_window'])) {
 				var f = document.main_form;
 
 				// check for the manual entering in the asset picker
-				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && (f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) {
+				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && 
+					(((f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) ||
+					 ((f.elements["page_redirect_assetid[assetid]"].value != '') && (f.elements["page_redirect_assetid[assetid]"].value != 0)) ||
+					 ((f.elements["link_assetid[assetid]"].value != '') && (f.elements["link_assetid[assetid]"].value != 0))
+					 )) {
 					setUrl();
 				}
 
@@ -227,12 +243,13 @@ if (!isset($_GET['new_window'])) {
 				if (link     != null) {
 					f.url_link.value = link;
 				} else {
-					if (f.elements["assetid[assetid]"].value != undefined && f.elements["assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
-						var assetid = f.elements["assetid[assetid]"].value;
-					} else if (f.elements["link_assetid[assetid]"].value != undefined && f.elements["link_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
-						var assetid = '%globals_asset_attribute_link_url:'+ f.elements["link_assetid[assetid]"].value +'%';
-					} else if (f.elements["page_redirect_assetid[assetid]"].value != undefined && f.elements["page_redirect_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>') {
-						var assetid = '%globals_asset_attribute_redirect_url:'+ f.elements["page_redirect_assetid[assetid]"].value +'%';
+					var assetid = '';
+					if (f.elements["assetid[assetid]"].value != undefined && f.elements["assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>' && f.elements["assetid[assetid]"].value != '') {
+						assetid = f.elements["assetid[assetid]"].value;
+					} else if (f.elements["link_assetid[assetid]"].value != undefined && f.elements["link_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>' && f.elements["link_assetid[assetid]"].value != '') {
+						assetid = '%globals_asset_attribute_link_url:'+ f.elements["link_assetid[assetid]"].value +'%';
+					} else if (f.elements["page_redirect_assetid[assetid]"].value != undefined && f.elements["page_redirect_assetid[assetid]"].value != '<?php echo $_GET['assetid']; ?>' && f.elements["page_redirect_assetid[assetid]"].value != '') {
+						assetid = '%globals_asset_attribute_redirect_url:'+ f.elements["page_redirect_assetid[assetid]"].value +'%';
 					}
 
 					if (assetid != '') {
@@ -543,32 +560,79 @@ if (!isset($_GET['new_window'])) {
 																	?>
 																	<script type="text/javascript">
 																		function chooseSourceType(type, span_all, span_link_manager, span_redirect_page) {
+																			all_asset_picker = document.getElementById('assetid[assetid]');
+																			all_asset_picker_id = document.getElementById('sq_asset_finder_assetid_assetid');
+
+																			link_asset_picker = document.getElementById('link_assetid[assetid]');
+																			link_asset_picker_id = document.getElementById('sq_asset_finder_link_assetid_assetid');
+
+																			redirect_asset_picker = document.getElementById('page_redirect_assetid[assetid]');
+																			redirect_asset_picker_id = document.getElementById('sq_asset_finder_page_redirect_assetid_assetid');
+
 																			if (type == 'all_assets') {
+																				all_asset_picker.value='';
+																				all_asset_picker.disabled=false;
+																				all_asset_picker_id.value='';
+																				all_asset_picker_id.disabled=false;
 																				span_all.style.display='block';
 																				span_all.disabled=false;
 																				span_link_manager.style.display='none';
 																				span_link_manager.disabled=true;
+																				link_asset_picker.value='';
+																				link_asset_picker.disabled=true;
+																				link_asset_picker_id.value='';
+																				link_asset_picker_id.disabled=true;
 																				span_redirect_page.style.display='none';
 																				span_redirect_page.disabled=true;
+																				redirect_asset_picker.value='';
+																				redirect_asset_picker.disabled=true;
+																				redirect_asset_picker_id.value='';
+																				redirect_asset_picker_id.disabled=true;
+
 																			} else if (type == 'link_manager') {
+																				all_asset_picker.value='';
+																				all_asset_picker.disabled=true;
+																				all_asset_picker_id.value='';
+																				all_asset_picker_id.disabled=true;
 																				span_all.style.display='none';
 																				span_all.disabled=true;
 																				span_link_manager.style.display='block';
 																				span_link_manager.disabled=false;
+																				link_asset_picker.value='';
+																				link_asset_picker.disabled=false;
+																				link_asset_picker_id.value='';
+																				link_asset_picker_id.disabled=false;
 																				span_redirect_page.style.display='none';
 																				span_redirect_page.disabled=true;
+																				redirect_asset_picker.value='';
+																				redirect_asset_picker.disabled=true;
+																				redirect_asset_picker_id.value='';
+																				redirect_asset_picker_id.disabled=true;
+
 																			} else {
+																				all_asset_picker.value='';
+																				all_asset_picker.disabled=true;
+																				all_asset_picker_id.value='';
+																				all_asset_picker_id.disabled=true;
 																				span_all.style.display='none';
 																				span_all.disabled=true;
 																				span_link_manager.style.display='none';
 																				span_link_manager.disabled=true;
+																				link_asset_picker.value='';
+																				link_asset_picker.disabled=true;
+																				link_asset_picker_id.value='';
+																				link_asset_picker_id.disabled=true;
 																				span_redirect_page.style.display='block';
 																				span_redirect_page.disabled=false;
+																				redirect_asset_picker.value='';
+																				redirect_asset_picker.disabled=false;
+																				redirect_asset_picker_id.value='';
+																				redirect_asset_picker_id.disabled=false;
 																			}
 																		}
 																	</script>
 																	<?php
-																	combo_box('asset_type_selector', $asset_selector, FALSE, 'all_assets', 0, $js);
+																	combo_box('asset_type_selector', $asset_selector, FALSE, $option_selected, 0, $js);
 
 																?>
 															</td>
