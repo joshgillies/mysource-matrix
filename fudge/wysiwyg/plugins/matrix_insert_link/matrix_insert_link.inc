@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.51.2.1 2012/01/22 22:23:36 akarelia Exp $
+* $Id: matrix_insert_link.inc,v 1.51.2.2 2012/02/24 00:52:51 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -290,6 +290,19 @@ class matrix_insert_link extends wysiwyg_plugin
 					if (results != null) {
 						currArgs["assetid"] = currArgs["url"].replace(re, "$1$3");
 					}
+
+
+					// if the link is made from asset attribute url
+					// make sure to remove the url of it
+					e = '(%globals_asset_attribute_(redirect|link)_url:([0-9]+[^$]+)%)';
+					re = new RegExp(e, "gi");
+					results = re.exec(currArgs["url"]);
+
+					if (results != null) {
+						currArgs["url"] = results[1];
+						currArgs["assetid"] = results[3];
+					}
+
 
 				// else not a link so check for paragraphs
 				} else {
