@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.3 2012/02/15 23:36:53 mhaidar Exp $
+* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.4 2012/02/27 04:37:26 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -263,7 +263,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 				//Note that skipping an asset will cause any candidate children to be exported higher up in the hierarchy.
 				if (!$todo_asset['is_dependant']  && !($todo_asset['link_type'] == SQ_LINK_TYPE_3) && !in_array($todo_asset['type_code'], $this->_running_vars['skip_type_codes'])){
 					$step_data['message'] = "Generating XML for $asset->name (Id: #$asset->id)";
-					echo "<".$asset->type().">\n";
+					echo "<".$asset->type()." assetid=\"".$asset->id."\">\n";
 					$this->_running_vars['opened_tags'][$todo_asset['lvl']] = $asset->type();
 					$method_name = 'generate'.str_replace('_', '', get_class($asset)).'XML';
 					if (in_array($todo_asset['type_code'], $this->_running_vars['type_codes']) && method_exists($this, $method_name) && $asset->readAccess()){
@@ -411,7 +411,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 			$question_group = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_id);
 			if (is_null($question_group)) continue;
 			//need to do referencing in the XML because coming up with a nested XML structure for this is very messy!
-			echo "<".$question_group->type()." pool_nodes=\"".implode(',', $pool_nodes)."\">\n";
+			echo "<".$question_group->type()." assetid=\"".$question_group->id."\" pool_nodes=\"".implode(',', $pool_nodes)."\">\n";
 			echo "<name><![CDATA[".trim($question_group->attr('name'))."]]></name>\n";
 			$score_categories = $question_group->attr('score_categories');
 			foreach ($score_categories as $category){
@@ -443,7 +443,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 				if (is_null($question)) continue;
 				
-				echo "<".$question->type().">\n";
+				echo "<".$question->type()." assetid=\"".$question->id."\">\n";
 				echo "<name><![CDATA[".trim($question->attr('name'))."]]></name>\n";
 				echo "<question_text><![CDATA[".trim($question->getQuestionText())."]]></question_text>\n";
 				echo "<question_note><![CDATA[".trim($question->getQuestionNote())."]]></question_note>\n";
