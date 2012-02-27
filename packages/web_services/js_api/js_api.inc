@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.5 2012/02/15 00:13:00 cupreti Exp $
+* $Id: js_api.inc,v 1.96.2.6 2012/02/27 00:27:40 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.5 $
+* @version $Revision: 1.96.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2042,6 +2042,7 @@ class JS_Api extends Page
 
 		$result_lineages = Array();
 		$linkid_done = Array();		
+		$link_types = $significant_link_only ? SQ_SC_LINK_SIGNIFICANT : SQ_SC_LINK_ALL;
 		
 		foreach ($raw_lineages as $index => $val) {
 			$data = Array();
@@ -2051,26 +2052,31 @@ class JS_Api extends Page
 				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
 				
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($major_asset->id, $minor_asset->id);				
-				
-				if (!in_array($link['linkid'], $linkid_done)) {				
-					$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
-					foreach($treeid_data[$link['linkid']] as $treeid) {					
-						$info = Array();
-						$info['tree_id']			= $treeid[0];
-						$info['assetid']			= $minor_asset->id;
-						$info['name']				= $minor_asset->name;
-						$info['type_code']			= $minor_asset->type();
-						$info['link_type']			= $link['link_type'];
-						$info['link_value']			= $link['value'];
-						$info['linkid']				= $link['linkid'];					
-						$info['parent_assetid']		= $major_asset->id;
-						$info['parent_type_code']	= $major_asset->type();
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($major_asset->id, $minor_asset->id, $link_types, NULL, 'major', TRUE);
+				foreach($links as $link) {
+					if (!in_array($link['linkid'], $linkid_done)) {
+						if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
+							$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+						} else {
+							$treeid_data = Array($link['linkid'] => Array(Array(FALSE)));
+						}						
+						foreach($treeid_data[$link['linkid']] as $treeid) {					
+							$info = Array();
+							$info['tree_id']			= $treeid[0];
+							$info['assetid']			= $minor_asset->id;
+							$info['name']				= $minor_asset->name;
+							$info['type_code']			= $minor_asset->type();
+							$info['link_type']			= $link['link_type'];
+							$info['link_value']			= $link['value'];
+							$info['linkid']				= $link['linkid'];					
+							$info['parent_assetid']		= $major_asset->id;
+							$info['parent_type_code']	= $major_asset->type();
 						
-						$data[] = $info;
+							$data[] = $info;
+						}
+						$linkid_done[] = $link['linkid'];
 					}
-					$linkid_done[] = $link['linkid'];
-				}
+				}//end foreach
 				
 				// Get the link info for the next lineage, one level up, if any
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minorid);
