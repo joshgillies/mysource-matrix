@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.92.2.1 2012/02/09 05:08:58 ewang Exp $
+* $Id: cache_manager.inc,v 1.92.2.2 2012/02/27 02:45:38 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92.2.1 $
+* @version $Revision: 1.92.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Cache_Manager extends Asset
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
 			return FALSE;
 		}
-		
+
 		// this will not check specifically set root node options
 		// if any root node specific options are configured, it will return TRUE blindly and the DB will be checked for a cache entry
 		if (!$this->cacheEnabled($asset_type)) return FALSE;
@@ -591,8 +591,13 @@ class Cache_Manager extends Asset
 		if ($specific !== FALSE) {
 			return $specific;
 		}
+		
+		$is_public = $GLOBALS['SQ_SYSTEM']->user instanceof Public_User;
+		if (!$is_public && in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
+			return TRUE;
+		}
 
-		return SQ_CONF_SEND_CACHEABLE_HEADER;
+		return $is_public && SQ_CONF_SEND_CACHEABLE_HEADER;
 
 	}//end sendCacheableHeaders()
 
