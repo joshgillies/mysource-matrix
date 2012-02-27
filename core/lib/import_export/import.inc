@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.28 2012/01/31 18:56:23 ata Exp $
+* $Id: import.inc,v 1.29 2012/02/27 04:55:29 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -77,6 +77,7 @@ function get_import_actions($import_file)
 		// set higher execution time to allow matrix
 		// to read from the xml that might be quiet big
 		set_time_limit (200); 
+		$xml_header = '';
 		while(!feof($fh)) {
 			$p	= xml_parser_create();
 			xml_parser_set_option($p, XML_OPTION_CASE_FOLDING, 0);
@@ -98,7 +99,10 @@ function get_import_actions($import_file)
 				// break out or else there will be a infinite looping in this do...while
 				if (trim($line) == '') continue;
 				if (preg_match('/(<actions>)$/', $line)) continue;
-				if (preg_match('/(^<\?xml version)/', $line)) continue;
+				if (preg_match('/(^<\?xml version)/', $line)) {
+					$xml_header = $line;
+					continue;
+				}
 				if (preg_match('/(<\/actions>)$/', $line)) break;
 
 				$content = $content.$line;
@@ -107,6 +111,7 @@ function get_import_actions($import_file)
 			$content .= '</actions>';
 
 			if ($content != '<actions></actions>') {
+				if ($xml_header != '') $content = $xml_header.$content;
 				xml_parse_into_struct($p, $content, $xml_import_vals, $index);
 
 				// print an error if one occured
