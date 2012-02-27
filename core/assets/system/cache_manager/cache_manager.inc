@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.93 2012/02/09 04:31:17 ewang Exp $
+* $Id: cache_manager.inc,v 1.94 2012/02/27 02:26:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -590,8 +590,13 @@ class Cache_Manager extends Asset
 		if ($specific !== FALSE) {
 			return $specific;
 		}
+		
+		$is_public = $GLOBALS['SQ_SYSTEM']->user instanceof Public_User;
+		if (!$is_public && in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
+			return TRUE;
+		}
 
-		return SQ_CONF_SEND_CACHEABLE_HEADER;
+		return $is_public && SQ_CONF_SEND_CACHEABLE_HEADER;
 
 	}//end sendCacheableHeaders()
 

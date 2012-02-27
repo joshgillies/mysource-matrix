@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.21 2010/10/18 05:24:28 ewang Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.22 2012/02/27 02:26:43 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.22 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -1317,6 +1317,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$cacheable_header_urls = $asset->attr('non_cacheable_header_urls');
+		$cacheable_user_header_urls = $asset->attr('user_cacheable_header_urls');
 		$wa = $asset->writeAccess('attributes');
 		?>
 		<table class="sq-backend-table" style="width: auto">
@@ -1324,6 +1325,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<th><?php echo translate('url'); ?></th>
 					<th><?php echo "Send Headers"; ?></th>
+					<th><?php echo "Send User Headers"; ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -1338,6 +1340,16 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 							check_box($prefix.'_url_'.$i, 1, !in_array($url, $cacheable_header_urls));
 						} else {
 							$filename = in_array($url, $cacheable_header_urls) ? 'cross' : 'tick';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+						}
+						?>
+					</td>
+					<td>
+						<?php
+						if ($wa) {
+							check_box($prefix.'_user_url_'.$i, 1, in_array($url, $cacheable_user_header_urls));
+						} else {
+							$filename = in_array($url, $cacheable_user_header_urls) ? 'tick' : 'cross';
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
 						}
 						?>
@@ -1378,6 +1390,15 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		// NOTE: Though it might look little confusing, we save the root URLs that shouldn't send cacheable headers, 
 		// so that any new URLs send cacheable headers by default. 
 		$non_cachable = array_diff($root_urls, $cachable);
+
+		$user_cachable = Array();
+		foreach ($root_urls as $i => $url) {
+			if (isset($_POST[$prefix.'_user_url_'.$i]) && !empty($_POST[$prefix.'_user_url_'.$i])) {
+				$user_cachable[] = $url;
+			}
+		}
+		$user_cacheable = array_intersect($root_urls, $user_cachable);
+		$asset->setAttrValue('user_cacheable_header_urls', $user_cacheable);
 		
 		return $asset->setAttrValue('non_cacheable_header_urls', $non_cachable);
 

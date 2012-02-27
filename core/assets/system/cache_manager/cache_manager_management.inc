@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.18 2012/02/21 02:56:06 akarelia Exp $
+* $Id: cache_manager_management.inc,v 1.19 2012/02/27 02:26:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $ - 0.1
+* @version $Revision: 1.19 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,6 +116,14 @@ class Cache_Manager_Management extends Asset_Management
 													'default'	    => Array(),
 													'description'   => 'Root URLs to send cacheable header regardless of other Matrix settings',
 												   ),
+
+						'user_cacheable_header_urls' => Array(
+													'added'		    => '0.4',
+													'type'		    => 'serialise',
+													'default'	    => Array(),
+													'description'   => 'Root URLs to send user cacheable header regardless of other Matrix settings',
+												   ),
+			
 						'cacheale_header_protocol'	=> Array(
 													'added'			=> '0.4',
 													'type'			=> 'selection',
