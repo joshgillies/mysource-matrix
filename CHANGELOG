@@ -1,5 +1,83 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.6.4
+
+Featured Changes
+===================================
+
+
+Automatic Upgrade Script: Display Upgrade Steps [ Feature Request #5550 ]
+-----------------------------------------------------
+
+Enhancements have been made to Squiz Matrix's Automatic Upgrade Script to allow users to view the upgrade steps of specific versions of Matrix without requiring that particular instance.
+
+Previously, users could use the --verbose parameter on the script to display a full list of upgrade steps from their current version to the version of Matrix indicated.
+
+This enhancement introduces a new --show_steps parameter, which allows users to specify two versions of Matrix to view a full list of upgrade steps between them.
+
+Usage of this script parameter is shown below. Please note that the database type (psql or oci) must be specified when using this parameter.
+
+php matrix_upgrade.php --show_steps mysource_4-2-2 mysource_4-8-0 psql
+
+php matrix_upgrade.php --show_steps mysource_4-2-2 mysource_4-8-0 oci
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5510: Performance Enhancement: getAllChildLinks().
+Minor Enhancement #5539: Suggested Tags Now In Alphabetical Order.
+Minor Enhancement #5557: Restricted File URL Memory.
+Minor Enhancement #5584: Matrix to Not Poll LDAP During Root User Authentication.
+Minor Enhancement #5585: Automatic Upgrade Script: Allow PHP Options.
+
+Core
+
+Fixed Bug #5533: Asset Builder asset's Dynamic Create Locations ignore LDAP user group membership.
+Fixed Bug #5546: Inaccurate label on the insert image popup of the WYSIWYG.
+Fixed Bug #5555: Embed YouTube Video by URL improvement.
+Fixed Bug #5558: Import assets from XML errors when setting permission for online quiz asset.
+Fixed Bug #5560: Warranty key expiry screen shows up in SOAP API call.
+Fixed Bug #5562: Asset Map supported java versions.
+Fixed Bug #5563: root_nodes keyword does not work with modifiers unless used without them first.
+Fixed Bug #5567: WYSIWYG select text colour on multiple table cells removes cell tag.
+Fixed Bug #5569: System alternative proxy setting wiped when running installation step 3.
+Fixed Bug #5572: Conditional Keyword for Paint Layout doesn't let you configure the question id in keywords like 'question_answer_X_qY'.
+Fixed Bug #5574: Form file upload problem with IOS device.
+Fixed Bug #5576: Edit permission HIPO goes over 100%.
+Fixed Bug #5581: tags converted to character references when inside a span when lang attribute removed.
+Fixed Bug #5583: Revert safe edit assets status with notice links fatal errors when multiple context is defined.
+Fixed Bug #5587: WYSIWYG Insert link for redirect page or link asset doesn't work with manual entering of the asset ID.
+Fixed Bug #5588: Thesaurus metadata field keywords not replaced by JS API getKeywordReplacements.
+Fixed Bug #5595: Import assets from XML tool sometimes fails if the xml has invalid characters.
+
+CMS
+
+Fixed Bug #5566: Remote content page display error message not working.
+Fixed Bug #5579: Asset builder asset created bodycopy, can not use nesting asset's keywords in Additional Get Vars of Nest Content Type.
+
+Search
+
+Fixed Bug #5535: Inconsistent indexing when non-alphanumeric characters in a string.
+
+LDAP
+
+Fixed Bug #5542: %globals_user_attribute_*% keywords not working for LDAP user.
+
+Web Services
+
+Fixed Bug #5532: JS API getLineage function return incorrect data for asset parents that have been linked in multiple places.
+Fixed Bug #5537: Javascript API createAsset function doesn't work in IE.
+Fixed Bug #5538: maximum_perm_on_asset returning incorrect permission level.
+Fixed Bug #5559: JS_API::removeMultipleLinks() throws JSON.parse error on failure.
+Fixed Bug #5568: SOAP Web Service GetDesignFromURL() returns no results for certain scenarios.
+
+
+
 VERSION 4.6.3
 
 Featured Changes
@@ -65,7 +143,7 @@ Fixed Bug #5459: Upcoming Events list displays multiple results for Single Calen
 Web Services
 
 Fixed Bug #5536: SOAP API's GetMetadataFieldValues Function, if empty field names are passed, doesn't return all values.
-
+Fixed Bug #5522: GetAsset method doesn't return valid XML on all Assets.
 
 
 VERSION 4.6.2
