@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.864 2012/02/27 06:20:11 ewang Exp $
+* $Id: asset_manager.inc,v 1.865 2012/02/28 04:53:39 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.864 $
+* @version $Revision: 1.865 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9798,103 +9798,78 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY depth DESC';
 		}
 
-		$group_by = '';
-		$having = '';
-		$userids_str = '';
+        if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+            $where .= ' AND p.assetid = a.assetid';
+		}
+
+        $from .= $where.') ll ';
+
+		$group_by      = '';
+		$having        = '';
+		$outer_where   = '';
 		$public_userid = '';
-		if (!is_null($access)) {
-			$userid_cond = '';
+        $userids_str   = '';
+
+        if (!is_null($access)) {
 			$group_by = 'GROUP BY ll.majorid, ll.treeid, ll.type_code, ll.name';
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$where .= ' AND p.assetid = a.assetid';
+            if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+                $having .= 'HAVING MIN(ll.granted) <> \'0\'';
 
-				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
-				$userids = $current_user->getUserGroups();
-				$this->forgetAsset($current_user);
+                $from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = ll.assetid)';
 
-				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
+                $current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+                $userids      = $current_user->getUserGroups();
+                $this->forgetAsset($current_user);
 
-				$userid_cond = Array();
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userid_cond[] = ':'.$bind_prefix.'userids_'.$i;
-					$bind_vars[$bind_prefix.'userids_'.$i] = (string)$userids[$i];
-				}
-				$userids_str = implode(', ', $userid_cond);
-				$userid_cond = ' AND p.userid IN ('.$userids_str.')';
+                $userids[]     = $GLOBALS['SQ_SYSTEM']->user->id;
+                $public_userid = (String)$this->getSystemAssetid('public_user');
+                $userids[]     = $public_userid;
 
-				$where .= $userid_cond.'
-					AND (
-							(p.permission = :'.$bind_prefix.'user_perm_access AND (
-								p.userid <> :'.$bind_prefix.'user_perm_public_userid
-								OR (userid = :'.$bind_prefix.'user_perm_public_userid_1 AND granted = \'1\')
-								)
-							)';
+                // Need to regenerate the user conditions because of the need for different bind vars
+                $userid_cond_ll = Array();
+                $userid_cond_r  = Array();
 
-				$bind_vars[$bind_prefix.'user_perm_access']          = $access;
-				$bind_vars[$bind_prefix.'user_perm_public_userid']   = $public_userid;
-				$bind_vars[$bind_prefix.'user_perm_public_userid_1'] = $public_userid;
+                for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+                    $userid_cond_ll[] = ':'.$bind_prefix.'userids_ll_'.$i;
+                    $userid_cond_r[]  = ':'.$bind_prefix.'userids_r_'.$i;
+                    $bind_vars[$bind_prefix.'userids_ll_'.$i] = (string)$userids[$i];
+                    $bind_vars[$bind_prefix.'userids_r_'.$i]  = (string)$userids[$i];
+                }
 
-				if ($effective) {
-					$where .= ' OR (p.permission > :'.$bind_prefix.'user_perm_access_effective AND p.granted = \'1\')';
-					$bind_vars[$bind_prefix.'user_perm_access_effective'] = $access;
-				}
-				$where .= ')';
-				$having .= 'HAVING MIN(ll.granted) <> \'0\'';
-			}
+                $userids_str_ll = implode(', ', $userid_cond_ll);
+                $userids_str_r  = implode(', ', $userid_cond_r);
 
-		}
+                // Main where caluse. This hsould only be printed if we have user conditions i.e not root/sys_admin
+                $outer_where = ' WHERE (
+                                    ll.userid IN ('.$userids_str_ll.') OR r.userid IN ('.$userids_str_r.')
+                                 )
+                                 AND (
+                                        (
+                                            ll.permission = :'.$bind_prefix.'outer_access AND
+                                                                                        (
+                                                                                            ll.userid <> :'.$bind_prefix.'public_userid
+                                                                                            OR r.userid <> :'.$bind_prefix.'public_userid_1
+                                                                                            OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = \'1\')
+                                                                                            OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = \'1\')
+                                                                                        )
+                                        )';
 
-		$from .= $where.') ll ';
-		$outer_where = '';
-		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = ll.assetid)';
+                $bind_vars[$bind_prefix.'outer_access'] = $access;
+                $bind_vars[$bind_prefix.'public_userid'] = $public_userid;
+                $bind_vars[$bind_prefix.'public_userid_1'] = $public_userid;
+                $bind_vars[$bind_prefix.'public_userid_2'] = $public_userid;
+                $bind_vars[$bind_prefix.'public_userid_3'] = $public_userid;
 
-			// Need to regenerate the user conditions because of the need for different bind vars
-			$userid_cond_ll = Array();
-			$userid_cond_r  = Array();
-
-			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userid_cond_ll[] = ':'.$bind_prefix.'userids_ll_'.$i;
-				$userid_cond_r[]  = ':'.$bind_prefix.'userids_r_'.$i;
-				$bind_vars[$bind_prefix.'userids_ll_'.$i] = (string)$userids[$i];
-				$bind_vars[$bind_prefix.'userids_r_'.$i] = (string)$userids[$i];
-			}
-
-			$userids_str_ll = implode(', ', $userid_cond_ll);
-			$userids_str_r  = implode(', ', $userid_cond_r);
-
-			// Main where caluse. This hsould only be printed if we have user conditions i.e not root/sys_admin
-			$outer_where = ' WHERE (
-								ll.userid IN ('.$userids_str_ll.') OR r.userid IN ('.$userids_str_r.')
-							 )
-							 AND (
-									(
-										ll.permission = :'.$bind_prefix.'outer_access AND
-																					(
-																						ll.userid <> :'.$bind_prefix.'public_userid
-																						OR r.userid <> :'.$bind_prefix.'public_userid_1
-																						OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = \'1\')
-																						OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = \'1\')
-																					)
-									)';
-
-			$bind_vars[$bind_prefix.'outer_access'] = $access;
-			$bind_vars[$bind_prefix.'public_userid'] = $public_userid;
-			$bind_vars[$bind_prefix.'public_userid_1'] = $public_userid;
-			$bind_vars[$bind_prefix.'public_userid_2'] = $public_userid;
-			$bind_vars[$bind_prefix.'public_userid_3'] = $public_userid;
-
-			if ($effective) {
-				$outer_where .= ' OR
-									(
-										ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = \'1\'
-									)';
-				$bind_vars[$bind_prefix.'outer_access_effective'] = $access;
-			}
-			$outer_where .= ')';
-		}
+                if ($effective) {
+                    $outer_where .= ' OR
+                                        (
+                                            ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = \'1\'
+                                        )';
+                    $bind_vars[$bind_prefix.'outer_access_effective'] = $access;
+                }
+                $outer_where .= ')';
+            }
+        }
 
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid, null as depth';
