@@ -71,6 +71,8 @@ Minor Enhancement #5557: Restricted File URL Memory.
 Minor Enhancement #5577: Online Quiz: Server Side Validation.
 Minor Enhancement #5584: Matrix to Not Poll LDAP During Root User Authentication.
 Minor Enhancement #5585: Automatic Upgrade Script: Allow PHP Options.
+Minor Enhancement #5594: Performance enhancement -- getLineageFromURL function optimised to run faster.
+Minor Enhancement #5599: Performance improvement getting an assets parents.
 
 Core
 
