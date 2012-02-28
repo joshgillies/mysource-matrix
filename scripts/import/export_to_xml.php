@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.24 2011/12/13 22:52:52 cupreti Exp $
+* $Id: export_to_xml.php,v 1.25 2012/02/28 03:10:59 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -435,13 +435,14 @@ echo "</actions>\n\n";
 		
 
 			// if the action is to deny a previous permission, make sure we will remove the permission first
-			// even removing it will possibly fail, it will not affect the result.
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_read_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "    <permission>1</permission>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
 				echo "</action>\n";
@@ -472,12 +473,14 @@ echo "</actions>\n\n";
 			}
 
 			// if the action is to deny a previous permission, make sure we will remove the permission first
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_write_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "    <permission>2</permission>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
 				echo "</action>\n";
@@ -504,12 +507,15 @@ echo "</actions>\n\n";
 				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
 			}
 
+			// if the action is to deny a previous permission, make sure we will remove the permission first
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_admin_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "    <permission>3</permission>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
 				echo "</action>\n";

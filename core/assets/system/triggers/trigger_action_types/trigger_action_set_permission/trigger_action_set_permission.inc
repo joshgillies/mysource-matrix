@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.27 2011/05/25 03:38:00 akarelia Exp $
+* $Id: trigger_action_set_permission.inc,v 1.28 2012/02/28 03:13:02 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,6 +79,9 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
 		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
+		// If permission change fails, fail silently
+		$mute_error = array_get_index($settings, 'mute_error', FALSE);
+		
 		// if dependant_parents is turned on, look for all our dependant parents
 		// and change their statuses, instead of our own
 		$target_assets = Array();
@@ -116,8 +119,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$vars['dependants_only'] = $dependant_only;
 
 		$status_errors = $hh->freestyleHipo('hipo_job_edit_permissions', $vars);
-
-		if (!empty($status_errors)) return FALSE;
+		if (!$mute_error && !empty($status_errors)) return FALSE;
 
 		return Array(
 				'assetid'		=> $state['assetid'],
