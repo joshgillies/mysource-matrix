@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.22 2012/02/27 02:26:43 akarelia Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.23 2012/02/28 02:06:50 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $ - 1.0
+* @version $Revision: 1.23 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -1325,7 +1325,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<th><?php echo translate('url'); ?></th>
 					<th><?php echo "Send Headers"; ?></th>
-					<th><?php echo "Send User Headers"; ?></th>
+					<th><?php echo "Public User Only"; ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -1347,9 +1347,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					<td>
 						<?php
 						if ($wa) {
-							check_box($prefix.'_user_url_'.$i, 1, in_array($url, $cacheable_user_header_urls));
+							check_box($prefix.'_user_url_'.$i, 1, !in_array($url, $cacheable_user_header_urls));
 						} else {
-							$filename = in_array($url, $cacheable_user_header_urls) ? 'tick' : 'cross';
+							$filename = in_array($url, $cacheable_user_header_urls) ? 'cross' : 'tick';
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
 						}
 						?>
@@ -1397,7 +1397,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$user_cachable[] = $url;
 			}
 		}
-		$user_cacheable = array_intersect($root_urls, $user_cachable);
+		// save urls that we will send headers for ALL users
+		$user_cacheable = array_diff($root_urls, $user_cachable);
 		$asset->setAttrValue('user_cacheable_header_urls', $user_cacheable);
 		
 		return $asset->setAttrValue('non_cacheable_header_urls', $non_cachable);

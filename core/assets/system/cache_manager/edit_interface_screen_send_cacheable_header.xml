@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_send_cacheable_header.xml,v 1.3 2012/02/21 02:56:06 akarelia Exp $
+* $Id: edit_interface_screen_send_cacheable_header.xml,v 1.4 2012/02/28 02:06:50 ewang Exp $
 *
 */
 -->
@@ -28,9 +28,6 @@
 			<selection style="list" />
 		</field>
 		<field attribute="cache_control_https">
-			<selection style="list" />
-		</field>
-		<field attribute="send_headers_for">
 			<selection style="list" />
 		</field>
 	</section>
