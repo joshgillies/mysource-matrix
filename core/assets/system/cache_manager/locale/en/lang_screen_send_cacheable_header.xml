@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_send_cacheable_header.xml,v 1.2.2.1 2012/02/21 03:05:23 akarelia Exp $
+* $Id: lang_screen_send_cacheable_header.xml,v 1.2.2.2 2012/02/28 03:45:48 ewang Exp $
 *
 */
 -->
@@ -32,10 +32,6 @@
 		</field>
 		<field attribute="cache_control_https">
 			<display_name>Https Cache Control Level</display_name>
-			<note />
-		</field>
-		<field attribute="send_headers_for">
-			<display_name>Send Cacheable Headers for</display_name>
 			<note />
 		</field>
 	</section>
