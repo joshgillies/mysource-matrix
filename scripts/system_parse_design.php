@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.9 2007/12/10 06:23:45 rong Exp $
+* $Id: system_parse_design.php,v 1.10 2012/02/29 00:13:42 akarelia Exp $
 *
 */
 
@@ -18,9 +18,10 @@
 * Reparses a specified design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
@@ -95,9 +96,10 @@ $design->generateDesignFile(false);
 printUpdateStatus('OK');
 
 
-$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-foreach($customisation_links as $link) {
-	$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getChildren($design->id, 'design_customisation', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, 'customisation', Array(SQ_LINK_TYPE_2));
+
+foreach($customisation_links as $asset_id => $info) {
+	$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id, $info[0]['type_code']);
 	if (is_null($customisation)) continue;
 	printName('Reparse design customisation "'.$customisation->name.'"');
 	$vars = Array('assetids' => Array($customisation->id), 'lock_type' => 'all', 'forceably_acquire' => false);
