@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.103 2012/02/24 06:39:50 cupreti Exp $
+* $Id: js_api.inc,v 1.104 2012/02/29 00:32:31 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2947,7 +2947,7 @@ class JS_Api extends Page
 				} else if ($asset->writeAccess()) {
 					// asset isnt in trash and none of the links are locked, Hooorrrrray !!!!
 					$am->acquireLock($id, 'all');
-					$result	= $am->trashAsset($id);
+					$result	= $am->trashAsset($id, TRUE);
 					if (!$result) {
 						$response[] = 'Could not move Asset "'.$asset->name.'" (#'.$asset->id.') to Trash';
 					} else {
