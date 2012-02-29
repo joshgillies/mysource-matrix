@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.5 2011/07/15 09:06:33 mhaidar Exp $
+* $Id: oci_functions.xml,v 1.6 2012/02/29 01:54:24 csmith Exp $
 *
 */
 -->
@@ -54,55 +54,6 @@
 						RETURN v_date;
 				END;
 			END sq_common_pkg;
-		]]>
-	</sql_element>
-	<sql_element display_name="sq_get_lineage_from_url Function">
-		<![CDATA[
-			-- returns all the urls up to the specified url so that we can use an IN
-			-- clause rather than a LIKE clause for a better query plan
-			CREATE OR REPLACE FUNCTION sq_get_lineage_from_url(url IN VARCHAR2) RETURN VARCHAR_500_TABLE IS
-				-- urls can only be 500 chars long
-				next_url VARCHAR2(500);
-				concat_url VARCHAR2(500);
-				i INTEGER;
-				next_slash INTEGER;
-				pos INTEGER;
-				urls VARCHAR_500_TABLE := VARCHAR_500_TABLE();
-			BEGIN
-				i := 1;
-				next_slash := 1;
-				pos := 1;
-				concat_url := NULL;
-
-				LOOP
-					pos := instr(url, '/', 1, next_slash);
-
-					IF pos = 0 THEN
-						-- if pos is 0 then get the component to the end of the url
-						next_url := substr(url, i, length(url));
-					ELSE
-						next_url := substr(url, i, (pos - i));
-					END IF;
-
-					IF concat_url IS NOT NULL THEN
-						concat_url := concat_url || '/';
-					END IF;
-					concat_url := concat_url || next_url;
-					urls.extend;
-					urls(urls.count) := concat_url;
-
-					IF pos = 0 THEN
-						-- we have the last url so we are done
-						return urls;
-					END IF;
-
-					i := pos + 1;
-					next_slash := next_slash + 1;
-
-				END LOOP;
-				RETURN urls;
-
-			END sq_get_lineage_from_url;
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_get_parent_treeids Function">

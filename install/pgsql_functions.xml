@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.23 2011/07/15 09:13:08 mhaidar Exp $
+* $Id: pgsql_functions.xml,v 1.24 2012/02/29 01:54:24 csmith Exp $
 *
 */
 -->
@@ -107,37 +107,6 @@
                 RETURN ts;
             END;
             ' language plpgsql VOLATILE;
-        ]]>
-    </sql_element>
-    <sql_element display_name="sq_get_lineage_from_url Function">
-        <![CDATA[
-            -- splits the specified url into its root url components out to the specified url
-            CREATE OR REPLACE FUNCTION sq_get_lineage_from_url(VARCHAR) RETURNS SETOF VARCHAR AS '
-            DECLARE
-                urloffset int;
-                url ALIAS FOR $1;
-                next_url VARCHAR;
-                concat_url VARCHAR;
-            BEGIN
-                urloffset := 1;
-                concat_url := '''';
-                LOOP
-                    next_url := split_part(url, ''/'', urloffset);
-                    IF next_url = '''' THEN
-                        EXIT;
-                    END IF;
-                    concat_url := concat_url;
-                    IF concat_url != '''' THEN
-                        concat_url := concat_url || ''/'';
-                    END IF;
-                    concat_url := concat_url || next_url;
-
-                    RETURN next concat_url;
-                    urloffset := urloffset + 1;
-                END LOOP;
-                RETURN;
-            END;
-            ' LANGUAGE plpgsql;
         ]]>
     </sql_element>
     <sql_element display_name="sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) Function">
