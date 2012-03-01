@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.170 2012/02/21 03:21:55 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.171 2012/03/01 02:12:50 mhaidar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -311,22 +311,26 @@ class Page_Asset_Builder extends Page
 	*/
 	function _printBody()
 	{
-		$submission_url = $this->attr('submit_to_page_url') ? replace_query_string_vars(Array(), $this->getURL()) : replace_query_string_vars(Array());
-		?>
-		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
-			<?php
-			hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
-			$parameter_map = $this->getAttribute('parameter_map');
-			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
-				hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
-			} else if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
-				hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
-			}
-
+		if ($this->_current_state == 'created'){
 			$this->_printContents();
+		} else {
+			$submission_url = $this->attr('submit_to_page_url') ? replace_query_string_vars(Array(), $this->getURL()) : replace_query_string_vars(Array());
 			?>
-		</form>
-		<?php
+			<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
+				<?php
+				hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
+				$parameter_map = $this->getAttribute('parameter_map');
+				if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
+					hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
+				} else if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+					hidden_field('AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['AB_'.$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
+				}
+
+				$this->_printContents();
+				?>
+			</form>
+			<?php
+		}
 
 	}//end _printBody()
 
