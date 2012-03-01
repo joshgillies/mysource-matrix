@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.5.2.6 2012/02/23 03:59:48 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.5.2.7 2012/03/01 04:58:20 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5.2.6 $
+* @version $Revision: 1.5.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -665,7 +665,7 @@ class Page_Calendar_Events_Search extends Search_Page
 			<tr>
 				<?php 
 				if (!$single_field) {
-					echo '<td align="right">'.ucfirst(translate('from')).'</td>';
+					echo '<td align="right">'.ucfirst(translate('from')).':</td>';
 				}
 				?>
 				<td>
