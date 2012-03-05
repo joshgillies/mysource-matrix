@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.46 2010/12/22 22:37:44 akarelia Exp $
+* $Id: cron_job_future_status.inc,v 1.46.8.1 2012/03/05 00:39:26 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -334,6 +334,17 @@ class Cron_Job_Future_Status extends Cron_Job
 			} else {
 				// process failed
 				trigger_localised_error('CRON0003', E_USER_WARNING, $asset->name, $asset->id);
+				// we have errors so dump them out too
+				foreach ($status_errors as $error) {
+					$line = '';
+					if (is_string($error)) {
+						$line = $error;
+					} else if (is_array($error)) {
+						if (isset($error['time'])) $line .= 'Time : '.$error['time'].'. ';
+						if (isset($error['message'])) $line .= 'Message : '.$error['message'].'.';
+					}
+					if ($line !== '') trigger_error($line, E_USER_WARNING);
+				}
 			}
 
 		} else {
