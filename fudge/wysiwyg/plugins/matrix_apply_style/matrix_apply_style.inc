@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.23 2009/07/29 00:35:45 wszymanski Exp $
+* $Id: matrix_apply_style.inc,v 1.23.16.1 2012/03/05 00:09:19 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.16.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -70,9 +70,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				if (!empty($css_file)) {
 					$stylesheet_src = $css_file['path'];
 				}
-
-				// set the stylesheet to use in the editor
-				$wysiwyg->set_stylesheet($css->getURL());
 
 				// if it exists, parse the stylesheet to get a list of styles we can use
 				if (file_exists($stylesheet_src)) {
