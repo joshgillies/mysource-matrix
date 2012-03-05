@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.7 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_parse_designs.php,v 1.7.4.1 2012/03/05 00:33:34 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix
 */
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
@@ -90,9 +90,10 @@ foreach ($designs as $designid) {
 	printUpdateStatus('OK');
 
 
-	$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-	foreach($customisation_links as $link) {
-		$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+	$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getChildren($design->id, 'design_customisation', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, 'customisation', Array(SQ_LINK_TYPE_2));
+
+	foreach($customisation_links as $asset_id => $info) {
+		$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id, $info[0]['type_code']);
 		if (is_null($customisation)) continue;
 		printName('Reparse design customisation "'.$customisation->name.'"');
 
