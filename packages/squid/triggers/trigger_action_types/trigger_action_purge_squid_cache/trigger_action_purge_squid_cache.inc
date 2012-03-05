@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.7 2011/03/22 02:53:28 mhaidar Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.7.6.1 2012/03/05 00:27:17 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -62,10 +62,11 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		if (empty($state['assetid'])) return FALSE;
+		$cascade = array_get_index($settings, 'cascade_clear_cache', FALSE);
 
 		$vars = Array(
 					'assetid'		=> $state['assetid'],
-					'cascade'		=> FALSE,
+					'cascade'		=> $cascade,
 					'repopulate'	=> FALSE,
 				);
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -89,7 +90,23 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		return translate('squid_tool_hostname_note');
+		$settings['cascade_clear_cache'] = array_get_index($settings, 'cascade_clear_cache', FALSE);
+
+		ob_start();
+
+		echo translate('cascade_question').'  ';
+		if ($write_access) {
+			check_box($prefix.'[cascade_clear_cache]', 1, $settings['cascade_clear_cache']);
+		} else {
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_clear_cache'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_clear_cache'] ? translate('yes') : translate('no')).'" /> ';
+		}
+		echo "</br>";
+		echo translate('squid_tool_cascade_note');
+		echo "</br>";
+		echo "</br>";
+		echo translate('squid_tool_hostname_note');
+
+		return ob_get_clean();
 
 	}//end getInterface()
 
@@ -107,6 +124,8 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	*/
 	public static function processInterface(&$settings, $request_data)
 	{
+		$settings['cascade_clear_cache'] = array_get_index($request_data, 'cascade_clear_cache', FALSE);
+
 		return FALSE;
 
 	}//end processInterface()
