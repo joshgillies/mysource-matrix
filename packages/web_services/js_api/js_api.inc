@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.104 2012/02/29 00:32:31 cupreti Exp $
+* $Id: js_api.inc,v 1.105 2012/03/05 04:37:21 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2493,7 +2493,7 @@ class JS_Api extends Page
 					$result	= $am->deleteAssetLink($linkid['link_id']);
 				} else {
 					// Only one link holly cow, lets trash it instead, otherwise we'l have an orphan asset in the system
-					$result	= $am->trashAsset($link['minorid']);
+					$result	= $am->trashAsset($link['minorid'], TRUE);
 				}//end if
 				//no matter if link is deleted or the whole asset is moved to trash, we will update lookups :)
 				$result_from_update = $this->updateLookupsforAsset($child);
