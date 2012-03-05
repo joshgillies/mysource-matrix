@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.6 2012/02/27 00:27:40 cupreti Exp $
+* $Id: js_api.inc,v 1.96.2.7 2012/03/05 23:18:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.6 $
+* @version $Revision: 1.96.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -795,6 +795,7 @@ class JS_Api extends Page
 		$inc_dependants		= isset($args['inc_dependants']) && $args['inc_dependants'] != '' ? $args['inc_dependants'] : TRUE;
 		$data				= $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants);
 
+		if(empty($data)) $data[] = 'No roles data is found';
 		return $data;
 
 	}// end _getRoles
