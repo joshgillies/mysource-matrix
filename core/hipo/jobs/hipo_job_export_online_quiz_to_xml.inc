@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.5 2012/03/06 02:39:32 mhaidar Exp $
+* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.6 2012/03/06 02:49:50 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -360,7 +360,11 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		ob_start();
 		if ($paint_method == 'default_layout'){
 			$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(strip_url($asset->getURL(), TRUE), 'paint_layout::system::frontend');
-			$asset->printBodyWithPaintLayout($layout_id);
+			if (!empty($layout_id)){
+				$asset->printBodyWithPaintLayout($layout_id);
+			} else {
+				$asset->printBody();
+			}
 		} else {
 			$asset->printBody();
 		}
