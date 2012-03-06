@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.9 2011/12/12 00:07:33 akarelia Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.10 2012/03/06 22:45:07 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -386,10 +386,15 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						coll3.style.display='none';
 						coll3.disabled=true;
                         if (type == 'hosted') {
-                            url4.style.display='block';
-	    					url4.disabled=false";
+                            url4.style.display='none';
+	    					url4.disabled=true;
 	    					coll4.style.display='block';
 		    				coll4.disabled=false;
+                        } else {
+                            url4.style.display='block';
+	    					url4.disabled=false;
+	    					coll4.style.display='none';
+		    				coll4.disabled=true;
                         }
 					} else if (type == 'squiz') {
 						url1.style.display='none';
@@ -398,12 +403,16 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						url2.disabled=true;
 						url3.style.display='block';
 						url3.disabled=false;
+						url4.style.display='block';
+	    				url4.disabled=true;
 						coll1.style.display='none';
 						coll1.disabled=true;
 						coll2.style.display='none';
 						coll2.disabled=true;
 						coll3.style.display='block';
 						coll3.disabled=false;
+    					coll4.style.display='none';
+	    				coll4.disabled=true;
 					} else {
 						url1.style.display='none';
 						url1.disabled=true;
@@ -411,12 +420,16 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						url2.disabled=false;
 						url3.style.display='none';
 						url3.disabled=true;
+						url4.style.display='block';
+	    				url4.disabled=true;
 						coll1.style.display='none';
 						coll1.disabled=true;
 						coll2.style.display='block';
 						coll2.disabled=false;
 						coll3.style.display='none';
 						coll3.disabled=true;
+    					coll4.style.display='none';
+	    				coll4.disabled=true;
 					}
 				}
 			</script>
