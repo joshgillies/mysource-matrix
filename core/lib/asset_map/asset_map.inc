@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.304 2011/09/30 01:43:09 cupreti Exp $
+* $Id: asset_map.inc,v 1.305 2012/03/06 02:47:27 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.305 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1433,8 +1433,9 @@ class Asset_Map
 	{
 		// block public users from probing
 		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
-		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend())))
+		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Ldap_Simple_Edit_User || $user instanceof Simple_Edit_User || $user->canAccessBackend()))) {
 			exit();
+		}
 			
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
