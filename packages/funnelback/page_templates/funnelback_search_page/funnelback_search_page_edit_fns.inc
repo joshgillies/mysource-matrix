@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page_edit_fns.inc,v 1.10 2012/03/06 22:45:07 akarelia Exp $
+* $Id: funnelback_search_page_edit_fns.inc,v 1.11 2012/03/06 22:57:16 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     Edit functions for funnelback search page
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -530,9 +530,9 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$suiteid = '';
 			} else if ($type == 'squiz') {
 				$collection  = array_get_index($_POST, $prefix.'_search_collection_squiz', '');
-				$suiteid     = array_get_index($_POST, $prefix.'_search_url_squiz', '');
-				$url         = '';
-				$systems     = $this->_getSquizSearchSystems();
+				$suiteid	 = array_get_index($_POST, $prefix.'_search_url_squiz', '');
+				$url		 = '';
+				$systems	 = $this->_getSquizSearchSystems();
 				$collections = $this->_getSquizSearchCollections($suiteid);
 				if (!array_key_exists($suiteid, $systems)) {
 					$suiteid = '';
@@ -544,13 +544,15 @@ class Funnelback_Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			} else if ($type == 'hosted') {
 				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
 				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
-                $mode = array_get_index($_POST, $prefix.'_search_mode', 0);
 				$suiteid = '';
-            } else {
+			} else {
 				$collection = array_get_index($_POST, $prefix.'_search_collection_web', '');
 				$url = array_get_index($_POST, $prefix.'_search_url_web', '');
 				$suiteid = '';
 			}//end if
+
+			// get the mode value irrespective of the search type
+			$mode = array_get_index($_POST, $prefix.'_search_mode', 0);
 			$asset->setAttrValue('search_type', $type);
 			$asset->setAttrValue('funnelback_url', $url);
 			$asset->setAttrValue('systemid', $suiteid);
