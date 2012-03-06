@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.10 2011/07/15 00:31:24 ewang Exp $
+* $Id: soap_api_link_service.inc,v 1.11 2012/03/06 00:43:14 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -665,8 +665,8 @@ class Soap_Api_Link_Service extends Soap_Api
 		$request_info		= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');
 		$other_assetid		= array_get_index($request_info, 'OtherAssetID', '');
-		$link_type			= array_get_index($request_info, 'LinkType', '');
-		$link_value			= array_get_index($request_info, 'LinkValue', '');
+		$link_type			= array_get_index($request_info, 'LinkType', NULL);
+		$link_value			= array_get_index($request_info, 'LinkValue', NULL);
 		$side_of_link		= array_get_index($request_info, 'SideOfLink', 'major');
 		$dependant			= self::getNullIndex($request_info, 'IsDependant', NULL);
 		$exclusive			= self::getNullIndex($request_info, 'IsExclusive', NULL);
