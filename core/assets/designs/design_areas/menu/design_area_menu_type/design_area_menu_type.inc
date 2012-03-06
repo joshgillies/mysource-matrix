@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.112 2011/07/17 23:15:08 cupreti Exp $
+* $Id: design_area_menu_type.inc,v 1.112.4.1 2012/03/06 05:48:45 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.112.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -640,11 +640,23 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-						echo 'if (!empty($link)) {'."\n";
-						echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', TRUE);'."\n";
+						echo '$thumbnail = NULL;'."\n";
+						echo '$thumbnail_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$id_name.'_row[\'assetid\']);'."\n";
+						echo 'if ($thumbnail_asset->useSystemVersion()) {'."\n";
+						echo '    $notice_links = unserialize(file_to_string($thumbnail_asset->data_path.\'/.sq_notice_links\'));'."\n";
+						echo '    foreach ($notice_links as $link) {'."\n";
+						echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+						echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '			  break;'."\n";
+						echo '		  }'."\n";
+						echo '	  }'."\n";
+						echo '} else {'."\n";
+						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+						echo '    if (!empty($link)) {'."\n";
+						echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '    }'."\n";
 						echo '}'."\n";
+						echo 'if ($thumbnail) echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', TRUE);'."\n";
 						echo '?', '>';
 					}
 				break;
@@ -652,11 +664,23 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_thumbnail_url' :
 					if ($id_name) {
 						echo '<', '?php ';
-						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-						echo 'if (!empty($link)) {'."\n";
-						echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-						echo 'echo $thumbnail->getURL($'.$id_name.'_row[\'name\']);'."\n";
+						echo '$thumbnail = NULL;'."\n";
+						echo '$thumbnail_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$id_name.'_row[\'assetid\']);'."\n";
+						echo 'if ($thumbnail_asset->useSystemVersion()) {'."\n";
+						echo '    $notice_links = unserialize(file_to_string($thumbnail_asset->data_path.\'/.sq_notice_links\'));'."\n";
+						echo '    foreach ($notice_links as $link) {'."\n";
+						echo '		  if ($link[\'value\'] == \'thumbnail\') {'."\n";
+						echo '			  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '			  break;'."\n";
+						echo '		  }'."\n";
+						echo '	  }'."\n";
+						echo '} else {'."\n";
+						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+						echo '    if (!empty($link)) {'."\n";
+						echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '    }'."\n";
 						echo '}'."\n";
+						echo 'if ($thumbnail) echo $thumbnail->getURL($'.$id_name.'_row[\'name\']);'."\n";
 						echo '?', '>';
 					}
 				break;

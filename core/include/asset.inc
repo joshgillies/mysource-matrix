@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.756.2.2 2012/02/22 22:20:54 ewang Exp $
+* $Id: asset.inc,v 1.756.2.3 2012/03/06 05:50:49 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.756.2.2 $
+* @version $Revision: 1.756.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1129,7 +1129,8 @@ class Asset extends MySource_Object
 								'nested_asset',
 								'paint_with_layout',
 								'root',
-								'redirect_asset'
+								'redirect_asset',
+								'thumbnail',
 							 );
 		foreach ($notice_links as $link) {
 			if (in_array($link['value'], $links_to_preserve)) {
@@ -1242,6 +1243,7 @@ class Asset extends MySource_Object
 			}
 
 
+
 			if (!$contexted_asset->saveAttributes()) {
 				trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
@@ -1255,8 +1257,7 @@ class Asset extends MySource_Object
 			}
 
 		}//end foreach
-		
-		
+
 		if (!$this->revertNoticeLinksToSystemVersion()) return FALSE;
 
 		// If we have metadata, load the old version so we can revert the values
@@ -1327,7 +1328,8 @@ class Asset extends MySource_Object
 									'nested_asset',
 									'paint_with_layout',
 									'root',
-									'redirect_asset'
+									'redirect_asset',
+									'thumbnail',
 								 );
 			foreach ($notice_links as $index => $info) {
 				if (in_array($info['value'], $links_to_preserve)) {
@@ -2160,7 +2162,6 @@ class Asset extends MySource_Object
 		  //////////////////
 		 /// ATTRIBUTES ///
 		//////////////////
-
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
 				// Save the current variables so we can restore them afterwards
