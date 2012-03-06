@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.18 2010/05/05 07:13:52 ewang Exp $
+* $Id: ldap_bridge_management.inc,v 1.19 2012/03/06 02:39:59 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -132,6 +132,7 @@ class LDAP_Bridge_Management extends Asset_Management
 												'parameters'	=> Array(
 																	'options'		=> Array(
 																						'ldap_backend_user'	=> 'Backend User',
+																						'ldap_simple_edit_user'	=> 'Simple Edit User',
 																						'ldap_user'			=> 'User',
 																					   ),
 																	'multiple'		=> FALSE,

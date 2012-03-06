@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.107 2012/02/03 05:20:15 mhaidar Exp $
+* $Id: ldap_bridge.inc,v 1.108 2012/03/06 02:39:59 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -261,10 +261,11 @@ class LDAP_Bridge extends Asset implements Bridge
 				return $asset;
 
 			} else if (isset($this->_user_types[$class])) {
-				// include both assets, in case the type changes
+				// include all three LDAP user assets, in case the type changes
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_backend_user');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_simple_edit_user');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				// LDAP user or LDAP backend user,
+				// LDAP user or LDAP Simple Edit User or LDAP backend user,
 				// depending on the bridge setting
 				$user_type = $this->attr('user_type');
 				$asset = new $user_type($this->id, $data);
@@ -422,6 +423,10 @@ class LDAP_Bridge extends Asset implements Bridge
 							}
 						} else if ($asset->type() == 'ldap_backend_user') {
 							if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
+								return Array();
+							}
+						} else if ($asset->type() == 'ldap_backend_user') {
+							if (!((in_array('ldap_simple_edit_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
 								return Array();
 							}
 						} else if ($asset->type() == 'ldap_user') {
@@ -602,7 +607,14 @@ class LDAP_Bridge extends Asset implements Bridge
 								$all_types = Array(
 												'user',
 												'ldap_user',
+												'ldap_simple_edit_user',
 												'ldap_backend_user',
+											 );
+							} else if ($this->attr('user_type') == 'ldap_simple_edit_user') {
+								$all_types = Array(
+												'user',
+												'ldap_user',
+												'ldap_simple_edit_user',
 											 );
 							} else {
 								// ldap_user
@@ -897,7 +909,14 @@ class LDAP_Bridge extends Asset implements Bridge
 			$all_types = Array(
 							'user',
 							'ldap_user',
+							'ldap_simple_edit_user',
 							'ldap_backend_user',
+						 );
+		} else if ($this->attr('user_type') == 'ldap_simple_edit_user') {
+			$all_types = Array(
+							'user',
+							'ldap_user',
+							'ldap_simple_edit_user',
 						 );
 		} else {
 			// ldap_user
