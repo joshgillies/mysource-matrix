@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.33 2012/01/19 01:01:07 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.34 2012/03/06 03:19:13 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -428,8 +428,6 @@ class Page_Upcoming_Events_List extends Page
 			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
 		}
 
-		$events_frequency = $GLOBALS['SQ_SYSTEM']->getUserPrefs('page_calendar', 'SQ_CALENDAR_EVENTS_FREQUENCY');
-		
 		foreach ($events as $id => $event) {
 			$shadow_id = $id;
 			$id = strtok($id, ':');
