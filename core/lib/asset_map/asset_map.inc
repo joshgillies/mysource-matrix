@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.304 2011/09/30 01:43:09 cupreti Exp $
+* $Id: asset_map.inc,v 1.304.2.1 2012/03/07 01:10:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.304.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1004,6 +1004,9 @@ class Asset_Map
 	*/
 	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
+	    	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if(!$asset->readAccess()) exit;
+		
 		$db_result = Array();
 		$num_kids = NULL;
 		try {
