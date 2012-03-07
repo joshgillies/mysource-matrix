@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.14 2010/05/05 07:13:52 ewang Exp $
+* $Id: ldap_change_dn.php,v 1.14.12.1 2012/03/07 05:42:24 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.12.1 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -217,6 +217,16 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$sql = 'UPDATE sq_lock
 				SET source_lockid = '.MatrixDAL::quote('asset.'.$new_dn).'
 				WHERE source_lockid = '.MatrixDAL::quote('asset.'.$old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
+
+	// update the sq_ast_attr val table coz if the old dn is not going to be available 
+	// henceforth then there is no point keeping it in our database
+	// see #5608 ldap_change_dn.php does  not update running_as attribute  for cron jobs
+	printActionName('Changing Asset Attributes ');
+		$sql = 'UPDATE sq_ast_attr_val
+				SET custom_val = '.MatrixDAL::quote($new_dn).'
+				WHERE custom_val = '.MatrixDAL::quote($old_dn);
 		$result = MatrixDAL::executeSql($sql);
 		printActionStatus('OK');
 
