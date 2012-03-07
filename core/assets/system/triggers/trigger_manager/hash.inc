@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.11 2006/12/05 23:44:44 bcaldwell Exp $
+* $Id: hash.inc,v 1.12 2012/03/07 00:52:00 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Hash
@@ -32,6 +32,12 @@ class Hash
 	* @var array	$hash	an array of all the components of this hash object
 	*/
 	var $hash;
+	
+	/**
+	* @var array	$tree_propagation	map of tree id to its propagation setting
+	* @see Hash::setLinkTree()
+	*/
+	var $tree_propagation;
 
 	/**
 		// Allowed Hash Indices
@@ -55,6 +61,7 @@ class Hash
 	function Hash()
 	{
 		$this->hash = Array();
+		$this->tree_propagation = Array();
 
 	}//end constructor
 
@@ -170,7 +177,11 @@ class Hash
 	function setLinkTree($tree_id, $propagation)
 	{
 		$this->_set('treeid',$tree_id);
-		$this->_set('tree_propagate',$propagation);
+		
+		if (!is_array($tree_id)) $tree_id = Array($tree_id);
+		foreach ($tree_id as $id){
+			$this->tree_propagation[$id] = $propagation;
+		}
 
 	}//end setLinkTree()
 
@@ -262,8 +273,17 @@ class Hash
 		foreach ($indicies as $index) {
 			if (!isset($result[$index])) $result[$index] = '-1';
 		}
+		
+		$combinations = $this->_createCombinations($result);
+		
+		// Bug #5612, we should not create combinations of the 'tree_propagate' index, so manually populate.
+		if ($result['treeid'] != '-1'){
+			foreach ($combinations as &$data){
+				$data['tree_propagate'] = $this->tree_propagation[$data['treeid']];
+			}	
+		}
 
-		return $this->_createCombinations($result);
+		return $combinations;
 
 	}//end getHashCombinations()
 
