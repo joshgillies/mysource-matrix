@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.42 2011/11/17 05:28:46 akarelia Exp $
+* $Id: page_redirect.inc,v 1.43 2012/03/08 01:20:33 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -296,21 +296,26 @@ class Page_Redirect extends Page
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$replacement = NULL;
+		$keyword = parse_keyword($keyword, $modifiers);
+		
 		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
 			$referring_asset = $this->getReferringAsset();
-			if ($referring_asset) {
-				return $referring_asset->getKeywordReplacement($matches[1]);
-			} else {
-				return '';
-			}
+			$replacement = empty($referring_asset) ? '' : $referring_asset->getKeywordReplacement($matches[1]);
 		} else if ($keyword === 'redirect_url') {
-			return $this->_getRedirectURL();
+			$replacement = $this->_getRedirectURL();
 		} else if ($keyword === 'redirect_assetid') {
 			$redirect_asset = $this->getRedirectAsset();
-			return empty($redirect_asset) ? '' : $redirect_asset->id;
+			$replacement = empty($redirect_asset) ? '' : $redirect_asset->id;
 		} else {
-			return parent::getKeywordReplacement($keyword);
+			$replacement = parent::getKeywordReplacement($keyword);
 		}
+		
+		if (!is_null($replacement)) {
+			apply_keyword_modifiers($replacement, $modifiers);
+		}
+		
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
@@ -324,7 +329,7 @@ class Page_Redirect extends Page
 	function &getReferringAsset()
 	{
 		$url = array_get_index($_SERVER, 'HTTP_REFERER', FALSE);
-
+		
 		// strip protocol, strip query string
 		$url = preg_replace('|^.*://|', '', $url);
 		$url = preg_replace('|\?.*$|', '', $url);
