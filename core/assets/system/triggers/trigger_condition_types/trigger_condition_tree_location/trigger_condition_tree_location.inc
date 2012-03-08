@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.20 2012/03/08 00:08:50 mhaidar Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.21 2012/03/08 02:45:52 mhaidar Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_condition.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
@@ -25,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
 * @author	Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
