@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.16 2007/12/02 23:18:57 bshkara Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.17 2012/03/08 06:07:56 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -332,8 +332,8 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$settings['is_exclusive']   = array_get_index($request_data, 'is_exclusive');
 		$settings['use_current_link'] = isset($request_data['use_current_link']);
 
-		foreach ($settings as $key=>$value) {
-			if ($value == '') $settings[$key] = NULL;
+		foreach ($settings as $key => $value) {
+			if ($value === '') $settings[$key] = NULL;
 		}
 		return FALSE;
 
