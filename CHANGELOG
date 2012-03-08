@@ -71,6 +71,8 @@ Minor Enhancement #5557: Restricted File URL Memory.
 Minor Enhancement #5577: Online Quiz: Server Side Validation.
 Minor Enhancement #5584: Matrix to Not Poll LDAP During Root User Authentication.
 Minor Enhancement #5585: Automatic Upgrade Script: Allow PHP Options.
+Minor Enhancement #5594: Performance enhancement -- getLineageFromURL function optimised to run faster.
+Minor Enhancement #5599: Performance improvement getting an assets parents.
 
 Core
 
@@ -93,6 +95,7 @@ Fixed Bug #5583: Revert safe edit assets status with notice links fatal errors w
 Fixed Bug #5587: WYSIWYG Insert link for redirect page or link asset doesn't work with manual entering of the asset ID.
 Fixed Bug #5588: Thesaurus metadata field keywords not replaced by JS API getKeywordReplacements.
 Fixed Bug #5595: Import assets from XML tool sometimes fails if the xml has invalid characters.
+Fixed Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE.
 
 CMS
 

@@ -4,12 +4,14 @@
 	<string source="trigger_action_update_twitter_status_register_system_note"><![CDATA[<p>Before you can use this trigger action, you need to register your system as a Twitter client. This trigger action uses OAuth to authenticate with Twitter, and
 		therefore requires you to obtain API access first. You only need to do this once for all Update Twitter Status trigger actions within the system.</p>
 
-		<p>To register your system, go to Twitter's <a href="http://twitter.com/oauth_clients">OAuth Clients</a> page, and click on &quot;Register a new application&quot;.
-		(Please open in a new window. You will need to log into Twitter first, or it will prompt you.) Select "Browser" as your Authentication Type, and enter any system root
-		URL as the Callback URL (it will be ignored - Matrix will provide it with a correct callback URL).</p>
+		<p>To register your system, go to Twitter's <a href="http://twitter.com/oauth_clients">OAuth Clients</a> page, and click on &quot;Create a new application&quot;.
+		Enter any system root URL as the Callback URL (it will be ignored - Matrix will provide it with a correct callback URL).</p>
 
 		<p>When you complete the registration, it will provide you with a <strong>consumer key</strong> and a
-		<strong>consumer secret</strong> string, which you need to enter below.</p>]]></string>
+		<strong>consumer secret</strong> string, which you need to enter below. </p>
+		
+		<p>Apps are created Read Only by default. Make sure Read and Write is selected in the setting tab after registration.</p>]]>
+	</string>
 
 
 	<!-- Client Credentials section -->

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.304 2011/09/30 01:43:09 cupreti Exp $
+* $Id: asset_map.inc,v 1.304.2.2 2012/03/08 04:20:27 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.304.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -572,6 +572,12 @@ class Asset_Map
 	*/
 	function process(&$backend)
 	{
+	    	// block public users from probing
+		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
+		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend()))) {
+			exit();
+		}	
+		
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
@@ -1004,6 +1010,15 @@ class Asset_Map
 	*/
 	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
+		// make sure permission is checked for parent asset. asset map doesn't need status check, just assume it's always live
+	    	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if($asset) {
+		    $status = $asset->status;
+		    $asset->status = SQ_STATUS_LIVE;
+		    if(!($asset->readAccess())) exit;
+		    $asset->status = $status;
+		}
+		
 		$db_result = Array();
 		$num_kids = NULL;
 		try {
@@ -1431,10 +1446,6 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-		// block public users from probing
-		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
-		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend())))
-			exit();
 			
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
