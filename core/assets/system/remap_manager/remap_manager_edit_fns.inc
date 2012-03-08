@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.42 2012/01/04 00:01:20 csmith Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.43 2012/03/08 05:12:19 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -369,7 +369,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		
 		// Only update the remaps in current page
 		$urls_to_check = (isset($_POST[$prefix.'_never_delete_remap'])) ? array_keys($_POST[$prefix.'_never_delete_remap']) : array();
-		$urls_in_current_page = array_keys($_POST[$prefix.'_current_page_remaps']);
+		$current_page_remaps  = array_get_index($_POST, $prefix.'_current_page_remaps', Array());
+		$urls_in_current_page = array_keys($current_page_remaps);
 		$urls_to_uncheck = array_diff($urls_in_current_page, $urls_to_check);
 
 		try {
@@ -391,7 +392,6 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		} catch (DALException $e) {
 			throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 		}
-
 
 		// Purge all remaps with "Never Delete" option set to "No"
 		if (isset($_POST[$prefix.'_purge_all_remaps']) && $_POST[$prefix.'_purge_all_remaps']) {
