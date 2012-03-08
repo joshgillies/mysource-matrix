@@ -10,22 +10,21 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_management.inc,v 1.7 2011/02/21 02:28:43 cupreti Exp $
+* $Id: simple_form_management.inc,v 1.7.6.1 2012/03/08 01:31:08 akarelia Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
-
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Simple_Form_Edit_Fns
+* Simple_Form_Management
 *
 * Purpose
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
