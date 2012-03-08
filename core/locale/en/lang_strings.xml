@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.411 2012/02/15 04:17:08 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.412 2012/03/08 00:08:50 mhaidar Exp $
 *
 */
 
@@ -1312,7 +1312,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_status_change_to_basic">Status of the &lt;i&gt;(firing)&lt;/i&gt; Asset is changed to: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
 
-	<string source="trigger_tree_location_basic">Asset is under %s</string>
+	<string source="trigger_tree_location_basic">Asset is under any one of these locations: &lt;br /&gt;%s</string>
 	<string source="immediate_child_only">Immediate child only</string>
 	<string source="as_an_immediate_child_only">as an immediate child only</string>
 	<string source="triger_no_tree_location">No tree location selected</string>
