@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.43 2011/08/01 03:38:14 akarelia Exp $
+* $Id: form_submission.inc,v 1.43.4.1 2012/03/09 03:49:50 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -439,6 +439,7 @@ class Form_Submission extends Asset
 	function getKeywordReplacement($keyword)
 	{
 		$matches = Array();
+		$original_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		if (preg_match('/question\_name\_q([0-9]+)/', $keyword, $matches)) {
@@ -470,7 +471,7 @@ class Form_Submission extends Asset
 
 			foreach ($attrs['summary'] as $name => $value) {
 				$q_ids = explode(':q', $name);
-				if ($q_ids[1] == $matches[1]) {	
+				if ($q_ids[1] == $matches[1]) {
 					apply_keyword_modifiers($value['answer'], $modifiers);
 					return $value['answer'];
 				}
@@ -514,7 +515,9 @@ class Form_Submission extends Asset
 			return $elt['answer'];
 		}
 
-		return parent::getKeywordReplacement($keyword);
+		// if we are falling back on parent to get the keyword replacement make
+		// sure we pass the whole keyword i.e. including the modifier(s) if any
+		return parent::getKeywordReplacement($original_keyword);
 
 	}//end getKeywordReplacement()
 
