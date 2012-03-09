@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.2 2012/03/09 05:50:31 mhaidar Exp $
 *
 */
 -->
 
 <strings>
-<string source="first_question_not_created">First Question has not been created.</string>
+<string source="first_question_not_selected">First Question has not been selected.</string>
 <string source="result_bodycopy">Result Bodycopy</string>
 <string source="points_range_min_max_incl">Points Range (min to max inclusive)</string>
 <string source="error_bodycopy_link_cannot_delete">You can not delete the Page Contents bodycopy from the Decision Tree Page.</string>

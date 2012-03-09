@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_decision_tree.inc,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: page_decision_tree.inc,v 1.2 2012/03/09 05:50:31 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -105,7 +105,8 @@ class Page_Decision_Tree extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['decision_tree_question'] = Array('card' => '1', 'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['decision_tree_question'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_NOTICE]['decision_tree_question'] = Array('card' => 1, 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1', 'exclusive' => TRUE);
 
 		return $page_links;
@@ -706,7 +707,7 @@ class Page_Decision_Tree extends Page
 		
 		if ($keyword != 'decision_tree_contents') return $replacement;
 		
-		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'decision_tree_question', FALSE, 'first_question', 'major', TRUE);
+		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
 		if (empty($first_question)) {
 			trigger_localised_error('CMS0118', E_USER_NOTICE, $this->id);	
 			return $replacement;
