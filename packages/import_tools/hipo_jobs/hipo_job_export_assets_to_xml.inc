@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.8.2 $
+* @version $Revision: 1.1.8.3 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -513,13 +513,14 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		
 
 			// if the action is to deny a previous permission, make sure we will remove the permission first
-			// even removing it will possibly fail, it will not affect the result.
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_read_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "    <permission>1</permission>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
 				echo "</action>\n";
@@ -550,11 +551,13 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			}
 
 			// if the action is to deny a previous permission, make sure we will remove the permission first
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_write_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <permission>2</permission>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
@@ -582,11 +585,14 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
 			}
 
+			// if the action is to deny a previous permission, make sure we will remove the permission first
+			// and if there is no existing permission to remove, fail silently
 			if($permission_granted == 0) {
 				echo "<action>\n";
 				echo "    <action_id>set_permission_".$asset_id."_admin_".$permission_id."</action_id>\n";
 				echo "    <action_type>set_permission</action_type>\n";
 				echo "    <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
+				echo "    <mute_error>1</mute_error>\n";
 				echo "    <permission>3</permission>\n";
 				echo "    <granted>-1</granted>\n";
 				echo "    <userid>".$remap_id."</userid>\n";
