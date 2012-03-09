@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.90 2011/10/21 02:02:00 mhaidar Exp $
+* $Id: image.inc,v 1.91 2012/03/09 00:17:40 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,11 +67,6 @@ class Image extends File implements Bridge
 	function saveAttributes($dont_run_updated=FALSE)
 	{
 		if (!$this->id) return TRUE;
-
-		// if there are no values for the alt attribute use the filename
-		if (isset($this->_tmp['vars_set']['alt']) && trim($this->attr('alt')) == '') {
-			$this->setAttrValue('alt', $this->attr('name'));
-		}//end if
 
 		return parent::saveAttributes($dont_run_updated);
 
