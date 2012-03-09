@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.91 2012/03/09 00:17:40 mhaidar Exp $
+* $Id: image.inc,v 1.92 2012/03/09 00:22:45 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,25 +53,6 @@ class Image extends File implements Bridge
 		parent::__construct($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Set the value of an attribute
-	*
-	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveAttributes($dont_run_updated=FALSE)
-	{
-		if (!$this->id) return TRUE;
-
-		return parent::saveAttributes($dont_run_updated);
-
-	}//end saveAttributes()
-
 
 
 	/**
