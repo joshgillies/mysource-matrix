@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.853.2.5 2012/02/20 02:33:08 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.853.2.6 2012/03/09 01:31:38 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.853.2.5 $
+* @version $Revision: 1.853.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6822,12 +6822,13 @@ class Asset_Manager extends MySource_Object
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
 	*
-	* @param string	$assetid	the asset to trash
+	* @param string		$assetid		the asset to trash
+	* @param boolean	$force_trash	do not abort trashing if any error occurs
 	*
 	* @return boolean
 	* @access public
 	*/
-	function trashAsset($assetid)
+	function trashAsset($assetid, $force_trash=FALSE)
 	{
 		if ($this->assetInTrash($assetid, TRUE)) {
 			// already in trash exclusively
@@ -6837,26 +6838,38 @@ class Asset_Manager extends MySource_Object
 		// trash requests are charged at $4.95 a minute
 		// please ask your parents for permission before trashing
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+		
 		$locked = Array();
-		foreach ($parent_links as $link_details) {
+		foreach ($parent_links as $index => $link_details) {
 			$asset = $this->getAsset($link_details['majorid']);
 			// try to acquire the lock
 			if ($this->acquireLock($link_details['majorid'], 'links')) {
 				$locked[] = $link_details['majorid'];
 			} else {
 				trigger_localised_error('SYS0119', E_USER_WARNING, $assetid, $link_details['majorid']);
-				foreach ($locked as $aid) {
-					$this->releaseLock($aid, 'links');
+				if ($force_trash) {
+					unset($parent_links[$index]);
+					continue;
+				} else {
+					foreach ($locked as $aid) {
+						$this->releaseLock($aid, 'links');
+					}
+					return FALSE;
 				}
 			}
 			if (TRUE !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
 				trigger_localised_error('SYS0120', E_USER_WARNING, $assetid, $link_details['majorid'], $msg);
-				foreach ($locked as $aid) {
-					$this->releaseLock($aid, 'links');
+				if ($force_trash) {
+					unset($parent_links[$index]);
+					continue;
+				} else {
+					foreach ($locked as $aid) {
+						$this->releaseLock($aid, 'links');
+					}
+					return FALSE;
 				}
-				return FALSE;
 			}
-		}
+		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
