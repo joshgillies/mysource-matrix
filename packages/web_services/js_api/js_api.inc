@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.7 2012/03/05 23:18:14 akarelia Exp $
+* $Id: js_api.inc,v 1.96.2.8 2012/03/09 01:30:38 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.7 $
+* @version $Revision: 1.96.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2494,7 +2494,7 @@ class JS_Api extends Page
 					$result	= $am->deleteAssetLink($linkid['link_id']);
 				} else {
 					// Only one link holly cow, lets trash it instead, otherwise we'l have an orphan asset in the system
-					$result	= $am->trashAsset($link['minorid']);
+					$result	= $am->trashAsset($link['minorid'], TRUE);
 				}//end if
 				//no matter if link is deleted or the whole asset is moved to trash, we will update lookups :)
 				$result_from_update = $this->updateLookupsforAsset($child);
@@ -2948,7 +2948,7 @@ class JS_Api extends Page
 				} else if ($asset->writeAccess()) {
 					// asset isnt in trash and none of the links are locked, Hooorrrrray !!!!
 					$am->acquireLock($id, 'all');
-					$result	= $am->trashAsset($id);
+					$result	= $am->trashAsset($id, TRUE);
 					if (!$result) {
 						$response[] = 'Could not move Asset "'.$asset->name.'" (#'.$asset->id.') to Trash';
 					} else {
