@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_decision_tree_management.inc,v 1.2 2012/03/09 05:50:31 mhaidar Exp $
+* $Id: page_decision_tree_management.inc,v 1.3 2012/03/09 06:04:31 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,8 +101,9 @@ class Page_Decision_Tree_Management extends Asset_Management
 				$first_link = $GLOBALS['SQ_SYSTEM']->am->getLink($page->id, SQ_LINK_TYPE_2, 'decision_tree_question', FALSE, 'first_question', 'major', TRUE);
 				if (!empty($first_link)){
 					$first_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($first_link['minorid']);
-					$GLOBALS['SQ_SYSTEM']->am->updateLink($first_link['linkid'], NULL, '');
-					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($page, $first_question, SQ_LINK_NOTICE, 'first_question');
+					if ($GLOBALS['SQ_SYSTEM']->am->createAssetLink($page, $first_question, SQ_LINK_NOTICE, 'first_question')){
+						$GLOBALS['SQ_SYSTEM']->am->updateLink($first_link['linkid'], NULL, '');
+					}
 				}
 				
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($page);
