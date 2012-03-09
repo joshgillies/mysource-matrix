@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question.inc,v 1.2 2012/03/09 05:50:31 mhaidar Exp $
+* $Id: decision_tree_question.inc,v 1.3 2012/03/09 06:01:18 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,7 +98,7 @@ class Decision_Tree_Question extends Asset
 	*/
 	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		if ($side_of_link == 'minor' && ($asset instanceof Page_Decision_Tree || $asset instanceof Decision_Tree_Question)){
+		if ($side_of_link == 'minor' && $dependant != '1' && ($link_type & SQ_SC_LINK_SIGNIFICANT) && ($asset instanceof Page_Decision_Tree || $asset instanceof Decision_Tree_Question)){
 			$dependant = '1';
 			return TRUE;
 		}
