@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.27 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.28 2012/03/12 05:19:20 cupreti Exp $
 *
 */
 -->
@@ -239,5 +239,11 @@
 	<error code="CMS0116">The Min value can not be greater than the Max in the Points Range.</error>
 	<error code="CMS0117">Failed to create the required number of result bodycopies.</error>
 	<error code="CMS0118">The Decision Tree Page Id: #%s does not have a first question!.</error>
+
+	<!-- Send Submission Logs Cron Job  -->
+	<error code="CMS0119">You will need to specify the repetation parameter for the repeating cron job</error>
+	<error code="CMS0120">Cannot find form asset to get the submission log from</error>
+	<error code="CMS0121">Submission log "start" date not configured</error>
+	<error code="CMS0122">To schedule a job you must specify the date at which the logs should be sent</error>
 	
 </errors>
