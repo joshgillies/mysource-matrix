@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.110 2012/03/12 05:15:10 cupreti Exp $
+* $Id: form_email_edit_fns.inc,v 1.111 2012/03/12 05:27:34 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -842,13 +842,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @param object	&$asset		the asset whose interface we are painting
 	* @param object	&$o			the outputter class
 	* @param string	$prefix		prefix for the form elements
-	* @param string $from_ts 	Timestamp since when to pick the logs
-	* @param string $to_ts 		Timestamp till when to pick the logs
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExportXML(&$asset, &$o, $prefix, $from_ts='', $to_ts='')
+	function processExportXML(&$asset, &$o, $prefix)
 	{
 		header('Content-Type: application/xml');
 
