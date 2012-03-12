@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.7 2007/03/29 02:14:24 tbarrett Exp $
+* $Id: lang_screen_log.xml,v 1.8 2012/03/12 05:18:26 cupreti Exp $
 *
 */
 -->
@@ -37,6 +37,15 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Send Submissions To Email" write_access="write:attributes">
+		<field keyword="current_send_submissions_email_cron_jobs">
+		<display_name>Scheduled Jobs</display_name>
+			<function_call>
+				<paint_function name="paintSendSubmissionsEmail" />
+				<process_function name="processSendSubmissionsEmail" />
+			</function_call>
+		</field>
+	</section>	
 	<section name="Submissions">
 		<field keyword="submission_date_range">
 			<display_name>Date Range</display_name>

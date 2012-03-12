@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.109 2011/10/14 00:57:47 mhaidar Exp $
+* $Id: form_email_edit_fns.inc,v 1.110 2012/03/12 05:15:10 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -122,7 +122,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @access public
 	*/
 	function paintSubmissionList(&$asset, &$o, $prefix)
-	{
+	{	
 		$write_access = $asset->writeAccess('links');
 		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
 		$num_subs = 0;
@@ -839,20 +839,22 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* "submissions" root tag around it. Will only perform export for the date range which was
 	* selected in the Export block.
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	* @param string $from_ts 	Timestamp since when to pick the logs
+	* @param string $to_ts 		Timestamp till when to pick the logs
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExportXML(&$asset, &$o, $prefix)
+	function processExportXML(&$asset, &$o, $prefix, $from_ts='', $to_ts='')
 	{
 		header('Content-Type: application/xml');
 
 		// defining the file as attachment forces most browsers to offer it for download
 		header('Content-Disposition: attachment; filename=submission_log.xml;');
-
+		
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
@@ -868,7 +870,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_time = ts_iso8601($to_ts);
 		$sub_folder = $asset->getSubmissionsFolder();
 		$assetids = Array($asset->id, $sub_folder->id);
-
+		
 		try {
 			$bind_vars = Array(
 							'assetids'	=> $assetids,
@@ -899,8 +901,153 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return TRUE;
 
 	}//end processExportXML()
+	
+	
+	/**
+	* Paints the interface for the existing "Send Submissions Email" jobs
+	*
+	* @param Form_Email			$asset		The form whose interface we are painting
+	* @param Backend_Outputter	$o			the outputter class
+	* @param string				$prefix		prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintSendSubmissionsEmail(Form_Email $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		
+		$job_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'cron_job_send_submission_log', TRUE, 'minor');		
 
+		if (!empty($job_links)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('name'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>					
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete'); ?> ?</td>
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"></td>
+				</tr>
+				<?php
+				for ($k = 0; $k < count($job_links); $k++) {
+					$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_links[$k]['majorid'], 'cron_job_send_submission_log');
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php echo $job->displayName(); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $job->readableWhen(); ?>
+						</td>
+						<td align="center" class="sq-backend-table-cell">
+						<?php
+							if ($write_access && $job->canDelete()) {
+								check_box($prefix.'_remove_job[]', $job->id);
+							} else {
+								check_box($prefix.'_remove_job[]', $job->id, FALSE, '', 'disabled');
+							}
+						?>
+						</td>						
+						<td>[ <a href="<?php echo $job->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
+					</tr>
+					<?php
+				}//end for
+				?>
+			</table>
+			<?php
 
+		} else {
+			echo "<i>".translate('cron_job_send_submission_log_no_jobs')."</i><br/><br/>";
+		}		
+		
+		// Add new job checkbox
+		if ($write_access) {			
+			label(translate('cron_job_send_submission_log_add_new_job'), $prefix.'_new_job');
+			echo '&nbsp;';
+			text_box($prefix.'_new_job_name', '', 25);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_send_submission_log');
+			$cron_job = new Cron_Job_Send_Submission_Log();
+			$edit_fns = $cron_job->getEditFns();
+			$null_asset = NULL;
+			$edit_fns->paintScheduleInterface($null_asset, $o, $prefix);
+		}	
+	
+		return $write_access;
+
+	}//end paintSendSubmissionsEmail()
+	
+	
+	/**
+	* Processes the interface for the existing "Send Submissions Email" jobs
+	*
+	* @param Form_Email			$asset		The form whose interface we are painting
+	* @param Backend_Outputter	$o			the outputter class
+	* @param string				$prefix		prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processSendSubmissionsEmail(Form_Email $asset, Backend_Outputter $o, $prefix)
+	{	
+		$write_access = $asset->writeAccess('attributes');		
+		
+		if ($write_access) {
+			
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_send_submission_log');
+			
+			// Delete selected jobs
+			if (isset($_POST[$prefix.'_remove_job'])) {
+				$jobs = Cron_Job_Send_Submission_Log::getActiveJobs($asset);
+				if (!empty($jobs)) {
+
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
+						for ($i = 0; $i < count($jobs); $i++) {
+							if (in_array($jobs[$i]->id, $_POST[$prefix.'_remove_job'])) {
+								$cron_mgr->removeJob($jobs[$i]); 
+							}// end if
+						}// end for
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
+					} else {
+						trigger_localised_error('SYS0232', E_USER_NOTICE);
+
+					}// end if
+
+				}// end if			
+			}//end if
+				
+			// Create new cron job
+			$new_job_name = isset($_POST[$prefix.'_new_job_name']) ? trim($_POST[$prefix.'_new_job_name']) : '';
+			if (!empty($new_job_name)) {				
+				
+				$default_time = 'TI='.time().',7,86400';
+				$new_job = new Cron_Job_Send_Submission_Log();
+				$new_job->setAttrValue('display_name', $new_job_name);
+				$new_job->setAttrValue('type', 'repeating');
+				$new_job->setAttrValue('long', TRUE);
+				$edit_fns = $new_job->getEditFns();
+				if (!$edit_fns->processScheduleInterface($new_job, $o, $prefix)) {
+					return FALSE;
+				}
+				
+				if ($new_job->setAssetToUpdate($asset)) {
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					if ($cron_mgr->addJob($new_job, $GLOBALS['SQ_SYSTEM']->user)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');						
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					}
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);		
+			}//end if			
+		}//end if
+		
+		return $write_access;
+
+	}//end processSendSubmissionsEmail()
+	
+	
 	/**
 	* Get the submission log from the database
 	*
@@ -2064,7 +2211,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function paintSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{
+	{	
 		$write_access = $asset->writeAccess('attributes');
 		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
 		if (!is_numeric($selected_action)) {
@@ -2129,7 +2276,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	*/
 	public function processSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
-	{
+	{	
 		$write_access = $asset->writeAccess('attributes');
 		$actions = $asset->attr('actions');
 		$result = FALSE;
@@ -2181,6 +2328,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 	}//end processSelectedAction()
 
+
 	/**
 	* Make an action name valid by adding a numeric index to it if a duplicate
 	*
@@ -2219,7 +2367,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return $name;
 
 	}//end _makeValidActionName()
-
+	
 
 }//end class
 ?>

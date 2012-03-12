@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.9 2007/10/09 00:45:12 bshkara Exp $
+* $Id: edit_interface_screen_log.xml,v 1.10 2012/03/12 05:17:05 cupreti Exp $
 *
 */
 -->
@@ -34,6 +34,14 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Send Submissions To Email" write_access="write:attributes">
+		<field keyword="current_send_submissions_email_cron_jobs">
+			<function_call>
+				<paint_function   name="paintSendSubmissionsEmail" />
+				<process_function   name="processSendSubmissionsEmail" />
+			</function_call>
+		</field>
+	</section>	
 	<section name="Submissions" limbo_access="0">
 		<field keyword="submission_date_range">
 			<function_call>

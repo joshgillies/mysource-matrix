@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.21 2007/12/04 02:53:57 bshkara Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.22 2012/03/12 05:17:05 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -262,12 +262,43 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function processSubmissionList(&$asset, &$o, $prefix)
-	{
+	{	
 		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
 	}//end processSubmissionList()
 
+	/**
+	* Paints the interface for the existing "Send Submissions Email" jobs
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	*/
+	function paintSendSubmissionsEmail(&$asset, &$o, $prefix)
+	{	
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
+	}//end paintSendSubmissionsEmail()
+	
+	
+	/**
+	* Processes the interface for the existing "Send Submissions Email" jobs
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	*/
+	public function processSendSubmissionsEmail(&$asset, &$o, $prefix)
+	{	
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+	
+	}//end processSendSubmissionsEmail()
+	
+	
 	/**
 	* Delegate painting or processing to the child form's edit function
 	*
