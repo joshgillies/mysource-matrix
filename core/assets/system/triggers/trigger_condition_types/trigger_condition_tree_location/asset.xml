@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2006/12/05 23:53:33 bcaldwell Exp $
+* $Id: asset.xml,v 1.5 2012/03/12 05:12:18 mhaidar Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_condition_tree_location</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Tree Location</name>
 	<description>
 		Matches if the asset firing the event resides underneath the selected
