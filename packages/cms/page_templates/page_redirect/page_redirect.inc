@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.43 2012/03/08 01:20:33 mhaidar Exp $
+* $Id: page_redirect.inc,v 1.44 2012/03/12 04:23:58 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -297,6 +297,7 @@ class Page_Redirect extends Page
 	function getKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
+		$original_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 		
 		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
@@ -308,7 +309,7 @@ class Page_Redirect extends Page
 			$redirect_asset = $this->getRedirectAsset();
 			$replacement = empty($redirect_asset) ? '' : $redirect_asset->id;
 		} else {
-			$replacement = parent::getKeywordReplacement($keyword);
+			return parent::getKeywordReplacement($original_keyword);
 		}
 		
 		if (!is_null($replacement)) {
