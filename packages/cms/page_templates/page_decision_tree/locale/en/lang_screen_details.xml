@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.1 2012/03/12 02:06:37 mhaidar Exp $
 *
 */
 -->
@@ -35,7 +35,14 @@
 				<process_function name="processFirstQuestion" />
 			</function_call>
 		</field>
-		
+		<field>
+			<display_name>Add a Question</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Result Bodycopies">
 		<field>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question.inc,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: decision_tree_question.inc,v 1.1.2.1 2012/03/12 02:06:37 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,6 +74,38 @@ class Decision_Tree_Question extends Asset
 		return ($this->attr('name'));
 
 	}//end _getName()
+	
+	
+	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param Bodycopy_Container	$asset			the major or minor asset that we are linking to
+	* @param string				$side_of_link	the side of the link we are on (major or minor)
+	* @param string				&$link_type		the type of link we are creating
+	* @param string				&$value			the value that is to be associated with the link
+	* @param string				&$sort_order	the position in the links list that this link should take,
+	* @param string				&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*											asset that will be linked by the new link
+	* @param string				&$exclusive		'0' / '1' on whether the this asset is linked exclusively
+	*											to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		if ($side_of_link == 'minor' && $dependant != '1' && ($link_type & SQ_SC_LINK_SIGNIFICANT) && ($asset instanceof Page_Decision_Tree || $asset instanceof Decision_Tree_Question)){
+			$dependant = '1';
+			return TRUE;
+		}
+		
+		return FALSE;
+
+	}//end prepareLink()
 	
 	
 }//end class

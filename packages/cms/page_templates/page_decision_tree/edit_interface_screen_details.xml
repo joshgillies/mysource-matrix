@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.2.1 2012/03/12 02:06:37 mhaidar Exp $
 *
 */
 -->
@@ -28,6 +28,12 @@
 			<function_call>
 				<paint_function   name="paintFirstQuestion"   />
 				<process_function name="processFirstQuestion" />
+			</function_call>
+		</field>
+		<field write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
 			</function_call>
 		</field>
 	</section>

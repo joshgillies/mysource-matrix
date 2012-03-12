@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question_edit_fns.inc,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: decision_tree_question_edit_fns.inc,v 1.1.2.1 2012/03/12 02:06:37 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -138,7 +138,7 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!$asset->writeAccess('links')) return FALSE;
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('decision_tree_question');
@@ -172,6 +172,8 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processAddQuestions(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		
 		$type   = (isset($_POST[$prefix.'question_type'])) ? $_POST[$prefix.'question_type'] : '';
 		$name = (isset($_POST[$prefix.'question_name'])) ? $_POST[$prefix.'question_name'] : '';
 
@@ -238,7 +240,7 @@ class Decision_Tree_Question_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($lock)) {
 			if ($full_write_access && $acquire_lock_access) {
-				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the '.(($parent_asset instanceof Form_Section) ? 'Form Section' : 'Form').' is not currently held.</p>';
+				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the Decision Tree Page is not currently held.</p>';
 			} else {
 				echo 'You do not have access to edit "'.$parent_asset->name.'".';
 			}

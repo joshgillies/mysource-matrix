@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_decision_tree_edit_fns.inc,v 1.1 2011/12/21 02:28:40 mhaidar Exp $
+* $Id: page_decision_tree_edit_fns.inc,v 1.1.2.1 2012/03/12 02:06:37 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Page_Decision_Tree_Edit_Fns
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,7 +45,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	
 	
 	/**
-	* Paint the dropdown to add the first question under the page. Once added paints the asset tag line.
+	* Paint the first question selector
 	*
 	* Return boolean FALSE if attributes write access is not held, TRUE otherwise
 	*
@@ -58,16 +58,102 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintFirstQuestion(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-		$questions = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'decision_tree_question', FALSE, 'major', 'first_question');
-		if (!empty($questions[0]['minorid'])) {
-			echo get_asset_tag_line($questions[0]['minorid'], 'details');
-			return TRUE;
+		$write_access = $asset->writeAccess('links');
+		$first_question = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
+		
+		if ($write_access) {
+			$assetid = (!empty($first_question['minorid'])) ? $first_question['minorid'] : 0;
+			asset_finder($prefix.'_first_question', $assetid, $type_codes = Array ('decision_tree_question' => 'D'));
+			if (!empty($assetid)) echo '<p>'.get_asset_tag_line($first_question['minorid'], 'details').'</p>';
 		} else {
-			if (!$write_access) echo "<i>".translate('first_question_not_created')."</i>";
+			if (!empty($first_question['minorid'])) {
+				echo get_asset_tag_line($first_question['minorid'], 'details');
+			} else {
+				echo "<i>".translate('first_question_not_selected')."</i>";
+			}
 		}
 		
-		if (!$write_access) return FALSE;
+		return TRUE;
+
+	}//end paintFirstQuestion()
+
+
+	/**
+	* Process the first question selector.
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFirstQuestion(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		
+		$asset_finder = array_get_index($_POST, $prefix.'_first_question');
+		$new_first_id = array_get_index($asset_finder, 'assetid');
+		$existing_first = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
+		
+		//make sure the selected question is a child of this asset.
+		if (!empty($new_first_id)){
+			$child_questions = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'decision_tree_question', FALSE);
+			if (!in_array($new_first_id, array_keys($child_questions))){
+				trigger_error('The first question must be a child of this page', E_USER_NOTICE);
+				return FALSE;
+			}
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$ok = TRUE;
+		//delete removed/changed selection
+		if (!empty($existing_first) && (empty($new_first_id) || ($new_first_id != $existing_first['minorid']))){
+			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_first['linkid'])) {
+				$ok = FALSE;
+			}
+		}
+		
+		//create new selection
+		if (!empty($new_first_id) && (empty($existing_first) || ($new_first_id != $existing_first['minorid']))){
+			$first_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_first_id);
+			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $first_question, SQ_LINK_NOTICE, 'first_question')){
+				$ok = FALSE;
+			}
+		}		
+		
+		if ($ok){
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		} else {
+			trigger_error('Failed to Process First Question Selection', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
+		
+		return $ok;
+
+	}//end processFirstQuestion()
+	
+	
+	/**
+	* Paint the dropdowns to add questions under the page
+	*
+	* Return boolean FALSE if attributes write access is not held, TRUE otherwise
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddQuestions(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('decision_tree_question');
 		$questions = Array('' => '-- Choose Type --');
@@ -83,13 +169,14 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 		echo '&nbsp;';
 
 		text_box($prefix.'question_name', '', '25');
+		
 		return TRUE;
 
 	}//end paintAddQuestions()
 
 
 	/**
-	* Process the newly added first question.
+	* Process the newly added questions
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -98,11 +185,13 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processFirstQuestion(&$asset, &$o, $prefix)
+	function processAddQuestions(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		
 		$type   = (isset($_POST[$prefix.'question_type'])) ? $_POST[$prefix.'question_type'] : '';
 		$name = (isset($_POST[$prefix.'question_name'])) ? $_POST[$prefix.'question_name'] : '';
-
+		
 		if ($type && $name) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -115,10 +204,10 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 			$link = Array(
 						'asset'			=> $asset,
 						'link_type'		=> SQ_LINK_TYPE_2,
-						'value'			=> 'first_question',
+						'value'			=> '',
 						'sort_order'	=> NULL,
 						'is_dependant'	=> TRUE,
-						'is_exclusive'	=> TRUE,
+						'is_exclusive'	=> FALSE,
 					);
 	
 			if(!$new_asset->create($link)) {
@@ -130,10 +219,10 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}//end if
-
+		
 		return TRUE;
 
-	}//end processFirstQuestion()
+	}//end processAddQuestions()
 	
 	
 	/**
@@ -257,7 +346,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintAddResultBodycopies(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!$asset->writeAccess('links')) return FALSE;
 		
 		$num = Array();
 		for ($i = 0; $i <= 10; $i++) {
@@ -283,6 +372,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processAddResultBodycopies(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
 		
 		$to_create = (isset($_POST[$prefix.'num_bodycopies'])) ? $_POST[$prefix.'num_bodycopies'] : 0;
 		$bodycopies = $asset->getResultBodycopies();
