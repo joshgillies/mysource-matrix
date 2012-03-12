@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.19 2011/12/22 03:54:41 mhaidar Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.19.2.1 2012/03/12 05:51:23 mhaidar Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_condition.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
@@ -24,7 +25,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @author	Mohamed Haidar <mhaidar@squiz.com.au>
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +40,9 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* The settings used by this condition are in the form:
 	* <PRE>
 	* Array(
-	*       'assetid'       => int,     // either assetid or treeid needs to be set. the asset id of the parent asset
-	*       'treeid'        => string,  // can be retrieved from assetid if necessary. the raw tree id of the parent asset
-	*       'immed_child'   => int      // 1 or 0. determines whether the asset being checked is supposed to be an immediate child, or any child
+	*       'assetids'       => array(int),							// either assetids or treeids needs to be set. the asset ids of the parent assets
+	*       'treeids'        => array(assetid => array(string)),	// can be retrieved from assetids if necessary. the raw tree ids of the parent assets
+	*       'immed_child'	 => array(assetid => int),				// 1 or 0. determines whether the asset being checked is supposed to be an immediate child, or any child
 	*       );
 	* </PRE>
 	*
@@ -63,19 +65,20 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			}
 		}
 
-		if (empty($settings['treeid'])) {
-			if (empty($settings['assetid'])) {
+		if (empty($settings['treeids'])) {
+			if (empty($settings['assetids'])) {
 				return FALSE;
 			} else {
-				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
-					$settings['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']);
-				} else {
-					return FALSE;
+				$settings['treeids'] = Array();
+				foreach ($settings['assetids'] as $tree_asset_id) {
+					if ($GLOBALS['SQ_SYSTEM']->am->assetExists($tree_asset_id)) {
+						$settings['treeids'][$tree_asset_id] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($tree_asset_id);
+					}
 				}
 			}
 		}
 
-		if (!isset($settings['immed_child'])) return FALSE;
+		if (empty($settings['immed_child'])) return FALSE;
 
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -89,36 +92,30 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			$state['treeid'] = Array($state['treeid']);
 		}
 
-
 		// evaluate the condition
-		$result = FALSE;
-
 		foreach ($state['treeid'] as $state_tree) {
-			foreach ($settings['treeid'] as $settings_tree) {
-
-				// if the asset in question is under the tree specified in the settings...
-				if ($settings_tree === $state_tree) {
-					$result = FALSE;
-					break;
-				} else {
-					if ($settings['immed_child']) {
-						if (strlen($settings_tree) == strlen($state_tree) - SQ_CONF_ASSET_TREE_SIZE &&
-						substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
-							$result = TRUE;
-							break;
-						}
+			foreach ($settings['treeids'] as $tree_asset_id => $treeids) {
+				foreach ($treeids as $settings_tree) {
+					// if the asset in question is under the tree specified in the settings...
+					if ($settings_tree === $state_tree) {
+						break;
 					} else {
-						if (substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
-							$result = TRUE;
-							break;
+						if ($settings['immed_child'][$tree_asset_id]) {
+							if (strlen($settings_tree) == strlen($state_tree) - SQ_CONF_ASSET_TREE_SIZE &&
+							substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
+								return TRUE;
+							}
+						} else {
+							if (substr($state_tree, 0, strlen($settings_tree)) == $settings_tree) {
+								return TRUE;
+							}
 						}
-					}
-				}//end if
-
+					}//end if
+				}
 			}
 		}
 
-		return $result;
+		return FALSE;
 
 	}//end evaluate()
 
@@ -136,29 +133,68 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set to default
-		$selected_assetid = array_get_index($settings, 'assetid', 0);
+		$selected_assetids = array_get_index($settings, 'assetids', Array());
 
-		// check if the selected asset is valid
-		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
-			$selected_assetid = 0;
+		// check if the selected assets are valid
+		foreach ($selected_assetids as $selected_assetid){
+			if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
+				unset($selected_assetids[$selected_assetid]);
+			}
 		}
 
-		$immed_child = array_get_index($settings, 'immed_child', '0');
-		$immed_child = ($immed_child == '0' ? FALSE : TRUE);
-
+		$immed_child = array_get_index($settings, 'immed_child', Array());
 
 		// begin buffering basic options
 		ob_start();
 			// create an asset_finder, and pre-select the asset that is saved in settings (if any)
 			if ($write_access) {
-				asset_finder($prefix.'[assetid]', $selected_assetid);
-				check_box($prefix.'[immed_child]', '1', $immed_child);
-				label(translate('immediate_child_only'), $prefix.'[immed_child]');
+				?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
+				echo '<div>';
+				$name = $prefix.'[assetids]';
+				foreach (array_values($selected_assetids) as $index => $selected_assetid){
+					asset_finder($name.'['.$index.']', $selected_assetid, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
+					echo '<span style="margin-left:10px;">';
+					echo translate('immediate_child_only');
+					check_box($prefix.'[immed_child]['.$index.']', '1', (!empty($immed_child[$selected_assetid])), '', 'style="margin-left:10px;"');
+					echo '</span>';
+					echo '<br />';
+				}
+				
+				asset_finder($name.'['.count($selected_assetids).']', 0, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
+				echo '<span id="trigger_condition_tree_location_check_box" style="margin-left:10px;">';
+				echo translate('immediate_child_only');
+				check_box($prefix.'[immed_child]['.count($selected_assetids).']', '1', FALSE, '', 'style="margin-left:10px;"');
+				echo '</span>';
+				
+				$map_frame_exp = trim('parent.frames["sq_sidenav"]', '.');
+				$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
+				
+				?>
+				<script type="text/javascript">
+				// insert target parent check box when clicking More button
+				var immed_child_index = <?php echo count($selected_assetids)+ 1; ?>;
+				function addParentNode(node) {
+					var new_span = document.getElementById('trigger_condition_tree_location_check_box').cloneNode(true);
+					new_span.removeAttribute('id');
+					new_span.lastChild.setAttribute('id', '<?php echo $prefix; ?>' + '[immed_child][' + immed_child_index + ']');
+					new_span.lastChild.setAttribute('name', '<?php echo $prefix; ?>' + '[immed_child][' + immed_child_index + ']');
+					node.parentNode.insertBefore(new_span, node);
+					immed_child_index = immed_child_index + 1;
+				}
+				</script>
+				<?php
+				
+				echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', \'null\', true); addParentNode(this);" style="margin-left:10px;"/>';
+				echo '<br />';
+				echo '</div>';
 			} else {
-				if ($selected_assetid) {
-					echo get_asset_tag_line($selected_assetid);
-					if ($immed_child) {
-						echo '<b> '.translate('as_an_immediate_child_only').'</b>';
+				if ($selected_assetids) {
+					foreach ($selected_assetids as $selected_assetid){
+						echo get_asset_tag_line($selected_assetid);
+						if (!empty($immed_child[$selected_assetid])) {
+							echo '<b> '.translate('as_an_immediate_child_only').'</b>';
+						}
+						echo '<br />';
 					}
 				} else {
 					echo '<b>['.translate('no_asset_selected').']</b>';
@@ -183,32 +219,28 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* @access public
 	*/
 	public static function processInterface(&$settings, $request_data)
-	{
-		if (empty($request_data) || empty($request_data['assetid']['assetid'])) {
-			return translate('triger_no_tree_location');
-		} else {
-			$assetid = $request_data['assetid']['assetid'];
+	{	
+		$settings['assetids'] = $settings['propagate'] = $settings['immed_child'] = Array();
+		$immed_child = array_get_index($request_data, 'immed_child', Array());
+		$assetids = array_get_index($request_data, 'assetids', Array());
+		foreach ($assetids as $index => $tree_location){
+			if (!empty($tree_location['assetid'])) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($tree_location['assetid'])) {
+					$settings['assetids'][] = $tree_location['assetid'];
+					if (empty($immed_child[$index])) {
+						$settings['propagate'][$tree_location['assetid']] = SQ_TRIG_TREE_PROPAGATE;
+						$settings['immed_child'][$tree_location['assetid']] = '0';
+					} else {
+						$settings['propagate'][$tree_location['assetid']] = SQ_TRIG_TREE_NO_PROPAGATE;
+						$settings['immed_child'][$tree_location['assetid']] = '1';
+					}
+				} else {
+					trigger_error(translate('selected_asset_does_not_exist'), E_USER_NOTICE);
+				}
+			}
 		}
 
-		if (empty($request_data['immed_child'])) {
-			$immed_child = '0';
-			$settings['propagate'] = SQ_TRIG_TREE_PROPAGATE;
-		} else {
-			$immed_child = '1';
-			$settings['propagate'] = SQ_TRIG_TREE_NO_PROPAGATE;
-		}
-
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-		if (!$am->assetExists($assetid)) {
-			return translate('selected_asset_does_not_exist');
-		}
-
-		$treeid = $am->getAssetTreeids($assetid);
-
-		// request_data['assetid'] contains 'assetid' and 'url' - we only want the id
-		$settings['assetid']     = $assetid;
-		$settings['immed_child'] = $immed_child;
+		if (empty($settings['assetids'])) return translate('triger_no_tree_location');
 
 		return FALSE;
 
@@ -227,9 +259,11 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	*/
 	public static function setHash(&$settings, &$hash)
 	{
-		if (isset($settings['assetid']) && isset($settings['propagate'])) {
+		if (isset($settings['assetids']) && isset($settings['propagate'])) {
 			// only use the raw tree value in the hash, generate from assetid dynamically
-			$hash->setLinkTree($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']), $settings['propagate']);
+			foreach ($settings['assetids'] as $assetid){
+				$hash->setLinkTree($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetid), $settings['propagate'][$assetid]);
+			}
 		}
 
 		return FALSE;
