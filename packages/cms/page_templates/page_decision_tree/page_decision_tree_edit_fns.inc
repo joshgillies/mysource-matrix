@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_decision_tree_edit_fns.inc,v 1.2 2012/03/09 05:50:31 mhaidar Exp $
+* $Id: page_decision_tree_edit_fns.inc,v 1.3 2012/03/12 00:59:48 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Page_Decision_Tree_Edit_Fns
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,6 +90,8 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processFirstQuestion(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		
 		$asset_finder = array_get_index($_POST, $prefix.'_first_question');
 		$new_first_id = array_get_index($asset_finder, 'assetid');
 		$existing_first = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'decision_tree_question', FALSE, 'first_question');
@@ -185,6 +187,8 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processAddQuestions(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		
 		$type   = (isset($_POST[$prefix.'question_type'])) ? $_POST[$prefix.'question_type'] : '';
 		$name = (isset($_POST[$prefix.'question_name'])) ? $_POST[$prefix.'question_name'] : '';
 		
@@ -342,7 +346,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintAddResultBodycopies(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!$asset->writeAccess('links')) return FALSE;
 		
 		$num = Array();
 		for ($i = 0; $i <= 10; $i++) {
@@ -368,6 +372,7 @@ class Page_Decision_Tree_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processAddResultBodycopies(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('links')) return FALSE;
 		
 		$to_create = (isset($_POST[$prefix.'num_bodycopies'])) ? $_POST[$prefix.'num_bodycopies'] : 0;
 		$bodycopies = $asset->getResultBodycopies();
