@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.6 2012/03/06 02:49:50 mhaidar Exp $
+* $Id: hipo_job_export_online_quiz_to_xml.inc,v 1.7 2012/03/13 00:48:34 mhaidar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -322,6 +322,11 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		
 		$output = ob_get_clean();
 		file_put_contents($this->_running_vars['export_dir'].'/export.xml', $output, FILE_APPEND | LOCK_EX);
+		
+		//Translate any left over Matrix URLs
+		$content = file_get_contents($this->_running_vars['export_dir'].'/export.xml');
+		$GLOBALS['SQ_SYSTEM']->_translateMatrixURL($content);
+		file_put_contents($this->_running_vars['export_dir'].'/export.xml', $content, LOCK_EX);
 		
 		//This piece of code just formats the XML nicely with indents. 
 		//LIBXML_NOBLANKS & LIBXML_NOEMPTYTAG balance each other out. Some flags had to be set to get the formatting to work.
