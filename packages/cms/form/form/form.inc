@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.264 2011/10/13 05:22:24 akarelia Exp $
+* $Id: form.inc,v 1.265 2012/03/13 06:02:07 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.264 $
+* @version $Revision: 1.265 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1707,6 +1707,14 @@ class Form extends Asset implements Bridge
 			}
 		}
 
+		$submission_limit = $this->attr('submission_limit');
+		// see if the submission limit is set and has reached
+		// if so display the appropiate bodycopy
+		if (is_null($action) && $submission_limit != 0 && $submission_limit <= $this->getSubmissionCount()) {
+			$this->printSubmissionLimitReachedBodycopy();
+			return;
+		}
+
 		$jump_to_page   = array_get_index($_GET, 'SQ_FORM_'.$this->id.'_PAGE', NULL);
 		$finished       = FALSE;
 
@@ -2277,7 +2285,7 @@ class Form extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function createBodycopy($name)
+	function createBodycopy($name, $content=Array())
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -2331,7 +2339,7 @@ class Form extends Asset implements Bridge
 		// to reflect that of the name
 		$name = strtolower(str_replace(' ', '_', $name));
 
-		if (!$bodycopy->create($copy_link)) {
+		if (!$bodycopy->create($copy_link, $content)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -2353,7 +2361,7 @@ class Form extends Asset implements Bridge
 	* @return object
 	* @access public
 	*/
-	function &getBodycopy($name='')
+	function &getBodycopy($name='', $link_type=SQ_LINK_TYPE_2)
 	{
 		$null = NULL;
 
@@ -2366,7 +2374,7 @@ class Form extends Asset implements Bridge
 		$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, $link_type, 'bodycopy', TRUE, $name);
 		if (empty($bodycopy_link)) return $null;
 
 		$bodycopy = $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
@@ -2597,6 +2605,15 @@ class Form extends Asset implements Bridge
 			$captcha_status = FALSE;
 		}
 
+		// first thing we need to check is if the number of submission is limited
+		// and if so see if the submission limit has been reached while this user
+		// was still filling up the form
+		$submission_limit = $this->attr('submission_limit');
+		if ($submission_limit != 0 && $submission_limit <= $this->getSubmissionCount()){
+			$error_text = $this->attr('submission_limit_reached_text');
+			$this->submission_errors = array_merge($this->submission_errors, Array($error_text));
+			$ok = FALSE;
+		}
 
 		// only display this error message if captcha error isn't displayed at current page
 		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {			
@@ -3799,7 +3816,8 @@ class Form extends Asset implements Bridge
 	/**
 	* Convert a submission stored in a session variable to an asset
 	*/
-	public function convertSubmissionCookieToAsset() {
+	public function convertSubmissionCookieToAsset() 
+	{
 		$submission_asset =& $this->createSubmission(TRUE);
 		$this->updateSubmission($submission_asset);
 
@@ -3914,6 +3932,23 @@ class Form extends Asset implements Bridge
 		return $keywords;
 
 	}//end _getPageContentsBodycopyKeywords()
+
+
+	/**
+	* Get an array of keywords for Submission Limit Reached (bodycopy)
+	*
+	* @return array
+	* @access private
+	*/
+	function _getSubmissionLimitReachedBodycopyKeywords()
+	{
+		$keywords['form_submissions_limit'] = translate('cms_form_submissions_limit');
+		$keywords['form_submissions_count'] = translate('cms_form_submissions_count');
+		$keywords['form_submissions_left']  = translate('cms_form_submissions_left');
+
+		return $keywords;
+
+	}//end _getSubmissionLimitReachedBodycopyKeywords()
 
 
 	/**
@@ -4246,6 +4281,28 @@ class Form extends Asset implements Bridge
 					$submission = $this->getSubmissionAsset();
 					if ($submission) {
 						$replacement = $submission->id;
+					}
+				break;
+
+				case 'submissions_limit':
+					$replacement = $this->attr('submission_limit');
+				break;
+
+				case 'submissions_count':
+					if ($this->attr('log_submissions')) {
+						$replacement = $this->getSubmissionCount();
+					} else {
+						$replacement = '';
+					}
+				break;
+
+				case 'submissions_left':
+					if ($this->attr('log_submissions')) {
+						$sub_limit = $this->attr('submission_limit');
+						$sub_done  = $this->getSubmissionCount();
+						$replacement = $sub_limit - $sub_done;
+					} else {
+						$replacement = '';
 					}
 				break;
 			}//end switch
@@ -5005,6 +5062,70 @@ class Form extends Asset implements Bridge
 		}//end if		
 
 	}//end _finaliseStepsActions()
+
+
+	/**
+	* Gets the (completed) submission count for this form
+	*
+	* @access public
+	* @return boolean/int
+	*/
+	function getSubmissionCount()
+	{
+		if (!$this->attr('log_submissions')) return FALSE;
+
+		$submission_folder = $this->getSubmissionsFolder();
+		if (is_null($submission_folder)) return FALSE;
+
+		$submissions = $GLOBALS['SQ_SYSTEM']->am->getChildren($submission_folder->id, 'form_submission', TRUE, NULL, NULL, NULL, TRUE, 1, 1);
+
+		return count($submissions);
+
+	}//end getSubmissionCount()
+
+
+	/**
+	* Prints the Submission limit reached bodycopy
+	*
+	* @param array	$replacements	a list of additional replacements that
+	*								subclasses can use to insert additional
+	*								keywords
+	*
+	* @return void
+	* @access public
+	*/
+	function printSubmissionLimitReachedBodycopy($replacements=Array())
+	{
+		$bodycopy = $this->getBodycopy('Submission Limit Reached');
+
+		// check to see if the bodycopy attached to this form has any content
+		if ($bodycopy && !$bodycopy->isEmpty()) {
+			$keyword_list = $bodycopy->getKeywords();
+
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					// Question and section-related keywords are found here
+					$replacement = $this->getDisplayKeywordReplacement($keyword);
+
+					if (is_null($replacement)) {
+						// If not picked up by first function, this will pick up
+						// replacements placed in separate functions - CAPTCHA,
+						// errors, for instance
+						$replacement = $this->getKeywordReplacement($keyword);
+					}
+
+					if (!is_null($replacement)) {
+						// We have something from one of the above
+						$replacements[$keyword] = $replacement;
+					}
+				}
+			}
+
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
+		} 
+
+	}//end printSubmissionLimitReachedBodycopy()
 
 
 }//end class

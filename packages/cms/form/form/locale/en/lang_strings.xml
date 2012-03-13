@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2010/09/01 01:07:35 cupreti Exp $
+* $Id: lang_strings.xml,v 1.15 2012/03/13 06:02:07 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -76,6 +76,9 @@
 <string source="cms_form_previous_page_button">Previous Page Button</string>
 <string source="cms_form_error_msg_default">There were errors submitting the form.  Please correct the marked fields and try again</string>
 <string source="cms_form_errors_message">Message indicating that there were errors</string>
+<string source="cms_form_submissions_limit">Number of submissions allowed for this form</string>
+<string source="cms_form_submissions_count">Number of submissions completed on this form</string>
+<string source="cms_form_submissions_left">Number of submissions left for this form</string>
 
 <string source="cms_form_new_mollom_question">New question to check ?</string>
 <string source="cms_form_mollom_no_question_to_check">No attributes are set be checked for spam</string>

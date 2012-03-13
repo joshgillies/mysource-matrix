@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.84 2010/09/01 01:06:34 cupreti Exp $
+* $Id: form_edit_fns.inc,v 1.85 2012/03/13 06:02:07 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1028,6 +1028,93 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('mollom_questions_to_check', $content_types);
 
 	}//end processMollomQuestionToCheck()	
+
+
+	/**
+	* Paint the interface for
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionLimit(&$asset, &$o, $prefix)
+	{
+		$submission_limit = $asset->attr('submission_limit');
+		$write_access	  = $asset->writeAccess('attributes');
+		$sub_logging	  = $asset->attr('log_submissions');
+
+		if ($sub_logging) {
+			if ($write_access) {
+				text_box($prefix.'_submission_limit', $submission_limit, 5);
+			} else {
+				echo $submission_limit;
+			}
+		} else {
+			echo "<b>This feature can be used only if the Submission logging is turned on.</b>";
+		}
+
+		return FALSE;
+
+	}//end paintSubmissionLimit()
+
+
+	/**
+	* Processes the interface for
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSubmissionLimit(&$asset, &$o, $prefix)
+	{
+		$submission_limit = $asset->attr('submission_limit');
+		$write_access = $asset->writeAccess('attributes');
+
+		$new_value = array_get_index($_REQUEST, $prefix.'_submission_limit', $submission_limit);
+
+		if ($write_access && ($submission_limit != $new_value) && $asset->attr('log_submissions')) {
+			$asset->setAttrValue('submission_limit', $new_value);
+			$asset->saveAttributes();
+
+			// now if the previous value was zero and has
+			// been changed to non-zero or vice versa
+			// we need to show hide the bodycopy for it
+			if ($submission_limit == 0 || $new_value == 0) {
+				$bc_name = 'Submission Limit Reached';
+				if ($submission_limit == 0) {
+					// show bodycopy
+					$bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_TYPE_2);
+					if (is_null($bodycopy))  $bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_NOTICE);
+					if (is_null($bodycopy)) {
+						$asset->createBodycopy($bc_name, Array('content' => 'Number of submisions allowed for this form has reached. No more submissions are allowed.'));
+					} else {
+						// bodycopy already exists but must be type 3 linked, convert
+						// the link to type 2 so that it is visible in the asset map
+						$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_NOTICE, 'folder', TRUE, NULL, 'minor');
+						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_TYPE_2, $bodycopy_link['sort_order'], $bodycopy_link['value']);
+					}
+				} else if ($new_value == 0) {
+					// hide bodycopy?
+					// simply convert the link type to type 3 so the bodycop is hidden
+					$bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_TYPE_2);
+					if (!is_null($bodycopy)) {
+						$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'folder', TRUE, NULL, 'minor');
+						$GLOBALS['SQ_SYSTEM']->am->moveLink($bodycopy_link['linkid'], $bodycopy_link['majorid'], SQ_LINK_NOTICE, $bodycopy_link['sort_order'], $bodycopy_link['value']);
+					}
+				}
+			}
+		}
+
+		return FALSE;
+
+	}//end processSubmissionLimit()
+
 
 }//end class
 ?>
