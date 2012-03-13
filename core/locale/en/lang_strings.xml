@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.410.2.1 2012/03/12 05:51:42 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.410.2.2 2012/03/13 01:05:56 mhaidar Exp $
 *
 */
 
@@ -2068,6 +2068,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_name_edit_roles">Edit Roles</string>
 	<string source="hipo_name_quick_hipo">Quick</string>
 	<string source="hipo_processing_assets">Processing Assets</string>
+	<string source="hipo_name_export_online_quiz_to_xml">Export Online Quiz to XML</string>
 
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
 	<string source="hipo_purging_trash_deleting">Deleting Assets</string>
