@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.203 2011/11/09 23:36:32 cupreti Exp $
+* $Id: backend.inc,v 1.203.2.1 2012/03/14 06:03:28 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.203.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -683,9 +683,17 @@ class Backend extends MySource_Object
 
 			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : NULL;
 			$from = time() - 28800;
+			$loading_start = time();
 			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from, NULL, NULL, Array(), 0, TRUE);
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
-
+			$loading_time = time() - $loading_start;
+			
+			// remind user to clean up internal messages if it's taking too slow to load
+			if($loading_time >= 30) {
+			    $html = $this->_getDHTMLMessage('Too slow to load messages','The Internal Messages is taking too long to load. Try running the <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/remove-internal-messages-script" target="_blank">Remove Internal Message Script</a> to clean up internal messages within your system.', 'new-message', 'stop', 48, 48);
+			    $dhtml_messages['warning_messsage'] = Array('html' =>str_replace("\n", '', $html), 'width' => '400', 'timeout' => 12.0);
+			}
+			
 			if (!empty($messages)) {
 				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
 				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
