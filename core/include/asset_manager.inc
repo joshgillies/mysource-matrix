@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.866 2012/02/29 00:36:10 cupreti Exp $
+* $Id: asset_manager.inc,v 1.867 2012/03/15 00:23:23 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.866 $
+* @version $Revision: 1.867 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8149,50 +8149,23 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
-		// find any exact matches, indicating a value set on this URL itself
-		// order by depth to produce the override value first
-		$sql_1 = 'SELECT lv.value, \'0\' as inhd, depth
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
-						ON ((l.url = lv.url)
-						OR (l.url || \'/\' = lv.url))
-				';
+		$urls = split_url($url, TRUE); //inherited layout
+		$urls[] = MatrixDAL::quote($url); //applied layout
+		$urls[] = MatrixDAL::quote($url.'/'); //override layout
+		$urls = implode(',', $urls);
+		
+		$sql = 'SELECT lv.value, lv.depth 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv';
 
-		$where_1 = 'lv.name = :value_name_1
-						AND l.url = :url_1
-				';
+		$where = 'lv.name = :value_name 
+					AND lv.url IN ( '.$urls.' )';
 
-		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'lv');
-		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'l');
-
-		// find any inherited values
-		// order by depth to produce the closest matching value first
-		$sql_2 = 'SELECT lv.value, \'1\' as inhd, depth
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
-						ON l.url = lv.url
-				';
-
-		$where_2 = 'lv.name = :value_name_2
-						AND :url_2 LIKE l.url || \'/%\'
-				';
-
-		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'lv');
-		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'l');
-
-
-		$sql_1 = $sql_1.$where_1;
-		$sql_2 = $sql_2.$where_2;
-
-		// retrieve values set on this URL first
-		$order_by = ' ORDER BY depth DESC, inhd ASC';
-
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
+		$order_by = ' ORDER BY depth DESC';
+		
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql_1.' UNION ALL '.$sql_2.$order_by);
-			MatrixDAL::bindValueToPdo($query, 'value_name_1', $value_name);
-			MatrixDAL::bindValueToPdo($query, 'value_name_2', $value_name);
-			MatrixDAL::bindValueToPdo($query, 'url_1', $url);
-			MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+			MatrixDAL::bindValueToPdo($query, 'value_name', $value_name);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get lookup value: '.$value_name.' for URL: '.$url.' due to database error: '.$e->getMessage());
