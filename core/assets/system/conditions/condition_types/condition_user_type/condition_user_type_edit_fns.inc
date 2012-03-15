@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_type_edit_fns.inc,v 1.4 2011/08/17 01:31:24 ewang Exp $
+* $Id: condition_user_type_edit_fns.inc,v 1.4.2.1 2012/03/15 05:37:18 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Condition_User_Type_Edit_Fns extends Condition_Edit_Fns
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
-					'user_types'	=> implode(', ', $_POST[$prefix]['type_list']),
+					'user_types'	=> trim(implode(', ', $_POST[$prefix]['type_list']),', '),
 				   );
 
 		return $results;
