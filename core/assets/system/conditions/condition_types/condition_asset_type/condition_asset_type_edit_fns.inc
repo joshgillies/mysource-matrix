@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_asset_type_edit_fns.inc,v 1.2 2011/08/17 01:31:24 ewang Exp $
+* $Id: condition_asset_type_edit_fns.inc,v 1.3 2012/03/15 05:31:16 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,7 +111,7 @@ class Condition_Asset_Type_Edit_Fns extends Condition_Edit_Fns
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
-					'types'	=> implode(',', $_POST[$prefix]['type_list']),
+					'types'	=> trim(implode(',', $_POST[$prefix]['type_list']),','),
 				   );
 
 		return $results;
